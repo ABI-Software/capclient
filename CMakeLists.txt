@@ -5,13 +5,15 @@ PROJECT(Cmgui)
 #ADD_DEFINITIONS(-DPERL_INTERPRETER)
 
 #how to include common.Makefile?
-SET(CMISS_ROOT /Users/jchu014/cmiss)
-SET(LIB_ARCH_DIR i386-32-darwin)
+SET(CMISS_ROOT $ENV{CMISS_ROOT})
+IF(APPLE)
+  SET(LIB_ARCH_DIR i386-32-darwin)
+#  SET(common_LIBS "-framework QuickTime -framework IOKit -framework Carbon -framework Cocoa -framework System -framework WebKit -framework OpenGL -lwxexpatd-2.8 -framework AGL -liconv")
+ENDIF(APPLE)
 SET(BUILD_VERSION cmgui-wx-debug)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 
 SET(SRCS ViewerFrame.cpp main.cpp)
-
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
 SET(ITK_LIBPATH_PREFIX -L)
@@ -47,13 +49,10 @@ ELSE(wxWidgets_FOUND)
   MESSAGE("wxWidgets not found!")
 ENDIF(wxWidgets_FOUND)
 
-
-SET(wxWidgets_LIBRARIES_TEMP /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_xrc-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_gl-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_base_carbond_xml-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_adv-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_html-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_core-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_base_carbond-2.8.a)
-
-SET(common_LIBS "-framework QuickTime -framework IOKit -framework Carbon -framework Cocoa -framework System -framework WebKit -framework OpenGL -lwxexpatd-2.8 -framework AGL -liconv")
+LIST(REMOVE_ITEM wxWidgets_LIBRARIES -lwxtiffd-2.8 -lwxjpegd-2.8 -lwxpngd-2.8 -lz -lpthread)
+message("After REMOVE_ITEM: " ${wxWidgets_LIBRARIES})
 
 ADD_EXECUTABLE(MyTest ${SRCS})
 # and for each of your dependant executable/library targets:
-TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES_TEMP} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
+TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
     ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
-
