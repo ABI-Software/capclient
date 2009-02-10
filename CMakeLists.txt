@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 2.6)
+PROJECT(Cmgui)
+#ADD_DEFINITIONS(-DCMGUI -DUNIX -DDARWIN)
+#ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
+#ADD_DEFINITIONS(-DPERL_INTERPRETER)
+
+#how to include common.Makefile?
+SET(CMISS_ROOT /Users/jchu014/cmiss)
+SET(LIB_ARCH_DIR i386-32-darwin)
+SET(BUILD_VERSION cmgui-wx-debug)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
+
+SET(SRCS ViewerFrame.cpp main.cpp)
+
+
+SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
+SET(ITK_LIBPATH_PREFIX -L)
+SET(ITK_LIB_PREFIX -l)
+SET(ITK_LIB_SUFFIX)
+SET(ITK_BIN_CONFIG_DIR)
+SET(ITK_LIB ${ITK_LIBPATH_PREFIX}${ITK_BINDIR}/bin${ITK_BIN_CONFIG_DIR} ${ITK_LIB_PREFIX}ITKAlgorithms${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKStatistics${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKBasicFilters${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKCommon${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkvnl${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkvnl_algo${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkvnl${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itknetlib${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itksys${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKDICOMParser${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkzlib${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkzlib${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itktiff${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkjpeg12${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkjpeg16${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKNrrdIO${ITK_LIB_SUFFIX})
+
+SET(IMAGEMAGICK_PATH ${CMISS_ROOT}/image_libraries)
+SET(IMAGEMAGICK_LIB ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libMagickCore.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libtiff.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libpng.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libjpeg.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libbz2.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libz.a)
+SET(IMAGEMAGICK_LIB ${IMAGEMAGICK_LIB} -L${IMAGEMAGICK_PATH}/${LIB_ARCH_DIR}/lib -lgdcmCWRAPPER -lgdcmMSFF -lgdcmDSED -lgdcmzlib -lgdcmmd5 -lgdcmDICT -lgdcmCommon -lgdcmIOD -lgdcmopenjpeg -lgdcmjpeg8 -lgdcmjpeg16 -lgdcmjpeg12 -lgdcmexpat)
+
+
+SET(INTERPRETER_PATH ${CMISS_ROOT}/perl_interpreter)
+#   INTERPRETER_DEFINES = -DPERL_INTERPRETER
+SET(INTERPRETER_LIB ${INTERPRETER_PATH}/lib/${LIB_ARCH_DIR}/libperlinterpreter.a)
+
+SET(XML2_PATH ${CMISS_ROOT}/image_libraries)
+SET(XML2_LIB ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a)
+
+SET(CMGUI_LIB ${CMISS_ROOT}/cmgui/lib/${LIB_ARCH_DIR}/${BUILD_VERSION}/libcmgui.a)
+
+FIND_PACKAGE(wxWidgets COMPONENTS core base xrc gl xml adv html) 
+IF(wxWidgets_FOUND)
+  message("including: " ${wxWidgets_USE_FILE})
+  INCLUDE(${wxWidgets_USE_FILE})
+  MESSAGE("wxWidgets found")
+  message("linking: " ${wxWidgets_LIBRARIES})
+ADD_DEFINITIONS(-DWX_USER_INTERFACE)
+ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXDEBUG__ -D__WXMAC_)
+ELSE(wxWidgets_FOUND)
+  # For convenience. When we cannot continue, inform the user
+  MESSAGE("wxWidgets not found!")
+ENDIF(wxWidgets_FOUND)
+
+
+SET(wxWidgets_LIBRARIES_TEMP /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_xrc-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_gl-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_base_carbond_xml-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_adv-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_html-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_macd_core-2.8.a /Users/jchu014/cmiss/wxWidgets-2.8.8/lib/libwx_base_carbond-2.8.a)
+
+SET(common_LIBS "-framework QuickTime -framework IOKit -framework Carbon -framework Cocoa -framework System -framework WebKit -framework OpenGL -lwxexpatd-2.8 -framework AGL -liconv")
+
+ADD_EXECUTABLE(MyTest ${SRCS})
+# and for each of your dependant executable/library targets:
+TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES_TEMP} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
+    ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
+
