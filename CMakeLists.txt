@@ -8,10 +8,10 @@ PROJECT(Cmgui)
 SET(CMISS_ROOT $ENV{CMISS_ROOT})
 IF(APPLE)
   SET(LIB_ARCH_DIR i386-32-darwin)
-#  SET(common_LIBS "-framework QuickTime -framework IOKit -framework Carbon -framework Cocoa -framework System -framework WebKit -framework OpenGL -lwxexpatd-2.8 -framework AGL -liconv")
 ENDIF(APPLE)
 SET(BUILD_VERSION cmgui-wx-debug)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
 
 SET(SRCS ViewerFrame.cpp main.cpp)
 
@@ -56,3 +56,5 @@ ADD_EXECUTABLE(MyTest ${SRCS})
 # and for each of your dependant executable/library targets:
 TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
     ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
+    
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
