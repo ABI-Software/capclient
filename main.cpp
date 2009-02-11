@@ -29,7 +29,7 @@
 #endif
 
 #include "ViewerFrame.h"
-//#include "SceneViewer.h"
+#include "DICOMImage.h"
 
 #if defined (DARWIN)
 #include <ApplicationServices/ApplicationServices.h>
@@ -48,6 +48,11 @@ extern "C" {
 #include "command/cmiss.h"
 #include "general/debug.h"
 #include "user_interface/message.h"
+
+#include "time/time_keeper.h"
+
+#include "api/cmiss_region.h"
+#include "finite_element/import_finite_element.h"
 }
 
 
@@ -129,8 +134,6 @@ chosen.
 	return (scene_viewer);
 }
 
-#include "time/time_keeper.h"
-
 int Viewer_view_all(struct Scene_viewer *scene_viewer)
 /*******************************************************************************
 LAST MODIFIED : 16 October 2001
@@ -192,8 +195,59 @@ with commands for setting these.
 	return (return_code);
 }
 
-int main(int argc,char *argv[])
+int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_name, struct Time_keeper* time_keeper, float time)
+/*******************************************************************************
+LAST MODIFIED : 23 May 2008
 
+DESCRIPTION :
+==============================================================================*/
+{
+	int return_code;
+	struct Cmiss_region *temp_region;
+	struct IO_stream_package *io_stream_package;
+	struct FE_import_time_index time_index;
+	double maximum, minimum;
+	time_index.time = time;
+
+	ENTER(Cmiss_region_read_file);
+	return_code = 0;
+	if (region && file_name && (io_stream_package=CREATE(IO_stream_package)()))
+	{
+		temp_region = Cmiss_region_create_share_globals(region);
+		if (read_exregion_file_of_name(temp_region,file_name,io_stream_package, &time_index))
+		{
+			if (Cmiss_regions_FE_regions_can_be_merged(region,temp_region))
+			{
+				return_code=Cmiss_regions_merge_FE_regions(region,temp_region);
+				if (return_code)
+				{
+					/* Increase the range of the default time keepeer and set the
+					   minimum and maximum if we set anything */
+					maximum = Time_keeper_get_maximum(time_keeper);
+					minimum = Time_keeper_get_minimum(time_keeper);
+					if (time < minimum)
+					{
+						Time_keeper_set_minimum(time_keeper, time);
+						Time_keeper_set_maximum(time_keeper, maximum);
+					}
+					if (time > maximum)
+					{
+						Time_keeper_set_minimum(time_keeper, minimum);
+						Time_keeper_set_maximum(time_keeper, time);
+					}
+				}
+			}
+		}
+
+		DEACCESS(Cmiss_region)(&temp_region);
+		DESTROY(IO_stream_package)(&io_stream_package);
+	}
+	LEAVE;
+
+	return(return_code);
+}
+
+int main(int argc,char *argv[])
 {
 	struct Cmiss_command_data *command_data;
 
@@ -228,6 +282,29 @@ int main(int argc,char *argv[])
 			return 0;
 		}
 
+		Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
+		struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
+		if (!Cmiss_region_read_file_with_time(region,"test_1.model.exnode",time_keeper,0))
+		{
+			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
+		}
+		if (!Cmiss_region_read_file(region,"GlobalHermiteParam.exelem"))
+		{
+			std::cout << "Error reading ex file - exelem" << std::endl;
+		}
+
+		for (int i = 2; i<28; i++)
+		{
+			char filename[100];
+			sprintf(filename, "test_%d.model.exnode",i);
+			float time = ((float)(i-1))/30.0f;
+			std::cout << "time = " << time << endl;
+			if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
+			{
+				std::cout << "Error reading ex file: " << string(filename) << std::endl;
+			}
+		}
+
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
 				panel,
 				CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
@@ -244,13 +321,22 @@ int main(int argc,char *argv[])
 
 		struct Scene* scene = Scene_viewer_get_scene(sceneViewer);
 
-		struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene);
+		//struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene);
 //
 		Time_keeper_play(time_keeper,TIME_KEEPER_PLAY_FORWARD);
 
 		Viewer_view_all(sceneViewer);
 
 //		Cmiss_scene_viewer_redraw_now(sceneViewer);
+
+		if (testDICOMImage("68708398"))
+		{
+			std::cout <<"Error reading DICOM header info"<<endl;
+		}
+		else
+		{
+			std::cout << "Successfully read DICOM header info" <<endl;
+		}
 
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
 		//DESTROY(Cmiss_command_data)(&command_data);
