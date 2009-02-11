@@ -53,6 +53,9 @@ extern "C" {
 
 #include "api/cmiss_region.h"
 #include "finite_element/import_finite_element.h"
+#include "api/cmiss_texture.h"
+#include "graphics/material.h"
+#include "general/manager.h"
 }
 
 
@@ -284,11 +287,11 @@ int main(int argc,char *argv[])
 
 		Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
 		struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
-		if (!Cmiss_region_read_file_with_time(region,"test_1.model.exnode",time_keeper,0))
+		if (!Cmiss_region_read_file_with_time(region,"/Users/jchu014/cmiss/api_test2/test_1.model.exnode",time_keeper,0))
 		{
 			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
 		}
-		if (!Cmiss_region_read_file(region,"GlobalHermiteParam.exelem"))
+		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/GlobalHermiteParam.exelem"))
 		{
 			std::cout << "Error reading ex file - exelem" << std::endl;
 		}
@@ -296,13 +299,110 @@ int main(int argc,char *argv[])
 		for (int i = 2; i<28; i++)
 		{
 			char filename[100];
-			sprintf(filename, "test_%d.model.exnode",i);
+			sprintf(filename, "/Users/jchu014/cmiss/api_test2/test_%d.model.exnode",i);
 			float time = ((float)(i-1))/30.0f;
-			std::cout << "time = " << time << endl;
+			//std::cout << "time = " << time << endl;
 			if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 			{
 				std::cout << "Error reading ex file: " << string(filename) << std::endl;
 			}
+		}
+
+		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/ImagePlane.exnode"))
+		{
+			std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
+		}
+		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/ImagePlane.exelem"))
+		{
+			std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
+		}
+
+		struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
+		struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
+		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
+			manager, "image_1", io_stream_package, "/Users/jchu014/cmiss/api_test2/68708398");
+		Graphical_material* material = create_Graphical_material("mat_1");
+		if (!Graphical_material_set_texture(material,texture_id))
+		{
+			//Error
+		}
+
+		GT_element_group* gt_element_group;
+		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+		if (scene)
+		{
+			std::cout << "scene found" << std::endl;
+		}
+
+		GT_element_settings* settings;
+		Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+		//Got to find the child region first!!
+		if(!Cmiss_region_get_region_from_path(root_region, "ImagePlane", &region))
+		{
+			//error
+			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+		}
+		else
+		{
+			std::cout << "root_region: " << root_region << ", region: " << region << endl;
+		}
+
+		//Following only applies when settings_name is specified using "as" in command line
+//		if (gt_element_group = Scene_get_graphical_element_group(scene, region))
+//		{
+//			if (settings = first_settings_in_GT_element_group_that(
+//				gt_element_group, GT_element_settings_has_name, (void *)""/*"surface"*/))
+//			{
+//				ACCESS(GT_element_settings)(settings);
+//			}
+//			else
+//			{
+//				std::cout << "No settings found!!" << std::endl;
+//			}
+//		}
+//		else
+//		{
+//			std::cout << "No element group found!!" << std::endl;
+//		}
+		settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
+
+//		Material_package* material_package;
+//		if (!GT_element_settings_get_material(settings))
+//		{
+//			GT_element_settings_set_material(settings,
+//					Material_package_get_default_material(material_package));
+//		}
+//		if (!GT_element_settings_get_selected_material(settings))
+//		{
+//			GT_element_settings_set_selected_material(settings,
+//				FIND_BY_IDENTIFIER_IN_MANAGER(Graphical_material,name)(
+//					"default_selected",
+//					Material_package_get_material_manager(materical_package)));
+//		}
+		//hack
+		GT_element_settings_set_selected_material(settings, material);
+
+		if(!GT_element_settings_set_material(settings, material))
+		{
+			//Error;
+		}
+		else
+		{
+			manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+			Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
+
+			GT_element_settings_set_texture_coordinate_field(settings,c_field);
+
+			int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+				struct Scene *scene, struct GT_element_settings *settings,
+				int delete_flag, int position);
+
+			 if (!Cmiss_region_modify_g_element(region, scene,settings,
+				/*delete_flag*/0, /*position*/-1))
+			 {
+				 //error
+			 }
 		}
 
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
@@ -319,7 +419,7 @@ int main(int argc,char *argv[])
 //		frame->Fit();
 //		panel->SetMinSize(wxSize(10,10));
 
-		struct Scene* scene = Scene_viewer_get_scene(sceneViewer);
+//		struct Scene* scene = Scene_viewer_get_scene(sceneViewer);
 
 		//struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene);
 //
@@ -329,14 +429,14 @@ int main(int argc,char *argv[])
 
 //		Cmiss_scene_viewer_redraw_now(sceneViewer);
 
-		if (testDICOMImage("68708398"))
-		{
-			std::cout <<"Error reading DICOM header info"<<endl;
-		}
-		else
-		{
-			std::cout << "Successfully read DICOM header info" <<endl;
-		}
+//		if (testDICOMImage("/Users/jchu014/cmiss/api_test2/68708398"))
+//		{
+//			std::cout <<"Error reading DICOM header info"<<endl;
+//		}
+//		else
+//		{
+//			std::cout << "Successfully read DICOM header info" <<endl;
+//		}
 
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
 		//DESTROY(Cmiss_command_data)(&command_data);
