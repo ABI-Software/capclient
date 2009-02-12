@@ -40,40 +40,31 @@ public:
 
 		const gdcm::DataElement& rows = ds.GetDataElement(gdcm::Tag(0x0028,0x0010));
 		const gdcm::ByteValue* value = rows.GetByteValue();
-		std::pair<std::string, std::string> s = sf.ToStringPair( rows.GetTag() );
-		std::cout << s.first << "==> " << s.second << std::endl;
-//		value->PrintHex(cout, value->GetLength());
+//		std::pair<std::string, std::string> s = sf.ToStringPair( rows.GetTag() );
+//		std::cout << s.first << "==> " << s.second << std::endl;
 		height = *(reinterpret_cast<const u_short*>((value->GetPointer()))); //Endianness??
 		cout << "Rows: " << height;
 		cout << endl;
 
 		const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
 		value = cols.GetByteValue();
-//		s = sf.ToStringPair( cols.GetTag() );
-//		std::cout << s.first << "==> " << s.second << std::endl;
-//		value->PrintHex(cout, value->GetLength());
 		width = *(reinterpret_cast<const u_short*>((value->GetPointer())));
 		cout << "Columns: " << width;
 		cout << endl;
 
 		const gdcm::DataElement& thick = ds.GetDataElement(gdcm::Tag(0x0018,0x0050));
 		value = thick.GetByteValue();
-		s = sf.ToStringPair( thick.GetTag() );
-		std::cout << s.first << "==> " << s.second << std::endl;
-		value->PrintHex(cout, value->GetLength());
 		thickness = *(reinterpret_cast<const float*>(value->GetPointer()));
-		cout << ": " << thickness;
-		cout << endl;
 
-		cout << "Thic: " << ds.GetDataElement(gdcm::Tag(0x0018,0x0050)) << endl;
+//		cout << "Thic: " << ds.GetDataElement(gdcm::Tag(0x0018,0x0050)) << endl;
 		cout << "Posi: " << ds.GetDataElement(gdcm::Tag(0x0020,0x0032)) << endl;
 		cout << "Orie: " << ds.GetDataElement(gdcm::Tag(0x0020,0x0037)) << endl;
-		cout << "Spac: " << ds.GetDataElement(gdcm::Tag(0x0028,0x0030)) << endl;
+//		cout << "Spac: " << ds.GetDataElement(gdcm::Tag(0x0028,0x0030)) << endl;
 
 		const gdcm::DataElement& pos = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
-		value = pos.GetByteValue();
-		value->PrintHex(cout, value->GetLength());
-		cout << endl;
+//		value = pos.GetByteValue();
+//		value->PrintHex(cout, value->GetLength());
+//		cout << endl;
 		//const float* ptr = reinterpret_cast<const float*>(value->GetPointer());
 		gdcm::Attribute<0x0020,0x0032> at;
 		at.SetFromDataElement(pos);
@@ -82,18 +73,7 @@ public:
 		floats[4] = *ptr++;
 		floats[5] = *ptr;
 
-//		if (3 != sscanf((char *)ptr, "%f\\%f\\%f", floats+3, floats+4, floats+5)) //easy but c way
-//		{
-//			//error
-//		}
-//		std::istringstream in(string((char*)ptr)); //c++ but no easy way to use '\' as delimiter
-//		in >> floats[3] >> floats[4] >> floats[5];
-
-
-
 		const gdcm::DataElement& ori = ds.GetDataElement(gdcm::Tag(0x0020,0x0037));
-		//value = ori.GetByteValue();
-		//ptr = reinterpret_cast<const float*>(value->GetPointer());
 		gdcm::Attribute<0x0020,0x0037> at_ori;
 		at_ori.SetFromDataElement(ori);
 		ptr = at_ori.GetValues();
@@ -112,12 +92,11 @@ public:
 		ptr = at_spc.GetValues();
 		pixelSizeX = *ptr++;
 		pixelSizeY = *ptr;
-		//see CIM planes_handler.cpp for constructing plane out of these values
 
-		for (int i=3;i<12;i++)
-		{
-			cout << floats[i] <<endl;
-		}
+//		for (int i=3;i<12;i++)
+//		{
+//			cout << floats[i] <<endl;
+//		}
 	};
 
 	int getOrientation();
@@ -263,6 +242,11 @@ int testDICOMImage(const string& filename)
 struct Point3D
 {
 	float x,y,z;
+	Point3D(float x_, float y_, float z_)
+	: x(x_),y(y_),z(z_)
+	{};
+	Point3D()
+	{};
 	friend std::ostream& operator<<(std::ostream &_os, const Point3D &val);
 };
 
@@ -321,20 +305,21 @@ ImagePlane* getImagePlaneFromDICOMHeaderInfo(const string& filename)
 	DICOMImage image(filename);
 
 	int width = image.width, height = image.height;
-    int imageSize = std::max<u_int>(width,height);
-    cout << "imageSize: " << imageSize << endl;
+    //int imageSize = std::max<u_int>(width,height);
+    //cout << "imageSize: " << imageSize << endl;
     float* floats = image.floats;
 
 	//pixelSizeX = (data->imagesSubsampled[se][sl]) ?
 	//(floats[12]*2.0) : floats[12];
-	int pixelSizeX = image.pixelSizeX;
+	float pixelSizeX = image.pixelSizeX;
+	float pixelSizeY = image.pixelSizeY;
 
 	ImagePlane* plane = new ImagePlane();
     //plane = data->plane[se][sl];
-	plane->imageSize = imageSize;
+	//plane->imageSize = imageSize;
 
-	int fieldOfView = pixelSizeX * (float)(imageSize);
-	cout << "fieldOfView: " << fieldOfView << endl;
+	//float fieldOfView = pixelSizeX * (float)(imageSize);
+	//cout << "fieldOfView: " << fieldOfView << endl;
 
 	// JGB - 2007/12/05 - plane's tlc starts from the edge of the first voxel
 	// rather than centre; (0020, 0032) is the centre of the first voxel
@@ -343,23 +328,33 @@ ImagePlane* getImagePlaneFromDICOMHeaderInfo(const string& filename)
 	tlcey = floats[4] - pixelSizeX * (0.5f*floats[7] + 0.5f*floats[10]);
 	tlcez = floats[5] - pixelSizeX * (0.5f*floats[8] + 0.5f*floats[11]);
 
-	plane->tlc.x = tlcex - pixelSizeX * (
-	0.5*(imageSize - width) * floats[6]
-	+ 0.5*(imageSize - height) * floats[9]);
-	plane->tlc.y = tlcey - pixelSizeX * (
-	0.5*(imageSize - width) * floats[7]
-	+ 0.5*(imageSize - height) * floats[10]);
-	plane->tlc.z = tlcez - pixelSizeX * (
-	0.5*(imageSize - width) * floats[8]
-	+ 0.5*(imageSize - height) * floats[11]);
+//	plane->tlc.x = tlcex - pixelSizeX * (
+//	0.5*(imageSize - width) * floats[6]
+//	+ 0.5*(imageSize - height) * floats[9]);
+//	plane->tlc.y = tlcey - pixelSizeX * (
+//	0.5*(imageSize - width) * floats[7]
+//	+ 0.5*(imageSize - height) * floats[10]);
+//	plane->tlc.z = tlcez - pixelSizeX * (
+//	0.5*(imageSize - width) * floats[8]
+//	+ 0.5*(imageSize - height) * floats[11]);
 
-	plane->trc.x = plane->tlc.x + fieldOfView*floats[6];
-	plane->trc.y = plane->tlc.y + fieldOfView*floats[7];
-	plane->trc.z = plane->tlc.z + fieldOfView*floats[8];
+	plane->tlc.x = tlcex;
+	plane->tlc.y = tlcey;
+	plane->tlc.z = tlcez;
 
-	plane->blc.x = plane->tlc.x + fieldOfView*floats[9];
-	plane->blc.y = plane->tlc.y + fieldOfView*floats[10];
-	plane->blc.z = plane->tlc.z + fieldOfView*floats[11];
+	float fieldOfViewX = width * pixelSizeX;//JDCHUNG consider name change
+	cout << "width in mm = " << fieldOfViewX ;
+
+	plane->trc.x = plane->tlc.x + fieldOfViewX*floats[6];
+	plane->trc.y = plane->tlc.y + fieldOfViewX*floats[7];
+	plane->trc.z = plane->tlc.z + fieldOfViewX*floats[8];
+
+	float fieldOfViewY = height * pixelSizeY;//JDCHUNG
+	cout << ", height in mm = " << fieldOfViewY << endl ;
+
+	plane->blc.x = plane->tlc.x + fieldOfViewY*floats[9];
+	plane->blc.y = plane->tlc.y + fieldOfViewY*floats[10];
+	plane->blc.z = plane->tlc.z + fieldOfViewY*floats[11];
 
 	FIND_VECTOR(plane->xside, plane->tlc, plane->trc);
 	FIND_VECTOR(plane->yside, plane->blc, plane->tlc);
