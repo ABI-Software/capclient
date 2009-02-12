@@ -56,6 +56,7 @@ extern "C" {
 #include "api/cmiss_texture.h"
 #include "graphics/material.h"
 #include "general/manager.h"
+#include "finite_element/finite_element.h"
 }
 
 
@@ -250,6 +251,8 @@ DESCRIPTION :
 	return(return_code);
 }
 
+
+
 int main(int argc,char *argv[])
 {
 	struct Cmiss_command_data *command_data;
@@ -261,21 +264,12 @@ int main(int argc,char *argv[])
 	TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
 #endif
 
-//	initCmgui();
 	if (command_data = create_Cmiss_command_data(argc, argv, "0,0"))
 	{
-
-//		wxEntry(argc, argv); // wxEntryStart() + CallOnInit() + OnRun();
-		// note wxEntryStart has already been invoked while creating user_interface
-
-//		wxCmguiApp &app = wxGetApp();
-//		app.CallOnInit(); //create main frame
-//		app.OnRun();
 
 		ViewerFrame *frame = new ViewerFrame(
 			   wxT("Test Viewer"), 100, 100, 600, 600);
 		frame->Show(TRUE);
-//		wxGetApp().SetTopWindow(frame);
 
 		wxPanel *panel = frame->getPanel();
 
@@ -287,11 +281,15 @@ int main(int argc,char *argv[])
 
 		Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
 		struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
-		if (!Cmiss_region_read_file_with_time(region,"/Users/jchu014/cmiss/api_test2/test_1.model.exnode",time_keeper,0))
+		if (!Cmiss_region_read_file_with_time(region,"/Users/jchu014/cmiss/api_test2/Data/test_1.model.exnode",time_keeper,0))
 		{
 			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
 		}
-		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/GlobalHermiteParam.exelem"))
+//		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/test_1.model.exnode"))
+//		{
+//			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
+//		}
+		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/GlobalHermiteParam.exelem"))
 		{
 			std::cout << "Error reading ex file - exelem" << std::endl;
 		}
@@ -299,7 +297,7 @@ int main(int argc,char *argv[])
 		for (int i = 2; i<28; i++)
 		{
 			char filename[100];
-			sprintf(filename, "/Users/jchu014/cmiss/api_test2/test_%d.model.exnode",i);
+			sprintf(filename, "/Users/jchu014/cmiss/api_test2/Data/test_%d.model.exnode",i);
 			float time = ((float)(i-1))/30.0f;
 			//std::cout << "time = " << time << endl;
 			if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
@@ -308,11 +306,11 @@ int main(int argc,char *argv[])
 			}
 		}
 
-		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/ImagePlane.exnode"))
+		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/ImagePlane.exnode"))
 		{
 			std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
 		}
-		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/ImagePlane.exelem"))
+		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/ImagePlane.exelem"))
 		{
 			std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
 		}
@@ -320,7 +318,7 @@ int main(int argc,char *argv[])
 		struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
 		struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
 		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-			manager, "image_1", io_stream_package, "/Users/jchu014/cmiss/api_test2/68708398");
+			manager, "image_1", io_stream_package, "/Users/jchu014/cmiss/api_test2/Data/68708398");
 		Graphical_material* material = create_Graphical_material("mat_1");
 		if (!Graphical_material_set_texture(material,texture_id))
 		{
@@ -332,7 +330,7 @@ int main(int argc,char *argv[])
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 		if (scene)
 		{
-			std::cout << "scene found" << std::endl;
+//			std::cout << "scene found" << std::endl;
 		}
 
 		GT_element_settings* settings;
@@ -345,7 +343,7 @@ int main(int argc,char *argv[])
 		}
 		else
 		{
-			std::cout << "root_region: " << root_region << ", region: " << region << endl;
+//			std::cout << "root_region: " << root_region << ", region: " << region << endl;
 		}
 
 		//Following only applies when settings_name is specified using "as" in command line
@@ -405,6 +403,58 @@ int main(int argc,char *argv[])
 			 }
 		}
 
+		// Now get the necessary info from the DICOM header
+		ImagePlane* plane = getImagePlaneFromDICOMHeaderInfo("/Users/jchu014/cmiss/api_test2/Data/68708398");
+
+		if (!plane)
+		{
+			cout << "ERROR !! plane is null"<<endl;
+		}
+		else
+		{
+			cout << plane->tlc << endl;
+		}
+
+		Cmiss_node* node = Cmiss_region_get_node(region, "81");
+		if (node) {
+			FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
+		}
+		else
+		{
+			cout << "81!!!!!" << endl;
+		}
+
+		if (node = Cmiss_region_get_node(region, "82"))
+		{
+			FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
+		}
+		else
+		{
+			cout << "82!!!!!" << endl;
+		}
+
+		if (node = Cmiss_region_get_node(region, "83"))
+		{
+			FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
+		}
+		else
+		{
+			cout << "83!!!!!" << endl;
+		}
+
+		if (node = Cmiss_region_get_node(region, "84"))
+		{
+			FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
+		}
+		else
+		{
+			cout << "84!!!!!" << endl;
+		}
+
+
+
+
+
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
 				panel,
 				CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
@@ -421,15 +471,15 @@ int main(int argc,char *argv[])
 
 //		struct Scene* scene = Scene_viewer_get_scene(sceneViewer);
 
-		//struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene);
-//
+		//struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene); // get it directly from command_data instead
+
 		Time_keeper_play(time_keeper,TIME_KEEPER_PLAY_FORWARD);
 
 		Viewer_view_all(sceneViewer);
 
 //		Cmiss_scene_viewer_redraw_now(sceneViewer);
 
-//		if (testDICOMImage("/Users/jchu014/cmiss/api_test2/68708398"))
+//		if (testDICOMImage("/Users/jchu014/cmiss/api_test2/Data/68708398"))
 //		{
 //			std::cout <<"Error reading DICOM header info"<<endl;
 //		}
