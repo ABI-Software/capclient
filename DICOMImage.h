@@ -375,5 +375,6 @@ ImagePlane* getImagePlaneFromDICOMHeaderInfo(const string& filename)
 	std::cout << plane->brc << endl;
 	std::cout << plane->blc << endl;
 
+	return plane;
 }
 #endif /* DICOMIMAGE_H_ */
