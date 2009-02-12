@@ -251,7 +251,146 @@ DESCRIPTION :
 	return(return_code);
 }
 
+void loadImagePlane(const string& name, Cmiss_command_data* command_data)
+{
+	char filename[256];
+	const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/";
+	sprintf(filename, "%s%s.exnode", prefix, name.c_str());
 
+	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
+	if (!Cmiss_region_read_file(region,filename))
+	{
+		std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
+	}
+	sprintf(filename, "%s%s.exelem", prefix, name.c_str());
+	if (!Cmiss_region_read_file(region,filename))
+	{
+		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
+	}
+
+	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
+	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
+
+	sprintf(filename, "%s%s/%s", prefix, name.c_str(), name.c_str()); // HACK FIX
+	Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
+		manager, name.c_str(), io_stream_package, filename);
+	Graphical_material* material = create_Graphical_material(name.c_str());
+	if (!Graphical_material_set_texture(material,texture_id))
+	{
+		//Error
+		cout << "Error: Graphical_material_set_texture()" << endl;
+	}
+
+	GT_element_group* gt_element_group;
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	if (!scene)
+	{
+		cout << "Can't find scene" << endl;
+	}
+
+	GT_element_settings* settings;
+	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	//Got to find the child region first!!
+	if(!Cmiss_region_get_region_from_path(root_region, name.c_str(), &region))
+	{
+		//error
+		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+	}
+
+	settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
+	//hack
+	GT_element_settings_set_selected_material(settings, material);
+
+	if(!GT_element_settings_set_material(settings, material))
+	{
+		//Error;
+	}
+	else
+	{
+		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
+
+		GT_element_settings_set_texture_coordinate_field(settings,c_field);
+
+		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+			struct Scene *scene, struct GT_element_settings *settings,
+			int delete_flag, int position);
+
+		 if (!Cmiss_region_modify_g_element(region, scene,settings,
+			/*delete_flag*/0, /*position*/-1))
+		 {
+			 //error
+		 }
+	}
+
+	// Now get the necessary info from the DICOM header
+	//string DICOMFilename("/Users/jchu014/cmiss/api_test2/Data/68708398");
+	ImagePlane* plane = getImagePlaneFromDICOMHeaderInfo(filename);
+
+	if (!plane)
+	{
+		cout << "ERROR !! plane is null"<<endl;
+	}
+	else
+	{
+		cout << plane->tlc << endl;
+	}
+
+	int nodeNum = 81; // HACK
+	if (name=="SA4")
+	{
+		nodeNum += 500;
+	}
+	else if (name =="LA1")
+	{
+		nodeNum += 1100;
+	}
+
+	char nodeName[256];
+	sprintf(nodeName,"%d", nodeNum);
+	Cmiss_node* node = Cmiss_region_get_node(region, nodeName);
+	if (node) {
+		FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
+	}
+	else
+	{
+		cout << nodeName << endl;
+	}
+
+	nodeNum++;
+	sprintf(nodeName,"%d", nodeNum);
+	if (node = Cmiss_region_get_node(region, nodeName))
+	{
+		FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
+	}
+	else
+	{
+		cout << nodeName << endl;
+	}
+
+	nodeNum++;
+	sprintf(nodeName,"%d", nodeNum);
+	if (node = Cmiss_region_get_node(region, nodeName))
+	{
+		FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
+	}
+	else
+	{
+		cout << nodeName << endl;
+	}
+
+	nodeNum++;
+	sprintf(nodeName,"%d", nodeNum);
+	if (node = Cmiss_region_get_node(region, nodeName))
+	{
+		FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
+	}
+	else
+	{
+		cout << nodeName << endl;
+	}
+}
 
 int main(int argc,char *argv[])
 {
@@ -285,10 +424,6 @@ int main(int argc,char *argv[])
 		{
 			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
 		}
-//		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/test_1.model.exnode"))
-//		{
-//			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
-//		}
 		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/GlobalHermiteParam.exelem"))
 		{
 			std::cout << "Error reading ex file - exelem" << std::endl;
@@ -306,6 +441,11 @@ int main(int argc,char *argv[])
 			}
 		}
 
+		loadImagePlane("SA1", command_data);
+		loadImagePlane("SA4", command_data);
+		loadImagePlane("LA1", command_data);
+
+#ifdef TEXTURE_TEST
 		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/ImagePlane.exnode"))
 		{
 			std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
@@ -450,10 +590,7 @@ int main(int argc,char *argv[])
 		{
 			cout << "84!!!!!" << endl;
 		}
-
-
-
-
+#endif //TEXTURE_TEST
 
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
 				panel,
@@ -466,27 +603,13 @@ int main(int argc,char *argv[])
 		panel->GetContainingSizer()->SetMinSize(600, 600);
 		panel->GetContainingSizer()->SetDimension(-1, -1, 600, 600);
 		frame->GetSizer()->SetSizeHints(frame);
-//		frame->Fit();
-//		panel->SetMinSize(wxSize(10,10));
 
 //		struct Scene* scene = Scene_viewer_get_scene(sceneViewer);
-
 		//struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene); // get it directly from command_data instead
 
 		Time_keeper_play(time_keeper,TIME_KEEPER_PLAY_FORWARD);
 
 		Viewer_view_all(sceneViewer);
-
-//		Cmiss_scene_viewer_redraw_now(sceneViewer);
-
-//		if (testDICOMImage("/Users/jchu014/cmiss/api_test2/Data/68708398"))
-//		{
-//			std::cout <<"Error reading DICOM header info"<<endl;
-//		}
-//		else
-//		{
-//			std::cout << "Successfully read DICOM header info" <<endl;
-//		}
 
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
 		//DESTROY(Cmiss_command_data)(&command_data);
