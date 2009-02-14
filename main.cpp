@@ -57,8 +57,14 @@ extern "C" {
 #include "graphics/material.h"
 #include "general/manager.h"
 #include "finite_element/finite_element.h"
+#include "time/time.h"
+#include "user_interface/event_dispatcher.h"
 }
 
+// should go to cmiss.h
+struct Material_package* Cmiss_command_data_get_material_package(
+	struct Cmiss_command_data *command_data
+);
 
 Cmiss_scene_viewer_id create_Cmiss_scene_viewer_wx(
 	struct Cmiss_scene_viewer_package *cmiss_scene_viewer_package,
@@ -274,6 +280,23 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 	sprintf(filename, "%s%s/%s", prefix, name.c_str(), name.c_str()); // HACK FIX
 	Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
 		manager, name.c_str(), io_stream_package, filename);
+	
+#define ADJUST_BRIGHTNESS
+#ifdef ADJUST_BRIGHTNESS
+//	gfx define field tex sample_texture coordinates xi texture LA1;
+	
+//	gfx define field rescaled_tex rescale_intensity_filter field tex output_min 0 output_max 1;
+//	gfx cre spectrum monochrome clear;
+//	gfx modify spectrum monochrome linear range 0 1 extend_above extend_below monochrome colour_range 0 1 ambient diffuse component 1;
+//	#create a texture using the rescaled sample_texture field
+//	gfx create texture tract linear;
+//	gfx modify texture tract width 1 height 1 distortion 0 0 0 colour 0 0 0 alpha 0 decal linear_filter resize_nearest_filter clamp_wrap specify_number_of_bytes 2 evaluate field rescaled_tex element_group LA1 spectrum monochrome texture_coordinate xi fail_material transparent_gray50;
+//
+//	# create a material containing the texture so that we can select along
+//	# with appropriate texture coordinates to visualise the 3D image
+//	gfx create material tract texture tract
+#endif //ADJUST_BRIGHTNESS
+	
 	Graphical_material* material = create_Graphical_material(name.c_str());
 	if (!Graphical_material_set_texture(material,texture_id))
 	{
@@ -281,6 +304,9 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 		cout << "Error: Graphical_material_set_texture()" << endl;
 	}
 
+	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
+	Material_package_manage_material(material_package, material);
+	
 	GT_element_group* gt_element_group;
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
@@ -314,7 +340,7 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 
 		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
 			struct Scene *scene, struct GT_element_settings *settings,
-			int delete_flag, int position);
+			int delete_flag, int position);  // should add this to a header file somewhere
 
 		 if (!Cmiss_region_modify_g_element(region, scene,settings,
 			/*delete_flag*/0, /*position*/-1))
@@ -350,28 +376,7 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 	sprintf(nodeName,"%d", nodeNum);
 	Cmiss_node* node = Cmiss_region_get_node(region, nodeName);
 	if (node) {
-		FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
-	}
-	else
-	{
-		cout << nodeName << endl;
-	}
-
-	nodeNum++;
-	sprintf(nodeName,"%d", nodeNum);
-	if (node = Cmiss_region_get_node(region, nodeName))
-	{
-		FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
-	}
-	else
-	{
-		cout << nodeName << endl;
-	}
-
-	nodeNum++;
-	sprintf(nodeName,"%d", nodeNum);
-	if (node = Cmiss_region_get_node(region, nodeName))
-	{
+//		FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
 		FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
 	}
 	else
@@ -383,12 +388,216 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 	sprintf(nodeName,"%d", nodeNum);
 	if (node = Cmiss_region_get_node(region, nodeName))
 	{
+//		FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
 		FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
 	}
 	else
 	{
 		cout << nodeName << endl;
 	}
+
+	nodeNum++;
+	sprintf(nodeName,"%d", nodeNum);
+	if (node = Cmiss_region_get_node(region, nodeName))
+	{
+//		FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
+		FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
+	}
+	else
+	{
+		cout << nodeName << endl;
+	}
+
+	nodeNum++;
+	sprintf(nodeName,"%d", nodeNum);
+	if (node = Cmiss_region_get_node(region, nodeName))
+	{
+//		FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
+		FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
+	}
+	else
+	{
+		cout << nodeName << endl;
+	}
+}
+
+int time_callback(struct Time_object *time, double current_time, void *user_data)
+{
+//	cout << "TIME!!! = " << current_time << endl;
+	
+	return 1;
+}
+
+Cmiss_texture** texture_animation_prepare(Cmiss_command_data* command_data)
+{
+	char* names[] = 
+	{
+		"68704743", 
+		"68704758", 
+		"68704773", 
+		"68704788", 
+		"68704803", 
+		"68704818", 
+		"68704833", 
+		"68704848", 
+		"68704863", 
+		"68704878", 
+		"68704893", 
+		"68704908", 
+		"68704923", 
+		"68704938", 
+		"68704953", 
+		"68704968", 
+		"68704983", 
+		"68704998", 
+		"68705013", 
+		"68705028",
+		"68705043", 
+		"68705058", 
+		"68705073", 
+		"68705088", 
+		"68705103", 
+		"68705118", 
+		"68705133", 
+		"68705148"
+	};
+	
+	Cmiss_texture** tex = new Cmiss_texture*[28];
+	Cmiss_texture** pptr = tex;
+	
+	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
+	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
+
+	char filename[256];
+	const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/LA1/";
+	for (int i = 0; i < 28; i++)
+	{
+		sprintf(filename, "%s%s", prefix,  names[i]); // HACK FIX
+		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
+			manager, names[i], io_stream_package, filename);
+		*pptr = texture_id;
+		pptr++;
+	}
+	
+	return tex;
+}
+
+struct HackyDataType
+{
+	Cmiss_texture** tex;
+	Cmiss_command_data* command_data;
+};
+
+int texture_animation(void* data)
+{
+	static double prev_time = 0;
+	double time;
+	
+	Cmiss_texture** tex = ((HackyDataType*)data)->tex;
+	Cmiss_command_data* command_data = ((HackyDataType*)data)->command_data;
+	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	if (Scene_object* scene_object=Scene_get_Scene_object_by_name(scene,"heart"))
+	{
+		time = Scene_object_get_time(scene_object);
+	
+		if(prev_time == time)
+		{
+			return 1;
+		}
+	}
+	else
+	{
+		cout <<"-_-" <<endl;
+		return 0;
+	}
+	prev_time = time;
+
+	int index = (time * 28)-1;
+	if (index==-1)
+	{
+		index = 27;
+	}
+
+	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
+	MANAGER(Graphical_material)* mm = Material_package_get_material_manager(material_package);
+	
+	//Graphical_material* material = FIND_BY_IDENTIFIER_IN_LIST(Graphical_material, name)
+	//									("LA1", struct LIST(Graphical_material));
+	
+	Graphical_material* material;
+	if (material=FIND_BY_IDENTIFIER_IN_MANAGER(Graphical_material,
+								name)("LA1",mm))
+	{
+		if (!Graphical_material_set_texture(material,*(tex + index)))
+		{
+			//Error
+			cout << "Error: Graphical_material_set_texture()" << endl;
+		}
+		
+	}
+	else
+	{
+		cout << "Error: cant find material" << endl;
+	}
+	
+	GT_element_group* gt_element_group;
+
+	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	//Got to find the child region first!!
+	Cmiss_region* region;
+	if(!Cmiss_region_get_region_from_path(root_region, "LA1", &region))
+	{
+		//error
+		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+	}
+
+	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
+	//hack
+	GT_element_settings_set_selected_material(settings, material);
+
+	if(!GT_element_settings_set_material(settings, material))
+	{
+		//Error;
+	}
+	else
+	{
+		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
+
+		GT_element_settings_set_texture_coordinate_field(settings,c_field);
+
+		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+			struct Scene *scene, struct GT_element_settings *settings,
+			int delete_flag, int position);  // should add this to a header file somewhere
+
+		 if (!Cmiss_region_modify_g_element(region, scene,settings,
+			/*delete_flag*/0, /*position*/-1))
+		 {
+			 //error
+		 }
+	}
+	return 1;
+}
+
+int idle_callback(void* user_data)
+{
+	Scene_object* tk = (Scene_object*)user_data;
+	
+	static double prev_time;
+	double time = Scene_object_get_time(tk);
+	
+	if(prev_time == time)
+	{
+		return 1;
+	}
+	
+	//cout << time << endl;
+	prev_time = time;
+//	static int count = 0;
+//	cout << "my count: " << count ++ <<endl;
+	return 1;
 }
 
 int main(int argc,char *argv[])
@@ -428,11 +637,11 @@ int main(int argc,char *argv[])
 			std::cout << "Error reading ex file - exelem" << std::endl;
 		}
 
-		for (int i = 2; i<28; i++)
+		for (int i = 2; i<29; i++)
 		{
 			char filename[100];
 			sprintf(filename, "/Users/jchu014/cmiss/api_test2/Data/test_%d.model.exnode",i);
-			float time = ((float)(i-1))/30.0f;
+			float time = ((float)(i-1))/28.0f;
 			//std::cout << "time = " << time << endl;
 			if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 			{
@@ -448,6 +657,8 @@ int main(int argc,char *argv[])
 		// ij jj kj  0    *  translation
 		// ik jk kk  0
 		//  0  0  0  1
+		// from http://physics.usask.ca/~chang/phys323/notes/lecture1.pdf
+
 		Point3D i(1,0,0), j(0,1,0), k(0,0,1);
 		Point3D i_hat(0.614465, -0.714418, -0.334724), j_hat( -0.442694, -0.663401, 0.603259),
 			k_hat(-0.653035, -0.222501, -0.723905);
@@ -488,16 +699,16 @@ int main(int argc,char *argv[])
 		transformation_matrix[3][2]=temp[3][2];
 		transformation_matrix[3][3]=1;
 
+		Scene_object* scene_object;
 		if (scene_object_name)
 		{
 			Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 			struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-			if (Scene_object* scene_object=Scene_get_Scene_object_by_name(scene,
+			if (scene_object=Scene_get_Scene_object_by_name(scene,
 				scene_object_name))
 			{
-				Scene_object_remove_time_dependent_transformation(scene_object);
-				Scene_object_set_transformation(scene_object,
-					&transformation_matrix);
+				//Scene_object_remove_time_dependent_transformation(scene_object);//??????? Why need time dependent transformation??
+				Scene_object_set_transformation(scene_object, &transformation_matrix);
 			}
 			else
 			{
@@ -512,7 +723,28 @@ int main(int argc,char *argv[])
 		loadImagePlane("SA1", command_data);
 		loadImagePlane("SA4", command_data);
 		loadImagePlane("LA1", command_data);
-
+		
+		Time_object* time_object = create_Time_object("test");
+		Time_object_add_callback(time_object,time_callback, 0);
+		Time_object_set_time_keeper(time_object, time_keeper);
+//		Time_object_set_update_frequency(time_object, 0.5);
+		
+		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
+		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);
+		
+		//Event_dispatcher_add_idle_callback(ed, idle_callback, (void*)scene_object, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
+		
+		Cmiss_texture** tex = texture_animation_prepare(command_data);
+		HackyDataType hacky_data;
+		hacky_data.command_data = command_data;
+		hacky_data.tex = tex;
+		Event_dispatcher_add_idle_callback(ed, texture_animation, (void*)&hacky_data, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
+		
+		Time_object* time = Scene_object_get_time_object(scene_object);
+		Time_object_set_update_frequency(time, 28);
+		
+		
+		
 #ifdef TEXTURE_TEST
 		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/ImagePlane.exnode"))
 		{
@@ -676,6 +908,8 @@ int main(int argc,char *argv[])
 		//struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene); // get it directly from command_data instead
 
 		Time_keeper_play(time_keeper,TIME_KEEPER_PLAY_FORWARD);
+		Time_keeper_set_play_loop(time_keeper);
+		Time_keeper_set_play_every_frame(time_keeper);
 
 		Viewer_view_all(sceneViewer);
 
