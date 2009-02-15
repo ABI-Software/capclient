@@ -433,13 +433,6 @@ void transformImagePlane(const string& filename, const string& name, Cmiss_comma
 	}
 }
 
-int time_callback(struct Time_object *time, double current_time, void *user_data)
-{
-//	cout << "TIME!!! = " << current_time << endl;
-	
-	return 1;
-}
-
 Cmiss_texture** loadTextureImagesAndTransformImagePlane(Cmiss_command_data* command_data, const string& dir_path)
 {
 	FileSystem fs(dir_path);
@@ -577,22 +570,88 @@ int texture_animation(void* data)
 	return 1;
 }
 
-int idle_callback(void* user_data)
+int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
-	Scene_object* tk = (Scene_object*)user_data;
-	
-	static double prev_time;
-	double time = Scene_object_get_time(tk);
-	
-	if(prev_time == time)
+//	cout << "TIME!!! = " << current_time << endl;
+
+	HackyDataType* args = ((HackyDataType*)user_data);
+	vector<Cmiss_texture**>& vector_of_tex = args->vector_of_tex;
+	Cmiss_command_data* command_data = args->command_data;
+	vector<string>& slice_names = args->sliceNames;
+
+	int index = (current_time * 28)-1;
+	if (index==-1)
 	{
-		return 1;
+		index = 27;
 	}
 	
-	//cout << time << endl;
-	prev_time = time;
-//	static int count = 0;
-//	cout << "my count: " << count ++ <<endl;
+	vector<string>::iterator iter = slice_names.begin();
+	vector<string>::iterator end = slice_names.end();
+	
+	for (int i = 0;iter != end; ++iter, i++)
+	{
+		string& slice_name = *iter;
+		Cmiss_texture** tex= vector_of_tex[i];
+		
+		Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
+		MANAGER(Graphical_material)* mm = Material_package_get_material_manager(material_package);
+		
+		Graphical_material* material;
+		if (material=FIND_BY_IDENTIFIER_IN_MANAGER(Graphical_material,
+									name)(slice_name.c_str(),mm))
+		{
+			if (!Graphical_material_set_texture(material,*(tex + index)))
+			{
+				//Error
+				cout << "Error: Graphical_material_set_texture()" << endl;
+			}
+			
+		}
+		else
+		{
+			cout << "Error: cant find material" << endl;
+		}
+		
+		GT_element_group* gt_element_group;
+	
+		Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+		//Got to find the child region first!!
+		Cmiss_region* region;
+		if(!Cmiss_region_get_region_from_path(root_region, slice_name.c_str(), &region))
+		{
+			//error
+			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+		}
+	
+		GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
+		//hack
+		GT_element_settings_set_selected_material(settings, material);
+	
+		if(!GT_element_settings_set_material(settings, material))
+		{
+			//Error;
+		}
+		else
+		{
+			manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+			Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
+	
+			GT_element_settings_set_texture_coordinate_field(settings,c_field);
+	
+			Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+			struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+			
+			int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+				struct Scene *scene, struct GT_element_settings *settings,
+				int delete_flag, int position);  // should add this to a header file somewhere
+	
+			 if (!Cmiss_region_modify_g_element(region, scene,settings,
+				/*delete_flag*/0, /*position*/-1))
+			 {
+				 //error
+			 }
+		}
+	}
 	return 1;
 }
 
@@ -740,19 +799,19 @@ int main(int argc,char *argv[])
 		hacky_data.vector_of_tex = vector_of_tex;
 		hacky_data.sliceNames = sliceNames;
 		
-		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
-		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);		
-		//Event_dispatcher_add_idle_callback(ed, idle_callback, (void*)scene_object, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);		
-		Event_dispatcher_add_idle_callback(ed, texture_animation, (void*)&hacky_data, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
-					
-		Time_object* time = Scene_object_get_time_object(scene_object);
-		Time_object_set_update_frequency(time, 28);
+//		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
+//		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);		
+//		Event_dispatcher_add_idle_callback(ed, texture_animation, (void*)&hacky_data, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
+//					
+//		Time_object* time = Scene_object_get_time_object(scene_object);
+//		Time_object_set_update_frequency(time, 28);
 		
+#define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-		Time_object* time_object = create_Time_object("test");
-		Time_object_add_callback(time_object,time_callback, 0);
+		Time_object* time_object = create_Time_object("Texture_animation_timer");
+		Time_object_add_callback(time_object,time_callback,(void*)&hacky_data);
 		Time_object_set_time_keeper(time_object, time_keeper);
-//		Time_object_set_update_frequency(time_object, 0.5);
+		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
 #endif		
 
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
