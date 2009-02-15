@@ -14,7 +14,11 @@ SET(BUILD_VERSION cmgui-wx-debug)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
 
-SET(SRCS ViewerFrame.cpp main.cpp)
+SET(SRCS 
+ViewerFrame.cpp
+main.cpp
+Filesystem.cpp
+)
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
 SET(ITK_LIBPATH_PREFIX -L)

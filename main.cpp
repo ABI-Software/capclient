@@ -30,6 +30,7 @@
 
 #include "ViewerFrame.h"
 #include "DICOMImage.h"
+#include "FileSystem.h"
 
 #if defined (DARWIN)
 #include <ApplicationServices/ApplicationServices.h>
@@ -724,16 +725,22 @@ int main(int argc,char *argv[])
 		loadImagePlane("SA4", command_data);
 		loadImagePlane("LA1", command_data);
 		
+		FileSystem fs("/Users/jchu014/cmiss/api_test2/Data/LA1");
+		
+#ifdef TIME_OBJECT_CALLBACK_TEST
 		Time_object* time_object = create_Time_object("test");
 		Time_object_add_callback(time_object,time_callback, 0);
 		Time_object_set_time_keeper(time_object, time_keeper);
 //		Time_object_set_update_frequency(time_object, 0.5);
-		
+#endif
+
+#define TEXTURE_ANIMATION
+#ifdef TEXTURE_ANIMATION
 		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
 		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);
 		
 		//Event_dispatcher_add_idle_callback(ed, idle_callback, (void*)scene_object, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
-		
+
 		Cmiss_texture** tex = texture_animation_prepare(command_data);
 		HackyDataType hacky_data;
 		hacky_data.command_data = command_data;
@@ -742,8 +749,7 @@ int main(int argc,char *argv[])
 		
 		Time_object* time = Scene_object_get_time_object(scene_object);
 		Time_object_set_update_frequency(time, 28);
-		
-		
+#endif
 		
 #ifdef TEXTURE_TEST
 		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/ImagePlane.exnode"))
