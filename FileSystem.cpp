@@ -24,8 +24,13 @@ FileSystem::FileSystem(const string& path)
 	else
 	{
 		while ((ent = readdir(dir)) != 0) {
-			cout << "Filename - " << ent->d_name <<endl;
-			filenames.push_back(ent->d_name);
+			string filename(ent->d_name);
+			if (filename != "." &&
+					filename != "..")
+			{
+				cout << "Filename - " << ent->d_name <<endl;
+				filenames.push_back(ent->d_name);
+			}
 		}
 		
 		closedir(dir);

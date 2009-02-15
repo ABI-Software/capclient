@@ -62,6 +62,8 @@ extern "C" {
 #include "user_interface/event_dispatcher.h"
 }
 
+static const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/";
+
 // should go to cmiss.h
 struct Material_package* Cmiss_command_data_get_material_package(
 	struct Cmiss_command_data *command_data
@@ -261,7 +263,6 @@ DESCRIPTION :
 void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 {
 	char filename[256];
-	const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/";
 	sprintf(filename, "%s%s.exnode", prefix, name.c_str());
 
 	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
@@ -275,12 +276,12 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
 	}
 
-	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
-	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
-
-	sprintf(filename, "%s%s/%s", prefix, name.c_str(), name.c_str()); // HACK FIX
-	Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-		manager, name.c_str(), io_stream_package, filename);
+//	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
+//	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
+//
+//	sprintf(filename, "%s%s/%s", prefix, name.c_str(), name.c_str()); // HACK FIX
+//	Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
+//		manager, name.c_str(), io_stream_package, filename);
 	
 #define ADJUST_BRIGHTNESS
 #ifdef ADJUST_BRIGHTNESS
@@ -299,11 +300,11 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 #endif //ADJUST_BRIGHTNESS
 	
 	Graphical_material* material = create_Graphical_material(name.c_str());
-	if (!Graphical_material_set_texture(material,texture_id))
-	{
-		//Error
-		cout << "Error: Graphical_material_set_texture()" << endl;
-	}
+//	if (!Graphical_material_set_texture(material,texture_id))
+//	{
+//		//Error
+//		cout << "Error: Graphical_material_set_texture()" << endl;
+//	}
 
 	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
 	Material_package_manage_material(material_package, material);
@@ -350,6 +351,11 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 		 }
 	}
 
+	return;
+}
+
+void transformImagePlane(const string& filename, const string& name, Cmiss_command_data* command_data)
+{
 	// Now get the necessary info from the DICOM header
 	//string DICOMFilename("/Users/jchu014/cmiss/api_test2/Data/68708398");
 	ImagePlane* plane = getImagePlaneFromDICOMHeaderInfo(filename);
@@ -373,11 +379,19 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 		nodeNum += 1100;
 	}
 
+	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	//Got to find the child region first!!
+	Cmiss_region* region;
+	if(!Cmiss_region_get_region_from_path(root_region, name.c_str(), &region))
+	{
+		//error
+		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+	}
+	
 	char nodeName[256];
 	sprintf(nodeName,"%d", nodeNum);
 	Cmiss_node* node = Cmiss_region_get_node(region, nodeName);
 	if (node) {
-//		FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
 		FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
 	}
 	else
@@ -389,7 +403,6 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 	sprintf(nodeName,"%d", nodeNum);
 	if (node = Cmiss_region_get_node(region, nodeName))
 	{
-//		FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
 		FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
 	}
 	else
@@ -401,7 +414,6 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 	sprintf(nodeName,"%d", nodeNum);
 	if (node = Cmiss_region_get_node(region, nodeName))
 	{
-//		FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
 		FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
 	}
 	else
@@ -413,7 +425,6 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 	sprintf(nodeName,"%d", nodeNum);
 	if (node = Cmiss_region_get_node(region, nodeName))
 	{
-//		FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
 		FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
 	}
 	else
@@ -429,39 +440,11 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 	return 1;
 }
 
-Cmiss_texture** texture_animation_prepare(Cmiss_command_data* command_data)
+Cmiss_texture** loadTextureImagesAndTransformImagePlane(Cmiss_command_data* command_data, const string& dir_path)
 {
-	char* names[] = 
-	{
-		"68704743", 
-		"68704758", 
-		"68704773", 
-		"68704788", 
-		"68704803", 
-		"68704818", 
-		"68704833", 
-		"68704848", 
-		"68704863", 
-		"68704878", 
-		"68704893", 
-		"68704908", 
-		"68704923", 
-		"68704938", 
-		"68704953", 
-		"68704968", 
-		"68704983", 
-		"68704998", 
-		"68705013", 
-		"68705028",
-		"68705043", 
-		"68705058", 
-		"68705073", 
-		"68705088", 
-		"68705103", 
-		"68705118", 
-		"68705133", 
-		"68705148"
-	};
+	FileSystem fs(dir_path);
+	
+	vector<string> filenames = fs.getAllFileNames();
 	
 	Cmiss_texture** tex = new Cmiss_texture*[28];
 	Cmiss_texture** pptr = tex;
@@ -470,15 +453,18 @@ Cmiss_texture** texture_animation_prepare(Cmiss_command_data* command_data)
 	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
 
 	char filename[256];
-	const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/LA1/";
+
 	for (int i = 0; i < 28; i++)
 	{
-		sprintf(filename, "%s%s", prefix,  names[i]); // HACK FIX
+		sprintf(filename, "%s/%s", dir_path.c_str(),  filenames[i].c_str()); 
 		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-			manager, names[i], io_stream_package, filename);
+			manager, filenames[i].c_str(), io_stream_package, filename);
 		*pptr = texture_id;
 		pptr++;
 	}
+	
+	int len = dir_path.length();
+	transformImagePlane(filename, dir_path.substr(len-3,3), command_data);
 	
 	return tex;
 }
@@ -725,178 +711,28 @@ int main(int argc,char *argv[])
 		loadImagePlane("SA4", command_data);
 		loadImagePlane("LA1", command_data);
 		
-		FileSystem fs("/Users/jchu014/cmiss/api_test2/Data/LA1");
-		
-#ifdef TIME_OBJECT_CALLBACK_TEST
-		Time_object* time_object = create_Time_object("test");
-		Time_object_add_callback(time_object,time_callback, 0);
-		Time_object_set_time_keeper(time_object, time_keeper);
-//		Time_object_set_update_frequency(time_object, 0.5);
-#endif
-
 #define TEXTURE_ANIMATION
 #ifdef TEXTURE_ANIMATION
-		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
-		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);
-		
-		//Event_dispatcher_add_idle_callback(ed, idle_callback, (void*)scene_object, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
-
-		Cmiss_texture** tex = texture_animation_prepare(command_data);
+		Cmiss_texture** tex = loadTextureImagesAndTransformImagePlane(command_data,"/Users/jchu014/cmiss/api_test2/Data/LA1");
 		HackyDataType hacky_data;
 		hacky_data.command_data = command_data;
 		hacky_data.tex = tex;
+		
+		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
+		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);		
+		//Event_dispatcher_add_idle_callback(ed, idle_callback, (void*)scene_object, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);		
 		Event_dispatcher_add_idle_callback(ed, texture_animation, (void*)&hacky_data, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
 		
 		Time_object* time = Scene_object_get_time_object(scene_object);
 		Time_object_set_update_frequency(time, 28);
 #endif
 		
-#ifdef TEXTURE_TEST
-		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/ImagePlane.exnode"))
-		{
-			std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
-		}
-		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/ImagePlane.exelem"))
-		{
-			std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
-		}
-
-		struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
-		struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
-		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-			manager, "image_1", io_stream_package, "/Users/jchu014/cmiss/api_test2/Data/68708398");
-		Graphical_material* material = create_Graphical_material("mat_1");
-		if (!Graphical_material_set_texture(material,texture_id))
-		{
-			//Error
-		}
-
-		GT_element_group* gt_element_group;
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
-		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-		if (scene)
-		{
-//			std::cout << "scene found" << std::endl;
-		}
-
-		GT_element_settings* settings;
-		Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
-		//Got to find the child region first!!
-		if(!Cmiss_region_get_region_from_path(root_region, "ImagePlane", &region))
-		{
-			//error
-			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
-		}
-		else
-		{
-//			std::cout << "root_region: " << root_region << ", region: " << region << endl;
-		}
-
-		//Following only applies when settings_name is specified using "as" in command line
-//		if (gt_element_group = Scene_get_graphical_element_group(scene, region))
-//		{
-//			if (settings = first_settings_in_GT_element_group_that(
-//				gt_element_group, GT_element_settings_has_name, (void *)""/*"surface"*/))
-//			{
-//				ACCESS(GT_element_settings)(settings);
-//			}
-//			else
-//			{
-//				std::cout << "No settings found!!" << std::endl;
-//			}
-//		}
-//		else
-//		{
-//			std::cout << "No element group found!!" << std::endl;
-//		}
-		settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-
-//		Material_package* material_package;
-//		if (!GT_element_settings_get_material(settings))
-//		{
-//			GT_element_settings_set_material(settings,
-//					Material_package_get_default_material(material_package));
-//		}
-//		if (!GT_element_settings_get_selected_material(settings))
-//		{
-//			GT_element_settings_set_selected_material(settings,
-//				FIND_BY_IDENTIFIER_IN_MANAGER(Graphical_material,name)(
-//					"default_selected",
-//					Material_package_get_material_manager(materical_package)));
-//		}
-		//hack
-		GT_element_settings_set_selected_material(settings, material);
-
-		if(!GT_element_settings_set_material(settings, material))
-		{
-			//Error;
-		}
-		else
-		{
-			manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
-			Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-
-			GT_element_settings_set_texture_coordinate_field(settings,c_field);
-
-			int Cmiss_region_modify_g_element(struct Cmiss_region *region,
-				struct Scene *scene, struct GT_element_settings *settings,
-				int delete_flag, int position);
-
-			 if (!Cmiss_region_modify_g_element(region, scene,settings,
-				/*delete_flag*/0, /*position*/-1))
-			 {
-				 //error
-			 }
-		}
-
-		// Now get the necessary info from the DICOM header
-		ImagePlane* plane = getImagePlaneFromDICOMHeaderInfo("/Users/jchu014/cmiss/api_test2/Data/68708398");
-
-		if (!plane)
-		{
-			cout << "ERROR !! plane is null"<<endl;
-		}
-		else
-		{
-			cout << plane->tlc << endl;
-		}
-
-		Cmiss_node* node = Cmiss_region_get_node(region, "81");
-		if (node) {
-			FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
-		}
-		else
-		{
-			cout << "81!!!!!" << endl;
-		}
-
-		if (node = Cmiss_region_get_node(region, "82"))
-		{
-			FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
-		}
-		else
-		{
-			cout << "82!!!!!" << endl;
-		}
-
-		if (node = Cmiss_region_get_node(region, "83"))
-		{
-			FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
-		}
-		else
-		{
-			cout << "83!!!!!" << endl;
-		}
-
-		if (node = Cmiss_region_get_node(region, "84"))
-		{
-			FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
-		}
-		else
-		{
-			cout << "84!!!!!" << endl;
-		}
-#endif //TEXTURE_TEST
+#ifdef TIME_OBJECT_CALLBACK_TEST
+		Time_object* time_object = create_Time_object("test");
+		Time_object_add_callback(time_object,time_callback, 0);
+		Time_object_set_time_keeper(time_object, time_keeper);
+//		Time_object_set_update_frequency(time_object, 0.5);
+#endif		
 
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
 				panel,
