@@ -471,8 +471,9 @@ Cmiss_texture** loadTextureImagesAndTransformImagePlane(Cmiss_command_data* comm
 
 struct HackyDataType
 {
-	Cmiss_texture** tex;
+	vector<Cmiss_texture**> vector_of_tex;
 	Cmiss_command_data* command_data;
+	vector<string> sliceNames;
 };
 
 int texture_animation(void* data)
@@ -480,8 +481,10 @@ int texture_animation(void* data)
 	static double prev_time = 0;
 	double time;
 	
-	Cmiss_texture** tex = ((HackyDataType*)data)->tex;
-	Cmiss_command_data* command_data = ((HackyDataType*)data)->command_data;
+	HackyDataType* args = ((HackyDataType*)data);
+	vector<Cmiss_texture**>& vector_of_tex = args->vector_of_tex;
+	Cmiss_command_data* command_data = args->command_data;
+	vector<string>& slice_names = args->sliceNames;
 	
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
@@ -507,63 +510,69 @@ int texture_animation(void* data)
 		index = 27;
 	}
 
-	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
-	MANAGER(Graphical_material)* mm = Material_package_get_material_manager(material_package);
+	vector<string>::iterator iter = slice_names.begin();
+	vector<string>::iterator end = slice_names.end();
 	
-	//Graphical_material* material = FIND_BY_IDENTIFIER_IN_LIST(Graphical_material, name)
-	//									("LA1", struct LIST(Graphical_material));
-	
-	Graphical_material* material;
-	if (material=FIND_BY_IDENTIFIER_IN_MANAGER(Graphical_material,
-								name)("LA1",mm))
+	for (int i = 0;iter != end; ++iter, i++)
 	{
-		if (!Graphical_material_set_texture(material,*(tex + index)))
+		string& slice_name = *iter;
+		Cmiss_texture** tex= vector_of_tex[i];
+		
+		Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
+		MANAGER(Graphical_material)* mm = Material_package_get_material_manager(material_package);
+		
+		Graphical_material* material;
+		if (material=FIND_BY_IDENTIFIER_IN_MANAGER(Graphical_material,
+									name)(slice_name.c_str(),mm))
 		{
-			//Error
-			cout << "Error: Graphical_material_set_texture()" << endl;
+			if (!Graphical_material_set_texture(material,*(tex + index)))
+			{
+				//Error
+				cout << "Error: Graphical_material_set_texture()" << endl;
+			}
+			
+		}
+		else
+		{
+			cout << "Error: cant find material" << endl;
 		}
 		
-	}
-	else
-	{
-		cout << "Error: cant find material" << endl;
-	}
+		GT_element_group* gt_element_group;
 	
-	GT_element_group* gt_element_group;
-
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
-	//Got to find the child region first!!
-	Cmiss_region* region;
-	if(!Cmiss_region_get_region_from_path(root_region, "LA1", &region))
-	{
-		//error
-		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
-	}
-
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	//hack
-	GT_element_settings_set_selected_material(settings, material);
-
-	if(!GT_element_settings_set_material(settings, material))
-	{
-		//Error;
-	}
-	else
-	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
-		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-
-		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-
-		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
-			struct Scene *scene, struct GT_element_settings *settings,
-			int delete_flag, int position);  // should add this to a header file somewhere
-
-		 if (!Cmiss_region_modify_g_element(region, scene,settings,
-			/*delete_flag*/0, /*position*/-1))
-		 {
-			 //error
-		 }
+		Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+		//Got to find the child region first!!
+		Cmiss_region* region;
+		if(!Cmiss_region_get_region_from_path(root_region, slice_name.c_str(), &region))
+		{
+			//error
+			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+		}
+	
+		GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
+		//hack
+		GT_element_settings_set_selected_material(settings, material);
+	
+		if(!GT_element_settings_set_material(settings, material))
+		{
+			//Error;
+		}
+		else
+		{
+			manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+			Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
+	
+			GT_element_settings_set_texture_coordinate_field(settings,c_field);
+	
+			int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+				struct Scene *scene, struct GT_element_settings *settings,
+				int delete_flag, int position);  // should add this to a header file somewhere
+	
+			 if (!Cmiss_region_modify_g_element(region, scene,settings,
+				/*delete_flag*/0, /*position*/-1))
+			 {
+				 //error
+			 }
+		}
 	}
 	return 1;
 }
@@ -707,25 +716,37 @@ int main(int argc,char *argv[])
 			display_message(ERROR_MESSAGE,"Missing graphics object name");
 		}
 
-		loadImagePlane("SA1", command_data);
-		loadImagePlane("SA4", command_data);
-		loadImagePlane("LA1", command_data);
+		vector<string> sliceNames;
+		sliceNames.push_back("SA1");
+		sliceNames.push_back("SA4");
+		sliceNames.push_back("LA1");
+		vector<Cmiss_texture**> vector_of_tex;
 		
-#define TEXTURE_ANIMATION
-#ifdef TEXTURE_ANIMATION
-		Cmiss_texture** tex = loadTextureImagesAndTransformImagePlane(command_data,"/Users/jchu014/cmiss/api_test2/Data/LA1");
+		vector<string>::iterator itr = sliceNames.begin();
+		for (;itr != sliceNames.end();++itr)
+		{
+			string& name = *itr;
+			string dir_path(prefix);
+			dir_path.append(name);
+			
+			loadImagePlane(name, command_data);
+			
+			Cmiss_texture** tex = loadTextureImagesAndTransformImagePlane(command_data,dir_path);
+			vector_of_tex.push_back(tex);
+		}
+		
 		HackyDataType hacky_data;
 		hacky_data.command_data = command_data;
-		hacky_data.tex = tex;
+		hacky_data.vector_of_tex = vector_of_tex;
+		hacky_data.sliceNames = sliceNames;
 		
 		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
 		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);		
 		//Event_dispatcher_add_idle_callback(ed, idle_callback, (void*)scene_object, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);		
 		Event_dispatcher_add_idle_callback(ed, texture_animation, (void*)&hacky_data, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
-		
+					
 		Time_object* time = Scene_object_get_time_object(scene_object);
 		Time_object_set_update_frequency(time, 28);
-#endif
 		
 #ifdef TIME_OBJECT_CALLBACK_TEST
 		Time_object* time_object = create_Time_object("test");
