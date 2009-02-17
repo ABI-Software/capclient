@@ -4,11 +4,16 @@
 #ifndef WX_PRECOMP
     #include "wx/wx.h"
 #endif
+
+#include "wx/xrc/xmlres.h"
 #include "ViewerFrame.h"
 
 ViewerFrame::ViewerFrame(const wxChar *title, int xpos, int ypos, int width, int height)
-    : wxFrame((wxFrame *) NULL, -1, title, wxPoint(xpos, ypos), wxSize(width, height)), m_pPanel(new wxPanel(this))
+    //: wxFrame((wxFrame *) NULL, -1, title, wxPoint(xpos, ypos), wxSize(width, height))//, m_pPanel(new wxPanel(this))
 {
+	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
+	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
+#ifdef OLD
 //  m_pTextCtrl = new wxTextCtrl(this, -1, wxT("Type some text..."),
 //                             wxDefaultPosition,  wxDefaultSize, wxTE_MULTILINE);
   //m_pPanel = new wxPanel(this);// -1, wxDefaultPosition,  wxDefaultSize)
@@ -21,7 +26,7 @@ ViewerFrame::ViewerFrame(const wxChar *title, int xpos, int ypos, int width, int
   // the frame
   mainSizer->Add(m_pPanel, 1, wxEXPAND);
 
-
+#ifdef DEL
   m_pMenuBar = new wxMenuBar();
   // File Menu
   m_pFileMenu = new wxMenu();
@@ -36,10 +41,11 @@ ViewerFrame::ViewerFrame(const wxChar *title, int xpos, int ypos, int width, int
   m_pMenuBar->Append(m_pHelpMenu, _T("&Help"));
 
   SetMenuBar(m_pMenuBar);
-
+#endif
   CreateStatusBar(3);
   SetStatusText(wxT("Ready"), 0);
   //Layout();
+#endif
 }
 
 ViewerFrame::~ViewerFrame()
