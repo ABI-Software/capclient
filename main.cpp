@@ -460,9 +460,11 @@ int main(int argc,char *argv[])
 	{
 
 		wxXmlResource::Get()->Load("ViewerFrame.xrc");
-		ViewerFrame *frame = new ViewerFrame(
-			   wxT("Test Viewer"), 100, 100, 600, 600);
-		//ViewerFrame *frame = wxXmlResource::Get()->LoadFrame((wxWindow *)NULL, _T("ViewerFrame"));
+#ifdef HARD_CODED_GUI
+//		ViewerFrame *frame = new ViewerFrame(
+//			   wxT("Test Viewer"), 100, 100, 600, 600);
+#endif
+		ViewerFrame *frame = new ViewerFrame(command_data);
 		frame->Show(TRUE);
 
 		wxPanel *panel = frame->getPanel();
@@ -623,19 +625,19 @@ int main(int argc,char *argv[])
 				/*minimum_depth_buffer_depth*/8,
 				/*minimum_accumulation_buffer_depth*/8);
 
+//#define HARD_CODED_GUI
 #ifdef HARD_CODED_GUI
 		panel->GetContainingSizer()->SetMinSize(600, 600);
 		panel->GetContainingSizer()->SetDimension(-1, -1, 600, 600);
-		frame->GetSizer()->SetSizeHints(frame);
-#endif
-		
+		frame->GetSizer()->SetSizeHints(frame);		
 //		struct Scene* scene = Scene_viewer_get_scene(sceneViewer);
 		//struct Time_keeper* time_keeper = Scene_get_default_time_keeper(scene); // get it directly from command_data instead
 
 		Time_keeper_play(time_keeper,TIME_KEEPER_PLAY_FORWARD);
 		Time_keeper_set_play_loop(time_keeper);
 		Time_keeper_set_play_every_frame(time_keeper);
-
+#endif 
+		
 		Cmiss_scene_viewer_view_all(sceneViewer);
 		
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
