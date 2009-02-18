@@ -1,5 +1,5 @@
-#define UNIX
-#define DARWIN
+//#define UNIX
+//#define DARWIN
 
 #include "wx/wxprec.h"
 
@@ -49,6 +49,12 @@ using namespace std;
 
 static const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/";
 
+struct Material_package* Cmiss_command_data_get_material_package(
+	struct Cmiss_command_data *command_data
+)
+{
+	return 0;
+}
 
 void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 {
@@ -72,11 +78,11 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 //	sprintf(filename, "%s%s/%s", prefix, name.c_str(), name.c_str()); // HACK FIX
 //	Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
 //		manager, name.c_str(), io_stream_package, filename);
-	
+
 #define ADJUST_BRIGHTNESS
 #ifdef ADJUST_BRIGHTNESS
 //	gfx define field tex sample_texture coordinates xi texture LA1;
-	
+
 //	gfx define field rescaled_tex rescale_intensity_filter field tex output_min 0 output_max 1;
 //	gfx cre spectrum monochrome clear;
 //	gfx modify spectrum monochrome linear range 0 1 extend_above extend_below monochrome colour_range 0 1 ambient diffuse component 1;
@@ -88,7 +94,7 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 //	# with appropriate texture coordinates to visualise the 3D image
 //	gfx create material tract texture tract
 #endif //ADJUST_BRIGHTNESS
-	
+
 	Graphical_material* material = create_Graphical_material(name.c_str());
 //	if (!Graphical_material_set_texture(material,texture_id))
 //	{
@@ -98,7 +104,7 @@ void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 
 	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
 	Material_package_manage_material(material_package, material);
-	
+
 	GT_element_group* gt_element_group;
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
@@ -179,7 +185,7 @@ void transformImagePlane(const string& filename, const string& name, Cmiss_comma
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
 	}
-	
+
 	char nodeName[256];
 	sprintf(nodeName,"%d", nodeNum);
 	Cmiss_node* node = Cmiss_region_get_node(region, nodeName);
@@ -228,12 +234,12 @@ void transformImagePlane(const string& filename, const string& name, Cmiss_comma
 Cmiss_texture** loadTextureImagesAndTransformImagePlane(Cmiss_command_data* command_data, const string& dir_path)
 {
 	FileSystem fs(dir_path);
-	
+
 	vector<string> filenames = fs.getAllFileNames();
-	
+
 	Cmiss_texture** tex = new Cmiss_texture*[28];
 	Cmiss_texture** pptr = tex;
-	
+
 	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
 	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
 
@@ -241,16 +247,16 @@ Cmiss_texture** loadTextureImagesAndTransformImagePlane(Cmiss_command_data* comm
 
 	for (int i = 0; i < 28; i++)
 	{
-		sprintf(filename, "%s/%s", dir_path.c_str(),  filenames[i].c_str()); 
+		sprintf(filename, "%s/%s", dir_path.c_str(),  filenames[i].c_str());
 		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
 			manager, filenames[i].c_str(), io_stream_package, filename);
 		*pptr = texture_id;
 		pptr++;
 	}
-	
+
 	int len = dir_path.length();
 	transformImagePlane(filename, dir_path.substr(len-3,3), command_data);
-	
+
 	return tex;
 }
 
@@ -270,23 +276,23 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 	Cmiss_command_data* command_data = args->command_data;
 	vector<string>& slice_names = args->sliceNames;
 
-	int index = (current_time * 28)-1;
+	int index = static_cast<int>((current_time * 28))-1;
 	if (index==-1)
 	{
 		index = 27;
 	}
-	
+
 	vector<string>::const_iterator iter = slice_names.begin();
 	vector<string>::const_iterator end = slice_names.end();
-	
+
 	for (int i = 0;iter != end; ++iter, i++)
 	{
 		const string& slice_name = *iter;
 		Cmiss_texture** tex= vector_of_tex[i];
-		
+
 		Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
 		MANAGER(Graphical_material)* mm = Material_package_get_material_manager(material_package);
-		
+
 		Graphical_material* material;
 		if (material=FIND_BY_IDENTIFIER_IN_MANAGER(Graphical_material,
 									name)(slice_name.c_str(),mm))
@@ -296,15 +302,15 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 				//Error
 				cout << "Error: Graphical_material_set_texture()" << endl;
 			}
-			
+
 		}
 		else
 		{
 			cout << "Error: cant find material" << endl;
 		}
-		
+
 		GT_element_group* gt_element_group;
-	
+
 		Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
 		//Got to find the child region first!!
 		Cmiss_region* region;
@@ -313,11 +319,11 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 			//error
 			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
 		}
-	
+
 		GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
 		//hack
 		GT_element_settings_set_selected_material(settings, material);
-	
+
 		if(!GT_element_settings_set_material(settings, material))
 		{
 			//Error;
@@ -326,16 +332,16 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 		{
 			manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
 			Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-	
+
 			GT_element_settings_set_texture_coordinate_field(settings,c_field);
-	
+
 			Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 			struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-			
+
 			int Cmiss_region_modify_g_element(struct Cmiss_region *region,
 				struct Scene *scene, struct GT_element_settings *settings,
 				int delete_flag, int position);  // should add this to a header file somewhere
-	
+
 			 if (!Cmiss_region_modify_g_element(region, scene,settings,
 				/*delete_flag*/0, /*position*/-1))
 			 {
@@ -473,11 +479,11 @@ int main(int argc,char *argv[])
 		{
 			display_message(ERROR_MESSAGE,"Missing graphics object name");
 		}
-		
+
 		Time_object* time = Scene_object_get_time_object(scene_object);
 //		Time_object_set_update_frequency(time, 5);
-#endif HEART_ANIMATION
-		
+#endif //HEART_ANIMATION
+
 #define TEXTURE_ANIMATION
 #ifdef TEXTURE_ANIMATION
 		vector<string> sliceNames;
@@ -485,39 +491,39 @@ int main(int argc,char *argv[])
 		sliceNames.push_back("SA4");
 		sliceNames.push_back("LA1");
 		vector<Cmiss_texture**> vector_of_tex;
-		
+
 		vector<string>::const_iterator itr = sliceNames.begin();
 		for (;itr != sliceNames.end();++itr)
 		{
 			const string& name = *itr;
 			string dir_path(prefix);
 			dir_path.append(name);
-			
+
 			loadImagePlane(name, command_data);
-			
+
 			Cmiss_texture** tex = loadTextureImagesAndTransformImagePlane(command_data,dir_path);
 			vector_of_tex.push_back(tex);
 		}
-		
+
 		HackyDataType hacky_data;
 		hacky_data.command_data = command_data;
 		hacky_data.vector_of_tex = vector_of_tex;
 		hacky_data.sliceNames = sliceNames;
-		
+
 //		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
-//		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);		
+//		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);
 //		Event_dispatcher_add_idle_callback(ed, texture_animation, (void*)&hacky_data, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
-		
+
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
 		Time_object* time_object = create_Time_object("Texture_animation_timer");
 		Time_object_add_callback(time_object,time_callback,(void*)&hacky_data);
 		Time_object_set_time_keeper(time_object, time_keeper);
-		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
-#endif		
+		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27
+#endif
 
 #endif
-		
+
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
 				panel,
 				CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
@@ -540,7 +546,7 @@ int main(int argc,char *argv[])
 #endif 
 		
 		Cmiss_scene_viewer_view_all(sceneViewer);
-		
+
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
 		//DESTROY(Cmiss_command_data)(&command_data);
 		return 1;
