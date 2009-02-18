@@ -76,8 +76,12 @@ private:
 	ImagePlane* plane;
 };
 
-class ImageSlice
+class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. node and element)
 {
+public:
+	void setTime(double time); //actually switch the texture in the material if applicable.
+	void transformImagePlane(); //need region& nodenumber
+private:
 	std::string sliceName;
 	unsigned int sliceNumber;
 	unsigned int numberOfFrames;
@@ -86,7 +90,7 @@ class ImageSlice
 
 class ImageGroup // a bunch of image slices i.e LA & SA
 {
-	unsigned int numberOfImageSlices; //redendant?
+	unsigned int numberOfImageSlices; //Redundant?
 	std::vector<ImageSlice*> imageSlices;
 	std::string groupName; //either SA or LA
 };
@@ -123,12 +127,25 @@ public:
 
 //#include <algorithm>
 
-#define FIND_VECTOR(ans, from, to) \
-(ans).x = (to).x - (from).x; \
-(ans).y = (to).y - (from).y; \
-(ans).z = (to).z - (from).z
+//#define FIND_VECTOR(ans, from, to) \
+//(ans).x = (to).x - (from).x; \
+//(ans).y = (to).y - (from).y; \
+//(ans).z = (to).z - (from).z
 
-#define DOT(a,b) ( (a).x*(b).x + (a).y*(b).y + (a).z*(b).z )
+template <typename T>
+inline void FIND_VECTOR(T& ans, T& from, T& to)
+{
+	ans.x = to.x - from.x;
+	ans.y = to.y - from.y;
+	ans.z = to.z - from.z;
+}
+
+//#define DOT(a,b) ( (a).x*(b).x + (a).y*(b).y + (a).z*(b).z )
+template <typename T>
+inline float DOT(T& a, T& b)
+{
+	return a.x*b.x + a.y*b.y + a.z*b.z;
+}
 
 #define CROSS_PRODUCT(ans, vec1, vec2) \
 (ans).x = (vec1).y*(vec2).z - (vec1).z*(vec2).y; \

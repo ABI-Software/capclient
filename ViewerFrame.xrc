@@ -17,7 +17,6 @@
                     <orientation>vertical</orientation>
                     <object class="wxPanel" name="window_1_pane_1">
                         <style>wxTAB_TRAVERSAL</style>
-                        <size>800, 763</size>
                         <object class="wxBoxSizer">
                             <orient>wxVERTICAL</orient>
                             <object class="sizeritem">
