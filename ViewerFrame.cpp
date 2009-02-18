@@ -22,6 +22,8 @@ ViewerFrame::ViewerFrame(const wxChar *title, int xpos, int ypos, int width, int
 	m_pPanel->GetContainingSizer()->SetMinSize(600, 600);
 	m_pPanel->GetContainingSizer()->SetDimension(-1, -1, 600, 600);
 	this->GetSizer()->SetSizeHints(this);
+	this->Fit();
+	
 #ifdef OLD
 //  m_pTextCtrl = new wxTextCtrl(this, -1, wxT("Type some text..."),
 //                             wxDefaultPosition,  wxDefaultSize, wxTE_MULTILINE);

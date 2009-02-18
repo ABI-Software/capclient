@@ -148,7 +148,9 @@ void transformImagePlane(const string& filename, const string& name, Cmiss_comma
 {
 	// Now get the necessary info from the DICOM header
 	//string DICOMFilename("/Users/jchu014/cmiss/api_test2/Data/68708398");
-	ImagePlane* plane = getImagePlaneFromDICOMHeaderInfo(filename);
+	DICOMImage dicomImage(filename);
+	ImagePlane* plane = dicomImage.getImagePlaneFromDICOMHeaderInfo();
+	//ImagePlane* plane = getImagePlaneFromDICOMHeaderInfo(filename);
 
 	if (!plane)
 	{
@@ -574,10 +576,10 @@ int main(int argc,char *argv[])
 		}
 		
 		Time_object* time = Scene_object_get_time_object(scene_object);
-		Time_object_set_update_frequency(time, 5);
+//		Time_object_set_update_frequency(time, 5);
 #endif HEART_ANIMATION
 		
-//#define TEXTURE_ANIMATION
+#define TEXTURE_ANIMATION
 #ifdef TEXTURE_ANIMATION
 		vector<string> sliceNames;
 		sliceNames.push_back("SA1");

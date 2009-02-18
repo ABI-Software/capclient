@@ -8,56 +8,9 @@
 #ifndef DICOMIMAGE_H_
 #define DICOMIMAGE_H_
 
-#include <string>;
-
-class DICOMImage
-{
-public:
-	DICOMImage(const std::string& filename);
-
-	int getOrientation();
-	int getPostion();
-	void setContrast();
-	void setBrightNess();
-//private:
-	std::string name;
-	unsigned int width;
-	unsigned int height;
-	float thickness;
-	float floats[14];
-	float pixelSizeX, pixelSizeY;
-};
-
-#include <vector>
+#include <string>
 #include <ostream>
-
-class ImageSequence
-{
-	unsigned int numberOfFrames;
-	std::vector<DICOMImage*> images;
-};
-
-class ImageSlice
-{
-	unsigned int sliceNumber;
-	ImageSequence imageSequence;
-};
-
-class ImageGroup // a bunch of image slices i.e LA & SA
-{
-	unsigned int numberOfImageSlices; //redendant?
-	std::vector<ImageSlice*> imageSlices;
-	std::string groupName; //either SA or LA
-};
-
-class ImageSet // The whole lot ImageManager??
-{
-	std::vector<ImageGroup*> imageGroups;
-
-	//or
-	ImageGroup LA;
-	ImageGroup SA;
-};
+#include <vector>
 
 struct Point3D
 {
@@ -78,23 +31,94 @@ inline std::ostream& operator<<(std::ostream &os, const Point3D &val)
 
 struct ImagePlane
 {
-  int registered;
+	Point3D tlc;            /**< top left corner */
+	Point3D trc;            /**< top right corner */
+	Point3D blc;            /**< bottom left corner */
+	Point3D brc;            /**< bottom right corner */
+	Point3D normal;         /**< normal of the plane */
+	
+	Point3D xside;          /**< vector from blc to brc */
+	Point3D yside;          /**< vector from blc to tlc */
+	
+	int            imageSize;      /**< also stored in StudyInfo - image square */
+	float          fieldOfView;    /**< should match length of xside */
+	float          sliceThickness; /**< may vary between series */
+	float          sliceGap;       /**< non-zero for short axis only */
+	float          pixelSizeX;     /**< in mm, should be square */
+	float          pixelSizeY;     /**< in mm, should be square */
+};
 
-  Point3D tlc;            /**< top left corner */
-  Point3D trc;            /**< top right corner */
-  Point3D blc;            /**< bottom left corner */
-  Point3D brc;            /**< bottom right corner */
-  Point3D normal;         /**< normal of the plane */
+class DICOMImage
+{
+public:
+	DICOMImage(const std::string& filename);
+	~DICOMImage()
+	{
+		delete plane;
+	}
 
-  Point3D xside;          /**< vector from blc to brc */
-  Point3D yside;          /**< vector from blc to tlc */
+	int getOrientation();
+	int getPostion();
+	void setContrast();
+	void setBrightNess();
+	ImagePlane* getImagePlaneFromDICOMHeaderInfo();
+	
+private:
+	std::string name;
+	unsigned int width;
+	unsigned int height;
+	float thickness;
+	float floats[14];
+	float pixelSizeX, pixelSizeY;
+	
+	double timeInCardiacCycle;
+	
+	ImagePlane* plane;
+};
 
-  int            imageSize;      /**< also stored in StudyInfo - image square */
-  float          fieldOfView;    /**< should match length of xside */
-  float          sliceThickness; /**< may vary between series */
-  float          sliceGap;       /**< non-zero for short axis only */
-  float          pixelSizeX;     /**< in mm, should be square */
-  float          pixelSizeY;     /**< in mm, should be square */
+class ImageSlice
+{
+	std::string sliceName;
+	unsigned int sliceNumber;
+	unsigned int numberOfFrames;
+	std::vector<DICOMImage*> images;
+};
+
+class ImageGroup // a bunch of image slices i.e LA & SA
+{
+	unsigned int numberOfImageSlices; //redendant?
+	std::vector<ImageSlice*> imageSlices;
+	std::string groupName; //either SA or LA
+};
+
+#include <map>
+
+class ImageSet // The whole lot ImageManager??
+{
+public:
+	
+	/** Sets time for the whole image set
+	 * @param time in a cardiac cycle in second
+	 */ 
+	void setTime(double time);
+	
+	/** Sets the visibility for a slice.
+	 * @param sliceName name of the slice e.g LA1, SA2, ...
+	 * @paran visible visibility default = true
+	 */
+	void setVisible(const std::string& sliceName, bool visible = true); 
+	
+	std::vector<ImageGroup*> imageGroups;
+
+	//or
+	ImageGroup LA;
+	ImageGroup SA;
+	
+	// or
+	std::vector<ImageSlice*> imageSlices;
+	
+	//or
+	std::map<std::string, ImageSlice*> imageSliceMap;
 };
 
 //#include <algorithm>
@@ -119,6 +143,6 @@ struct ImagePlane
   (vec).z = (vec).z / length; \
 }
 
-ImagePlane* getImagePlaneFromDICOMHeaderInfo(const std::string& filename);
+//ImagePlane* getImagePlaneFromDICOMHeaderInfo(const std::string& filename);
 
 #endif /* DICOMIMAGE_H_ */

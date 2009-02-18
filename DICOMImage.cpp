@@ -20,7 +20,7 @@
 using namespace std;
 
 DICOMImage::DICOMImage(const string& filename)
-	: name(filename)
+	: name(filename), plane(0)
 {
 	//Exception safeness! -> better not perform file i/o in the ctor?
 	gdcm::StringFilter sf;
@@ -90,27 +90,12 @@ DICOMImage::DICOMImage(const string& filename)
 	pixelSizeY = *ptr;
 }
 	
-ImagePlane* getImagePlaneFromDICOMHeaderInfo(const string& filename)
+ImagePlane* DICOMImage::getImagePlaneFromDICOMHeaderInfo()
 {
-
-	DICOMImage image(filename);
-
-	int width = image.width, height = image.height;
 	//int imageSize = std::max<u_int>(width,height);
 	//cout << "imageSize: " << imageSize << endl;
-	float* floats = image.floats;
 
-	//pixelSizeX = (data->imagesSubsampled[se][sl]) ?
-	//(floats[12]*2.0) : floats[12];
-	float pixelSizeX = image.pixelSizeX;
-	float pixelSizeY = image.pixelSizeY;
-
-	ImagePlane* plane = new ImagePlane();
-	//plane = data->plane[se][sl];
-	//plane->imageSize = imageSize;
-
-	//float fieldOfView = pixelSizeX * (float)(imageSize);
-	//cout << "fieldOfView: " << fieldOfView << endl;
+	plane = new ImagePlane();
 
 	// JGB - 2007/12/05 - plane's tlc starts from the edge of the first voxel
 	// rather than centre; (0020, 0032) is the centre of the first voxel
@@ -118,16 +103,6 @@ ImagePlane* getImagePlaneFromDICOMHeaderInfo(const string& filename)
 	tlcex = floats[3] - pixelSizeX * (0.5f*floats[6] + 0.5f*floats[9]);
 	tlcey = floats[4] - pixelSizeX * (0.5f*floats[7] + 0.5f*floats[10]);
 	tlcez = floats[5] - pixelSizeX * (0.5f*floats[8] + 0.5f*floats[11]);
-
-//	plane->tlc.x = tlcex - pixelSizeX * (
-//	0.5*(imageSize - width) * floats[6]
-//	+ 0.5*(imageSize - height) * floats[9]);
-//	plane->tlc.y = tlcey - pixelSizeX * (
-//	0.5*(imageSize - width) * floats[7]
-//	+ 0.5*(imageSize - height) * floats[10]);
-//	plane->tlc.z = tlcez - pixelSizeX * (
-//	0.5*(imageSize - width) * floats[8]
-//	+ 0.5*(imageSize - height) * floats[11]);
 
 	plane->tlc.x = tlcex;
 	plane->tlc.y = tlcey;
