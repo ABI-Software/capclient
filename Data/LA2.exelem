@@ -1,0 +1,64 @@
+ Group name: LA2
+ Shape.  Dimension=1
+ Element: 0 0    1281
+ Element: 0 0    1282
+ Element: 0 0    1283
+ Element: 0 0    1284
+ Shape.  Dimension=2
+ #Scale factor sets= 1
+   l.Lagrange*l.Lagrange, #Scale factors= 4
+ #Nodes=           4
+ #Fields=1
+ 1) coordinates_rect, coordinate, rectangular cartesian, #Components=3
+   x.  l.Lagrange*l.Lagrange, no modify, standard node based.
+     #Nodes= 4
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+   y.  l.Lagrange*l.Lagrange, no modify, standard node based.
+     #Nodes= 4
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+   z.  l.Lagrange*l.Lagrange, no modify, standard node based.
+     #Nodes= 4
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+ Element:           1281 0 0
+   Faces: 
+   0 0    1282
+   0 0    1283
+   0 0    1281
+   0 0    1284
+   Nodes:
+               1281           1282           1283           1284
+   Scale factors:
+       0.1000000000000000E+01   0.1000000000000000E+01   0.1000000000000000E+01   0.1000000000000000E+01
