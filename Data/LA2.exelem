@@ -1,9 +1,9 @@
- Group name: ImagePlane
+ Group name: LA2
  Shape.  Dimension=1
- Element: 0 0    81
- Element: 0 0    82
- Element: 0 0    83
- Element: 0 0    84
+ Element: 0 0    1201
+ Element: 0 0    1202
+ Element: 0 0    1203
+ Element: 0 0    1204
  Shape.  Dimension=2
  #Scale factor sets= 1
    l.Lagrange*l.Lagrange, #Scale factors= 4
@@ -52,13 +52,13 @@
       4.  #Values=1
        Value indices:     1
        Scale factor indices:   4
- Element:           81 0 0
+ Element:           1201 0 0
    Faces: 
-   0 0    82
-   0 0    83
-   0 0    81
-   0 0    84
+   0 0    1202
+   0 0    1203
+   0 0    1201
+   0 0    1204
    Nodes:
-               81           82           83           84
+               1201           1202           1203           1204
    Scale factors:
        0.1000000000000000E+01   0.1000000000000000E+01   0.1000000000000000E+01   0.1000000000000000E+01
