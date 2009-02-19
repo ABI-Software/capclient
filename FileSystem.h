@@ -16,11 +16,10 @@ class FileSystem
 public:
 	FileSystem(const std::string& path);
 	
-	const std::vector<std::string>& getAllFileNames()
-	{
-		return filenames;
-	}
+	const std::vector<std::string>& getAllFileNames();
+	
 private:
+	std::string dir_path;
 	std::vector<std::string> filenames;
 };
 

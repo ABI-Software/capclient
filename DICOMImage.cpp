@@ -16,7 +16,6 @@
 #include "math.h"
 
 #include <string>
-//#include <sstream>
 
 using namespace std;
 
@@ -36,7 +35,7 @@ ImagePlane* DICOMImage::getImagePlaneFromDICOMHeaderInfo()
 	if( !r.Read() )
 	{
 		cout << "Can't find the file: " << filename << endl;
-		throw 1;//what should we throw?
+		return 0;
 	}
 	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
 	sf.SetFile( r.GetFile() );
@@ -147,19 +146,12 @@ ImagePlane* DICOMImage::getImagePlaneFromDICOMHeaderInfo()
 
 extern "C"
 {
-//#include "api/cmiss_scene_viewer.h"
-//#include "general/debug.h"
-//#include "user_interface/message.h"
-
 #include "command/cmiss.h"
 #include "graphics/scene_viewer.h"
 #include "api/cmiss_region.h"
 #include "api/cmiss_texture.h"
 #include "graphics/material.h"
 #include "graphics/element_group_settings.h"
-
-//#include "general/manager.h"
-//#include "finite_element/finite_element.h"
 }
 
 #include "CmguiManager.h"
@@ -265,16 +257,9 @@ void ImageSlice::loadImagePlaneModel()
 	{
 		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
 	}
-
-	//	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
-	//	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
-	//
-	//	sprintf(filename, "%s%s/%s", prefix, name.c_str(), name.c_str()); // HACK FIX
-	//	Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-	//		manager, name.c_str(), io_stream_package, filename);
 		
-	#define ADJUST_BRIGHTNESS
-	#ifdef ADJUST_BRIGHTNESS
+#define ADJUST_BRIGHTNESS
+#ifdef ADJUST_BRIGHTNESS
 	//	gfx define field tex sample_texture coordinates xi texture LA1;
 		
 	//	gfx define field rescaled_tex rescale_intensity_filter field tex output_min 0 output_max 1;
@@ -287,14 +272,9 @@ void ImageSlice::loadImagePlaneModel()
 	//	# create a material containing the texture so that we can select along
 	//	# with appropriate texture coordinates to visualise the 3D image
 	//	gfx create material tract texture tract
-	#endif //ADJUST_BRIGHTNESS
+#endif //ADJUST_BRIGHTNESS
 		
 	material = create_Graphical_material(name.c_str());
-	//	if (!Graphical_material_set_texture(material,texture_id))
-	//	{
-	//		//Error
-	//		cout << "Error: Graphical_material_set_texture()" << endl;
-	//	}
 
 	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
 	Material_package_manage_material(material_package, material);
@@ -354,8 +334,6 @@ void ImageSlice::loadTextures()
 	
 	vector<string> filenames = fs.getAllFileNames();
 	
-	Cmiss_texture** tex = new Cmiss_texture*[filenames.size()];
-	
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
 	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
@@ -384,8 +362,6 @@ void ImageSlice::transformImagePlane()
 	
 	DICOMImage& dicomImage = *images[0]; //just use the first image in the slice
 	ImagePlane* plane = dicomImage.getImagePlaneFromDICOMHeaderInfo();
-	//ImagePlane* plane = getImagePlaneFromDICOMHeaderInfo(filename);
-
 	if (!plane)
 	{
 		cout << "ERROR !! plane is null"<<endl;
@@ -396,13 +372,38 @@ void ImageSlice::transformImagePlane()
 	}
 
 	int nodeNum = 81; // HACK FIX
-	if (sliceName=="SA4")
+	
+	if (sliceName=="SA2")
+	{
+		nodeNum += 300;
+	}
+	else if (sliceName=="SA3")
+	{
+		nodeNum += 400;
+	}
+	else if (sliceName=="SA4")
 	{
 		nodeNum += 500;
+	}
+	else if (sliceName=="SA5")
+	{
+		nodeNum += 600;
+	}
+	else if (sliceName=="SA6")
+	{
+		nodeNum += 700;
 	}
 	else if (sliceName =="LA1")
 	{
 		nodeNum += 1100;
+	}
+	else if (sliceName =="LA2")
+	{
+		nodeNum += 1200;
+	}
+	else if (sliceName =="LA3")
+	{
+		nodeNum += 1300;
 	}
 
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();

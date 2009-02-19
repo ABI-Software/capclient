@@ -201,8 +201,14 @@ int main(int argc,char *argv[])
 #ifdef TEXTURE_ANIMATION
 		vector<string> sliceNames;
 		sliceNames.push_back("SA1");
+		sliceNames.push_back("SA2");
+		sliceNames.push_back("SA3");
 		sliceNames.push_back("SA4");
+		sliceNames.push_back("SA5");
+		sliceNames.push_back("SA6");
 		sliceNames.push_back("LA1");
+		sliceNames.push_back("LA2");
+//		sliceNames.push_back("LA3");
 		
 		ImageSet imageSet(sliceNames);
 		
