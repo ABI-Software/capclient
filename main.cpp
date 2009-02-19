@@ -100,15 +100,15 @@ int main(int argc,char *argv[])
 		Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
 		struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
 
-		string filename(prefix);
-		filename.append("/test_1.model.exnode");
+		string filename(cmgui_prefix);
+		filename.append("test_1.model.exnode");
 		if (!Cmiss_region_read_file_with_time(region,const_cast<char*>(filename.c_str()),time_keeper,0))
 //		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/test_1.model.exnode"))
 		{
 			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
 		}
-		filename = prefix;
-		filename.append("/GlobalHermiteParam.exelem");
+		filename = cmgui_prefix;
+		filename.append("GlobalHermiteParam.exelem");
 		if (!Cmiss_region_read_file(region, const_cast<char*>(filename.c_str())))
 		{
 			std::cout << "Error reading ex file - exelem" << std::endl;
@@ -119,7 +119,7 @@ int main(int argc,char *argv[])
 		for (int i = 2; i<29; i++)
 		{
 			char filename[100];
-			sprintf(filename, "%s/test_%d.model.exnode",prefix, i);
+			sprintf(filename, "%stest_%d.model.exnode",cmgui_prefix, i);
 			float time = ((float)(i-1))/28.0f;
 			//std::cout << "time = " << time << endl;
 			if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
@@ -207,13 +207,13 @@ int main(int argc,char *argv[])
 #ifdef TEXTURE_ANIMATION
 		vector<string> sliceNames;
 		sliceNames.push_back("SA1");
-		sliceNames.push_back("SA2");
-		sliceNames.push_back("SA3");
-		sliceNames.push_back("SA4");
-		sliceNames.push_back("SA5");
-		sliceNames.push_back("SA6");
-		sliceNames.push_back("LA1");
-		sliceNames.push_back("LA2");
+		//sliceNames.push_back("SA2");
+		//sliceNames.push_back("SA3");
+		//sliceNames.push_back("SA4");
+		//sliceNames.push_back("SA5");
+		//sliceNames.push_back("SA6");
+		//sliceNames.push_back("LA1");
+		//sliceNames.push_back("LA2");
 //		sliceNames.push_back("LA3");
 
 		ImageSet imageSet(sliceNames);
