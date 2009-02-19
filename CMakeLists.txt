@@ -26,6 +26,7 @@ Filesystem.cpp
 CmguiExtensions.cpp
 DICOMImage.cpp
 CAPModelLVPS4X4.cpp
+CmguiManager.cpp
 )
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
