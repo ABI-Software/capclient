@@ -48,6 +48,8 @@ struct ImagePlane
 	float          pixelSizeY;     /**< in mm, should be square */
 };
 
+struct Cmiss_texture;
+
 class DICOMImage
 {
 public:
@@ -62,9 +64,10 @@ public:
 	void setContrast();
 	void setBrightNess();
 	ImagePlane* getImagePlaneFromDICOMHeaderInfo();
+	Cmiss_texture* createTextureFromDICOMImage();
 	
 private:
-	std::string name;
+	std::string filename;
 	unsigned int width;
 	unsigned int height;
 	float thickness;
@@ -74,18 +77,34 @@ private:
 	double timeInCardiacCycle;
 	
 	ImagePlane* plane;
+	Cmiss_texture* texture;
 };
+
+
+struct Graphical_material;
 
 class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. node and element)
 {
 public:
+	ImageSlice(const std::string& name);
+	
 	void setTime(double time); //actually switch the texture in the material if applicable.
-	void transformImagePlane(); //need region& nodenumber
+	
 private:
+	void loadImagePlaneModel();
+	
+	void transformImagePlane(); //need region& nodenumber
+	
+	void loadTextures();  // should go to DICOImage??
+
 	std::string sliceName;
-	unsigned int sliceNumber;
-	unsigned int numberOfFrames;
+	//unsigned int sliceNumber;
+	//unsigned int numberOfFrames; //redundant
+	
 	std::vector<DICOMImage*> images;
+	
+	Graphical_material* material;
+	std::vector<Cmiss_texture*> textures; // should go to DICOMImage?? or might consider having a Texture manager class
 };
 
 class ImageGroup // a bunch of image slices i.e LA & SA
@@ -100,6 +119,11 @@ class ImageGroup // a bunch of image slices i.e LA & SA
 class ImageSet // The whole lot ImageManager??
 {
 public:
+	
+	/** Constructs an image set from a vector of slice names 
+	 * @param vector of slice names
+	 */
+	ImageSet(const std::vector<std::string>& sliceNames_);
 	
 	/** Sets time for the whole image set
 	 * @param time in a cardiac cycle in second
@@ -124,13 +148,6 @@ public:
 	//or
 	std::map<std::string, ImageSlice*> imageSliceMap;
 };
-
-//#include <algorithm>
-
-//#define FIND_VECTOR(ans, from, to) \
-//(ans).x = (to).x - (from).x; \
-//(ans).y = (to).y - (from).y; \
-//(ans).z = (to).z - (from).z
 
 template <typename T>
 inline void FIND_VECTOR(T& ans, T& from, T& to)

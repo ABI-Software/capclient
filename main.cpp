@@ -8,10 +8,12 @@
 #endif
 #include "wx/xrc/xmlres.h"
 
+#include "Config.h"
 #include "ViewerFrame.h"
 #include "DICOMImage.h"
-#include "FileSystem.h"
+//#include "FileSystem.h"
 #include "CmguiExtensions.h"
+#include "CmguiManager.h"
 
 #if defined (DARWIN)
 #include <ApplicationServices/ApplicationServices.h>
@@ -45,11 +47,10 @@ extern "C" {
 
 #include <iostream>
 
+
 using namespace std;
 
-static const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/";
-
-
+#ifdef OLD_CODE
 void loadImagePlane(const string& name, Cmiss_command_data* command_data)
 {
 	char filename[256];
@@ -345,6 +346,16 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 	}
 	return 1;
 }
+#endif //OLD_CODE
+
+int time_callback(struct Time_object *time, double current_time, void *user_data)
+{
+	//DEBUG
+//	cout << "Time_call_back time = " << current_time << endl;
+	
+	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
+	imageSet->setTime(current_time);
+}
 
 int main(int argc,char *argv[])
 {
@@ -360,6 +371,8 @@ int main(int argc,char *argv[])
 	if (command_data = create_Cmiss_command_data(argc, argv, "0,0"))
 	{
 
+		CmguiManager cmguiManager(command_data);
+		
 		wxXmlResource::Get()->Load("ViewerFrame.xrc");
 #ifdef HARD_CODED_GUI
 //		ViewerFrame *frame = new ViewerFrame(
@@ -379,12 +392,16 @@ int main(int argc,char *argv[])
 		Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
 		struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
 
-		if (!Cmiss_region_read_file_with_time(region,"/Users/jchu014/cmiss/api_test2/Data/test_1.model.exnode",time_keeper,0))
+		string filename(prefix);
+		filename.append("/test_1.model.exnode");
+		if (!Cmiss_region_read_file_with_time(region,const_cast<char*>(filename.c_str()),time_keeper,0))
 //		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/test_1.model.exnode"))
 		{
 			std::cout << "Error reading ex file - test_1.model.exnode, 0" << std::endl;
 		}
-		if (!Cmiss_region_read_file(region,"/Users/jchu014/cmiss/api_test2/Data/GlobalHermiteParam.exelem"))
+		filename = prefix;
+		filename.append("/GlobalHermiteParam.exelem");
+		if (!Cmiss_region_read_file(region, const_cast<char*>(filename.c_str())))
 		{
 			std::cout << "Error reading ex file - exelem" << std::endl;
 		}
@@ -394,7 +411,7 @@ int main(int argc,char *argv[])
 		for (int i = 2; i<29; i++)
 		{
 			char filename[100];
-			sprintf(filename, "/Users/jchu014/cmiss/api_test2/Data/test_%d.model.exnode",i);
+			sprintf(filename, "%s/test_%d.model.exnode",prefix, i);
 			float time = ((float)(i-1))/28.0f;
 			//std::cout << "time = " << time << endl;
 			if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
@@ -484,8 +501,12 @@ int main(int argc,char *argv[])
 		sliceNames.push_back("SA1");
 		sliceNames.push_back("SA4");
 		sliceNames.push_back("LA1");
-		vector<Cmiss_texture**> vector_of_tex;
 		
+		ImageSet imageSet(sliceNames);
+		
+#ifdef OLD_CODE
+		vector<Cmiss_texture**> vector_of_tex;
+
 		vector<string>::const_iterator itr = sliceNames.begin();
 		for (;itr != sliceNames.end();++itr)
 		{
@@ -507,16 +528,21 @@ int main(int argc,char *argv[])
 //		User_interface* ui = Cmiss_command_data_get_user_interface(command_data);
 //		Event_dispatcher* ed = User_interface_get_event_dispatcher(ui);		
 //		Event_dispatcher_add_idle_callback(ed, texture_animation, (void*)&hacky_data, EVENT_DISPATCHER_IDLE_UPDATE_SCENE_VIEWER_PRIORITY);
+#endif //OLD_CODE
 		
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
 		Time_object* time_object = create_Time_object("Texture_animation_timer");
+		
+		Time_object_add_callback(time_object,time_callback,(void*)&imageSet);
+#ifdef OLD_CODE
 		Time_object_add_callback(time_object,time_callback,(void*)&hacky_data);
+#endif //OLD_CODE
 		Time_object_set_time_keeper(time_object, time_keeper);
 		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
 #endif		
 
-#endif
+#endif //TEXTURE_ANIMATION
 		
 		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
 				panel,
