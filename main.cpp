@@ -21,28 +21,9 @@
 
 extern "C" {
 #include "api/cmiss_scene_viewer.h"
-#include "api/cmiss_scene_viewer_private.h"
-#include "general/debug.h"
-#include "graphics/scene_viewer.h"
-#include "graphics/transform_tool.h"
-#include "three_d_drawing/graphics_buffer.h"
-#include "user_interface/message.h"
-#include "graphics/scene.h"
-
 #include "command/cmiss.h"
-#include "general/debug.h"
-#include "user_interface/message.h"
-
 #include "time/time_keeper.h"
-
-#include "api/cmiss_region.h"
-#include "finite_element/import_finite_element.h"
-#include "api/cmiss_texture.h"
-#include "graphics/material.h"
-#include "general/manager.h"
-#include "finite_element/finite_element.h"
 #include "time/time.h"
-#include "user_interface/event_dispatcher.h"
 }
 
 #include <iostream>
