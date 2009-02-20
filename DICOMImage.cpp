@@ -245,14 +245,15 @@ void ImageSlice::loadImagePlaneModel()
 	char filename[256];
 	string& name = sliceName;
 	
-	sprintf(filename, "%s%s.exnode", prefix, name.c_str());
-
 	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
+	
+	sprintf(filename, "%stemplates/%s.exnode", prefix, name.c_str());
 	if (!Cmiss_region_read_file(region,filename))
 	{
 		std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
 	}
-	sprintf(filename, "%s%s.exelem", prefix, name.c_str());
+	
+	sprintf(filename, "%stemplates/%s.exelem", prefix, name.c_str());
 	if (!Cmiss_region_read_file(region,filename))
 	{
 		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
@@ -328,6 +329,7 @@ void ImageSlice::loadImagePlaneModel()
 void ImageSlice::loadTextures()
 {
 	string dir_path(prefix);
+	dir_path.append("images/");
 	dir_path.append(sliceName);
 	
 	FileSystem fs(dir_path);
@@ -472,8 +474,6 @@ ImageSet::ImageSet(const vector<string>& sliceNames)
 	for (;itr != sliceNames.end();++itr)
 	{
 		const string& name = *itr;
-		string dir_path(prefix);
-		dir_path.append(name);
 		
 		ImageSlice* imageSlice = new ImageSlice(name);
 		imageSlices.push_back(imageSlice); // use exception safe container or smartpointers

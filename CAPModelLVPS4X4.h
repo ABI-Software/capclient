@@ -15,8 +15,10 @@ class CAPModelLVPS4X4
 {
 	typedef float gtMatrix[4][4];
 public:
+	CAPModelLVPS4X4();
+	
 	typedef std::vector<float> parameters;
-	int readModelFromFile(const std::string& filename);
+	int readModelFromFiles(const std::string& path);
 	
 	int setParameters(const std::vector<float>& globalParemeters);
 	const std::vector<float>& getParameters() const;
