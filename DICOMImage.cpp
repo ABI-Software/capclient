@@ -7,6 +7,7 @@
 #include "Config.h"
 
 #include "DICOMImage.h"
+
 #include "gdcmStringFilter.h"
 #include "gdcmReader.h"
 #include "gdcmSequenceOfItems.h"
