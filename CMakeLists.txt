@@ -84,12 +84,15 @@ ENDIF(WIN32)
 
 ADD_EXECUTABLE(MyTest ${SRCS})
 # and for each of your dependant executable/library targets:
-#TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
-#    ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
-
+IF(APPLE)
+TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
+    ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
+ENDIF(APPLE)
+IF(WIN32)
 #test
 SET(wxWidgets_LIBRARIES_TEMP  /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_xrc-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_gl-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based_xml-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_adv-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_html-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_core-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based-2.8.a -L/cygdrive/c/cmiss/mesa/lib/i386-win32  -lopengl32 -lglu32 -lcomctl32 -lctl3d32 -L/cygdrive/c/cmiss/wxWidgets/lib -lwxexpatd-2.8) 
 TARGET_LINK_LIBRARIES(MyTest ${CMGUI_LIB} ${wxWidgets_LIBRARIES_TEMP} ${INTERPRETER_LIB} ${IMAGEMAGICK_LIB} 
      ${XML2_LIB} ${ITK_LIB} ${common_LIBS})  
+ENDIF(WIN32)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})

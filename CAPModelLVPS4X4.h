@@ -15,8 +15,10 @@ class CAPModelLVPS4X4
 {
 	typedef float gtMatrix[4][4];
 public:
+	CAPModelLVPS4X4(const std::string& name);
+	
 	typedef std::vector<float> parameters;
-	int readModelFromFile(const std::string& filename);
+	int readModelFromFiles(const std::string& path);
 	
 	int setParameters(const std::vector<float>& globalParemeters);
 	const std::vector<float>& getParameters() const;
@@ -26,7 +28,11 @@ public:
 	
 	int setLocalToGlobalTransformation(const gtMatrix& transform);
 private:
+	void readModelInfo(std::string modelInfoFilePath);
+	
 	gtMatrix patientToGlobalTransform; // model to world transformation
+	std::string modelName;
+	int numberOfModelFrames;
 };
 
 #endif /* CAPMODELLVPS4X4_H_ */
