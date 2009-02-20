@@ -54,10 +54,13 @@ using namespace std;
 int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
-//	cout << "Time_call_back time = " << current_time << endl;
+	//cout << "Time_call_back time = " << current_time << endl;
 	
 	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
 	imageSet->setTime(current_time);
+	
+//	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
+//	Scene_viewer_redraw(sceneViewer);
 }
 
 int main(int argc,char *argv[])
@@ -82,13 +85,14 @@ int main(int argc,char *argv[])
 		frame->Show(TRUE);
 
 		wxPanel *panel = frame->getPanel();
-
 		if (!panel)
 		{
 			printf("panel is null");
 			return 0;
 		}
 		
+		Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(panel);
+
 #define TEXTURE_ANIMATION
 #ifdef TEXTURE_ANIMATION
 		vector<string> sliceNames;
@@ -112,20 +116,16 @@ int main(int argc,char *argv[])
 		struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
 		Time_object_set_time_keeper(time_object, time_keeper);
 		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
+		
+		Time_keeper_set_minimum(time_keeper, 0);
+		Time_keeper_set_maximum(time_keeper, 1);
+		
 #endif		
 #endif //TEXTURE_ANIMATION
 		
 		CAPModelLVPS4X4 heartModel("heart");
 		heartModel.readModelFromFiles("test");	
 		
-		Cmiss_scene_viewer_id sceneViewer = create_Cmiss_scene_viewer_wx(Cmiss_command_data_get_scene_viewer_package(command_data),
-				panel,
-				CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
-				CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
-				/*minimum_colour_buffer_depth*/8,
-				/*minimum_depth_buffer_depth*/8,
-				/*minimum_accumulation_buffer_depth*/8);
-
 //#define HARD_CODED_GUI
 #ifdef HARD_CODED_GUI
 		panel->GetContainingSizer()->SetMinSize(600, 600);
