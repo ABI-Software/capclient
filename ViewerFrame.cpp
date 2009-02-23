@@ -121,7 +121,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 #ifdef TIME_OBJECT_CALLBACK_TEST
 	Time_object* time_object = create_Time_object("Texture_animation_timer");
 	
-	Time_object_add_callback(time_object,time_callback,(void*)&imageSet_);
+	Time_object_add_callback(time_object,time_callback,(void*)imageSet_);
 	struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
 	Time_object_set_time_keeper(time_object, time_keeper);
 //		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
