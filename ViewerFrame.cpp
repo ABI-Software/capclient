@@ -211,7 +211,7 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 {
 	int selection = event.GetInt();
 //	objectList_->SetSelection(selection);
-	wxString name = objectList_->GetStringSelection();
+	wxString name = objectList_->GetString(selection);
 	std::cout << "Check: " << name << std::endl;
 	
 	if(objectList_->IsChecked(selection))
