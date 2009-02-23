@@ -44,12 +44,12 @@ public:
 		delete plane;
 	}
 
-	int getOrientation();
-	int getPostion();
-	void setContrast();
-	void setBrightNess();
-	ImagePlane* getImagePlaneFromDICOMHeaderInfo();
-	Cmiss_texture* createTextureFromDICOMImage();
+	int GetOrientation();
+	int GetPostion();
+	void SetContrast();
+	void SetBrightNess();
+	ImagePlane* GetImagePlaneFromDICOMHeaderInfo();
+	Cmiss_texture* CreateTextureFromDICOMImage();
 	
 private:
 	std::string filename;
@@ -67,36 +67,49 @@ private:
 
 
 struct Graphical_material;
+struct Scene_object;
 
+// should I separate the graphical representation from this class?
+// ie move Textures, visibility, sceneObject etc to another class??
 class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. node and element)
 {
 public:
 	ImageSlice(const std::string& name);
 	
-	void setTime(double time); //actually switch the texture in the material if applicable.
+	void SetTime(double time); //actually switch the texture in the material if applicable.
+	
+	void SetVisible(bool visibility);
+	
+	bool IsVisible()
+	{
+		return isVisible_;
+	};
 	
 private:
-	void loadImagePlaneModel();
+	void LoadImagePlaneModel();
 	
-	void transformImagePlane(); //need region& nodenumber
+	void TransformImagePlane(); //need region& nodenumber
 	
-	void loadTextures();  // should go to DICOImage??
+	void LoadTextures();  // should go to DICOImage??
 
-	std::string sliceName;
+	std::string sliceName_;
 	//unsigned int sliceNumber;
 	//unsigned int numberOfFrames; //redundant
 	
-	std::vector<DICOMImage*> images;
+	bool isVisible_;
+	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	
-	Graphical_material* material;
-	std::vector<Cmiss_texture*> textures; // should go to DICOMImage?? or might consider having a Texture manager class
+	std::vector<DICOMImage*> images_;
+	
+	Graphical_material* material_;
+	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
 };
 
 class ImageGroup // a bunch of image slices i.e LA & SA
 {
-	unsigned int numberOfImageSlices; //Redundant?
-	std::vector<ImageSlice*> imageSlices;
-	std::string groupName; //either SA or LA
+	unsigned int numberOfImageSlices_; //Redundant?
+	std::vector<ImageSlice*> imageSlices_;
+	std::string groupName_; //either SA or LA
 };
 
 #include <map>
@@ -104,7 +117,7 @@ class ImageGroup // a bunch of image slices i.e LA & SA
 class ImageSet // The whole lot ImageManager??
 {
 public:
-	
+
 	/** Constructs an image set from a vector of slice names 
 	 * @param vector of slice names
 	 */
@@ -113,25 +126,27 @@ public:
 	/** Sets time for the whole image set
 	 * @param time in a cardiac cycle in second
 	 */ 
-	void setTime(double time);
+	void SetTime(double time);
 	
 	/** Sets the visibility for a slice.
 	 * @param sliceName name of the slice e.g LA1, SA2, ...
 	 * @paran visible visibility default = true
 	 */
-	void setVisible(const std::string& sliceName, bool visible = true); 
+	void SetVisible(const std::string& sliceName, bool visible = true); 
 	
-	std::vector<ImageGroup*> imageGroups;
-
-	//or
-	ImageGroup LA;
-	ImageGroup SA;
+//	std::vector<ImageGroup*> imageGroups;
+//
+//	//or
+//	ImageGroup LA;
+//	ImageGroup SA;
 	
 	// or
-	std::vector<ImageSlice*> imageSlices;
+	//std::vector<ImageSlice*> imageSlices_;
 	
 	//or
-	std::map<std::string, ImageSlice*> imageSliceMap;
+	typedef std::map<std::string, ImageSlice*> ImageSlicesMap;
+	
+	ImageSlicesMap imageSlicesMap_;
 };
 
 #endif /* DICOMIMAGE_H_ */

@@ -25,7 +25,7 @@ DICOMImage::DICOMImage(const string& filename_)
 {
 }
 
-ImagePlane* DICOMImage::getImagePlaneFromDICOMHeaderInfo()
+ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 {
 	//First, load info from DICOM header
 	
@@ -145,6 +145,10 @@ ImagePlane* DICOMImage::getImagePlaneFromDICOMHeaderInfo()
 	return plane;
 }
 
+/**
+ * Image Slice
+ */
+
 extern "C"
 {
 #include "command/cmiss.h"
@@ -153,23 +157,39 @@ extern "C"
 #include "api/cmiss_texture.h"
 #include "graphics/material.h"
 #include "graphics/element_group_settings.h"
+#include "graphics/scene.h"
 }
 
 #include "CmguiManager.h"
 
 ImageSlice::ImageSlice(const string& name)
-	: sliceName(name)
+	: sliceName_(name)
 {
-	this->loadImagePlaneModel();
-	this->loadTextures();
-	this->transformImagePlane(); 
+	this->LoadImagePlaneModel();
+	this->LoadTextures();
+	this->TransformImagePlane(); 
 }
 
-void ImageSlice::setTime(double time)
+void ImageSlice::SetVisible(bool visibility)
+{
+	if (visibility)
+	{
+		isVisible_ = true;
+		Scene_object_set_visibility(sceneObject_, g_VISIBLE);
+	}
+	else
+	{
+		isVisible_ = false;
+		Scene_object_set_visibility(sceneObject_, g_INVISIBLE);
+	}
+	return;
+}
+
+void ImageSlice::SetTime(double time)
 {
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 
-	int index = static_cast<int>(time * textures.size()); // -1
+	int index = static_cast<int>(time * textures_.size()); // -1
 //	if (index = -1)
 //	{
 //		index = numberOfFrames;
@@ -178,11 +198,11 @@ void ImageSlice::setTime(double time)
 	//DEBUG
 	//cout << "ImageSlice::setTime index = " << index << endl;
 		
-	Cmiss_texture* tex= textures[index];
+	Cmiss_texture* tex= textures_[index];
 	
-	if (material)
+	if (material_)
 	{
-		if (!Graphical_material_set_texture(material,tex))
+		if (!Graphical_material_set_texture(material_,tex))
 		{
 			//Error
 			cout << "Error: Graphical_material_set_texture()" << endl;
@@ -197,7 +217,7 @@ void ImageSlice::setTime(double time)
 	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
 	//Got to find the child region first!!
 	Cmiss_region* region;
-	if(!Cmiss_region_get_region_from_path(root_region, sliceName.c_str(), &region))
+	if(!Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region))
 	{
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
@@ -205,9 +225,9 @@ void ImageSlice::setTime(double time)
 
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
 	//hack
-	GT_element_settings_set_selected_material(settings, material);
+	GT_element_settings_set_selected_material(settings, material_);
 
-	if(!GT_element_settings_set_material(settings, material))
+	if(!GT_element_settings_set_material(settings, material_))
 	{
 		//Error;
 		cout << "GT_element_settings_set_material() returned 0" << endl;
@@ -239,12 +259,12 @@ void ImageSlice::setTime(double time)
 
 #include "CmguiExtensions.h"
 
-void ImageSlice::loadImagePlaneModel()
+void ImageSlice::LoadImagePlaneModel()
 {
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	
 	char filename[256];
-	string& name = sliceName;
+	string& name = sliceName_;
 	
 	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
 	
@@ -276,10 +296,10 @@ void ImageSlice::loadImagePlaneModel()
 	//	gfx create material tract texture tract
 #endif //ADJUST_BRIGHTNESS
 		
-	material = create_Graphical_material(name.c_str());
+	material_ = create_Graphical_material(name.c_str());
 
 	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
-	Material_package_manage_material(material_package, material);
+	Material_package_manage_material(material_package, material_);
 	
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
@@ -298,9 +318,9 @@ void ImageSlice::loadImagePlaneModel()
 
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
 	//hack
-	GT_element_settings_set_selected_material(settings, material);
+	GT_element_settings_set_selected_material(settings, material_);
 
-	if(!GT_element_settings_set_material(settings, material))
+	if(!GT_element_settings_set_material(settings, material_))
 	{
 		//Error;
 	}
@@ -322,16 +342,18 @@ void ImageSlice::loadImagePlaneModel()
 		 }
 	}
 
+	// cache the sceneObject for convenience
+	sceneObject_ = Scene_get_scene_object_with_Cmiss_region(scene, region);
 	return;
 }
 
 #include "FileSystem.h"
 
-void ImageSlice::loadTextures()
+void ImageSlice::LoadTextures()
 {
 	string dir_path(prefix);
 	dir_path.append("images/");
-	dir_path.append(sliceName);
+	dir_path.append(sliceName_);
 	
 	FileSystem fs(dir_path);
 	
@@ -352,19 +374,19 @@ void ImageSlice::loadTextures()
 		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
 			manager, filename.c_str(), io_stream_package, fullpath);
 		
-		textures.push_back(texture_id);
+		textures_.push_back(texture_id);
 		
-		images.push_back(new DICOMImage(fullpath));
+		images_.push_back(new DICOMImage(fullpath));
 	}	
 	return;
 }
 
-void ImageSlice::transformImagePlane()
+void ImageSlice::TransformImagePlane()
 {
 	// Now get the necessary info from the DICOM header
 	
-	DICOMImage& dicomImage = *images[0]; //just use the first image in the slice
-	ImagePlane* plane = dicomImage.getImagePlaneFromDICOMHeaderInfo();
+	DICOMImage& dicomImage = *images_[0]; //just use the first image in the slice
+	ImagePlane* plane = dicomImage.GetImagePlaneFromDICOMHeaderInfo();
 	if (!plane)
 	{
 		cout << "ERROR !! plane is null"<<endl;
@@ -376,35 +398,35 @@ void ImageSlice::transformImagePlane()
 
 	int nodeNum = 81; // HACK FIX
 	
-	if (sliceName=="SA2")
+	if (sliceName_=="SA2")
 	{
 		nodeNum += 300;
 	}
-	else if (sliceName=="SA3")
+	else if (sliceName_=="SA3")
 	{
 		nodeNum += 400;
 	}
-	else if (sliceName=="SA4")
+	else if (sliceName_=="SA4")
 	{
 		nodeNum += 500;
 	}
-	else if (sliceName=="SA5")
+	else if (sliceName_=="SA5")
 	{
 		nodeNum += 600;
 	}
-	else if (sliceName=="SA6")
+	else if (sliceName_=="SA6")
 	{
 		nodeNum += 700;
 	}
-	else if (sliceName =="LA1")
+	else if (sliceName_ =="LA1")
 	{
 		nodeNum += 1100;
 	}
-	else if (sliceName =="LA2")
+	else if (sliceName_ =="LA2")
 	{
 		nodeNum += 1200;
 	}
-	else if (sliceName =="LA3")
+	else if (sliceName_ =="LA3")
 	{
 		nodeNum += 1300;
 	}
@@ -413,7 +435,7 @@ void ImageSlice::transformImagePlane()
 	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
 	//Got to find the child region first!!
 	Cmiss_region* region;
-	if(!Cmiss_region_get_region_from_path(root_region, sliceName.c_str(), &region))
+	if(!Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region))
 	{
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
@@ -477,18 +499,33 @@ ImageSet::ImageSet(const vector<string>& sliceNames)
 		const string& name = *itr;
 		
 		ImageSlice* imageSlice = new ImageSlice(name);
-		imageSlices.push_back(imageSlice); // use exception safe container or smartpointers
-		
+		imageSlicesMap_[name] = imageSlice; // use exception safe container or smartpointers
 	}
 }
 
-void ImageSet::setTime(double time)
+void ImageSet::SetTime(double time)
 {
-	vector<ImageSlice*>::const_iterator itr = imageSlices.begin();
-	vector<ImageSlice*>::const_iterator end = imageSlices.end();
+	ImageSlicesMap::const_iterator itr = imageSlicesMap_.begin();
+	ImageSlicesMap::const_iterator end = imageSlicesMap_.end();
 	for (;itr != end; ++itr)
 	{
-		(*itr)->setTime(time);
+		itr->second->SetTime(time);
 	}
 	return;
+}
+
+#include <algorithm>
+
+void ImageSet::SetVisible(const std::string& sliceName, bool visible)
+{
+	ImageSlicesMap::iterator itr = imageSlicesMap_.find(sliceName);
+	if (itr == imageSlicesMap_.end())
+	{
+		//error should probably throw exception
+		assert("No such name is the imageSliceMap_");
+	}
+	else
+	{
+		itr->second->SetVisible(visible);
+	}
 }

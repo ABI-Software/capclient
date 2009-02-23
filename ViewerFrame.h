@@ -1,34 +1,52 @@
 #ifndef __TEXTFRAME_H__
 #define __TEXTFRAME_H__
 
+#include "wx/wxprec.h"
+
+#ifndef WX_PRECOMP
+    #include "wx/wx.h"
+#endif
+
+#include "DICOMImage.h"
+
 struct Cmiss_command_data;
 struct Time_keeper;
+
+extern "C"
+{
+#include "graphics/scene_viewer.h"
+#include "graphics/scene.h"
+}
 
 class ViewerFrame : public wxFrame
 {
 public:
-  ViewerFrame(Cmiss_command_data* command_data_);
-  ViewerFrame(const wxChar* title, int xpos, int ypos, int width, int height);
-  ~ViewerFrame();
-
-  wxPanel* getPanel();
-
+	ViewerFrame(Cmiss_command_data* command_data_);
+	ViewerFrame(const wxChar* title, int xpos, int ypos, int width, int height);
+	~ViewerFrame();
+	
+	wxPanel* getPanel();
+	
+	//test
+	void PopulateObjectList();
+	
 private:
-  wxTextCtrl *m_pTextCtrl;
-  wxMenuBar *m_pMenuBar;
-  wxMenu *m_pFileMenu;
-  wxMenu *m_pHelpMenu;
-  wxPanel* m_pPanel;
-  
-  Cmiss_command_data* command_data;
-  Time_keeper* time_keeper;
-  
-  bool animationIsOn;
-
-  DECLARE_EVENT_TABLE();
-
-  void Terminate(wxCloseEvent& event);
-  void TogglePlay(wxCommandEvent& event);
+	wxCheckListBox* objectList_;
+	wxPanel* m_pPanel;
+	
+	Cmiss_command_data* command_data;
+	Time_keeper* time_keeper;
+	ImageSet* imageSet_;
+	
+	bool animationIsOn;
+	
+	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
+	
+	void Terminate(wxCloseEvent& event);
+	void TogglePlay(wxCommandEvent& event);
+	void ObjectCheckListChecked(wxCommandEvent& event);
+	
+	DECLARE_EVENT_TABLE();
 };
 
 #endif
