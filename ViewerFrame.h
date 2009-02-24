@@ -40,8 +40,11 @@ private:
 	
 	bool animationIsOn;
 	
+	//private utility functions
+	void RefreshCmguiCanvas();
 	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
 	
+	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void TogglePlay(wxCommandEvent& event);
 	void ObjectCheckListChecked(wxCommandEvent& event);

@@ -1,7 +1,9 @@
 // For compilers that don't support precompilation, include "wx/wx.h";
 
 #include "wx/xrc/xmlres.h"
+#include "wx/splitter.h"
 #include "ViewerFrame.h"
+#include "CmguiManager.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -81,6 +83,14 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
 	
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
+	
+	//HACK
+	this->Show(true);
+	wxSplitterWindow* win = XRCCTRL(*this, "window_1", wxSplitterWindow);
+	win->SetSashPosition(800, true);
+//	this->SetSize(1023,767);
+//	this->SetSize(1024,768);
+	
 	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	m_pPanel->GetContainingSizer()->SetMinSize(1024, 768);
 	m_pPanel->GetContainingSizer()->SetDimension(-1, -1, 1024, 768);
@@ -214,6 +224,12 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	wxString name = objectList_->GetString(selection);
 	std::cout << "Check: " << name << std::endl;
 	
+//	//hack to test the callback works when time is manually set to 0
+//	if ("heart"==name)
+//	{
+//		Time_keeper_request_new_time(time_keeper, 0);
+//	}
+	
 	if(objectList_->IsChecked(selection))
 	{
 		imageSet_->SetVisible(name.mb_str(), true);
@@ -222,6 +238,14 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	{
 		imageSet_->SetVisible(name.mb_str(), false);
 	}
+	
+//	RefreshCmguiCanvas(); //necessrary??
+}
+
+void ViewerFrame::RefreshCmguiCanvas()
+{
+	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
+	Scene_viewer_redraw(sceneViewer);
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
