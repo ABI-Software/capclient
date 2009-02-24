@@ -28,7 +28,7 @@ DICOMImage::DICOMImage(const string& filename_)
 ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 {
 	//First, load info from DICOM header
-	
+
 	//Exception safeness! -> better not perform file i/o in the ctor?
 	gdcm::StringFilter sf;
 	gdcm::Reader r;
@@ -95,9 +95,9 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	ptr = at_spc.GetValues();
 	pixelSizeX = *ptr++;
 	pixelSizeY = *ptr;
-	
+
 	//Now construct the plane from the info
-	
+
 	//int imageSize = std::max<u_int>(width,height);
 	//cout << "imageSize: " << imageSize << endl;
 
@@ -194,12 +194,12 @@ void ImageSlice::SetTime(double time)
 //	{
 //		index = numberOfFrames;
 //	}
-	
+
 	//DEBUG
 	//cout << "ImageSlice::setTime index = " << index << endl;
-		
+
 	Cmiss_texture* tex= textures_[index];
-	
+
 	if (material_)
 	{
 		if (!Graphical_material_set_texture(material_,tex))
@@ -207,13 +207,13 @@ void ImageSlice::SetTime(double time)
 			//Error
 			cout << "Error: Graphical_material_set_texture()" << endl;
 		}
-		
+
 	}
 	else
 	{
 		cout << "Error: cant find material" << endl;
 	}
-	
+
 	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
 	//Got to find the child region first!!
 	Cmiss_region* region;
@@ -241,7 +241,7 @@ void ImageSlice::SetTime(double time)
 
 		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-		
+
 		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
 			struct Scene *scene, struct GT_element_settings *settings,
 			int delete_flag, int position);  // should add this to a header file somewhere
@@ -262,28 +262,28 @@ void ImageSlice::SetTime(double time)
 void ImageSlice::LoadImagePlaneModel()
 {
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	
+
 	char filename[256];
 	string& name = sliceName_;
-	
+
 	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
-	
+
 	sprintf(filename, "%stemplates/%s.exnode", prefix, name.c_str());
 	if (!Cmiss_region_read_file(region,filename))
 	{
 		std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
 	}
-	
+
 	sprintf(filename, "%stemplates/%s.exelem", prefix, name.c_str());
 	if (!Cmiss_region_read_file(region,filename))
 	{
 		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
 	}
-		
+
 #define ADJUST_BRIGHTNESS
 #ifdef ADJUST_BRIGHTNESS
 	//	gfx define field tex sample_texture coordinates xi texture LA1;
-		
+
 	//	gfx define field rescaled_tex rescale_intensity_filter field tex output_min 0 output_max 1;
 	//	gfx cre spectrum monochrome clear;
 	//	gfx modify spectrum monochrome linear range 0 1 extend_above extend_below monochrome colour_range 0 1 ambient diffuse component 1;
@@ -295,12 +295,12 @@ void ImageSlice::LoadImagePlaneModel()
 	//	# with appropriate texture coordinates to visualise the 3D image
 	//	gfx create material tract texture tract
 #endif //ADJUST_BRIGHTNESS
-		
+
 	material_ = create_Graphical_material(name.c_str());
 
-	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
+//	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
 	Material_package_manage_material(material_package, material_);
-	
+
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	if (!scene)
@@ -354,11 +354,11 @@ void ImageSlice::LoadTextures()
 	string dir_path(prefix);
 	dir_path.append("images/");
 	dir_path.append(sliceName_);
-	
+
 	FileSystem fs(dir_path);
-	
+
 	vector<string> filenames = fs.getAllFileNames();
-	
+
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
 	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
@@ -370,21 +370,21 @@ void ImageSlice::LoadTextures()
 	for (; itr != end; ++itr)
 	{
 		const string& filename = *itr;
-		sprintf(fullpath, "%s/%s", dir_path.c_str(),  filename.c_str()); 
+		sprintf(fullpath, "%s/%s", dir_path.c_str(),  filename.c_str());
 		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
 			manager, filename.c_str(), io_stream_package, fullpath);
-		
+
 		textures_.push_back(texture_id);
-		
+
 		images_.push_back(new DICOMImage(fullpath));
-	}	
+	}
 	return;
 }
 
 void ImageSlice::TransformImagePlane()
 {
 	// Now get the necessary info from the DICOM header
-	
+
 	DICOMImage& dicomImage = *images_[0]; //just use the first image in the slice
 	ImagePlane* plane = dicomImage.GetImagePlaneFromDICOMHeaderInfo();
 	if (!plane)
@@ -397,7 +397,7 @@ void ImageSlice::TransformImagePlane()
 	}
 
 	int nodeNum = 81; // HACK FIX
-	
+
 	if (sliceName_=="SA2")
 	{
 		nodeNum += 300;
@@ -440,7 +440,7 @@ void ImageSlice::TransformImagePlane()
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
 	}
-	
+
 	char nodeName[256]; //FIX
 	sprintf(nodeName,"%d", nodeNum);
 	Cmiss_node* node = Cmiss_region_get_node(region, nodeName);
@@ -487,7 +487,7 @@ void ImageSlice::TransformImagePlane()
 }
 
 
-/** 
+/**
  * ImageSet
  */
 
@@ -497,7 +497,7 @@ ImageSet::ImageSet(const vector<string>& sliceNames)
 	for (;itr != sliceNames.end();++itr)
 	{
 		const string& name = *itr;
-		
+
 		ImageSlice* imageSlice = new ImageSlice(name);
 		imageSlicesMap_[name] = imageSlice; // use exception safe container or smartpointers
 	}

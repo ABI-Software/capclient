@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 PROJECT(Cmgui)
 #ADD_DEFINITIONS(-DCMGUI -DUNIX -DDARWIN)
 #ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
-#ADD_DEFINITIONS(-DPERL_INTERPRETER)
+#ADD_DEFINITIONS(-DWX_USER_INTERFACE)
 ADD_DEFINITIONS(-g3 -gdwarf-2)
 
 #how to include common.Makefile?
@@ -11,6 +11,11 @@ IF(APPLE)
   SET(LIB_ARCH_DIR i386-32-darwin)
   ADD_DEFINITIONS(-DDARWIN)
 ENDIF(APPLE)
+IF(WIN32)
+  ADD_DEFINITIONS(-mno-cygwin -DWIN32)
+  SET(LIB_ARCH_DIR i386-win32)
+  SET(CMAKE_EXE_LINKER_FLAGS -mno-cygwin)
+ENDIF(WIN32)  
 SET(BUILD_VERSION cmgui-wx-debug)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
@@ -39,7 +44,11 @@ SET(IMAGEMAGICK_LIB ${IMAGEMAGICK_LIB} -L${IMAGEMAGICK_PATH}/${LIB_ARCH_DIR}/lib
 
 SET(INTERPRETER_PATH ${CMISS_ROOT}/perl_interpreter)
 #   INTERPRETER_DEFINES = -DPERL_INTERPRETER
-SET(INTERPRETER_LIB ${INTERPRETER_PATH}/lib/${LIB_ARCH_DIR}/libperlinterpreter.a)
+IF(WIN32)
+  SET(INTERPRETER_LIB ${INTERPRETER_PATH}/lib/${LIB_ARCH_DIR}/libperlinterpreter-includeperl.a)
+ELSE(WIN32)
+  SET(INTERPRETER_LIB ${INTERPRETER_PATH}/lib/${LIB_ARCH_DIR}/libperlinterpreter.a)
+ENDIF(WIN32)
 
 SET(XML2_PATH ${CMISS_ROOT}/image_libraries)
 SET(XML2_LIB ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a)
@@ -52,8 +61,13 @@ IF(wxWidgets_FOUND)
   INCLUDE(${wxWidgets_USE_FILE})
   MESSAGE("wxWidgets found")
   message("linking: " ${wxWidgets_LIBRARIES})
+  message("lib dir: " ${wxWidgets_LIB_DIR})
 ADD_DEFINITIONS(-DWX_USER_INTERFACE)
-ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXDEBUG__ -D__WXMAC_)
+IF(WIN32)
+  ADD_DEFINITIONS(-D__WXDEBUG__)
+ELSE(WIN32)
+  ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXDEBUG__ -D__WXMAC_)
+ENDIF(WIN32)
 ELSE(wxWidgets_FOUND)
   # For convenience. When we cannot continue, inform the user
   MESSAGE("wxWidgets not found!")
@@ -62,9 +76,24 @@ ENDIF(wxWidgets_FOUND)
 LIST(REMOVE_ITEM wxWidgets_LIBRARIES -lwxtiffd-2.8 -lwxjpegd-2.8 -lwxpngd-2.8 -lz -lpthread)
 message("After REMOVE_ITEM: " ${wxWidgets_LIBRARIES})
 
+IF(WIN32)
+  LIST(REMOVE_ITEM wxWidgets_LIBRARIES -lopengl32 -lglu32)
+  SET(wxWidgets_LIBRARIES ${wxWidgets_LIBRARIES} -L${CMISS_ROOT}/mesa/lib/${LIB_ARCH_DIR} -opengl32 -lglu32)
+  message("WIN32 :" ${wxWidgets_LIBRARIES})
+  SET(common_LIBS "-lws2_32 -lgdi32 -lmsimg32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -lnetapi32 -luuid -lwsock32 -lmpr -lwinmm -lversion -lodbc32 -lstdc++")
+ENDIF(WIN32)
+
 ADD_EXECUTABLE(MyTest ${SRCS})
 # and for each of your dependant executable/library targets:
+IF(APPLE)
 TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
     ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
-    
+ENDIF(APPLE)
+IF(WIN32)
+#test
+SET(wxWidgets_LIBRARIES_TEMP  /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_xrc-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_gl-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based_xml-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_adv-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_html-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_core-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based-2.8.a -L/cygdrive/c/cmiss/mesa/lib/i386-win32  -lopengl32 -lglu32 -lcomctl32 -lctl3d32 -L/cygdrive/c/cmiss/wxWidgets/lib -lwxexpatd-2.8) 
+TARGET_LINK_LIBRARIES(MyTest ${CMGUI_LIB} ${wxWidgets_LIBRARIES_TEMP} ${INTERPRETER_LIB} ${IMAGEMAGICK_LIB} 
+     ${XML2_LIB} ${ITK_LIB} ${common_LIBS})  
+ENDIF(WIN32)
+
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
