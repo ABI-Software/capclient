@@ -244,29 +244,27 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 
 void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 {
-	//int selection = event.GetInt();
 	wxString name = objectList_->GetStringSelection();
 	const ImagePlane& plane = imageSet_->GetImagePlane(name.mb_str());
 	
-	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
-	
-//	int Scene_viewer_set_lookat_parameters_non_skew(
-//		struct Scene_viewer *scene_viewer,double eyex,double eyey,double eyez,
-//		double lookatx,double lookaty,double lookatz,
-//		double upx,double upy,double upz)
-	
+	// compute the center of the image plane, eye(camera) position and the up vector
 	Point3D planeCenter =  0.5 * (plane.trc + plane.blc);
-	Point3D eye = planeCenter + (500 * plane.normal);
+	Point3D eye = planeCenter + (500 * plane.normal); // this seems to determine the near clip plane
 	Point3D up(plane.yside);
 	NORMALISE(up);
-		
-	Cmiss_scene_viewer_set_lookat_parameters_non_skew(
+	
+	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();	
+	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
 			sceneViewer, eye.x, eye.y, eye.z,
 			planeCenter.x, planeCenter.y, planeCenter.z,
 			up.x, up.y, up.z
-			);
+			))
+	{
+		//Error;
+	}
 	
 //	Cmiss_scene_viewer_view_all(sceneViewer);
+	return;
 }
 
 void ViewerFrame::RefreshCmguiCanvas()
