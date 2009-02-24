@@ -48,6 +48,7 @@ private:
 	void Terminate(wxCloseEvent& event);
 	void TogglePlay(wxCommandEvent& event);
 	void ObjectCheckListChecked(wxCommandEvent& event);
+	void ObjectCheckListSelected(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 };

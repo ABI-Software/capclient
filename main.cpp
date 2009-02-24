@@ -115,7 +115,7 @@ int main(int argc,char *argv[])
 #endif 
 		
 		Cmiss_scene_viewer_view_all(sceneViewer);
-		
+		Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
 		//DESTROY(Cmiss_command_data)(&command_data);
 		return 1;

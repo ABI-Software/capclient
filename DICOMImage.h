@@ -85,6 +85,8 @@ public:
 		return isVisible_;
 	};
 	
+	const ImagePlane& GetImagePlane() const;
+	
 private:
 	void LoadImagePlaneModel();
 	
@@ -103,6 +105,8 @@ private:
 	
 	Graphical_material* material_;
 	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
+	
+	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 };
 
 class ImageGroup // a bunch of image slices i.e LA & SA
@@ -134,6 +138,12 @@ public:
 	 */
 	void SetVisible(const std::string& sliceName, bool visible = true); 
 	
+	/** Get the position and orientation of the image slice by name
+	 * @param name
+	 */
+	const ImagePlane& GetImagePlane(const std::string& sliceName) const;
+	
+private:
 //	std::vector<ImageGroup*> imageGroups;
 //
 //	//or

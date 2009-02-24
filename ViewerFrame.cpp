@@ -239,17 +239,46 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 		imageSet_->SetVisible(name.mb_str(), false);
 	}
 	
-//	RefreshCmguiCanvas(); //necessrary??
+	RefreshCmguiCanvas(); //necessrary??
+}
+
+void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
+{
+	//int selection = event.GetInt();
+	wxString name = objectList_->GetStringSelection();
+	const ImagePlane& plane = imageSet_->GetImagePlane(name.mb_str());
+	
+	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
+	
+//	int Scene_viewer_set_lookat_parameters_non_skew(
+//		struct Scene_viewer *scene_viewer,double eyex,double eyey,double eyez,
+//		double lookatx,double lookaty,double lookatz,
+//		double upx,double upy,double upz)
+	
+	Point3D planeCenter =  0.5 * (plane.trc + plane.blc);
+	Point3D eye = planeCenter + (500 * plane.normal);
+	Point3D up(plane.yside);
+	NORMALISE(up);
+		
+	Cmiss_scene_viewer_set_lookat_parameters_non_skew(
+			sceneViewer, eye.x, eye.y, eye.z,
+			planeCenter.x, planeCenter.y, planeCenter.z,
+			up.x, up.y, up.z
+			);
+	
+//	Cmiss_scene_viewer_view_all(sceneViewer);
 }
 
 void ViewerFrame::RefreshCmguiCanvas()
 {
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
-	Scene_viewer_redraw(sceneViewer);
+//	Scene_viewer_redraw(sceneViewer);
+	Scene_viewer_redraw_now(sceneViewer);
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay)
 	EVT_CHECKLISTBOX(416501, ViewerFrame::ObjectCheckListChecked)
+	EVT_LISTBOX(416501, ViewerFrame::ObjectCheckListSelected)
 	EVT_CLOSE(ViewerFrame::Terminate)
 END_EVENT_TABLE()

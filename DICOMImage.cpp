@@ -394,6 +394,7 @@ void ImageSlice::TransformImagePlane()
 	else
 	{
 		cout << plane->tlc << endl;
+		imagePlane_ = plane;
 	}
 
 	int nodeNum = 81; // HACK FIX
@@ -486,7 +487,10 @@ void ImageSlice::TransformImagePlane()
 	}
 }
 
-
+const ImagePlane& ImageSlice::GetImagePlane() const
+{
+	return *(imagePlane_);
+}
 /** 
  * ImageSet
  */
@@ -522,10 +526,26 @@ void ImageSet::SetVisible(const std::string& sliceName, bool visible)
 	if (itr == imageSlicesMap_.end())
 	{
 		//error should probably throw exception
-		assert("No such name is the imageSliceMap_");
+		assert(!"No such name is the imageSliceMap_");
 	}
 	else
 	{
 		itr->second->SetVisible(visible);
 	}
+}
+
+const ImagePlane& ImageSet::GetImagePlane(const std::string& sliceName) const
+{
+	ImageSlicesMap::const_iterator itr = imageSlicesMap_.find(sliceName);
+	if (itr == imageSlicesMap_.end())
+	{
+		//error should probably throw exception
+		assert(!"No such name is the imageSliceMap_");
+		
+		throw std::exception();
+	}
+	else
+	{
+		return itr->second->GetImagePlane();
+	} 
 }
