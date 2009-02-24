@@ -34,7 +34,7 @@
                                     <object class="sizeritem">
                                         <flag>wxALIGN_CENTER_VERTICAL</flag>
                                         <object class="wxButton" name="button_1">
-                                            <label>button_1</label>
+                                            <label>play</label>
                                         </object>
                                     </object>
                                     <object class="sizeritem">

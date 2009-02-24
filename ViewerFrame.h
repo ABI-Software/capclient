@@ -30,12 +30,14 @@ public:
 	//test
 	void PopulateObjectList();
 	
+	void SetTime(double time);
+	
 private:
 	wxCheckListBox* objectList_;
 	wxPanel* m_pPanel;
 	
 	Cmiss_command_data* command_data;
-	Time_keeper* time_keeper;
+	Time_keeper* timeKeeper_;
 	ImageSet* imageSet_;
 	
 	bool animationIsOn;
@@ -49,6 +51,7 @@ private:
 	void TogglePlay(wxCommandEvent& event);
 	void ObjectCheckListChecked(wxCommandEvent& event);
 	void ObjectCheckListSelected(wxCommandEvent& event);
+	void OnSliderEvent(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 };

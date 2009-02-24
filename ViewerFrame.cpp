@@ -2,6 +2,9 @@
 
 #include "wx/xrc/xmlres.h"
 #include "wx/splitter.h"
+//#include "wx/slider.h"
+//#include "wx/button.h"
+
 #include "ViewerFrame.h"
 #include "CmguiManager.h"
 #include <iostream>
@@ -70,21 +73,27 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 	//DEBUG
 	cout << "Time_call_back time = " << current_time << endl;
 	
-	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
-	imageSet->SetTime(current_time);
+//	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
+//	imageSet->SetTime(current_time);
+	
+	ViewerFrame* frame = static_cast<ViewerFrame*>(user_data);
+	frame->SetTime(current_time);
 	
 //	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
 //	Scene_viewer_redraw(sceneViewer);
 }
 
 ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
-	: command_data(command_data_), animationIsOn(false)
+: 
+	command_data(command_data_),
+	animationIsOn(false),
+	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_))
 {
-	time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
+//	timeKeeper_ = Cmiss_command_data_get_default_time_keeper(command_data);
 	
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
 	
-	//HACK
+	//HACK to make sure the layout is properly applied (for Mac)
 	this->Show(true);
 	wxSplitterWindow* win = XRCCTRL(*this, "window_1", wxSplitterWindow);
 	win->SetSashPosition(800, true);
@@ -102,7 +111,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	wxPanel* sideBar = XRCCTRL(*this, "SideBar", wxPanel);
 	wxBoxSizer* sideBarSizer = new wxBoxSizer(wxVERTICAL);
 	
-	objectList_ = new wxCheckListBox(sideBar, 416501);
+	objectList_ = new wxCheckListBox(sideBar, 416501);//FIX magic number
 	objectList_->SetSelection(wxNOT_FOUND);
 	objectList_->Clear();
 	
@@ -131,13 +140,12 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 #ifdef TIME_OBJECT_CALLBACK_TEST
 	Time_object* time_object = create_Time_object("Texture_animation_timer");
 	
-	Time_object_add_callback(time_object,time_callback,(void*)imageSet_);
-	struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
-	Time_object_set_time_keeper(time_object, time_keeper);
+	Time_object_add_callback(time_object,time_callback,(void*)this);
+	Time_object_set_time_keeper(time_object, timeKeeper_);
 //		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
 	
-	Time_keeper_set_minimum(time_keeper, 0);
-	Time_keeper_set_maximum(time_keeper, 1);
+	Time_keeper_set_minimum(timeKeeper_, 0);
+	Time_keeper_set_maximum(timeKeeper_, 1);
 	
 #endif		
 #endif //TEXTURE_ANIMATION
@@ -155,17 +163,21 @@ wxPanel* ViewerFrame::getPanel()
 
 void ViewerFrame::TogglePlay(wxCommandEvent& event)
 {
+	wxButton* button = XRCCTRL(*this, "button_1", wxButton);
+	
 	if (animationIsOn)
 	{
-		Time_keeper_stop(time_keeper);
+		Time_keeper_stop(timeKeeper_);
 		this->animationIsOn = false;
+		button->SetLabel("play");
 	}
 	else
 	{
-		Time_keeper_play(time_keeper,TIME_KEEPER_PLAY_FORWARD);
-		Time_keeper_set_play_loop(time_keeper);
-		Time_keeper_set_play_every_frame(time_keeper);
+		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
+		Time_keeper_set_play_loop(timeKeeper_);
+		Time_keeper_set_play_every_frame(timeKeeper_);
 		this->animationIsOn = true;
+		button->SetLabel("stop");
 	}
 	
 	return;
@@ -211,6 +223,7 @@ Add scene_object as checklistbox item into the box.
 void ViewerFrame::PopulateObjectList()
 {
 	//TODO move Cmgui specific code to ImageSet
+	//Should just objtain the list of slice names from ImageSet and use that to populate the check list box
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	for_each_Scene_object_in_Scene(scene,
@@ -227,7 +240,7 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 //	//hack to test the callback works when time is manually set to 0
 //	if ("heart"==name)
 //	{
-//		Time_keeper_request_new_time(time_keeper, 0);
+//		Time_keeper_request_new_time(timeKeeper_, 0);
 //	}
 	
 	if(objectList_->IsChecked(selection))
@@ -239,7 +252,7 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 		imageSet_->SetVisible(name.mb_str(), false);
 	}
 	
-	RefreshCmguiCanvas(); //necessrary??
+//	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesnt redraw
 }
 
 void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
@@ -267,6 +280,23 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	return;
 }
 
+void ViewerFrame::OnSliderEvent(wxCommandEvent& event)
+{
+	wxSlider* slider = XRCCTRL(*this, "slider_1", wxSlider);
+	int value = slider->GetValue();
+	
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+	double time =  (double)(value - min) / (double)(max - min);
+	
+//	cout << "time = " << time << endl;;	
+//	imageSet_->SetTime(time);
+	Time_keeper_request_new_time(timeKeeper_, time);
+	
+	RefreshCmguiCanvas();
+	return;
+}
+
 void ViewerFrame::RefreshCmguiCanvas()
 {
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
@@ -274,8 +304,22 @@ void ViewerFrame::RefreshCmguiCanvas()
 	Scene_viewer_redraw_now(sceneViewer);
 }
 
+void ViewerFrame::SetTime(double time)
+{
+	imageSet_->SetTime(time);
+	
+	wxSlider* slider = XRCCTRL(*this, "slider_1", wxSlider);
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+//	cout << "min = " << min << " ,max = " << max <<endl; 
+	slider->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
+	
+	return;
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay)
+	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnSliderEvent)
 	EVT_CHECKLISTBOX(416501, ViewerFrame::ObjectCheckListChecked)
 	EVT_LISTBOX(416501, ViewerFrame::ObjectCheckListSelected)
 	EVT_CLOSE(ViewerFrame::Terminate)
