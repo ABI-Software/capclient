@@ -1,6 +1,3 @@
-//#define UNIX
-//#define DARWIN
-
 #include "wx/wxprec.h"
 
 #ifndef WX_PRECOMP
@@ -31,23 +28,24 @@ extern "C" {
 
 using namespace std;
 
+#ifdef DEL
 int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
 	cout << "Time_call_back time = " << current_time << endl;
 
 	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
-	imageSet->setTime(current_time);
+	imageSet->SetTime(current_time);
 	
 //	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
 //	Scene_viewer_redraw(sceneViewer);
 }
+#endif
 
 int main(int argc,char *argv[])
 {
 	struct Cmiss_command_data *command_data;
-
-
+	
 #if defined (DARWIN)
 	ProcessSerialNumber PSN;
 	GetCurrentProcess(&PSN);
@@ -73,17 +71,17 @@ int main(int argc,char *argv[])
 		
 		Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(panel);
 
-#define TEXTURE_ANIMATION
-#ifdef TEXTURE_ANIMATION
+//#define TEXTURE_ANIMATION
+#ifdef TEXTURE_ANIMATION_OLD
 		vector<string> sliceNames;
-//		sliceNames.push_back("SA1");
-//		sliceNames.push_back("SA2");
-//		sliceNames.push_back("SA3");
-//		sliceNames.push_back("SA4");
-//		sliceNames.push_back("SA5");
-//		sliceNames.push_back("SA6");
-//		sliceNames.push_back("LA1");
-//		sliceNames.push_back("LA2");
+		sliceNames.push_back("SA1");
+		sliceNames.push_back("SA2");
+		sliceNames.push_back("SA3");
+		sliceNames.push_back("SA4");
+		sliceNames.push_back("SA5");
+		sliceNames.push_back("SA6");
+		sliceNames.push_back("LA1");
+		sliceNames.push_back("LA2");
 		sliceNames.push_back("LA3");
 
 		ImageSet imageSet(sliceNames);
@@ -105,6 +103,8 @@ int main(int argc,char *argv[])
 
 		CAPModelLVPS4X4 heartModel("heart");
 		heartModel.readModelFromFiles("test");	
+
+		frame->PopulateObjectList(); //refactor
 		
 //#define HARD_CODED_GUI
 #ifdef HARD_CODED_GUI

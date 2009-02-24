@@ -46,7 +46,14 @@ int CAPModelLVPS4X4::readModelFromFiles(const std::string& path)
 	{		
 		stringstream filenameStream;
 		filenameStream << dir_path << path << "_" << i+1 << ".model.exnode" ;
-		string filenameString = filenameStream.str().c_str();
+		
+		// lifetime of temporaries bound to a reference = lifetime of the reference 
+		// note that temporaries can only be bound to const references !
+		const string& filenameString = filenameStream.str();
+		// Note that with RVO, the above statement is the same as
+		// string filenameString = filenameStream.str(); 
+		
+		
 		char* filename = const_cast<char*>(filenameString.c_str());
 		//DEBUG
 		//cout << "DEBUG: i = " << i << ", filename = " << filename << endl;
@@ -148,9 +155,10 @@ void CAPModelLVPS4X4::readModelInfo(std::string modelInfoFilePath)
 	//i_hat, j_hat, k_hat =  model coord basis vectors in i, j & k directions
 	//translation = origin translation
 	
-	Point3D i_hat = temporary_helper_function_to_transform_vector(modelInfoFile);
-	Point3D j_hat = temporary_helper_function_to_transform_vector(modelInfoFile);
-	Point3D k_hat = temporary_helper_function_to_transform_vector(modelInfoFile);
+	//?? what is the correct way to initialize an obj from a return value? RVO??
+	const Point3D& i_hat = temporary_helper_function_to_transform_vector(modelInfoFile);// this is probably the way?
+	Point3D j_hat(temporary_helper_function_to_transform_vector(modelInfoFile));//copy construction from the return value? (if the function does return a temporary)
+	Point3D k_hat = temporary_helper_function_to_transform_vector(modelInfoFile);//or if RVO kicks in this may be optimal too?? => true when RVO kicks in
 	Point3D translation = temporary_helper_function_to_transform_vector(modelInfoFile);
 	
 	cout << "a1 = " << i_hat <<endl;

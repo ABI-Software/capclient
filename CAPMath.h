@@ -28,7 +28,7 @@ inline std::ostream& operator<<(std::ostream &os, const Point3D &val)
 };
 
 template <typename T>
-inline void FIND_VECTOR(T& ans, T& from, T& to)
+inline void FIND_VECTOR(T& ans,const T& from,const T& to)
 {
 	ans.x = to.x - from.x;
 	ans.y = to.y - from.y;
@@ -37,7 +37,7 @@ inline void FIND_VECTOR(T& ans, T& from, T& to)
 
 //#define DOT(a,b) ( (a).x*(b).x + (a).y*(b).y + (a).z*(b).z )
 template <typename T>
-inline float DOT(T& a, T& b)
+inline float DOT(const T& a, const T& b)
 {
 	return a.x*b.x + a.y*b.y + a.z*b.z;
 }
