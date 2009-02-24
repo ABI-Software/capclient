@@ -34,7 +34,7 @@ using namespace std;
 int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
-	//cout << "Time_call_back time = " << current_time << endl;
+	cout << "Time_call_back time = " << current_time << endl;
 
 	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
 	imageSet->setTime(current_time);
@@ -95,7 +95,7 @@ int main(int argc,char *argv[])
 		Time_object_add_callback(time_object,time_callback,(void*)&imageSet);
 		struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
 		Time_object_set_time_keeper(time_object, time_keeper);
-		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27
+		//Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27
 		
 		Time_keeper_set_minimum(time_keeper, 0);
 		Time_keeper_set_maximum(time_keeper, 1);
