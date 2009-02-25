@@ -27,6 +27,48 @@ extern "C"
 
 using namespace std;
 
+struct Viewer_frame_element_constraint_function_data
+{
+	struct FE_element *element, *found_element;
+	FE_value xi[MAXIMUM_ELEMENT_XI_DIMENSIONS];
+	struct Computed_field *coordinate_field;
+}; 
+
+static int Viewer_frame_element_constraint_function(FE_value *point,
+	void *void_data)
+/*******************************************************************************
+LAST MODIFIED : 14 February 2008
+
+DESCRIPTION :
+==============================================================================*/
+{
+	int return_code;
+	struct Viewer_frame_element_constraint_function_data *data;
+
+	ENTER(Viewer_frame_element_constraint_function_data);
+	if (point && (data = (struct Viewer_frame_element_constraint_function_data *)void_data))
+	{
+		data->found_element = data->element;
+		return_code = Computed_field_find_element_xi(data->coordinate_field,
+			point, /*number_of_values*/3, &(data->found_element), 
+			data->xi, /*element_dimension*/2, 
+			(struct Cmiss_region *)NULL, /*propagate_field*/0, /*find_nearest_location*/1);
+		Computed_field_evaluate_in_element(data->coordinate_field,
+			data->found_element, data->xi, /*time*/0.0, (struct FE_element *)NULL,
+			point, (FE_value *)NULL);
+	}
+	else
+	{
+		display_message(ERROR_MESSAGE,
+			"Node_tool_element_constraint_function.  Invalid argument(s)");
+		return_code=0;
+	}
+	LEAVE;
+
+	return (return_code);
+} /* Node_tool_element_constraint_function */
+
+
 static int input_callback(struct Scene_viewer *scene_viewer, 
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
@@ -120,9 +162,20 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 //			node_tool->picked_node_was_unselected=0;
 //		}
 		double node_coordinates[3];
+//		Interaction_volume_get_placement_point(interaction_volume,
+//							node_coordinates, (Interation_volume_constraint_function)NULL,
+//							(void *)NULL);
+		Viewer_frame_element_constraint_function_data constraint_data;
+		constraint_data.element = nearest_element;
+		constraint_data.found_element = nearest_element;
+		constraint_data.coordinate_field = nearest_element_coordinate_field;
+		for (int i = 0; i < MAXIMUM_ELEMENT_XI_DIMENSIONS; i++)
+		{
+			constraint_data.xi[i] = 0.5;
+		}
 		Interaction_volume_get_placement_point(interaction_volume,
-							node_coordinates, (Interation_volume_constraint_function)NULL,
-							(void *)NULL);
+			node_coordinates, Viewer_frame_element_constraint_function,
+			&constraint_data);
 		Point3D coords(node_coordinates[0], node_coordinates[1], node_coordinates[2]);
 		cout << "debug: " << coords <<  endl;
 		
@@ -164,7 +217,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 static int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
-//	cout << "Time_call_back time = " << current_time << endl;
+	cout << "Time_call_back time = " << current_time << endl;
 	
 //	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
 //	imageSet->SetTime(current_time);
@@ -245,6 +298,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	Time_keeper_set_minimum(timeKeeper_, 0);
 	Time_keeper_set_maximum(timeKeeper_, 1);
+	Time_keeper_set_play_every_frame(timeKeeper_);
 	
 #endif		
 #endif //TEXTURE_ANIMATION
