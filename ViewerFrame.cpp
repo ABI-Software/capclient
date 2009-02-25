@@ -23,51 +23,6 @@ extern "C"
 
 using namespace std;
 
-ViewerFrame::ViewerFrame(const wxChar *title, int xpos, int ypos, int width, int height)
-    //: wxFrame((wxFrame *) NULL, -1, title, wxPoint(xpos, ypos), wxSize(width, height))//, m_pPanel(new wxPanel(this))
-{
-	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
-	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
-	m_pPanel->GetContainingSizer()->SetMinSize(600, 600);
-	m_pPanel->GetContainingSizer()->SetDimension(-1, -1, 600, 600);
-	this->GetSizer()->SetSizeHints(this);
-	this->Fit();
-	
-#ifdef OLD
-//  m_pTextCtrl = new wxTextCtrl(this, -1, wxT("Type some text..."),
-//                             wxDefaultPosition,  wxDefaultSize, wxTE_MULTILINE);
-  //m_pPanel = new wxPanel(this);// -1, wxDefaultPosition,  wxDefaultSize)
-  wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
-  SetSizer( mainSizer );
-
-  // Add MyPanel to the sizer, set the proportion flag to 1 and using the
-  //  wxEXPAND flag to ensure that our control will fill entire content of
-
-  // the frame
-  mainSizer->Add(m_pPanel, 1, wxEXPAND);
-
-#ifdef DEL
-  m_pMenuBar = new wxMenuBar();
-  // File Menu
-  m_pFileMenu = new wxMenu();
-  m_pFileMenu->Append(wxID_OPEN, _T("&Open"));
-  m_pFileMenu->Append(wxID_SAVE, _T("&Save"));
-  m_pFileMenu->AppendSeparator();
-  m_pFileMenu->Append(wxID_EXIT, _T("&Quit"));
-  m_pMenuBar->Append(m_pFileMenu, _T("&File"));
-  // About menu
-  m_pHelpMenu = new wxMenu();
-  m_pHelpMenu->Append(wxID_ABOUT, _T("&About"));
-  m_pMenuBar->Append(m_pHelpMenu, _T("&Help"));
-
-  SetMenuBar(m_pMenuBar);
-#endif
-  CreateStatusBar(3);
-  SetStatusText(wxT("Ready"), 0);
-  //Layout();
-#endif
-}
-
 int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
@@ -135,7 +90,11 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	sliceNames.push_back("LA3");
 	
 	imageSet_ = new ImageSet(sliceNames); //REFACTOR
-			
+	
+	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(m_pPanel);
+	Cmiss_scene_viewer_view_all(sceneViewer);
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
+	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
 	Time_object* time_object = create_Time_object("Texture_animation_timer");
