@@ -16,17 +16,122 @@ extern "C"
 #include "time/time_keeper.h"
 #include "time/time.h"
 #include "command/cmiss.h"
-	
+#include "graphics/scene.h"	
+#include "three_d_drawing/graphics_buffer.h"
+#include "graphics/graphics_library.h"
 #include "general/debug.h"
 }
 
+//#include <OpenGL/gl.h>
 
 using namespace std;
 
-int time_callback(struct Time_object *time, double current_time, void *user_data)
+//static int spectrum_editor_viewer_input_callback(
+//struct Scene_viewer *scene_viewer, struct Graphics_buffer_input *input,
+//void *spectrum_editor_void)
+static int input_callback(struct Scene_viewer *scene_viewer, 
+		struct Graphics_buffer_input *input, void *viewer_frame_void)
+{
+//	cout << "input_callback()" << endl;
+	
+	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE
+			|| input->input_modifier!=GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
+	{
+		return 0;
+	}
+	if (input->type ==GRAPHICS_BUFFER_BUTTON_RELEASE
+			&& input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
+	{
+		cout << "input->input_modifier==" << input->input_modifier << endl;
+	}
+	
+	ViewerFrame* frame = static_cast<ViewerFrame*>(viewer_frame_void);
+	
+	GLint viewport[4];
+	
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	double viewport_left   = (double)(viewport[0]);
+	double viewport_bottom = (double)(viewport[1]);
+	double viewport_width  = (double)(viewport[2]);
+	double viewport_height = (double)(viewport[3]);
+	
+	double centre_x=(double)(input->position_x);
+	/* flip y as x event has y=0 at top of window, increasing down */
+	double centre_y=viewport_height-(double)(input->position_y)-1.0;
+	
+	GLdouble modelview_matrix[16], window_projection_matrix[16];
+
+	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	
+	
+	double size_x = 7.0;//FIX
+	double size_y = 7.0;
+	
+	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
+					modelview_matrix,window_projection_matrix,
+					viewport_left,viewport_bottom,viewport_width,viewport_height,
+					centre_x,centre_y,size_x,size_y);
+	
+	FE_element* nearest_element;
+	struct LIST(Scene_picked_object) *scene_picked_object_list;
+	struct Scene_picked_object *scene_picked_object2;
+	struct GT_element_group *gt_element_group_element;
+	struct GT_element_settings *gt_element_settings_element;
+	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
+			CmguiManager::getInstance().getCmissCommandData());
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	
+	if (scene_picked_object_list=
+		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
+	{
+		nearest_element = (struct FE_element *)NULL;
+
+		nearest_element=Scene_picked_object_list_get_nearest_element(
+			scene_picked_object_list,(struct Cmiss_region *)NULL,
+			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
+			/*select_lines_enabled*/0, &scene_picked_object2,
+			&gt_element_group_element,&gt_element_settings_element);
+	}
+	
+	/* Find the intersection of the element and the interaction volume */
+	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
+	if (nearest_element)
+	{
+		if (!(nearest_element_coordinate_field = 
+				GT_element_settings_get_coordinate_field(gt_element_settings_element)))
+		{
+			nearest_element_coordinate_field = 
+				GT_element_group_get_default_coordinate_field(
+				gt_element_group_element);
+		}
+
+//		if (picked_node=Node_tool_create_node_at_interaction_volume(
+//			node_tool,scene,interaction_volume,nearest_element,
+//			nearest_element_coordinate_field))
+//		{
+//			node_tool->picked_node_was_unselected=1;
+//		}
+//		else
+//		{
+//			node_tool->picked_node_was_unselected=0;
+//		}
+		cout << "debug: " << endl;
+	}
+	else
+	{
+//		node_tool->picked_node_was_unselected=0;
+	}
+
+	return 0;
+}
+
+static int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
-	cout << "Time_call_back time = " << current_time << endl;
+//	cout << "Time_call_back time = " << current_time << endl;
 	
 //	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
 //	imageSet->SetTime(current_time);
@@ -36,6 +141,8 @@ int time_callback(struct Time_object *time, double current_time, void *user_data
 	
 //	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
 //	Scene_viewer_redraw(sceneViewer);
+	
+	return 0;
 }
 
 ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
@@ -108,6 +215,14 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #endif		
 #endif //TEXTURE_ANIMATION
+	
+	//test
+//	int Scene_viewer_add_input_callback(struct Scene_viewer *scene_viewer,
+//		CMISS_CALLBACK_FUNCTION(Scene_viewer_input_callback) *function,
+//		void *user_data, int add_first)
+	
+	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+			input_callback, (void*)this, 0/*add_first*/);
 }
 
 ViewerFrame::~ViewerFrame()
