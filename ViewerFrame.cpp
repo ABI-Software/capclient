@@ -13,6 +13,7 @@
 
 extern "C"
 {
+#include "api/cmiss_region.h"
 #include "time/time_keeper.h"
 #include "time/time.h"
 #include "command/cmiss.h"
@@ -26,24 +27,22 @@ extern "C"
 
 using namespace std;
 
-//static int spectrum_editor_viewer_input_callback(
-//struct Scene_viewer *scene_viewer, struct Graphics_buffer_input *input,
-//void *spectrum_editor_void)
 static int input_callback(struct Scene_viewer *scene_viewer, 
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
 //	cout << "input_callback()" << endl;
+	int return_code = 0;
 	
 	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE
 			|| input->input_modifier!=GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
 	{
 		return 0;
 	}
-	if (input->type ==GRAPHICS_BUFFER_BUTTON_RELEASE
-			&& input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
-	{
-		cout << "input->input_modifier==" << input->input_modifier << endl;
-	}
+//	if (input->type ==GRAPHICS_BUFFER_BUTTON_RELEASE
+//			&& input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
+//	{
+//		cout << "input->input_modifier==" << input->input_modifier << endl;
+//	}
 	
 	ViewerFrame* frame = static_cast<ViewerFrame*>(viewer_frame_void);
 	
@@ -94,6 +93,8 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
 			/*select_lines_enabled*/0, &scene_picked_object2,
 			&gt_element_group_element,&gt_element_settings_element);
+		
+		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
 	}
 	
 	/* Find the intersection of the element and the interaction volume */
@@ -118,14 +119,46 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 //		{
 //			node_tool->picked_node_was_unselected=0;
 //		}
-		cout << "debug: " << endl;
+		double node_coordinates[3];
+		Interaction_volume_get_placement_point(interaction_volume,
+							node_coordinates, (Interation_volume_constraint_function)NULL,
+							(void *)NULL);
+		Point3D coords(node_coordinates[0], node_coordinates[1], node_coordinates[2]);
+		cout << "debug: " << coords <<  endl;
+		
+		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
+				CmguiManager::getInstance().getCmissCommandData());
+		Cmiss_region* cmiss_region;
+		if(!Cmiss_region_get_region_from_path(root_region, "SA1", &cmiss_region))
+		{
+			//error
+			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< cmiss_region <<endl;
+		}
+		
+		FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
+		if (!fe_region)
+		{
+			cout << "fe_region is null" << endl;
+		}
+		
+		int node_identifier = FE_region_get_next_FE_node_identifier(fe_region, /*start*/1);
+		cout << "node id = " << node_identifier << endl;
+		
+		Cmiss_node_id node = create_Cmiss_node(node_identifier, cmiss_region);
+		Cmiss_region_merge_Cmiss_node(cmiss_region, node);
+		Cmiss_field_id field = nearest_element_coordinate_field;
+		Cmiss_field_finite_element_define_at_node(
+			field,  node,
+			0 /* time_sequence*/, 0/* node_field_creator*/);
+		
+		Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , (float *)&coords);
 	}
 	else
 	{
 //		node_tool->picked_node_was_unselected=0;
 	}
 
-	return 0;
+	return return_code;
 }
 
 static int time_callback(struct Time_object *time, double current_time, void *user_data)
