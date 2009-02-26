@@ -5,11 +5,13 @@
 //#include "wx/slider.h"
 //#include "wx/button.h"
 
+#include "Config.h"
 #include "ViewerFrame.h"
 #include "CmguiManager.h"
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 extern "C"
 {
@@ -21,6 +23,10 @@ extern "C"
 #include "three_d_drawing/graphics_buffer.h"
 #include "graphics/graphics_library.h"
 #include "general/debug.h"
+	
+#include "graphics/material.h"
+#include "graphics/element_group_settings.h"
+#include "graphics/glyph.h"
 }
 
 //#include <OpenGL/gl.h>
@@ -182,7 +188,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
 				CmguiManager::getInstance().getCmissCommandData());
 		Cmiss_region* cmiss_region;
-		if(!Cmiss_region_get_region_from_path(root_region, "SA1", &cmiss_region))
+		if(!Cmiss_region_get_region_from_path(root_region, "DataPoints", &cmiss_region))
 		{
 			//error
 			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< cmiss_region <<endl;
@@ -298,7 +304,6 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	Time_keeper_set_minimum(timeKeeper_, 0);
 	Time_keeper_set_maximum(timeKeeper_, 1);
-	Time_keeper_set_play_every_frame(timeKeeper_);
 	
 #endif		
 #endif //TEXTURE_ANIMATION
@@ -310,6 +315,75 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
 			input_callback, (void*)this, 0/*add_first*/);
+	
+	//FIX move to a separate function
+	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
+	
+	stringstream pathStream;
+	pathStream << prefix << "templates/DataPoints.exnode";
+	string filename = pathStream.str();
+	if (!Cmiss_region_read_file(region,(char*)filename.c_str()))
+	{
+		std::cout << "Error reading ex file - DataPoints.exnode" << std::endl;
+	}
+	
+	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_NODE_POINTS);
+//	//hack
+	Graphical_material* material = create_Graphical_material("DataPoints");
+	GT_element_settings_set_selected_material(settings, material);
+//
+//	if(!GT_element_settings_set_material(settings, material_))
+//	{
+//		//Error;
+//		cout << "GT_element_settings_set_material() returned 0" << endl;
+//	}
+//	else
+//	{
+//		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+//		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
+//		
+//		GT_element_settings_set_texture_coordinate_field(settings,c_field);
+//		
+//		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+//		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+//		
+//		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+//			struct Scene *scene, struct GT_element_settings *settings,
+//			int delete_flag, int position);  // should add this to a header file somewhere
+//		
+//		if (!Cmiss_region_modify_g_element(region, scene,settings,
+//		/*delete_flag*/0, /*position*/-1))
+//		{
+//			//error
+//			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
+//		}
+//	}
+	
+	{//Glyphs
+		/* default to point glyph for fastest possible display */
+		GT_object *glyph, *old_glyph;
+		Glyph_scaling_mode glyph_scaling_mode;
+		Triple glyph_centre,glyph_scale_factors,glyph_size;
+		Computed_field *orientation_scale_field, *variable_scale_field; ;
+		glyph=make_glyph_sphere("sphere",12,6);
+		if (!(GT_element_settings_get_glyph_parameters(settings,
+			 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
+			 &orientation_scale_field, glyph_scale_factors,
+			 &variable_scale_field) &&
+			GT_element_settings_set_glyph_parameters(settings,glyph,
+			 glyph_scaling_mode, glyph_centre, glyph_size,
+			 orientation_scale_field, glyph_scale_factors,
+			 variable_scale_field)))
+		{
+			cout << "No glyphs defined" << endl;
+		}
+	}
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
+				CmguiManager::getInstance().getCmissCommandData());
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	Scene_object* scene_object = Scene_get_Scene_object_by_name(scene, "DataPoints");
+	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(scene_object);
+	GT_element_group_add_settings(gt_element_group, settings, 0);
 }
 
 ViewerFrame::~ViewerFrame()
