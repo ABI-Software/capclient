@@ -298,8 +298,8 @@ void ImageSlice::LoadImagePlaneModel()
 		
 	material_ = create_Graphical_material(name.c_str());
 
-	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
-	Material_package_manage_material(material_package, material_);
+//	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
+//	Material_package_manage_material(material_package, material_);
 	
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
