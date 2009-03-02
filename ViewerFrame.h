@@ -7,7 +7,8 @@
     #include "wx/wx.h"
 #endif
 
-#include "DICOMImage.h"
+//#include "DICOMImage.h"
+#include "ImageSet.h"
 
 struct Cmiss_command_data;
 struct Time_keeper;

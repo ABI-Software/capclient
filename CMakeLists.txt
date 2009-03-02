@@ -21,6 +21,7 @@ main.cpp
 Filesystem.cpp
 CmguiExtensions.cpp
 DICOMImage.cpp
+ImageSet.cpp
 CAPModelLVPS4X4.cpp
 CmguiManager.cpp
 )

@@ -8,6 +8,7 @@
 #include "Config.h"
 #include "ViewerFrame.h"
 #include "CmguiManager.h"
+#include "DICOMImage.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -45,7 +46,7 @@ static int Viewer_frame_element_constraint_function(FE_value *point,
 /*******************************************************************************
 LAST MODIFIED : 14 February 2008
 
-DESCRIPTION :
+DESCRIPTION : need to find the point of intersection between picking ray and obj
 ==============================================================================*/
 {
 	int return_code;
@@ -262,15 +263,16 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	//see scene_editor_update_widgets_for_scene() for setting up a check list box of
 	// scene objects
-	wxPanel* sideBar = XRCCTRL(*this, "SideBar", wxPanel);
-	wxBoxSizer* sideBarSizer = new wxBoxSizer(wxVERTICAL);
+//	wxPanel* sideBar = XRCCTRL(*this, "SideBar", wxPanel);
+//	wxBoxSizer* sideBarSizer = new wxBoxSizer(wxVERTICAL);
 	
-	objectList_ = new wxCheckListBox(sideBar, 416501);//FIX magic number
+//	objectList_ = new wxCheckListBox(sideBar, 416501);//FIX magic number
+	objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
 	objectList_->SetSelection(wxNOT_FOUND);
 	objectList_->Clear();
 	
-	sideBar->SetSizer(sideBarSizer);
-	sideBarSizer->Add(objectList_, 1, wxEXPAND);
+//	sideBar->SetSizer(sideBarSizer);
+//	sideBarSizer->Add(objectList_, 1, wxEXPAND);
 	
 	this->Layout();
 	this->Fit();
@@ -331,53 +333,26 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 //	//hack
 	Graphical_material* material = create_Graphical_material("DataPoints");
 	GT_element_settings_set_selected_material(settings, material);
-//
-//	if(!GT_element_settings_set_material(settings, material_))
-//	{
-//		//Error;
-//		cout << "GT_element_settings_set_material() returned 0" << endl;
-//	}
-//	else
-//	{
-//		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
-//		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-//		
-//		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-//		
-//		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
-//		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-//		
-//		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
-//			struct Scene *scene, struct GT_element_settings *settings,
-//			int delete_flag, int position);  // should add this to a header file somewhere
-//		
-//		if (!Cmiss_region_modify_g_element(region, scene,settings,
-//		/*delete_flag*/0, /*position*/-1))
-//		{
-//			//error
-//			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
-//		}
-//	}
-	
-	{//Glyphs
-		/* default to point glyph for fastest possible display */
-		GT_object *glyph, *old_glyph;
-		Glyph_scaling_mode glyph_scaling_mode;
-		Triple glyph_centre,glyph_scale_factors,glyph_size;
-		Computed_field *orientation_scale_field, *variable_scale_field; ;
-		glyph=make_glyph_sphere("sphere",12,6);
-		if (!(GT_element_settings_get_glyph_parameters(settings,
-			 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
-			 &orientation_scale_field, glyph_scale_factors,
-			 &variable_scale_field) &&
-			GT_element_settings_set_glyph_parameters(settings,glyph,
-			 glyph_scaling_mode, glyph_centre, glyph_size,
-			 orientation_scale_field, glyph_scale_factors,
-			 variable_scale_field)))
-		{
-			cout << "No glyphs defined" << endl;
-		}
+
+	//Glyphs
+	/* default to point glyph for fastest possible display */
+	GT_object *glyph, *old_glyph;
+	Glyph_scaling_mode glyph_scaling_mode;
+	Triple glyph_centre,glyph_scale_factors,glyph_size;
+	Computed_field *orientation_scale_field, *variable_scale_field; ;
+	glyph=make_glyph_sphere("sphere",12,6);
+	if (!(GT_element_settings_get_glyph_parameters(settings,
+		 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
+		 &orientation_scale_field, glyph_scale_factors,
+		 &variable_scale_field) &&
+		GT_element_settings_set_glyph_parameters(settings,glyph,
+		 glyph_scaling_mode, glyph_centre, glyph_size,
+		 orientation_scale_field, glyph_scale_factors,
+		 variable_scale_field)))
+	{
+		cout << "No glyphs defined" << endl;
 	}
+
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
 				CmguiManager::getInstance().getCmissCommandData());
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
@@ -555,7 +530,7 @@ void ViewerFrame::SetTime(double time)
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay)
 	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnSliderEvent)
-	EVT_CHECKLISTBOX(416501, ViewerFrame::ObjectCheckListChecked)
-	EVT_LISTBOX(416501, ViewerFrame::ObjectCheckListSelected)
+	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
+	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
 	EVT_CLOSE(ViewerFrame::Terminate)
 END_EVENT_TABLE()
