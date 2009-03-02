@@ -123,7 +123,7 @@
                                     <label>Animation speed</label>
                                     <object class="sizeritem">
                                         <flag>wxEXPAND</flag>
-                                        <object class="wxSlider" name="slider_4">
+                                        <object class="wxSlider" name="AnimationSpeedControl">
                                             <style>wxSL_HORIZONTAL</style>
                                         </object>
                                     </object>

@@ -33,6 +33,7 @@ public:
 	
 	void SetTime(double time);
 	
+	void RefreshCmguiCanvas();
 private:
 	wxCheckListBox* objectList_;
 	wxPanel* m_pPanel;
@@ -44,7 +45,6 @@ private:
 	bool animationIsOn;
 	
 	//private utility functions
-	void RefreshCmguiCanvas();
 	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
 	
 	//Event handlers
@@ -52,7 +52,8 @@ private:
 	void TogglePlay(wxCommandEvent& event);
 	void ObjectCheckListChecked(wxCommandEvent& event);
 	void ObjectCheckListSelected(wxCommandEvent& event);
-	void OnSliderEvent(wxCommandEvent& event);
+	void OnAnimationSliderEvent(wxCommandEvent& event);
+	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 };

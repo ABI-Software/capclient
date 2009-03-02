@@ -234,6 +234,7 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 	
 //	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
 //	Scene_viewer_redraw(sceneViewer);
+	frame->RefreshCmguiCanvas(); // this forces refresh even when UI is being manipulated by user
 	
 	return 0;
 }
@@ -244,11 +245,10 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	animationIsOn(false),
 	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_))
 {
-//	timeKeeper_ = Cmiss_command_data_get_default_time_keeper(command_data);
-	
+	// Load layout from .xrc file
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
 	
-	//HACK to make sure the layout is properly applied (for Mac)
+	// HACK to make sure the layout is properly applied (for Mac)
 	this->Show(true);
 	wxSplitterWindow* win = XRCCTRL(*this, "window_1", wxSplitterWindow);
 	win->SetSashPosition(800, true);
@@ -256,23 +256,23 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 //	this->SetSize(1024,768);
 	
 	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
-	m_pPanel->GetContainingSizer()->SetMinSize(1024, 768);
-	m_pPanel->GetContainingSizer()->SetDimension(-1, -1, 1024, 768);
+	m_pPanel->GetContainingSizer()->SetMinSize(800, 800);
+	m_pPanel->GetContainingSizer()->SetDimension(-1, -1, 800, 800);
 	this->GetSizer()->SetSizeHints(this);
 	this->Fit();
 	
-	//see scene_editor_update_widgets_for_scene() for setting up a check list box of
-	// scene objects
-//	wxPanel* sideBar = XRCCTRL(*this, "SideBar", wxPanel);
-//	wxBoxSizer* sideBarSizer = new wxBoxSizer(wxVERTICAL);
-	
-//	objectList_ = new wxCheckListBox(sideBar, 416501);//FIX magic number
+	// GUI initialization
+
+	// Initialize check box list of scene objects (image slices)
 	objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
 	objectList_->SetSelection(wxNOT_FOUND);
 	objectList_->Clear();
 	
-//	sideBar->SetSizer(sideBarSizer);
-//	sideBarSizer->Add(objectList_, 1, wxEXPAND);
+	// Initialize animation speed control
+	wxSlider* animantionSpeedControl = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
+	int min = animantionSpeedControl->GetMin();
+	int max = animantionSpeedControl->GetMax();
+	animantionSpeedControl->SetValue((max - min)/2);
 	
 	this->Layout();
 	this->Fit();
@@ -490,7 +490,7 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	return;
 }
 
-void ViewerFrame::OnSliderEvent(wxCommandEvent& event)
+void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
 {
 	wxSlider* slider = XRCCTRL(*this, "slider_1", wxSlider);
 	int value = slider->GetValue();
@@ -502,6 +502,20 @@ void ViewerFrame::OnSliderEvent(wxCommandEvent& event)
 //	cout << "time = " << time << endl;;	
 //	imageSet_->SetTime(time);
 	Time_keeper_request_new_time(timeKeeper_, time);
+	
+	RefreshCmguiCanvas();
+	return;
+}
+
+void ViewerFrame::OnAnimationSpeedControlEvent(wxCommandEvent& event)
+{
+	wxSlider* slider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
+	int value = slider->GetValue();
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+	
+	double speed = (double)(value - min) / (double)(max - min) * 2.0;
+	Time_keeper_set_speed(timeKeeper_, speed);
 	
 	RefreshCmguiCanvas();
 	return;
@@ -529,7 +543,8 @@ void ViewerFrame::SetTime(double time)
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay)
-	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnSliderEvent)
+	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnAnimationSliderEvent) // animation slider
+	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
 	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
 	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
 	EVT_CLOSE(ViewerFrame::Terminate)
