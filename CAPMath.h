@@ -10,16 +10,42 @@
 
 #include <ostream>
 
-struct Point3D
+class Point3D
 {
+public:
 	float x,y,z;
 	Point3D(float x_, float y_, float z_)
 	: x(x_),y(y_),z(z_)
 	{};
 	Point3D()
 	{};
+	Point3D(const Point3D& other)
+	:x(other.x), y(other.y), z(other.z)
+	{};
+	
+	Point3D operator+(const Point3D& rhs) const
+	{
+		return Point3D(x+rhs.x, y+rhs.y, z+rhs.z);
+	}
+	
+	Point3D& operator=(const Point3D& rhs)
+	{
+		if (this != &rhs)
+		{
+			x = rhs.x;
+			y = rhs.y;
+			z = rhs.z;
+		}
+		return *this;
+	}
+	
 	friend std::ostream& operator<<(std::ostream &_os, const Point3D &val);
 };
+
+inline Point3D operator*(float scalar, const Point3D& rhs)
+{
+	return Point3D(scalar*rhs.x, scalar*rhs.y, scalar*rhs.z);
+}
 
 inline std::ostream& operator<<(std::ostream &os, const Point3D &val)
 {

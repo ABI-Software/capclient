@@ -7,7 +7,8 @@
     #include "wx/wx.h"
 #endif
 
-#include "DICOMImage.h"
+//#include "DICOMImage.h"
+#include "ImageSet.h"
 
 struct Cmiss_command_data;
 struct Time_keeper;
@@ -30,21 +31,29 @@ public:
 	//test
 	void PopulateObjectList();
 	
+	void SetTime(double time);
+	
+	void RefreshCmguiCanvas();
 private:
 	wxCheckListBox* objectList_;
 	wxPanel* m_pPanel;
 	
 	Cmiss_command_data* command_data;
-	Time_keeper* time_keeper;
+	Time_keeper* timeKeeper_;
 	ImageSet* imageSet_;
 	
 	bool animationIsOn;
 	
+	//private utility functions
 	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
 	
+	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void TogglePlay(wxCommandEvent& event);
 	void ObjectCheckListChecked(wxCommandEvent& event);
+	void ObjectCheckListSelected(wxCommandEvent& event);
+	void OnAnimationSliderEvent(wxCommandEvent& event);
+	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 };
