@@ -304,7 +304,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Time_object_set_time_keeper(time_object, timeKeeper_);
 //		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
 	
-	Time_keeper_set_minimum(timeKeeper_, 0);
+	Time_keeper_set_minimum(timeKeeper_, -0.01); //workaround for the timer bug
 	Time_keeper_set_maximum(timeKeeper_, 1);
 	
 #endif		
@@ -462,7 +462,8 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 		imageSet_->SetVisible(name.mb_str(), false);
 	}
 	
-//	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesnt redraw
+//	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesn't redraw
+	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
 }
 
 void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
@@ -503,7 +504,7 @@ void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
 //	imageSet_->SetTime(time);
 	Time_keeper_request_new_time(timeKeeper_, time);
 	
-	RefreshCmguiCanvas();
+	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
 	return;
 }
 
@@ -517,7 +518,7 @@ void ViewerFrame::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	double speed = (double)(value - min) / (double)(max - min) * 2.0;
 	Time_keeper_set_speed(timeKeeper_, speed);
 	
-	RefreshCmguiCanvas();
+	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
 	return;
 }
 
