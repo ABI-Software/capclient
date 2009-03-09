@@ -23,26 +23,26 @@ extern "C" {
 #include <sstream>
 #include <vector>
 
-CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName_)
-: modelName(modelName_)
+CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName)
+: modelName_(modelName)
 {}
 
 using namespace std;
 
-int CAPModelLVPS4X4::readModelFromFiles(const std::string& path)
+int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 {	
 	stringstream pathStream;	
 	pathStream << prefix << path << "/";// << modelName << "_";// << 
 	string dir_path = pathStream.str();
 
-	readModelInfo(dir_path); // this will set numberOfModelFrames and transformation Matrix
+	ReadModelInfo(dir_path); // this will set numberOfModelFrames and transformation Matrix
 	
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	
 	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
 	struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
 	
-	for (int i = 0; i<numberOfModelFrames; i++)
+	for (int i = 0; i<numberOfModelFrames_; i++)
 	{		
 		stringstream filenameStream;
 		filenameStream << dir_path << path << "_" << i+1 << ".model.exnode" ;
@@ -57,7 +57,7 @@ int CAPModelLVPS4X4::readModelFromFiles(const std::string& path)
 		char* filename = const_cast<char*>(filenameString.c_str());
 		//DEBUG
 		//cout << "DEBUG: i = " << i << ", filename = " << filename << endl;
-		float time = static_cast<float>(i)/numberOfModelFrames;
+		float time = static_cast<float>(i)/numberOfModelFrames_;
 		//std::cout << "time = " << time << endl;
 		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 		{
@@ -74,7 +74,7 @@ int CAPModelLVPS4X4::readModelFromFiles(const std::string& path)
 	
 	//Transform the heart model to world coordinate
 
-	char* scene_object_name = const_cast<char*>(modelName.c_str()); // temporarily remove constness to be compatible with Cmgui
+	char* scene_object_name = const_cast<char*>(modelName_.c_str()); // temporarily remove constness to be compatible with Cmgui
 
 	Scene_object* scene_object;
 	if (scene_object_name)
@@ -85,7 +85,7 @@ int CAPModelLVPS4X4::readModelFromFiles(const std::string& path)
 			scene_object_name))
 		{
 			//Scene_object_remove_time_dependent_transformation(scene_object);//??????? Why need time dependent transformation??
-			Scene_object_set_transformation(scene_object, &patientToGlobalTransform);
+			Scene_object_set_transformation(scene_object, &patientToGlobalTransform_);
 		}
 		else
 		{
@@ -117,7 +117,7 @@ Point3D temporary_helper_function_to_transform_vector(ifstream& in)
 	return Point3D(x,y,z); //hopefully RVO will prevent creation of temporary objects 
 }
 
-void CAPModelLVPS4X4::readModelInfo(std::string modelInfoFilePath)
+void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 {
 	modelInfoFilePath.append("ModelInfo.txt");
 	ifstream modelInfoFile(modelInfoFilePath.c_str());
@@ -132,8 +132,8 @@ void CAPModelLVPS4X4::readModelInfo(std::string modelInfoFilePath)
 	getline(modelInfoFile, line); // NumberOfModelFrames:
 	cout << line << endl;
 	
-	modelInfoFile >> numberOfModelFrames;
-	cout << numberOfModelFrames <<endl;
+	modelInfoFile >> numberOfModelFrames_;
+	cout << numberOfModelFrames_ <<endl;
 	
 	
 	// How to get transformation matrix from the basis vectors of and the translation of the origin
@@ -184,22 +184,22 @@ void CAPModelLVPS4X4::readModelInfo(std::string modelInfoFilePath)
 	temp[3][1] = translation.y;
 	temp[3][2] = translation.z;
 
-	patientToGlobalTransform[0][0]=temp[0][0];
-	patientToGlobalTransform[0][1]=temp[0][1];
-	patientToGlobalTransform[0][2]=temp[0][2];
-	patientToGlobalTransform[0][3]=0;
-	patientToGlobalTransform[1][0]=temp[1][0];
-	patientToGlobalTransform[1][1]=temp[1][1];
-	patientToGlobalTransform[1][2]=temp[1][2];
-	patientToGlobalTransform[1][3]=0;
-	patientToGlobalTransform[2][0]=temp[2][0];
-	patientToGlobalTransform[2][1]=temp[2][1];
-	patientToGlobalTransform[2][2]=temp[2][2];
-	patientToGlobalTransform[2][3]=0;
-	patientToGlobalTransform[3][0]=temp[3][0];
-	patientToGlobalTransform[3][1]=temp[3][1];
-	patientToGlobalTransform[3][2]=temp[3][2];
-	patientToGlobalTransform[3][3]=1;
+	patientToGlobalTransform_[0][0]=temp[0][0];
+	patientToGlobalTransform_[0][1]=temp[0][1];
+	patientToGlobalTransform_[0][2]=temp[0][2];
+	patientToGlobalTransform_[0][3]=0;
+	patientToGlobalTransform_[1][0]=temp[1][0];
+	patientToGlobalTransform_[1][1]=temp[1][1];
+	patientToGlobalTransform_[1][2]=temp[1][2];
+	patientToGlobalTransform_[1][3]=0;
+	patientToGlobalTransform_[2][0]=temp[2][0];
+	patientToGlobalTransform_[2][1]=temp[2][1];
+	patientToGlobalTransform_[2][2]=temp[2][2];
+	patientToGlobalTransform_[2][3]=0;
+	patientToGlobalTransform_[3][0]=temp[3][0];
+	patientToGlobalTransform_[3][1]=temp[3][1];
+	patientToGlobalTransform_[3][2]=temp[3][2];
+	patientToGlobalTransform_[3][3]=1;
 	
 	return;
 }

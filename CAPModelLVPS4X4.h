@@ -18,21 +18,21 @@ public:
 	CAPModelLVPS4X4(const std::string& name);
 	
 	typedef std::vector<float> parameters;
-	int readModelFromFiles(const std::string& path);
+	int ReadModelFromFiles(const std::string& path);
 	
-	int setParameters(const std::vector<float>& globalParemeters);
-	const std::vector<float>& getParameters() const;
+	int SetParameters(const std::vector<float>& globalParemeters);
+	const std::vector<float>& GetParameters() const;
 
-	double calculateVolume();
-	double calculateMass();
+	double CalculateVolume();
+	double CalculateMass();
 	
-	int setLocalToGlobalTransformation(const gtMatrix& transform);
+	int SetLocalToGlobalTransformation(const gtMatrix& transform);
 private:
-	void readModelInfo(std::string modelInfoFilePath);
+	void ReadModelInfo(std::string modelInfoFilePath);
 	
-	gtMatrix patientToGlobalTransform; // model to world transformation
-	std::string modelName;
-	int numberOfModelFrames;
+	gtMatrix patientToGlobalTransform_; // model to world transformation
+	std::string modelName_;
+	int numberOfModelFrames_;
 };
 
 #endif /* CAPMODELLVPS4X4_H_ */

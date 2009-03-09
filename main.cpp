@@ -60,7 +60,7 @@ int main(int argc,char *argv[])
 		frame->PopulateObjectList(); //refactor
 		
 		CAPModelLVPS4X4 heartModel("heart");
-		heartModel.readModelFromFiles("test");	
+		heartModel.ReadModelFromFiles("test");	
 
 //		frame->PopulateObjectList(); //refactor
 		
