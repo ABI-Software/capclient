@@ -42,7 +42,8 @@ private:
 	Time_keeper* timeKeeper_;
 	ImageSet* imageSet_;
 	
-	bool animationIsOn;
+	bool animationIsOn_;
+	bool hideAll_;
 	
 	//private utility functions
 	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
@@ -52,6 +53,7 @@ private:
 	void TogglePlay(wxCommandEvent& event);
 	void ObjectCheckListChecked(wxCommandEvent& event);
 	void ObjectCheckListSelected(wxCommandEvent& event);
+	void ToggleHideShowAll(wxCommandEvent& event);
 	void OnAnimationSliderEvent(wxCommandEvent& event);
 	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	

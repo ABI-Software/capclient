@@ -242,7 +242,8 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 : 
 	command_data(command_data_),
-	animationIsOn(false),
+	animationIsOn_(false),
+	hideAll_(true),
 	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_))
 {
 	// Load layout from .xrc file
@@ -375,10 +376,10 @@ void ViewerFrame::TogglePlay(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "button_1", wxButton);
 	
-	if (animationIsOn)
+	if (animationIsOn_)
 	{
 		Time_keeper_stop(timeKeeper_);
-		this->animationIsOn = false;
+		this->animationIsOn_ = false;
 		button->SetLabel("play");
 	}
 	else
@@ -386,7 +387,7 @@ void ViewerFrame::TogglePlay(wxCommandEvent& event)
 		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
 		Time_keeper_set_play_loop(timeKeeper_);
 		Time_keeper_set_play_every_frame(timeKeeper_);
-		this->animationIsOn = true;
+		this->animationIsOn_ = true;
 		button->SetLabel("stop");
 	}
 	
@@ -433,7 +434,7 @@ Add scene_object as checklistbox item into the box.
 void ViewerFrame::PopulateObjectList()
 {
 	//TODO move Cmgui specific code to ImageSet
-	//Should just objtain the list of slice names from ImageSet and use that to populate the check list box
+	//Should just obtain the list of slice names from ImageSet and use that to populate the check list box
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	for_each_Scene_object_in_Scene(scene,
@@ -455,11 +456,11 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	
 	if(objectList_->IsChecked(selection))
 	{
-		imageSet_->SetVisible(name.mb_str(), true);
+		imageSet_->SetVisible(true, name.mb_str());
 	}
 	else
 	{
-		imageSet_->SetVisible(name.mb_str(), false);
+		imageSet_->SetVisible(false, name.mb_str());
 	}
 	
 //	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesn't redraw
@@ -542,11 +543,37 @@ void ViewerFrame::SetTime(double time)
 	return;
 }
 
+void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
+{
+	wxButton* button = XRCCTRL(*this, "HideShowAll", wxButton);
+	
+	if (hideAll_) //means the button says hide all rather than show all
+	{
+		hideAll_ = false;
+		imageSet_->SetVisible(false);
+		button->SetLabel("Show All");
+	}
+	else
+	{
+		hideAll_ = true;	
+		imageSet_->SetVisible(true);
+		button->SetLabel("Hide All");
+	}
+	
+	for (int i=0;i<imageSet_->GetNumberOfSlices();i++)
+	{
+		objectList_->Check(i, hideAll_);
+	}
+	this->Refresh(); // work around for the refresh bug
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
-	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay)
+	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay) // play button
 	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnAnimationSliderEvent) // animation slider
 	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
 	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
+	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::ToggleHideShowAll) // hide all button
+	
 	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
 	EVT_CLOSE(ViewerFrame::Terminate)
 END_EVENT_TABLE()

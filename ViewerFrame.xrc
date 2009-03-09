@@ -75,7 +75,7 @@
                                                 <size>10, 20</size>
                                             </object>
                                             <object class="sizeritem">
-                                                <object class="wxButton" name="button_5">
+                                                <object class="wxButton" name="HideShowAll">
                                                     <label>Hide All</label>
                                                 </object>
                                             </object>
@@ -83,7 +83,7 @@
                                                 <size>20, 20</size>
                                             </object>
                                             <object class="sizeritem">
-                                                <object class="wxButton" name="button_6">
+                                                <object class="wxButton" name="HideShowOthers">
                                                     <label>Hide Others</label>
                                                 </object>
                                             </object>

@@ -388,17 +388,29 @@ void ImageSet::SetTime(double time)
 
 #include <algorithm>
 
-void ImageSet::SetVisible(const std::string& sliceName, bool visible)
+void ImageSet::SetVisible(bool visible, const std::string& sliceName)
 {
-	ImageSlicesMap::iterator itr = imageSlicesMap_.find(sliceName);
-	if (itr == imageSlicesMap_.end())
+	if (sliceName.length())
 	{
-		//error should probably throw exception
-		assert(!"No such name in the imageSliceMap_");
+		ImageSlicesMap::iterator itr = imageSlicesMap_.find(sliceName);
+		if (itr == imageSlicesMap_.end())
+		{
+			//error should probably throw exception
+			assert(!"No such name in the imageSliceMap_");
+		}
+		else
+		{
+			itr->second->SetVisible(visible);
+		}
 	}
-	else
+	else //zero length name string:: set visibility for the whole set
 	{
-		itr->second->SetVisible(visible);
+		ImageSlicesMap::iterator itr = imageSlicesMap_.begin();
+		ImageSlicesMap::const_iterator end = imageSlicesMap_.end();
+		for (;itr!=end;++itr)
+		{
+			itr->second->SetVisible(visible);
+		}
 	}
 }
 

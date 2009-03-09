@@ -14,7 +14,16 @@
 class CAPModelLVPS4X4
 {
 	typedef float gtMatrix[4][4];
+	
 public:
+	
+	enum RenderMode
+	{
+		LINE,
+		WIREFRAME,
+		SOLID
+	};
+	
 	CAPModelLVPS4X4(const std::string& name);
 	
 	typedef std::vector<float> parameters;
@@ -26,8 +35,12 @@ public:
 	double CalculateVolume();
 	double CalculateMass();
 	
+	void SetRenderMode(RenderMode mode);
+	
 	int SetLocalToGlobalTransformation(const gtMatrix& transform);
+	
 private:
+	
 	void ReadModelInfo(std::string modelInfoFilePath);
 	
 	gtMatrix patientToGlobalTransform_; // model to world transformation

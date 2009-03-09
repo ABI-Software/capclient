@@ -61,6 +61,7 @@ int main(int argc,char *argv[])
 		
 		CAPModelLVPS4X4 heartModel("heart");
 		heartModel.ReadModelFromFiles("test");	
+		heartModel.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);
 
 //		frame->PopulateObjectList(); //refactor
 		

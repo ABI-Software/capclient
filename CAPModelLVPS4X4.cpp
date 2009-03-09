@@ -203,3 +203,23 @@ void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 	
 	return;
 }
+
+void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
+{
+	if (mode == CAPModelLVPS4X4::WIREFRAME)
+	{
+		Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+		Cmiss_command_data_execute_command(command_data,
+		"gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	
+		);
+		
+		Cmiss_command_data_execute_command(command_data,
+		"gfx mod g_el heart surfaces exterior face xi3_0 select_on material green selected_material default_selected render_wireframe;"
+		);
+		
+		Cmiss_command_data_execute_command(command_data,
+		"gfx mod g_el heart surfaces exterior face xi3_1 select_on material red selected_material default_selected render_wireframe;"
+		);
+		
+	}
+}
