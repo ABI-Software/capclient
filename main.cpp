@@ -7,9 +7,9 @@
 
 #include "Config.h"
 #include "ViewerFrame.h"
-#include "CAPModelLVPS4X4.h"
-#include "DICOMImage.h"
-#include "CmguiExtensions.h"
+//#include "CAPModelLVPS4X4.h"
+//#include "DICOMImage.h"
+//#include "CmguiExtensions.h"
 #include "CmguiManager.h"
 
 #if defined (DARWIN)
@@ -57,11 +57,11 @@ int main(int argc,char *argv[])
 //		}
 //		Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(panel);
 
-		frame->PopulateObjectList(); //refactor
-		
-		CAPModelLVPS4X4 heartModel("heart");
-		heartModel.ReadModelFromFiles("test");	
-		heartModel.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);
+//		frame->PopulateObjectList(); //refactor
+//		
+//		CAPModelLVPS4X4 heartModel("heart");
+//		heartModel.ReadModelFromFiles("test");	
+//		heartModel.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);
 
 //		frame->PopulateObjectList(); //refactor
 		

@@ -187,7 +187,7 @@ void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 	patientToGlobalTransform_[0][0]=temp[0][0];
 	patientToGlobalTransform_[0][1]=temp[0][1];
 	patientToGlobalTransform_[0][2]=temp[0][2];
-	patientToGlobalTransform_[0][3]=0;
+	patientToGlobalTransform_[0][3]=0; //NB this is the first column not row
 	patientToGlobalTransform_[1][0]=temp[1][0];
 	patientToGlobalTransform_[1][1]=temp[1][1];
 	patientToGlobalTransform_[1][2]=temp[1][2];

@@ -9,6 +9,7 @@
 
 //#include "DICOMImage.h"
 #include "ImageSet.h"
+#include "CAPModelLVPS4X4.h"
 
 struct Cmiss_command_data;
 struct Time_keeper;
@@ -45,7 +46,11 @@ private:
 	bool animationIsOn_;
 	bool hideAll_;
 	
+	CAPModelLVPS4X4 heartModel_;
+	
 	//private utility functions
+	void RenderMII(const std::string& sliceName);
+	
 	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
 	
 	//Event handlers

@@ -11,11 +11,12 @@
 #include <string>
 #include <vector>
 
+
 class CAPModelLVPS4X4
 {
-	typedef float gtMatrix[4][4];
 	
 public:
+	typedef float gtMatrix[4][4];
 	
 	enum RenderMode
 	{
@@ -38,6 +39,11 @@ public:
 	void SetRenderMode(RenderMode mode);
 	
 	int SetLocalToGlobalTransformation(const gtMatrix& transform);
+	
+	const gtMatrix& GetLocalToGlobalTransformation()
+	{
+		return patientToGlobalTransform_;
+	}
 	
 private:
 	
