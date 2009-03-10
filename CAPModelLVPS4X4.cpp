@@ -97,6 +97,13 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 		display_message(ERROR_MESSAGE,"Missing graphics object name");
 	}
 
+	// define the coord field in RC for MII computation
+	// FIX use API calls instead of command line
+	
+	char str[256];
+	sprintf((char*)str, "gfx define field heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
+	Cmiss_command_data_execute_command(command_data, str);
+	
 	return 0;
 }
 
@@ -222,4 +229,15 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 		);
 		
 	}
+}
+
+
+void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
+{
+	//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
+}
+
+void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
+{
+
 }

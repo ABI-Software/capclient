@@ -318,7 +318,11 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	//Load model
 	heartModel_.ReadModelFromFiles("test");	
 	heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);
-	
+	vector<string>::iterator itr = sliceNames.begin();
+	for (;itr != sliceNames.end();++itr)
+	{
+		RenderMII(*itr);
+	}
 	
 	
 	//Data point Placing
@@ -562,7 +566,6 @@ void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
 		hideAll_ = false;
 		imageSet_->SetVisible(false);
 		button->SetLabel("Show All");
-		RenderMII("SA6");
 	}
 	else
 	{
@@ -591,8 +594,6 @@ void ViewerFrame::RenderMII(const std::string& sliceName)
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	
 	char str[256];
-	sprintf((char*)str, "gfx define field rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
-	Cmiss_command_data_execute_command(command_data, str);
 	
 //	//DEBUG
 //	sprintf((char*)str, "gfx define field slice_y coordinate_system rectangular_cartesian dot_product fields rc_coord \"[0 1 0]\";");
@@ -632,7 +633,7 @@ void ViewerFrame::RenderMII(const std::string& sliceName)
 	
 	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
 	Vector3D normalTransformed = m * plane.normal;
-	sprintf((char*)str, "gfx define field slice_%s coordinate_system rectangular_cartesian dot_product fields rc_coord \"[%f %f %f]\";",
+	sprintf((char*)str, "gfx define field slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 				sliceName.c_str() ,
 				normalTransformed.x, normalTransformed.y, normalTransformed.z);
 	cout << str << endl;
@@ -651,6 +652,15 @@ void ViewerFrame::RenderMII(const std::string& sliceName)
 	Cmiss_command_data_execute_command(command_data, str);
 }
 
+void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)
+{
+	heartModel_.SetMIIVisibility(event.IsChecked());
+}
+
+void ViewerFrame::OnWireframeCheckBox(wxCommandEvent& event)
+{
+	heartModel_.SetModelVisibility(event.IsChecked());
+}
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay) // play button
@@ -659,6 +669,8 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
 	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::ToggleHideShowAll) // hide all button
 	
+	EVT_CHECKBOX(XRCID("MII"),ViewerFrame::OnMIICheckBox)
+	EVT_CHECKBOX(XRCID("Wireframe"),ViewerFrame::OnWireframeCheckBox)
 	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
 	EVT_CLOSE(ViewerFrame::Terminate)
 END_EVENT_TABLE()

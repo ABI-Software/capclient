@@ -45,6 +45,10 @@ public:
 		return patientToGlobalTransform_;
 	}
 	
+	void SetMIIVisibility(bool visibility);
+	
+	void SetModelVisibility(bool visibility);
+	
 private:
 	
 	void ReadModelInfo(std::string modelInfoFilePath);

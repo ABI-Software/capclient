@@ -61,7 +61,8 @@ private:
 	void ToggleHideShowAll(wxCommandEvent& event);
 	void OnAnimationSliderEvent(wxCommandEvent& event);
 	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
-	
+	void OnMIICheckBox(wxCommandEvent& event);
+	void OnWireframeCheckBox(wxCommandEvent& event);
 	DECLARE_EVENT_TABLE();
 };
 
