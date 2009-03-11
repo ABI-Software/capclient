@@ -106,7 +106,7 @@
                                         </object>
                                     </object>
                                     <object class="sizeritem">
-                                        <object class="wxCheckBox" name="MMI">
+                                        <object class="wxCheckBox" name="MII">
                                             <label>Model Image Intersection</label>
                                         </object>
                                     </object>

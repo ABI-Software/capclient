@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+struct Scene_object;
 
 class CAPModelLVPS4X4
 {
@@ -56,6 +57,8 @@ private:
 	gtMatrix patientToGlobalTransform_; // model to world transformation
 	std::string modelName_;
 	int numberOfModelFrames_;
+	
+	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model
 };
 
 #endif /* CAPMODELLVPS4X4_H_ */

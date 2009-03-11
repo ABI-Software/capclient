@@ -76,16 +76,15 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 
 	char* scene_object_name = const_cast<char*>(modelName_.c_str()); // temporarily remove constness to be compatible with Cmgui
 
-	Scene_object* scene_object;
 	if (scene_object_name)
 	{
 		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-		if (scene_object=Scene_get_Scene_object_by_name(scene,
+		if (modelSceneObject_=Scene_get_Scene_object_by_name(scene,
 			scene_object_name))
 		{
 			//Scene_object_remove_time_dependent_transformation(scene_object);//??????? Why need time dependent transformation??
-			Scene_object_set_transformation(scene_object, &patientToGlobalTransform_);
+			Scene_object_set_transformation(modelSceneObject_, &patientToGlobalTransform_);
 		}
 		else
 		{
@@ -234,10 +233,61 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 
 void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
 {
-	//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
+	cout << "SetMIIVisibility" << endl;
+	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
+	//struct GT_element_settings *get_settings_at_position_in_GT_element_group(
+	//	struct GT_element_group *gt_element_group,int position);
+	
+	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
+	cout <<  numSettings << endl;
+	
+	int visible = visibility? 1:0;
+	
+//	cout << visible << endl;
+	for (int i = 3; i< (numSettings+1) ; i++) 
+	{
+//		cout << "i = " << i << endl;
+		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,i);
+		if (!settings)
+		{
+			cout << "Can't find settings by position" << endl;
+		}
+			//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
+		GT_element_settings_set_visibility(settings, visible);
+	}
+	GT_element_group_modify(gt_element_group, gt_element_group);
+//	GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,2);
+//	//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
+//	GT_element_settings_set_visibility(settings, visibility? 0:1);
+//	
+//	settings = get_settings_at_position_in_GT_element_group(gt_element_group,3);
+//	GT_element_settings_set_visibility(settings, visibility? 1:0);
+//	
+//	settings = get_settings_at_position_in_GT_element_group(gt_element_group,1);
+//	GT_element_settings_set_visibility(settings, visibility? 0:1);
 }
 
 void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 {
 
+	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
+	
+	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
+//	cout <<  numSettings << endl;
+	
+	int visible = visibility? 1:0;
+	
+//	cout << visible << endl;
+	for (int i = 1; i < 3 ; i++) 
+	{
+//		cout << "i = " << i << endl;
+		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,i);
+		if (!settings)
+		{
+			cout << "Can't find GT element settings by position" << endl;
+		}
+			//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
+		GT_element_settings_set_visibility(settings, visible);
+	}
+	GT_element_group_modify(gt_element_group, gt_element_group);
 }

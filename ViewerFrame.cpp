@@ -253,6 +253,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	// HACK to make sure the layout is properly applied (for Mac)
 	this->Show(true);
 	wxSplitterWindow* win = XRCCTRL(*this, "window_1", wxSplitterWindow);
+	assert(win);
+	
 	win->SetSashPosition(800, true);
 //	this->SetSize(1023,767);
 //	this->SetSize(1024,768);
@@ -323,7 +325,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	{
 		RenderMII(*itr);
 	}
-	
+	heartModel_.SetModelVisibility(false);
+	heartModel_.SetMIIVisibility(false);
 	
 	//Data point Placing
 //	int Scene_viewer_add_input_callback(struct Scene_viewer *scene_viewer,
@@ -560,7 +563,6 @@ void ViewerFrame::SetTime(double time)
 void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "HideShowAll", wxButton);
-	
 	if (hideAll_) //means the button says hide all rather than show all
 	{
 		hideAll_ = false;
@@ -581,74 +583,77 @@ void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
 	this->Refresh(); // work around for the refresh bug
 }
 
+void ViewerFrame::ToggleHideShowOthers(wxCommandEvent& event)
+{
+	wxButton* button = XRCCTRL(*this, "HideShowOthers", wxButton);
+	static bool showOthers = true;
+	
+	static std::vector<int> indicesOfOthers;
+	if (showOthers) //means the button says hide all rather than show all
+	{
+		showOthers = false;
+		// remember which ones were visible
+		indicesOfOthers.clear();
+		for (int i=0;i<imageSet_->GetNumberOfSlices();i++)
+		{
+			if (objectList_->IsChecked(i) && objectList_->GetSelection() != i)
+			{
+				indicesOfOthers.push_back(i);
+				imageSet_->SetVisible(false, i);
+				objectList_->Check(i, false);
+			}
+		}
+		button->SetLabel("Show Others");
+	}
+	else
+	{
+		showOthers = true;	
+
+		std::vector<int>::iterator itr = indicesOfOthers.begin();
+		std::vector<int>::const_iterator end = indicesOfOthers.end();
+		for (; itr!=end ; ++itr)
+		{
+			imageSet_->SetVisible(true, *itr);
+			objectList_->Check(*itr, true);
+		}
+	
+		button->SetLabel("Hide Others");
+	}
+	
+
+	this->Refresh(); // work around for the refresh bug
+}
+
 void ViewerFrame::RenderMII(const std::string& sliceName)
 {
-//#iso surface
-//gfx define field rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;
-//gfx define field slice coordinate_system rectangular_cartesian dot_product fields rc_coord "[1 0 0.5]";
-//
-//- single iso-line on exterior faces
-//
-//gfx modify g_element heart iso_surfaces exterior iso_scalar slice iso_values 0.2 use_faces select_on material default selected_material default_selected render_shaded;
-
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	
 	char str[256];
 	
-//	//DEBUG
-//	sprintf((char*)str, "gfx define field slice_y coordinate_system rectangular_cartesian dot_product fields rc_coord \"[0 1 0]\";");
-//	cout << str << endl;
-//	Cmiss_command_data_execute_command(command_data, str);
-//	//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice number_of_iso_values 10 first_iso_value 0 last_iso_value 40 use_faces select_on invisible material default selected_material default_selected render_shaded;");
-//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_y iso_values 0 use_faces select_on material default selected_material default_selected render_shaded;");
-//	cout << str << endl;
-//	Cmiss_command_data_execute_command(command_data, str);
-//	
-//	sprintf((char*)str, "gfx define field slice_x coordinate_system rectangular_cartesian dot_product fields rc_coord \"[1 0 0]\";");
-//	cout << str << endl;
-//	Cmiss_command_data_execute_command(command_data, str);
-//	//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice number_of_iso_values 10 first_iso_value 0 last_iso_value 40 use_faces select_on invisible material default selected_material default_selected render_shaded;");
-//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_x iso_values 0 use_faces select_on material default selected_material default_selected render_shaded;");
-//	cout << str << endl;
-//	Cmiss_command_data_execute_command(command_data, str);
-//	
-//	sprintf((char*)str, "gfx define field slice_z coordinate_system rectangular_cartesian dot_product fields rc_coord \"[0 0 1]\";");
-//	cout << str << endl;
-//	Cmiss_command_data_execute_command(command_data, str);
-//	//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice number_of_iso_values 10 first_iso_value 0 last_iso_value 40 use_faces select_on invisible material default selected_material default_selected render_shaded;");
-//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_z iso_values 0 use_faces select_on material default selected_material default_selected render_shaded;");
-//	cout << str << endl;
-//	Cmiss_command_data_execute_command(command_data, str);
-	
-	
 	const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
 	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
-	cout << m << endl;
+//	cout << m << endl;
 
 	gtMatrix mInv;
 	inverseMatrix(m, mInv);
-	cout << mInv << endl;
+//	cout << mInv << endl;
 	transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
-	cout << mInv << endl;
+//	cout << mInv << endl;
 	
 	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
 	Vector3D normalTransformed = m * plane.normal;
 	sprintf((char*)str, "gfx define field slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 				sliceName.c_str() ,
 				normalTransformed.x, normalTransformed.y, normalTransformed.z);
-	cout << str << endl;
+//	cout << str << endl;
 	Cmiss_command_data_execute_command(command_data, str);
 	
 	Point3D pointTLCTransformed = mInv * plane.tlc;
-	//Vector3D vectorOriginToTLCTransformed = m * (plane.tlc - Point3D(0,0,0));
 	float d = DOT((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
-//	cout << "tlc" << plane.tlc << "trc" << plane.trc <<endl;
-//	cout << "tlcTrans" << pointTLCTransformed <<endl;
-//	cout << "d : " << d << ", " << DOT((m * plane.trc - Point3D(0,0,0)), normalTransformed) << endl;
-	//float d = DOT(vectorOriginToTLCTransformed, normalTransformed);
+
 	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material default selected_material default_selected render_shaded;"
 				,sliceName.c_str() ,d);
-	cout << str << endl;
+//	cout << str << endl;
 	Cmiss_command_data_execute_command(command_data, str);
 }
 
@@ -668,7 +673,7 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
 	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
 	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::ToggleHideShowAll) // hide all button
-	
+	EVT_BUTTON(XRCID("HideShowOthers"),ViewerFrame::ToggleHideShowOthers) // hide others button
 	EVT_CHECKBOX(XRCID("MII"),ViewerFrame::OnMIICheckBox)
 	EVT_CHECKBOX(XRCID("Wireframe"),ViewerFrame::OnWireframeCheckBox)
 	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)

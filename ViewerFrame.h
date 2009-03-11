@@ -59,6 +59,7 @@ private:
 	void ObjectCheckListChecked(wxCommandEvent& event);
 	void ObjectCheckListSelected(wxCommandEvent& event);
 	void ToggleHideShowAll(wxCommandEvent& event);
+	void ToggleHideShowOthers(wxCommandEvent& event);
 	void OnAnimationSliderEvent(wxCommandEvent& event);
 	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	void OnMIICheckBox(wxCommandEvent& event);

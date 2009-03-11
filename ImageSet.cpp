@@ -364,6 +364,8 @@ const ImagePlane& ImageSlice::GetImagePlane() const
  */
 
 ImageSet::ImageSet(const vector<string>& sliceNames)
+:
+imageSliceNames_(sliceNames)
 {
 	vector<string>::const_iterator itr = sliceNames.begin();
 	for (;itr != sliceNames.end();++itr)
@@ -411,6 +413,19 @@ void ImageSet::SetVisible(bool visible, const std::string& sliceName)
 		{
 			itr->second->SetVisible(visible);
 		}
+	}
+}
+
+void ImageSet::SetVisible(bool visible, int index)
+{
+	if (imageSlicesMap_.size() <= index || index < 0)
+	{
+		assert(!"Index out of bound: imageSliceMap_");
+	}
+	else //zero length name string:: set visibility for the whole set
+	{
+		const std::string& name = imageSliceNames_[index];
+		imageSlicesMap_[name]->SetVisible(visible);
 	}
 }
 
