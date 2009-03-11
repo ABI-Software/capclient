@@ -233,18 +233,16 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 
 void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
 {
-	cout << "SetMIIVisibility" << endl;
+//	cout << "SetMIIVisibility" << endl;
 	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
-	//struct GT_element_settings *get_settings_at_position_in_GT_element_group(
-	//	struct GT_element_group *gt_element_group,int position);
 	
 	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
-	cout <<  numSettings << endl;
+//	cout <<  numSettings << endl;
 	
 	int visible = visibility? 1:0;
 	
 //	cout << visible << endl;
-	for (int i = 3; i< (numSettings+1) ; i++) 
+	for (int i = 3; i< (numSettings+1) ; i++) // FIX magic numbers
 	{
 //		cout << "i = " << i << endl;
 		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,i);
@@ -256,15 +254,7 @@ void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
 		GT_element_settings_set_visibility(settings, visible);
 	}
 	GT_element_group_modify(gt_element_group, gt_element_group);
-//	GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,2);
-//	//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
-//	GT_element_settings_set_visibility(settings, visibility? 0:1);
-//	
-//	settings = get_settings_at_position_in_GT_element_group(gt_element_group,3);
-//	GT_element_settings_set_visibility(settings, visibility? 1:0);
-//	
-//	settings = get_settings_at_position_in_GT_element_group(gt_element_group,1);
-//	GT_element_settings_set_visibility(settings, visibility? 0:1);
+
 }
 
 void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
@@ -272,13 +262,13 @@ void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 
 	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
 	
-	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
+//	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
 //	cout <<  numSettings << endl;
 	
 	int visible = visibility? 1:0;
 	
 //	cout << visible << endl;
-	for (int i = 1; i < 3 ; i++) 
+	for (int i = 1; i < 3 ; i++) // FIX magic numbers
 	{
 //		cout << "i = " << i << endl;
 		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,i);
