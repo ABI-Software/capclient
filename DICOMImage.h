@@ -12,23 +12,25 @@
 
 #include <string>
 
-struct ImagePlane
+class ImagePlane
 {
+public:
 	Point3D tlc;            /**< top left corner */
 	Point3D trc;            /**< top right corner */
 	Point3D blc;            /**< bottom left corner */
 	Point3D brc;            /**< bottom right corner */
-	Point3D normal;         /**< normal of the plane */
+	Vector3D normal;         /**< normal of the plane */
 	
-	Point3D xside;          /**< vector from blc to brc */
-	Point3D yside;          /**< vector from blc to tlc */
+	Vector3D xside;          /**< vector from blc to brc */
+	Vector3D yside;          /**< vector from blc to tlc */
 	
-	int            imageSize;      /**< also stored in StudyInfo - image square */
-	float          fieldOfView;    /**< should match length of xside */
-	float          sliceThickness; /**< may vary between series */
-	float          sliceGap;       /**< non-zero for short axis only */
-	float          pixelSizeX;     /**< in mm, should be square */
-	float          pixelSizeY;     /**< in mm, should be square */
+//	int            imageSize;      /**< also stored in StudyInfo - image square */
+//	float          fieldOfView;    /**< should match length of xside */
+//	float          sliceThickness; /**< may vary between series */
+//	float          sliceGap;       /**< non-zero for short axis only */
+//	float          pixelSizeX;     /**< in mm, should be square */
+//	float          pixelSizeY;     /**< in mm, should be square */
+	float d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
 };
 
 struct Cmiss_texture;

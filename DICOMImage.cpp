@@ -129,8 +129,10 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	plane->blc.y = plane->tlc.y + fieldOfViewY*floats[10];
 	plane->blc.z = plane->tlc.z + fieldOfViewY*floats[11];
 
-	FIND_VECTOR(plane->xside, plane->tlc, plane->trc);
-	FIND_VECTOR(plane->yside, plane->blc, plane->tlc);
+	//FIND_VECTOR(plane->xside, plane->tlc, plane->trc);
+	plane->xside = plane->trc - plane->tlc;
+	//FIND_VECTOR(plane->yside, plane->blc, plane->tlc);
+	plane->yside = plane->tlc - plane->blc;
 	CROSS_PRODUCT(plane->normal, plane->xside, plane->yside);
 	NORMALISE(plane->normal);
 
@@ -138,10 +140,14 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	plane->brc.y = plane->blc.y + plane->xside.y;
 	plane->brc.z = plane->blc.z + plane->xside.z;
 
+#ifdef DEBUG
 	std::cout << plane->trc << endl;
 	std::cout << plane->tlc << endl;
 	std::cout << plane->brc << endl;
 	std::cout << plane->blc << endl;
-
+#endif
+	
+	plane->d = DOT((plane->tlc - Point3D(0,0,0)) ,plane->normal);
+	
 	return plane;
 }

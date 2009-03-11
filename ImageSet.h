@@ -81,17 +81,29 @@ public:
 	void SetTime(double time);
 	
 	/** Sets the visibility for a slice.
-	 * @param sliceName name of the slice e.g LA1, SA2, ...
-	 * @paran visible visibility default = true
+	 * @paran visible visibility 
+	 * @param sliceName name of the slice e.g LA1, SA2, ... default = all
 	 */
-	void SetVisible(const std::string& sliceName, bool visible = true); 
+	void SetVisible(bool visible, const std::string& sliceName = std::string() ); 
+	
+	/** Sets the visibility for a slice.
+	 * @paran visible visibility default 
+	 * @param index index of the slice
+	 */
+	void SetVisible(bool visible, int index ); 
 	
 	/** Get the position and orientation of the image slice by name
 	 * @param name
 	 */
 	const ImagePlane& GetImagePlane(const std::string& sliceName) const;
 	
+	int GetNumberOfSlices() const
+	{
+		return imageSlicesMap_.size();
+	}
+	
 private:
+	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices
 //	std::vector<ImageGroup*> imageGroups;
 //
 //	//or

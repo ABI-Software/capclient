@@ -7,9 +7,9 @@
 
 #include "Config.h"
 #include "ViewerFrame.h"
-#include "CAPModelLVPS4X4.h"
-#include "DICOMImage.h"
-#include "CmguiExtensions.h"
+//#include "CAPModelLVPS4X4.h"
+//#include "DICOMImage.h"
+//#include "CmguiExtensions.h"
 #include "CmguiManager.h"
 
 #if defined (DARWIN)
@@ -29,16 +29,39 @@ extern "C" {
 using namespace std;
 
 int main(int argc,char *argv[])
-{
-	struct Cmiss_command_data *command_data;
-	
+{	
 #if defined (DARWIN)
 	ProcessSerialNumber PSN;
 	GetCurrentProcess(&PSN);
 	TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
 #endif
 
-	if (command_data = create_Cmiss_command_data(argc, argv, "0,0"))
+
+	char** cmgui_argv;
+	int cmgui_argc;
+	
+	if (argc == 1) // no command window
+	{
+		cmgui_argc = 2;
+		cmgui_argv = (char**) calloc(3, sizeof(char*));
+		*cmgui_argv = strdup(argv[0]);
+		*(cmgui_argv +1) = strdup("-server");
+		*(cmgui_argv +2) = 0;
+	}
+	else if (argc == 2 && (strcmp(argv[1],"-debug") == 0))
+	{
+		cmgui_argc = 1;
+		cmgui_argv = (char**) calloc(2, sizeof(char*));
+		*cmgui_argv = strdup(argv[0]);
+		*(cmgui_argv + 1) = 0;
+	}
+	else
+	{
+		cout << "Error: Invalid command line options" << endl;
+		return (0);
+	}
+
+	if (struct Cmiss_command_data *command_data = create_Cmiss_command_data(cmgui_argc, cmgui_argv, "0.0"))
 	{
 
 		CmguiManager cmguiManager(command_data);
@@ -48,27 +71,19 @@ int main(int argc,char *argv[])
 		ViewerFrame *frame = new ViewerFrame(command_data);
 		frame->Show(true);
 
-//		wxPanel *panel = frame->getPanel();
-//		if (!panel)
-//		{
-//			printf("panel is null");
-//			return 0;
-//		}
-//		Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(panel);
-
-		frame->PopulateObjectList(); //refactor
-
-		CAPModelLVPS4X4 heartModel("heart");
-		heartModel.readModelFromFiles("test");	
-
-//		frame->PopulateObjectList(); //refactor
-		
-//		Cmiss_scene_viewer_view_all(sceneViewer);
-//		Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
-		//DESTROY(Cmiss_command_data)(&command_data);
-		return 1;
+		
+		destroy_Cmiss_command_data(&command_data);
 	}
 
+	// Free the memory from the strdup's
+	char** string_ptr = cmgui_argv;
+	while (*string_ptr)
+	{
+		free(*string_ptr);
+		string_ptr++;
+	}
+	free(cmgui_argv);
+	
 	return 0;
 } /* main */

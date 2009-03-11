@@ -242,8 +242,10 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 : 
 	command_data(command_data_),
-	animationIsOn(false),
-	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_))
+	animationIsOn_(false),
+	hideAll_(true),
+	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_)),
+	heartModel_("heart")
 {
 	// Load layout from .xrc file
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
@@ -251,6 +253,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	// HACK to make sure the layout is properly applied (for Mac)
 	this->Show(true);
 	wxSplitterWindow* win = XRCCTRL(*this, "window_1", wxSplitterWindow);
+	assert(win);
+	
 	win->SetSashPosition(800, true);
 //	this->SetSize(1023,767);
 //	this->SetSize(1024,768);
@@ -304,13 +308,27 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Time_object_set_time_keeper(time_object, timeKeeper_);
 //		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
 	
-	Time_keeper_set_minimum(timeKeeper_, 0);
+	Time_keeper_set_minimum(timeKeeper_, -0.01); //workaround for the timer bug
 	Time_keeper_set_maximum(timeKeeper_, 1);
 	
 #endif		
 #endif //TEXTURE_ANIMATION
 	
-	//test
+	this->PopulateObjectList(); // fill in slice check box list
+	
+	
+	//Load model
+	heartModel_.ReadModelFromFiles("test");	
+	heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);
+	vector<string>::iterator itr = sliceNames.begin();
+	for (;itr != sliceNames.end();++itr)
+	{
+		RenderMII(*itr);
+	}
+	heartModel_.SetModelVisibility(false);
+	heartModel_.SetMIIVisibility(false);
+	
+	//Data point Placing
 //	int Scene_viewer_add_input_callback(struct Scene_viewer *scene_viewer,
 //		CMISS_CALLBACK_FUNCTION(Scene_viewer_input_callback) *function,
 //		void *user_data, int add_first)
@@ -375,10 +393,10 @@ void ViewerFrame::TogglePlay(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "button_1", wxButton);
 	
-	if (animationIsOn)
+	if (animationIsOn_)
 	{
 		Time_keeper_stop(timeKeeper_);
-		this->animationIsOn = false;
+		this->animationIsOn_ = false;
 		button->SetLabel("play");
 	}
 	else
@@ -386,7 +404,7 @@ void ViewerFrame::TogglePlay(wxCommandEvent& event)
 		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
 		Time_keeper_set_play_loop(timeKeeper_);
 		Time_keeper_set_play_every_frame(timeKeeper_);
-		this->animationIsOn = true;
+		this->animationIsOn_ = true;
 		button->SetLabel("stop");
 	}
 	
@@ -433,7 +451,7 @@ Add scene_object as checklistbox item into the box.
 void ViewerFrame::PopulateObjectList()
 {
 	//TODO move Cmgui specific code to ImageSet
-	//Should just objtain the list of slice names from ImageSet and use that to populate the check list box
+	//Should just obtain the list of slice names from ImageSet and use that to populate the check list box
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	for_each_Scene_object_in_Scene(scene,
@@ -455,14 +473,15 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	
 	if(objectList_->IsChecked(selection))
 	{
-		imageSet_->SetVisible(name.mb_str(), true);
+		imageSet_->SetVisible(true, name.mb_str());
 	}
 	else
 	{
-		imageSet_->SetVisible(name.mb_str(), false);
+		imageSet_->SetVisible(false, name.mb_str());
 	}
 	
-//	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesnt redraw
+//	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesn't redraw
+	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
 }
 
 void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
@@ -471,9 +490,9 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	const ImagePlane& plane = imageSet_->GetImagePlane(name.mb_str());
 	
 	// compute the center of the image plane, eye(camera) position and the up vector
-	Point3D planeCenter =  0.5 * (plane.trc + plane.blc);
-	Point3D eye = planeCenter + (500 * plane.normal); // this seems to determine the near clip plane
-	Point3D up(plane.yside);
+	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
+	Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
+	Vector3D up(plane.yside);
 	NORMALISE(up);
 	
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();	
@@ -503,7 +522,7 @@ void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
 //	imageSet_->SetTime(time);
 	Time_keeper_request_new_time(timeKeeper_, time);
 	
-	RefreshCmguiCanvas();
+	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
 	return;
 }
 
@@ -517,7 +536,7 @@ void ViewerFrame::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	double speed = (double)(value - min) / (double)(max - min) * 2.0;
 	Time_keeper_set_speed(timeKeeper_, speed);
 	
-	RefreshCmguiCanvas();
+	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
 	return;
 }
 
@@ -541,11 +560,122 @@ void ViewerFrame::SetTime(double time)
 	return;
 }
 
+void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
+{
+	wxButton* button = XRCCTRL(*this, "HideShowAll", wxButton);
+	if (hideAll_) //means the button says hide all rather than show all
+	{
+		hideAll_ = false;
+		imageSet_->SetVisible(false);
+		button->SetLabel("Show All");
+	}
+	else
+	{
+		hideAll_ = true;	
+		imageSet_->SetVisible(true);
+		button->SetLabel("Hide All");
+	}
+	
+	for (int i=0;i<imageSet_->GetNumberOfSlices();i++)
+	{
+		objectList_->Check(i, hideAll_);
+	}
+	this->Refresh(); // work around for the refresh bug
+}
+
+void ViewerFrame::ToggleHideShowOthers(wxCommandEvent& event)
+{
+	wxButton* button = XRCCTRL(*this, "HideShowOthers", wxButton);
+	static bool showOthers = true;
+	
+	static std::vector<int> indicesOfOthers;
+	if (showOthers) //means the button says hide all rather than show all
+	{
+		showOthers = false;
+		// remember which ones were visible
+		indicesOfOthers.clear();
+		for (int i=0;i<imageSet_->GetNumberOfSlices();i++)
+		{
+			if (objectList_->IsChecked(i) && objectList_->GetSelection() != i)
+			{
+				indicesOfOthers.push_back(i);
+				imageSet_->SetVisible(false, i);
+				objectList_->Check(i, false);
+			}
+		}
+		button->SetLabel("Show Others");
+	}
+	else
+	{
+		showOthers = true;	
+
+		std::vector<int>::iterator itr = indicesOfOthers.begin();
+		std::vector<int>::const_iterator end = indicesOfOthers.end();
+		for (; itr!=end ; ++itr)
+		{
+			imageSet_->SetVisible(true, *itr);
+			objectList_->Check(*itr, true);
+		}
+	
+		button->SetLabel("Hide Others");
+	}
+	
+
+	this->Refresh(); // work around for the refresh bug
+}
+
+void ViewerFrame::RenderMII(const std::string& sliceName)
+{
+	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+	
+	char str[256];
+	
+	const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
+	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+//	cout << m << endl;
+
+	gtMatrix mInv;
+	inverseMatrix(m, mInv);
+//	cout << mInv << endl;
+	transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
+//	cout << mInv << endl;
+	
+	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
+	Vector3D normalTransformed = m * plane.normal;
+	sprintf((char*)str, "gfx define field slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+				sliceName.c_str() ,
+				normalTransformed.x, normalTransformed.y, normalTransformed.z);
+//	cout << str << endl;
+	Cmiss_command_data_execute_command(command_data, str);
+	
+	Point3D pointTLCTransformed = mInv * plane.tlc;
+	float d = DOT((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
+
+	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material default selected_material default_selected render_shaded;"
+				,sliceName.c_str() ,d);
+//	cout << str << endl;
+	Cmiss_command_data_execute_command(command_data, str);
+}
+
+void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)
+{
+	heartModel_.SetMIIVisibility(event.IsChecked());
+}
+
+void ViewerFrame::OnWireframeCheckBox(wxCommandEvent& event)
+{
+	heartModel_.SetModelVisibility(event.IsChecked());
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
-	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay)
+	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay) // play button
 	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnAnimationSliderEvent) // animation slider
 	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
 	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
+	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::ToggleHideShowAll) // hide all button
+	EVT_BUTTON(XRCID("HideShowOthers"),ViewerFrame::ToggleHideShowOthers) // hide others button
+	EVT_CHECKBOX(XRCID("MII"),ViewerFrame::OnMIICheckBox)
+	EVT_CHECKBOX(XRCID("Wireframe"),ViewerFrame::OnWireframeCheckBox)
 	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
 	EVT_CLOSE(ViewerFrame::Terminate)
 END_EVENT_TABLE()

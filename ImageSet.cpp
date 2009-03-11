@@ -364,6 +364,8 @@ const ImagePlane& ImageSlice::GetImagePlane() const
  */
 
 ImageSet::ImageSet(const vector<string>& sliceNames)
+:
+imageSliceNames_(sliceNames)
 {
 	vector<string>::const_iterator itr = sliceNames.begin();
 	for (;itr != sliceNames.end();++itr)
@@ -388,17 +390,42 @@ void ImageSet::SetTime(double time)
 
 #include <algorithm>
 
-void ImageSet::SetVisible(const std::string& sliceName, bool visible)
+void ImageSet::SetVisible(bool visible, const std::string& sliceName)
 {
-	ImageSlicesMap::iterator itr = imageSlicesMap_.find(sliceName);
-	if (itr == imageSlicesMap_.end())
+	if (sliceName.length())
 	{
-		//error should probably throw exception
-		assert(!"No such name in the imageSliceMap_");
+		ImageSlicesMap::iterator itr = imageSlicesMap_.find(sliceName);
+		if (itr == imageSlicesMap_.end())
+		{
+			//error should probably throw exception
+			assert(!"No such name in the imageSliceMap_");
+		}
+		else
+		{
+			itr->second->SetVisible(visible);
+		}
 	}
-	else
+	else //zero length name string:: set visibility for the whole set
 	{
-		itr->second->SetVisible(visible);
+		ImageSlicesMap::iterator itr = imageSlicesMap_.begin();
+		ImageSlicesMap::const_iterator end = imageSlicesMap_.end();
+		for (;itr!=end;++itr)
+		{
+			itr->second->SetVisible(visible);
+		}
+	}
+}
+
+void ImageSet::SetVisible(bool visible, int index)
+{
+	if (imageSlicesMap_.size() <= index || index < 0)
+	{
+		assert(!"Index out of bound: imageSliceMap_");
+	}
+	else //zero length name string:: set visibility for the whole set
+	{
+		const std::string& name = imageSliceNames_[index];
+		imageSlicesMap_[name]->SetVisible(visible);
 	}
 }
 
