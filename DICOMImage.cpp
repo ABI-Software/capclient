@@ -29,7 +29,7 @@ DICOMImage::DICOMImage(const string& filename_)
 ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 {
 	//First, load info from DICOM header
-	
+
 	//Exception safeness! -> better not perform file i/o in the ctor?
 	gdcm::StringFilter sf;
 	gdcm::Reader r;
@@ -96,9 +96,9 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	ptr = at_spc.GetValues();
 	pixelSizeX = *ptr++;
 	pixelSizeY = *ptr;
-	
+
 	//Now construct the plane from the info
-	
+
 	//int imageSize = std::max<u_int>(width,height);
 	//cout << "imageSize: " << imageSize << endl;
 
