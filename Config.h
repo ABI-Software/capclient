@@ -8,6 +8,6 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-static const char* prefix = "/Users/jchu014/cmiss/api_test2/Data/";
+static const char* prefix = "Data/";
 
 #endif /* CONFIG_H_ */

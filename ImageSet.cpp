@@ -74,10 +74,10 @@ void ImageSlice::SetTime(double time)
 	
 	if (material_)
 	{
-		if (!Graphical_material_set_texture(material_,tex))//Bug this never returns 1 (returns garbage)
+		if (!Graphical_material_set_texture(material_,tex))//Bug this never returns 1 (returns garbage) - always returns 0 on windows
 		{
 			//Error
-			cout << "Error: Graphical_material_set_texture()" << endl;
+			//cout << "Error: Graphical_material_set_texture()" << endl;
 		}
 		
 	}
@@ -238,14 +238,22 @@ void ImageSlice::LoadTextures()
 	vector<string>::const_iterator itr = filenames.begin();
 	vector<string>::const_iterator end = filenames.end();
 
-	char fullpath[256]; //FIX
+	//char fullpath[256]; //FIX
 	for (; itr != end; ++itr)
 	{
 		const string& filename = *itr;
-		sprintf(fullpath, "%s/%s", dir_path.c_str(),  filename.c_str()); 
-		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-			manager, filename.c_str(), io_stream_package, fullpath);
+		//sprintf(fullpath, "%s/%s", dir_path.c_str(),  filename.c_str()); 
+		string fullpath(dir_path);
+		fullpath.append("/");
+		fullpath.append(filename);
 		
+		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
+			manager, filename.c_str(), io_stream_package, fullpath.c_str());
+		if (!texture_id)
+		{
+			cout <<"ERROR:: cant create texture from file" << endl;
+		}
+
 		textures_.push_back(texture_id);
 		
 		images_.push_back(new DICOMImage(fullpath));
