@@ -224,18 +224,16 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 static int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
-	cout << "Time_call_back time = " << current_time << endl;
-	
-//	ImageSet* imageSet = reinterpret_cast<ImageSet*>(user_data);
-//	imageSet->SetTime(current_time);
+//	cout << "Time_call_back time = " << current_time << endl;
 	
 	ViewerFrame* frame = static_cast<ViewerFrame*>(user_data);
 	frame->SetTime(current_time);
 	
 //	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
 //	Scene_viewer_redraw(sceneViewer);
-	frame->RefreshCmguiCanvas(); // this forces refresh even when UI is being manipulated by user
 	
+	frame->RefreshCmguiCanvas(); // this forces refresh even when UI is being manipulated by user
+
 	return 0;
 }
 
@@ -281,6 +279,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	this->Layout();
 	this->Fit();
 	
+	this->Show(false);
+	
 #define TEXTURE_ANIMATION
 #ifdef TEXTURE_ANIMATION
 	vector<string> sliceNames;
@@ -306,11 +306,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	Time_object_add_callback(time_object,time_callback,(void*)this);
 	Time_object_set_time_keeper(time_object, timeKeeper_);
-//		Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
-	
-	Time_keeper_set_minimum(timeKeeper_, -0.01); //workaround for the timer bug
-	Time_keeper_set_maximum(timeKeeper_, 1);
-	
+	Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
 #endif		
 #endif //TEXTURE_ANIMATION
 	
@@ -319,7 +315,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	//Load model
 	heartModel_.ReadModelFromFiles("test");	
-	heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);
+	//heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);//this resets timer frequency for model!! if called after its been cleared!!??
 	vector<string>::iterator itr = sliceNames.begin();
 	for (;itr != sliceNames.end();++itr)
 	{
@@ -328,11 +324,17 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	heartModel_.SetModelVisibility(false);
 	heartModel_.SetMIIVisibility(false);
 	
+	Time_keeper_set_minimum(timeKeeper_, -0.01); //workaround for the timer bug
+	Time_keeper_set_maximum(timeKeeper_, 1);
+	
+	this->Show(true);
 	//Data point Placing
 //	int Scene_viewer_add_input_callback(struct Scene_viewer *scene_viewer,
 //		CMISS_CALLBACK_FUNCTION(Scene_viewer_input_callback) *function,
 //		void *user_data, int add_first)
-	
+
+#define NODE_CREATION
+#ifdef NODE_CREATION
 	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
 			input_callback, (void*)this, 0/*add_first*/);
 	
@@ -377,6 +379,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Scene_object* scene_object = Scene_get_Scene_object_by_name(scene, "DataPoints");
 	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(scene_object);
 	GT_element_group_add_settings(gt_element_group, settings, 0);
+#endif //NODE_CREATION
+	
 }
 
 ViewerFrame::~ViewerFrame()
@@ -403,7 +407,8 @@ void ViewerFrame::TogglePlay(wxCommandEvent& event)
 	{
 		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
 		Time_keeper_set_play_loop(timeKeeper_);
-		Time_keeper_set_play_every_frame(timeKeeper_);
+		//Time_keeper_set_play_every_frame(timeKeeper_);
+		Time_keeper_set_play_skip_frames(timeKeeper_);
 		this->animationIsOn_ = true;
 		button->SetLabel("stop");
 	}
@@ -544,17 +549,21 @@ void ViewerFrame::RefreshCmguiCanvas()
 {
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
 //	Scene_viewer_redraw(sceneViewer);
-	Scene_viewer_redraw_now(sceneViewer);
+	if (sceneViewer) 
+	{
+		Scene_viewer_redraw_now(sceneViewer);
+	}
 }
 
 void ViewerFrame::SetTime(double time)
 {
+	//cout << "SetTime" <<endl;
 	imageSet_->SetTime(time);
 	
 	wxSlider* slider = XRCCTRL(*this, "slider_1", wxSlider);
 	int min = slider->GetMin();
 	int max = slider->GetMax();
-//	cout << "min = " << min << " ,max = " << max <<endl; 
+	//cout << "min = " << min << " ,max = " << max <<endl; 
 	slider->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
 	
 	return;
