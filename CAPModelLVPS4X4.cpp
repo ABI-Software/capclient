@@ -15,6 +15,7 @@ extern "C" {
 #include "api/cmiss_region.h"
 #include "graphics/scene_viewer.h"
 #include "time/time_keeper.h"
+#include "time/time.h"
 #include "graphics/scene.h"
 }
 
@@ -98,11 +99,28 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 
 	// define the coord field in RC for MII computation
 	// FIX use API calls instead of command line
-	
 	char str[256];
 	sprintf((char*)str, "gfx define field heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
 	Cmiss_command_data_execute_command(command_data, str);
+
 	
+	// set the discretizatioin level to be 6 
+	// FIX use API calls instead of command line
+	// NB This resets the time object associated with the scene object ?? WHY???? possible BUG??
+	// NB This maybe because of "clear" in the command - replace with API call GT_element_group_set_element_discretization
+	Cmiss_command_data_execute_command(command_data,
+	"gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	
+	);//This clears the timer frequency
+	
+	SetRenderMode(CAPModelLVPS4X4::WIREFRAME); // Since it was cleared, this sets up frequency 
+															// but incorrectly at default freq = 10 hz
+	
+	// Set the timer frequency : NB this has to be done after setting disc & creating surfaces level See above 
+	Time_object* timeObject = Scene_object_get_time_object(modelSceneObject_);
+	if (timeObject) {
+		Time_object_set_update_frequency(timeObject, numberOfModelFrames_);
+		//Time_object_set_update_frequency(timeObject, 5);
+	}
 	return 0;
 }
 
@@ -215,9 +233,9 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 	if (mode == CAPModelLVPS4X4::WIREFRAME)
 	{
 		Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-		Cmiss_command_data_execute_command(command_data,
-		"gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	
-		);
+//		Cmiss_command_data_execute_command(command_data,
+//		"gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	
+//		);
 		
 		Cmiss_command_data_execute_command(command_data,
 		"gfx mod g_el heart surfaces exterior face xi3_0 select_on material green selected_material default_selected render_wireframe;"
