@@ -55,6 +55,8 @@ private:
 	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
 	
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
+	
+	int oldIndex_; //used to check if texture switch is needed
 };
 
 //class ImageGroup // a bunch of image slices i.e LA & SA

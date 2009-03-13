@@ -31,7 +31,9 @@ extern "C"
 using namespace std;
 
 ImageSlice::ImageSlice(const string& name)
-	: sliceName_(name)
+	: 
+	sliceName_(name),
+	oldIndex_(-1)
 {
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
@@ -58,10 +60,12 @@ void ImageSlice::SetTime(double time)
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 
 	int index = static_cast<int>(time * textures_.size()); // -1
-//	if (index = -1)
-//	{
-//		index = numberOfFrames;
-//	}
+	//update texture only when it is necessary
+	if (index == oldIndex_)
+	{
+		return; 
+	}
+	oldIndex_ = index;
 	
 	//DEBUG
 	//cout << "ImageSlice::setTime index = " << index << endl;
@@ -70,7 +74,7 @@ void ImageSlice::SetTime(double time)
 	
 	if (material_)
 	{
-		if (!Graphical_material_set_texture(material_,tex))
+		if (!Graphical_material_set_texture(material_,tex))//Bug this never returns 1 (returns garbage)
 		{
 			//Error
 			cout << "Error: Graphical_material_set_texture()" << endl;
