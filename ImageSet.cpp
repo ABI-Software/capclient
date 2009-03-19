@@ -33,7 +33,8 @@ using namespace std;
 ImageSlice::ImageSlice(const string& name)
 	: 
 	sliceName_(name),
-	oldIndex_(-1)
+	oldIndex_(-1),
+	isVisible_(true)
 {
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
@@ -61,7 +62,7 @@ void ImageSlice::SetTime(double time)
 
 	int index = static_cast<int>(time * textures_.size()); // -1
 	//update texture only when it is necessary
-	if (index == oldIndex_)
+	if (index == oldIndex_|| !isVisible_)
 	{
 		return; 
 	}
