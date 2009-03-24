@@ -3,7 +3,9 @@ PROJECT(Cmgui)
 #ADD_DEFINITIONS(-DCMGUI -DUNIX -DDARWIN)
 ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
 #ADD_DEFINITIONS(-DWX_USER_INTERFACE)
-ADD_DEFINITIONS(-g3 -gdwarf-2)
+#ADD_DEFINITIONS(-g3 -gdwarf-2)
+ADD_DEFINITIONS(-DOPTIMISED)
+SET(CMAKE_BUILD_TYPE Release)
 
 #how to include common.Makefile?
 SET(CMISS_ROOT $ENV{CMISS_ROOT})
@@ -16,7 +18,7 @@ IF(WIN32)
   SET(LIB_ARCH_DIR i386-win32)
   SET(CMAKE_EXE_LINKER_FLAGS -mno-cygwin)
 ENDIF(WIN32)
-SET(BUILD_VERSION cmgui-wx-debug)
+SET(BUILD_VERSION cmgui-wx)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
 
@@ -39,7 +41,7 @@ SET(ITK_BIN_CONFIG_DIR)
 SET(ITK_LIB ${ITK_LIBPATH_PREFIX}${ITK_BINDIR}/bin${ITK_BIN_CONFIG_DIR} ${ITK_LIB_PREFIX}ITKAlgorithms${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKStatistics${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKBasicFilters${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKCommon${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkvnl${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkvnl_algo${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkvnl${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itknetlib${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itksys${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKDICOMParser${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkzlib${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkzlib${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itktiff${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkjpeg12${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}itkjpeg16${ITK_LIB_SUFFIX} ${ITK_LIB_PREFIX}ITKNrrdIO${ITK_LIB_SUFFIX})
 
 SET(IMAGEMAGICK_PATH ${CMISS_ROOT}/image_libraries)
-SET(IMAGEMAGICK_LIB ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libMagickCore.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libtiff.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libpng.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libjpeg.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libbz2.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libz.a)
+SET(IMAGEMAGICK_LIB ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libMagick.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libtiff.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libpng.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libjpeg.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libbz2.a ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libz.a)
 SET(IMAGEMAGICK_LIB ${IMAGEMAGICK_LIB} -L${IMAGEMAGICK_PATH}/${LIB_ARCH_DIR}/lib -lgdcmCWRAPPER -lgdcmMSFF -lgdcmDSED -lgdcmzlib -lgdcmmd5 -lgdcmDICT -lgdcmCommon -lgdcmIOD -lgdcmopenjpeg -lgdcmjpeg8 -lgdcmjpeg16 -lgdcmjpeg12 -lgdcmexpat)
 
 
@@ -65,7 +67,7 @@ IF(wxWidgets_FOUND)
   message("lib dir: " ${wxWidgets_LIB_DIR})
 ADD_DEFINITIONS(-DWX_USER_INTERFACE)
 IF(WIN32)
-  ADD_DEFINITIONS(-D__WXDEBUG__)
+#  ADD_DEFINITIONS(-D__WXDEBUG__)
 ELSE(WIN32)
   ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXDEBUG__ -D__WXMAC_)
 ENDIF(WIN32)
@@ -92,8 +94,10 @@ TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IM
 ENDIF(APPLE)
 IF(WIN32)
 #test
-SET(wxWidgets_LIBRARIES_TEMP  /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_xrc-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_gl-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based_xml-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_adv-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_html-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_core-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based-2.8.a -L/cygdrive/c/cmiss/mesa/lib/i386-win32  -lopengl32 -lglu32 -lcomctl32 -lctl3d32 -L/cygdrive/c/cmiss/wxWidgets/lib -lwxexpatd-2.8) 
+#SET(wxWidgets_LIBRARIES_TEMP  /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_xrc-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_gl-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based_xml-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_adv-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_html-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_core-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based-2.8.a -L/cygdrive/c/cmiss/mesa/lib/i386-win32  -lopengl32 -lglu32 -lcomctl32 -lctl3d32 -L/cygdrive/c/cmiss/wxWidgets/lib -lwxexpatd-2.8) 
+SET(wxWidgets_LIBRARIES_TEMP  /cygdrive/c/cmiss/wxWidgets/lib/libwx_msw_xrc-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_msw_gl-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_base_xml-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_msw_adv-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_msw_html-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_msw_core-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_base-2.8.a -L/cygdrive/c/cmiss/mesa/lib/i386-win32  -lopengl32 -lglu32 -lcomctl32 -lctl3d32 -L/cygdrive/c/cmiss/wxWidgets/lib -lwxexpat-2.8) 
 TARGET_LINK_LIBRARIES(MyTest ${CMGUI_LIB} ${wxWidgets_LIBRARIES_TEMP} ${INTERPRETER_LIB} ${IMAGEMAGICK_LIB} 
+#TARGET_LINK_LIBRARIES(MyTest ${CMGUI_LIB} ${wxWidgets_LIBRARIES} ${INTERPRETER_LIB} ${IMAGEMAGICK_LIB} 
      ${XML2_LIB} ${ITK_LIB} ${common_LIBS})  
 ENDIF(WIN32)
 

@@ -150,6 +150,4 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	plane->d = DOT((plane->tlc - Point3D(0,0,0)) ,plane->normal);
 	
 	return plane;
-	dir_path.append(path_separator);
-
 }
