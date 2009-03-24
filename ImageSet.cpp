@@ -27,6 +27,8 @@ extern "C"
 #include "DICOMImage.h"
 
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -171,6 +173,29 @@ void ImageSlice::LoadImagePlaneModel()
 		
 	material_ = create_Graphical_material(name.c_str());
 
+	//HACK to brighten textures
+	
+	int Material_set_material_program_strings(struct Graphical_material *material_to_be_modified,
+		char *vertex_program_string, char *fragment_program_string);
+	
+	stringstream vp_stream, fp_stream;
+	ifstream is;
+	is.open("Data/shaders/vp.txt");
+	vp_stream << is.rdbuf();
+	is.close();
+	
+	is.open("Data/shaders/fp.txt");
+	fp_stream << is.rdbuf();
+	is.close();
+	
+	cout << "SHADERS:" << endl << vp_stream.str().c_str() << endl << fp_stream.str().c_str() << endl;
+	if (!Material_set_material_program_strings(material_, 
+			(char*) vp_stream.str().c_str(), (char*) fp_stream.str().c_str())
+			)
+	{
+		cout << "Error: cant set material program strings" << endl;
+	}
+	
 //	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
 //	Material_package_manage_material(material_package, material_);
 	
