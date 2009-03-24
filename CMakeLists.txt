@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 PROJECT(Cmgui)
 #ADD_DEFINITIONS(-DCMGUI -DUNIX -DDARWIN)
-#ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
+ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
 #ADD_DEFINITIONS(-DWX_USER_INTERFACE)
 ADD_DEFINITIONS(-g3 -gdwarf-2)
 
@@ -9,12 +9,13 @@ ADD_DEFINITIONS(-g3 -gdwarf-2)
 SET(CMISS_ROOT $ENV{CMISS_ROOT})
 IF(APPLE)
   SET(LIB_ARCH_DIR i386-32-darwin)
+  ADD_DEFINITIONS(-DDARWIN)
 ENDIF(APPLE)
 IF(WIN32)
   ADD_DEFINITIONS(-mno-cygwin -DWIN32)
   SET(LIB_ARCH_DIR i386-win32)
   SET(CMAKE_EXE_LINKER_FLAGS -mno-cygwin)
-ENDIF(WIN32)  
+ENDIF(WIN32)
 SET(BUILD_VERSION cmgui-wx-debug)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
@@ -25,6 +26,7 @@ main.cpp
 Filesystem.cpp
 CmguiExtensions.cpp
 DICOMImage.cpp
+ImageSet.cpp
 CAPModelLVPS4X4.cpp
 CmguiManager.cpp
 )
@@ -84,12 +86,15 @@ ENDIF(WIN32)
 
 ADD_EXECUTABLE(MyTest ${SRCS})
 # and for each of your dependant executable/library targets:
-#TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
-#    ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
-
+IF(APPLE)
+TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
+    ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
+ENDIF(APPLE)
+IF(WIN32)
 #test
 SET(wxWidgets_LIBRARIES_TEMP  /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_xrc-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_gl-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based_xml-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_adv-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_html-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_core-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based-2.8.a -L/cygdrive/c/cmiss/mesa/lib/i386-win32  -lopengl32 -lglu32 -lcomctl32 -lctl3d32 -L/cygdrive/c/cmiss/wxWidgets/lib -lwxexpatd-2.8) 
 TARGET_LINK_LIBRARIES(MyTest ${CMGUI_LIB} ${wxWidgets_LIBRARIES_TEMP} ${INTERPRETER_LIB} ${IMAGEMAGICK_LIB} 
      ${XML2_LIB} ${ITK_LIB} ${common_LIBS})  
+ENDIF(WIN32)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})

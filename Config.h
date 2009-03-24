@@ -8,10 +8,6 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-//static const char* prefix = "file://c:\\cmiss\\api_test2\\Data\\";
-static const char* cmgui_prefix = "file: c:/cmiss/api_test2/Data/";
-static const char* prefix = "c:/cmiss/api_test2/Data/";
-static const char* path_separator = "/";
-
+static const char* prefix = "Data/";
 
 #endif /* CONFIG_H_ */
