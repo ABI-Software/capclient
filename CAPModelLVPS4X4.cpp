@@ -192,17 +192,17 @@ void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 	
 	Point3D i(1,0,0), j(0,1,0), k(0,0,1); // world coord basis vectors
 	gtMatrix temp;
-	temp[0][0] = DOT(i,i_hat);
-	temp[0][1] = DOT(j,i_hat);
-	temp[0][2] = DOT(k,i_hat);
+	temp[0][0] = DotProduct(i,i_hat);
+	temp[0][1] = DotProduct(j,i_hat);
+	temp[0][2] = DotProduct(k,i_hat);
 
-	temp[1][0] = DOT(i,j_hat);
-	temp[1][1] = DOT(j,j_hat);
-	temp[1][2] = DOT(k,j_hat);
+	temp[1][0] = DotProduct(i,j_hat);
+	temp[1][1] = DotProduct(j,j_hat);
+	temp[1][2] = DotProduct(k,j_hat);
 
-	temp[2][0] = DOT(i,k_hat);
-	temp[2][1] = DOT(j,k_hat);
-	temp[2][2] = DOT(k,k_hat);
+	temp[2][0] = DotProduct(i,k_hat);
+	temp[2][1] = DotProduct(j,k_hat);
+	temp[2][2] = DotProduct(k,k_hat);
 
 	temp[3][0] = translation.x;
 	temp[3][1] = translation.y;

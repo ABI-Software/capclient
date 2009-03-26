@@ -133,8 +133,8 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	plane->xside = plane->trc - plane->tlc;
 	//FIND_VECTOR(plane->yside, plane->blc, plane->tlc);
 	plane->yside = plane->tlc - plane->blc;
-	CROSS_PRODUCT(plane->normal, plane->xside, plane->yside);
-	NORMALISE(plane->normal);
+	CrossProduct(plane->normal, plane->xside, plane->yside);
+	Normalise(plane->normal);
 
 	plane->brc.x = plane->blc.x + plane->xside.x;
 	plane->brc.y = plane->blc.y + plane->xside.y;
@@ -147,7 +147,7 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	std::cout << plane->blc << endl;
 #endif
 	
-	plane->d = DOT((plane->tlc - Point3D(0,0,0)) ,plane->normal);
+	plane->d = DotProduct((plane->tlc - Point3D(0,0,0)) ,plane->normal);
 	
 	return plane;
 }

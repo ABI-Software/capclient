@@ -498,7 +498,7 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
 	Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
 	Vector3D up(plane.yside);
-	NORMALISE(up);
+	Normalise(up);
 	
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();	
 	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
@@ -658,7 +658,7 @@ void ViewerFrame::RenderMII(const std::string& sliceName)
 	Cmiss_command_data_execute_command(command_data, str);
 	
 	Point3D pointTLCTransformed = mInv * plane.tlc;
-	float d = DOT((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
+	float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
 
 	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material gold selected_material default_selected render_shaded;"
 				,sliceName.c_str() ,d);
