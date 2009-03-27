@@ -63,6 +63,16 @@ void ImageSlice::SetTime(double time)
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 
 	int index = static_cast<int>(time * textures_.size()); // -1
+	//boundary checks
+	if (index >= textures_.size())
+	{
+		index = textures_.size() - 1;
+	}
+	else if (index < 0)
+	{
+		index = 0;
+	}
+	
 	//update texture only when it is necessary
 	if (index == oldIndex_|| !isVisible_)
 	{
