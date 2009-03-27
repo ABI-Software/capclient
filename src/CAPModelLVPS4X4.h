@@ -41,7 +41,7 @@ public:
 	
 	int SetLocalToGlobalTransformation(const gtMatrix& transform);
 	
-	const gtMatrix& GetLocalToGlobalTransformation()
+	const gtMatrix& GetLocalToGlobalTransformation() const
 	{
 		return patientToGlobalTransform_;
 	}

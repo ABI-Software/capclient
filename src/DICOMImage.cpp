@@ -65,21 +65,21 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	cout << "Orie: " << ds.GetDataElement(gdcm::Tag(0x0020,0x0037)) << endl;
 //		cout << "Spac: " << ds.GetDataElement(gdcm::Tag(0x0028,0x0030)) << endl;
 
-	const gdcm::DataElement& pos = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
+	const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
 //		value = pos.GetByteValue();
 //		value->PrintHex(cout, value->GetLength());
 //		cout << endl;
 	//const float* ptr = reinterpret_cast<const float*>(value->GetPointer());
 	gdcm::Attribute<0x0020,0x0032> at;
-	at.SetFromDataElement(pos);
+	at.SetFromDataElement(position);
 	const float* ptr = at.GetValues();
 	floats[3] = *ptr++;
 	floats[4] = *ptr++;
 	floats[5] = *ptr;
 
-	const gdcm::DataElement& ori = ds.GetDataElement(gdcm::Tag(0x0020,0x0037));
+	const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0037));
 	gdcm::Attribute<0x0020,0x0037> at_ori;
-	at_ori.SetFromDataElement(ori);
+	at_ori.SetFromDataElement(orientation);
 	ptr = at_ori.GetValues();
 	floats[6] = *ptr++;
 	floats[7] = *ptr++;
