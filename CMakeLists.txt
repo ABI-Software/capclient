@@ -21,14 +21,14 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
 
 SET(SRCS 
-ViewerFrame.cpp
-main.cpp
-Filesystem.cpp
-CmguiExtensions.cpp
-DICOMImage.cpp
-ImageSet.cpp
-CAPModelLVPS4X4.cpp
-CmguiManager.cpp
+src/ViewerFrame.cpp
+src/main.cpp
+src/Filesystem.cpp
+src/CmguiExtensions.cpp
+src/DICOMImage.cpp
+src/ImageSet.cpp
+src/CAPModelLVPS4X4.cpp
+src/CmguiManager.cpp
 )
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
