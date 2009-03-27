@@ -302,11 +302,10 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-	Time_object* time_object = create_Time_object("Texture_animation_timer");
-	
-	Time_object_add_callback(time_object,time_callback,(void*)this);
-	Time_object_set_time_keeper(time_object, timeKeeper_);
-	Time_object_set_update_frequency(time_object,28);//BUG?? doesnt actually update 28 times -> only 27 
+	Cmiss_time_object_id time_object = Cmiss_time_object_create("Texture_animation_time_object");
+	Cmiss_time_object_add_callback(time_object, time_callback, (void*)this);
+	Cmiss_time_keeper_add_time_object(timeKeeper_, time_object);
+	Cmiss_time_object_set_update_frequency(time_object, 10);
 #endif		
 #endif //TEXTURE_ANIMATION
 	
@@ -324,7 +323,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	heartModel_.SetModelVisibility(false);
 	heartModel_.SetMIIVisibility(false);
 	
-	Time_keeper_set_minimum(timeKeeper_, -0.01); //workaround for the timer bug
+	Time_keeper_set_minimum(timeKeeper_, 0);
 	Time_keeper_set_maximum(timeKeeper_, 1);
 	
 	this->Show(true);
