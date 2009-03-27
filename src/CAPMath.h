@@ -8,7 +8,7 @@
 #ifndef CAPMATH_H_
 #define CAPMATH_H_
 
-#include <ostream>
+#include <iostream>
 #include <cmath>
 
 typedef float gtMatrix[4][4];
@@ -125,18 +125,17 @@ public:
 	friend std::ostream& operator<<(std::ostream &_os, const Point3D &val);
 };
 
-
 inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes translation
 {
-        Point3D r;
+	Point3D r;
 
-        float fInvW = 1.0 / ( m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] );
+	float fInvW = 1.0 / ( m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] );
 
-        r.x = ( m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] ) * fInvW; // this is 1st row not column
-        r.y = ( m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] ) * fInvW;
-        r.z = ( m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] ) * fInvW;
+	r.x = ( m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] ) * fInvW; // this is 1st row not column
+	r.y = ( m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] ) * fInvW;
+	r.z = ( m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] ) * fInvW;
 
-        return r;
+	return r;
 }
 
 //inline Point3D operator*(float scalar, const Point3D& rhs)
@@ -146,9 +145,23 @@ inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes transl
 
 inline std::ostream& operator<<(std::ostream &os, const Point3D &val)
 {
-  os << "( " << val.x << ", " << val.y << ", " << val.z << ") ";
-  return os;
+	os << "( " << val.x << ", " << val.y << ", " << val.z << ") ";
+	return os;
 };
+
+inline std::istream& operator>>(std::istream& in, Point3D &val)
+{
+	std::string temp;
+	in >> temp; // name of the vector
+	in >> val.x;
+	in >> temp; // trailing character = i
+	in >> val.y;
+	in >> temp; // trailing character = j
+	in >> val.z;
+	in >> temp; // trailing character = k
+	
+	return in; 
+}
 
 inline Vector3D operator*(float scalar, const Vector3D& rhs)
 {

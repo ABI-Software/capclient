@@ -32,14 +32,14 @@ public:
 		return *instance;
 	}
 	
-	Cmiss_command_data* getCmissCommandData()
+	Cmiss_command_data* getCmissCommandData() const
 	{
 		return commandData;
 	}
 	
 	Cmiss_scene_viewer_id createSceneViewer(wxPanel* panel);
 	
-	Cmiss_scene_viewer_id getSceneViewer()
+	Cmiss_scene_viewer_id getSceneViewer() const
 	{
 		return sceneViewer;
 	}

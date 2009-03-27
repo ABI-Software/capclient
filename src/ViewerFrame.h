@@ -29,7 +29,6 @@ public:
 	
 	wxPanel* getPanel();
 	
-	//test
 	void PopulateObjectList();
 	
 	void SetTime(double time);

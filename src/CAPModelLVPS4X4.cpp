@@ -126,21 +126,6 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 
 #include "CAPMath.h"
 
-Point3D temporary_helper_function_to_transform_vector(ifstream& in)
-{
-	string temp;
-	float x,y,z;
-	in >> temp; // name of the vector
-	in >> x;
-	in >> temp; // trailing character = i
-	in >> y;
-	in >> temp; // trailing character = j
-	in >> z;
-	in >> temp; // trailing character = k
-	
-	return Point3D(x,y,z); //hopefully RVO will prevent creation of temporary objects 
-}
-
 void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 {
 	modelInfoFilePath.append("ModelInfo.txt");
@@ -158,7 +143,7 @@ void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 	
 	modelInfoFile >> numberOfModelFrames_;
 	cout << numberOfModelFrames_ <<endl;
-	
+	getline(modelInfoFile, line); //the rest of the line
 	
 	// How to get transformation matrix from the basis vectors of and the translation of the origin
 	//
@@ -169,7 +154,7 @@ void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 	// from http://physics.usask.ca/~chang/phys323/notes/lecture1.pdf
 	
 	// Read in model to world coordinate transformation
-	getline(modelInfoFile, line); //prev line
+
 	getline(modelInfoFile, line); //empty line
 	cout << line << endl;	
 	getline(modelInfoFile, line); //ModelToMagnetTransform:
@@ -179,11 +164,8 @@ void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 	//i_hat, j_hat, k_hat =  model coord basis vectors in i, j & k directions
 	//translation = origin translation
 	
-	//?? what is the correct way to initialize an obj from a return value? RVO??
-	const Point3D& i_hat = temporary_helper_function_to_transform_vector(modelInfoFile);// this is probably the way?
-	Point3D j_hat(temporary_helper_function_to_transform_vector(modelInfoFile));//copy construction from the return value? (if the function does return a temporary)
-	Point3D k_hat = temporary_helper_function_to_transform_vector(modelInfoFile);//or if RVO kicks in this may be optimal too?? => true when RVO kicks in
-	Point3D translation = temporary_helper_function_to_transform_vector(modelInfoFile);
+	Point3D i_hat, j_hat, k_hat, translation;
+	modelInfoFile >> i_hat >> j_hat >> k_hat >> translation;
 	
 	cout << "a1 = " << i_hat <<endl;
 	cout << "a2 = " << j_hat <<endl;
@@ -233,10 +215,8 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 	if (mode == CAPModelLVPS4X4::WIREFRAME)
 	{
 		Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-//		Cmiss_command_data_execute_command(command_data,
-//		"gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	
-//		);
 		
+		//FIX use api calls
 		Cmiss_command_data_execute_command(command_data,
 		"gfx mod g_el heart surfaces exterior face xi3_0 select_on material green selected_material default_selected render_wireframe;"
 		);
@@ -248,31 +228,24 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 	}
 }
 
-
 void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
 {
-//	cout << "SetMIIVisibility" << endl;
 	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
 	
 	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
-//	cout <<  numSettings << endl;
 	
 	int visible = visibility? 1:0;
 	
-//	cout << visible << endl;
 	for (int i = 3; i< (numSettings+1) ; i++) // FIX magic numbers
 	{
-//		cout << "i = " << i << endl;
 		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,i);
 		if (!settings)
 		{
 			cout << "Can't find settings by position" << endl;
 		}
-			//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
 		GT_element_settings_set_visibility(settings, visible);
 	}
 	GT_element_group_modify(gt_element_group, gt_element_group);
-
 }
 
 void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
@@ -285,16 +258,13 @@ void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 	
 	int visible = visibility? 1:0;
 	
-//	cout << visible << endl;
 	for (int i = 1; i < 3 ; i++) // FIX magic numbers
 	{
-//		cout << "i = " << i << endl;
 		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,i);
 		if (!settings)
 		{
 			cout << "Can't find GT element settings by position" << endl;
 		}
-			//int GT_element_settings_set_visibility(struct GT_element_settings *settings, int visibility)
 		GT_element_settings_set_visibility(settings, visible);
 	}
 	GT_element_group_modify(gt_element_group, gt_element_group);

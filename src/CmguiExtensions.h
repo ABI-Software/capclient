@@ -15,11 +15,12 @@ extern "C" {
 #include "time/time_keeper.h"
 }
 
-
+#ifdef DEL
 // should go to cmiss.h
 struct Material_package* Cmiss_command_data_get_material_package(
 	struct Cmiss_command_data *command_data
 );
+#endif
 
 Cmiss_scene_viewer_id create_Cmiss_scene_viewer_wx(
 	struct Cmiss_scene_viewer_package *cmiss_scene_viewer_package,

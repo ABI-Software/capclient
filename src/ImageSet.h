@@ -28,7 +28,7 @@ public:
 	
 	void SetVisible(bool visibility);
 	
-	bool IsVisible()
+	bool IsVisible() const
 	{
 		return isVisible_;
 	};
@@ -68,7 +68,7 @@ private:
 
 #include <map>
 
-class ImageSet // The whole lot ImageManager??
+class ImageSet // The whole lot : ImageManager??
 {
 public:
 

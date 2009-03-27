@@ -44,8 +44,8 @@ public:
 		delete plane;
 	}
 
-	int GetOrientation();
-	int GetPostion();
+	Vector3D GetOrientation() const;
+	Point3D GetPostion() const; 
 	void SetContrast();
 	void SetBrightNess();
 	ImagePlane* GetImagePlaneFromDICOMHeaderInfo();
