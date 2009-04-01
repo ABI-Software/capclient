@@ -63,4 +63,8 @@ LAST MODIFIED : 23 May 2008
 DESCRIPTION :
 ==============================================================================*/
 
+Cmiss_node_id Cmiss_create_node_at_coord(struct Cmiss_region *region, Cmiss_field_id field, float* coords);
+
+int Cmiss_get_ray_intersection_point(double x, double y, double* coords, Cmiss_field_id* field);
+
 #endif /* CMGUIEXTENSIONS_H_ */

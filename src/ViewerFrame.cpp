@@ -9,6 +9,7 @@
 #include "ViewerFrame.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
+#include "CmguiExtensions.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -34,54 +35,12 @@ extern "C"
 
 using namespace std;
 
-struct Viewer_frame_element_constraint_function_data
-{
-	struct FE_element *element, *found_element;
-	FE_value xi[MAXIMUM_ELEMENT_XI_DIMENSIONS];
-	struct Computed_field *coordinate_field;
-}; 
-
-static int Viewer_frame_element_constraint_function(FE_value *point,
-	void *void_data)
-/*******************************************************************************
-LAST MODIFIED : 14 February 2008
-
-DESCRIPTION : need to find the point of intersection between picking ray and obj
-==============================================================================*/
-{
-	int return_code;
-	struct Viewer_frame_element_constraint_function_data *data;
-
-	ENTER(Viewer_frame_element_constraint_function_data);
-	if (point && (data = (struct Viewer_frame_element_constraint_function_data *)void_data))
-	{
-		data->found_element = data->element;
-		return_code = Computed_field_find_element_xi(data->coordinate_field,
-			point, /*number_of_values*/3, &(data->found_element), 
-			data->xi, /*element_dimension*/2, 
-			(struct Cmiss_region *)NULL, /*propagate_field*/0, /*find_nearest_location*/1);
-		Computed_field_evaluate_in_element(data->coordinate_field,
-			data->found_element, data->xi, /*time*/0.0, (struct FE_element *)NULL,
-			point, (FE_value *)NULL);
-	}
-	else
-	{
-		display_message(ERROR_MESSAGE,
-			"Node_tool_element_constraint_function.  Invalid argument(s)");
-		return_code=0;
-	}
-	LEAVE;
-
-	return (return_code);
-} /* Node_tool_element_constraint_function */
-
-
 static int input_callback(struct Scene_viewer *scene_viewer, 
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
 //	cout << "input_callback()" << endl;
 	int return_code = 0;
-	
+
 	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE
 			|| input->input_modifier!=GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
 	{
@@ -95,129 +54,32 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	
 	ViewerFrame* frame = static_cast<ViewerFrame*>(viewer_frame_void);
 	
-	GLint viewport[4];
+	//Get intersection point
+	double node_coordinates[3];
+	double x = (double)(input->position_x);
+	double y = (double)(input->position_y);
 	
-	glGetIntegerv(GL_VIEWPORT,viewport);
-	double viewport_left   = (double)(viewport[0]);
-	double viewport_bottom = (double)(viewport[1]);
-	double viewport_width  = (double)(viewport[2]);
-	double viewport_height = (double)(viewport[3]);
+//	return_code = Cmiss_get_ray_intersection_point(x, y, node_coordinates);
+	Cmiss_field_id nearest_element_coordinate_field;
+	return_code = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &nearest_element_coordinate_field);
 	
-	double centre_x=(double)(input->position_x);
-	/* flip y as x event has y=0 at top of window, increasing down */
-	double centre_y=viewport_height-(double)(input->position_y)-1.0;
-	
-	GLdouble modelview_matrix[16], window_projection_matrix[16];
-
-	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
-	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
-	
-	
-	double size_x = 7.0;//FIX
-	double size_y = 7.0;
-	
-	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
-					modelview_matrix,window_projection_matrix,
-					viewport_left,viewport_bottom,viewport_width,viewport_height,
-					centre_x,centre_y,size_x,size_y);
-	
-	FE_element* nearest_element;
-	struct LIST(Scene_picked_object) *scene_picked_object_list;
-	struct Scene_picked_object *scene_picked_object2;
-	struct GT_element_group *gt_element_group_element;
-	struct GT_element_settings *gt_element_settings_element;
-	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
-			CmguiManager::getInstance().getCmissCommandData());
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
-	
-	if (scene_picked_object_list=
-		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
+	//Create a node 
+	if (return_code)
 	{
-		nearest_element = (struct FE_element *)NULL;
-
-		nearest_element=Scene_picked_object_list_get_nearest_element(
-			scene_picked_object_list,(struct Cmiss_region *)NULL,
-			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
-			/*select_lines_enabled*/0, &scene_picked_object2,
-			&gt_element_group_element,&gt_element_settings_element);
+		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
+								CmguiManager::getInstance().getCmissCommandData());
+		Cmiss_region* region;
+		Cmiss_region_get_region_from_path(root_region, "DataPoints", &region);
 		
-		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
-	}
-	
-	/* Find the intersection of the element and the interaction volume */
-	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
-	if (nearest_element)
-	{
-		if (!(nearest_element_coordinate_field = 
-				GT_element_settings_get_coordinate_field(gt_element_settings_element)))
-		{
-			nearest_element_coordinate_field = 
-				GT_element_group_get_default_coordinate_field(
-				gt_element_group_element);
-		}
-
-//		if (picked_node=Node_tool_create_node_at_interaction_volume(
-//			node_tool,scene,interaction_volume,nearest_element,
-//			nearest_element_coordinate_field))
-//		{
-//			node_tool->picked_node_was_unselected=1;
-//		}
-//		else
-//		{
-//			node_tool->picked_node_was_unselected=0;
-//		}
-		double node_coordinates[3];
-//		Interaction_volume_get_placement_point(interaction_volume,
-//							node_coordinates, (Interation_volume_constraint_function)NULL,
-//							(void *)NULL);
-		Viewer_frame_element_constraint_function_data constraint_data;
-		constraint_data.element = nearest_element;
-		constraint_data.found_element = nearest_element;
-		constraint_data.coordinate_field = nearest_element_coordinate_field;
-		for (int i = 0; i < MAXIMUM_ELEMENT_XI_DIMENSIONS; i++)
-		{
-			constraint_data.xi[i] = 0.5;
-		}
-		Interaction_volume_get_placement_point(interaction_volume,
-			node_coordinates, Viewer_frame_element_constraint_function,
-			&constraint_data);
 		Point3D coords(node_coordinates[0], node_coordinates[1], node_coordinates[2]);
 		cout << "debug: " << coords <<  endl;
-		
-		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
-				CmguiManager::getInstance().getCmissCommandData());
-		Cmiss_region* cmiss_region;
-		if(!Cmiss_region_get_region_from_path(root_region, "DataPoints", &cmiss_region))
+				
+		if (Cmiss_node_id node = Cmiss_create_node_at_coord(region, nearest_element_coordinate_field, (float*)&coords))
 		{
-			//error
-			std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< cmiss_region <<endl;
+			return_code = 1;
 		}
+	}	
 		
-		FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
-		if (!fe_region)
-		{
-			cout << "fe_region is null" << endl;
-		}
-		
-		int node_identifier = FE_region_get_next_FE_node_identifier(fe_region, /*start*/1);
-		cout << "node id = " << node_identifier << endl;
-		
-		Cmiss_node_id node = create_Cmiss_node(node_identifier, cmiss_region);
-		Cmiss_region_merge_Cmiss_node(cmiss_region, node);
-		Cmiss_field_id field = nearest_element_coordinate_field;
-		Cmiss_field_finite_element_define_at_node(
-			field,  node,
-			0 /* time_sequence*/, 0/* node_field_creator*/);
-		
-		Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , (float *)&coords);
-	}
-	else
-	{
-//		node_tool->picked_node_was_unselected=0;
-	}
-
 	return return_code;
 }
 
@@ -360,12 +222,16 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Triple glyph_centre,glyph_scale_factors,glyph_size;
 	Computed_field *orientation_scale_field, *variable_scale_field; ;
 	glyph=make_glyph_sphere("sphere",12,6);
+	
+	Triple new_glyph_size;
+	new_glyph_size[0] = 3, new_glyph_size[1] = 3, new_glyph_size[1] = 3;
+	
 	if (!(GT_element_settings_get_glyph_parameters(settings,
 		 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
 		 &orientation_scale_field, glyph_scale_factors,
 		 &variable_scale_field) &&
 		GT_element_settings_set_glyph_parameters(settings,glyph,
-		 glyph_scaling_mode, glyph_centre, glyph_size,
+		 glyph_scaling_mode, glyph_centre, new_glyph_size,
 		 orientation_scale_field, glyph_scale_factors,
 		 variable_scale_field)))
 	{
