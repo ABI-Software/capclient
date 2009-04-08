@@ -10,6 +10,7 @@
 //#include "DICOMImage.h"
 #include "ImageSet.h"
 #include "CAPModelLVPS4X4.h"
+#include "DataPoint.h"
 
 struct Cmiss_command_data;
 struct Time_keeper;
@@ -34,6 +35,9 @@ public:
 	void SetTime(double time);
 	
 	void RefreshCmguiCanvas();
+	
+	void AddDataPoint(DataPoint* dataPoint);
+	
 private:
 	wxCheckListBox* objectList_;
 	wxPanel* m_pPanel;
@@ -46,6 +50,8 @@ private:
 	bool hideAll_;
 	
 	CAPModelLVPS4X4 heartModel_;
+	
+	std::vector<DataPoint*> dataPoints_;
 	
 	//private utility functions
 	void RenderMII(const std::string& sliceName);
