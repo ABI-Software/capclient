@@ -84,17 +84,31 @@ IF(WIN32)
   SET(common_LIBS "-lws2_32 -lgdi32 -lmsimg32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -lnetapi32 -luuid -lwsock32 -lmpr -lwinmm -lversion -lodbc32 -lstdc++")
 ENDIF(WIN32)
 
-ADD_EXECUTABLE(MyTest ${SRCS})
+ADD_EXECUTABLE(CAPClient ${SRCS})
 # and for each of your dependant executable/library targets:
 IF(APPLE)
-TARGET_LINK_LIBRARIES(MyTest ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
+TARGET_LINK_LIBRARIES(CAPClient ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
     ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
 ENDIF(APPLE)
 IF(WIN32)
 #test
 SET(wxWidgets_LIBRARIES_TEMP  /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_xrc-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_gl-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based_xml-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_adv-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_html-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_mswd_core-2.8.a /cygdrive/c/cmiss/wxWidgets/lib/libwx_based-2.8.a -L/cygdrive/c/cmiss/mesa/lib/i386-win32  -lopengl32 -lglu32 -lcomctl32 -lctl3d32 -L/cygdrive/c/cmiss/wxWidgets/lib -lwxexpatd-2.8) 
-TARGET_LINK_LIBRARIES(MyTest ${CMGUI_LIB} ${wxWidgets_LIBRARIES_TEMP} ${INTERPRETER_LIB} ${IMAGEMAGICK_LIB} 
+TARGET_LINK_LIBRARIES(CAPClient ${CMGUI_LIB} ${wxWidgets_LIBRARIES_TEMP} ${INTERPRETER_LIB} ${IMAGEMAGICK_LIB} 
      ${XML2_LIB} ${ITK_LIB} ${common_LIBS})  
 ENDIF(WIN32)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
+
+# Unit Testing
+ENABLE_TESTING()
+
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/../Dev/UnitTest/gtest-1.3.0/include )
+SET(UNIT_TEST_SRC
+test/UnitTest.cpp
+)
+
+ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
+ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/UnitTest)
+
+SET(GTEST_LIB ${CMISS_ROOT}/../Dev/UnitTest/gtest-1.3.0/make/gtest_main.a)
+TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB})

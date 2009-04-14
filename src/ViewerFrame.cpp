@@ -439,7 +439,7 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
 	Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
 	Vector3D up(plane.yside);
-	Normalise(up);
+	up.Normalise();
 	
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();	
 	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
