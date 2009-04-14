@@ -85,6 +85,12 @@ public:
 	float x, y, z;
 };
 
+inline std::ostream& operator<<(std::ostream &os, const Vector3D &val)
+{
+	os << "( " << val.x << ", " << val.y << ", " << val.z << ") ";
+	return os;
+};
+
 class Point3D
 {
 public:
@@ -93,6 +99,7 @@ public:
 	: x(x_),y(y_),z(z_)
 	{};
 	Point3D()
+	: x(0),y(0),z(0)
 	{};
 	
 	//default cpoy ctor will do
@@ -287,13 +294,13 @@ inline void CrossProduct(V& ans, const V& vec1, const V& vec2)
 	(ans).z = (vec1).x*(vec2).y - (vec1).y*(vec2).x;
 }
 
-template <typename V>
-inline void Normalise(V& vec) 
-{ 
-	double length = sqrt(DotProduct((vec), (vec)));
-	(vec).x = (vec).x / length;
-	(vec).y = (vec).y / length;
-	(vec).z = (vec).z / length;
-}
+//template <typename V>
+//inline void Normalise(V& vec) 
+//{ 
+//	double length = sqrt(DotProduct((vec), (vec)));
+//	(vec).x = (vec).x / length;
+//	(vec).y = (vec).y / length;
+//	(vec).z = (vec).z / length;
+//}
 
 #endif /* CAPMATH_H_ */
