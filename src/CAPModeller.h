@@ -13,9 +13,11 @@
 
 #include "DataPoint.h" // needed for ptr_vector. consider Pimpl?
 
+class CAPModelLVPS4X4;
+
 class CAPModeller {
 public:
-	CAPModeller();
+	CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller();
 	
 	void FitModel();
@@ -28,6 +30,8 @@ public:
 	
 private:
 	boost::ptr_vector<DataPoint> dataPoints_;
+	
+	CAPModelLVPS4X4& heartModel_;
 };
 
 #endif /* CAPMODELLER_H_ */

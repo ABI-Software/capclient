@@ -11,6 +11,7 @@
 #include "ImageSet.h"
 #include "CAPModelLVPS4X4.h"
 #include "DataPoint.h"
+#include "CAPModeller.h"
 
 struct Cmiss_command_data;
 struct Time_keeper;
@@ -51,7 +52,8 @@ private:
 	
 	CAPModelLVPS4X4 heartModel_;
 	
-	std::vector<DataPoint*> dataPoints_;
+//	std::vector<DataPoint*> dataPoints_;
+	CAPModeller modeller_;
 	
 	//private utility functions
 	void RenderMII(const std::string& sliceName);
