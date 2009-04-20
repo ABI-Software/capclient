@@ -120,7 +120,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	animationIsOn_(false),
 	hideAll_(true),
 	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_)),
-	heartModel_("heart")
+	heartModel_("heart"),
+	modeller_(heartModel_)
 {
 	// Load layout from .xrc file
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
@@ -270,28 +271,8 @@ ViewerFrame::~ViewerFrame()
 
 void ViewerFrame::AddDataPoint(DataPoint* dataPoint)
 {
-	dataPoints_.push_back(dataPoint);
-	
-//	static Vector3D x,y,z;
-//	
-//	//Temporary
-//	if (2 == dataPoints_.size())
-//	{
-//		x = dataPoints_[0]->GetCoordinate() - dataPoints_[1]->GetCoordinate();
-//		x.Normalise();
-//	}
-//	if (4 == dataPoints_.size())
-//	{
-//		Point3D averageOfRVInserts = dataPoints_[3]->GetCoordinate() + 
-//						(dataPoints_[2]->GetCoordinate() - dataPoints_[3]->GetCoordinate()) * 0.5;
-//		y = averageOfRVInserts - dataPoints_[1]->GetCoordinate();
-//		z.CrossProduct(x,y);
-//		z.Normalise();
-//		y.CrossProduct(z,x);
-//		cout << "Model coord x axis vector" << x << endl;
-//		cout << "Model coord y axis vector" << y << endl;
-//		cout << "Model coord z axis vector" << z << endl;
-//	}
+//	dataPoints_.push_back(dataPoint);
+	modeller_.AddDataPoint(dataPoint);
 	
 	//1. Transform to model coordinate
 	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::

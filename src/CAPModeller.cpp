@@ -10,8 +10,11 @@
 #include "SolverLibraryFactory.h"
 #include "GMMFactory.h"
 #include "CAPMath.h"
+#include "CAPModelLVPS4X4.h"
 
-CAPModeller::CAPModeller()
+CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
+:
+	heartModel_(heartModel)
 {
 	// Read in S (smoothness matrix)
 	// Read in G (global to local parameter map)
@@ -65,4 +68,9 @@ void CAPModeller::InitialiseModel()
 	// mu is equally spaced up to the base value
 
 	return;
+}
+
+void CAPModeller::AddDataPoint(DataPoint* dataPoint)
+{
+	dataPoints_.push_back(dataPoint);
 }
