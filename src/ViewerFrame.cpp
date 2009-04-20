@@ -43,11 +43,22 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 //	cout << "input_callback()" << endl;
 	int return_code = 0;
 
-	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE
-			|| input->input_modifier!=GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
+	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE)
 	{
-		return 0;
+		if (input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
+		{
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
 	}
+	else if (input->input_modifier!=GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
+	{
+		return 1;
+	}
+	
 //	if (input->type ==GRAPHICS_BUFFER_BUTTON_RELEASE
 //			&& input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
 //	{
@@ -78,12 +89,13 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 				
 		if (Cmiss_node_id node = Cmiss_create_node_at_coord(region, nearest_element_coordinate_field, (float*)&coords))
 		{
-			return_code = 1;
+//			return_code = 1;
 			frame->AddDataPoint(new DataPoint(node,coords));
 		}
 	}	
 		
-	return return_code;
+//	return return_code;
+	return 0; // returning false means don't call the other input handlers;
 }
 
 static int time_callback(struct Time_object *time, double current_time, void *user_data)
@@ -200,7 +212,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 #define NODE_CREATION
 #ifdef NODE_CREATION
 	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
-			input_callback, (void*)this, 0/*add_first*/);
+			input_callback, (void*)this, 1/*add_first*/);
 	
 	//FIX move to a separate function
 	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
@@ -260,6 +272,27 @@ void ViewerFrame::AddDataPoint(DataPoint* dataPoint)
 {
 	dataPoints_.push_back(dataPoint);
 	
+//	static Vector3D x,y,z;
+//	
+//	//Temporary
+//	if (2 == dataPoints_.size())
+//	{
+//		x = dataPoints_[0]->GetCoordinate() - dataPoints_[1]->GetCoordinate();
+//		x.Normalise();
+//	}
+//	if (4 == dataPoints_.size())
+//	{
+//		Point3D averageOfRVInserts = dataPoints_[3]->GetCoordinate() + 
+//						(dataPoints_[2]->GetCoordinate() - dataPoints_[3]->GetCoordinate()) * 0.5;
+//		y = averageOfRVInserts - dataPoints_[1]->GetCoordinate();
+//		z.CrossProduct(x,y);
+//		z.Normalise();
+//		y.CrossProduct(z,x);
+//		cout << "Model coord x axis vector" << x << endl;
+//		cout << "Model coord y axis vector" << y << endl;
+//		cout << "Model coord z axis vector" << z << endl;
+//	}
+	
 	//1. Transform to model coordinate
 	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
 
@@ -295,7 +328,7 @@ void ViewerFrame::AddDataPoint(DataPoint* dataPoint)
 		, /*propagate_field*/0, /*find_nearest_location*/1);
 	if (return_code)
 	{
-		cout << "xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
+		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
 		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
 	}
 	else
@@ -362,7 +395,7 @@ void ViewerFrame::Terminate(wxCloseEvent& event)
 	exit(0); //without this, the funny temporary window appears
 }
 
- int ViewerFrame::add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox)
+int ViewerFrame::add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox)
 /*******************************************************************************
 LAST MODIFIED : 2 Match 2007
 

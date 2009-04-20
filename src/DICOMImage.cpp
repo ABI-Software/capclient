@@ -133,7 +133,7 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	plane->xside = plane->trc - plane->tlc;
 	//FIND_VECTOR(plane->yside, plane->blc, plane->tlc);
 	plane->yside = plane->tlc - plane->blc;
-	CrossProduct(plane->normal, plane->xside, plane->yside);
+	plane->normal.CrossProduct(plane->xside, plane->yside);
 	plane->normal.Normalise();
 
 	plane->brc.x = plane->blc.x + plane->xside.x;

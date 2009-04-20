@@ -286,12 +286,20 @@ inline float DotProduct(const T& a, const T& b)
 	return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
+//template <typename V>
+//inline void CrossProduct(V& ans, const V& vec1, const V& vec2)
+//{
+//	(ans).x = (vec1).y*(vec2).z - (vec1).z*(vec2).y; 
+//	(ans).y = (vec1).z*(vec2).x - (vec1).x*(vec2).z; 
+//	(ans).z = (vec1).x*(vec2).y - (vec1).y*(vec2).x;
+//}
+
 template <typename V>
-inline void CrossProduct(V& ans, const V& vec1, const V& vec2)
+inline Vector3D CrossProduct(const V& vec1, const V& vec2)
 {
-	(ans).x = (vec1).y*(vec2).z - (vec1).z*(vec2).y; 
-	(ans).y = (vec1).z*(vec2).x - (vec1).x*(vec2).z; 
-	(ans).z = (vec1).x*(vec2).y - (vec1).y*(vec2).x;
+	return Vector3D((vec1).y*(vec2).z - (vec1).z*(vec2).y,
+				    (vec1).z*(vec2).x - (vec1).x*(vec2).z,
+				    (vec1).x*(vec2).y - (vec1).y*(vec2).x);
 }
 
 //template <typename V>

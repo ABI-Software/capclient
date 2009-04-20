@@ -61,6 +61,11 @@ TEST(Vector3DTest, Muliplication)
 	EXPECT_FLOAT_EQ(vec3.x, -4);
 	EXPECT_FLOAT_EQ(vec3.y, 8);
 	EXPECT_FLOAT_EQ(vec3.z, -4);
+	
+	Vector3D vec4 = CrossProduct(vec1,Vector3D(3,2,1));
+	EXPECT_FLOAT_EQ(vec4.x, -4);
+	EXPECT_FLOAT_EQ(vec4.y, 8);
+	EXPECT_FLOAT_EQ(vec4.z, -4);
 }
 
 TEST(Vector3DTest, Addition)
