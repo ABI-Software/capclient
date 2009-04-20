@@ -19,6 +19,8 @@ ENDIF(WIN32)
 SET(BUILD_VERSION cmgui-wx-debug)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/../Dev/Solver/gmm-3.1/include)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/../Dev/Solver/boost_1_38_0)
 
 SET(SRCS 
 src/ViewerFrame.cpp
@@ -29,6 +31,7 @@ src/DICOMImage.cpp
 src/ImageSet.cpp
 src/CAPModelLVPS4X4.cpp
 src/CmguiManager.cpp
+src/CAPModeller.cpp
 )
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
