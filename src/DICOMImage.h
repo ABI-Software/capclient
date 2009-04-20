@@ -56,7 +56,7 @@ private:
 	unsigned int width;
 	unsigned int height;
 	float thickness;
-	float floats[14];
+//	float floats[14];
 	float pixelSizeX, pixelSizeY;
 	
 	double timeInCardiacCycle;
