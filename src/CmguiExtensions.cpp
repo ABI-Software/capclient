@@ -319,7 +319,7 @@ int Cmiss_get_ray_intersection_point(double x, double y, double* node_coordinate
 	/* flip y as x event has y=0 at top of window, increasing down */
 	double centre_y = viewport_height-y-1.0;
 	
-	std::cout << viewport_height <<"," <<centre_y<< std::endl;
+//	std::cout << viewport_height <<"," <<centre_y<< std::endl;
 	
 	GLdouble modelview_matrix[16], window_projection_matrix[16];
 

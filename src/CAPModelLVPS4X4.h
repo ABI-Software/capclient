@@ -12,6 +12,7 @@
 #include <vector>
 
 struct Scene_object;
+class Point3D;
 
 class CAPModelLVPS4X4
 {
@@ -27,6 +28,7 @@ public:
 	};
 	
 	CAPModelLVPS4X4(const std::string& name);
+	~CAPModelLVPS4X4();
 	
 	typedef std::vector<float> parameters;
 	int ReadModelFromFiles(const std::string& path);
@@ -37,14 +39,23 @@ public:
 	double CalculateVolume();
 	double CalculateMass();
 	
-	void SetRenderMode(RenderMode mode);
-	
 	int SetLocalToGlobalTransformation(const gtMatrix& transform);
 	
 	const gtMatrix& GetLocalToGlobalTransformation() const
 	{
 		return patientToGlobalTransform_;
 	}
+	
+	/** Projects a point to the model and computes the xi coords and the element id
+	 *  @param dataPoint the coordinate of the point
+	 *  @param xi the computed xi coord. (output)
+	 *  return value : id of the element that the point is projected onto
+	 */ 
+	int ComputeXi(const Point3D& dataPoint, Point3D& xi);
+	
+	
+	// Member functions related to rendering
+	void SetRenderMode(RenderMode mode);
 	
 	void SetMIIVisibility(bool visibility);
 	
@@ -59,6 +70,9 @@ private:
 	int numberOfModelFrames_;
 	
 	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model
+	
+	class HeartModelImpl;
+	HeartModelImpl* pImpl_; // TODO use PIMPL to hide Cmgui related implementation details (region, scene object , etc)
 };
 
 #endif /* CAPMODELLVPS4X4_H_ */

@@ -274,73 +274,73 @@ void ViewerFrame::AddDataPoint(DataPoint* dataPoint)
 //	dataPoints_.push_back(dataPoint);
 	modeller_.AddDataPoint(dataPoint);
 	
-	//1. Transform to model coordinate
-	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
-
-	gtMatrix mInv;
-	inverseMatrix(m, mInv);
-//	cout << mInv << endl;
-	transposeMatrix(mInv);// gtMatrix is column Major and our matrix functions assume row major FIX
-	
-	const Point3D& coord = dataPoint->GetCoordinate();
-	Point3D coordLocal = mInv * coord;
-	
-	cout << "Local coord = " << coordLocal << endl;
-	
-	//2. Transform to Prolate Spheroidal
-	float lambda, mu, theta;
-	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, 38.6449, 
-			&lambda,&mu, &theta,0);
-	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << endl;
-	
-	//3. Project on to model surface and obtain the material coordinates
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
-	Cmiss_region* cmiss_region;
-	Cmiss_region_get_region_from_path(root_region, "heart", &cmiss_region);
-	
-	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");//FIX
-	
-	FE_value point[3], xi[3];
-	point[0] = lambda, point[1] = mu, point[2] = theta;
-	FE_element* element = 0;
-	int return_code = Computed_field_find_element_xi(field,
-		point, /*number_of_values*/3, &element /*FE_element** */, 
-		xi, /*element_dimension*/3, cmiss_region
-		, /*propagate_field*/0, /*find_nearest_location*/1);
-	if (return_code)
-	{
-		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
-		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
-	}
-	else
-	{
-		cout << "Can't find xi" << endl;
-	}
-	
-	//Rectangular Cartesian
-	field = Cmiss_region_find_field_by_name(cmiss_region, "heart_rc_coord");//FIX
-	point[0] = coordLocal.x, point[1] = coordLocal.y, point[2] = coordLocal.z;
-	return_code = Computed_field_find_element_xi(field,
-		point, /*number_of_values*/3, &element /*FE_element** */, 
-		xi, /*element_dimension*/3, cmiss_region
-		, /*propagate_field*/0, /*find_nearest_location*/1);
-	if (return_code)
-	{
-		cout << "RC xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
-		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
-	}
-	else
-	{
-		cout << "Can't find xi" << endl;
-	}
-	
-	//4. Evaluate basis functions at the element coordinate
-	
-	//5. Construct P matrix (add/insert a row)
-	
-	//6. Compute rhs
-	//    p = dataLambda - prior
-	//    rhs = GtPt p
+//	//1. Transform to model coordinate
+//	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+//
+//	gtMatrix mInv;
+//	inverseMatrix(m, mInv);
+////	cout << mInv << endl;
+//	transposeMatrix(mInv);// gtMatrix is column Major and our matrix functions assume row major FIX
+//	
+//	const Point3D& coord = dataPoint->GetCoordinate();
+//	Point3D coordLocal = mInv * coord;
+//	
+//	cout << "Local coord = " << coordLocal << endl;
+//	
+//	//2. Transform to Prolate Spheroidal
+//	float lambda, mu, theta;
+//	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, 38.6449, 
+//			&lambda,&mu, &theta,0);
+//	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << endl;
+//	
+//	//3. Project on to model surface and obtain the material coordinates
+//	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+//	Cmiss_region* cmiss_region;
+//	Cmiss_region_get_region_from_path(root_region, "heart", &cmiss_region);
+//	
+//	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");//FIX
+//	
+//	FE_value point[3], xi[3];
+//	point[0] = lambda, point[1] = mu, point[2] = theta;
+//	FE_element* element = 0;
+//	int return_code = Computed_field_find_element_xi(field,
+//		point, /*number_of_values*/3, &element /*FE_element** */, 
+//		xi, /*element_dimension*/3, cmiss_region
+//		, /*propagate_field*/0, /*find_nearest_location*/1);
+//	if (return_code)
+//	{
+//		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
+//		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
+//	}
+//	else
+//	{
+//		cout << "Can't find xi" << endl;
+//	}
+//	
+//	//Rectangular Cartesian
+//	field = Cmiss_region_find_field_by_name(cmiss_region, "heart_rc_coord");//FIX
+//	point[0] = coordLocal.x, point[1] = coordLocal.y, point[2] = coordLocal.z;
+//	return_code = Computed_field_find_element_xi(field,
+//		point, /*number_of_values*/3, &element /*FE_element** */, 
+//		xi, /*element_dimension*/3, cmiss_region
+//		, /*propagate_field*/0, /*find_nearest_location*/1);
+//	if (return_code)
+//	{
+//		cout << "RC xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
+//		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
+//	}
+//	else
+//	{
+//		cout << "Can't find xi" << endl;
+//	}
+//	
+//	//4. Evaluate basis functions at the element coordinate
+//	
+//	//5. Construct P matrix (add/insert a row)
+//	
+//	//6. Compute rhs
+//	//    p = dataLambda - prior
+//	//    rhs = GtPt p
 }
 
 wxPanel* ViewerFrame::getPanel()
