@@ -26,7 +26,7 @@ CAPModeller::~CAPModeller()
 }
 
 void CAPModeller::FitModel()
-{
+{		
 	// Compute P 
 	// 1. find xi coords for each data point
 	// 2. evaluate basis at the xi coords
@@ -73,4 +73,6 @@ void CAPModeller::InitialiseModel()
 void CAPModeller::AddDataPoint(DataPoint* dataPoint)
 {
 	dataPoints_.push_back(dataPoint);
+	Point3D xi;
+	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
 }

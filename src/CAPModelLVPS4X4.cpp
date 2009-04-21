@@ -9,6 +9,7 @@
 #include "CAPModelLVPS4X4.h"
 #include "CmguiManager.h"
 #include "CmguiExtensions.h"
+#include "CAPMath.h"
 
 extern "C" {
 #include "command/cmiss.h"
@@ -24,9 +25,24 @@ extern "C" {
 #include <sstream>
 #include <vector>
 
+
+struct CAPModelLVPS4X4::HeartModelImpl
+{
+	Cmiss_command_data* commandData;
+	Cmiss_region* region;
+	Scene_object* sceneObject;
+};
+
 CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName)
-: modelName_(modelName)
+:
+	modelName_(modelName),
+	pImpl_(new CAPModelLVPS4X4::HeartModelImpl)
 {}
+
+CAPModelLVPS4X4::~CAPModelLVPS4X4()
+{
+	delete pImpl_;
+}
 
 using namespace std;
 
@@ -37,11 +53,11 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 	string dir_path = pathStream.str();
 
 	ReadModelInfo(dir_path); // this will set numberOfModelFrames and transformation Matrix
-	
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	
-	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
-	struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(command_data);
+
+	pImpl_->commandData = CmguiManager::getInstance().getCmissCommandData();
+
+	Cmiss_region* region = Cmiss_command_data_get_root_region(pImpl_->commandData);
+	struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(pImpl_->commandData);
 	
 	for (int i = 0; i<numberOfModelFrames_; i++)
 	{		
@@ -79,7 +95,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 
 	if (scene_object_name)
 	{
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(pImpl_->commandData);
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 		if (modelSceneObject_=Scene_get_Scene_object_by_name(scene,
 			scene_object_name))
@@ -101,14 +117,14 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 	// FIX use API calls instead of command line
 	char str[256];
 	sprintf((char*)str, "gfx define field heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
-	Cmiss_command_data_execute_command(command_data, str);
+	Cmiss_command_data_execute_command(pImpl_->commandData, str);
 
 	
 	// set the discretizatioin level to be 6 
 	// FIX use API calls instead of command line
 	// NB This resets the time object associated with the scene object ?? WHY???? possible BUG??
 	// NB This maybe because of "clear" in the command - replace with API call GT_element_group_set_element_discretization
-	Cmiss_command_data_execute_command(command_data,
+	Cmiss_command_data_execute_command(pImpl_->commandData,
 	"gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	
 	);//This clears the timer frequency
 	
@@ -121,10 +137,9 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 		Time_object_set_update_frequency(timeObject, numberOfModelFrames_);
 		//Time_object_set_update_frequency(timeObject, 5);
 	}
+	
 	return 0;
 }
-
-#include "CAPMath.h"
 
 void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 {
@@ -268,4 +283,56 @@ void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 		GT_element_settings_set_visibility(settings, visible);
 	}
 	GT_element_group_modify(gt_element_group, gt_element_group);
+}
+
+int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord)
+{
+	//1. Transform to model coordinate
+	gtMatrix mInv;
+	inverseMatrix(patientToGlobalTransform_, mInv);
+	transposeMatrix(mInv);// gtMatrix is column Major and our matrix functions assume row major FIX
+	
+	Point3D coordLocal = mInv * coord;
+	
+	cout << "Local coord = " << coordLocal << endl;
+	
+	//2. Transform to Prolate Spheroidal
+	float lambda, mu, theta;
+	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, 38.6449, 
+			&lambda,&mu, &theta,0);
+	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << endl;
+	
+	//3. Project on to model surface and obtain the material coordinates
+	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
+	Cmiss_region* cmiss_region;
+	Cmiss_region_get_region_from_path(root_region, "heart", &cmiss_region);
+	
+	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "heart_rc_coord");//FIX
+	
+	FE_value point[3], xi[3];
+//	point[0] = lambda, point[1] = mu, point[2] = theta;
+	point[0] = coordLocal.x, point[1] = coordLocal.y, point[2] = coordLocal.z;
+	FE_element* element = 0;
+	int return_code = Computed_field_find_element_xi(field,
+		point, /*number_of_values*/3, &element /*FE_element** */, 
+		xi, /*element_dimension*/3, cmiss_region
+		, /*propagate_field*/0, /*find_nearest_location*/1);
+	
+	if (return_code)
+	{
+		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
+		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
+	}
+	else
+	{
+		cout << "Can't find xi" << endl;
+	}
+	
+	if (return_code)
+	{
+		xi_coord = xi;
+		return Cmiss_element_get_identifier(element);
+	}
+	
+	return -1;
 }
