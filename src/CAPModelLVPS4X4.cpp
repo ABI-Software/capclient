@@ -36,6 +36,7 @@ struct CAPModelLVPS4X4::HeartModelImpl
 CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName)
 :
 	modelName_(modelName),
+	focalLength_(42.0), // FIX magic number
 	pImpl_(new CAPModelLVPS4X4::HeartModelImpl)
 {}
 
@@ -113,8 +114,14 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 		display_message(ERROR_MESSAGE,"Missing graphics object name");
 	}
 
+	// Set focal length from the value read in
+	Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates");//FIX
+	struct Coordinate_system* coordinate_system = Computed_field_get_coordinate_system(field);
+	focalLength_ = coordinate_system->parameters.focus;
+	
 	// define the coord field in RC for MII computation
 	// FIX use API calls instead of command line
+	// TODO extract method
 	char str[256];
 	sprintf((char*)str, "gfx define field heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
 	Cmiss_command_data_execute_command(pImpl_->commandData, str);
@@ -285,7 +292,7 @@ void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 	GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
-int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord)
+int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 {
 	//1. Transform to model coordinate
 	gtMatrix mInv;
@@ -298,7 +305,8 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord)
 	
 	//2. Transform to Prolate Spheroidal
 	float lambda, mu, theta;
-	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, 38.6449, 
+	
+	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, focalLength_, 
 			&lambda,&mu, &theta,0);
 	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << endl;
 	

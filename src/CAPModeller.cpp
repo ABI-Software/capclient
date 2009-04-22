@@ -12,24 +12,79 @@
 #include "CAPMath.h"
 #include "CAPModelLVPS4X4.h"
 
+#include "CimBiCubicHermiteLinearBasis.h"
+
+#include <iostream>
+
+const static char* Sfile = "/Users/jchu014/Dev/Solver/Data/CimModelGlobalSmooth.dat_gpts";
+const static char* Gfile = "/Users/jchu014/Dev/Solver/Data/CimModelLVPS4x4_0.map";
+const static char* P9file = "/Users/jchu014/Dev/Solver/Data/PMatrix_test_frame_9.mat_noCR";
+const static char* rhsfile = "/Users/jchu014/Dev/Solver/Data/RHS_test_frame_9.txt";
+
 CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 :
-	heartModel_(heartModel)
+	heartModel_(heartModel),
+	solverFactory_(new GMMFactory)
 {
+	SolverLibraryFactory& factory = *solverFactory_;
+	
+	std::cout << "Library = " << factory.GetName() << std::endl;
+
 	// Read in S (smoothness matrix)
+	S_ = factory.CreateMatrixFromFile(Sfile);
 	// Read in G (global to local parameter map)
+	G_ = factory.CreateMatrixFromFile(Gfile);
+
+	// initialize preconditioner and GSMoothAMatrix
+	
+	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
+	
+	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
+
+	return;
 }
 
 CAPModeller::~CAPModeller()
 {
-	// TODO Auto-generated destructor stub
+	delete aMatrix_;
+	delete preconditioner_;
+	delete P_;
+	delete S_;
+	delete G_;
 }
 
 void CAPModeller::FitModel()
 {		
 	// Compute P 
 	// 1. find xi coords for each data point
+	DataPoints::const_iterator itr = dataPoints_.begin();
+	DataPoints::const_iterator end = dataPoints_.end();
+	std::vector<Point3D> xi_vector;
+	std::vector<int> element_id_vector;
+	for (;itr!=end;++itr)
+	{
+		Point3D xi;
+		int elem_id = heartModel_.ComputeXi(itr->GetCoordinate(), xi);
+		xi_vector.push_back(xi);
+		element_id_vector.push_back(elem_id);
+	}
+	
 	// 2. evaluate basis at the xi coords
+	//    use this function as a temporary soln until Cmgui supports this
+	double psi[32];
+	CimBiCubicHermiteLinearBasis basis;
+	std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
+	std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
+	for (;itr_xi!=end_xi;++itr_xi)
+	{
+		double temp[3];
+		temp[0] = itr_xi->x;
+		temp[1] = itr_xi->y;
+		temp[2] = itr_xi->z;
+		basis.evaluateBasis(psi, temp);
+	}
+	
+	
 	// 3. construct P
 	
 	// Compute RHS - GtPt(dataLamba - priorLambda)
@@ -73,6 +128,7 @@ void CAPModeller::InitialiseModel()
 void CAPModeller::AddDataPoint(DataPoint* dataPoint)
 {
 	dataPoints_.push_back(dataPoint);
-	Point3D xi;
-	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
+//	Point3D xi;
+//	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
+	FitModel();
 }
