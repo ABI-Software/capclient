@@ -24,7 +24,7 @@ public:
 	{
 	};
 	
-	const Point3D& GetCoordinate()
+	const Point3D& GetCoordinate() const
 	{
 		return coordinate_;
 	}

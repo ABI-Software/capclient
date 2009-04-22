@@ -51,7 +51,7 @@ public:
 	 *  @param xi the computed xi coord. (output)
 	 *  return value : id of the element that the point is projected onto
 	 */ 
-	int ComputeXi(const Point3D& dataPoint, Point3D& xi);
+	int ComputeXi(const Point3D& dataPoint, Point3D& xi) const;
 	
 	
 	// Member functions related to rendering
@@ -68,6 +68,9 @@ private:
 	gtMatrix patientToGlobalTransform_; // model to world transformation
 	std::string modelName_;
 	int numberOfModelFrames_;
+	
+	float focalLength_;
+	
 	
 	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model
 	

@@ -14,6 +14,10 @@
 #include "DataPoint.h" // needed for ptr_vector. consider Pimpl?
 
 class CAPModelLVPS4X4;
+class Matrix;
+class Preconditioner;
+class GSmoothAMatrix;
+class SolverLibraryFactory;
 
 class CAPModeller {
 public:
@@ -29,9 +33,17 @@ public:
 	void ReadModelFromFile(std::string& filename);
 	
 private:
-	boost::ptr_vector<DataPoint> dataPoints_;
+	typedef boost::ptr_vector<DataPoint> DataPoints;
+	DataPoints dataPoints_;
 	
 	CAPModelLVPS4X4& heartModel_;
+	
+	SolverLibraryFactory* solverFactory_;
+	Matrix* S_;
+	Matrix* G_;
+	Matrix* P_;
+	Preconditioner* preconditioner_;
+	GSmoothAMatrix* aMatrix_;
 };
 
 #endif /* CAPMODELLER_H_ */
