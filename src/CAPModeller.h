@@ -15,6 +15,7 @@
 
 class CAPModelLVPS4X4;
 class Matrix;
+class Vector;
 class Preconditioner;
 class GSmoothAMatrix;
 class SolverLibraryFactory;
@@ -44,6 +45,7 @@ private:
 	Matrix* P_;
 	Preconditioner* preconditioner_;
 	GSmoothAMatrix* aMatrix_;
+	Vector* prior_;
 };
 
 #endif /* CAPMODELLER_H_ */
