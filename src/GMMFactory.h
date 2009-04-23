@@ -105,22 +105,22 @@ public:
 		return *impl_;
 	}
 	
-//	Vector* mult(const Vector& v) const
-//	{
-//		GMMVector* ret = new GMMVector(impl_->nrows());
-//		const std::vector<double>& vImpl = static_cast<const GMMVector&>(v).GetImpl();
-//		gmm::mult(*impl_,vImpl,*ret);
-//		
-//		return ret;
-//	}
-//	
-//	Vector* trans_mult(const Vector& v) const
-//	{
-//		GMMVector* ret = new GMMVector(impl_->ncols());
-//		const std::vector<double>& vImpl = static_cast<const GMMVector&>(v).GetImpl();
-//		gmm::mult(gmm::transposed(*impl_),vImpl,*ret);		
-//		return ret;
-//	}
+	Vector* mult(const Vector& v) const
+	{
+		GMMVector* ret = new GMMVector(impl_->nrows());
+		const std::vector<double>& vImpl = static_cast<const GMMVector&>(v).GetImpl();
+		gmm::mult(*impl_,vImpl,ret->GetImpl());
+		
+		return ret;
+	}
+	
+	Vector* trans_mult(const Vector& v) const
+	{
+		GMMVector* ret = new GMMVector(impl_->ncols());
+		const std::vector<double>& vImpl = static_cast<const GMMVector&>(v).GetImpl();
+		gmm::mult(gmm::transposed(*impl_),vImpl,ret->GetImpl());		
+		return ret;
+	}
 	
 private:
 	gmm::csc_matrix<double>* impl_;
@@ -155,16 +155,16 @@ public:
 		P = &(static_cast<GMMMatrix*>(&M)->GetImpl());
 	}
 	
-//	// REVISE: Following two functions need to be defined since this class inherits from Matrix (never really used.)
-//	Vector* mult(const Vector& v) const
-//	{
-//		return 0;
-//	}
-//	
-//	Vector* trans_mult(const Vector& v) const
-//	{
-//		return 0;
-//	}
+	// REVISE: Following two functions need to be defined since this class inherits from Matrix (never really used.)
+	Vector* mult(const Vector& v) const
+	{
+		return 0;
+	}
+	
+	Vector* trans_mult(const Vector& v) const
+	{
+		return 0;
+	}
 	
 	
 	typedef size_t size_type;

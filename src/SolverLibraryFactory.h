@@ -37,9 +37,9 @@ class Matrix
 public:
 	virtual ~Matrix() {};
 	
-//	virtual Vector* mult(const Vector& v) const = 0; // Should be namespace level function?
-//	
-//	virtual Vector* trans_mult(const Vector& v) const = 0;
+	virtual Vector* mult(const Vector& v) const = 0; // Should be namespace level function?
+	
+	virtual Vector* trans_mult(const Vector& v) const = 0;
 };
 
 class GSmoothAMatrix : public Matrix
