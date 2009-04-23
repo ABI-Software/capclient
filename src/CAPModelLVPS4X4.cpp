@@ -308,7 +308,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	
 	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, focalLength_, 
 			&lambda,&mu, &theta,0);
-	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << endl;
+	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
 	
 	//3. Project on to model surface and obtain the material coordinates
 	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
@@ -343,4 +343,11 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	}
 	
 	return -1;
+}
+
+#include "SolverLibraryFactory.h"
+
+void CAPModelLVPS4X4::SetLambda(const Vector&)
+{
+
 }
