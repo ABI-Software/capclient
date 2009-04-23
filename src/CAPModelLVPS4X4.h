@@ -13,6 +13,7 @@
 
 struct Scene_object;
 class Point3D;
+class Vector;
 
 class CAPModelLVPS4X4
 {
@@ -33,8 +34,8 @@ public:
 	typedef std::vector<float> parameters;
 	int ReadModelFromFiles(const std::string& path);
 	
-	int SetParameters(const std::vector<float>& globalParemeters);
-	const std::vector<float>& GetParameters() const;
+	void SetLambda(const Vector&);
+//	const std::vector<float>& GetParameters() const;
 
 	double CalculateVolume();
 	double CalculateMass();
