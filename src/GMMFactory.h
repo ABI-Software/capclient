@@ -11,40 +11,25 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include "gmm/gmm.h"
 #include "SolverLibraryFactory.h"
-
-class GMMMatrix : public Matrix
-{
-public:
-	GMMMatrix(gmm::csc_matrix<double>& m)
-	: impl_(&m)
-	{}
-	
-	gmm::csc_matrix<double>& GetImpl()
-	{
-		return *impl_;
-	}
-	
-	const gmm::csc_matrix<double>& GetImpl() const
-	{
-		return *impl_;
-	}
-	
-private:
-	gmm::csc_matrix<double>* impl_;
-};
 
 class GMMVector: public Vector
 {
 public:
-	GMMVector(int dim, double value)
+	GMMVector(int dim, double value = 0)
 	: impl_(new std::vector<double>(dim, value))
 	{}
 	
 	GMMVector(std::vector<double>& vec)
 	: impl_(&vec)
 	{}
+	
+	~GMMVector()
+	{
+		delete impl_;
+	}
 	
 	const std::vector<double>& GetImpl() const
 	{
@@ -70,8 +55,75 @@ public:
 		return ss.str();
 	}
 	
+	Vector& operator+=(const Vector& other)
+	{
+		GMMVector otherConc = static_cast<const GMMVector&>(other);
+		assert(impl_->size() == otherConc.impl_->size());
+		
+		std::transform(impl_->begin(),impl_->end(),otherConc.impl_->begin(),impl_->begin(),std::plus<double>());
+		
+		return *this;
+	}
+	
+	Vector& operator-=(const Vector& other)
+	{
+		GMMVector otherConc = static_cast<const GMMVector&>(other);
+		assert(impl_->size() == otherConc.impl_->size());
+
+		std::transform(impl_->begin(),impl_->end(),otherConc.impl_->begin(),impl_->begin(),std::minus<double>());
+		
+		return *this;
+	}
+	
 private:	
 	std::vector<double> *impl_;
+};
+
+class GMMMatrix : public Matrix
+{
+public:
+	GMMMatrix(gmm::csc_matrix<double>& m)
+	: impl_(&m)
+	{}
+	
+	GMMMatrix(int m, int n)
+		: impl_(new gmm::csc_matrix<double>(m,n))
+	{}
+	
+	~GMMMatrix()
+	{
+		delete impl_;
+	}
+	
+	gmm::csc_matrix<double>& GetImpl()
+	{
+		return *impl_;
+	}
+	
+	const gmm::csc_matrix<double>& GetImpl() const
+	{
+		return *impl_;
+	}
+	
+//	Vector* mult(const Vector& v) const
+//	{
+//		GMMVector* ret = new GMMVector(impl_->nrows());
+//		const std::vector<double>& vImpl = static_cast<const GMMVector&>(v).GetImpl();
+//		gmm::mult(*impl_,vImpl,*ret);
+//		
+//		return ret;
+//	}
+//	
+//	Vector* trans_mult(const Vector& v) const
+//	{
+//		GMMVector* ret = new GMMVector(impl_->ncols());
+//		const std::vector<double>& vImpl = static_cast<const GMMVector&>(v).GetImpl();
+//		gmm::mult(gmm::transposed(*impl_),vImpl,*ret);		
+//		return ret;
+//	}
+	
+private:
+	gmm::csc_matrix<double>* impl_;
 };
 
 namespace gmm {
@@ -103,6 +155,18 @@ public:
 		P = &(static_cast<GMMMatrix*>(&M)->GetImpl());
 	}
 	
+//	// REVISE: Following two functions need to be defined since this class inherits from Matrix (never really used.)
+//	Vector* mult(const Vector& v) const
+//	{
+//		return 0;
+//	}
+//	
+//	Vector* trans_mult(const Vector& v) const
+//	{
+//		return 0;
+//	}
+	
+	
 	typedef size_t size_type;
 	typedef unsigned int IND_TYPE;
 	
@@ -133,7 +197,7 @@ public:
 void mult(const GMMGSmoothAMatrix &m, const std::vector<double> &x, std::vector<double> &y) 
 {
 //	cout <<" fsssff" << endl;
-	std::vector<double> temp1(512), temp2(141);
+	std::vector<double> temp1(m.B->nrows()), temp2(m.P->nrows());//FIX!!
 	
 	
 	gmm::mult(*m.B,x,temp1);//temp1 = G * x;
@@ -152,7 +216,7 @@ void mult(const GMMGSmoothAMatrix &m, const std::vector<double> &x, std::vector<
 void mult(const GMMGSmoothAMatrix &m, const VectorRef &ref, const std::vector<double> &v, std::vector<double>& y) 
 {
 //	cout <<" fff" << endl;
-	std::vector<double> x(134), temp1(512), temp2(141);
+	std::vector<double> x(134), temp1(m.B->nrows()), temp2(m.P->nrows());
 
 	x.assign(ref.begin_, ref.end_);
 	
@@ -234,12 +298,12 @@ public:
 	: SolverLibraryFactory("GMM++")
 	{}
 	
-	Vector* CreateVector(int dimension = 0, double value = 0.0)
+	Vector* CreateVector(int dimension = 0, double value = 0.0) const
 	{
 		return new GMMVector(dimension, value);
 	}
 	
-	Vector* CreateVectorFromFile(const std::string& filename)
+	Vector* CreateVectorFromFile(const std::string& filename) const
 	{
 		gmm::VectorImpl* y = new gmm::VectorImpl(134);//FIX
 		readVector(filename.c_str(), *y);
@@ -247,13 +311,44 @@ public:
 		return new GMMVector(*y);
 	}
 	
-	Preconditioner* CreateDiagonalPreconditioner(const Matrix& m)
+	Preconditioner* CreateDiagonalPreconditioner(const Matrix& m) const
 	{
 		return new GMMPreconditioner(
 				static_cast<const GMMMatrix*>(&m)->GetImpl());
 	}
 	
-	Matrix* CreateMatrixFromFile(const std::string& filename)
+	class MatrixInsert
+	{
+	public:
+		MatrixInsert(gmm::dense_matrix<double>& mat)
+		: m_(mat)
+		{}
+		
+		void operator()(const Entry& e)
+		{
+			m_(e.rowIndex,e.colIndex) = e.value;
+		}
+		
+	private:
+		gmm::dense_matrix<double>& m_;
+	};
+	
+	Matrix* CreateMatrix(int m, int n, const std::vector<Entry>& entries) const
+	{
+		gmm::dense_matrix<double> temp(m, n);
+		
+		MatrixInsert matrixInsert(temp);
+		
+		// REVISE inefficient
+		std::for_each(entries.begin(), entries.end(), matrixInsert);
+		
+		gmm::csc_matrix<double>* mat = new gmm::csc_matrix<double>(m,n);
+		mat->init_with(temp);
+		
+		return new GMMMatrix(*mat);
+	}
+			
+	Matrix* CreateMatrixFromFile(const std::string& filename) const
 	{
 		gmm::csc_matrix<double>* m = new gmm::csc_matrix<double>;
 		Harwell_Boeing_load(filename, *m);
@@ -261,14 +356,14 @@ public:
 		return new GMMMatrix(*m);
 	}
 	
-	GSmoothAMatrix* CreateGSmoothAMatrix(Matrix& S, Matrix& G)
+	GSmoothAMatrix* CreateGSmoothAMatrix(Matrix& S, Matrix& G) const
 	{
 		return new gmm::GMMGSmoothAMatrix(
 				static_cast<const GMMMatrix*>(&S)->GetImpl(),
 				static_cast<const GMMMatrix*>(&G)->GetImpl());
 	}
 	
-	void CG(const Matrix& A, Vector& x, const Vector& rhs, const Preconditioner& pre, int maximumIteration, double tolerance)
+	void CG(const Matrix& A, Vector& x, const Vector& rhs, const Preconditioner& pre, int maximumIteration, double tolerance) const
 	{
 		std::vector<double>& xImpl = static_cast<GMMVector*>(&x)->GetImpl();
 		const std::vector<double>& rhsImpl = static_cast<const GMMVector*>(&rhs)->GetImpl();
@@ -281,7 +376,7 @@ public:
 	
 private:
 	
-	void readVector(const char* filename, std::vector<double>& v)
+	void readVector(const char* filename, std::vector<double>& v) const
 	{
 		std::ifstream in(filename);
 		
@@ -292,6 +387,7 @@ private:
 		
 		for (int index = 0; index < dimension; index++)
 		{
+			// Should use readline?
 			in >> v[index];
 		}
 	}
