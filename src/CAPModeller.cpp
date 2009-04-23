@@ -19,7 +19,7 @@
 const static char* Sfile = "/Users/jchu014/Dev/Solver/Data/CimModelGlobalSmooth.dat_gpts";
 const static char* Gfile = "/Users/jchu014/Dev/Solver/Data/CimModelLVPS4x4_0.map";
 const static char* P9file = "/Users/jchu014/Dev/Solver/Data/PMatrix_test_frame_9.mat_noCR";
-const static char* rhsfile = "/Users/jchu014/Dev/Solver/Data/RHS_test_frame_9.txt";
+const static char* priorFile = "/Data/templates/prior.dat";
 
 CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 :
@@ -40,6 +40,8 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
 	
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
+	
+	prior_ = factory.CreateVectorFromFile(priorFile);
 
 	return;
 }
@@ -51,6 +53,7 @@ CAPModeller::~CAPModeller()
 	delete P_;
 	delete S_;
 	delete G_;
+	delete prior_;
 }
 
 void CAPModeller::FitModel()
@@ -72,24 +75,68 @@ void CAPModeller::FitModel()
 	// 2. evaluate basis at the xi coords
 	//    use this function as a temporary soln until Cmgui supports this
 	double psi[32];
+	std::vector<Entry> entries;
 	CimBiCubicHermiteLinearBasis basis;
 	std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
 	std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
-	for (;itr_xi!=end_xi;++itr_xi)
+	int index = 0;
+	for (;itr_xi!=end_xi;++itr_xi,++index)
 	{
 		double temp[3];
 		temp[0] = itr_xi->x;
 		temp[1] = itr_xi->y;
 		temp[2] = itr_xi->z;
 		basis.evaluateBasis(psi, temp);
+		
+		for (int i = 0; i < 32; i++)
+		{
+			Entry e;
+			e.value = psi[i];
+			e.colIndex = 32*(element_id_vector[index])+i;
+			e.rowIndex = index;
+			entries.push_back(e);
+		}
 	}
 	
-	
 	// 3. construct P
+	Matrix* P = solverFactory_->CreateMatrix(entries.size(), 512, entries); //FIX
+	
+	aMatrix_->UpdateData(*P);
 	
 	// Compute RHS - GtPt(dataLamba - priorLambda)
+
+	Vector* lambda = G_->mult(*prior_);
+	// p = P * lambda : prior at projected data points
+	Vector* p = P->mult(*lambda);
+	// transform to local
+	// transform to PS
+	// dataLambda = dataPoints in the same order as P (* weight)
+	Vector* dataLambda = solverFactory_->CreateVector(entries.size());
+	// dataLambda = dataLambda - p
+	*dataLambda -= *p;
+	// rhs = GtPt p
+	Vector* temp = P->trans_mult(*dataLambda);
+	Vector* rhs = G_->trans_mult(*temp);
+	
+	// Solve Normal equation
+	const double tolerance = 1.0e-3;
+	const int maximumIteration = 100;
+	
+	Vector* x = solverFactory_->CreateVector(134); //FIX magic number
+	solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
+	
+	heartModel_.SetLambda(*x += *prior_);
 	
 	// TODO Smooth along time
+	
+	delete P;
+	delete lambda;
+	delete p;
+	delete dataLambda;
+	delete temp;
+	delete rhs;
+	delete x;
+	
 	return;
 }
 

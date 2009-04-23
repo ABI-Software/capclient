@@ -216,7 +216,7 @@ void mult(const GMMGSmoothAMatrix &m, const std::vector<double> &x, std::vector<
 void mult(const GMMGSmoothAMatrix &m, const VectorRef &ref, const std::vector<double> &v, std::vector<double>& y) 
 {
 //	cout <<" fff" << endl;
-	std::vector<double> x(134), temp1(m.B->nrows()), temp2(m.P->nrows());
+	std::vector<double> x(m.B->ncols()), temp1(m.B->nrows()), temp2(m.P->nrows());
 
 	x.assign(ref.begin_, ref.end_);
 	
