@@ -13,7 +13,6 @@
 
 struct Scene_object;
 class Point3D;
-class Vector;
 
 class CAPModelLVPS4X4
 {
@@ -34,7 +33,7 @@ public:
 	typedef std::vector<float> parameters;
 	int ReadModelFromFiles(const std::string& path);
 	
-	void SetLambda(const Vector&);
+	void SetLambda(const std::vector<float>& lambdaParams);
 //	const std::vector<float>& GetParameters() const;
 
 	double CalculateVolume();
@@ -54,6 +53,14 @@ public:
 	 */ 
 	int ComputeXi(const Point3D& dataPoint, Point3D& xi) const;
 	
+	Point3D TransformToProlateSheroidal(const Point3D& rc) const;
+	
+	Point3D TransformToLocalCoordinateRC(const Point3D& global) const;
+	
+	float GetFocalLength() const
+	{
+		return focalLength_;
+	}
 	
 	// Member functions related to rendering
 	void SetRenderMode(RenderMode mode);

@@ -292,14 +292,31 @@ void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 	GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
-int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
+Point3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Point3D& global) const
 {
-	//1. Transform to model coordinate
+	// FIX inefficient to compute mInv every time
 	gtMatrix mInv;
 	inverseMatrix(patientToGlobalTransform_, mInv);
 	transposeMatrix(mInv);// gtMatrix is column Major and our matrix functions assume row major FIX
 	
-	Point3D coordLocal = mInv * coord;
+	return mInv * global; // hopefully RVO will kick in
+}
+
+Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
+{
+	float lambda, mu, theta;
+		
+	cartesian_to_prolate_spheroidal(rc.x, rc.y, rc.z, focalLength_, &lambda, &mu, &theta,0);
+	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
+	
+	return Point3D(lambda, mu, theta);
+}
+
+int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
+{
+	//1. Transform to model coordinate 
+	
+	const Point3D& coordLocal = TransformToLocalCoordinateRC(coord);
 	
 	cout << "Local coord = " << coordLocal << endl;
 	
@@ -345,9 +362,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	return -1;
 }
 
-#include "SolverLibraryFactory.h"
-
-void CAPModelLVPS4X4::SetLambda(const Vector&)
+void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
 {
 
 }
