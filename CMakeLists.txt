@@ -19,8 +19,8 @@ ENDIF(WIN32)
 SET(BUILD_VERSION cmgui-wx-debug)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
-INCLUDE_DIRECTORIES(${CMISS_ROOT}/../Dev/Solver/gmm-3.1/include)
-INCLUDE_DIRECTORIES(${CMISS_ROOT}/../Dev/Solver/boost_1_38_0)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/gmm-3.1/include)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/boost_1_38_0)
 
 SET(SRCS 
 src/ViewerFrame.cpp
@@ -117,7 +117,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 # Unit Testing
 ENABLE_TESTING()
 
-INCLUDE_DIRECTORIES(${CMISS_ROOT}/../Dev/UnitTest/gtest-1.3.0/include )
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest-1.3.0/include )
 SET(UNIT_TEST_SRC
 test/UnitTest.cpp
 )
@@ -125,5 +125,5 @@ test/UnitTest.cpp
 ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
 ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/UnitTest)
 
-SET(GTEST_LIB ${CMISS_ROOT}/../Dev/UnitTest/gtest-1.3.0/make/gtest_main.a)
+SET(GTEST_LIB ${CMISS_ROOT}/gtest-1.3.0/make/gtest_main.a)
 TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB})
