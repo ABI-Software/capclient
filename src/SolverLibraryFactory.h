@@ -23,6 +23,8 @@ public:
 	virtual Vector& operator-=(const Vector&) = 0;
 	
 	virtual Vector& operator+=(const Vector&) = 0;
+	
+	virtual double& operator[](int index) = 0;
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Vector& v)

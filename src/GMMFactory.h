@@ -75,6 +75,11 @@ public:
 		return *this;
 	}
 	
+	double& operator[](int index)
+	{
+		return (*impl_)[index];
+	}
+	
 private:	
 	std::vector<double> *impl_;
 };

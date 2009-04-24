@@ -34,6 +34,9 @@ public:
 	void ReadModelFromFile(std::string& filename);
 	
 private:
+	
+	std::vector<float> ConvertToHermite(const Vector&);
+	
 	typedef boost::ptr_vector<DataPoint> DataPoints;
 	DataPoints dataPoints_;
 	

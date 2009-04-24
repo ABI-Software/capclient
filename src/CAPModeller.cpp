@@ -64,23 +64,29 @@ void CAPModeller::FitModel()
 	DataPoints::const_iterator end = dataPoints_.end();
 	std::vector<Point3D> xi_vector;
 	std::vector<int> element_id_vector;
-	for (;itr!=end;++itr)
+	Vector* dataLambda = solverFactory_->CreateVector(dataPoints_.size()); // for rhs
+
+	for (int i = 0; itr!=end; ++itr, ++i)
 	{
 		Point3D xi;
 		int elem_id = heartModel_.ComputeXi(itr->GetCoordinate(), xi);
 		xi_vector.push_back(xi);
 		element_id_vector.push_back(elem_id);
+		
+		const Point3D dataPointLocal = heartModel_.TransformToLocalCoordinateRC(itr->GetCoordinate());
+		const Point3D dataPointPS = heartModel_.TransformToProlateSheroidal(dataPointLocal);
+		dataLambda[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 	}
 	
 	// 2. evaluate basis at the xi coords
 	//    use this function as a temporary soln until Cmgui supports this
-	double psi[32];
+	double psi[32]; //FIX 32?
 	std::vector<Entry> entries;
 	CimBiCubicHermiteLinearBasis basis;
 	std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
 	std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
-	int index = 0;
-	for (;itr_xi!=end_xi;++itr_xi,++index)
+
+	for (int xiIndex = 0; itr_xi!=end_xi; ++itr_xi, ++xiIndex)
 	{
 		double temp[3];
 		temp[0] = itr_xi->x;
@@ -88,12 +94,12 @@ void CAPModeller::FitModel()
 		temp[2] = itr_xi->z;
 		basis.evaluateBasis(psi, temp);
 		
-		for (int i = 0; i < 32; i++)
+		for (int nodalValueIndex = 0; nodalValueIndex < 32; nodalValueIndex++)
 		{
 			Entry e;
-			e.value = psi[i];
-			e.colIndex = 32*(element_id_vector[index])+i;
-			e.rowIndex = index;
+			e.value = psi[nodalValueIndex];
+			e.colIndex = 32*(element_id_vector[xiIndex])+nodalValueIndex;
+			e.rowIndex = xiIndex;
 			entries.push_back(e);
 		}
 	}
@@ -108,10 +114,10 @@ void CAPModeller::FitModel()
 	Vector* lambda = G_->mult(*prior_);
 	// p = P * lambda : prior at projected data points
 	Vector* p = P->mult(*lambda);
-	// transform to local
-	// transform to PS
-	// dataLambda = dataPoints in the same order as P (* weight)
-	Vector* dataLambda = solverFactory_->CreateVector(entries.size());
+	// transform to local --> one above
+	// transform to PS --> done above
+	// dataLambda = dataPoints in the same order as P (* weight) TODO : implement weight!
+	
 	// dataLambda = dataLambda - p
 	*dataLambda -= *p;
 	// rhs = GtPt p
@@ -125,7 +131,8 @@ void CAPModeller::FitModel()
 	Vector* x = solverFactory_->CreateVector(134); //FIX magic number
 	solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 	
-	heartModel_.SetLambda(*x += *prior_);
+	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x += *prior_);
+	heartModel_.SetLambda(hermiteLambdaParams);
 	
 	// TODO Smooth along time
 	
@@ -138,6 +145,14 @@ void CAPModeller::FitModel()
 	delete x;
 	
 	return;
+}
+
+std::vector<float> CAPModeller::ConvertToHermite(const Vector& bezierParams)
+{
+	std::vector<float> hermiteParams;
+	//convert Bezier params to hermite params to they can be fed to Cmgui
+	
+	return hermiteParams;
 }
 
 void CAPModeller::InitialiseModel()
