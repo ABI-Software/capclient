@@ -142,10 +142,11 @@ void CAPModeller::FitModel()
 	*x += *prior_;
 	std::cout << "x = " << *x << std::endl;
 	std::cout << "prior_ = " << *prior_ << endl;
-//	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
-//	
-//	// Model should have the notion of frames
-//	heartModel_.SetLambda(hermiteLambdaParams);
+	
+	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
+	
+	// Model should have the notion of frames
+	heartModel_.SetLambda(hermiteLambdaParams);
 	
 	// TODO Smooth along time
 	
@@ -164,15 +165,51 @@ std::vector<float> CAPModeller::ConvertToHermite(const Vector& bezierParams)
 {
 	// convert Bezier params to hermite params to they can be fed to Cmgui
 	// 
-	Vector* hermiteParams = (*bezierToHermiteTransform_).mult(bezierParams);
+	//Vector* hermiteParams = (*bezierToHermiteTransform_).mult(bezierParams);
+	// TODO REVISE inefficient
+	Vector* hermiteParams = (*G_).mult(bezierParams);
 	
-	std::vector<float> temp(160); //REVISE inefficient
+	int indices[128] = {
+		26,    25,    22,    21,     6,     5,     2,     1,
+		27,    26,    23,    22,     7,     6,     3,     2,
+		28,    27,    24,    23,     8,     7,     4,     3,
+		25,    28,    21,    24,     5,     8,     1,     4,
+		30,    29,    26,    25,    10,     9,     6,     5,
+		31,    30,    27,    26,    11,    10,     7,     6,
+		32,    31,    28,    27,    12,    11,     8,     7,
+		29,    32,    25,    28,     9,    12,     5,     8,
+		34,    33,    30,    29,    14,    13,    10,     9,
+		35,    34,    31,    30,    15,    14,    11,    10,
+		36,    35,    32,    31,    16,    15,    12,    11,
+		33,    36,    29,    32,    13,    16,     9,    12,
+		38,    37,    34,    33,    18,    17,    14,    13,
+		39,    38,    35,    34,    19,    18,    15,    14,
+		40,    39,    36,    35,    20,    19,    16,    15,
+		37,    40,    33,    36,    17,    20,    13,    16
+	};
 	
-	for (int i = 0; i < 160 ; ++i)
+	int invertedIndices[40];
+		
+	for (int i = 0; i <128; i++)
 	{
-		temp[i] = (*hermiteParams)[i];
+		invertedIndices[indices[i]-1] = i;
 	}
 	
+	std::vector<float> temp(160);
+	
+	for (int i =0; i < 40 ;i++)
+	{
+		temp[i*4] = (*hermiteParams)[invertedIndices[i]*4];
+		temp[i*4+1] = (*hermiteParams)[invertedIndices[i]*4+1];
+		temp[i*4+2] = (*hermiteParams)[invertedIndices[i]*4+2];
+		temp[i*4+3] = (*hermiteParams)[invertedIndices[i]*4+3];
+	}
+//	for (int i = 0; i < 160 ; ++i)
+//	{
+//		temp[i] = (*hermiteParams)[i];
+//	}
+	
+	delete hermiteParams;
 	return temp;
 }
 
