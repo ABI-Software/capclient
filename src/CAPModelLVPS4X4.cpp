@@ -18,6 +18,7 @@ extern "C" {
 #include "time/time_keeper.h"
 #include "time/time.h"
 #include "graphics/scene.h"
+#include "computed_field/computed_field_finite_element.h"
 }
 
 #include <iostream>
@@ -30,7 +31,8 @@ struct CAPModelLVPS4X4::HeartModelImpl
 {
 	Cmiss_command_data* commandData;
 	Cmiss_region* region;
-	Scene_object* sceneObject;
+	//Scene_object* sceneObject;
+	Cmiss_field_id field;
 };
 
 CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName)
@@ -115,7 +117,11 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 	}
 
 	// Set focal length from the value read in
-	Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates");//FIX
+	Cmiss_region* cmiss_region;
+	Cmiss_region_get_region_from_path(region, "heart", &cmiss_region);
+	pImpl_->region = cmiss_region;
+	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");//FIX
+	pImpl_->field = field;
 	struct Coordinate_system* coordinate_system = Computed_field_get_coordinate_system(field);
 	focalLength_ = coordinate_system->parameters.focus;
 	
@@ -328,9 +334,10 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
 	
 	//3. Project on to model surface and obtain the material coordinates
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
-	Cmiss_region* cmiss_region;
-	Cmiss_region_get_region_from_path(root_region, "heart", &cmiss_region);
+//	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
+//	Cmiss_region* cmiss_region;
+//	Cmiss_region_get_region_from_path(root_region, "heart", &cmiss_region);
+	Cmiss_region* cmiss_region = pImpl_->region;
 	
 	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "heart_rc_coord");//FIX
 	
@@ -345,6 +352,14 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	
 	if (return_code)
 	{
+		if (xi[2] < 0.5)
+		{
+			xi[2] = 0.0f; // projected on endocardium
+		}
+		else
+		{
+			xi[2] = 1.0f; // projected on epicardium
+		}
 		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
 		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
 	}
@@ -364,5 +379,51 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 
 void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
 {
-
+	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
+	{
+	
+//		Cmiss_field_set_values_at_node() doesnt work for derivatives
+		//set_FE_nodal_FE_value_value looks promising
+		// see node_viewer_setup_components -> node_viewer_add_textctrl -> OnNodeViewerTextCtrlEntered
+		// -> NodeViewerTextEntered
+		
+		FE_value time = 0.0f; //TODO use proper time
+		int version = 0;
+		int component_number = 0;
+		
+		FE_region* fe_region;
+		struct FE_node *node;
+		if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
+		{
+			node = ACCESS(FE_node)(FE_region_get_FE_node_from_identifier(fe_region, i));
+			if (!node)
+			{
+				//error!
+				cout << "Error: no such node: " << i << endl;
+			}
+		}
+		
+		struct FE_field *fe_field;
+		Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
+		for (int value_number = 0; value_number < 4; ++value_number)
+		{
+			const FE_nodal_value_type types[4] = {
+				FE_NODAL_VALUE,
+				FE_NODAL_D_DS1,
+				FE_NODAL_D_DS2,
+				FE_NODAL_D2_DS1DS2
+			};
+			cout << "node = " << node << ", value_type = " << types[value_number] << endl;
+			set_FE_nodal_FE_value_value(node,
+				 fe_field, component_number,
+				 version,
+				 types[value_number], time, lambdaParams[(i-1)*4 + value_number]);
+//			set_FE_nodal_FE_value_value(node,
+//				 fe_field, component_number, //CHECK if this works with derivatives too
+//				 version,
+//				 types[value_number], time, 0.0f);
+		}
+		
+		DEACCESS(FE_node)(&node);
+	}
 }

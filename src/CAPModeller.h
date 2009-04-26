@@ -49,6 +49,8 @@ private:
 	Preconditioner* preconditioner_;
 	GSmoothAMatrix* aMatrix_;
 	Vector* prior_;
+	
+	Matrix* bezierToHermiteTransform_; // Temporary
 };
 
 #endif /* CAPMODELLER_H_ */
