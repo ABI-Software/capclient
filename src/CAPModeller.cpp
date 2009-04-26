@@ -19,7 +19,7 @@
 const static char* Sfile = "/Users/jchu014/Dev/Solver/Data/CimModelGlobalSmooth.dat_gpts";
 const static char* Gfile = "/Users/jchu014/Dev/Solver/Data/CimModelLVPS4x4_0.map";
 const static char* P9file = "/Users/jchu014/Dev/Solver/Data/PMatrix_test_frame_9.mat_noCR";
-const static char* priorFile = "/Data/templates/prior.dat";
+const static char* priorFile = "Data/templates/prior.dat";
 
 CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 :
@@ -75,8 +75,11 @@ void CAPModeller::FitModel()
 		
 		const Point3D dataPointLocal = heartModel_.TransformToLocalCoordinateRC(itr->GetCoordinate());
 		const Point3D dataPointPS = heartModel_.TransformToProlateSheroidal(dataPointLocal);
-		dataLambda[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
+		(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 	}
+	
+	//debug
+	std::cout << "dataLambda = " << *dataLambda << std::endl;
 	
 	// 2. evaluate basis at the xi coords
 	//    use this function as a temporary soln until Cmgui supports this
@@ -105,15 +108,20 @@ void CAPModeller::FitModel()
 	}
 	
 	// 3. construct P
-	Matrix* P = solverFactory_->CreateMatrix(entries.size(), 512, entries); //FIX
+	Matrix* P = solverFactory_->CreateMatrix(dataPoints_.size(), 512, entries); //FIX
 	
 	aMatrix_->UpdateData(*P);
 	
 	// Compute RHS - GtPt(dataLamba - priorLambda)
 
 	Vector* lambda = G_->mult(*prior_);
+	std::cout << "prior_ = " << *prior_ << endl;
+	//std::cout << "lambda = " << *lambda << endl;
+	
 	// p = P * lambda : prior at projected data points
 	Vector* p = P->mult(*lambda);
+	std::cout << "p = " << *p << endl;
+	
 	// transform to local --> one above
 	// transform to PS --> done above
 	// dataLambda = dataPoints in the same order as P (* weight) TODO : implement weight!
@@ -130,29 +138,40 @@ void CAPModeller::FitModel()
 	
 	Vector* x = solverFactory_->CreateVector(134); //FIX magic number
 	solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
-	
-	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x += *prior_);
-	heartModel_.SetLambda(hermiteLambdaParams);
+
+	std::cout << "x = " << *x << std::endl;
+//	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x += *prior_);
+//	
+//	// Model should have the notion of frames
+//	heartModel_.SetLambda(hermiteLambdaParams);
 	
 	// TODO Smooth along time
 	
 	delete P;
 	delete lambda;
-	delete p;
-	delete dataLambda;
-	delete temp;
-	delete rhs;
-	delete x;
+//	delete p;
+//	delete dataLambda;
+//	delete temp;
+//	delete rhs;
+//	delete x;
 	
 	return;
 }
 
 std::vector<float> CAPModeller::ConvertToHermite(const Vector& bezierParams)
 {
-	std::vector<float> hermiteParams;
-	//convert Bezier params to hermite params to they can be fed to Cmgui
+	// convert Bezier params to hermite params to they can be fed to Cmgui
+	// 
+	Vector* hermiteParams = (*bezierToHermiteTransform_).mult(bezierParams);
 	
-	return hermiteParams;
+	std::vector<float> temp(160); //REVISE inefficient
+	
+	for (int i = 0; i < 160 ; ++i)
+	{
+		temp[i] = (*hermiteParams)[i];
+	}
+	
+	return temp;
 }
 
 void CAPModeller::InitialiseModel()
@@ -193,4 +212,8 @@ void CAPModeller::AddDataPoint(DataPoint* dataPoint)
 //	Point3D xi;
 //	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
 	FitModel();
+//	
+//	std::vector<float> test(160);
+//	
+//	heartModel_.SetLambda(test); //Test
 }

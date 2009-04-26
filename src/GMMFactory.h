@@ -350,6 +350,7 @@ public:
 		gmm::csc_matrix<double>* mat = new gmm::csc_matrix<double>(m,n);
 		mat->init_with(temp);
 		
+//		std::cout << "Matrix constructed = " << *mat << endl;
 		return new GMMMatrix(*mat);
 	}
 			

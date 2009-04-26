@@ -71,6 +71,8 @@ public:
 	
 private:
 	
+	static const int NUMBER_OF_NODES = 40; 
+	
 	void ReadModelInfo(std::string modelInfoFilePath);
 	
 	gtMatrix patientToGlobalTransform_; // model to world transformation
