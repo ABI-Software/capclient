@@ -57,7 +57,7 @@ public:
 	
 	Vector& operator+=(const Vector& other)
 	{
-		GMMVector otherConc = static_cast<const GMMVector&>(other);
+		const GMMVector& otherConc = static_cast<const GMMVector&>(other);
 		assert(impl_->size() == otherConc.impl_->size());
 		
 		std::transform(impl_->begin(),impl_->end(),otherConc.impl_->begin(),impl_->begin(),std::plus<double>());
@@ -67,7 +67,7 @@ public:
 	
 	Vector& operator-=(const Vector& other)
 	{
-		GMMVector otherConc = static_cast<const GMMVector&>(other);
+		const GMMVector& otherConc = static_cast<const GMMVector&>(other);
 		assert(impl_->size() == otherConc.impl_->size());
 
 		std::transform(impl_->begin(),impl_->end(),otherConc.impl_->begin(),impl_->begin(),std::minus<double>());
@@ -350,7 +350,7 @@ public:
 		gmm::csc_matrix<double>* mat = new gmm::csc_matrix<double>(m,n);
 		mat->init_with(temp);
 		
-//		std::cout << "Matrix constructed = " << *mat << endl;
+		std::cout << "Matrix constructed = " << *mat << endl;
 		return new GMMMatrix(*mat);
 	}
 			

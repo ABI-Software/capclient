@@ -114,8 +114,8 @@ void CAPModeller::FitModel()
 	
 	// Compute RHS - GtPt(dataLamba - priorLambda)
 
-	Vector* lambda = G_->mult(*prior_);
 	std::cout << "prior_ = " << *prior_ << endl;
+	Vector* lambda = G_->mult(*prior_);
 	//std::cout << "lambda = " << *lambda << endl;
 	
 	// p = P * lambda : prior at projected data points
@@ -139,8 +139,10 @@ void CAPModeller::FitModel()
 	Vector* x = solverFactory_->CreateVector(134); //FIX magic number
 	solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
+	*x += *prior_;
 	std::cout << "x = " << *x << std::endl;
-//	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x += *prior_);
+	std::cout << "prior_ = " << *prior_ << endl;
+//	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
 //	
 //	// Model should have the notion of frames
 //	heartModel_.SetLambda(hermiteLambdaParams);
@@ -149,11 +151,11 @@ void CAPModeller::FitModel()
 	
 	delete P;
 	delete lambda;
-//	delete p;
-//	delete dataLambda;
-//	delete temp;
-//	delete rhs;
-//	delete x;
+	delete p;
+	delete dataLambda;
+	delete temp;
+	delete rhs;
+	delete x;
 	
 	return;
 }
