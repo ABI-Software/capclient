@@ -413,7 +413,7 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
 				FE_NODAL_D_DS2,
 				FE_NODAL_D2_DS1DS2
 			};
-			cout << "node = " << node << ", value_type = " << types[value_number] << endl;
+//			cout << "node = " << node << ", value_type = " << types[value_number] << endl;
 			set_FE_nodal_FE_value_value(node,
 				 fe_field, component_number,
 				 version,
