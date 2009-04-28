@@ -100,7 +100,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		Point3D coords(node_coordinates[0], node_coordinates[1], node_coordinates[2]);
 		cout << "debug: intersection point = " << coords <<  endl;
 				
-		if (Cmiss_node_id node = Cmiss_create_node_at_coord(region, nearest_element_coordinate_field, (float*)&coords))
+		if (Cmiss_node_id node = Cmiss_create_data_point_at_coord(region, nearest_element_coordinate_field, (float*)&coords))
 		{
 //			return_code = 1;
 			frame->AddDataPoint(new DataPoint(node,coords));

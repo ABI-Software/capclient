@@ -28,7 +28,7 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 {
 	SolverLibraryFactory& factory = *solverFactory_;
 	
-	std::cout << "Library = " << factory.GetName() << std::endl;
+	std::cout << "Solver Library = " << factory.GetName() << std::endl;
 
 	// Read in S (smoothness matrix)
 	S_ = factory.CreateMatrixFromFile(Sfile);
@@ -79,7 +79,7 @@ void CAPModeller::FitModel()
 	}
 	
 	//debug
-	std::cout << "dataLambda = " << *dataLambda << std::endl;
+	//std::cout << "dataLambda = " << *dataLambda << std::endl;
 	
 	// 2. evaluate basis at the xi coords
 	//    use this function as a temporary soln until Cmgui supports this
@@ -114,13 +114,13 @@ void CAPModeller::FitModel()
 	
 	// Compute RHS - GtPt(dataLamba - priorLambda)
 
-	std::cout << "prior_ = " << *prior_ << endl;
+//	std::cout << "prior_ = " << *prior_ << endl;
 	Vector* lambda = G_->mult(*prior_);
 	//std::cout << "lambda = " << *lambda << endl;
 	
 	// p = P * lambda : prior at projected data points
 	Vector* p = P->mult(*lambda);
-	std::cout << "p = " << *p << endl;
+//	std::cout << "p = " << *p << endl;
 	
 	// transform to local --> one above
 	// transform to PS --> done above
@@ -140,8 +140,8 @@ void CAPModeller::FitModel()
 	solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
 	*x += *prior_;
-	std::cout << "x = " << *x << std::endl;
-	std::cout << "prior_ = " << *prior_ << endl;
+//	std::cout << "x = " << *x << std::endl;
+//	std::cout << "prior_ = " << *prior_ << endl;
 	
 	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
 	

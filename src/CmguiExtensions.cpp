@@ -262,6 +262,102 @@ Cmiss_node_id Cmiss_create_node_at_coord(struct Cmiss_region *cmiss_region, Cmis
 	return 0;
 }
 
+#include "computed_field/computed_field_finite_element.h"
+Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords)
+{	
+	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
+	fe_region = FE_region_get_data_FE_region(fe_region);
+	
+	if (!fe_region)
+	{
+		std::cout << "fe_region is null" << std::endl;
+	}
+	
+	int node_identifier = FE_region_get_next_FE_node_identifier(fe_region, /*start*/1);
+	std::cout << "node id = " << node_identifier << std::endl;
+	
+	if (Cmiss_node_id node = ACCESS(FE_node)(CREATE(FE_node)(node_identifier, fe_region, (struct FE_node *)NULL)))
+	{
+		if (ACCESS(FE_node)(FE_region_merge_FE_node(fe_region, node)))
+		{
+//			Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates_rect");//FIX
+//			if (Cmiss_field_finite_element_define_at_node(
+//					field,  node,
+//					0 /* time_sequence*/, 0/* node_field_creator*/) &&
+//				Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , coords))
+//			{
+//				return node;
+//			}
+			int return_code;
+			struct FE_field *fe_field;
+			struct FE_node_field_creator *node_field_creator;
+			struct LIST(FE_field) *fe_field_list;
+
+			if (field && node)
+			{
+				if (field && (fe_field_list=
+					Computed_field_get_defining_FE_field_list(field)))
+				{
+					if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
+						(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
+						(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
+						fe_field_list)) && (3 >= get_FE_field_number_of_components(
+						fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
+					{
+						if (node_field_creator = CREATE(FE_node_field_creator)(
+							/*number_of_components*/3))
+						{
+							if (define_FE_field_at_node(node,fe_field,
+								(struct FE_time_sequence *)NULL,
+								node_field_creator))
+							{
+								std::cout << "Field has been defined at data_point" << std::endl;
+								if (Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , coords))
+								{
+									return node;
+								}
+							}
+							else
+							{
+								display_message(ERROR_MESSAGE,
+									"Cmiss_create_data_point_at_coord.  Failed");
+								return_code=0;
+							}
+							DESTROY(FE_node_field_creator)(&node_field_creator);
+						}
+						else
+						{
+							display_message(ERROR_MESSAGE,
+								"Cmiss_create_data_point_at_coord.  Unable to make creator.");
+							return_code=0;
+						}
+					}
+					else
+					{
+						display_message(ERROR_MESSAGE,
+							"Cmiss_create_data_point_at_coord.  Invalid field");
+						return_code=0;
+					}
+					DESTROY(LIST(FE_field))(&fe_field_list);
+				}
+				else
+				{
+					display_message(ERROR_MESSAGE,
+						"Cmiss_create_data_point_at_coord.  No field to define");
+					return_code=0;
+				}
+			}
+		}
+		else
+		{
+			std::cout << "ERROR: Cant merge node to region" << std::endl; 
+			DEACCESS(Cmiss_node)(&node);
+		}
+	}
+	
+	return 0;
+}
+
 struct Viewer_frame_element_constraint_function_data
 {
 	struct FE_element *element, *found_element;
