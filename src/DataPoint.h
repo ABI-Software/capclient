@@ -33,5 +33,7 @@ private:
 	Cmiss_node_id cmissNode_;
 	Point3D coordinate_;
 	float weight_;
+	float time_;
+	
 };
 #endif /* DATAPOINT_H_ */
