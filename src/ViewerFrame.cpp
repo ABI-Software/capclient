@@ -41,7 +41,6 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
 //	cout << "input_callback()" << endl;
-	int return_code = 0;
 
 	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE)
 	{
@@ -74,18 +73,32 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	
 //	return_code = Cmiss_get_ray_intersection_point(x, y, node_coordinates);
 	Cmiss_field_id nearest_element_coordinate_field;
-	return_code = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &nearest_element_coordinate_field);
+	FE_element* element = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &nearest_element_coordinate_field);
 	
 	//Create a node 
-	if (return_code)
+	if (element)
 	{
 		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
 								CmguiManager::getInstance().getCmissCommandData());
-		Cmiss_region* region;
-		Cmiss_region_get_region_from_path(root_region, "DataPoints", &region);
+		//Cmiss_region* region;
+		//Cmiss_region_get_region_from_path(root_region, "DataPoints", &region);
+		
+//		Cmiss_region* region =  Computed_field_get_region(nearest_element_coordinate_field);
+//		cout << "Element ID =" << Cmiss_element_get_identifier(element) << endl;
+		
+		Cmiss_region* region = Cmiss_element_get_region(element);
+		if (!region)
+		{
+			cout << "input_callback: Can't get region from element" << endl;
+		}
+//		if (region == root_region)
+//		{
+//			cout << "Error:region is root" << endl;
+//		}
+		cout << "region = " << Cmiss_region_get_path(region) << endl;
 		
 		Point3D coords(node_coordinates[0], node_coordinates[1], node_coordinates[2]);
-		cout << "debug: " << coords <<  endl;
+		cout << "debug: intersection point = " << coords <<  endl;
 				
 		if (Cmiss_node_id node = Cmiss_create_node_at_coord(region, nearest_element_coordinate_field, (float*)&coords))
 		{
@@ -180,10 +193,13 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-	Cmiss_time_object_id time_object = Cmiss_time_object_create("Texture_animation_time_object");
-	Cmiss_time_object_add_callback(time_object, time_callback, (void*)this);
-	Cmiss_time_keeper_add_time_object(timeKeeper_, time_object);
-	Cmiss_time_object_set_update_frequency(time_object, 10);
+//	Cmiss_time_object_id time_object = Cmiss_time_object_create("Texture_animation_time_object");
+//	Cmiss_time_object_add_callback(time_object, time_callback, (void*)this);
+//	Cmiss_time_keeper_add_time_object(timeKeeper_, time_object);
+//	Cmiss_time_object_set_update_frequency(time_object, 10);
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(10, 0);
+	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
+	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
 #endif		
 #endif //TEXTURE_ANIMATION
 	

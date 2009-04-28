@@ -145,10 +145,9 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 															// but incorrectly at default freq = 10 hz
 	
 	// Set the timer frequency : NB this has to be done after setting disc & creating surfaces level See above 
-	Time_object* timeObject = Scene_object_get_time_object(modelSceneObject_);
-	if (timeObject) {
-		Time_object_set_update_frequency(timeObject, numberOfModelFrames_);
-		//Time_object_set_update_frequency(timeObject, 5);
+	Cmiss_time_notifier* timeNotifier = Scene_object_get_time_object(modelSceneObject_);
+	if (timeNotifier) {
+		Cmiss_time_notifier_regular_set_frequency(timeNotifier, numberOfModelFrames_);
 	}
 	
 	return 0;
@@ -313,7 +312,7 @@ Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
 	float lambda, mu, theta;
 		
 	cartesian_to_prolate_spheroidal(rc.x, rc.y, rc.z, focalLength_, &lambda, &mu, &theta,0);
-	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
+	//cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
 	
 	return Point3D(lambda, mu, theta);
 }
@@ -324,14 +323,14 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	
 	const Point3D& coordLocal = TransformToLocalCoordinateRC(coord);
 	
-	cout << "Local coord = " << coordLocal << endl;
+//	cout << "Local coord = " << coordLocal << endl;
 	
 	//2. Transform to Prolate Spheroidal
 	float lambda, mu, theta;
 	
 	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, focalLength_, 
 			&lambda,&mu, &theta,0);
-	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
+//	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
 	
 	//3. Project on to model surface and obtain the material coordinates
 //	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
@@ -360,8 +359,8 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 		{
 			xi[2] = 1.0f; // projected on epicardium
 		}
-		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
-		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
+//		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
+//		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
 	}
 	else
 	{
