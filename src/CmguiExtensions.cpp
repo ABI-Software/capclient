@@ -303,7 +303,7 @@ DESCRIPTION : need to find the point of intersection between picking ray and obj
 	return (return_code);
 } /* Node_tool_element_constraint_function */
 
-int Cmiss_get_ray_intersection_point(double x, double y, double* node_coordinates, Cmiss_field_id* field)
+Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* node_coordinates, Cmiss_field_id* field)
 {
 	int return_code = 0;
 
@@ -390,5 +390,13 @@ int Cmiss_get_ray_intersection_point(double x, double y, double* node_coordinate
 			&constraint_data);
 	}
 
-	return return_code;
+	if (return_code)
+	{
+		return nearest_element;
+	}
+	else
+	{
+		return (Cmiss_element_id)0;
+	}
+//	return return_code;
 }

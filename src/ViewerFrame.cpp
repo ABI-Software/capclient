@@ -78,19 +78,19 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	//Create a node 
 	if (element)
 	{
-		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
-								CmguiManager::getInstance().getCmissCommandData());
-		//Cmiss_region* region;
-		//Cmiss_region_get_region_from_path(root_region, "DataPoints", &region);
+//		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
+//								CmguiManager::getInstance().getCmissCommandData());
+//		Cmiss_region* region;
+//		Cmiss_region_get_region_from_path(root_region, "DataPoints", &region);
 		
 //		Cmiss_region* region =  Computed_field_get_region(nearest_element_coordinate_field);
 //		cout << "Element ID =" << Cmiss_element_get_identifier(element) << endl;
 		
 		Cmiss_region* region = Cmiss_element_get_region(element);
-		if (!region)
-		{
-			cout << "input_callback: Can't get region from element" << endl;
-		}
+//		if (!region)
+//		{
+//			cout << "input_callback: Can't get region from element" << endl;
+//		}
 //		if (region == root_region)
 //		{
 //			cout << "Error:region is root" << endl;

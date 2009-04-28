@@ -13,6 +13,7 @@ class wxPanel;
 extern "C" {
 #include "api/cmiss_scene_viewer.h"
 #include "time/time_keeper.h"
+#include "api/cmiss_element.h"
 }
 
 #ifdef DEL
@@ -65,6 +66,6 @@ DESCRIPTION :
 
 Cmiss_node_id Cmiss_create_node_at_coord(struct Cmiss_region *region, Cmiss_field_id field, float* coords);
 
-int Cmiss_get_ray_intersection_point(double x, double y, double* coords, Cmiss_field_id* field);
+Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* coords, Cmiss_field_id* field);
 
 #endif /* CMGUIEXTENSIONS_H_ */
