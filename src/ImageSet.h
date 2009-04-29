@@ -42,6 +42,8 @@ private:
 	
 	void LoadTextures();  // should go to DICOImage??
 
+	void InitializeDataPointGraphicalSetting();
+	
 	std::string sliceName_;
 	//unsigned int sliceNumber;
 	//unsigned int numberOfFrames; //redundant

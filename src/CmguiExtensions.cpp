@@ -280,14 +280,6 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 	{
 		if (ACCESS(FE_node)(FE_region_merge_FE_node(fe_region, node)))
 		{
-//			Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates_rect");//FIX
-//			if (Cmiss_field_finite_element_define_at_node(
-//					field,  node,
-//					0 /* time_sequence*/, 0/* node_field_creator*/) &&
-//				Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , coords))
-//			{
-//				return node;
-//			}
 			int return_code;
 			struct FE_field *fe_field;
 			struct FE_node_field_creator *node_field_creator;

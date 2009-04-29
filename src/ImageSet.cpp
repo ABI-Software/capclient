@@ -20,6 +20,8 @@ extern "C"
 #include "graphics/material.h"
 #include "graphics/element_group_settings.h"
 #include "graphics/scene.h"
+#include "graphics/glyph.h"
+#include "graphics/colour.h"
 }
 
 #include "Config.h"
@@ -40,7 +42,8 @@ ImageSlice::ImageSlice(const string& name)
 {
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
-	this->TransformImagePlane(); 
+	this->TransformImagePlane();
+	this->InitializeDataPointGraphicalSetting();
 }
 
 void ImageSlice::SetVisible(bool visibility)
@@ -198,7 +201,7 @@ void ImageSlice::LoadImagePlaneModel()
 	fp_stream << is.rdbuf();
 	is.close();
 	
-	cout << "SHADERS:" << endl << vp_stream.str().c_str() << endl << fp_stream.str().c_str() << endl;
+//	cout << "SHADERS:" << endl << vp_stream.str().c_str() << endl << fp_stream.str().c_str() << endl;
 	if (!Material_set_material_program_strings(material_, 
 			(char*) vp_stream.str().c_str(), (char*) fp_stream.str().c_str())
 			)
@@ -250,6 +253,7 @@ void ImageSlice::LoadImagePlaneModel()
 		 }
 	}
 
+	
 	// cache the sceneObject for convenience
 	sceneObject_ = Scene_get_scene_object_with_Cmiss_region(scene, region);
 	return;
@@ -265,7 +269,7 @@ void ImageSlice::LoadTextures()
 	
 	FileSystem fs(dir_path);
 	
-	vector<string> filenames = fs.getAllFileNames();
+	const vector<string>& filenames = fs.getAllFileNames();
 	
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
@@ -406,6 +410,45 @@ void ImageSlice::TransformImagePlane()
 const ImagePlane& ImageSlice::GetImagePlane() const
 {
 	return *(imagePlane_);
+}
+
+void ImageSlice::InitializeDataPointGraphicalSetting()
+{	
+	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_DATA_POINTS);
+	Graphical_material* material = create_Graphical_material("DataPoints");//TODO Need to clean up
+	Graphical_material* materialSelected = create_Graphical_material("DataPointsSelected");//TODO Need to clean up
+	
+	Colour green = {0,1,0}; //BGR
+	Colour yellow = {0,1,1}; //BGR
+	Graphical_material_set_diffuse(material, &yellow);
+	Graphical_material_set_diffuse(materialSelected, &green);
+	GT_element_settings_set_material(settings,material);
+	GT_element_settings_set_selected_material(settings, materialSelected);
+
+	//Glyphs
+	GT_object *glyph, *old_glyph;
+	Glyph_scaling_mode glyph_scaling_mode;
+	Triple glyph_centre,glyph_scale_factors,glyph_size;
+	Computed_field *orientation_scale_field, *variable_scale_field; ;
+	glyph=make_glyph_sphere("sphere",12,6);
+	
+	Triple new_glyph_size;
+	new_glyph_size[0] = 2, new_glyph_size[1] = 2, new_glyph_size[2] = 2;
+	
+	if (!(GT_element_settings_get_glyph_parameters(settings,
+		 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
+		 &orientation_scale_field, glyph_scale_factors,
+		 &variable_scale_field) &&
+		GT_element_settings_set_glyph_parameters(settings,glyph,
+		 glyph_scaling_mode, glyph_centre, new_glyph_size,
+		 orientation_scale_field, glyph_scale_factors,
+		 variable_scale_field)))
+	{
+		cout << "No glyphs defined" << endl;
+	}
+
+	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(sceneObject_);
+	GT_element_group_add_settings(gt_element_group, settings, 0);
 }
 /** 
  * ImageSet

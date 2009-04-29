@@ -231,51 +231,51 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
 			input_callback, (void*)this, 1/*add_first*/);
 	
-	//FIX move to a separate function
-	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
-	
-	stringstream pathStream;
-	pathStream << prefix << "templates/DataPoints.exnode";
-	string filename = pathStream.str();
-	if (!Cmiss_region_read_file(region,(char*)filename.c_str()))
-	{
-		std::cout << "Error reading ex file - DataPoints.exnode" << std::endl;
-	}
-	
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_NODE_POINTS);
-//	//hack
-	Graphical_material* material = create_Graphical_material("DataPoints");
-	GT_element_settings_set_selected_material(settings, material);
-
-	//Glyphs
-	/* default to point glyph for fastest possible display */
-	GT_object *glyph, *old_glyph;
-	Glyph_scaling_mode glyph_scaling_mode;
-	Triple glyph_centre,glyph_scale_factors,glyph_size;
-	Computed_field *orientation_scale_field, *variable_scale_field; ;
-	glyph=make_glyph_sphere("sphere",12,6);
-	
-	Triple new_glyph_size;
-	new_glyph_size[0] = 2, new_glyph_size[1] = 2, new_glyph_size[1] = 2;
-	
-	if (!(GT_element_settings_get_glyph_parameters(settings,
-		 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
-		 &orientation_scale_field, glyph_scale_factors,
-		 &variable_scale_field) &&
-		GT_element_settings_set_glyph_parameters(settings,glyph,
-		 glyph_scaling_mode, glyph_centre, new_glyph_size,
-		 orientation_scale_field, glyph_scale_factors,
-		 variable_scale_field)))
-	{
-		cout << "No glyphs defined" << endl;
-	}
-
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
-				CmguiManager::getInstance().getCmissCommandData());
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	Scene_object* scene_object = Scene_get_Scene_object_by_name(scene, "DataPoints");
-	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(scene_object);
-	GT_element_group_add_settings(gt_element_group, settings, 0);
+//	//FIX move to a separate function
+//	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
+//	
+//	stringstream pathStream;
+//	pathStream << prefix << "templates/DataPoints.exnode";
+//	string filename = pathStream.str();
+//	if (!Cmiss_region_read_file(region,(char*)filename.c_str()))
+//	{
+//		std::cout << "Error reading ex file - DataPoints.exnode" << std::endl;
+//	}
+//	
+//	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_NODE_POINTS);
+////	//hack
+//	Graphical_material* material = create_Graphical_material("DataPoints");
+//	GT_element_settings_set_selected_material(settings, material);
+//
+//	//Glyphs
+//	/* default to point glyph for fastest possible display */
+//	GT_object *glyph, *old_glyph;
+//	Glyph_scaling_mode glyph_scaling_mode;
+//	Triple glyph_centre,glyph_scale_factors,glyph_size;
+//	Computed_field *orientation_scale_field, *variable_scale_field; ;
+//	glyph=make_glyph_sphere("sphere",12,6);
+//	
+//	Triple new_glyph_size;
+//	new_glyph_size[0] = 2, new_glyph_size[1] = 2, new_glyph_size[1] = 2;
+//	
+//	if (!(GT_element_settings_get_glyph_parameters(settings,
+//		 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
+//		 &orientation_scale_field, glyph_scale_factors,
+//		 &variable_scale_field) &&
+//		GT_element_settings_set_glyph_parameters(settings,glyph,
+//		 glyph_scaling_mode, glyph_centre, new_glyph_size,
+//		 orientation_scale_field, glyph_scale_factors,
+//		 variable_scale_field)))
+//	{
+//		cout << "No glyphs defined" << endl;
+//	}
+//
+//	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
+//				CmguiManager::getInstance().getCmissCommandData());
+//	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+//	Scene_object* scene_object = Scene_get_Scene_object_by_name(scene, "DataPoints");
+//	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(scene_object);
+//	GT_element_group_add_settings(gt_element_group, settings, 0);
 #endif //NODE_CREATION
 	
 }
