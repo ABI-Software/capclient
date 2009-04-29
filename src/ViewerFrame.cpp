@@ -42,21 +42,16 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 {
 //	cout << "input_callback()" << endl;
 
-	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE)
-	{
-		if (input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
-		{
-			return 0;
-		}
-		else
-		{
-			return 1;
-		}
-	}
-	else if (input->input_modifier!=GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
+	if (input->input_modifier!=GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
 	{
 		return 1;
 	}
+
+	if (input->type!=GRAPHICS_BUFFER_BUTTON_RELEASE)
+	{
+		return 0;
+	}
+
 	
 //	if (input->type ==GRAPHICS_BUFFER_BUTTON_RELEASE
 //			&& input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
@@ -103,9 +98,6 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 	
 	ViewerFrame* frame = static_cast<ViewerFrame*>(user_data);
 	frame->SetTime(current_time);
-	
-//	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
-//	Scene_viewer_redraw(sceneViewer);
 	
 	frame->RefreshCmguiCanvas(); // this forces refresh even when UI is being manipulated by user
 
