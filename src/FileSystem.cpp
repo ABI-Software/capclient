@@ -41,7 +41,7 @@ const std::vector<std::string>& FileSystem::getAllFileNames()
 			string filename(ent->d_name);
 			if (filename[0] != '.') //takes care of ".", ".." and all other files that start with a . (e.g .DS_Store)
 			{
-				cout << "Filename - " << ent->d_name <<endl;
+//				cout << "Filename - " << ent->d_name <<endl;
 				filenames.push_back(ent->d_name);
 			}
 		}
