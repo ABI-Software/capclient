@@ -302,7 +302,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 								(struct FE_time_sequence *)NULL,
 								node_field_creator))
 							{
-								std::cout << "Field has been defined at data_point" << std::endl;
+//								std::cout << "Field has been defined at data_point" << std::endl;
 								if (Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , coords))
 								{
 									return node;
