@@ -415,8 +415,8 @@ const ImagePlane& ImageSlice::GetImagePlane() const
 void ImageSlice::InitializeDataPointGraphicalSetting()
 {	
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_DATA_POINTS);
-	Graphical_material* material = create_Graphical_material("DataPoints");//TODO Need to clean up
-	Graphical_material* materialSelected = create_Graphical_material("DataPointsSelected");//TODO Need to clean up
+	Graphical_material* material = create_Graphical_material("DataPoints");//TODO Need to clean up consider using Material_package
+	Graphical_material* materialSelected = create_Graphical_material("DataPointsSelected");
 	
 	Colour green = {0,1,0}; //BGR
 	Colour yellow = {0,1,1}; //BGR

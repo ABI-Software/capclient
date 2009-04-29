@@ -244,7 +244,6 @@ Cmiss_node_id Cmiss_create_node_at_coord(struct Cmiss_region *cmiss_region, Cmis
 	{
 		if (Cmiss_region_merge_Cmiss_node(cmiss_region, node))
 		{
-//			Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates_rect");//FIX
 			if (Cmiss_field_finite_element_define_at_node(
 					field,  node,
 					0 /* time_sequence*/, 0/* node_field_creator*/) &&

@@ -71,30 +71,17 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
 	
-//	return_code = Cmiss_get_ray_intersection_point(x, y, node_coordinates);
 	Cmiss_field_id nearest_element_coordinate_field;
 	FE_element* element = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &nearest_element_coordinate_field);
 	
 	//Create a node 
 	if (element)
-	{
-//		Cmiss_region* root_region = Cmiss_command_data_get_root_region(
-//								CmguiManager::getInstance().getCmissCommandData());
-//		Cmiss_region* region;
-//		Cmiss_region_get_region_from_path(root_region, "DataPoints", &region);
-		
-//		Cmiss_region* region =  Computed_field_get_region(nearest_element_coordinate_field);
-//		cout << "Element ID =" << Cmiss_element_get_identifier(element) << endl;
-		
-		Cmiss_region* region = Cmiss_element_get_region(element);
-//		if (!region)
-//		{
-//			cout << "input_callback: Can't get region from element" << endl;
-//		}
-//		if (region == root_region)
-//		{
-//			cout << "Error:region is root" << endl;
-//		}
+	{		
+		Cmiss_region* region = Cmiss_element_get_region(element); // this doenst work with groups
+		if (!region)
+		{
+			cout << "input_callback: Can't get region from element" << endl;
+		}
 		cout << "region = " << Cmiss_region_get_path(region) << endl;
 		
 		Point3D coords(node_coordinates[0], node_coordinates[1], node_coordinates[2]);
@@ -102,12 +89,10 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 				
 		if (Cmiss_node_id node = Cmiss_create_data_point_at_coord(region, nearest_element_coordinate_field, (float*)&coords))
 		{
-//			return_code = 1;
 			frame->AddDataPoint(new DataPoint(node,coords));
 		}
 	}	
-		
-//	return return_code;
+	
 	return 0; // returning false means don't call the other input handlers;
 }
 
@@ -193,10 +178,6 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-//	Cmiss_time_object_id time_object = Cmiss_time_object_create("Texture_animation_time_object");
-//	Cmiss_time_object_add_callback(time_object, time_callback, (void*)this);
-//	Cmiss_time_keeper_add_time_object(timeKeeper_, time_object);
-//	Cmiss_time_object_set_update_frequency(time_object, 10);
 	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(10, 0);
 	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
 	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
@@ -204,7 +185,6 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 #endif //TEXTURE_ANIMATION
 	
 	this->PopulateObjectList(); // fill in slice check box list
-	
 	
 	//Load model
 	heartModel_.ReadModelFromFiles("test");	
@@ -221,61 +201,12 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Time_keeper_set_maximum(timeKeeper_, 1);
 	
 	this->Show(true);
-	//Data point Placing
-//	int Scene_viewer_add_input_callback(struct Scene_viewer *scene_viewer,
-//		CMISS_CALLBACK_FUNCTION(Scene_viewer_input_callback) *function,
-//		void *user_data, int add_first)
 
 #define NODE_CREATION
 #ifdef NODE_CREATION
 	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
 			input_callback, (void*)this, 1/*add_first*/);
-	
-//	//FIX move to a separate function
-//	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
-//	
-//	stringstream pathStream;
-//	pathStream << prefix << "templates/DataPoints.exnode";
-//	string filename = pathStream.str();
-//	if (!Cmiss_region_read_file(region,(char*)filename.c_str()))
-//	{
-//		std::cout << "Error reading ex file - DataPoints.exnode" << std::endl;
-//	}
-//	
-//	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_NODE_POINTS);
-////	//hack
-//	Graphical_material* material = create_Graphical_material("DataPoints");
-//	GT_element_settings_set_selected_material(settings, material);
-//
-//	//Glyphs
-//	/* default to point glyph for fastest possible display */
-//	GT_object *glyph, *old_glyph;
-//	Glyph_scaling_mode glyph_scaling_mode;
-//	Triple glyph_centre,glyph_scale_factors,glyph_size;
-//	Computed_field *orientation_scale_field, *variable_scale_field; ;
-//	glyph=make_glyph_sphere("sphere",12,6);
-//	
-//	Triple new_glyph_size;
-//	new_glyph_size[0] = 2, new_glyph_size[1] = 2, new_glyph_size[1] = 2;
-//	
-//	if (!(GT_element_settings_get_glyph_parameters(settings,
-//		 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
-//		 &orientation_scale_field, glyph_scale_factors,
-//		 &variable_scale_field) &&
-//		GT_element_settings_set_glyph_parameters(settings,glyph,
-//		 glyph_scaling_mode, glyph_centre, new_glyph_size,
-//		 orientation_scale_field, glyph_scale_factors,
-//		 variable_scale_field)))
-//	{
-//		cout << "No glyphs defined" << endl;
-//	}
-//
-//	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
-//				CmguiManager::getInstance().getCmissCommandData());
-//	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-//	Scene_object* scene_object = Scene_get_Scene_object_by_name(scene, "DataPoints");
-//	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(scene_object);
-//	GT_element_group_add_settings(gt_element_group, settings, 0);
+
 #endif //NODE_CREATION
 	
 }
@@ -287,76 +218,7 @@ ViewerFrame::~ViewerFrame()
 
 void ViewerFrame::AddDataPoint(DataPoint* dataPoint)
 {
-//	dataPoints_.push_back(dataPoint);
 	modeller_.AddDataPoint(dataPoint);
-	
-//	//1. Transform to model coordinate
-//	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
-//
-//	gtMatrix mInv;
-//	inverseMatrix(m, mInv);
-////	cout << mInv << endl;
-//	transposeMatrix(mInv);// gtMatrix is column Major and our matrix functions assume row major FIX
-//	
-//	const Point3D& coord = dataPoint->GetCoordinate();
-//	Point3D coordLocal = mInv * coord;
-//	
-//	cout << "Local coord = " << coordLocal << endl;
-//	
-//	//2. Transform to Prolate Spheroidal
-//	float lambda, mu, theta;
-//	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, 38.6449, 
-//			&lambda,&mu, &theta,0);
-//	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << endl;
-//	
-//	//3. Project on to model surface and obtain the material coordinates
-//	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
-//	Cmiss_region* cmiss_region;
-//	Cmiss_region_get_region_from_path(root_region, "heart", &cmiss_region);
-//	
-//	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");//FIX
-//	
-//	FE_value point[3], xi[3];
-//	point[0] = lambda, point[1] = mu, point[2] = theta;
-//	FE_element* element = 0;
-//	int return_code = Computed_field_find_element_xi(field,
-//		point, /*number_of_values*/3, &element /*FE_element** */, 
-//		xi, /*element_dimension*/3, cmiss_region
-//		, /*propagate_field*/0, /*find_nearest_location*/1);
-//	if (return_code)
-//	{
-//		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
-//		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
-//	}
-//	else
-//	{
-//		cout << "Can't find xi" << endl;
-//	}
-//	
-//	//Rectangular Cartesian
-//	field = Cmiss_region_find_field_by_name(cmiss_region, "heart_rc_coord");//FIX
-//	point[0] = coordLocal.x, point[1] = coordLocal.y, point[2] = coordLocal.z;
-//	return_code = Computed_field_find_element_xi(field,
-//		point, /*number_of_values*/3, &element /*FE_element** */, 
-//		xi, /*element_dimension*/3, cmiss_region
-//		, /*propagate_field*/0, /*find_nearest_location*/1);
-//	if (return_code)
-//	{
-//		cout << "RC xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
-//		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
-//	}
-//	else
-//	{
-//		cout << "Can't find xi" << endl;
-//	}
-//	
-//	//4. Evaluate basis functions at the element coordinate
-//	
-//	//5. Construct P matrix (add/insert a row)
-//	
-//	//6. Compute rhs
-//	//    p = dataLambda - prior
-//	//    rhs = GtPt p
 }
 
 wxPanel* ViewerFrame::getPanel()

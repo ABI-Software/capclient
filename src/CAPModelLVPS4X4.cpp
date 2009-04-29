@@ -73,7 +73,6 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 		// Note that with RVO, the above statement is the same as
 		// string filenameString = filenameStream.str(); 
 		
-		
 		char* filename = const_cast<char*>(filenameString.c_str());
 		//DEBUG
 		//cout << "DEBUG: i = " << i << ", filename = " << filename << endl;
@@ -319,8 +318,7 @@ Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
 
 int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 {
-	//1. Transform to model coordinate 
-	
+	//1. Transform to model coordinate 	
 	const Point3D& coordLocal = TransformToLocalCoordinateRC(coord);
 	
 //	cout << "Local coord = " << coordLocal << endl;
@@ -333,9 +331,6 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 //	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
 	
 	//3. Project on to model surface and obtain the material coordinates
-//	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
-//	Cmiss_region* cmiss_region;
-//	Cmiss_region_get_region_from_path(root_region, "heart", &cmiss_region);
 	Cmiss_region* cmiss_region = pImpl_->region;
 	
 	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "heart_rc_coord");//FIX
@@ -381,8 +376,8 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{
 	
-//		Cmiss_field_set_values_at_node() doesnt work for derivatives
-		//set_FE_nodal_FE_value_value looks promising
+		// Cmiss_field_set_values_at_node() doesnt work for derivatives
+		// set_FE_nodal_FE_value_value looks promising
 		// see node_viewer_setup_components -> node_viewer_add_textctrl -> OnNodeViewerTextCtrlEntered
 		// -> NodeViewerTextEntered
 		
@@ -417,10 +412,6 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
 				 fe_field, component_number,
 				 version,
 				 types[value_number], time, lambdaParams[(i-1)*4 + value_number]);
-//			set_FE_nodal_FE_value_value(node,
-//				 fe_field, component_number, //CHECK if this works with derivatives too
-//				 version,
-//				 types[value_number], time, 0.0f);
 		}
 		
 		DEACCESS(FE_node)(&node);
