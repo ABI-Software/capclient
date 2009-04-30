@@ -37,7 +37,11 @@ public:
 	
 	void RefreshCmguiCanvas();
 	
-	void AddDataPoint(DataPoint* dataPoint);
+	//void AddDataPoint(DataPoint* dataPoint);
+	
+	void AddDataPoint(Cmiss_node_id, const DataPoint&);
+	
+	void MoveDataPoint(Cmiss_node_id, const Point3D&);
 	
 private:
 	wxCheckListBox* objectList_;

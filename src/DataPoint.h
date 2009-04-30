@@ -16,10 +16,11 @@ extern "C" {
 class DataPoint
 {
 public:
-	DataPoint(Cmiss_node_id node, const Point3D& coord, float weight = 1.0f)
+	DataPoint(Cmiss_node_id node, const Point3D& coord, float time = 0, float weight = 1.0f)
 	:
 		cmissNode_(node),
 		coordinate_(coord),
+		time_(time),
 		weight_(weight)
 	{
 	};
@@ -29,11 +30,15 @@ public:
 		return coordinate_;
 	}
 	
+	void SetCoordinate(const Point3D coord)
+	{
+		coordinate_ = coord;
+	}
+	
 private:
 	Cmiss_node_id cmissNode_;
 	Point3D coordinate_;
 	float weight_;
 	float time_;
-	
 };
 #endif /* DATAPOINT_H_ */

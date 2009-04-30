@@ -8,10 +8,12 @@
 #ifndef CAPMODELLER_H_
 #define CAPMODELLER_H_
 
-#include <boost/ptr_container/ptr_vector.hpp>
+//#include <boost/ptr_container/ptr_vector.hpp>
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
+#include <map>
+#include <vector>
 
-#include "DataPoint.h" // needed for ptr_vector. consider Pimpl?
+#include "DataPoint.h" // needed for DataPoints. consider Pimpl?
 
 class CAPModelLVPS4X4;
 class Matrix;
@@ -19,6 +21,7 @@ class Vector;
 class Preconditioner;
 class GSmoothAMatrix;
 class SolverLibraryFactory;
+class Cmiss_node; //REVISE
 
 class CAPModeller {
 public:
@@ -27,7 +30,10 @@ public:
 	
 	void FitModel();
 	
-	void AddDataPoint(DataPoint* dataPoint);
+	
+	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
+	
+	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord);
 	
 	void InitialiseModel();
 	
@@ -37,7 +43,7 @@ private:
 	
 	std::vector<float> ConvertToHermite(const Vector&);
 	
-	typedef boost::ptr_vector<DataPoint> DataPoints;
+	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 	DataPoints dataPoints_;
 	
 	CAPModelLVPS4X4& heartModel_;
