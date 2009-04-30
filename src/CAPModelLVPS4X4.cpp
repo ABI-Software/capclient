@@ -244,11 +244,11 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 		
 		//FIX use api calls
 		Cmiss_command_data_execute_command(command_data,
-		"gfx mod g_el heart surfaces exterior face xi3_0 select_on material green selected_material default_selected render_wireframe;"
+		"gfx mod g_el heart surfaces exterior face xi3_0 no_select material green selected_material default_selected render_wireframe;"
 		);
 		
 		Cmiss_command_data_execute_command(command_data,
-		"gfx mod g_el heart surfaces exterior face xi3_1 select_on material red selected_material default_selected render_wireframe;"
+		"gfx mod g_el heart surfaces exterior face xi3_1 no_select material red selected_material default_selected render_wireframe;"
 		);
 		
 	}
