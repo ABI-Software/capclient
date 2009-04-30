@@ -69,11 +69,11 @@ void CAPModeller::FitModel()
 	for (int i = 0; itr!=end; ++itr, ++i)
 	{
 		Point3D xi;
-		int elem_id = heartModel_.ComputeXi(itr->GetCoordinate(), xi);
+		int elem_id = heartModel_.ComputeXi(itr->second.GetCoordinate(), xi);
 		xi_vector.push_back(xi);
 		element_id_vector.push_back(elem_id);
 		
-		const Point3D dataPointLocal = heartModel_.TransformToLocalCoordinateRC(itr->GetCoordinate());
+		const Point3D dataPointLocal = heartModel_.TransformToLocalCoordinateRC(itr->second.GetCoordinate());
 		const Point3D dataPointPS = heartModel_.TransformToProlateSheroidal(dataPointLocal);
 		(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 	}
@@ -215,6 +215,7 @@ std::vector<float> CAPModeller::ConvertToHermite(const Vector& bezierParams)
 
 void CAPModeller::InitialiseModel()
 {
+#ifdef OLD_CODE
 	// Compute model coordinate axes from Apex, Base and RV insert points
 	Point3D apex = dataPoints_[0].GetCoordinate();
 	Point3D base = dataPoints_[1].GetCoordinate();
@@ -241,13 +242,13 @@ void CAPModeller::InitialiseModel()
 	// initial values for lambda come from the prior
 	// theta is 1/2pi apart)
 	// mu is equally spaced up to the base value
-
+#endif
 	return;
 }
 
-void CAPModeller::AddDataPoint(DataPoint* dataPoint)
+void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const DataPoint& dataPoint)
 {
-	dataPoints_.push_back(dataPoint);
+	dataPoints_.insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
 //	Point3D xi;
 //	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
 	FitModel();
@@ -255,4 +256,12 @@ void CAPModeller::AddDataPoint(DataPoint* dataPoint)
 //	std::vector<float> test(160);
 //	
 //	heartModel_.SetLambda(test); //Test
+}
+
+void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord)
+{
+	DataPoints::iterator itr = dataPoints_.find(dataPointID);
+	assert(itr != dataPoints_.end());
+	itr->second.SetCoordinate(coord);
+	FitModel();
 }

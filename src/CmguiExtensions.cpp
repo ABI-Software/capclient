@@ -262,7 +262,7 @@ Cmiss_node_id Cmiss_create_node_at_coord(struct Cmiss_region *cmiss_region, Cmis
 }
 
 #include "computed_field/computed_field_finite_element.h"
-Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords)
+Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords, float time)
 {	
 	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
 	fe_region = FE_region_get_data_FE_region(fe_region);
@@ -303,7 +303,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 								node_field_creator))
 							{
 //								std::cout << "Field has been defined at data_point" << std::endl;
-								if (Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , coords))
+								if (Cmiss_field_set_values_at_node( field, node, time , 3 , coords))
 								{
 									return node;
 								}
