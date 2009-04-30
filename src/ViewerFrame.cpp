@@ -196,7 +196,7 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y,
 	return 0;
 }
 
-int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, Point3D coords)
+int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, Point3D& coords)
 {
 	double node_coordinates[3];
 	Cmiss_field_id field;
@@ -240,6 +240,8 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		Point3D coords;
 		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
 		Cmiss_move_node_to_screen_coords(selectedNode, x, y, time, coords);
+		
+		cout << "Move coord = " << coords << endl;
 		frame->MoveDataPoint(selectedNode, coords);
 	}
 	else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
@@ -387,6 +389,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	this->Show(true);
 
+	Time_keeper_request_new_time(timeKeeper_, 1);
+	Time_keeper_request_new_time(timeKeeper_, 0); //HACK
 #define NODE_CREATION
 #ifdef NODE_CREATION
 	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
