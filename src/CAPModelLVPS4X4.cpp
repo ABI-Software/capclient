@@ -371,7 +371,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	return -1;
 }
 
-void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
+void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams, float time)
 {
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{
@@ -381,7 +381,6 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
 		// see node_viewer_setup_components -> node_viewer_add_textctrl -> OnNodeViewerTextCtrlEntered
 		// -> NodeViewerTextEntered
 		
-		FE_value time = 0.0f; //TODO use proper time
 		int version = 0;
 		int component_number = 0;
 		
@@ -415,5 +414,38 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams)
 		}
 		
 		DEACCESS(FE_node)(&node);
+	}
+}
+
+void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber)
+{
+	SetLambda(lambdaParams, static_cast<float>(frameNumber)/numberOfModelFrames_);
+}
+
+float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
+{
+	float frameDuration = (float) 1.0 / numberOfModelFrames_;
+	int indexPrevFrame = time / frameDuration;
+	if ((time - (float)frameDuration*indexPrevFrame) < (frameDuration/2))
+	{
+		return (float) indexPrevFrame/numberOfModelFrames_;
+	}
+	else
+	{
+		return (float) (indexPrevFrame+1)/numberOfModelFrames_;
+	}
+}
+
+int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
+{
+	float frameDuration = (float) 1.0 / numberOfModelFrames_;
+	int indexPrevFrame = time / frameDuration;
+	if ((time - (float)frameDuration*indexPrevFrame) < (frameDuration/2))
+	{
+		return indexPrevFrame;
+	}
+	else
+	{
+		return indexPrevFrame+1;
 	}
 }

@@ -33,7 +33,10 @@ public:
 	typedef std::vector<float> parameters;
 	int ReadModelFromFiles(const std::string& path);
 	
-	void SetLambda(const std::vector<float>& lambdaParams);
+	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
+	
+	void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
+	
 //	const std::vector<float>& GetParameters() const;
 
 	double CalculateVolume();
@@ -68,6 +71,10 @@ public:
 	void SetMIIVisibility(bool visibility);
 	
 	void SetModelVisibility(bool visibility);
+
+	float MapToModelFrameTime(float time) const; // maps the argument time to the closest frame in time and returns the frame time
+	
+	int MapToModelFrameNumber(float time) const;
 	
 private:
 	
