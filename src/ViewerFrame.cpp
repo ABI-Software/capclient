@@ -232,6 +232,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		// Select node or create one
 		Point3D coords;
 		selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords);
+		assert(selectedNode != NULL);
 		frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time));
 	}
 	else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
@@ -239,6 +240,12 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		// Move node
 		Point3D coords;
 		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
+		if (!selectedNode)
+		{
+			cout << "GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode" << endl;
+			return 0;//HACK sometimes selectedNode == NULL for some reason (GRAPHICS_BUFFER_MOTION_NOTIFY can occur without button down?)
+		}
+		assert(selectedNode != NULL);
 		Cmiss_move_node_to_screen_coords(selectedNode, x, y, time, coords);
 		
 		cout << "Move coord = " << coords << endl;
