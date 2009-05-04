@@ -8,12 +8,16 @@
 
 #include "DICOMImage.h"
 
-#include "gdcmStringFilter.h"
+#ifdef NDEBUG //HACK!
+#undef NDEBUG // HACK to get around the fact that gdcm only gets compiled without NDEBUG during the cmgui build process
 #include "gdcmReader.h"
-#include "gdcmSequenceOfItems.h"
-#include "gdcmTesting.h"
-#include "gdcmTag.h"
 #include "gdcmAttribute.h"
+#define NDEBUG
+#else
+#include "gdcmReader.h"
+#include "gdcmAttribute.h"
+#endif
+
 #include "math.h"
 
 #include <string>
@@ -31,7 +35,7 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	//First, load info from DICOM header
 
 	//Exception safeness! -> better not perform file i/o in the ctor?
-	gdcm::StringFilter sf;
+	//gdcm::StringFilter sf;
 	gdcm::Reader r;
 	r.SetFileName( filename.c_str() );
 	if( !r.Read() )
@@ -40,7 +44,7 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 		return 0;
 	}
 	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
-	sf.SetFile( r.GetFile() );
+	//sf.SetFile( r.GetFile() );
 
 	const gdcm::DataElement& rows = ds.GetDataElement(gdcm::Tag(0x0028,0x0010));
 //	const gdcm::ByteValue* value = rows.GetByteValue();
