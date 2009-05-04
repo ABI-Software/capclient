@@ -413,11 +413,13 @@ ViewerFrame::~ViewerFrame()
 void ViewerFrame::AddDataPoint(Cmiss_node_id dataPointID, const DataPoint& dataPoint)
 {
 	modeller_.AddDataPoint(dataPointID, dataPoint);
+	RefreshCmguiCanvas(); // need to force refreshing
 }
 
 void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPosition)
 {
 	modeller_.MoveDataPoint(dataPointID, newPosition);
+	RefreshCmguiCanvas(); // need to force refreshing
 }
 
 wxPanel* ViewerFrame::getPanel()
