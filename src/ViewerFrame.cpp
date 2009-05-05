@@ -232,7 +232,11 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		// Select node or create one
 		Point3D coords;
 		selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords);
-		assert(selectedNode != NULL);
+		if (!selectedNode)
+		{
+			// No node selected or created
+			return 0;
+		}
 		frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time));
 	}
 	else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
@@ -243,7 +247,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		if (!selectedNode)
 		{
 			cout << "GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode" << endl;
-			return 0;//HACK sometimes selectedNode == NULL for some reason (GRAPHICS_BUFFER_MOTION_NOTIFY can occur without button down?)
+			return 0;
 		}
 		assert(selectedNode != NULL);
 		Cmiss_move_node_to_screen_coords(selectedNode, x, y, time, coords);
