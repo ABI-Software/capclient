@@ -408,6 +408,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 
 #endif //NODE_CREATION
 	
+	modeller_.InitialiseModel();//REVISE
 }
 
 ViewerFrame::~ViewerFrame()
