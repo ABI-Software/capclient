@@ -106,6 +106,11 @@ public:
 		return imageSlicesMap_.size();
 	}
 	
+	const std::vector<std::string>& GetSliceNames() const
+	{
+		return imageSliceNames_;
+	}
+	
 private:
 	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices
 //	std::vector<ImageGroup*> imageGroups;

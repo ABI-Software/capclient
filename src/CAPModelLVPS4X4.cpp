@@ -274,6 +274,26 @@ void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
 	GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
+void CAPModelLVPS4X4::SetMIIVisibility(bool visibility, int index)
+{
+	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
+	
+	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
+	
+	int visible = visibility? 1:0;
+	
+	const int indexOffset = 3;
+	GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,index + indexOffset);
+	if (!settings)
+	{
+		cout << "Can't find settings by position" << endl;
+		assert(settings);
+	}
+	GT_element_settings_set_visibility(settings, visible);
+
+	GT_element_group_modify(gt_element_group, gt_element_group);
+}
+
 void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 {
 
