@@ -346,6 +346,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 		}
 	}
 	
+	std::cout << "ERROR: Can't Create node" << std::endl; 
 	return 0;
 }
 

@@ -241,15 +241,14 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	}
 	else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
 	{
-		// Move node
-		Point3D coords;
-		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
+		// Move node		
 		if (!selectedNode)
 		{
 			cout << "GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode" << endl;
 			return 0;
 		}
-		assert(selectedNode != NULL);
+		Point3D coords;
+		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
 		Cmiss_move_node_to_screen_coords(selectedNode, x, y, time, coords);
 		
 		cout << "Move coord = " << coords << endl;
