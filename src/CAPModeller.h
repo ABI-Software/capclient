@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "DataPoint.h" // needed for DataPoints. consider Pimpl?
+#include "CAPTimeSmoother.h"
 
 class CAPModelLVPS4X4;
 class Matrix;
@@ -30,6 +31,7 @@ public:
 	
 	void FitModel();
 	
+	void SmoothAlongTime();
 	
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	
@@ -39,12 +41,16 @@ public:
 	
 	void ReadModelFromFile(std::string& filename);
 	
+	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
+	
 private:
 	
 	std::vector<float> ConvertToHermite(const Vector&);
 	
 	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 	DataPoints dataPoints_;
+	
+	std::vector< std::vector<float> > timeVaryingDataPoints_;
 	
 	CAPModelLVPS4X4& heartModel_;
 	
@@ -57,6 +63,8 @@ private:
 	Vector* prior_;
 	
 	Matrix* bezierToHermiteTransform_; // Temporary
+	
+	CAPTimeSmoother timeSmoother_;
 };
 
 #endif /* CAPMODELLER_H_ */

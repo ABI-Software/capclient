@@ -78,6 +78,11 @@ public:
 	
 	int MapToModelFrameNumber(float time) const;
 	
+	int GetNumberOfModelFrames() const
+	{
+		return numberOfModelFrames_;
+	}
+	
 private:
 	
 	static const int NUMBER_OF_NODES = 40; 
