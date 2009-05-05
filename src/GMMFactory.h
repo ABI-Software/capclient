@@ -80,6 +80,11 @@ public:
 		return (*impl_)[index];
 	}
 	
+	const double& operator[](int index) const
+	{
+		return (*impl_)[index];
+	}
+	
 private:	
 	std::vector<double> *impl_;
 };

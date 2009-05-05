@@ -9,6 +9,7 @@
 #define SOLVERLIBRARYFACTORY_H_
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <fstream>
 
@@ -25,6 +26,8 @@ public:
 	virtual Vector& operator+=(const Vector&) = 0;
 	
 	virtual double& operator[](int index) = 0;
+	
+	virtual const double& operator[](int index) const = 0;
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Vector& v)
