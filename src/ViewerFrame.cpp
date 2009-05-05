@@ -522,11 +522,11 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	
 	if(objectList_->IsChecked(selection))
 	{
-		imageSet_->SetVisible(true, name.mb_str());
+		SetImageVisibility(true, name.mb_str());
 	}
 	else
 	{
-		imageSet_->SetVisible(false, name.mb_str());
+		SetImageVisibility(false, name.mb_str());
 	}
 	
 //	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesn't redraw
@@ -553,7 +553,8 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	{
 		//Error;
 	}
-	
+	RefreshCmguiCanvas();
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
 //	Cmiss_scene_viewer_view_all(sceneViewer);
 	return;
 }
@@ -619,13 +620,13 @@ void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
 	if (hideAll_) //means the button says hide all rather than show all
 	{
 		hideAll_ = false;
-		imageSet_->SetVisible(false);
+		SetImageVisibility(false);
 		button->SetLabel("Show All");
 	}
 	else
 	{
 		hideAll_ = true;	
-		imageSet_->SetVisible(true);
+		SetImageVisibility(true);
 		button->SetLabel("Hide All");
 	}
 	
@@ -652,7 +653,7 @@ void ViewerFrame::ToggleHideShowOthers(wxCommandEvent& event)
 			if (objectList_->IsChecked(i) && objectList_->GetSelection() != i)
 			{
 				indicesOfOthers.push_back(i);
-				imageSet_->SetVisible(false, i);
+				SetImageVisibility(false, i);
 				objectList_->Check(i, false);
 			}
 		}
@@ -666,7 +667,7 @@ void ViewerFrame::ToggleHideShowOthers(wxCommandEvent& event)
 		std::vector<int>::const_iterator end = indicesOfOthers.end();
 		for (; itr!=end ; ++itr)
 		{
-			imageSet_->SetVisible(true, *itr);
+			SetImageVisibility(true, *itr);
 			objectList_->Check(*itr, true);
 		}
 	
@@ -675,6 +676,36 @@ void ViewerFrame::ToggleHideShowOthers(wxCommandEvent& event)
 	
 
 	this->Refresh(); // work around for the refresh bug
+}
+
+void ViewerFrame::SetImageVisibility(bool visibility, int index)
+{
+	if (XRCCTRL(*this, "MII", wxCheckBox)->IsChecked())
+		heartModel_.SetMIIVisibility(visibility, index);
+	imageSet_->SetVisible(visibility, index);
+}
+
+void ViewerFrame::SetImageVisibility(bool visibility, const std::string& name)
+{
+	if (XRCCTRL(*this, "MII", wxCheckBox)->IsChecked())
+	{
+		if (name.length()) //REVISE
+		{
+			const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
+	
+			int i = find(sliceNames.begin(),sliceNames.end(), name) - sliceNames.begin();
+			assert(i < sliceNames.size());
+			heartModel_.SetMIIVisibility(visibility, i);
+		}
+		else
+		{
+			for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
+			{
+				heartModel_.SetMIIVisibility(visibility,i);
+			}
+		}
+	}
+	imageSet_->SetVisible(visibility, name);
 }
 
 void ViewerFrame::RenderMII(const std::string& sliceName)
@@ -712,7 +743,14 @@ void ViewerFrame::RenderMII(const std::string& sliceName)
 
 void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)
 {
-	heartModel_.SetMIIVisibility(event.IsChecked());
+	//heartModel_.SetMIIVisibility(event.IsChecked()); TEST
+	for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
+	{
+		if (objectList_->IsChecked(i))
+		{
+			heartModel_.SetMIIVisibility(event.IsChecked(),i);
+		}
+	}
 }
 
 void ViewerFrame::OnWireframeCheckBox(wxCommandEvent& event)

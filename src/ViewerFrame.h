@@ -62,6 +62,10 @@ private:
 	//private utility functions
 	void RenderMII(const std::string& sliceName);
 	
+	void SetImageVisibility(bool visibility, int index);
+	
+	void SetImageVisibility(bool visibility, const std::string& name = std::string());
+	
 	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
 	
 	//Event handlers
