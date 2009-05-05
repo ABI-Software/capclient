@@ -44,10 +44,6 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 	
 	prior_ = factory.CreateVectorFromFile(priorFile);
 
-	for (int i=0; i<134;i++)
-	{
-		timeVaryingDataPoints_[i].resize(heartModel_.GetNumberOfModelFrames());
-	}
 	return;
 }
 
@@ -62,6 +58,7 @@ CAPModeller::~CAPModeller()
 }
 
 #include <ctime>
+
 
 void CAPModeller::FitModel()
 {		
@@ -268,6 +265,23 @@ void CAPModeller::InitialiseModel()
 	// theta is 1/2pi apart)
 	// mu is equally spaced up to the base value
 #endif
+	
+	
+	//Initialise bezier global params for each model
+	for (int i=0; i<134;i++)
+	{
+		timeVaryingDataPoints_[i].resize(heartModel_.GetNumberOfModelFrames());
+		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
+		{
+			float xi = (float)i/heartModel_.GetNumberOfModelFrames();
+			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
+			float lambda = timeSmoother_.ComputeLambda(xi, prior);
+			timeVaryingDataPoints_[i][j] = lambda;
+		}
+		
+		std::cout << "timeVaryingDataPoints_" << timeVaryingDataPoints_[i]  << std::endl;
+	}
+	
 	return;
 }
 
@@ -298,9 +312,10 @@ void CAPModeller::SmoothAlongTime()
 {
 	// For each global parameter in the per frame model
 	
-	for (int i=0; i < 134; i++) // FIX magic
+	for (int i=0; i < 134; i++) // FIX magic number
 	{
-		const std::vector<double>& lambda = timeSmoother_.FitModel(timeVaryingDataPoints_[i]);
+//		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
+		const std::vector<double>& lambda = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i]);
 	}
 	
 	// feed the results back to Cmgui

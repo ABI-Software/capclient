@@ -17,10 +17,12 @@ const static char* priorFile = "Data/templates/time_varying_prior.dat";
 struct CAPTimeSmootherImpl
 {
 	CAPTimeSmootherImpl()
-	:S(11,11)
+	:S(11,11),
+	Priors(11,134)
 	{}
 	
 	gmm::csc_matrix<double> S;
+	gmm::dense_matrix<double> Priors;
 };
 
 CAPTimeSmoother::CAPTimeSmoother()
@@ -29,6 +31,24 @@ CAPTimeSmoother::CAPTimeSmoother()
 {
 	//read in S
 	Harwell_Boeing_load(Sfile, pImpl->S);
+	
+	std::ifstream in(priorFile);
+	
+	for (int row = 0; row < 11; row++)
+	{
+		for (int col = 0;col < 134;col++)
+		{
+			in >> pImpl->Priors(row,col);
+		}
+		for (int col = 0;col < 80 ;col ++)
+		{
+			double temp;
+			in >> temp; // mu and theta?
+		}
+	}
+	
+	//Debug
+	std::cout << pImpl->Priors << std::endl;
 }
 
 double CAPTimeSmoother::MapToXi(float time)
@@ -36,7 +56,7 @@ double CAPTimeSmoother::MapToXi(float time)
 	return time;
 }
 
-std::vector<double> CAPTimeSmoother::FitModel(const std::vector<float>& dataPoints)
+std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<float>& dataPoints)
 {
 	// 1. Project data points (from each frame) to model to get corresponding xi
 	// Here the data points are the nodal parameters at each frame and linearly map to xi
@@ -44,7 +64,6 @@ std::vector<double> CAPTimeSmoother::FitModel(const std::vector<float>& dataPoin
 	
 	Cim1DFourierBasis basis;
 	int numRows = dataPoints.size();
-	const int NUMBER_OF_PARAMETERS = 11;
 	gmm::dense_matrix<double> P(numRows, NUMBER_OF_PARAMETERS);
 	for (int i = 0; i < numRows; i++)
 	{
@@ -58,6 +77,8 @@ std::vector<double> CAPTimeSmoother::FitModel(const std::vector<float>& dataPoin
 		}
 	}
 	
+//	std::cout << "P = " << P << std::endl;
+	
 	// 3. Construct A
 	// Note that G is the identity matrix. StS is read in from file.
 	gmm::dense_matrix<double> A(NUMBER_OF_PARAMETERS, NUMBER_OF_PARAMETERS), 
@@ -65,18 +86,56 @@ std::vector<double> CAPTimeSmoother::FitModel(const std::vector<float>& dataPoin
 	gmm::mult(gmm::transposed(P),P,temp);
 	gmm::add(pImpl->S,temp,A);
 	
+//	std::cout << "A = " << A << std::endl;
 	
 	// 4. Construct rhs
-	std::vector<double> prior(11), p(numRows), rhs(11);
+	std::vector<double> prior(11), p(numRows), rhs(11); //TODO handle prior properly
+	for (int i=0;i<11;i++)
+	{
+		prior[i] = pImpl->Priors(i, parameterIndex);
+	}
+	
+//	std::cout << "prior: " << prior << std::endl;
+	
 	gmm::mult(P, prior, p);
 	
 	std::transform(dataPoints.begin(), dataPoints.end(), p.begin(), p.begin(), std::minus<double>());
 	
 	gmm::mult(transposed(P),p,rhs);
 	
+//	std::cout << "rhs: " << rhs << std::endl;
+	
 	// 5. Solve normal equation (direct solver) 
 	std::vector<double> x(gmm::mat_nrows(A));
 	gmm::lu_solve(A, x, rhs);
 	
 	return x;
+}
+
+std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber)
+{
+	std::vector<double> prior(11);
+	for (int i =0; i<11; i++)
+	{
+		prior[i] = pImpl->Priors(i, paramNumber);
+	}
+	
+	return prior;
+}
+
+float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& params)
+{
+	double psi[NUMBER_OF_PARAMETERS];
+	Cim1DFourierBasis basis;
+	double xiDouble[1];
+	xiDouble[0] = xi;
+	basis.evaluateBasis(psi, xiDouble);
+	
+	float lambda(0);
+	for (int i = 0; i<NUMBER_OF_PARAMETERS; i++)
+	{
+		lambda += params[i]*psi[0];
+	}
+	
+	return lambda;
 }

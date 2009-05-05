@@ -35,6 +35,8 @@ public:
 	
 	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
 	
+	const std::vector<float> GetLambda(int frame);
+	
 	void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
 	
 //	const std::vector<float>& GetParameters() const;

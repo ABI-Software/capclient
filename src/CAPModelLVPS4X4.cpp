@@ -442,6 +442,15 @@ void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<float>& lambdaParams, 
 	SetLambda(lambdaParams, static_cast<float>(frameNumber)/numberOfModelFrames_);
 }
 
+const std::vector<float> GetLambda(int frame)
+{
+	std::vector<float> lambdas;
+	for (int i=0; i < 134; i++)
+	{
+		//TODO we need to get Bezier coefficients. Cmgui only has Hermite. What do we do?
+	}
+}
+
 float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
 {
 	float frameDuration = (float) 1.0 / numberOfModelFrames_;
