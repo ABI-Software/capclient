@@ -43,6 +43,10 @@ public:
 	
 	void MoveDataPoint(Cmiss_node_id, const Point3D&);
 	
+	void SmoothAlongTime();
+	
+	float GetCurrentTime() const;
+	
 private:
 	wxCheckListBox* objectList_;
 	wxPanel* m_pPanel;

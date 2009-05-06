@@ -226,10 +226,11 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
-	float time = 0; // TODO use proper time
+	float time = frame->GetCurrentTime(); // TODO REVISE 
 	if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
 	{
 		// Select node or create one
+		cout << "Mouse clicked, time = " << time << endl;
 		Point3D coords;
 		selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords);
 		if (!selectedNode)
@@ -257,6 +258,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
 	{
 		cout << "Mouse released" << endl;
+		frame->SmoothAlongTime();
 		selectedNode = NULL;
 	}
 	
@@ -421,6 +423,11 @@ ViewerFrame::~ViewerFrame()
 //	modeller_.AddDataPoint(dataPoint);
 //}
 
+float ViewerFrame::GetCurrentTime() const
+{
+	return static_cast<float>(Cmiss_time_keeper_get_time(timeKeeper_));
+}
+
 void ViewerFrame::AddDataPoint(Cmiss_node_id dataPointID, const DataPoint& dataPoint)
 {
 	modeller_.AddDataPoint(dataPointID, dataPoint);
@@ -429,8 +436,14 @@ void ViewerFrame::AddDataPoint(Cmiss_node_id dataPointID, const DataPoint& dataP
 
 void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPosition)
 {
-	modeller_.MoveDataPoint(dataPointID, newPosition);
+	modeller_.MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
+}
+
+void ViewerFrame::SmoothAlongTime()
+{
+	modeller_.SmoothAlongTime();
+	RefreshCmguiCanvas();
 }
 
 wxPanel* ViewerFrame::getPanel()
