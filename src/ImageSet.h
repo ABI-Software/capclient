@@ -24,6 +24,8 @@ class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. 
 public:
 	ImageSlice(const std::string& name);
 	
+	~ImageSlice();
+	
 	void SetTime(double time); //actually switch the texture in the material if applicable.
 	
 	void SetVisible(bool visibility);
@@ -32,6 +34,8 @@ public:
 	{
 		return isVisible_;
 	};
+	
+	void SetBrightness(float brightness);
 	
 	const ImagePlane& GetImagePlane() const;
 	
@@ -59,6 +63,8 @@ private:
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 	
 	int oldIndex_; //used to check if texture switch is needed
+	
+	Cmiss_texture* brightnessAndContrastTexture_;
 };
 
 //class ImageGroup // a bunch of image slices i.e LA & SA
@@ -95,6 +101,8 @@ public:
 	 * @param index index of the slice
 	 */
 	void SetVisible(bool visible, int index ); 
+	
+	void SetBrightness(float brightness);
 	
 	/** Get the position and orientation of the image slice by name
 	 * @param name
