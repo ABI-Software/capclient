@@ -119,13 +119,13 @@
                                     <label>Brightness and Contrast</label>
                                     <object class="sizeritem">
                                         <flag>wxEXPAND</flag>
-                                        <object class="wxSlider" name="slider_5">
+                                        <object class="wxSlider" name="BrightnessSlider">
                                             <style>wxSL_HORIZONTAL</style>
                                         </object>
                                     </object>
                                     <object class="sizeritem">
                                         <flag>wxEXPAND</flag>
-                                        <object class="wxSlider" name="slider_6">
+                                        <object class="wxSlider" name="ContrastSlider">
                                             <style>wxSL_HORIZONTAL</style>
                                         </object>
                                     </object>

@@ -22,6 +22,7 @@ extern "C"
 #include "graphics/scene.h"
 #include "graphics/glyph.h"
 #include "graphics/colour.h"
+#include "graphics/material.h"
 }
 
 #include "Config.h"
@@ -32,6 +33,7 @@ extern "C"
 #include <sstream>
 #include <fstream>
 
+#include <stdio.h>
 using namespace std;
 
 ImageSlice::ImageSlice(const string& name)
@@ -40,10 +42,41 @@ ImageSlice::ImageSlice(const string& name)
 	oldIndex_(-1),
 	isVisible_(true)
 {
+	string brightnessAndContrastTextureName(name + "_BrightnessAndContrast");
+	brightnessAndContrastTexture_ = CREATE(Texture)(brightnessAndContrastTextureName.c_str());
+	unsigned char source_pixels[4] = {255,25,0,255};//TEST
+	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
+		1 /*int width */, 1/*int height*/, 1/*int depth*/,
+		4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
+		4 /*int source_width_bytes*/, source_pixels))
+	{
+		//Error
+		cout << "ImageSlice::ImageSlice() Error setting pixel value to brightnessAndContrastTexture_" << endl;
+	}
+	
+	unsigned char temp[4];
+	unsigned char fill[1] = {0};
+	Cmiss_texture_get_pixels(brightnessAndContrastTexture_,
+		0, 0, 0,
+		1, 1, 1,
+		0, 0, 
+		fill,
+		4, temp);
+	
+	printf("%d %d %d %d\n", temp[0], temp[1], temp[2], temp[3]);
+	int dim;
+	Texture_get_dimension(brightnessAndContrastTexture_, &dim);
+	cout << "dim = " << dim << endl;
+	
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
 	this->TransformImagePlane();
 	this->InitializeDataPointGraphicalSetting();
+}
+
+ImageSlice::~ImageSlice()
+{
+	//TODO clean up material and textures
 }
 
 void ImageSlice::SetVisible(bool visibility)
@@ -91,11 +124,16 @@ void ImageSlice::SetTime(double time)
 	if (material_)
 	{
 		if (!Graphical_material_set_texture(material_,tex))//Bug this never returns 1 (returns garbage) - always returns 0 on windows
+//		if (!Graphical_material_set_texture(material_,brightnessAndContrastTexture_))
 		{
 			//Error
 			//cout << "Error: Graphical_material_set_texture()" << endl;
 		}
-		
+		if (!Graphical_material_set_second_texture(material_, brightnessAndContrastTexture_))
+//		if (!Graphical_material_set_second_texture(material_, tex))
+		{
+			//Error
+		}
 	}
 	else
 	{
@@ -145,6 +183,30 @@ void ImageSlice::SetTime(double time)
 	return ;
 }
 
+void ImageSlice::SetBrightness(float brightness)
+{
+	unsigned char pixels[4];
+	unsigned char fill[1] = {0};
+	Cmiss_texture_get_pixels(brightnessAndContrastTexture_,
+		0, 0, 0,
+		1, 1, 1,
+		0, 0, 
+		fill,
+		4, pixels);
+	
+	pixels[0] = 255 * brightness;
+	
+	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
+		1 /*int width */, 1/*int height*/, 1/*int depth*/,
+		4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
+		4 /*int source_width_bytes*/, pixels))
+	{
+		//Error
+		cout << "ImageSlice::ImageSlice() Error setting pixel value to brightnessAndContrastTexture_" << endl;
+	}
+	Texture_notify_change(brightnessAndContrastTexture_);
+}
+
 #include "CmguiExtensions.h"
 
 void ImageSlice::LoadImagePlaneModel()
@@ -189,7 +251,7 @@ void ImageSlice::LoadImagePlaneModel()
 	//HACK to brighten textures
 	
 	int Material_set_material_program_strings(struct Graphical_material *material_to_be_modified,
-		char *vertex_program_string, char *fragment_program_string);
+		char *vertex_program_string, char *fragment_program_string);//not defined in material.h
 	
 	stringstream vp_stream, fp_stream;
 	ifstream is;
@@ -475,6 +537,17 @@ void ImageSet::SetTime(double time)
 	for (;itr != end; ++itr)
 	{
 		itr->second->SetTime(time);
+	}
+	return;
+}
+
+void ImageSet::SetBrightness(float brightness)
+{
+	ImageSlicesMap::const_iterator itr = imageSlicesMap_.begin();
+	ImageSlicesMap::const_iterator end = imageSlicesMap_.end();
+	for (;itr != end; ++itr)
+	{
+		itr->second->SetBrightness(brightness);
 	}
 	return;
 }

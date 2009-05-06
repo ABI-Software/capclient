@@ -442,7 +442,7 @@ void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPos
 
 void ViewerFrame::SmoothAlongTime()
 {
-	modeller_.SmoothAlongTime();
+//	modeller_.SmoothAlongTime();
 	RefreshCmguiCanvas();
 }
 
@@ -772,6 +772,29 @@ void ViewerFrame::OnWireframeCheckBox(wxCommandEvent& event)
 	heartModel_.SetModelVisibility(event.IsChecked());
 }
 
+void ViewerFrame::OnBrightnessSliderEvent(wxCommandEvent& event)
+{
+//	cout << "ViewerFrame::OnBrightnessSliderEvent" << endl;
+	wxSlider* slider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
+	int value = slider->GetValue();
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+	
+	float brightness = (float)(value - min) / (float)(max - min);
+	imageSet_->SetBrightness(brightness);
+	
+	imageSet_->SetTime(0);
+	imageSet_->SetTime(1);
+	imageSet_->SetTime(GetCurrentTime());//FIX hack to force texture change
+	
+	RefreshCmguiCanvas();
+}
+
+void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
+{
+	cout << "ViewerFrame::OnContrastSliderEvent" << endl;
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay) // play button
 	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnAnimationSliderEvent) // animation slider
@@ -782,5 +805,7 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_CHECKBOX(XRCID("MII"),ViewerFrame::OnMIICheckBox)
 	EVT_CHECKBOX(XRCID("Wireframe"),ViewerFrame::OnWireframeCheckBox)
 	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
+	EVT_SLIDER(XRCID("BrightnessSlider"),ViewerFrame::OnBrightnessSliderEvent)
+	EVT_SLIDER(XRCID("ContrastSlider"),ViewerFrame::OnContrastSliderEvent)
 	EVT_CLOSE(ViewerFrame::Terminate)
 END_EVENT_TABLE()

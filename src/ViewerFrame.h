@@ -83,6 +83,9 @@ private:
 	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	void OnMIICheckBox(wxCommandEvent& event);
 	void OnWireframeCheckBox(wxCommandEvent& event);
+	void OnBrightnessSliderEvent(wxCommandEvent& event);
+	void OnContrastSliderEvent(wxCommandEvent& event);
+	
 	DECLARE_EVENT_TABLE();
 };
 
