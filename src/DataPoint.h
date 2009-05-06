@@ -35,6 +35,11 @@ public:
 		coordinate_ = coord;
 	}
 	
+	float GetTime() const
+	{
+		return time_;
+	}
+	
 private:
 	Cmiss_node_id cmissNode_;
 	Point3D coordinate_;
