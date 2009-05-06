@@ -89,7 +89,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 //	std::cout << "A = " << A << std::endl;
 	
 	// 4. Construct rhs
-	std::vector<double> prior(11), p(numRows), rhs(11); //TODO handle prior properly
+	std::vector<double> prior(11), p(numRows), rhs(11);
 	for (int i=0;i<11;i++)
 	{
 		prior[i] = pImpl->Priors(i, parameterIndex);

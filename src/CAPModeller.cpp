@@ -43,7 +43,6 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
 	
 	prior_ = factory.CreateVectorFromFile(priorFile);
-
 	return;
 }
 
@@ -60,15 +59,15 @@ CAPModeller::~CAPModeller()
 #include <ctime>
 
 
-void CAPModeller::FitModel()
+void CAPModeller::FitModel(const DataPoints& dataPoints, int frameNumber)
 {		
 	// Compute P 
 	// 1. find xi coords for each data point
-	DataPoints::const_iterator itr = dataPoints_.begin();
-	DataPoints::const_iterator end = dataPoints_.end();
+	DataPoints::const_iterator itr = dataPoints.begin();
+	DataPoints::const_iterator end = dataPoints.end();
 	std::vector<Point3D> xi_vector;
 	std::vector<int> element_id_vector;
-	Vector* dataLambda = solverFactory_->CreateVector(dataPoints_.size()); // for rhs
+	Vector* dataLambda = solverFactory_->CreateVector(dataPoints.size()); // for rhs
 
 	for (int i = 0; itr!=end; ++itr, ++i)
 	{
@@ -83,7 +82,9 @@ void CAPModeller::FitModel()
 	}
 	
 	//debug
-	//std::cout << "dataLambda = " << *dataLambda << std::endl;
+#ifndef NDEBUG
+	std::cout << "dataLambda = " << *dataLambda << std::endl;
+#endif
 	
 	// 2. evaluate basis at the xi coords
 	//    use this function as a temporary soln until Cmgui supports this
@@ -112,7 +113,7 @@ void CAPModeller::FitModel()
 	}
 	
 	// 3. construct P
-	Matrix* P = solverFactory_->CreateMatrix(dataPoints_.size(), 512, entries); //FIX
+	Matrix* P = solverFactory_->CreateMatrix(dataPoints.size(), 512, entries); //FIX
 	
 	aMatrix_->UpdateData(*P);
 	
@@ -158,11 +159,11 @@ void CAPModeller::FitModel()
 	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
 	
 	// Model should have the notion of frames
-	heartModel_.SetLambda(hermiteLambdaParams);
+//	heartModel_.SetLambda(hermiteLambdaParams);
+	heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber);
 	
-	// TODO Smooth along time
-	UpdateTimeVaryingDataPoints(*x, 0); //TODO use proper time
-	SmoothAlongTime();
+	UpdateTimeVaryingDataPoints(*x, frameNumber);
+//	SmoothAlongTime();
 	
 	delete P;
 	delete lambda;
@@ -271,15 +272,26 @@ void CAPModeller::InitialiseModel()
 	for (int i=0; i<134;i++)
 	{
 		timeVaryingDataPoints_[i].resize(heartModel_.GetNumberOfModelFrames());
+		
+//		std::cout << std::endl;
 		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
 		{
-			float xi = (float)i/heartModel_.GetNumberOfModelFrames();
+			float xi = (float)j/heartModel_.GetNumberOfModelFrames();
 			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
 			float lambda = timeSmoother_.ComputeLambda(xi, prior);
+//			std::cout << "(" << xi << ", " << lambda << ") ";
 			timeVaryingDataPoints_[i][j] = lambda;
 		}
-		
+//		std::cout << std::endl;
 		std::cout << "timeVaryingDataPoints_" << timeVaryingDataPoints_[i]  << std::endl;
+	}
+	
+	vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
+	
+	std::cout << "vectorOfDataPoints_.size() = " << vectorOfDataPoints_.size() << '\n';
+	for (int i=0; i<vectorOfDataPoints_.size();i++)
+	{
+		std::cout << "vectorOfDataPoints_["<< i << "] : " << vectorOfDataPoints_[i].size() << '\n';
 	}
 	
 	return;
@@ -290,22 +302,30 @@ void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const DataPoint& dataPo
 #if defined(NDEBUG)
 	std::cout << "NDEBUG" << std::endl;
 #endif
-	dataPoints_.insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
+	
+	int frameNumber = heartModel_.MapToModelFrameNumber(dataPoint.GetTime());
+	
+#ifndef NDEBUG
+	std::cout << "frame number = " << frameNumber << std::endl;
+#endif
+	
+	vectorOfDataPoints_[frameNumber].insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
 //	Point3D xi;
 //	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
-	FitModel();
+	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 //	
 //	std::vector<float> test(160);
 //	
 //	heartModel_.SetLambda(test); //Test
 }
 
-void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord)
+void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
-	DataPoints::iterator itr = dataPoints_.find(dataPointID);
-	assert(itr != dataPoints_.end());
+	int frameNumber = heartModel_.MapToModelFrameNumber(time);
+	DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
+	assert(itr != vectorOfDataPoints_[frameNumber].end());
 	itr->second.SetCoordinate(coord);
-	FitModel();
+	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
 
 void CAPModeller::SmoothAlongTime()
@@ -315,7 +335,31 @@ void CAPModeller::SmoothAlongTime()
 	for (int i=0; i < 134; i++) // FIX magic number
 	{
 //		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
-		const std::vector<double>& lambda = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i]);
+		const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i]);
+		
+		std::cout << lambdas << std::endl;
+		
+		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++) //FIX duplicate code
+		{
+			float xi = (float)j/heartModel_.GetNumberOfModelFrames();
+			float lambda = timeSmoother_.ComputeLambda(xi, lambdas);
+			timeVaryingDataPoints_[i][j] = lambda;
+		}
+	}
+	
+	for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
+	{
+		float time = (float)j/heartModel_.GetNumberOfModelFrames();
+		Vector* x = solverFactory_->CreateVector(134);
+		for (int i=0; i< 134; i++)
+		{
+			(*x)[i] = timeVaryingDataPoints_[i][j];
+		}
+		std::cout << "x(" << j << ")" << *x << std::endl;
+		
+		const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
+		heartModel_.SetLambda(hermiteLambdaParams, time);
+		delete x;
 	}
 	
 	// feed the results back to Cmgui

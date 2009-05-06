@@ -26,16 +26,18 @@ class Cmiss_node; //REVISE
 
 class CAPModeller {
 public:
+	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
+	
 	CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller();
 	
-	void FitModel();
+	void FitModel(const DataPoints& dataPoints, int frameNumber);
 	
 	void SmoothAlongTime();
 	
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord);
+	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	
 	void InitialiseModel();
 	
@@ -44,15 +46,13 @@ public:
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
 	
 private:
-	
 	std::vector<float> ConvertToHermite(const Vector&);
 	
-	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
-	DataPoints dataPoints_;
+	CAPModelLVPS4X4& heartModel_;
+	
+	std::vector<DataPoints> vectorOfDataPoints_;
 	
 	std::vector< std::vector<float> > timeVaryingDataPoints_;
-	
-	CAPModelLVPS4X4& heartModel_;
 	
 	SolverLibraryFactory* solverFactory_;
 	Matrix* S_;
