@@ -109,6 +109,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	std::vector<double> x(gmm::mat_nrows(A));
 	gmm::lu_solve(A, x, rhs);
 	
+	std::transform(x.begin(), x.end(), prior.begin(), x.begin(), std::plus<double>());
 	return x;
 }
 
@@ -134,7 +135,7 @@ float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& param
 	float lambda(0);
 	for (int i = 0; i<NUMBER_OF_PARAMETERS; i++)
 	{
-		lambda += params[i]*psi[0];
+		lambda += params[i]*psi[i];
 	}
 	
 	return lambda;
