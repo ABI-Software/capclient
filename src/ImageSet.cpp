@@ -194,7 +194,7 @@ void ImageSlice::SetBrightness(float brightness)
 		fill,
 		4, pixels);
 	
-	pixels[0] = 255 * brightness;
+	pixels[0] = 255.0 * brightness;
 	
 	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
 		1 /*int width */, 1/*int height*/, 1/*int depth*/,
@@ -202,7 +202,31 @@ void ImageSlice::SetBrightness(float brightness)
 		4 /*int source_width_bytes*/, pixels))
 	{
 		//Error
-		cout << "ImageSlice::ImageSlice() Error setting pixel value to brightnessAndContrastTexture_" << endl;
+		cout << "ImageSlice::SetBrightness() Error setting pixel value to brightnessAndContrastTexture_" << endl;
+	}
+	Texture_notify_change(brightnessAndContrastTexture_);
+}
+
+void ImageSlice::SetContrast(float contrast)
+{
+	unsigned char pixels[4];
+	unsigned char fill[1] = {0};
+	Cmiss_texture_get_pixels(brightnessAndContrastTexture_,
+		0, 0, 0,
+		1, 1, 1,
+		0, 0, 
+		fill,
+		4, pixels);
+	
+	pixels[1] = 255.0 * contrast;
+	
+	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
+		1 /*int width */, 1/*int height*/, 1/*int depth*/,
+		4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
+		4 /*int source_width_bytes*/, pixels))
+	{
+		//Error
+		cout << "ImageSlice::SetContrast() Error setting pixel value to brightnessAndContrastTexture_" << endl;
 	}
 	Texture_notify_change(brightnessAndContrastTexture_);
 }
@@ -548,6 +572,17 @@ void ImageSet::SetBrightness(float brightness)
 	for (;itr != end; ++itr)
 	{
 		itr->second->SetBrightness(brightness);
+	}
+	return;
+}
+
+void ImageSet::SetContrast(float contrast)
+{
+	ImageSlicesMap::const_iterator itr = imageSlicesMap_.begin();
+	ImageSlicesMap::const_iterator end = imageSlicesMap_.end();
+	for (;itr != end; ++itr)
+	{
+		itr->second->SetContrast(contrast);
 	}
 	return;
 }

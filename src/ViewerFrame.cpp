@@ -401,6 +401,19 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	this->Show(true);
 
+	// initialize brightness and contrast sliders
+	wxSlider* brightnessSlider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
+	min = brightnessSlider->GetMin();
+	max = brightnessSlider->GetMax();
+	brightnessSlider->SetValue((max - min)/2);
+	imageSet_->SetBrightness(0.5);
+	
+	wxSlider* contrastSlider = XRCCTRL(*this, "ContrastSlider", wxSlider);
+	min = contrastSlider->GetMin();
+	max = contrastSlider->GetMax();
+	contrastSlider->SetValue((max - min)/2);
+	imageSet_->SetContrast(0.5);
+	
 	Time_keeper_request_new_time(timeKeeper_, 1);
 	Time_keeper_request_new_time(timeKeeper_, 0); //HACK
 #define NODE_CREATION
@@ -792,7 +805,20 @@ void ViewerFrame::OnBrightnessSliderEvent(wxCommandEvent& event)
 
 void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
 {
-	cout << "ViewerFrame::OnContrastSliderEvent" << endl;
+//	cout << "ViewerFrame::OnContrastSliderEvent" << endl;
+	wxSlider* slider = XRCCTRL(*this, "ContrastSlider", wxSlider);
+	int value = slider->GetValue();
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+	
+	float contrast = (float)(value - min) / (float)(max - min);
+	imageSet_->SetContrast(contrast);
+	
+	imageSet_->SetTime(0);
+	imageSet_->SetTime(1);
+	imageSet_->SetTime(GetCurrentTime());//FIX hack to force texture change
+	
+	RefreshCmguiCanvas();
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
