@@ -37,6 +37,8 @@ public:
 	
 	void SetBrightness(float brightness);
 	
+	void SetContrast(float contrast);
+	
 	const ImagePlane& GetImagePlane() const;
 	
 private:
@@ -103,6 +105,8 @@ public:
 	void SetVisible(bool visible, int index ); 
 	
 	void SetBrightness(float brightness);
+	
+	void SetContrast(float contrast);
 	
 	/** Get the position and orientation of the image slice by name
 	 * @param name
