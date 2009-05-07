@@ -288,11 +288,13 @@ void CAPModeller::InitialiseModel()
 	
 	vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
 	
-	std::cout << "vectorOfDataPoints_.size() = " << vectorOfDataPoints_.size() << '\n';
-	for (int i=0; i<vectorOfDataPoints_.size();i++)
-	{
-		std::cout << "vectorOfDataPoints_["<< i << "] : " << vectorOfDataPoints_[i].size() << '\n';
-	}
+//#ifndef NDEBUG
+//	std::cout << "vectorOfDataPoints_.size() = " << vectorOfDataPoints_.size() << '\n';
+//	for (int i=0; i<vectorOfDataPoints_.size();i++)
+//	{
+//		std::cout << "vectorOfDataPoints_["<< i << "] : " << vectorOfDataPoints_[i].size() << '\n';
+//	}
+//#endif
 	
 	return;
 }
@@ -332,12 +334,14 @@ void CAPModeller::SmoothAlongTime()
 {
 	// For each global parameter in the per frame model
 	
+#define SMOOTH_ALONG_TIME
+#ifdef SMOOTH_ALONG_TIME
 	for (int i=0; i < 134; i++) // FIX magic number
 	{
 //		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
 		const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i]);
 		
-		std::cout << lambdas << std::endl;
+//		std::cout << lambdas << std::endl;
 		
 		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++) //FIX duplicate code
 		{
@@ -346,7 +350,14 @@ void CAPModeller::SmoothAlongTime()
 			timeVaryingDataPoints_[i][j] = lambda;
 		}
 	}
+#endif
 	
+	// feed the results back to Cmgui
+	UpdateTimeVaryingModel();
+}
+
+void CAPModeller::UpdateTimeVaryingModel()
+{
 	for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
 	{
 		float time = (float)j/heartModel_.GetNumberOfModelFrames();
@@ -355,12 +366,10 @@ void CAPModeller::SmoothAlongTime()
 		{
 			(*x)[i] = timeVaryingDataPoints_[i][j];
 		}
-		std::cout << "x(" << j << ")" << *x << std::endl;
+//		std::cout << "x(" << j << ")" << *x << std::endl;
 		
 		const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
 		heartModel_.SetLambda(hermiteLambdaParams, time);
 		delete x;
 	}
-	
-	// feed the results back to Cmgui
 }

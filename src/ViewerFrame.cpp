@@ -455,7 +455,22 @@ void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPos
 
 void ViewerFrame::SmoothAlongTime()
 {
-//	modeller_.SmoothAlongTime();
+	modeller_.SmoothAlongTime();
+	
+#ifdef TEST
+	static bool smooth = false;
+	if (smooth)
+	{
+		modeller_.SmoothAlongTime();
+		smooth = false;
+	}
+	else
+	{
+		modeller_.InitialiseModel();
+		modeller_.UpdateTimeVaryingModel();
+		smooth = true;
+	}
+#endif
 	RefreshCmguiCanvas();
 }
 

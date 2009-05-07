@@ -65,10 +65,14 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	Cim1DFourierBasis basis;
 	int numRows = dataPoints.size();
 	gmm::dense_matrix<double> P(numRows, NUMBER_OF_PARAMETERS);
+	
+//	std::cout << "\n\n\nnumRows = " << numRows << '\n';
+	
 	for (int i = 0; i < numRows; i++)
 	{
 		double xiDouble[1];
-		xiDouble[0] = MapToXi(dataPoints[i]);
+		xiDouble[0] = MapToXi(static_cast<float>(i)/numRows); //REVISE design
+//		std::cout << "dataPoint(" << i << ") = " << dataPoints[i] << ", xi = "<< xiDouble[0] <<'\n';
 		double psi[NUMBER_OF_PARAMETERS];
 		basis.evaluateBasis(psi, xiDouble);
 		for (int columnIndex = 0; columnIndex < NUMBER_OF_PARAMETERS; columnIndex++)
@@ -108,6 +112,10 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	// 5. Solve normal equation (direct solver) 
 	std::vector<double> x(gmm::mat_nrows(A));
 	gmm::lu_solve(A, x, rhs);
+	
+#ifndef NDEBUG
+//	std::cout << "delta x (" << parameterIndex << ") " << x << std::endl;
+#endif
 	
 	std::transform(x.begin(), x.end(), prior.begin(), x.begin(), std::plus<double>());
 	return x;
