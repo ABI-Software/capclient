@@ -45,6 +45,8 @@ public:
 	
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
 	
+	void UpdateTimeVaryingModel();
+	
 private:
 	std::vector<float> ConvertToHermite(const Vector&);
 	
