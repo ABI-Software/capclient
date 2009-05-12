@@ -104,7 +104,8 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	gmm::mult(P, prior, p);
 	
 	std::transform(dataPoints.begin(), dataPoints.end(), p.begin(), p.begin(), std::minus<double>());
-	
+	//TEST
+	p[0] *= 10; //more weight for frame 0
 	gmm::mult(transposed(P),p,rhs);
 	
 //	std::cout << "rhs: " << rhs << std::endl;
