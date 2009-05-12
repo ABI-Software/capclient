@@ -246,6 +246,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		if (!selectedNode)
 		{
 			cout << "GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode" << endl;
+			frame->InitialiseModel();
 			return 0;
 		}
 		Point3D coords;
@@ -356,6 +357,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	this->Show(false);
 	
+//	heartModel_.ReadModelFromFiles("test");	
+	
 #define TEXTURE_ANIMATION
 #ifdef TEXTURE_ANIMATION
 	vector<string> sliceNames;
@@ -451,6 +454,13 @@ void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPos
 {
 	modeller_.MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
+}
+
+void ViewerFrame::InitialiseModel()
+{
+	modeller_.InitialiseModel();
+	modeller_.UpdateTimeVaryingModel();
+	RefreshCmguiCanvas();
 }
 
 void ViewerFrame::SmoothAlongTime()

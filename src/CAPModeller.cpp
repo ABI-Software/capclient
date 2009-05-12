@@ -160,9 +160,12 @@ void CAPModeller::FitModel(const DataPoints& dataPoints, int frameNumber)
 	
 	// Model should have the notion of frames
 //	heartModel_.SetLambda(hermiteLambdaParams);
+#define UPDATE_CMGUI
+#ifdef UPDATE_CMGUI
 	heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber);
 	
 	UpdateTimeVaryingDataPoints(*x, frameNumber);
+#endif
 //	SmoothAlongTime();
 	
 	delete P;
@@ -333,7 +336,8 @@ void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, f
 void CAPModeller::SmoothAlongTime()
 {
 	// For each global parameter in the per frame model
-	
+	clock_t before = clock();
+		
 #define SMOOTH_ALONG_TIME
 #ifdef SMOOTH_ALONG_TIME
 	for (int i=0; i < 134; i++) // FIX magic number
@@ -351,6 +355,9 @@ void CAPModeller::SmoothAlongTime()
 		}
 	}
 #endif
+	
+	clock_t after = clock();
+	std::cout << solverFactory_->GetName() << " Smoothing time = " << (after - before) << std::endl;
 	
 	// feed the results back to Cmgui
 	UpdateTimeVaryingModel();

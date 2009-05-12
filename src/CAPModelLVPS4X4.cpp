@@ -381,7 +381,13 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 			xi[2] = 1.0f; // projected on epicardium
 		}
 #ifndef NDEBUG
+		cout << "Data Point : " << point[0] << ", " << point[1] << ", " << point[2] << endl;
 		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
+		
+		FE_value values[3], derivatives[10];
+		Computed_field_evaluate_in_element(field, element, xi,
+									/*time*/0, (struct FE_element *)NULL, values, derivatives);
+		cout << "Projected : " << values[0] << ", " << values[1] << ", " << values[2] << endl;
 		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
 #endif
 	}

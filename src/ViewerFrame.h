@@ -45,6 +45,8 @@ public:
 	
 	void SmoothAlongTime();
 	
+	void InitialiseModel();
+	
 	float GetCurrentTime() const;
 	
 private:
