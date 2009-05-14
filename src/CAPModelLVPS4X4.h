@@ -47,8 +47,8 @@ public:
 	
 //	const std::vector<float>& GetParameters() const;
 
-	double CalculateVolume();
-	double CalculateMass();
+//	double CalculateVolume();
+//	double CalculateMass();
 	
 	int SetLocalToGlobalTransformation(const gtMatrix& transform);
 	
