@@ -27,6 +27,12 @@ public:
 		SOLID
 	};
 	
+	enum SurfaceType
+	{
+		ENDOCARDIUM,
+		EPICARDIUM
+	};
+	
 	CAPModelLVPS4X4(const std::string& name);
 	~CAPModelLVPS4X4();
 	
@@ -84,6 +90,8 @@ public:
 	{
 		return numberOfModelFrames_;
 	}
+	
+	float ComputeVolume(SurfaceType surface, float time);
 	
 private:
 	

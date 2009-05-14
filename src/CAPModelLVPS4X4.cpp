@@ -384,7 +384,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 		cout << "Data Point : " << point[0] << ", " << point[1] << ", " << point[2] << endl;
 		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
 		
-		FE_value values[3], derivatives[10];
+		FE_value values[3], derivatives[9];
 		Computed_field_evaluate_in_element(field, element, xi,
 									/*time*/0, (struct FE_element *)NULL, values, derivatives);
 		cout << "Projected : " << values[0] << ", " << values[1] << ", " << values[2] << endl;
@@ -395,6 +395,8 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	{
 		cout << "Can't find xi" << endl;
 	}
+	
+	
 	
 	if (return_code)
 	{
@@ -492,3 +494,122 @@ int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 		return indexPrevFrame+1;
 	}
 }
+
+float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)
+{
+	const int numElements = 16;
+	const int nx = 7, ny = 7;
+
+	float vol_sum = 0.0, vol = 0.0;
+	float bx[numElements][nx], by[numElements][nx], bz[numElements][nx];
+	float x[numElements*nx*ny], y[numElements*nx*ny], z[numElements*nx*ny];
+	float cx, cy, cz;
+	int ne, i, j, l, k, n1, n2, n3, num=0;
+	float l1, m1, t1;
+	Vector3D temp;
+
+
+	// initialise arrays
+	for (ne=0;ne<numElements;ne++)
+	{
+		for(i=0;i<nx;i++)
+		{
+			bx[ne][i]=0.0; by[ne][i]=0.0; bz[ne][i]=0.0; 
+		}
+	}
+
+
+	Cmiss_region* cmiss_region = pImpl_->region;
+	
+	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");
+	
+	//do for all elements
+	for (ne=0;ne<numElements;ne++)
+	{
+		//calculate vertex coordinates for element subdivision
+		for (i=0;i<nx;i++)
+		{
+			for (j=0;j<ny;j++)
+			{
+				//calculate lamda mu and theta at this point	
+				Cmiss_element* element;
+				FE_value values[3], xi[3];
+				xi[0] = (float) i/nx;
+				xi[1] = (float) j/ny;
+				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
+				Computed_field_evaluate_in_element(field, element, xi,
+					time, (struct FE_element *)NULL, values, (FE_value*)0 /*derivatives*/);
+
+				prolate_spheroidal_to_cartesian(values[0],values[1],values[2],
+					focalLength_, &temp.x, &temp.y, &temp.z, (float*)0);
+				//        cout << m1 << " " << t1 << " " << l1 << endl;
+				x[(j*nx+i)] = temp.x;
+				y[(j*nx+i)] = temp.y;
+				z[(j*nx+i)] = temp.z;
+			} // j
+		} // I
+		//do for all quads
+		//note vertices must be ordered ccw viewed from outside
+		for(i=0;i<nx-1;i++){
+			for(j=0;j<ny-1;j++){
+				n1 = j*(nx) + i ;
+				n2 = n1 + 1;
+				n3 = n2 + (nx);
+				vol = ComputeVolumeOfTetrahedron(x[n1],y[n1],z[n1],
+						x[n2],y[n2],z[n2],
+						x[n3],y[n3],z[n3],
+						0.0,  0.0,  0.0);
+				vol_sum += vol;
+
+				n1 = n1;
+				n2 = n3;
+				n3 = n2-1;
+				vol = ComputeVolumeOfTetrahedron(x[n1],y[n1],z[n1],
+						x[n2],y[n2],z[n2],
+						x[n3],y[n3],z[n3],
+						0.0,  0.0,  0.0);
+				vol_sum += vol;
+			} /* j */
+		} /* i */
+		//store the base ring
+		if(ne<4)
+		{
+			for(k=0;k<nx;k++)
+			{
+				bx[ne][k] = x[(ny-1)*nx + k];
+				by[ne][k] = y[(ny-1)*nx + k];
+				bz[ne][k] = z[(ny-1)*nx + k];
+			}
+		}
+
+	} /* ne */
+
+	/* now close the top */
+	/* find centroid of the top ring */
+	num=0;
+	cx=0.0;cy=0.0;cz=0.0;
+	for(ne=0;ne<4;ne++){
+		for(i=0;i<nx;i++){
+			cx += bx[ne][i]; 
+			cy += by[ne][i]; 
+			cz += bz[ne][i]; 
+			num++;
+		}
+	}
+	cx = cx/(float)num; cy=cy/(float)num; cz=cz/(float)num;
+	for(ne=0;ne<4;ne++){
+		for(i=0;i<nx-1;i++){
+			n1 = i ;
+			n2 = n1+1;
+			vol = ComputeVolumeOfTetrahedron(bx[ne][n1],by[ne][n1],bz[ne][n1],
+					bx[ne][n2],by[ne][n2],bz[ne][n2],
+					cx, cy, cz,
+					0.0,0.0,0.0);
+			vol_sum += vol;
+		}
+	}
+
+	return (vol_sum/6000.0);
+	// (6*1000), 6 times volume of tetrahedron & for ml
+}
+
