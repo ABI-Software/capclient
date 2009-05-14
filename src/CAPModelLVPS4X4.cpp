@@ -500,39 +500,42 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)
 	const int numElements = 16;
 	const int nx = 7, ny = 7;
 
-	float vol_sum = 0.0, vol = 0.0;
-	float bx[numElements][nx], by[numElements][nx], bz[numElements][nx];
-	float x[numElements*nx*ny], y[numElements*nx*ny], z[numElements*nx*ny];
-	float cx, cy, cz;
-	int ne, i, j, l, k, n1, n2, n3, num=0;
-	float l1, m1, t1;
-	Vector3D temp;
-
+	Point3D b[numElements][nx];
+	Point3D p[numElements*nx*ny];
+	Point3D temp;
+	float vol_sum = 0;
+	Point3D origin(0,0,0);
 
 	// initialise arrays
-	for (ne=0;ne<numElements;ne++)
+	for (int ne=0;ne<numElements;ne++)
 	{
-		for(i=0;i<nx;i++)
+		for(int i=0;i<nx;i++)
 		{
-			bx[ne][i]=0.0; by[ne][i]=0.0; bz[ne][i]=0.0; 
+			b[ne][i] = Point3D(0,0,0);
 		}
 	}
 
-
 	Cmiss_region* cmiss_region = pImpl_->region;
-	
 	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");
+	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
+	struct CM_element_information identifier;
+	identifier.type = CM_ELEMENT;
 	
 	//do for all elements
-	for (ne=0;ne<numElements;ne++)
+	for (int ne=0;ne<numElements;ne++)
 	{
-		//calculate vertex coordinates for element subdivision
-		for (i=0;i<nx;i++)
+		identifier.number = ne+1;
+		Cmiss_element* element = FE_region_get_FE_element_from_identifier(fe_region, &identifier);
+		if (!element)
 		{
-			for (j=0;j<ny;j++)
+			std::cout << __func__ << " Error: can't find element from id = " << ne << std::endl;
+		}
+		//calculate vertex coordinates for element subdivision
+		for (int i=0;i<nx;i++)
+		{
+			for (int j=0;j<ny;j++)
 			{
-				//calculate lamda mu and theta at this point	
-				Cmiss_element* element;
+				//calculate lamda mu and theta at this point
 				FE_value values[3], xi[3];
 				xi[0] = (float) i/nx;
 				xi[1] = (float) j/ny;
@@ -543,42 +546,33 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)
 				prolate_spheroidal_to_cartesian(values[0],values[1],values[2],
 					focalLength_, &temp.x, &temp.y, &temp.z, (float*)0);
 				//        cout << m1 << " " << t1 << " " << l1 << endl;
-				x[(j*nx+i)] = temp.x;
-				y[(j*nx+i)] = temp.y;
-				z[(j*nx+i)] = temp.z;
+
+				p[(j*nx+i)] = temp;
 			} // j
 		} // I
 		//do for all quads
 		//note vertices must be ordered ccw viewed from outside
-		for(i=0;i<nx-1;i++){
-			for(j=0;j<ny-1;j++){
-				n1 = j*(nx) + i ;
-				n2 = n1 + 1;
-				n3 = n2 + (nx);
-				vol = ComputeVolumeOfTetrahedron(x[n1],y[n1],z[n1],
-						x[n2],y[n2],z[n2],
-						x[n3],y[n3],z[n3],
-						0.0,  0.0,  0.0);
+		for(int i=0;i<nx-1;i++){
+			for(int j=0;j<ny-1;j++){
+				int n1 = j*(nx) + i ;
+				int n2 = n1 + 1;
+				int n3 = n2 + (nx);
+				float vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
 				vol_sum += vol;
 
 				n1 = n1;
 				n2 = n3;
 				n3 = n2-1;
-				vol = ComputeVolumeOfTetrahedron(x[n1],y[n1],z[n1],
-						x[n2],y[n2],z[n2],
-						x[n3],y[n3],z[n3],
-						0.0,  0.0,  0.0);
+				vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
 				vol_sum += vol;
 			} /* j */
 		} /* i */
 		//store the base ring
 		if(ne<4)
 		{
-			for(k=0;k<nx;k++)
+			for(int k=0;k<nx;k++)
 			{
-				bx[ne][k] = x[(ny-1)*nx + k];
-				by[ne][k] = y[(ny-1)*nx + k];
-				bz[ne][k] = z[(ny-1)*nx + k];
+				b[ne][k] = p[(ny-1)*nx + k];
 			}
 		}
 
@@ -586,25 +580,20 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)
 
 	/* now close the top */
 	/* find centroid of the top ring */
-	num=0;
-	cx=0.0;cy=0.0;cz=0.0;
-	for(ne=0;ne<4;ne++){
-		for(i=0;i<nx;i++){
-			cx += bx[ne][i]; 
-			cy += by[ne][i]; 
-			cz += bz[ne][i]; 
+	int num=0;
+	Point3D c(0,0,0);
+	for(int ne=0;ne<4;ne++){
+		for(int i=0;i<nx;i++){
+			c += b[ne][i];
 			num++;
 		}
 	}
-	cx = cx/(float)num; cy=cy/(float)num; cz=cz/(float)num;
-	for(ne=0;ne<4;ne++){
-		for(i=0;i<nx-1;i++){
-			n1 = i ;
-			n2 = n1+1;
-			vol = ComputeVolumeOfTetrahedron(bx[ne][n1],by[ne][n1],bz[ne][n1],
-					bx[ne][n2],by[ne][n2],bz[ne][n2],
-					cx, cy, cz,
-					0.0,0.0,0.0);
+	c *= (1/(float)num);
+	for(int ne=0;ne<4;ne++){
+		for(int i=0;i<nx-1;i++){
+			int n1 = i ;
+			int n2 = n1+1;
+			float vol = ComputeVolumeOfTetrahedron(b[ne][n1], b[ne][n2], c, origin);
 			vol_sum += vol;
 		}
 	}
