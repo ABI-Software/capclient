@@ -304,9 +304,9 @@ inline float DotProduct(const T& a, const T& b)
 //}
 
 template <typename V>
-inline Vector3D CrossProduct(const V& vec1, const V& vec2)
+inline V CrossProduct(const V& vec1, const V& vec2)
 {
-	return Vector3D((vec1).y*(vec2).z - (vec1).z*(vec2).y,
+	return V((vec1).y*(vec2).z - (vec1).z*(vec2).y,
 				    (vec1).z*(vec2).x - (vec1).x*(vec2).z,
 				    (vec1).x*(vec2).y - (vec1).y*(vec2).x);
 }
@@ -340,8 +340,9 @@ double ComputeVolumeOfTetrahedron(float ax, float ay, float az, float bx, float 
 	return abs(vol);
 }
 
+template <typename V>
 inline
-double ComputeVolumeOfTetrahedron(const Point3D& a, const Point3D& b, const Point3D& c, const Point3D& d)
+double ComputeVolumeOfTetrahedron(const V& a, const V& b, const V& c, const V& d)
 
 {
 //  float bxdx=b.x-d.x;
@@ -356,6 +357,36 @@ double ComputeVolumeOfTetrahedron(const Point3D& a, const Point3D& b, const Poin
 
 	double vol = DotProduct((a - d), CrossProduct((b - d), (c - d)));
 	return abs(vol);
+}
+
+template <typename V>
+inline
+V& operator*=(V& v, float number)
+{
+	v.x *= number;
+	v.y *= number;
+	v.z *= number;
+	return v;
+}
+
+template <typename V>
+inline
+V& operator/=(V& v, float number)
+{
+	v.x /= number;
+	v.y /= number;
+	v.z /= number;
+	return v;
+}
+
+template <typename V>
+inline
+V& operator+=(V& v, const V& rhs)
+{
+	v.x += rhs.x;
+	v.y += rhs.y;
+	v.z += rhs.z;
+	return v;
 }
 
 #endif /* CAPMATH_H_ */
