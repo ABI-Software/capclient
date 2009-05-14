@@ -320,4 +320,42 @@ inline Vector3D CrossProduct(const V& vec1, const V& vec2)
 //	(vec).z = (vec).z / length;
 //}
 
+inline
+double ComputeVolumeOfTetrahedron(float ax, float ay, float az, float bx, float by, float bz, 
+          float cx, float cy, float cz, float dx, float dy, float dz)
+
+{
+	float bxdx, bydy, bzdz, cxdx, cydy, czdz;
+	double vol=0.0;
+	
+	bxdx=bx-dx;
+	bydy=by-dy;
+	bzdz=bz-dz;
+	cxdx=cx-dx;
+	cydy=cy-dy;
+	czdz=cz-dz;
+	vol = (az-dz)*(bxdx*cydy-bydy*cxdx) +
+		(ay-dy)*(bzdz*cxdx-bxdx*czdz) +
+		(ax-dx)*(bydy*czdz-bzdz*cydy);
+	return abs(vol);
+}
+
+inline
+double ComputeVolumeOfTetrahedron(const Point3D& a, const Point3D& b, const Point3D& c, const Point3D& d)
+
+{
+//  float bxdx=b.x-d.x;
+//  float bydy=b.y-d.y;
+//  float bzdz=b.z-d.z;
+//  float cxdx=c.x-d.x;
+//  float cydy=c.y-d.y;
+//  float czdz=c.z-d.z;
+//  double vol = (a.z-d.z)*(bxdx*cydy-bydy*cxdx) +
+//        (a.y-d.y)*(bzdz*cxdx-bxdx*czdz) +
+//        (a.x-d.x)*(bydy*czdz-bzdz*cydy);
+
+	double vol = DotProduct((a - d), CrossProduct((b - d), (c - d)));
+	return abs(vol);
+}
+
 #endif /* CAPMATH_H_ */

@@ -94,3 +94,19 @@ TEST(Vector3DTest, Point3D)
 	EXPECT_FLOAT_EQ(point3.z, point1.z);
 }
 
+TEST(ComputeVolumeOfTetrahedronTest, Volume)
+{
+	// computes 6 * the actual volume (to save some computation)
+	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(0.0f,0.0f,0.0f,
+			1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f), 1);
+	
+	Point3D a(0,0,0);
+	Point3D b(1,0,0);
+	Point3D c(0,1,0);
+	Point3D d(0,0,1);
+	
+	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 1);
+	
+	d.z = -2.0f;
+	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2);
+}
