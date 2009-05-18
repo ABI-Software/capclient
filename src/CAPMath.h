@@ -356,7 +356,7 @@ double ComputeVolumeOfTetrahedron(const V& a, const V& b, const V& c, const V& d
 //        (a.x-d.x)*(bydy*czdz-bzdz*cydy);
 
 	double vol = DotProduct((a - d), CrossProduct((b - d), (c - d)));
-	return abs(vol);
+	return fabs(vol);
 }
 
 template <typename V>
