@@ -59,11 +59,11 @@ CAPModeller::~CAPModeller()
 #include <ctime>
 
 
-void CAPModeller::FitModel(const DataPoints& dataPoints, int frameNumber)
+void CAPModeller::FitModel(DataPoints& dataPoints, int frameNumber)
 {		
 	// Compute P 
 	// 1. find xi coords for each data point
-	DataPoints::const_iterator itr = dataPoints.begin();
+	DataPoints::iterator itr = dataPoints.begin();
 	DataPoints::const_iterator end = dataPoints.end();
 	std::vector<Point3D> xi_vector;
 	std::vector<int> element_id_vector;
@@ -73,6 +73,19 @@ void CAPModeller::FitModel(const DataPoints& dataPoints, int frameNumber)
 	{
 		Point3D xi;
 		int elem_id = heartModel_.ComputeXi(itr->second.GetCoordinate(), xi);
+	//	if(!itr->second.GetSurfaceType())
+		{
+			if (xi.z < 0.5)
+			{
+				xi.z = 0.0f; // projected on endocardium
+				itr->second.SetSurfaceType(CAPModelLVPS4X4::ENDOCARDIUM);
+			}
+			else
+			{
+				xi.z = 1.0f; // projected on epicardium
+				itr->second.SetSurfaceType(CAPModelLVPS4X4::EPICARDIUM);
+			}
+		}
 		xi_vector.push_back(xi);
 		element_id_vector.push_back(elem_id);
 		
