@@ -372,14 +372,14 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 		, /*propagate_field*/0, /*find_nearest_location*/1);	
 	if (return_code)
 	{
-		if (xi[2] < 0.5)
-		{
-			xi[2] = 0.0f; // projected on endocardium
-		}
-		else
-		{
-			xi[2] = 1.0f; // projected on epicardium
-		}
+//		if (xi[2] < 0.5)
+//		{
+//			xi[2] = 0.0f; // projected on endocardium
+//		}
+//		else
+//		{
+//			xi[2] = 1.0f; // projected on epicardium
+//		}
 #ifndef NDEBUG
 		cout << "Data Point : " << point[0] << ", " << point[1] << ", " << point[2] << endl;
 		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
@@ -537,15 +537,16 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)
 			{
 				//calculate lamda mu and theta at this point
 				FE_value values[3], xi[3];
-				xi[0] = (float) i/nx;
-				xi[1] = (float) j/ny;
+				xi[0] = (float) i/(nx-1);
+				xi[1] = (float) j/(ny-1);
 				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
 				Computed_field_evaluate_in_element(field, element, xi,
 					time, (struct FE_element *)NULL, values, (FE_value*)0 /*derivatives*/);
 
 				prolate_spheroidal_to_cartesian(values[0],values[1],values[2],
 					focalLength_, &temp.x, &temp.y, &temp.z, (float*)0);
-				//        cout << m1 << " " << t1 << " " << l1 << endl;
+
+//				std::cout << __func__ << ": " << temp.x << " " << temp.y << " " << temp.z << endl;
 
 				p[(j*nx+i)] = temp;
 			} // j
