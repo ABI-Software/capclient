@@ -109,4 +109,7 @@ TEST(ComputeVolumeOfTetrahedronTest, Volume)
 	
 	d.z = -2.0f;
 	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2);
+	
+	d.z = -2.7f;
+	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2.7);
 }
