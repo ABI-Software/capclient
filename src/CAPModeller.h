@@ -31,7 +31,7 @@ public:
 	CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller();
 	
-	void FitModel(const DataPoints& dataPoints, int frameNumber);
+	void FitModel(DataPoints& dataPoints, int frameNumber);
 	
 	void SmoothAlongTime();
 	
