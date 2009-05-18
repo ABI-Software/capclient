@@ -21,7 +21,8 @@ public:
 		cmissNode_(node),
 		coordinate_(coord),
 		time_(time),
-		weight_(weight)
+		weight_(weight),
+		surfaceType_(0)
 	{
 	};
 	
@@ -40,10 +41,23 @@ public:
 		return time_;
 	}
 	
+	//HACK
+	int GetSurfaceType() const
+	{
+		return surfaceType_;
+	}
+	
+	void SetSurfaceType(int type)
+	{
+		surfaceType_ = type;
+	}
+	
 private:
 	Cmiss_node_id cmissNode_;
 	Point3D coordinate_;
 	float weight_;
 	float time_;
+	
+	int surfaceType_;
 };
 #endif /* DATAPOINT_H_ */
