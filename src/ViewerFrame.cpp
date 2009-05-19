@@ -427,6 +427,12 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 #endif //NODE_CREATION
 	
 	modeller_.InitialiseModel();//REVISE
+	
+	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
+	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
+	
+	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
+	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
 }
 
 ViewerFrame::~ViewerFrame()
@@ -461,6 +467,9 @@ void ViewerFrame::InitialiseModel()
 	modeller_.InitialiseModel();
 	modeller_.UpdateTimeVaryingModel();
 	RefreshCmguiCanvas();
+	
+	cout << "Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
+	cout << "Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
 
 void ViewerFrame::SmoothAlongTime()
@@ -482,6 +491,9 @@ void ViewerFrame::SmoothAlongTime()
 	}
 #endif
 	RefreshCmguiCanvas();
+	
+	cout << "Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
+	cout << "Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
 
 wxPanel* ViewerFrame::getPanel()
@@ -582,6 +594,7 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	}
 	
 //	RefreshCmguiCanvas(); //Necessary?? - doesn't help with the problem where the canvas doesn't redraw
+	m_pPanel->Refresh();
 	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
 }
 
