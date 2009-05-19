@@ -31,8 +31,6 @@ public:
 	CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller();
 	
-	void FitModel(DataPoints& dataPoints, int frameNumber);
-	
 	void SmoothAlongTime();
 	
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
@@ -48,6 +46,8 @@ public:
 	void UpdateTimeVaryingModel();
 	
 private:
+	void FitModel(DataPoints& dataPoints, int frameNumber);
+	
 	std::vector<float> ConvertToHermite(const Vector&);
 	
 	CAPModelLVPS4X4& heartModel_;

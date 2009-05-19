@@ -72,7 +72,7 @@ void CAPModeller::FitModel(DataPoints& dataPoints, int frameNumber)
 	for (int i = 0; itr!=end; ++itr, ++i)
 	{
 		Point3D xi;
-		int elem_id = heartModel_.ComputeXi(itr->second.GetCoordinate(), xi);
+		int elem_id = heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (float)frameNumber/heartModel_.GetNumberOfModelFrames());
 	//	if(!itr->second.GetSurfaceType())
 		{
 			if (xi.z < 0.5)

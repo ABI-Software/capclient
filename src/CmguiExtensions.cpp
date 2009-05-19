@@ -373,7 +373,7 @@ DESCRIPTION : need to find the point of intersection between picking ray and obj
 	{
 		data->found_element = data->element;
 		return_code = Computed_field_find_element_xi(data->coordinate_field,
-			point, /*number_of_values*/3, &(data->found_element), 
+			point, /*number_of_values*/3, /*time ok to be 0 since slices don't move wrt time*/ 0.0, &(data->found_element), 
 			data->xi, /*element_dimension*/2, 
 			(struct Cmiss_region *)NULL, /*propagate_field*/0, /*find_nearest_location*/1);
 		Computed_field_evaluate_in_element(data->coordinate_field,

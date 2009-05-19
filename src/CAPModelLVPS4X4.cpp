@@ -336,7 +336,7 @@ Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
 	return Point3D(lambda, mu, theta);
 }
 
-int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
+int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float time) const
 {
 	//1. Transform to model coordinate 	
 	const Point3D& coordLocal = TransformToLocalCoordinateRC(coord);
@@ -367,7 +367,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord) const
 	point[0] = lambda, point[1] = mu, point[2] = theta;
 	field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");
 	int return_code = Computed_field_find_element_xi(field,
-		point, /*number_of_values*/3, &element /*FE_element** */, 
+		point, /*number_of_values*/3, time, &element /*FE_element** */, 
 		xi, /*element_dimension*/3, cmiss_region
 		, /*propagate_field*/0, /*find_nearest_location*/1);	
 	if (return_code)
