@@ -63,7 +63,7 @@ public:
 	 *  @param xi the computed xi coord. (output)
 	 *  return value : id of the element that the point is projected onto
 	 */ 
-	int ComputeXi(const Point3D& dataPoint, Point3D& xi) const;
+	int ComputeXi(const Point3D& dataPoint, Point3D& xi, float time) const;
 	
 	Point3D TransformToProlateSheroidal(const Point3D& rc) const;
 	
