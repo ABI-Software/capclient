@@ -4,7 +4,8 @@ PROJECT(Cmgui)
 ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
 #ADD_DEFINITIONS(-DWX_USER_INTERFACE)
 ADD_DEFINITIONS(-g2 -gdwarf-2)
-ADD_DEFINITIONS(-NDEBUG)
+#SET(CMAKE_BUILD_TYPE Release)
+#ADD_DEFINITIONS(-DOPTIMISED)
 
 #how to include common.Makefile?
 SET(CMISS_ROOT $ENV{CMISS_ROOT})
@@ -18,6 +19,7 @@ IF(WIN32)
   SET(CMAKE_EXE_LINKER_FLAGS -mno-cygwin)
 ENDIF(WIN32)
 SET(BUILD_VERSION cmgui-wx-debug)
+#SET(BUILD_VERSION cmgui-wx)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/gmm-3.1/include)
@@ -29,10 +31,12 @@ src/main.cpp
 src/Filesystem.cpp
 src/CmguiExtensions.cpp
 src/DICOMImage.cpp
+src/ImageSlice.cpp
 src/ImageSet.cpp
 src/CAPModelLVPS4X4.cpp
 src/CmguiManager.cpp
 src/CAPModeller.cpp
+src/CAPTimeSmoother.cpp
 )
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
@@ -72,6 +76,7 @@ IF(WIN32)
   ADD_DEFINITIONS(-D__WXDEBUG__)
 ELSE(WIN32)
   ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXDEBUG__ -D__WXMAC_)
+#  ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64 -D_LARGE_FILES)
 ENDIF(WIN32)
 ELSE(wxWidgets_FOUND)
   # For convenience. When we cannot continue, inform the user
@@ -79,6 +84,7 @@ ELSE(wxWidgets_FOUND)
 ENDIF(wxWidgets_FOUND)
 
 LIST(REMOVE_ITEM wxWidgets_LIBRARIES -lwxtiffd-2.8 -lwxjpegd-2.8 -lwxpngd-2.8 -lz -lpthread)
+#LIST(REMOVE_ITEM wxWidgets_LIBRARIES -lwxtiff-2.8 -lwxjpeg-2.8 -lwxpng-2.8 -lz -lpthread)
 message("After REMOVE_ITEM: " ${wxWidgets_LIBRARIES})
 
 IF(WIN32)
