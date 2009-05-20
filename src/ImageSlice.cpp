@@ -16,6 +16,7 @@ extern "C"
 #include "graphics/glyph.h"
 #include "graphics/colour.h"
 #include "graphics/material.h"
+#include "finite_element/finite_element_region.h"
 }
 
 #include "Config.h"
@@ -478,6 +479,35 @@ const ImagePlane& ImageSlice::GetImagePlane() const
 	return *(imagePlane_);
 }
 
+Cmiss_field* ImageSlice::CreateVisibilityField()
+{
+	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	Cmiss_region* region;
+	Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region);
+	CM_field_type cm_field_type = CM_GENERAL_FIELD;
+	char* name = "visibility";
+	Coordinate_system coordinate_system;
+	coordinate_system.type = RECTANGULAR_CARTESIAN;
+	Value_type value_type = FE_VALUE_VALUE;
+	const int number_of_components = 1;
+	char* component_names[] = {"visibility"};
+	
+	FE_region_get_FE_field_with_properties(
+		Cmiss_region_get_FE_region(region),
+		name, GENERAL_FE_FIELD,
+		/*indexer_field*/(struct FE_field *)NULL, /*number_of_indexed_values*/0,
+		cm_field_type, &coordinate_system,
+		value_type, number_of_components, component_names,
+		/*number_of_times*/0, /*time_value_type*/UNKNOWN_VALUE,
+		/*external*/(struct FE_field_external_information *)NULL);
+	
+	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
+	Computed_field* field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
+	
+	return field;
+}
+
 void ImageSlice::InitializeDataPointGraphicalSetting()
 {	
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_DATA_POINTS);
@@ -513,8 +543,11 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 		cout << "No glyphs defined" << endl;
 	}
 
+	//Initialze fields needed for time-dependent visibility control
+
+	Cmiss_field* visibilityField = CreateVisibilityField();
+	GT_element_settings_set_visibility_field(settings, visibilityField);
+	
 	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(sceneObject_);
 	GT_element_group_add_settings(gt_element_group, settings, 0);
-	
-	//Initialze fields needed for time-dependent visibility control
 }

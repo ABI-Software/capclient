@@ -16,6 +16,7 @@ struct Scene_object;
 struct Cmiss_texture;
 class DICOMImage;
 class ImagePlane;
+class Cmiss_field;
 
 // should I separate the graphical representation from this class?
 // ie move Textures, visibility, sceneObject etc to another class??
@@ -49,6 +50,8 @@ private:
 	void LoadTextures();  // should go to DICOImage??
 
 	void InitializeDataPointGraphicalSetting();
+	
+	Cmiss_field* CreateVisibilityField();
 	
 	std::string sliceName_;
 	//unsigned int sliceNumber;

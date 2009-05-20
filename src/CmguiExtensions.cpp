@@ -304,8 +304,91 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 							{
 //								std::cout << "Field has been defined at data_point" << std::endl;
 								if (Cmiss_field_set_values_at_node( field, node, time , 3 , coords))
-								{
-									return node;
+								{							
+									//TEST								
+									manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(cmiss_region);
+									Computed_field* visibilityField = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
+									
+									if (!visibilityField)
+									{
+										display_message(ERROR_MESSAGE,
+											"Cmiss_create_data_point_at_coord.  Can't find visibility field");
+									}
+									if (visibilityField && (fe_field_list=
+														Computed_field_get_defining_FE_field_list(visibilityField)))
+									{
+										if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
+											(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
+											(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
+											fe_field_list)) && (1 == get_FE_field_number_of_components(
+											fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
+										{
+											struct FE_node_field_creator *node_field_creator2;
+											
+											if (node_field_creator2 = CREATE(FE_node_field_creator)(
+												/*number_of_components*/1))
+											{
+												struct FE_time_sequence *fe_time_sequence;
+												//FE_value times[] = {0.0f, 0,5, 0.7, 1.0};
+												float halfTime = 1.0f/28.0f;
+												float startTime = (time - halfTime) >= 0 ? (time - halfTime) : 0; 
+												float endTime = (time + halfTime) < 1 ? (time + halfTime) : 1;
+												FE_value times[6];
+												times[0] = 0;
+												times[1] = startTime;
+												times[2] = startTime + 0.01;
+												times[3] = endTime - 0.01;
+												times[4] = endTime;
+												times[5] = 1;
+												
+												if (!(fe_time_sequence = FE_region_get_FE_time_sequence_matching_series(
+																		fe_region, 6, times)))
+												{
+													//Error
+													std::cout << "Error: " << __func__ << " can't get time_sequence" << std::endl;
+												}
+												
+												if (define_FE_field_at_node(node,fe_field,
+													/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
+													node_field_creator2))
+												{
+													float one = 1, zero = 0;
+//													Cmiss_field_set_values_at_node( visibilityField, node, 0 , 1 , &zero);
+//													Cmiss_field_set_values_at_node( visibilityField, node, 1 , 1 , &zero);
+//													float halfTime = 1.0f/28.0f;
+////													float startTime = (time - halfTime) >= 0 ? (time - halfTime) : (time - halfTime +1); 
+////													Cmiss_field_set_values_at_node( visibilityField, node, startTime , 1 , &zero);
+////													float endTime = (time + halfTime) < 1 ? (time + halfTime) : (time + halfTime - 1); 
+////													Cmiss_field_set_values_at_node( visibilityField, node, time + halfTime , 1 , &zero);
+////													Cmiss_field_set_values_at_node( visibilityField, node, time , 1 , &zero);
+//											
+//													Cmiss_field_set_values_at_node( visibilityField, node, 0.25 , 1 , &zero);
+//													Cmiss_field_set_values_at_node( visibilityField, node, 0.75 , 1 , &zero);
+//													Cmiss_field_set_values_at_node( visibilityField, node, 0.5 , 1 , &one);
+//													Cmiss_field_set_values_at_node( visibilityField, node, 0.7 , 1 , &one);
+//													
+//													int set_FE_nodal_field_FE_values_at_time(struct FE_field *field,
+//														struct FE_node *node,FE_value *values,int *number_of_values,
+//														FE_value time);
+													
+													int number_of_values;
+													set_FE_nodal_field_FE_values_at_time(fe_field,
+													 node, &zero , &number_of_values, times[0]);
+													set_FE_nodal_field_FE_values_at_time(fe_field,
+													 node, &zero , &number_of_values, times[5]);
+													set_FE_nodal_field_FE_values_at_time(fe_field,
+													 node, &zero , &number_of_values, times[1]);
+													set_FE_nodal_field_FE_values_at_time(fe_field,
+													 node, &one , &number_of_values, times[2]);
+													set_FE_nodal_field_FE_values_at_time(fe_field,
+													 node, &one , &number_of_values, times[3]);
+													set_FE_nodal_field_FE_values_at_time(fe_field,
+													 node, &zero , &number_of_values, times[4]);
+													return node;
+												}
+											}
+										}
+									}
 								}
 							}
 							else
