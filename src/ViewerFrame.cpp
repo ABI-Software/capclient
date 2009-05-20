@@ -380,7 +380,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(10, 0);
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(28, 0);
 	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
 	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
 #endif		
