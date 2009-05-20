@@ -160,6 +160,13 @@ public:
 		jc = new IND_TYPE[nc+1];
 	}
 	
+	~GMMGSmoothAMatrix()
+	{
+		delete[] pr;
+		delete[] ir;
+		delete[] jc;
+	}
+	
 	void UpdateData(Matrix& M)
 	{
 		P = &(static_cast<GMMMatrix*>(&M)->GetImpl());

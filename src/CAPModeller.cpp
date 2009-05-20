@@ -54,6 +54,7 @@ CAPModeller::~CAPModeller()
 	delete S_;
 	delete G_;
 	delete prior_;
+	delete solverFactory_;
 }
 
 #include <ctime>

@@ -73,6 +73,7 @@ int main(int argc,char *argv[])
 
 		Cmiss_command_data_main_loop(command_data);//app.OnRun()
 		
+		delete frame;
 		destroy_Cmiss_command_data(&command_data);
 	}
 

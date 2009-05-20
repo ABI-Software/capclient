@@ -28,6 +28,8 @@ public:
 	virtual double& operator[](int index) = 0;
 	
 	virtual const double& operator[](int index) const = 0;
+	
+	//virtual std::vector<double> ToSTDVector();
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Vector& v)
@@ -70,7 +72,7 @@ struct Entry
 class SolverLibraryFactory
 {
 public:
-	SolverLibraryFactory(const std::string name)
+	SolverLibraryFactory(const std::string& name)
 	: name_(name)
 	{}
 	

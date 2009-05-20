@@ -22,6 +22,8 @@ class CAPTimeSmoother
 public:
 	CAPTimeSmoother();
 	
+	~CAPTimeSmoother();
+	
 	std::vector<double> FitModel(int parameterIndex, const std::vector<float>& dataPoints);
 	
 	float ComputeLambda(double xi, const std::vector<double>& params);
