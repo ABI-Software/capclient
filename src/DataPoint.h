@@ -31,7 +31,7 @@ public:
 		return coordinate_;
 	}
 	
-	void SetCoordinate(const Point3D coord)
+	void SetCoordinate(const Point3D& coord)
 	{
 		coordinate_ = coord;
 	}

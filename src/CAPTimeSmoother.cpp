@@ -51,6 +51,11 @@ CAPTimeSmoother::CAPTimeSmoother()
 	std::cout << pImpl->Priors << std::endl;
 }
 
+CAPTimeSmoother::~CAPTimeSmoother()
+{
+	delete pImpl;
+}
+
 double CAPTimeSmoother::MapToXi(float time)
 {
 	return time;
@@ -105,7 +110,8 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	
 	std::transform(dataPoints.begin(), dataPoints.end(), p.begin(), p.begin(), std::minus<double>());
 	//TEST
-	p[0] *= 10; //more weight for frame 0
+//	p[0] *= 10; //more weight for frame 
+
 	gmm::mult(transposed(P),p,rhs);
 	
 //	std::cout << "rhs: " << rhs << std::endl;
