@@ -484,15 +484,6 @@ float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
 int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 {
 	float frameDuration = (float) 1.0 / numberOfModelFrames_;
-//	int indexPrevFrame = time / frameDuration;
-//	if ((time - (float)frameDuration*indexPrevFrame) < (frameDuration/2))
-//	{
-//		return indexPrevFrame;
-//	}
-//	else
-//	{
-//		return std::min(numberOfModelFrames_-1, indexPrevFrame+1);
-//	}
 	
 	return time / frameDuration;
 }
