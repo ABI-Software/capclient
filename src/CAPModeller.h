@@ -37,6 +37,8 @@ public:
 	
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	
+	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	
 	void InitialiseModel();
 	
 	void ReadModelFromFile(std::string& filename);

@@ -196,6 +196,84 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y,
 	return 0;
 }
 
+Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float time, Point3D& coords)
+{
+	int return_code = 0;
+
+	GLint viewport[4];
+	
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	double viewport_left   = (double)(viewport[0]);
+	double viewport_bottom = (double)(viewport[1]);
+	double viewport_width  = (double)(viewport[2]);
+	double viewport_height = (double)(viewport[3]);
+	
+	double centre_x = x;
+	/* flip y as x event has y=0 at top of window, increasing down */
+	double centre_y = viewport_height-y-1.0;
+	
+//	std::cout << viewport_height <<"," <<centre_y<< std::endl;
+	
+	GLdouble modelview_matrix[16], window_projection_matrix[16];
+
+	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	
+	
+	double size_x = 7.0;//FIX
+	double size_y = 7.0;
+	
+	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
+					modelview_matrix,window_projection_matrix,
+					viewport_left,viewport_bottom,viewport_width,viewport_height,
+					centre_x,centre_y,size_x,size_y);
+	
+	FE_element* nearest_element;
+	struct FE_node *picked_node;
+	struct LIST(Scene_picked_object) *scene_picked_object_list;
+	struct Scene_picked_object *scene_picked_object, *scene_picked_object2;
+	struct GT_element_group *gt_element_group, *gt_element_group_element;
+	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
+	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
+			CmguiManager::getInstance().getCmissCommandData());
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	
+	if (scene_picked_object_list=
+		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
+	{
+		nearest_element = (struct FE_element *)NULL;
+
+		picked_node=Scene_picked_object_list_get_nearest_node(
+											scene_picked_object_list,1 /* use_data */,
+											(struct Cmiss_region *)NULL,&scene_picked_object,
+											&gt_element_group,&gt_element_settings);
+		
+		nearest_element=Scene_picked_object_list_get_nearest_element(
+			scene_picked_object_list,(struct Cmiss_region *)NULL,
+			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
+			/*select_lines_enabled*/0, &scene_picked_object2,
+			&gt_element_group_element,&gt_element_settings_element);
+		
+		/* Reject the previously picked node if the element is nearer */
+		if (picked_node && nearest_element)
+		{
+			if (Scene_picked_object_get_nearest(scene_picked_object) >
+				Scene_picked_object_get_nearest(scene_picked_object2))
+			{
+				picked_node = (struct FE_node *)NULL;
+			}
+		}	
+		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
+	}
+	
+	/* Find the intersection of the element and the interaction volume */
+	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
+	
+	return picked_node; // Cmiss_node = FE_node;
+}
+
 int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, Point3D& coords)
 {
 	double node_coordinates[3];
@@ -232,13 +310,16 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		// Select node or create one
 		cout << "Mouse clicked, time = " << time << endl;
 		Point3D coords;
-		selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords);
-		if (!selectedNode)
+		selectedNode = Cmiss_select_node_from_screen_coords(x, y, time, coords);
+		
+		if (!selectedNode) //REVISE
 		{
-			// No node selected or created
-			return 0;
+			if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords)) // access = 2 on sucess
+			{
+				frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time)); //access = 3
+				DEACCESS(Cmiss_node)(&selectedNode); // access = 2
+			}
 		}
-		frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time));
 	}
 	else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
 	{
@@ -254,7 +335,9 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		Cmiss_move_node_to_screen_coords(selectedNode, x, y, time, coords);
 		
 		cout << "Move coord = " << coords << endl;
-		frame->MoveDataPoint(selectedNode, coords);
+		//frame->MoveDataPoint(selectedNode, coords);
+		frame->RemoveDataPoint(selectedNode);
+		selectedNode = 0;
 	}
 	else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
 	{
@@ -433,17 +516,13 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
 	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
+	
 }
 
 ViewerFrame::~ViewerFrame()
 {
 	delete imageSet_;
 }
-
-//void ViewerFrame::AddDataPoint(DataPoint* dataPoint)
-//{
-//	modeller_.AddDataPoint(dataPoint);
-//}
 
 float ViewerFrame::GetCurrentTime() const
 {
@@ -460,6 +539,15 @@ void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPos
 {
 	modeller_.MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
+}
+
+void ViewerFrame::RemoveDataPoint(Cmiss_node_id dataPointID)
+{
+	FE_region* fe_region = FE_node_get_FE_region(dataPointID); //REVISE
+	fe_region = FE_region_get_data_FE_region(fe_region);
+	FE_region_remove_FE_node(fe_region, dataPointID); // access = 1; 
+	modeller_.RemoveDataPoint(dataPointID, GetCurrentTime());
+	RefreshCmguiCanvas();
 }
 
 void ViewerFrame::InitialiseModel()
@@ -859,6 +947,17 @@ void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
+void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
+{
+	std::cout << "Accept" << std::endl; 
+}
+
+void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
+{
+	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+	std::cout << "MODE = " << choice->GetStringSelection() << endl;
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay) // play button
 	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnAnimationSliderEvent) // animation slider
@@ -871,5 +970,7 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
 	EVT_SLIDER(XRCID("BrightnessSlider"),ViewerFrame::OnBrightnessSliderEvent)
 	EVT_SLIDER(XRCID("ContrastSlider"),ViewerFrame::OnContrastSliderEvent)
+	EVT_BUTTON(XRCID("AcceptButton"),ViewerFrame::OnAcceptButtonPressed)
+	EVT_CHOICE(XRCID("ModeChoice"),ViewerFrame::OnModellingModeChanged)
 	EVT_CLOSE(ViewerFrame::Terminate)
 END_EVENT_TABLE()

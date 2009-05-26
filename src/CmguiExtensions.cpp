@@ -277,7 +277,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 	
 	if (Cmiss_node_id node = ACCESS(FE_node)(CREATE(FE_node)(node_identifier, fe_region, (struct FE_node *)NULL)))
 	{
-		if (ACCESS(FE_node)(FE_region_merge_FE_node(fe_region, node)))
+		if (/*ACCESS(FE_node)*/(FE_region_merge_FE_node(fe_region, node)))
 		{
 			int return_code;
 			struct FE_field *fe_field;
@@ -330,7 +330,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 											{
 												struct FE_time_sequence *fe_time_sequence;
 												//FE_value times[] = {0.0f, 0,5, 0.7, 1.0};
-												float halfTime = 1.0f/5.0f;
+												float halfTime = 1.0f/28.0f;
 												float startTime = time - halfTime; 
 												float endTime = time + halfTime;
 												FE_value times[5];

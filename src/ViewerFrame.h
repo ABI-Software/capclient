@@ -12,6 +12,7 @@
 #include "CAPModelLVPS4X4.h"
 #include "DataPoint.h"
 #include "CAPModeller.h"
+#include "CAPModellingTab.h"
 
 struct Cmiss_command_data;
 struct Time_keeper;
@@ -43,6 +44,8 @@ public:
 	
 	void MoveDataPoint(Cmiss_node_id, const Point3D&);
 	
+	void RemoveDataPoint(Cmiss_node_id dataPointID);
+	
 	void SmoothAlongTime();
 	
 	void InitialiseModel();
@@ -64,6 +67,8 @@ private:
 	
 //	std::vector<DataPoint*> dataPoints_;
 	CAPModeller modeller_;
+	
+	CAPModellingTab* modellingTab_;
 	
 	//private utility functions
 	void RenderMII(const std::string& sliceName);
@@ -87,6 +92,10 @@ private:
 	void OnWireframeCheckBox(wxCommandEvent& event);
 	void OnBrightnessSliderEvent(wxCommandEvent& event);
 	void OnContrastSliderEvent(wxCommandEvent& event);
+	
+	
+	void OnAcceptButtonPressed(wxCommandEvent& event);
+	void OnModellingModeChanged(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 };
