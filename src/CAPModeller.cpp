@@ -347,6 +347,15 @@ void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, f
 	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
 
+void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+{
+	int frameNumber = heartModel_.MapToModelFrameNumber(time);
+	DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
+	assert(itr != vectorOfDataPoints_[frameNumber].end());
+	vectorOfDataPoints_[frameNumber].erase(itr);
+	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
+}
+
 void CAPModeller::SmoothAlongTime()
 {
 	// For each global parameter in the per frame model

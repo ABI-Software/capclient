@@ -11,20 +11,36 @@
 #include "CAPMath.h"
 extern "C" {
 #include "api/cmiss_node.h"
+#include "finite_element/finite_element.h"
 }
 
 class DataPoint
 {
 public:
-	DataPoint(Cmiss_node_id node, const Point3D& coord, float time = 0, float weight = 1.0f)
+	DataPoint(Cmiss_node* node, const Point3D& coord, float time = 0, float weight = 1.0f)
 	:
-		cmissNode_(node),
+		cmissNode_(ACCESS(Cmiss_node)(node)),
 		coordinate_(coord),
 		time_(time),
 		weight_(weight),
 		surfaceType_(0)
 	{
 	};
+	
+	DataPoint(const DataPoint& other)
+	:
+		cmissNode_(ACCESS(Cmiss_node)(other.cmissNode_)),
+		coordinate_(other.coordinate_),
+		time_(other.time_),
+		weight_(other.weight_),
+		surfaceType_(other.surfaceType_)
+	{
+	};
+		
+	~DataPoint()
+	{
+		destroy_Cmiss_node(&cmissNode_);
+	}
 	
 	const Point3D& GetCoordinate() const
 	{
@@ -52,8 +68,18 @@ public:
 		surfaceType_ = type;
 	}
 	
+	DataPoint& operator=(const DataPoint& rhs)
+	{
+		DEACCESS(Cmiss_node)(&cmissNode_);
+		cmissNode_ = ACCESS(Cmiss_node)(rhs.cmissNode_);
+		coordinate_ = rhs.coordinate_;
+		time_ = rhs.time_;
+		weight_ = rhs.weight_;
+		surfaceType_ = rhs.surfaceType_;
+	}
+	
 private:
-	Cmiss_node_id cmissNode_;
+	Cmiss_node* cmissNode_;
 	Point3D coordinate_;
 	float weight_;
 	float time_;
