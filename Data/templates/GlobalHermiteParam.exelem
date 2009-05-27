@@ -507,7 +507,7 @@
    l.Lagrange*l.Lagrange*l.Lagrange, #Scale factors= 8
  #Nodes=           8
  #Fields=1
- 1) coordinates, coordinate, prolate spheroidal, focus= 38.6449 #Components=3
+ 1) coordinates, coordinate, prolate spheroidal, focus= 40.3051 #Components=3
    lambda.  c.Hermite*c.Hermite*l.Lagrange, no modify, standard node based.
      #Nodes= 8
       1.  #Values=4
