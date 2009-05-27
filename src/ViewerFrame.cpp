@@ -950,8 +950,9 @@ void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
 void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
-	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-	choice->SetStringSelection("Base");
+//	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+//	choice->SetStringSelection("Base");
+	modeller_.OnAccept();
 }
 
 void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
