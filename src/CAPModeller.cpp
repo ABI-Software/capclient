@@ -25,7 +25,12 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 	heartModel_(heartModel),
 	solverFactory_(new GMMFactory),
 	timeVaryingDataPoints_(134),
-	timeSmoother_()
+	timeSmoother_(),
+	modellingModeApex_(*this),
+	modellingModeBase_(*this),
+	modellingModeRV_(*this),
+	modellingModeBasePlane_(*this),
+	modellingModeGuidePoints_(*this)
 {	
 	SolverLibraryFactory& factory = *solverFactory_;
 	
@@ -402,4 +407,30 @@ void CAPModeller::UpdateTimeVaryingModel()
 		heartModel_.SetLambda(hermiteLambdaParams, time);
 		delete x;
 	}
+}
+
+
+CAPModellingMode* CAPModeller::GetModellingModeApex()
+{
+	return &modellingModeApex_;
+}
+
+CAPModellingMode* CAPModeller::GetModellingModeBase()
+{
+	return &modellingModeBase_;
+}
+
+CAPModellingMode* CAPModeller::GetModellingModeRV()
+{
+	return &modellingModeRV_;
+}
+
+CAPModellingMode* CAPModeller::GetModellingModeBasePlane()
+{
+	return &modellingModeBasePlane_;
+}
+
+CAPModellingMode* CAPModeller::GetModellingModeGuidePoints()
+{
+	return &modellingModeGuidePoints_;
 }

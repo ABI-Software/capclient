@@ -556,8 +556,8 @@ void ViewerFrame::InitialiseModel()
 	modeller_.UpdateTimeVaryingModel();
 	RefreshCmguiCanvas();
 	
-	cout << "Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-	cout << "Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
+	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
+	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
 
 void ViewerFrame::SmoothAlongTime()
@@ -580,8 +580,8 @@ void ViewerFrame::SmoothAlongTime()
 #endif
 	RefreshCmguiCanvas();
 	
-	cout << "Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-	cout << "Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
+	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
+	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
 
 wxPanel* ViewerFrame::getPanel()
@@ -693,7 +693,7 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	
 	// compute the center of the image plane, eye(camera) position and the up vector
 	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
-	Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
+	Point3D eye = planeCenter - (plane.normal * 500); // this seems to determine the near clip plane
 	Vector3D up(plane.yside);
 	up.Normalise();
 	
@@ -949,7 +949,9 @@ void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
 
 void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 {
-	std::cout << "Accept" << std::endl; 
+	std::cout << "Accept" << std::endl;
+	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+	choice->SetStringSelection("Base");
 }
 
 void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
