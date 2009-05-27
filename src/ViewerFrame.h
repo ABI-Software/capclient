@@ -12,7 +12,6 @@
 #include "CAPModelLVPS4X4.h"
 #include "DataPoint.h"
 #include "CAPModeller.h"
-#include "CAPModellingTab.h"
 
 struct Cmiss_command_data;
 struct Time_keeper;
@@ -67,8 +66,6 @@ private:
 	
 //	std::vector<DataPoint*> dataPoints_;
 	CAPModeller modeller_;
-	
-	CAPModellingTab* modellingTab_;
 	
 	//private utility functions
 	void RenderMII(const std::string& sliceName);

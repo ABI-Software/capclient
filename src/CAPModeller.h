@@ -15,6 +15,7 @@
 
 #include "DataPoint.h" // needed for DataPoints. consider Pimpl?
 #include "CAPTimeSmoother.h"
+#include "CAPModellingMode.h"
 
 class CAPModelLVPS4X4;
 class Matrix;
@@ -47,6 +48,16 @@ public:
 	
 	void UpdateTimeVaryingModel();
 	
+	CAPModellingMode* GetModellingModeApex();
+	
+	CAPModellingMode* GetModellingModeBase();
+	
+	CAPModellingMode* GetModellingModeRV();
+	
+	CAPModellingMode* GetModellingModeBasePlane();
+	
+	CAPModellingMode* GetModellingModeGuidePoints();
+	
 private:
 	void FitModel(DataPoints& dataPoints, int frameNumber);
 	
@@ -69,6 +80,14 @@ private:
 	Matrix* bezierToHermiteTransform_; // Temporary
 	
 	CAPTimeSmoother timeSmoother_;
+	
+	CAPModellingMode* currentModellingMode_;
+	
+	CAPModellingModeApex modellingModeApex_;
+	CAPModellingModeBase modellingModeBase_;
+	CAPModellingModeRV modellingModeRV_;
+	CAPModellingModeBasePlane modellingModeBasePlane_;
+	CAPModellingModeGuidePoints modellingModeGuidePoints_;
 };
 
 #endif /* CAPMODELLER_H_ */
