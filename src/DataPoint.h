@@ -42,6 +42,11 @@ public:
 		destroy_Cmiss_node(&cmissNode_);
 	}
 	
+	const Cmiss_node* GetCmissNode() const
+	{
+		return cmissNode_;
+	}
+	
 	const Point3D& GetCoordinate() const
 	{
 		return coordinate_;
