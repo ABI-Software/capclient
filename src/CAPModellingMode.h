@@ -104,7 +104,7 @@ class CAPModellingModeGuidePoints : public CAPModellingMode
 public:
 	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 	
-	CAPModellingModeGuidePoints(CAPModeller& modeller, CAPModelLVPS4X4 heartModel);
+	CAPModellingModeGuidePoints(CAPModeller& modeller, CAPModelLVPS4X4& heartModel);
 	~CAPModellingModeGuidePoints();
 	
 	CAPModellingMode* OnAccept();

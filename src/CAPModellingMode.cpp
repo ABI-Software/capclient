@@ -188,7 +188,7 @@ const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
 const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
 const static char* priorFile = "Data/templates/prior.dat";
 
-CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModeller& modeller, CAPModelLVPS4X4 heartModel)
+CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModeller& modeller, CAPModelLVPS4X4& heartModel)
 : 
 	CAPModellingMode(modeller),
 	heartModel_(heartModel),

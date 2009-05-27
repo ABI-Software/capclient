@@ -106,11 +106,12 @@ CAPModellingModeGuidePoints* CAPModeller::GetModellingModeGuidePoints()
 
 void CAPModeller::InitialiseModel()
 {
-	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-	if (gpMode)
-	{
-		gpMode->InitialiseModel();
-	}
+//	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
+//	if (gpMode)
+//	{
+//		gpMode->InitialiseModel();
+//	}
+	modellingModeGuidePoints_.InitialiseModel();
 }
 
 void CAPModeller::UpdateTimeVaryingModel()
