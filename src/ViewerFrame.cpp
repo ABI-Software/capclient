@@ -315,10 +315,11 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		
 		if (!selectedNode) //REVISE
 		{
-			if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords)) // access = 2 on sucess
+			if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords)) 
 			{
-				frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time)); //access = 3
-				DEACCESS(Cmiss_node)(&selectedNode); // access = 2
+				frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time)); //access + 1
+//				Cmiss_node* temp = selectedNode; // Sine we just want to decrease the ref count by 1 not nullify selecteNode
+//				DEACCESS(Cmiss_node)(&temp); // access = 2
 			}
 		}
 	}

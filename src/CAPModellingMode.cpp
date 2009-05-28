@@ -561,7 +561,7 @@ void CAPModellingModeGuidePoints::InitialiseModel()
 			timeVaryingDataPoints_[i][j] = lambda;
 		}
 //		std::cout << std::endl;
-		std::cout << "timeVaryingDataPoints_" << timeVaryingDataPoints_[i]  << std::endl;
+//		std::cout << "timeVaryingDataPoints_ : " << timeVaryingDataPoints_[i]  << std::endl;
 	}
 	
 	vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
