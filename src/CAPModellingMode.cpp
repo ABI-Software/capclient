@@ -14,29 +14,28 @@ extern "C"
 #include "finite_element/finite_element_region.h"
 }
 
-CAPModellingMode::CAPModellingMode(CAPModeller& modeller) 
-:
-	modeller_(modeller)
+CAPModellingMode::CAPModellingMode() 
 {
-
 }
 
-CAPModellingMode::~CAPModellingMode() {
-
+CAPModellingMode::~CAPModellingMode() 
+{
 }
 
 // CAPModellingModeApex
 
-CAPModellingMode* CAPModellingModeApex::OnAccept()
+CAPModellingMode* CAPModellingModeApex::OnAccept(CAPModeller& modeller)
 {
 	if (apex_.empty())
 	{
 		std::cout << __func__ << "Apex not defined" << std::endl;
 		return 0;
 	}
-	// TODO Make the Cmiss_node representation of the apex point 
+	// TODO Make the Cmiss_node representation of the apex point invisible
+	//		which should be made visible when entering this state(mode)
+	// provide EntryAction and ExitAction that can be invoked by the context (= CAPModeller)
 	
-	return modeller_.GetModellingModeBase();
+	return modeller.GetModellingModeBase();
 }
 
 void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
@@ -77,14 +76,14 @@ void CAPModellingModeApex::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 
 // CAPModellingModeBase
 
-CAPModellingMode* CAPModellingModeBase::OnAccept()
+CAPModellingMode* CAPModellingModeBase::OnAccept(CAPModeller& modeller)
 {
 	if (base_.empty())
 	{
 		std::cout << __func__ << "Apex not defined" << std::endl;
 		return 0;
 	}
-	return modeller_.GetModellingModeRV();
+	return modeller.GetModellingModeRV();
 }
 
 void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
@@ -125,14 +124,14 @@ void CAPModellingModeBase::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 
 // CAPModellingModeRV
 
-CAPModellingMode* CAPModellingModeRV::OnAccept()
+CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
 {
 	if ((rvInserts_.size() % 2) || rvInserts_.empty())
 	{
 		std::cout << __func__ << "Need n pairs of rv insertion points" << std::endl;
 		return 0;
 	}
-	return modeller_.GetModellingModeBasePlane();
+	return modeller.GetModellingModeBasePlane();
 }
 
 void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
@@ -156,10 +155,10 @@ void CAPModellingModeRV::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 
 // CAPModellingModeBasePlane
 
-CAPModellingMode* CAPModellingModeBasePlane::OnAccept()
+CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 {
 	
-	return modeller_.GetModellingModeGuidePoints();
+	return modeller.GetModellingModeGuidePoints();
 }
 
 void CAPModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
@@ -190,9 +189,8 @@ const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
 const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
 const static char* priorFile = "Data/templates/prior.dat";
 
-CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModeller& modeller, CAPModelLVPS4X4& heartModel)
+CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartModel)
 : 
-	CAPModellingMode(modeller),
 	heartModel_(heartModel),
 	solverFactory_(new GMMFactory),
 	timeVaryingDataPoints_(134),
@@ -228,7 +226,7 @@ CAPModellingModeGuidePoints::~CAPModellingModeGuidePoints()
 	delete solverFactory_;
 }
 
-CAPModellingMode* CAPModellingModeGuidePoints::OnAccept()
+CAPModellingMode* CAPModellingModeGuidePoints::OnAccept(CAPModeller& modeller)
 {
 	return 0;
 }

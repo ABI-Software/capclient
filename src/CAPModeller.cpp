@@ -18,46 +18,14 @@
 
 CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 :
-//	heartModel_(heartModel),
-//	solverFactory_(new GMMFactory),
-//	timeVaryingDataPoints_(134),
-//	timeSmoother_(),
-	modellingModeApex_(*this),
-	modellingModeBase_(*this),
-	modellingModeRV_(*this),
-	modellingModeBasePlane_(*this),
-	modellingModeGuidePoints_(*this, heartModel),
+	modellingModeApex_(),
+	modellingModeBase_(),
+	modellingModeRV_(),
+	modellingModeBasePlane_(),
+	modellingModeGuidePoints_(heartModel),
 	currentModellingMode_(&modellingModeApex_)
 {	
-//	SolverLibraryFactory& factory = *solverFactory_;
-//	
-//	std::cout << "Solver Library = " << factory.GetName() << std::endl;
-//
-//	// Read in S (smoothness matrix)
-//	S_ = factory.CreateMatrixFromFile(Sfile);
-//	// Read in G (global to local parameter map)
-//	G_ = factory.CreateMatrixFromFile(Gfile);
-//
-//	// initialize preconditioner and GSMoothAMatrix
-//	
-//	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
-//	
-//	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
-//	
-//	prior_ = factory.CreateVectorFromFile(priorFile);
-//	return;
 }
-
-//CAPModeller::~CAPModeller()
-//{
-//	delete aMatrix_;
-//	delete preconditioner_;
-//	delete P_;
-//	delete S_;
-//	delete G_;
-//	delete prior_;
-//	delete solverFactory_;
-//}
 
 void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const DataPoint& dataPoint)
 {
@@ -74,13 +42,16 @@ void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 	currentModellingMode_->RemoveDataPoint(dataPointID, time);
 }
 
-void CAPModeller::OnAccept()
+bool CAPModeller::OnAccept()
 {
-	CAPModellingMode* newMode = currentModellingMode_->OnAccept();
+	CAPModellingMode* newMode = currentModellingMode_->OnAccept(*this);
 	if (newMode) 
 	{
-		currentModellingMode_ = currentModellingMode_->OnAccept();
+		currentModellingMode_ = newMode;
+		return true;
 	}
+	
+	return false;
 }
 
 CAPModellingMode* CAPModeller::GetModellingModeApex()

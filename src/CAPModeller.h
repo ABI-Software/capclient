@@ -36,7 +36,7 @@ public:
 	
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
-	void OnAccept();
+	bool OnAccept();
 	
 	CAPModellingMode* GetModellingModeApex();
 	
@@ -47,6 +47,15 @@ public:
 	CAPModellingMode* GetModellingModeBasePlane();
 	
 	CAPModellingModeGuidePoints* GetModellingModeGuidePoints();
+	
+	
+	void SetApex(const std::vector<DataPoint>& apex);
+	
+	void SetBase(const std::vector<DataPoint>& base);
+	
+	void SetRVInsertionPoints(const std::map<Cmiss_node*, DataPoint>& rvInserts);
+	
+	void SetBasePlanePoints(const std::map<Cmiss_node*, DataPoint>& rvInserts);
 	
 	
 	void InitialiseModel();
@@ -63,6 +72,11 @@ private:
 	CAPModellingModeGuidePoints modellingModeGuidePoints_;
 	
 	CAPModellingMode* currentModellingMode_;
+	
+	std::vector<DataPoint> apex_; // 0 or 1 item
+	std::vector<DataPoint> base_; // 0 or 1 item
+	std::map<Cmiss_node*, DataPoint> rvInserts_;
+	std::map<Cmiss_node*, DataPoint> basePlanePoints_;
 };
 
 #endif /* CAPMODELLER_H_ */
