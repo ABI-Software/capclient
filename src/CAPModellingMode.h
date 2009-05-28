@@ -19,28 +19,26 @@ class CAPModeller;
 class CAPModellingMode 
 {
 public:
-	CAPModellingMode(CAPModeller& modeller);
+	CAPModellingMode();
 	virtual ~CAPModellingMode();
 	
-	virtual CAPModellingMode* OnAccept() = 0;
+	virtual CAPModellingMode* OnAccept(CAPModeller& modeller) = 0;
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint) = 0;
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time) = 0;
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time) = 0;
-protected:
-	CAPModeller& modeller_;
 };
 
 class CAPModellingModeApex : public CAPModellingMode
 {
 public:
-	CAPModellingModeApex(CAPModeller& modeller)
-	: CAPModellingMode(modeller)
+	CAPModellingModeApex()
 	{}
 	
-	CAPModellingMode* OnAccept();
+	CAPModellingMode* OnAccept(CAPModeller& modeller);
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	
 private:
 	std::vector<DataPoint> apex_; // holds at most 1 item
 };
@@ -48,14 +46,14 @@ private:
 class CAPModellingModeBase : public CAPModellingMode
 {
 public:
-	CAPModellingModeBase(CAPModeller& modeller)
-	: CAPModellingMode(modeller)
+	CAPModellingModeBase()
 	{}
 	
-	CAPModellingMode* OnAccept();
+	CAPModellingMode* OnAccept(CAPModeller& modeller);
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	
 private:
 	std::vector<DataPoint> base_; // holds at most 1 item
 };
@@ -63,14 +61,14 @@ private:
 class CAPModellingModeRV : public CAPModellingMode
 {
 public:
-	CAPModellingModeRV(CAPModeller& modeller)
-	: CAPModellingMode(modeller)
+	CAPModellingModeRV()
 	{}
 	
-	CAPModellingMode* OnAccept();
+	CAPModellingMode* OnAccept(CAPModeller& modeller);
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	
 private:
 	std::map<Cmiss_node*, DataPoint> rvInserts_; // holds n pairs of DataPoints ( n >= 1 )
 };
@@ -78,14 +76,14 @@ private:
 class CAPModellingModeBasePlane : public CAPModellingMode
 {
 public:
-	CAPModellingModeBasePlane(CAPModeller& modeller)
-	: CAPModellingMode(modeller)
+	CAPModellingModeBasePlane()
 	{}
 	
-	CAPModellingMode* OnAccept();
+	CAPModellingMode* OnAccept(CAPModeller& modeller);
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	
 private:
 	std::vector<DataPoint> BasePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
 };
@@ -104,10 +102,10 @@ class CAPModellingModeGuidePoints : public CAPModellingMode
 public:
 	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 	
-	CAPModellingModeGuidePoints(CAPModeller& modeller, CAPModelLVPS4X4& heartModel);
+	CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartModel);
 	~CAPModellingModeGuidePoints();
 	
-	CAPModellingMode* OnAccept();
+	CAPModellingMode* OnAccept(CAPModeller& modeller);
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);

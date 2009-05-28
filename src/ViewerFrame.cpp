@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 extern "C"
 {
@@ -950,9 +951,14 @@ void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
 void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
-//	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-//	choice->SetStringSelection("Base");
-	modeller_.OnAccept();
+
+	if (modeller_.OnAccept())
+	{
+		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+		int selectionIndex = choice->GetSelection();
+		int newIndex = std::min(selectionIndex + 1, static_cast<int>(choice->GetCount()));
+		choice->SetSelection(newIndex);
+	}
 }
 
 void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
