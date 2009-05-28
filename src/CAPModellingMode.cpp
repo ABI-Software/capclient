@@ -34,6 +34,8 @@ CAPModellingMode* CAPModellingModeApex::OnAccept()
 		std::cout << __func__ << "Apex not defined" << std::endl;
 		return 0;
 	}
+	// TODO Make the Cmiss_node representation of the apex point 
+	
 	return modeller_.GetModellingModeBase();
 }
 
@@ -228,7 +230,7 @@ CAPModellingModeGuidePoints::~CAPModellingModeGuidePoints()
 
 CAPModellingMode* CAPModellingModeGuidePoints::OnAccept()
 {
-	return this;
+	return 0;
 }
 
 void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
