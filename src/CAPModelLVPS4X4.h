@@ -111,6 +111,10 @@ private:
 	
 	class HeartModelImpl;
 	HeartModelImpl* pImpl_; // TODO use PIMPL to hide Cmgui related implementation details (region, scene object , etc)
+	
+	// Non copyable
+	CAPModelLVPS4X4(const CAPModelLVPS4X4& rhs);
+	CAPModelLVPS4X4& operator=(const CAPModelLVPS4X4& rhs);
 };
 
 #endif /* CAPMODELLVPS4X4_H_ */

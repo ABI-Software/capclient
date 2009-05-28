@@ -335,9 +335,9 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		Cmiss_move_node_to_screen_coords(selectedNode, x, y, time, coords);
 		
 		cout << "Move coord = " << coords << endl;
-		//frame->MoveDataPoint(selectedNode, coords);
-		frame->RemoveDataPoint(selectedNode);
-		selectedNode = 0;
+		frame->MoveDataPoint(selectedNode, coords);
+//		frame->RemoveDataPoint(selectedNode);
+//		selectedNode = 0;
 	}
 	else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
 	{

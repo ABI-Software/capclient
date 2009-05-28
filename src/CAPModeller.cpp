@@ -76,7 +76,11 @@ void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 
 void CAPModeller::OnAccept()
 {
-	currentModellingMode_ = currentModellingMode_->OnAccept();
+	CAPModellingMode* newMode = currentModellingMode_->OnAccept();
+	if (newMode) 
+	{
+		currentModellingMode_ = currentModellingMode_->OnAccept();
+	}
 }
 
 CAPModellingMode* CAPModeller::GetModellingModeApex()
