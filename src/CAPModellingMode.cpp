@@ -389,9 +389,9 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 //	heartModel_.SetLambda(hermiteLambdaParams);
 #define UPDATE_CMGUI
 #ifdef UPDATE_CMGUI
-	heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber);
+	heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber); //Hermite
 	
-	UpdateTimeVaryingDataPoints(*x, frameNumber);
+	UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
 #endif
 //	SmoothAlongTime();
 	
@@ -456,6 +456,9 @@ void CAPModellingModeGuidePoints::UpdateTimeVaryingModel()
 
 void CAPModellingModeGuidePoints::UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber)
 {
+	// Update the (Bezier) parameters for the newly fitted frame
+	// This is in turn used as data points for the time varying model in the smoothing step
+	
 	for (int i = 0; i < 134; i++)
 	{
 		timeVaryingDataPoints_[i][frameNumber] = x[i];
