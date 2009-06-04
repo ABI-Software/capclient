@@ -39,6 +39,8 @@ public:
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
+	const DataPoint& GetApex() const; //REVISE design
+
 private:
 	std::vector<DataPoint> apex_; // holds at most 1 item
 };
@@ -53,6 +55,8 @@ public:
 	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	
+	const DataPoint& GetBase() const;
 	
 private:
 	std::vector<DataPoint> base_; // holds at most 1 item
@@ -69,6 +73,8 @@ public:
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
+	const std::map<Cmiss_node*, DataPoint>& GetRVInsertPoints() const;
+	
 private:
 	std::map<Cmiss_node*, DataPoint> rvInserts_; // holds n pairs of DataPoints ( n >= 1 )
 };
@@ -84,8 +90,10 @@ public:
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
+	const std::vector<DataPoint>& GetBasePlanePoints() const;
+	
 private:
-	std::vector<DataPoint> BasePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
+	std::vector<DataPoint> basePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
 };
 
 #include "CAPTimeSmoother.h"
@@ -110,7 +118,13 @@ public:
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
-	void InitialiseModel();
+	const std::vector<DataPoint>& GetDataPoints() const;
+	
+	void InitialiseModel(const DataPoint& apex,
+			const DataPoint& base,
+			const std::map<Cmiss_node*, DataPoint>& rvInserts,
+			const std::vector<DataPoint>& basePlanePoints);
+	
 	void ReadModelFromFile(std::string& filename);
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
 	void UpdateTimeVaryingModel();

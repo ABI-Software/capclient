@@ -122,8 +122,14 @@ public:
 		return Point3D(x-rhs.x, y-rhs.y, z-rhs.z);
 	}
 	
-	Vector3D operator-(const Point3D& rhs) const {
+	Vector3D operator-(const Point3D& rhs) const 
+	{
 		return Vector3D(x - rhs.x, y - rhs.y, z - rhs.z);
+	}
+	
+	Point3D operator/(const float divider) const
+	{
+			return Point3D(x/divider, y/divider, z/divider);
 	}
 	
 	//default assignment will do

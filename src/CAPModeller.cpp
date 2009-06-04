@@ -86,7 +86,12 @@ void CAPModeller::InitialiseModel()
 //	{
 //		gpMode->InitialiseModel();
 //	}
-	modellingModeGuidePoints_.InitialiseModel();
+	const DataPoint& apex = modellingModeApex_.GetApex();
+	const DataPoint& base = modellingModeBase_.GetBase();
+	const std::map<Cmiss_node*, DataPoint>& rvInsert = modellingModeRV_.GetRVInsertPoints();
+	const std::vector<DataPoint>& basePlanePoints = modellingModeBasePlane_.GetBasePlanePoints(); 
+	
+	modellingModeGuidePoints_.InitialiseModel(apex, base, rvInsert, basePlanePoints);
 }
 
 void CAPModeller::UpdateTimeVaryingModel()

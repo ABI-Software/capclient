@@ -38,6 +38,7 @@ src/CmguiManager.cpp
 src/CAPModeller.cpp
 src/CAPTimeSmoother.cpp
 src/CAPModellingMode.cpp
+src/DataSet.cpp
 )
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
