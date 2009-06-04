@@ -229,38 +229,6 @@ DESCRIPTION :
 	return(return_code);
 }
 
-Cmiss_node_id Cmiss_create_node_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords)
-{	
-	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
-	if (!fe_region)
-	{
-		std::cout << "fe_region is null" << std::endl;
-	}
-	
-	int node_identifier = FE_region_get_next_FE_node_identifier(fe_region, /*start*/1);
-	std::cout << "node id = " << node_identifier << std::endl;
-	
-	if (Cmiss_node_id node = create_Cmiss_node(node_identifier, cmiss_region))
-	{
-		if (Cmiss_region_merge_Cmiss_node(cmiss_region, node))
-		{
-			if (Cmiss_field_finite_element_define_at_node(
-					field,  node,
-					0 /* time_sequence*/, 0/* node_field_creator*/) &&
-				Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , coords))
-			{
-				return node;
-			}
-		}
-		else
-		{
-			DEACCESS(Cmiss_node)(&node);
-		}
-	}
-	
-	return 0;
-}
-
 #include "computed_field/computed_field_finite_element.h"
 Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords, float time)
 {	
