@@ -40,11 +40,14 @@ public:
 	typedef std::vector<float> parameters;
 	int ReadModelFromFiles(const std::string& path);
 	
-	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
-	
 	const std::vector<float> GetLambda(int frame);
+
+	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
+	void SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
 	
-	void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
+	void SetMuFromBasePlanes();
+	
+	void SetTheta();
 	
 //	const std::vector<float>& GetParameters() const;
 

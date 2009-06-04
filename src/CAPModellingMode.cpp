@@ -74,6 +74,12 @@ void CAPModellingModeApex::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 	apex_.clear();
 }
 
+const DataPoint& CAPModellingModeApex::GetApex() const
+{
+	assert(apex_.size() == 1);
+	return apex_[0];
+}
+
 // CAPModellingModeBase
 
 CAPModellingMode* CAPModellingModeBase::OnAccept(CAPModeller& modeller)
@@ -122,6 +128,12 @@ void CAPModellingModeBase::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 	base_.clear();
 }
 
+const DataPoint& CAPModellingModeBase::GetBase() const
+{
+	assert(base_.size()==1);
+	return base_[0];
+}
+
 // CAPModellingModeRV
 
 CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
@@ -153,11 +165,16 @@ void CAPModellingModeRV::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 	rvInserts_.erase(itr);
 }
 
+const std::map<Cmiss_node*, DataPoint>& CAPModellingModeRV::GetRVInsertPoints() const
+{
+	return rvInserts_;
+}
+
 // CAPModellingModeBasePlane
 
 CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 {
-	
+	modeller.InitialiseModel();
 	return modeller.GetModellingModeGuidePoints();
 }
 
@@ -174,6 +191,11 @@ void CAPModellingModeBasePlane::MoveDataPoint(Cmiss_node* dataPointID, const Poi
 void CAPModellingModeBasePlane::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 {
 	
+}
+
+const std::vector<DataPoint>& CAPModellingModeBasePlane::GetBasePlanePoints() const
+{
+	return basePlanePoints_;
 }
 
 // CAPModellingModeGuidePoints
@@ -517,27 +539,38 @@ std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& b
 	return temp;
 }
 
-void CAPModellingModeGuidePoints::InitialiseModel()
+void CAPModellingModeGuidePoints::InitialiseModel(
+		const DataPoint& apex,
+		const DataPoint& base,
+		const std::map<Cmiss_node*, DataPoint>& rvInserts,
+		const std::vector<DataPoint>& basePlanePoints)
 {
-#ifdef OLD_CODE
+//#ifdef OLD_CODE
 	// Compute model coordinate axes from Apex, Base and RV insert points
-	Point3D apex = dataPoints_[0].GetCoordinate();
-	Point3D base = dataPoints_[1].GetCoordinate();
-	Vector3D x = apex - base;
-	x.Normalise();
 
-	Point3D averageOfRVInserts = dataPoints_[3].GetCoordinate() + 
-					(dataPoints_[2].GetCoordinate() - dataPoints_[3].GetCoordinate()) * 0.5;
-	Vector3D y = averageOfRVInserts - base;
-	Vector3D z = CrossProduct(x,y);
-	z.Normalise();
-	y.CrossProduct(z,x);
-	cout << "Model coord x axis vector" << x << endl;
-	cout << "Model coord y axis vector" << y << endl;
-	cout << "Model coord z axis vector" << z << endl;
+	Vector3D xAxis= apex.GetCoordinate() - base.GetCoordinate();
+	xAxis.Normalise();
+
+	std::map<Cmiss_node*, DataPoint>::const_iterator itr = rvInserts.begin();
+	std::map<Cmiss_node*, DataPoint>::const_iterator end = rvInserts.end();
+	Point3D sum;
+	for (;itr!=end;++itr)
+	{
+		sum += itr->second.GetCoordinate();
+	}
+	
+	Point3D averageOfRVInserts = sum / rvInserts.size();
+	
+	Vector3D yAxis = averageOfRVInserts - base.GetCoordinate();
+	Vector3D zAxis = CrossProduct(xAxis,yAxis);
+	zAxis.Normalise();
+	yAxis.CrossProduct(zAxis,xAxis);
+	std::cout << "Model coord x axis vector" << xAxis << std::endl;
+	std::cout << "Model coord y axis vector" << yAxis << std::endl;
+	std::cout << "Model coord z axis vector" << zAxis << std::endl;
 	
 	// Compute the position of the model coord origin. (1/3 of the way from base to apex)
-	Point3D origin = base + 1/3 * (base - apex);
+	Point3D origin = base.GetCoordinate() + 1/3 * (base.GetCoordinate() - apex.GetCoordinate());
 	
 	// Set focal length
 	float focalLength = 42.0;
@@ -546,7 +579,7 @@ void CAPModellingModeGuidePoints::InitialiseModel()
 	// initial values for lambda come from the prior
 	// theta is 1/2pi apart)
 	// mu is equally spaced up to the base value
-#endif
+//#endif
 	
 	
 	//Initialise bezier global params for each model

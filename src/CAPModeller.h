@@ -73,10 +73,7 @@ private:
 	
 	CAPModellingMode* currentModellingMode_;
 	
-	std::vector<DataPoint> apex_; // 0 or 1 item
-	std::vector<DataPoint> base_; // 0 or 1 item
-	std::map<Cmiss_node*, DataPoint> rvInserts_;
-	std::map<Cmiss_node*, DataPoint> basePlanePoints_;
+	
 };
 
 #endif /* CAPMODELLER_H_ */
