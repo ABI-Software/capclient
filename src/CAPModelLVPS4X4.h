@@ -13,6 +13,7 @@
 
 struct Scene_object;
 class Point3D;
+class Plane;
 
 class CAPModelLVPS4X4
 {
@@ -45,9 +46,9 @@ public:
 	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
 	void SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
 	
-	void SetMuFromBasePlanes();
+	void SetMuFromBasePlanesForFrame(const Plane& basePlane, int frameNumber);
 	
-	void SetTheta();
+	void SetTheta(int frameNumber);
 	
 //	const std::vector<float>& GetParameters() const;
 
@@ -76,6 +77,8 @@ public:
 	{
 		return focalLength_;
 	}
+	
+	void SetFocalLengh(float focalLength);
 	
 	// Member functions related to rendering
 	void SetRenderMode(RenderMode mode);

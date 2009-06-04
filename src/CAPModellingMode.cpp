@@ -539,13 +539,17 @@ std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& b
 	return temp;
 }
 
+Plane InterpolateBasePlane(const std::vector<DataPoint>& basePlanePoints, int frame)
+{
+	
+}
+
 void CAPModellingModeGuidePoints::InitialiseModel(
 		const DataPoint& apex,
 		const DataPoint& base,
 		const std::map<Cmiss_node*, DataPoint>& rvInserts,
 		const std::vector<DataPoint>& basePlanePoints)
 {
-//#ifdef OLD_CODE
 	// Compute model coordinate axes from Apex, Base and RV insert points
 
 	Vector3D xAxis= apex.GetCoordinate() - base.GetCoordinate();
@@ -572,15 +576,23 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	// Compute the position of the model coord origin. (1/3 of the way from base to apex)
 	Point3D origin = base.GetCoordinate() + 1/3 * (base.GetCoordinate() - apex.GetCoordinate());
 	
-	// Set focal length
-	float focalLength = 42.0;
+	// TODO properly Compute FocalLength
+	float focalLength = (apex.GetCoordinate() - base.GetCoordinate()).Length(); // FIX
+	heartModel_.SetFocalLengh(focalLength);
 	
 	// Set initial model parameters lambda, mu and theta
 	// initial values for lambda come from the prior
-	// theta is 1/2pi apart)
-	// mu is equally spaced up to the base value
-//#endif
+	// theta is 1/4pi apart)
+	// mu is equally spaced up to the base plane
 	
+	int numberOfModelFrames = heartModel_.GetNumberOfModelFrames();
+	for(int i = 0; i < numberOfModelFrames; i++)
+	{
+		heartModel_.SetTheta();
+		const Plane& plane = InterpolateBasePlane(basePlanePoints, i);
+		heartModel_.SetMuFromBasePlanesForFrame(plane, i);
+		//heartModel_.SetLambdaForFrame(lambdaParams, i);
+	}
 	
 	//Initialise bezier global params for each model
 	for (int i=0; i<134;i++)

@@ -467,6 +467,48 @@ const std::vector<float> GetLambda(int frame)
 	}
 }
 
+void CAPModelLVPS4X4::SetMuFromBasePlanesForFrame(const Plane& basePlane, int frameNumber)
+{
+	
+}
+	
+void CAPModelLVPS4X4::SetTheta(int frame)
+{
+	float time = (float)frame / GetNumberOfModelFrames();
+	FE_value thetas[4] = { 0, M_PI/4, M_PI/2, M_PI * 3/4};
+	
+	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
+	{	
+		
+		FE_region* fe_region;
+		struct FE_node *node;
+		if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
+		{
+			node = ACCESS(FE_node)(FE_region_get_FE_node_from_identifier(fe_region, i));
+			if (!node)
+			{
+				//error!
+				cout << "Error: no such node: " << i << endl;
+			}
+		}
+		
+		struct FE_field *fe_field;
+		Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
+
+		const FE_nodal_value_type type = FE_NODAL_VALUE;
+		const int version = 0;
+		const int component_number = 2; //THETA
+		
+		FE_value value = thetas[i%4];
+		set_FE_nodal_FE_value_value(node,
+			 fe_field, component_number,
+			 version,
+			 type, time, value);
+		
+		DEACCESS(FE_node)(&node);
+	}
+}
+
 float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
 {
 	float frameDuration = (float) 1.0 / numberOfModelFrames_;
@@ -596,3 +638,9 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)
 	// (6*1000), 6 times volume of tetrahedron & for ml
 }
 
+void CAPModelLVPS4X4::SetFocalLengh(float focalLength)
+{
+	struct Coordinate_system* coordinate_system = Computed_field_get_coordinate_system(pImpl_->field);
+	focalLength_ = focalLength;
+	coordinate_system->parameters.focus = focalLength_;
+}

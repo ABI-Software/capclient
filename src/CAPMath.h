@@ -395,4 +395,10 @@ V& operator+=(V& v, const V& rhs)
 	return v;
 }
 
+struct Plane
+{
+	Vector3D normal;
+	Point3D position;
+};
+
 #endif /* CAPMATH_H_ */
