@@ -588,7 +588,7 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	int numberOfModelFrames = heartModel_.GetNumberOfModelFrames();
 	for(int i = 0; i < numberOfModelFrames; i++)
 	{
-		heartModel_.SetTheta();
+		heartModel_.SetTheta(i);
 		const Plane& plane = InterpolateBasePlane(basePlanePoints, i);
 		heartModel_.SetMuFromBasePlanesForFrame(plane, i);
 		//heartModel_.SetLambdaForFrame(lambdaParams, i);
