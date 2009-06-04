@@ -282,7 +282,7 @@ int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, flo
 	FE_element* element = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &field);
 	
 	coords.x = node_coordinates[0], coords.y = node_coordinates[1], coords.z = node_coordinates[2];
-	if (Cmiss_field_set_values_at_node( field, node, 0 /* time*/ , 3 , (float*)& coords))
+	if (Cmiss_field_set_values_at_node( field, node, time , 3 , (float*)& coords))
 	{
 		return 1;
 	}
