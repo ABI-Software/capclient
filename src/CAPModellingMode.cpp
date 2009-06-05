@@ -174,6 +174,9 @@ const std::map<Cmiss_node*, DataPoint>& CAPModellingModeRV::GetRVInsertPoints() 
 
 CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 {
+	DataPointTimeComparator dataPointTimeComparator; // need real lambda functions !
+	std::sort(basePlanePoints_.begin(),basePlanePoints_.end(),dataPointTimeComparator);
+	
 	modeller.InitialiseModel();
 	return modeller.GetModellingModeGuidePoints();
 }
@@ -539,9 +542,77 @@ std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& b
 	return temp;
 }
 
-Plane InterpolateBasePlane(const std::vector<DataPoint>& basePlanePoints, int frame)
+Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plane>& planes, int frame)
 {
+	std::map<int, Plane>::const_iterator itr = planes.begin();
 	
+	
+	int prevFrame = 0;
+	Plane prevPlane;
+	while (itr->first < frame && itr != planes.end())
+	{
+		prevFrame = itr->first;
+		prevPlane = itr->second;
+		itr++;
+	}
+	if (itr->first == frame) // Key frame, no interpolation needed
+	{
+		return itr->second;
+	}
+	
+	// Handle edge cases where prevFrame > nextFrame (i.e interpolation occurs around the end point)
+	int nextFrame;
+	Plane nextPlane;
+	int maxFrame = heartModel_.GetNumberOfModelFrames();
+	if (itr == planes.end())
+	{
+		nextFrame = planes.begin()->first + maxFrame;
+		nextPlane = planes.begin()->second;
+	}
+	else 
+	{
+		nextFrame = itr->first;
+		nextPlane = itr->second;
+	}
+	
+	if (itr == planes.begin())
+	{
+		std::map<int, Plane>::const_iterator last = planes.end();
+		last--;
+		prevFrame = last->first - maxFrame;
+		prevPlane = last->second;
+	}
+	
+	Plane plane;
+	float coefficient = (float)(frame - prevFrame)/(nextFrame - prevFrame);
+	
+	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
+	
+	plane.position = prevPlane.position + coefficient * (nextPlane.position - prevPlane.position);
+	
+	return plane;
+}
+
+Plane CAPModellingModeGuidePoints::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis)
+{
+	// TODO implement cases where there are more than 2 points 
+	Vector3D temp1 = basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate();
+	temp1.Normalise();
+	
+	Vector3D temp2 = CrossProduct(temp1, xAxis);
+	
+	Plane plane;
+	plane.normal = CrossProduct(temp1, temp2);
+	plane.normal.Normalise();
+	
+	plane.position = basePlanePoints[0].GetCoordinate() + (0.5 * (basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate()));
+	
+	// make sure plane normal is always pointing toward the apex
+	if (DotProduct(plane.normal, xAxis) < 0)
+	{
+		plane.normal *= -1; 
+	}
+	return plane;
 }
 
 void CAPModellingModeGuidePoints::InitialiseModel(
@@ -577,23 +648,48 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	Point3D origin = base.GetCoordinate() + 1/3 * (base.GetCoordinate() - apex.GetCoordinate());
 	
 	// TODO properly Compute FocalLength
-	float focalLength = (apex.GetCoordinate() - base.GetCoordinate()).Length(); // FIX
+	float lengthFromApexToBase = (apex.GetCoordinate() - base.GetCoordinate()).Length();
+	float focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
+	std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
 	heartModel_.SetFocalLengh(focalLength);
+	
+	// Construct base planes from the base plane points
+	int numberOfModelFrames = heartModel_.GetNumberOfModelFrames();
+	
+	std::map<int, Plane> planes; // value_type = (frame, plane) pair
+	std::vector<DataPoint>::const_iterator itrSrc = basePlanePoints.begin(); 
+	for (int i = 0; i<numberOfModelFrames && itrSrc!=basePlanePoints.end() ; i++)
+	{
+		float timeOfNextFrame = (float)(i+1)/numberOfModelFrames;
+		std::vector<DataPoint> basePlanePointsInOneFrame;
+		for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
+		{
+			basePlanePointsInOneFrame.push_back(*itrSrc);
+		}
+
+		// Fit plane to the points
+		Plane plane = FitPlaneToBasePlanePoints(basePlanePointsInOneFrame, xAxis);
+		planes.insert(std::make_pair(i, plane));
+	}
 	
 	// Set initial model parameters lambda, mu and theta
 	// initial values for lambda come from the prior
 	// theta is 1/4pi apart)
 	// mu is equally spaced up to the base plane
 	
-	int numberOfModelFrames = heartModel_.GetNumberOfModelFrames();
 	for(int i = 0; i < numberOfModelFrames; i++)
 	{
 		heartModel_.SetTheta(i);
-		const Plane& plane = InterpolateBasePlane(basePlanePoints, i);
+		const Plane& plane = InterpolateBasePlane(planes, i);
 		heartModel_.SetMuFromBasePlanesForFrame(plane, i);
-		//heartModel_.SetLambdaForFrame(lambdaParams, i);
+		//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 	}
 	
+	return;
+}
+
+void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
+{
 	//Initialise bezier global params for each model
 	for (int i=0; i<134;i++)
 	{
@@ -621,6 +717,4 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 //		std::cout << "vectorOfDataPoints_["<< i << "] : " << vectorOfDataPoints_[i].size() << '\n';
 //	}
 //#endif
-	
-	return;
 }

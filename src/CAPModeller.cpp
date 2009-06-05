@@ -81,17 +81,18 @@ CAPModellingModeGuidePoints* CAPModeller::GetModellingModeGuidePoints()
 
 void CAPModeller::InitialiseModel()
 {
-//	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-//	if (gpMode)
-//	{
-//		gpMode->InitialiseModel();
-//	}
-	const DataPoint& apex = modellingModeApex_.GetApex();
-	const DataPoint& base = modellingModeBase_.GetBase();
-	const std::map<Cmiss_node*, DataPoint>& rvInsert = modellingModeRV_.GetRVInsertPoints();
-	const std::vector<DataPoint>& basePlanePoints = modellingModeBasePlane_.GetBasePlanePoints(); 
+	CAPModellingModeBasePlane* gpMode = dynamic_cast<CAPModellingModeBasePlane*>(currentModellingMode_); //REVISE
+	if (gpMode)
+	{
+		const DataPoint& apex = modellingModeApex_.GetApex();
+		const DataPoint& base = modellingModeBase_.GetBase();
+		const std::map<Cmiss_node*, DataPoint>& rvInsert = modellingModeRV_.GetRVInsertPoints();
+		const std::vector<DataPoint>& basePlanePoints = modellingModeBasePlane_.GetBasePlanePoints(); 
 	
-	modellingModeGuidePoints_.InitialiseModel(apex, base, rvInsert, basePlanePoints);
+		modellingModeGuidePoints_.InitialiseModel(apex, base, rvInsert, basePlanePoints);
+	}
+	
+	modellingModeGuidePoints_.InitialiseModelLambdaParams();
 }
 
 void CAPModeller::UpdateTimeVaryingModel()

@@ -91,4 +91,13 @@ private:
 	
 	int surfaceType_;
 };
+
+struct DataPointTimeComparator // used for sorting DataPoints with respect to time
+{
+	bool operator() (const DataPoint& i, const DataPoint& j) 
+	{
+		return (i.GetTime()<j.GetTime());
+	}
+};
+
 #endif /* DATAPOINT_H_ */
