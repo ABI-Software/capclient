@@ -469,13 +469,15 @@ const std::vector<float> GetLambda(int frame)
 
 void CAPModelLVPS4X4::SetMuFromBasePlanesForFrame(const Plane& basePlane, int frameNumber)
 {
+	// find mu on the base plane
 	
+	// compute mu at other nodes
 }
 	
 void CAPModelLVPS4X4::SetTheta(int frame)
 {
 	float time = (float)frame / GetNumberOfModelFrames();
-	FE_value thetas[4] = { 0, M_PI/4, M_PI/2, M_PI * 3/4};
+	FE_value thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
 	
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{	

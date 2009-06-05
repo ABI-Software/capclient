@@ -125,6 +125,8 @@ public:
 			const std::map<Cmiss_node*, DataPoint>& rvInserts,
 			const std::vector<DataPoint>& basePlanePoints);
 	
+	void InitialiseModelLambdaParams();
+	
 	void ReadModelFromFile(std::string& filename);
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
 	void UpdateTimeVaryingModel();
@@ -132,6 +134,10 @@ public:
 	
 private:
 	void FitModel(DataPoints& dataPoints, int frameNumber);
+	
+	Plane InterpolateBasePlane(const std::map<int, Plane>& planes, int frame);
+	
+	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis);
 	
 	std::vector<float> ConvertToHermite(const Vector&);
 	
