@@ -529,7 +529,8 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		{
 			//Error
 		}
-		
+
+//#ifdef CIM_ALGO
 		Point3D point(x,y,z);
 		
 		double initial = DotProduct(normal, point - position);
@@ -571,7 +572,30 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 	    	cartesian_to_prolate_spheroidal( interpoint.x,interpoint. y,interpoint. z, focalLength_, &lambda,&mu[i],&theta,0);
 
 	    }
+	    
+	    std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
+//#endif
+	    
+#ifdef MY_ALGO
+	    double a = normal.x;
+	    double b = normal.y;
+	    double c = normal.z;
+	    double d = DotProduct(normal, position - Point3D(0,0,0));
+	    
+	    double c1 = focalLength_ * std::sinh(lambda) * std::cos(theta);
+	    double c2 = focalLength_ * std::sinh(lambda) * std::sin(theta);
+	    double c3 = focalLength_ * std::cosh(lambda);
+	    
+	    double alpha = a*c1 + b*c2;
+	    double beta = c*c3;
+	    double gamma = d;
+	    
+	    mu[i] = SolveASinXPlusBCosXIsEqualToC(alpha, beta, gamma);
 
+	    std::cout << " :My_way = " << mu[i];
+#endif 
+	    
+	    std::cout << std::endl ;
 	    struct FE_field *fe_field;
 	    Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 
