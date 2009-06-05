@@ -490,7 +490,7 @@ const std::vector<float> GetLambda(int frame)
 	}
 }
 
-void CAPModelLVPS4X4::SetMuFromBasePlanesForFrame(const Plane& basePlane, int frameNumber)
+void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
 {
 	float time = static_cast<float>(frameNumber)/numberOfModelFrames_;
 	const Vector3D& normal = TransformToLocalCoordinateRC(basePlane.normal);

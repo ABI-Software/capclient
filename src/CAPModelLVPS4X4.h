@@ -47,7 +47,7 @@ public:
 	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
 	void SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
 	
-	void SetMuFromBasePlanesForFrame(const Plane& basePlane, int frameNumber);
+	void SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber);
 	
 	void SetTheta(int frameNumber);
 	
