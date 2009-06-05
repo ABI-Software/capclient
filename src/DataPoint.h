@@ -92,7 +92,7 @@ private:
 	int surfaceType_;
 };
 
-struct DataPointTimeComparator // used for sorting DataPoints with respect to time
+struct DataPointTimeLessThan // used for sorting DataPoints with respect to time
 {
 	bool operator() (const DataPoint& i, const DataPoint& j) 
 	{
@@ -100,4 +100,19 @@ struct DataPointTimeComparator // used for sorting DataPoints with respect to ti
 	}
 };
 
+class DataPointCmissNodeEqualTo
+{
+public:
+	DataPointCmissNodeEqualTo(const Cmiss_node* id)
+	: id_(id)
+	{}
+	
+	bool operator() (const DataPoint& point)
+	{
+		return (id_ == point.GetCmissNode());
+	}
+	
+private:
+	const Cmiss_node* id_;
+};
 #endif /* DATAPOINT_H_ */

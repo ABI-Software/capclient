@@ -511,7 +511,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 
 #endif //NODE_CREATION
 	
-	modeller_.InitialiseModel();//REVISE
+//	modeller_.InitialiseModel();//REVISE
 	
 	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;

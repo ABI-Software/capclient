@@ -477,7 +477,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlanesForFrame(const Plane& basePlane, int fr
 void CAPModelLVPS4X4::SetTheta(int frame)
 {
 	float time = (float)frame / GetNumberOfModelFrames();
-	FE_value thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
+	const FE_value thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
 	
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{	
@@ -501,7 +501,7 @@ void CAPModelLVPS4X4::SetTheta(int frame)
 		const int version = 0;
 		const int component_number = 2; //THETA
 		
-		FE_value value = thetas[i%4];
+		FE_value value = thetas[(i-1)%4];
 		set_FE_nodal_FE_value_value(node,
 			 fe_field, component_number,
 			 version,
