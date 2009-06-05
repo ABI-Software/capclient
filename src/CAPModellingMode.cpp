@@ -174,8 +174,8 @@ const std::map<Cmiss_node*, DataPoint>& CAPModellingModeRV::GetRVInsertPoints() 
 
 CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 {
-	DataPointTimeComparator dataPointTimeComparator; // need real lambda functions !
-	std::sort(basePlanePoints_.begin(),basePlanePoints_.end(),dataPointTimeComparator);
+	DataPointTimeLessThan lessThan; // need real lambda functions !
+	std::sort(basePlanePoints_.begin(),basePlanePoints_.end(),lessThan);
 	
 	modeller.InitialiseModel();
 	return modeller.GetModellingModeGuidePoints();
@@ -183,17 +183,25 @@ CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 
 void CAPModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
 {
-	
+	basePlanePoints_.push_back(dataPoint);
 }
 
 void CAPModellingModeBasePlane::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
+	DataPointCmissNodeEqualTo equalTo(dataPointID);
+	std::vector<DataPoint>::iterator itr = std::find_if(basePlanePoints_.begin(), basePlanePoints_.end(), equalTo);
+	assert(itr != basePlanePoints_.end());
 	
+	itr->SetCoordinate(coord);
 }
 
 void CAPModellingModeBasePlane::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 {
+	DataPointCmissNodeEqualTo equalTo(dataPointID);
+	std::vector<DataPoint>::iterator itr = std::find_if(basePlanePoints_.begin(), basePlanePoints_.end(), equalTo);
+	assert(itr != basePlanePoints_.end());
 	
+	basePlanePoints_.erase(itr);
 }
 
 const std::vector<DataPoint>& CAPModellingModeBasePlane::GetBasePlanePoints() const
@@ -544,6 +552,7 @@ std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& b
 
 Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plane>& planes, int frame)
 {
+	assert(!planes.empty());
 	std::map<int, Plane>::const_iterator itr = planes.begin();
 	
 	
@@ -577,8 +586,7 @@ Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plan
 	
 	if (itr == planes.begin())
 	{
-		std::map<int, Plane>::const_iterator last = planes.end();
-		last--;
+		std::map<int, Plane>::const_reverse_iterator last = planes.rbegin();
 		prevFrame = last->first - maxFrame;
 		prevPlane = last->second;
 	}
@@ -657,19 +665,20 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	int numberOfModelFrames = heartModel_.GetNumberOfModelFrames();
 	
 	std::map<int, Plane> planes; // value_type = (frame, plane) pair
-	std::vector<DataPoint>::const_iterator itrSrc = basePlanePoints.begin(); 
-	for (int i = 0; i<numberOfModelFrames && itrSrc!=basePlanePoints.end() ; i++)
+	std::vector<DataPoint>::const_iterator itrSrc = basePlanePoints.begin();
+
+	while ( itrSrc!=basePlanePoints.end())
 	{
-		float timeOfNextFrame = (float)(i+1)/numberOfModelFrames;
+		int frameNumber = heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
+		float timeOfNextFrame = (float)(frameNumber+1)/numberOfModelFrames;
 		std::vector<DataPoint> basePlanePointsInOneFrame;
 		for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 		{
 			basePlanePointsInOneFrame.push_back(*itrSrc);
 		}
-
 		// Fit plane to the points
 		Plane plane = FitPlaneToBasePlanePoints(basePlanePointsInOneFrame, xAxis);
-		planes.insert(std::make_pair(i, plane));
+		planes.insert(std::make_pair(frameNumber, plane));
 	}
 	
 	// Set initial model parameters lambda, mu and theta
@@ -681,7 +690,7 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	{
 		heartModel_.SetTheta(i);
 		const Plane& plane = InterpolateBasePlane(planes, i);
-		heartModel_.SetMuFromBasePlanesForFrame(plane, i);
+//		heartModel_.SetMuFromBasePlanesForFrame(plane, i);
 		//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 	}
 	
