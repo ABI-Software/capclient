@@ -13,6 +13,7 @@
 
 struct Scene_object;
 class Point3D;
+class Vector3D;
 class Plane;
 
 class CAPModelLVPS4X4
@@ -55,7 +56,7 @@ public:
 //	double CalculateVolume();
 //	double CalculateMass();
 	
-	int SetLocalToGlobalTransformation(const gtMatrix& transform);
+	void SetLocalToGlobalTransformation(const gtMatrix& transform);
 	
 	const gtMatrix& GetLocalToGlobalTransformation() const
 	{
@@ -72,6 +73,8 @@ public:
 	Point3D TransformToProlateSheroidal(const Point3D& rc) const;
 	
 	Point3D TransformToLocalCoordinateRC(const Point3D& global) const;
+	
+	Vector3D TransformToLocalCoordinateRC(const Vector3D& global) const;
 	
 	float GetFocalLength() const
 	{
@@ -116,7 +119,7 @@ private:
 	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model
 	
 	class HeartModelImpl;
-	HeartModelImpl* pImpl_; // TODO use PIMPL to hide Cmgui related implementation details (region, scene object , etc)
+	HeartModelImpl* pImpl_; // use PIMPL to hide Cmgui related implementation details (region, scene object , etc)
 	
 	// Non copyable
 	CAPModelLVPS4X4(const CAPModelLVPS4X4& rhs);
