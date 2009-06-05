@@ -966,6 +966,15 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 {
 	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 	std::cout << "MODE = " << choice->GetStringSelection() << endl;
+	
+//	if (modeller_.ChangeMode(choice->GetStringSelection()))
+//	{
+//		TODO
+//	}
+//	else
+//	{
+//		// Error invalid mode transition
+//	}
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)

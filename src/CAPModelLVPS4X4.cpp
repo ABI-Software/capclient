@@ -236,6 +236,19 @@ void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
 	return;
 }
 
+void CAPModelLVPS4X4::SetLocalToGlobalTransformation(const gtMatrix& transform)
+{
+	for (int i = 0; i<4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			patientToGlobalTransform_[i][j] = transform[i][j];//REVISE use a wrapper class
+		}
+	}
+	
+	Scene_object_set_transformation(modelSceneObject_, &patientToGlobalTransform_);
+}
+
 void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 {
 	if (mode == CAPModelLVPS4X4::WIREFRAME)
@@ -324,6 +337,16 @@ Point3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Point3D& global) con
 	transposeMatrix(mInv);// gtMatrix is column Major and our matrix functions assume row major FIX
 	
 	return mInv * global; // hopefully RVO will kick in
+}
+
+Vector3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Vector3D& global) const
+{
+	// FIX inefficient to compute mInv every time
+	gtMatrix mInv;
+	inverseMatrix(patientToGlobalTransform_, mInv);
+	transposeMatrix(mInv);// gtMatrix is column Major and our matrix functions assume row major FIX
+	
+	return mInv * global; // Vector transformation - doesn't include translation
 }
 
 Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
@@ -463,15 +486,143 @@ const std::vector<float> GetLambda(int frame)
 	std::vector<float> lambdas;
 	for (int i=0; i < 134; i++)
 	{
-		//TODO we need to get Bezier coefficients. Cmgui only has Hermite. What do we do?
+		//TODO we need to get Bezier coefficients. Cmgui only has Hermite.
 	}
 }
 
 void CAPModelLVPS4X4::SetMuFromBasePlanesForFrame(const Plane& basePlane, int frameNumber)
 {
-	// find mu on the base plane
+	float time = static_cast<float>(frameNumber)/numberOfModelFrames_;
+	const Vector3D& normal = TransformToLocalCoordinateRC(basePlane.normal);
+	const Point3D& position = TransformToLocalCoordinateRC(basePlane.position);
+	const int numberOfComponents = 3; // lambda, mu and theta
 	
-	// compute mu at other nodes
+	//Epi
+	
+	float mu[4];
+	for (int i=0;i<4;i++)
+	{
+		
+		FE_region* fe_region;
+		struct FE_node *node;
+		if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
+		{
+			node = ACCESS(FE_node)(FE_region_get_FE_node_from_identifier(fe_region, i+1));
+			if (!node)
+			{
+				//error!
+				cout << "Error: no such node: " << i << endl;
+			}
+		}
+		
+		float values[3];
+		if (!Cmiss_field_evaluate_at_node(pImpl_->field, node,time,numberOfComponents , values))
+		{
+			//Error
+		}
+		float lambda = values[0];
+		float theta = values[2];
+		mu[i] = values[1] = 0.0;
+		
+		float x, y, z;
+		if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (float*)0))
+		{
+			//Error
+		}
+		
+		Point3D point(x,y,z);
+		
+		double initial = DotProduct(normal, point - position);
+
+	    //do while on the same side and less than pi
+	    do
+	    {
+			mu[i] += M_PI/180.0;  //one degree increments
+			if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z,0))
+			{
+			//Error
+			}
+			
+			point = Point3D(x,y,z);
+	    }
+	    while((initial*DotProduct(normal, point - position) > 0.0) && (mu[i] < M_PI));
+	    
+	    //aay added linear interpolation here 20 Oct 2001
+//	    lastpoint = CimRectToProlate::backward(focalLength, modelParams[2](i),
+//	      modelParams[1](i)-M_PI/180.0, modelParams[0](4*i));
+	    
+	    if (!prolate_spheroidal_to_cartesian(lambda, mu[i] - M_PI/180.0, theta, focalLength_, &x, &y, &z,0))
+		{
+		//Error
+		}
+	    Point3D lastpoint(x,y,z);
+	    
+	    double z1 = DotProduct(normal, lastpoint-position);
+	    double z2 = DotProduct(normal, point-position);
+	    if((z1*z2) < 0.0) 
+	    {
+	    	double zdiff = z2-z1;
+	    	double s;
+	    	if(fabs(zdiff)<1.0e-05) s=0.5;
+	    	else s = (-z1)/zdiff;
+	    	//printf ("epi:  s = %10.7f\n", s);
+	    	Point3D interpoint = lastpoint + s*(point-lastpoint);
+
+	    	cartesian_to_prolate_spheroidal( interpoint.x,interpoint. y,interpoint. z, focalLength_, &lambda,&mu[i],&theta,0);
+
+	    }
+
+	    struct FE_field *fe_field;
+	    Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
+
+	    const FE_nodal_value_type type = FE_NODAL_VALUE;
+	    const int version = 0;
+	    const int component_number = 2; //THETA
+
+	    FE_value value = mu[i];
+	    set_FE_nodal_FE_value_value(node,
+	    		fe_field, component_number,
+	    		version,
+	    		type, time, value);
+
+	    DEACCESS(FE_node)(&node);
+	  } // i
+	  
+	  for (int j=1;j<5;j++)
+	  {
+	    for (int i=0;i<4;i++)
+	    {
+	      //modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
+	    	float value = mu[i]/4.0 * (4.0- (double)j);
+	    	
+	    	FE_region* fe_region;
+			struct FE_node *node;
+			if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
+			{
+				node = ACCESS(FE_node)(FE_region_get_FE_node_from_identifier(fe_region, (j*4) + i+1));
+				if (!node)
+				{
+					//error!
+					cout << "Error: no such node: " << i << endl;
+				}
+			}
+			struct FE_field *fe_field;
+			Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
+
+			const FE_nodal_value_type type = FE_NODAL_VALUE;
+			const int version = 0;
+			const int component_number = 1; //MU
+			
+			set_FE_nodal_FE_value_value(node,
+				 fe_field, component_number,
+				 version,
+				 type, time, value);
+			
+			DEACCESS(FE_node)(&node);
+	    }
+	  }
+
+	  return;
 }
 	
 void CAPModelLVPS4X4::SetTheta(int frame)
