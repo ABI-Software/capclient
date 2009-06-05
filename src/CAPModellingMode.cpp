@@ -690,7 +690,7 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	{
 		heartModel_.SetTheta(i);
 		const Plane& plane = InterpolateBasePlane(planes, i);
-//		heartModel_.SetMuFromBasePlanesForFrame(plane, i);
+		heartModel_.SetMuFromBasePlaneForFrame(plane, i);
 		//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 	}
 	
