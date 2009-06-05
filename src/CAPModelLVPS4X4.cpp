@@ -577,7 +577,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 
 	    const FE_nodal_value_type type = FE_NODAL_VALUE;
 	    const int version = 0;
-	    const int component_number = 2; //THETA
+	    const int component_number = 1; //MU
 
 	    FE_value value = mu[i];
 	    set_FE_nodal_FE_value_value(node,
