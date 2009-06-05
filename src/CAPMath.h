@@ -194,9 +194,9 @@ inline Vector3D operator*(const gtMatrix& m, const Vector3D& v) // no translatio
 {
 	Vector3D r;
 
-	r.x = ( m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] );
-	r.y = ( m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] );
-	r.z = ( m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] );
+	r.x = ( m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z);// + m[0][3] );
+	r.y = ( m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z);// + m[1][3] );
+	r.z = ( m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z);// + m[2][3] );
 
 	return r;
 }
@@ -400,5 +400,51 @@ struct Plane
 	Vector3D normal;
 	Point3D position;
 };
+
+inline
+float SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
+{
+	// This solves a sin(x) + b cos(x) = c for 0 < x < 180;
+	
+	// use the fact the eqn is equivalent to
+	// C cos(x - y) = c
+	// where
+	double C = std::sqrt(a*a + b*b);
+//	std::cout << "C = " << C << std::endl;
+	
+	double y = std::atan(a/b);
+//	std::cout << "y = " << y << std::endl;
+	
+	double xMinusY = std::acos(c / C);
+//	std::cout << "xMinusY = " << xMinusY << std::endl;
+	
+	double x = xMinusY + y;
+	while (x < 0)
+	{
+		x += 2.0 * M_PI;
+	}
+	while (x > 2.0 * M_PI)
+	{
+		x -= 2.0 * M_PI;
+	}
+	
+	if ( x < M_PI )
+	{
+		return x;
+	}
+
+	// try the other solution
+	x = (-xMinusY) + y;
+
+	while (x < 0)
+	{
+		x += 2.0 * M_PI;
+	}
+	while (x > 2.0 * M_PI)
+	{
+		x -= 2.0 * M_PI;
+	}
+	return x;
+}
 
 #endif /* CAPMATH_H_ */

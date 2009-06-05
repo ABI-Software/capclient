@@ -113,3 +113,22 @@ TEST(ComputeVolumeOfTetrahedronTest, Volume)
 	d.z = -2.7f;
 	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2.7);
 }
+
+TEST(MathFunctionTest, SolveASinXPlusBCosXIsEqualToC)
+{
+	double a = 12;
+	double b = 5;
+	double c = 4;
+	
+	float x = SolveASinXPlusBCosXIsEqualToC(a,b,c);
+	float expected = 139.460 / 180.0 * M_PI;
+	EXPECT_NEAR(x, expected, 0.00001);
+	
+	x = SolveASinXPlusBCosXIsEqualToC(10,10,10);
+	expected = M_PI_2;
+	EXPECT_NEAR(x, expected, 0.00001);
+	
+	x = SolveASinXPlusBCosXIsEqualToC(3,4,1.45099728905505);
+	expected = 110.0 / 180.0 * M_PI;
+	EXPECT_NEAR(x, expected, 0.00001);
+}
