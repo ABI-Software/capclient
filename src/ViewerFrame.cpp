@@ -348,39 +348,6 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		selectedNode = NULL;
 	}
 	
-//	if (input->type ==GRAPHICS_BUFFER_BUTTON_RELEASE
-//			&& input->input_modifier==GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT)
-//	{
-//		cout << "input->input_modifier==" << input->input_modifier << endl;
-//	}
-
-//	//Get intersection point
-//	double node_coordinates[3];
-//	double x = (double)(input->position_x);
-//	double y = (double)(input->position_y);
-//	
-//	Cmiss_field_id nearest_element_coordinate_field;
-//	FE_element* element = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &nearest_element_coordinate_field);
-//	
-//	//Create a node 
-//	if (element)
-//	{		
-//		Cmiss_region* region = Cmiss_element_get_region(element); // this doenst work with groups
-//		if (!region)
-//		{
-//			cout << "input_callback: Can't get region from element" << endl;
-//		}
-//		cout << "region = " << Cmiss_region_get_path(region) << endl;
-//		
-//		Point3D coords(node_coordinates[0], node_coordinates[1], node_coordinates[2]);
-//		cout << "debug: intersection point = " << coords <<  endl;
-//				
-//		if (Cmiss_node_id node = Cmiss_create_data_point_at_coord(region, nearest_element_coordinate_field, (float*)&coords))
-//		{
-//			frame->AddDataPoint(new DataPoint(node,coords));
-//		}
-//	}	
-	
 	return 0; // returning false means don't call the other input handlers;
 }
 

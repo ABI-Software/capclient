@@ -596,6 +596,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 #endif 
 	    
 	    std::cout << std::endl ;
+	    
 	    struct FE_field *fe_field;
 	    Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 
