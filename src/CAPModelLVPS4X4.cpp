@@ -703,9 +703,19 @@ float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
 
 int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 {
+	//edge cases
+	if (time < 0)
+	{
+		time = 0;
+	}
+	else if (time > 1)
+	{
+		time = 1.0; //REVISE
+	}
+	
 	float frameDuration = (float) 1.0 / numberOfModelFrames_;
 	
-	return time / frameDuration;
+	return std::min(static_cast<int>(time / frameDuration), numberOfModelFrames_);
 }
 
 float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)

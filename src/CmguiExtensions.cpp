@@ -230,6 +230,125 @@ DESCRIPTION :
 }
 
 #include "computed_field/computed_field_finite_element.h"
+
+Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, 
+		struct FE_region* fe_region, struct FE_field *fe_field, float time)
+{
+
+	struct FE_node_field_creator *node_field_creator2;
+	
+	if (node_field_creator2 = CREATE(FE_node_field_creator)(
+		/*number_of_components*/1))
+	{
+		struct FE_time_sequence *fe_time_sequence;
+		//FE_value times[] = {0.0f, 0,5, 0.7, 1.0};
+		float halfTime = 1.0f/28.0f;
+		float startTime = time - halfTime; 
+		float endTime = time + halfTime;
+		FE_value times[5];
+		FE_value values[5];
+		int numberOfTimes;
+		
+		//Handle edge cases
+		if (time == 0.0)
+		{
+			times[0] = 0.0f;
+			times[1] = endTime;
+			times[2] = 1.0f;
+			values[0] = 2;
+			values[1] = 1;
+			values[2] = 0;
+			numberOfTimes = 3;
+		}
+		else if (time == 1.0)
+		{
+			times[0] = 0.0f;
+			times[1] = startTime;
+			times[2] = time;
+			values[0] = 0;
+			values[1] = 1;
+			values[2] = 2;
+			numberOfTimes = 3;
+		}
+		else if (startTime < 0.0)
+		{
+			times[0] = 0.0f;
+			times[1] = time;
+			times[2] = endTime;
+			times[3] = 1.0f;
+			values[0] = 1;
+			values[1] = 2;
+			values[2] = 1;
+			values[3] = 0;
+			numberOfTimes = 4;
+		}
+		else if (endTime > 1.0)
+		{
+			times[0] = 0.0f;
+			times[1] = startTime;
+			times[2] = time;
+			times[3] = endTime;
+			values[0] = 0;
+			values[1] = 1;
+			values[2] = 2;
+			values[3] = 1;
+			numberOfTimes = 4;
+		}
+		else
+		{
+			times[0] = 0.0f;
+			times[1] = startTime;
+			times[2] = time;
+			times[3] = endTime;
+			times[4] = 1.0f;
+			values[0] = 0;
+			values[1] = 1;
+			values[2] = 2;
+			values[3] = 1;
+			values[4] = 0;
+			numberOfTimes = 5;
+		}
+		
+		if (!(fe_time_sequence = FE_region_get_FE_time_sequence_matching_series(
+								fe_region, numberOfTimes, times)))
+		{
+			//Error
+			std::cout << "Error: " << __func__ << " can't get time_sequence" << std::endl;
+		}
+		
+		if (define_FE_field_at_node(node,fe_field,
+			/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
+			node_field_creator2))
+		{
+			float one = 1, zero = 0 ,two = 2; //visibility_field > 1 => true
+//			Cmiss_field_set_values_at_node( visibilityField, node, 0 , 1 , &zero);
+//			Cmiss_field_set_values_at_node( visibilityField, node, 1 , 1 , &zero);
+//			float halfTime = 1.0f/28.0f;
+//			float startTime = (time - halfTime) >= 0 ? (time - halfTime) : (time - halfTime +1); 
+//			Cmiss_field_set_values_at_node( visibilityField, node, startTime , 1 , &zero);
+//			float endTime = (time + halfTime) < 1 ? (time + halfTime) : (time + halfTime - 1); 
+//			Cmiss_field_set_values_at_node( visibilityField, node, time + halfTime , 1 , &zero);
+//			Cmiss_field_set_values_at_node( visibilityField, node, time , 1 , &zero);
+//	
+//			Cmiss_field_set_values_at_node( visibilityField, node, 0.25 , 1 , &zero);
+//			Cmiss_field_set_values_at_node( visibilityField, node, 0.75 , 1 , &zero);
+//			Cmiss_field_set_values_at_node( visibilityField, node, 0.5 , 1 , &one);
+//			Cmiss_field_set_values_at_node( visibilityField, node, 0.7 , 1 , &one);
+
+			int number_of_values;
+
+			for (int i = 0; i < numberOfTimes; ++i)
+			{									 													
+				set_FE_nodal_field_FE_values_at_time(fe_field,
+				 node, &(values[i]) , &number_of_values, times[i]);
+			}
+	
+			return node;
+		}
+	}
+
+	return 0;
+}
 Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords, float time)
 {	
 	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
@@ -291,120 +410,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 											fe_field_list)) && (1 == get_FE_field_number_of_components(
 											fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
 										{
-											struct FE_node_field_creator *node_field_creator2;
-											
-											if (node_field_creator2 = CREATE(FE_node_field_creator)(
-												/*number_of_components*/1))
-											{
-												struct FE_time_sequence *fe_time_sequence;
-												//FE_value times[] = {0.0f, 0,5, 0.7, 1.0};
-												float halfTime = 1.0f/28.0f;
-												float startTime = time - halfTime; 
-												float endTime = time + halfTime;
-												FE_value times[5];
-												FE_value values[5];
-												int numberOfTimes;
-												
-												if (time == 0.0)
-												{
-													times[0] = 0.0f;
-													times[1] = endTime;
-													times[2] = 1.0f;
-													values[0] = 2;
-													values[1] = 1;
-													values[2] = 0;
-													numberOfTimes = 3;
-												}
-												else if (time == 1.0)
-												{
-													times[0] = 0.0f;
-													times[1] = startTime;
-													times[2] = time;
-													values[0] = 0;
-													values[1] = 1;
-													values[2] = 2;
-													numberOfTimes = 3;
-												}
-												else if (startTime < 0.0)
-												{
-													times[0] = 0.0f;
-													times[1] = time;
-													times[2] = endTime;
-													times[3] = 1.0f;
-													values[0] = 1;
-													values[1] = 2;
-													values[2] = 1;
-													values[3] = 0;
-													numberOfTimes = 4;
-												}
-												else if (endTime > 1.0)
-												{
-													times[0] = 0.0f;
-													times[1] = startTime;
-													times[2] = time;
-													times[3] = endTime;
-													values[0] = 0;
-													values[1] = 1;
-													values[2] = 2;
-													values[3] = 1;
-													numberOfTimes = 4;
-												}
-												else
-												{
-													times[0] = 0.0f;
-													times[1] = startTime;
-													times[2] = time;
-													times[3] = endTime;
-													times[4] = 1.0f;
-													values[0] = 0;
-													values[1] = 1;
-													values[2] = 2;
-													values[3] = 1;
-													values[4] = 0;
-													numberOfTimes = 5;
-												}
-												
-												if (!(fe_time_sequence = FE_region_get_FE_time_sequence_matching_series(
-																		fe_region, numberOfTimes, times)))
-												{
-													//Error
-													std::cout << "Error: " << __func__ << " can't get time_sequence" << std::endl;
-												}
-												
-												if (define_FE_field_at_node(node,fe_field,
-													/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
-													node_field_creator2))
-												{
-													float one = 1, zero = 0 ,two = 2; //visibility_field > 1 => true
-//													Cmiss_field_set_values_at_node( visibilityField, node, 0 , 1 , &zero);
-//													Cmiss_field_set_values_at_node( visibilityField, node, 1 , 1 , &zero);
-//													float halfTime = 1.0f/28.0f;
-////													float startTime = (time - halfTime) >= 0 ? (time - halfTime) : (time - halfTime +1); 
-////													Cmiss_field_set_values_at_node( visibilityField, node, startTime , 1 , &zero);
-////													float endTime = (time + halfTime) < 1 ? (time + halfTime) : (time + halfTime - 1); 
-////													Cmiss_field_set_values_at_node( visibilityField, node, time + halfTime , 1 , &zero);
-////													Cmiss_field_set_values_at_node( visibilityField, node, time , 1 , &zero);
-//											
-//													Cmiss_field_set_values_at_node( visibilityField, node, 0.25 , 1 , &zero);
-//													Cmiss_field_set_values_at_node( visibilityField, node, 0.75 , 1 , &zero);
-//													Cmiss_field_set_values_at_node( visibilityField, node, 0.5 , 1 , &one);
-//													Cmiss_field_set_values_at_node( visibilityField, node, 0.7 , 1 , &one);
-//													
-//													int set_FE_nodal_field_FE_values_at_time(struct FE_field *field,
-//														struct FE_node *node,FE_value *values,int *number_of_values,
-//														FE_value time);
-													
-													int number_of_values;
-
-													for (int i = 0; i < numberOfTimes; ++i)
-													{									 													
-														set_FE_nodal_field_FE_values_at_time(fe_field,
-														 node, &(values[i]) , &number_of_values, times[i]);
-													}
-											
-													return node;
-												}
-											}
+											return Cmiss_node_set_visibility_field( node, fe_region, fe_field, time);
 										}
 									}
 								}
