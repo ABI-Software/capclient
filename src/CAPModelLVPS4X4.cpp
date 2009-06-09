@@ -502,7 +502,6 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 	float mu[4];
 	for (int i=0;i<4;i++)
 	{
-		
 		FE_region* fe_region;
 		struct FE_node *node;
 		if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
@@ -532,95 +531,85 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 
 //#ifdef CIM_ALGO
 		Point3D point(x,y,z);
-		
 		double initial = DotProduct(normal, point - position);
-
-	    //do while on the same side and less than pi
-	    do
-	    {
+		//do while on the same side and less than pi
+		do
+		{
 			mu[i] += M_PI/180.0;  //one degree increments
 			if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z,0))
 			{
 			//Error
-			}
-			
+			}		
 			point = Point3D(x,y,z);
-	    }
-	    while((initial*DotProduct(normal, point - position) > 0.0) && (mu[i] < M_PI));
-	    
-	    //aay added linear interpolation here 20 Oct 2001
-//	    lastpoint = CimRectToProlate::backward(focalLength, modelParams[2](i),
-//	      modelParams[1](i)-M_PI/180.0, modelParams[0](4*i));
-	    
-	    if (!prolate_spheroidal_to_cartesian(lambda, mu[i] - M_PI/180.0, theta, focalLength_, &x, &y, &z,0))
-		{
-		//Error
 		}
-	    Point3D lastpoint(x,y,z);
+		while((initial*DotProduct(normal, point - position) > 0.0) && (mu[i] < M_PI));
+		
+		if (!prolate_spheroidal_to_cartesian(lambda, mu[i] - M_PI/180.0, theta, focalLength_, &x, &y, &z,0))
+		{
+			//Error
+		}
+		Point3D lastpoint(x,y,z);
 	    
-	    double z1 = DotProduct(normal, lastpoint-position);
-	    double z2 = DotProduct(normal, point-position);
-	    if((z1*z2) < 0.0) 
-	    {
-	    	double zdiff = z2-z1;
-	    	double s;
-	    	if(fabs(zdiff)<1.0e-05) s=0.5;
-	    	else s = (-z1)/zdiff;
-	    	//printf ("epi:  s = %10.7f\n", s);
-	    	Point3D interpoint = lastpoint + s*(point-lastpoint);
-
-	    	cartesian_to_prolate_spheroidal( interpoint.x,interpoint. y,interpoint. z, focalLength_, &lambda,&mu[i],&theta,0);
-
-	    }
-	    
-	    std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
+		double z1 = DotProduct(normal, lastpoint-position);
+		double z2 = DotProduct(normal, point-position);
+		if((z1*z2) < 0.0) 
+		{
+			double zdiff = z2-z1;
+			double s;
+			if(fabs(zdiff)<1.0e-05) s=0.5;
+			else s = (-z1)/zdiff;
+			Point3D interpoint = lastpoint + s*(point-lastpoint);
+			cartesian_to_prolate_spheroidal( interpoint.x,interpoint. y,interpoint. z, focalLength_, &lambda,&mu[i],&theta,0);
+		}
+		
+		std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
 //#endif
 	    
 #ifdef MY_ALGO
-	    double a = normal.x;
-	    double b = normal.y;
-	    double c = normal.z;
-	    double d = DotProduct(normal, position - Point3D(0,0,0));
-	    
-	    double c1 = focalLength_ * std::sinh(lambda) * std::cos(theta);
-	    double c2 = focalLength_ * std::sinh(lambda) * std::sin(theta);
-	    double c3 = focalLength_ * std::cosh(lambda);
-	    
-	    double alpha = a*c1 + b*c2;
-	    double beta = c*c3;
-	    double gamma = d;
-	    
-	    mu[i] = SolveASinXPlusBCosXIsEqualToC(alpha, beta, gamma);
-
-	    std::cout << " :My_way = " << mu[i];
+		double a = normal.x;
+		double b = normal.y;
+		double c = normal.z;
+		double d = DotProduct(normal, position - Point3D(0,0,0));
+		
+		double c1 = focalLength_ * std::sinh(lambda) * std::cos(theta);
+		double c2 = focalLength_ * std::sinh(lambda) * std::sin(theta);
+		double c3 = focalLength_ * std::cosh(lambda);
+		
+		double alpha = a*c1 + b*c2;
+		double beta = c*c3;
+		double gamma = d;
+		
+		mu[i] = SolveASinXPlusBCosXIsEqualToC(alpha, beta, gamma);
+		
+		std::cout << " :My_way = " << mu[i];
 #endif 
 	    
-	    std::cout << std::endl ;
-	    
-	    struct FE_field *fe_field;
-	    Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
-
-	    const FE_nodal_value_type type = FE_NODAL_VALUE;
-	    const int version = 0;
-	    const int component_number = 1; //MU
-
-	    FE_value value = mu[i];
-	    set_FE_nodal_FE_value_value(node,
-	    		fe_field, component_number,
-	    		version,
-	    		type, time, value);
-
-	    DEACCESS(FE_node)(&node);
-	  } // i
+		std::cout << std::endl ;
+		
+		struct FE_field *fe_field;
+		Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
+		
+		const FE_nodal_value_type type = FE_NODAL_VALUE;
+		const int version = 0;
+		const int component_number = 1; //MU
+		
+		FE_value value = mu[i];
+		set_FE_nodal_FE_value_value(node,
+				fe_field, component_number,
+				version,
+				type, time, value);
+		
+		DEACCESS(FE_node)(&node);
+	} // i
 	  
-	  for (int j=1;j<5;j++)
-	  {
-	    for (int i=0;i<4;i++)
-	    {
-	      //modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
-	    	float value = mu[i]/4.0 * (4.0- (double)j);
-	    	
-	    	FE_region* fe_region;
+	for (int j=1;j<5;j++)
+	{
+		for (int i=0;i<4;i++)
+		{
+			//modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
+			float value = mu[i]/4.0 * (4.0- (double)j);
+			
+			FE_region* fe_region;
 			struct FE_node *node;
 			if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
 			{
@@ -633,21 +622,142 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 			}
 			struct FE_field *fe_field;
 			Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
-
+			
 			const FE_nodal_value_type type = FE_NODAL_VALUE;
 			const int version = 0;
 			const int component_number = 1; //MU
 			
 			set_FE_nodal_FE_value_value(node,
-				 fe_field, component_number,
-				 version,
-				 type, time, value);
+					fe_field, component_number,
+					version,
+					type, time, value);
 			
 			DEACCESS(FE_node)(&node);
-	    }
-	  }
+		}
+	}
 
-	  return;
+	//Endocardium
+
+	for (int i=0;i<4;i++)
+	{
+
+		FE_region* fe_region;
+		struct FE_node *node;
+		if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
+		{
+			node = ACCESS(FE_node)(FE_region_get_FE_node_from_identifier(fe_region, i+20+1));
+			if (!node)
+			{
+				//error!
+				cout << "Error: no such node: " << i << endl;
+			}
+		}
+
+		float values[3];
+		if (!Cmiss_field_evaluate_at_node(pImpl_->field, node,time,numberOfComponents , values))
+		{
+			//Error
+		}
+		float lambda = values[0];
+		float theta = values[2];
+		mu[i] = values[1] = 0.0;
+
+		float x, y, z;
+		if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (float*)0))
+		{
+			//Error
+		}
+
+//#ifdef CIM_ALGO
+		Point3D point(x,y,z);
+		double initial = DotProduct(normal, point - position);
+		//do while on the same side and less than pi
+		do
+		{
+			mu[i] += M_PI/180.0;  //one degree increments
+			if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z,0))
+			{
+				//Error
+			}		
+			point = Point3D(x,y,z);
+		}
+		while((initial*DotProduct(normal, point - position) > 0.0) && (mu[i] < M_PI));
+
+		if (!prolate_spheroidal_to_cartesian(lambda, mu[i] - M_PI/180.0, theta, focalLength_, &x, &y, &z,0))
+		{
+			//Error
+		}
+		Point3D lastpoint(x,y,z);
+
+		double z1 = DotProduct(normal, lastpoint-position);
+		double z2 = DotProduct(normal, point-position);
+		if((z1*z2) < 0.0) 
+		{
+			double zdiff = z2-z1;
+			double s;
+			if(fabs(zdiff)<1.0e-05) s=0.5;
+			else s = (-z1)/zdiff;
+			//printf ("epi:  s = %10.7f\n", s);
+			Point3D interpoint = lastpoint + s*(point-lastpoint);
+			cartesian_to_prolate_spheroidal( interpoint.x,interpoint. y,interpoint. z, focalLength_, &lambda,&mu[i],&theta,0);
+		}
+
+		std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
+//#endif
+
+		std::cout << std::endl ;
+
+		struct FE_field *fe_field;
+		Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
+
+		const FE_nodal_value_type type = FE_NODAL_VALUE;
+		const int version = 0;
+		const int component_number = 1; //MU
+
+		FE_value value = mu[i];
+		set_FE_nodal_FE_value_value(node,
+				fe_field, component_number,
+				version,
+				type, time, value);
+
+		DEACCESS(FE_node)(&node);
+	} // i
+
+	for (int j=1;j<5;j++)
+	{
+		for (int i=0;i<4;i++)
+		{
+			//modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
+			float value = mu[i]/4.0 * (4.0- (double)j);
+
+			FE_region* fe_region;
+			struct FE_node *node;
+			if (fe_region = Cmiss_region_get_FE_region(pImpl_->region))
+			{
+				node = ACCESS(FE_node)(FE_region_get_FE_node_from_identifier(fe_region, 20 + (j*4) + i+1));
+				if (!node)
+				{
+					//error!
+					cout << "Error: no such node: " << i << endl;
+				}
+			}
+			struct FE_field *fe_field;
+			Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
+
+			const FE_nodal_value_type type = FE_NODAL_VALUE;
+			const int version = 0;
+			const int component_number = 1; //MU
+
+			set_FE_nodal_FE_value_value(node,
+					fe_field, component_number,
+					version,
+					type, time, value);
+
+			DEACCESS(FE_node)(&node);
+		}
+	}
+	  
+	return;
 }
 	
 void CAPModelLVPS4X4::SetTheta(int frame)
