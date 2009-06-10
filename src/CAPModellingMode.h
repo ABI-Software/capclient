@@ -158,6 +158,7 @@ private:
 	Matrix* bezierToHermiteTransform_; // Temporary
 	
 	CAPTimeSmoother timeSmoother_;
+	std::vector<int> framesWithDataPoints_;
 };
 
 #endif /* CAPMODELLINGMODE_H_ */

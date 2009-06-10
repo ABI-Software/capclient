@@ -61,7 +61,7 @@ double CAPTimeSmoother::MapToXi(float time)
 	return time;
 }
 
-std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<float>& dataPoints)
+std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<float>& dataPoints, const std::vector<int>& framesWithDataPoints)
 {
 	// 1. Project data points (from each frame) to model to get corresponding xi
 	// Here the data points are the nodal parameters at each frame and linearly map to xi
@@ -83,6 +83,10 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 		for (int columnIndex = 0; columnIndex < NUMBER_OF_PARAMETERS; columnIndex++)
 		{
 			P(i, columnIndex) = psi[columnIndex];
+			if (framesWithDataPoints[i])
+			{
+				P(i, columnIndex) *= CAP_WEIGHT_GP;//TEST
+			}
 		}
 	}
 	
@@ -108,9 +112,20 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	
 	gmm::mult(P, prior, p);
 	
-	std::transform(dataPoints.begin(), dataPoints.end(), p.begin(), p.begin(), std::minus<double>());
+//	std::transform(dataPoints.begin(), dataPoints.end(), p.begin(), p.begin(), std::minus<double>());
+	
 	//TEST
-//	p[0] *= 10; //more weight for frame 
+//	p[0] *= 10; //more weight for frame 0
+	
+	std::vector<float> dataLambda = dataPoints;
+	for (int i = 0; i < dataLambda.size(); i++)
+	{
+		if (framesWithDataPoints[i])
+		{
+			dataLambda[i] *= CAP_WEIGHT_GP;
+		}
+	}
+	std::transform(dataLambda.begin(), dataLambda.end(), p.begin(), p.begin(), std::minus<double>());
 
 	gmm::mult(transposed(P),p,rhs);
 	

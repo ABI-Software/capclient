@@ -277,6 +277,8 @@ void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Da
 #endif
 	
 	vectorOfDataPoints_[frameNumber].insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
+	framesWithDataPoints_[frameNumber]++;
+	
 //	Point3D xi;
 //	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
 	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
@@ -301,6 +303,7 @@ void CAPModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, float
 	DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
 	assert(itr != vectorOfDataPoints_[frameNumber].end());
 	vectorOfDataPoints_[frameNumber].erase(itr);
+	framesWithDataPoints_[frameNumber]--;
 	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
 
@@ -449,7 +452,7 @@ void CAPModellingModeGuidePoints::SmoothAlongTime()
 	for (int i=0; i < 134; i++) // FIX magic number
 	{
 //		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
-		const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i]);
+		const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i], framesWithDataPoints_);
 		
 //		std::cout << lambdas << std::endl;
 		
@@ -719,6 +722,10 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 		heartModel_.SetMuFromBasePlaneForFrame(plane, i);
 		//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 	}
+	
+	// REVISE
+	framesWithDataPoints_.clear();
+	framesWithDataPoints_.resize(numberOfModelFrames, 0);
 	
 	return;
 }

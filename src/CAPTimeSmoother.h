@@ -24,7 +24,7 @@ public:
 	
 	~CAPTimeSmoother();
 	
-	std::vector<double> FitModel(int parameterIndex, const std::vector<float>& dataPoints);
+	std::vector<double> FitModel(int parameterIndex, const std::vector<float>& dataPoints, const std::vector<int>& framesWithDataPoints);
 	
 	float ComputeLambda(double xi, const std::vector<double>& params);
 	
@@ -35,5 +35,6 @@ private:
 	CAPTimeSmootherImpl* pImpl;
 	
 	static const int NUMBER_OF_PARAMETERS = 11;
+	static const int CAP_WEIGHT_GP = 10;
 };
 #endif /* CAPTIMESMOOTHER_H_ */
