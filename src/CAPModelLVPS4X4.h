@@ -101,6 +101,11 @@ public:
 		return numberOfModelFrames_;
 	}
 	
+	void SetNumberOfModelFrames(const int numberOfFrames)
+	{
+		numberOfModelFrames_ = numberOfFrames;
+	}
+	
 	float ComputeVolume(SurfaceType surface, float time);
 	
 private:
