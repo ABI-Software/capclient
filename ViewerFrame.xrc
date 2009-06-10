@@ -167,6 +167,9 @@
                                         <style>wxTAB_TRAVERSAL</style>
                                         <object class="wxBoxSizer">
                                             <orient>wxVERTICAL</orient>
+                                            
+                                            
+<!--
                                             <object class="sizeritem">
                                                 <option>1</option>
                                                 <flag>wxEXPAND</flag>
@@ -182,6 +185,9 @@
                                                     </object>
                                                 </object>
                                             </object>
+-->
+
+                                            
                                             <object class="sizeritem">
                                                 <flag>wxEXPAND</flag>
                                                 <object class="wxStaticBoxSizer">
