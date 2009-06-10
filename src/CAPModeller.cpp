@@ -112,3 +112,27 @@ void CAPModeller::SmoothAlongTime()
 		gpMode->SmoothAlongTime();
 	}
 }
+
+void CAPModeller::ChangeMode(ModellingMode mode)
+{
+	switch (mode)
+	{
+	case APEX:
+		currentModellingMode_ = GetModellingModeApex();
+		break;
+	case BASE:
+		currentModellingMode_ = GetModellingModeBase();
+		break;
+	case RV:
+		currentModellingMode_ = GetModellingModeRV();
+		break;
+	case BASEPLANE:
+		currentModellingMode_ = GetModellingModeBasePlane();
+		break;
+	case GUIDEPOINT:
+		currentModellingMode_ = GetModellingModeGuidePoints();
+		break;
+	default :
+		std::cout << __func__ << ": Error (Invalid mode)" << std::endl;
+	}
+}

@@ -27,6 +27,15 @@ class Cmiss_node; //REVISE
 
 class CAPModeller {
 public:
+	enum ModellingMode
+	{
+		APEX,
+		BASE,
+		RV,
+		BASEPLANE,
+		GUIDEPOINT
+	};
+	
 	CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller(){}
 	
@@ -63,6 +72,8 @@ public:
 	void UpdateTimeVaryingModel();
 	
 	void SmoothAlongTime();
+	
+	void ChangeMode(ModellingMode mode);
 	
 private:	
 	CAPModellingModeApex modellingModeApex_;

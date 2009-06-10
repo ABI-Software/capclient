@@ -471,7 +471,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
 	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
 	
-	InitialiseVolumeGraph();
+//	InitialiseVolumeGraph();
 }
 
 ViewerFrame::~ViewerFrame()
@@ -894,8 +894,8 @@ void ViewerFrame::InitialiseVolumeGraph()
 	{
 		volumes.push_back(heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, (float)i/numFrames));
 	}
-//	MyFrame* v = new MyFrame(heartModel_, volumes);
-//	v->Show(true);
+	MyFrame* v = new MyFrame(heartModel_, volumes);
+	v->Show(true);
 }
 
 void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)
@@ -961,6 +961,11 @@ void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 		int selectionIndex = choice->GetSelection();
 		int newIndex = std::min(selectionIndex + 1, static_cast<int>(choice->GetCount()));
 		choice->SetSelection(newIndex);
+		//REVISE
+//		if (newIndex == 4) // guide point
+//		{
+//			InitialiseVolumeGraph();
+//		}
 	}
 }
 
@@ -977,6 +982,7 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 //	{
 //		// Error invalid mode transition
 //	}
+	modeller_.ChangeMode((CAPModeller::ModellingMode) choice->GetSelection());//FIX type unsafe
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
