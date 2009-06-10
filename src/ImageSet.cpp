@@ -112,3 +112,18 @@ const ImagePlane& ImageSet::GetImagePlane(const std::string& sliceName) const
 		return itr->second->GetImagePlane();
 	} 
 }
+
+int ImageSet::GetNumberOfFrames()
+{
+	std::map<std::string, ImageSlice*>::const_iterator itr = imageSlicesMap_.begin();
+	int numberOfFrames = itr->second->GetNumberOfFrames();
+	++itr;
+	for(;itr!=imageSlicesMap_.end();++itr)
+	{
+		if (numberOfFrames > itr->second->GetNumberOfFrames())
+		{
+			numberOfFrames = itr->second->GetNumberOfFrames();
+		}
+	}
+	return numberOfFrames;
+}

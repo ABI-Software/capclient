@@ -413,18 +413,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TEXTURE_ANIMATION
 #ifdef TEXTURE_ANIMATION
-	vector<string> sliceNames;
-	sliceNames.push_back("SA1");
-	sliceNames.push_back("SA2");
-	sliceNames.push_back("SA3");
-	sliceNames.push_back("SA4");
-	sliceNames.push_back("SA5");
-	sliceNames.push_back("SA6");
-	sliceNames.push_back("LA1");
-	sliceNames.push_back("LA2");
-	sliceNames.push_back("LA3");
-	
-	imageSet_ = new ImageSet(sliceNames); //REFACTOR
+	LoadImages();
 	
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(m_pPanel);
 	Cmiss_scene_viewer_view_all(sceneViewer);
@@ -432,22 +421,18 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(28, 0);
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(30, 0); // FIX magic number
 	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
 	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
 #endif		
 #endif //TEXTURE_ANIMATION
 	
-	this->PopulateObjectList(); // fill in slice check box list
-	
 	//Load model
 	heartModel_.ReadModelFromFiles("test");	
 	//heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);//this resets timer frequency for model!! if called after its been cleared!!??
-	vector<string>::iterator itr = sliceNames.begin();
-	for (;itr != sliceNames.end();++itr)
-	{
-		RenderMII(*itr);
-	}
+
+	InitialiseMII();
+	
 	heartModel_.SetModelVisibility(false);
 	heartModel_.SetMIIVisibility(false);
 	
@@ -486,11 +471,30 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
 	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
 	
+	InitialiseVolumeGraph();
 }
 
 ViewerFrame::~ViewerFrame()
 {
 	delete imageSet_;
+}
+
+void ViewerFrame::LoadImages()
+{
+	vector<string> sliceNames;
+	sliceNames.push_back("SA1");
+	sliceNames.push_back("SA2");
+	sliceNames.push_back("SA3");
+	sliceNames.push_back("SA4");
+	sliceNames.push_back("SA5");
+	sliceNames.push_back("SA6");
+	sliceNames.push_back("LA1");
+	sliceNames.push_back("LA2");
+	sliceNames.push_back("LA3");
+	
+	imageSet_ = new ImageSet(sliceNames); //REFACTOR
+	
+	this->PopulateObjectList(); // fill in slice check box list
 }
 
 float ViewerFrame::GetCurrentTime() const
@@ -830,7 +834,17 @@ void ViewerFrame::SetImageVisibility(bool visibility, const std::string& name)
 	imageSet_->SetVisible(visibility, name);
 }
 
-void ViewerFrame::RenderMII(const std::string& sliceName)
+void ViewerFrame::InitialiseMII()
+{
+	const vector<string>& sliceNames = imageSet_->GetSliceNames();
+	vector<string>::const_iterator itr = sliceNames.begin();
+	for (;itr != sliceNames.end();++itr)
+	{
+		RenderMII(*itr);
+	}
+}
+
+void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4X4
 {
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	
@@ -861,6 +875,27 @@ void ViewerFrame::RenderMII(const std::string& sliceName)
 				,sliceName.c_str() ,d);
 //	cout << str << endl;
 	Cmiss_command_data_execute_command(command_data, str);
+}
+
+#include "VolumeGraph.h"
+
+void ViewerFrame::InitialiseVolumeGraph()
+{
+	wxPanel* graphPanel = XRCCTRL(*this, "GraphPanel", wxPanel);
+//	VolumeGraph* v = new VolumeGraph(graphPanel);
+//	wxBoxSizer *topsizer = new wxBoxSizer( wxVERTICAL );
+//	topsizer->Add(v,
+//		 wxSizerFlags(1).Align(wxALIGN_CENTER).Expand());
+//	graphPanel->SetSizer(topsizer);
+	
+	std::vector<float> volumes;
+	int numFrames = heartModel_.GetNumberOfModelFrames();
+	for (int i = 0; i < numFrames; i++)
+	{
+		volumes.push_back(heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, (float)i/numFrames));
+	}
+//	MyFrame* v = new MyFrame(heartModel_, volumes);
+//	v->Show(true);
 }
 
 void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)

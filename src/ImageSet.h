@@ -67,6 +67,12 @@ public:
 		return imageSliceNames_;
 	}
 	
+	/** Get the number of logical frames. 
+	 * Currently this is just the smallest number of frames of all slices
+	 * 
+	 */
+	int GetNumberOfFrames();
+	
 private:
 	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices
 //	std::vector<ImageGroup*> imageGroups;
