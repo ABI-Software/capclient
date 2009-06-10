@@ -109,10 +109,12 @@ CimBasis/CimTriLinearBasis.cpp
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/CimBasis)
 
 ADD_EXECUTABLE(CAPClient ${SRCS} ${TEMP})
+SET(wxMathPlot ${CMISS_ROOT}/wxMathPlot/lib/libmathplot.a)
+
 # and for each of your dependant executable/library targets:
 IF(APPLE)
 TARGET_LINK_LIBRARIES(CAPClient ${wxWidgets_LIBRARIES} ${CMGUI_LIB} ${ITK_LIB} ${IMAGEMAGICK_LIB} 
-    ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS})  
+    ${INTERPRETER_LIB} ${XML2_LIB} ${common_LIBS} ${wxMathPlot})  
 ENDIF(APPLE)
 IF(WIN32)
 #test

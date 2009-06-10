@@ -42,6 +42,11 @@ public:
 	
 	const ImagePlane& GetImagePlane() const;
 	
+	int GetNumberOfFrames() const
+	{
+		return images_.size();
+	}
+	
 private:
 	void LoadImagePlaneModel();
 	

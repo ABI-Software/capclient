@@ -76,6 +76,12 @@ private:
 	
 	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
 	
+	void InitialiseVolumeGraph();
+	
+	void InitialiseMII();
+	
+	void LoadImages();
+	
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void TogglePlay(wxCommandEvent& event);
