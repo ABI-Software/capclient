@@ -653,11 +653,35 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	std::cout << "Model coord z axis vector" << zAxis << std::endl;
 	
 	// Compute the position of the model coord origin. (1/3 of the way from base to apex)
-	Point3D origin = base.GetCoordinate() + 1/3 * (base.GetCoordinate() - apex.GetCoordinate());
+	Point3D origin = base.GetCoordinate() + (0.3333) * (apex.GetCoordinate() - base.GetCoordinate());
+	
+	// Transform heart model using the newly computed axes
+	gtMatrix transform;
+	transform[0][0]=xAxis.x;
+	transform[0][1]=xAxis.y;
+	transform[0][2]=xAxis.z;
+	transform[0][3]=0; //NB this is the first column not row
+	transform[1][0]=yAxis.x;
+	transform[1][1]=yAxis.y;
+	transform[1][2]=yAxis.z;
+	transform[1][3]=0;
+	transform[2][0]=zAxis.x;
+	transform[2][1]=zAxis.y;
+	transform[2][2]=zAxis.z;
+	transform[2][3]=0;
+	transform[3][0]=origin.x;
+	transform[3][1]=origin.y;
+	transform[3][2]=origin.z;
+	transform[3][3]=1;
+	
+	heartModel_.SetLocalToGlobalTransformation(transform);
 	
 	// TODO properly Compute FocalLength
 	float lengthFromApexToBase = (apex.GetCoordinate() - base.GetCoordinate()).Length();
-	float focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
+	std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
+	
+	//float focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
+	float focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
 	std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
 	heartModel_.SetFocalLengh(focalLength);
 	
