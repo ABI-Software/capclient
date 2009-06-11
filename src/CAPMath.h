@@ -343,7 +343,7 @@ double ComputeVolumeOfTetrahedron(float ax, float ay, float az, float bx, float 
 	vol = (az-dz)*(bxdx*cydy-bydy*cxdx) +
 		(ay-dy)*(bzdz*cxdx-bxdx*czdz) +
 		(ax-dx)*(bydy*czdz-bzdz*cydy);
-	return abs(vol);
+	return fabs(vol);
 }
 
 template <typename V>
