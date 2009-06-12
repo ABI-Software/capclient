@@ -180,7 +180,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(30, 0); // FIX magic number
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(28, 0); // FIX magic number
 	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
 	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
 #endif		
@@ -231,6 +231,8 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
 	
 //	InitialiseVolumeGraph();
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+	slider->SetTickFreq(28,0);
 }
 
 ViewerFrame::~ViewerFrame()
@@ -447,7 +449,7 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 
 void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
 {
-	wxSlider* slider = XRCCTRL(*this, "slider_1", wxSlider);
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	int value = slider->GetValue();
 	
 	int min = slider->GetMin();
@@ -491,7 +493,7 @@ void ViewerFrame::SetTime(double time)
 	//cout << "SetTime" <<endl;
 	imageSet_->SetTime(time);
 	
-	wxSlider* slider = XRCCTRL(*this, "slider_1", wxSlider);
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	int min = slider->GetMin();
 	int max = slider->GetMax();
 	//cout << "min = " << min << " ,max = " << max <<endl; 
@@ -727,6 +729,13 @@ void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 //			InitialiseVolumeGraph();
 //		}
 	}
+
+	float currentTime = GetCurrentTime();
+	Time_keeper_request_new_time(timeKeeper_, currentTime - 0.05); //HACK
+	Time_keeper_request_new_time(timeKeeper_, currentTime + 0.05); //HACK
+	Time_keeper_request_new_time(timeKeeper_, currentTime); //HACK
+	
+	RefreshCmguiCanvas();
 }
 
 void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
@@ -743,11 +752,17 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 //		// Error invalid mode transition
 //	}
 	modeller_.ChangeMode((CAPModeller::ModellingMode) choice->GetSelection());//FIX type unsafe
+	
+	float currentTime = GetCurrentTime();
+	Time_keeper_request_new_time(timeKeeper_, currentTime - 0.05); //HACK
+	Time_keeper_request_new_time(timeKeeper_, currentTime + 0.05); //HACK
+	Time_keeper_request_new_time(timeKeeper_, currentTime); //HACK
+	RefreshCmguiCanvas();
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay) // play button
-	EVT_SLIDER(XRCID("slider_1"),ViewerFrame::OnAnimationSliderEvent) // animation slider
+	EVT_SLIDER(XRCID("AnimationSlider"),ViewerFrame::OnAnimationSliderEvent) // animation slider
 	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
 	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
 	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::ToggleHideShowAll) // hide all button

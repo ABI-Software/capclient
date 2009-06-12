@@ -40,7 +40,7 @@
                                     <object class="sizeritem">
                                         <option>1</option>
                                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
-                                        <object class="wxSlider" name="slider_1">
+                                        <object class="wxSlider" name="AnimationSlider">
                                             <style>wxSL_HORIZONTAL</style>
                                         </object>
                                     </object>

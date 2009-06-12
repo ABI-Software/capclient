@@ -213,6 +213,8 @@ void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const Point3D& co
 	float startTime = heartModel_.MapToModelFrameTime(time);
 	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
 	float endTime = startTime + duration;
+	
+	std::cout << __func__ << ": time = " << time << ", startTime = " << startTime << ", endTime = " << endTime << std::endl;
 	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
 	dataPoint.SetVisible(true);
 	rvInserts_.insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
