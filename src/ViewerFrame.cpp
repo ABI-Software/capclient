@@ -310,16 +310,29 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	{
 		// Select node or create one
 		cout << "Mouse clicked, time = " << time << endl;
+		cout << "Mouse button number = " << input->button_number << endl;
+		
 		Point3D coords;
 		selectedNode = Cmiss_select_node_from_screen_coords(x, y, time, coords);
-		
-		if (!selectedNode) //REVISE
-		{
-			if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords)) 
+					
+		if (input->button_number == wxMOUSE_BTN_LEFT )
+		{	
+			if (!selectedNode) //REVISE
 			{
-				frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time)); //access + 1
-//				Cmiss_node* temp = selectedNode; // Sine we just want to decrease the ref count by 1 not nullify selecteNode
-//				DEACCESS(Cmiss_node)(&temp); // access = 2
+				if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords)) 
+				{
+					frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time)); //access + 1
+	//				Cmiss_node* temp = selectedNode; // Sine we just want to decrease the ref count by 1 not nullify selecteNode
+	//				DEACCESS(Cmiss_node)(&temp); // access = 2
+				}
+			}
+		}
+		else if (input->button_number == wxMOUSE_BTN_RIGHT)
+		{
+			if (selectedNode)
+			{
+				frame->RemoveDataPoint(selectedNode);
+				selectedNode = 0;
 			}
 		}
 	}
@@ -516,6 +529,7 @@ void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPos
 
 void ViewerFrame::RemoveDataPoint(Cmiss_node_id dataPointID)
 {
+	cout << __func__ << endl;
 	FE_region* fe_region = FE_node_get_FE_region(dataPointID); //REVISE
 	fe_region = FE_region_get_data_FE_region(fe_region);
 	FE_region_remove_FE_node(fe_region, dataPointID); // access = 1; 
