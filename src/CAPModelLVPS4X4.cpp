@@ -584,7 +584,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		std::cout << " :My_way = " << mu[i];
 #endif 
 	    
-		std::cout << std::endl ;
+//		std::cout << std::endl ;
 		
 		struct FE_field *fe_field;
 		Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
@@ -705,7 +705,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 //		std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
 //#endif
 
-		std::cout << std::endl ;
+//		std::cout << std::endl ;
 
 		struct FE_field *fe_field;
 		Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
@@ -801,14 +801,14 @@ float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
 {
 	float frameDuration = (float) 1.0 / numberOfModelFrames_;
 	int indexPrevFrame = time / frameDuration;
-	if ((time - (float)frameDuration*indexPrevFrame) < (frameDuration/2))
-	{
+//	if ((time - (float)frameDuration*indexPrevFrame) < (frameDuration/2))
+//	{
 		return (float) indexPrevFrame/numberOfModelFrames_;
-	}
-	else
-	{
-		return (float) (indexPrevFrame+1)/numberOfModelFrames_;
-	}
+//	}
+//	else
+//	{
+//		return (float) (indexPrevFrame+1)/numberOfModelFrames_;
+//	}
 }
 
 int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
