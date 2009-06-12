@@ -10,7 +10,7 @@
 //#include "DICOMImage.h"
 #include "ImageSet.h"
 #include "CAPModelLVPS4X4.h"
-#include "DataPoint.h"
+//#include "DataPoint.h"
 #include "CAPModeller.h"
 
 struct Cmiss_command_data;
@@ -39,7 +39,7 @@ public:
 	
 	//void AddDataPoint(DataPoint* dataPoint);
 	
-	void AddDataPoint(Cmiss_node_id, const DataPoint&);
+	void AddDataPoint(Cmiss_node_id, const Point3D&);
 	
 	void MoveDataPoint(Cmiss_node_id, const Point3D&);
 	

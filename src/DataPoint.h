@@ -13,17 +13,21 @@ extern "C" {
 #include "api/cmiss_node.h"
 #include "finite_element/finite_element.h"
 }
+#include "CmguiExtensions.h"
 
 class DataPoint
 {
 public:
+	
 	DataPoint(Cmiss_node* node, const Point3D& coord, float time = 0, float weight = 1.0f)
 	:
 		cmissNode_(ACCESS(Cmiss_node)(node)),
 		coordinate_(coord),
 		time_(time),
 		weight_(weight),
-		surfaceType_(0)
+		surfaceType_(0),
+		startTime_(time),
+		endTime_(time)
 	{
 	};
 	
@@ -33,7 +37,9 @@ public:
 		coordinate_(other.coordinate_),
 		time_(other.time_),
 		weight_(other.weight_),
-		surfaceType_(other.surfaceType_)
+		surfaceType_(other.surfaceType_),
+		startTime_(other.startTime_),
+		endTime_(other.endTime_)
 	{
 	};
 		
@@ -43,6 +49,11 @@ public:
 	}
 	
 	const Cmiss_node* GetCmissNode() const
+	{
+		return cmissNode_;
+	}
+	
+	Cmiss_node* GetCmissNode()
 	{
 		return cmissNode_;
 	}
@@ -62,6 +73,17 @@ public:
 		return time_;
 	}
 	
+	void SetValidPeriod(float startTime, float endTime)
+	{
+		startTime_ = startTime;
+		endTime_ = endTime;
+	}
+	
+	void SetVisible(bool visibility)
+	{
+		Cmiss_node_set_visibility_field(*this, startTime_, endTime_, visibility);
+	}
+	
 	//HACK
 	int GetSurfaceType() const
 	{
@@ -73,6 +95,7 @@ public:
 		surfaceType_ = type;
 	}
 	
+	// assignment operator
 	DataPoint& operator=(const DataPoint& rhs)
 	{
 		DEACCESS(Cmiss_node)(&cmissNode_);
@@ -80,7 +103,8 @@ public:
 		coordinate_ = rhs.coordinate_;
 		time_ = rhs.time_;
 		weight_ = rhs.weight_;
-		surfaceType_ = rhs.surfaceType_;
+		startTime_ = rhs.startTime_;
+		endTime_ = rhs.endTime_;
 	}
 	
 private:
@@ -88,8 +112,8 @@ private:
 	Point3D coordinate_;
 	float weight_;
 	float time_;
-	
 	int surfaceType_;
+	float startTime_, endTime_; // these can't be inferred from time only 
 };
 
 struct DataPointTimeLessThan // used for sorting DataPoints with respect to time

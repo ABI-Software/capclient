@@ -39,7 +39,7 @@ public:
 	CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller(){}
 	
-	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
+	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	
@@ -75,7 +75,9 @@ public:
 	
 	void ChangeMode(ModellingMode mode);
 	
-private:	
+private:
+	void CAPModeller::ChangeMode(CAPModellingMode* newMode);
+	
 	CAPModellingModeApex modellingModeApex_;
 	CAPModellingModeBase modellingModeBase_;
 	CAPModellingModeRV modellingModeRV_;

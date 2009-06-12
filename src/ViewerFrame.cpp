@@ -69,9 +69,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 			{
 				if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords)) 
 				{
-					frame->AddDataPoint(selectedNode, DataPoint(selectedNode, coords, time)); //access + 1
-	//				Cmiss_node* temp = selectedNode; // Sine we just want to decrease the ref count by 1 not nullify selecteNode
-	//				DEACCESS(Cmiss_node)(&temp); // access = 2
+					frame->AddDataPoint(selectedNode, coords);
 				}
 			}
 		}
@@ -263,9 +261,9 @@ float ViewerFrame::GetCurrentTime() const
 	return static_cast<float>(Cmiss_time_keeper_get_time(timeKeeper_));
 }
 
-void ViewerFrame::AddDataPoint(Cmiss_node_id dataPointID, const DataPoint& dataPoint)
+void ViewerFrame::AddDataPoint(Cmiss_node_id dataPointID, const Point3D& position)
 {
-	modeller_.AddDataPoint(dataPointID, dataPoint);
+	modeller_.AddDataPoint(dataPointID, position, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
 }
 

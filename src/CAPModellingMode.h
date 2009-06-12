@@ -23,9 +23,12 @@ public:
 	virtual ~CAPModellingMode();
 	
 	virtual CAPModellingMode* OnAccept(CAPModeller& modeller) = 0;
-	virtual void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint) = 0;
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time) = 0;
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time) = 0;
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time) = 0;
+	
+	virtual void PerformEntryAction() = 0;
+	virtual void PerformExitAction() = 0;
 };
 
 class CAPModellingModeApex : public CAPModellingMode
@@ -35,12 +38,15 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
+	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const DataPoint& GetApex() const; //REVISE design
 
+	void PerformEntryAction();
+	void PerformExitAction();
+	
 private:
 	std::vector<DataPoint> apex_; // holds at most 1 item
 };
@@ -52,53 +58,70 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
+	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const DataPoint& GetBase() const;
 	
+	void PerformEntryAction();
+	void PerformExitAction();
+	
 private:
 	std::vector<DataPoint> base_; // holds at most 1 item
 };
 
+//class CAPModelLVPS4X4;
+#include "CAPModelLVPS4X4.h"
+
 class CAPModellingModeRV : public CAPModellingMode
 {
 public:
-	CAPModellingModeRV()
+	CAPModellingModeRV(CAPModelLVPS4X4& heartModel)
+	:heartModel_(heartModel)
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
+	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const std::map<Cmiss_node*, DataPoint>& GetRVInsertPoints() const;
 	
+	void PerformEntryAction();
+	void PerformExitAction();
+	
 private:
 	std::map<Cmiss_node*, DataPoint> rvInserts_; // holds n pairs of DataPoints ( n >= 1 )
+	
+	CAPModelLVPS4X4& heartModel_;
 };
 
 class CAPModellingModeBasePlane : public CAPModellingMode
 {
 public:
-	CAPModellingModeBasePlane()
+	CAPModellingModeBasePlane(CAPModelLVPS4X4& heartModel)
+	:heartModel_(heartModel)
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
+	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const std::vector<DataPoint>& GetBasePlanePoints() const;
 	
+	void PerformEntryAction();
+	void PerformExitAction();
+	
 private:
 	std::vector<DataPoint> basePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
+	
+	CAPModelLVPS4X4& heartModel_;
 };
 
 #include "CAPTimeSmoother.h"
 
-class CAPModelLVPS4X4;
 class Matrix;
 class Vector;
 class Preconditioner;
@@ -114,11 +137,14 @@ public:
 	~CAPModellingModeGuidePoints();
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint);
+	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
 	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const std::vector<DataPoint>& GetDataPoints() const;
+	
+	void PerformEntryAction();
+	void PerformExitAction();
 	
 	void InitialiseModel(const DataPoint& apex,
 			const DataPoint& base,
