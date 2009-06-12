@@ -114,69 +114,6 @@ chosen.
 	return (scene_viewer);
 }
 
-#ifdef LATER
-int Viewer_view_all(Cmiss_scene_viewer_id scene_viewer)
-/*******************************************************************************
-LAST MODIFIED : 16 October 2001
-
-DESCRIPTION :
-Finds the x, y and z ranges from the scene and sets the view parameters so
-that everything can be seen, and with window's std_view_angle. Also adjusts
-near and far clipping planes; if specific values are required, should follow
-with commands for setting these.
-==============================================================================*/
-{
-
-	int return_code;
-
-
-	struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
-
-	if (scene_viewer && scene)
-	{
-		return_code = 1;
-		double centre_x,centre_y,centre_z,clip_factor,radius,
-			size_x,size_y,size_z,width_factor;
-
-		Scene_get_graphics_range(scene,
-			&centre_x, &centre_y, &centre_z, &size_x, &size_y, &size_z);
-		radius = 0.5*sqrt(size_x*size_x + size_y*size_y + size_z*size_z);
-
-		double left, right, bottom, top, near_plane, far_plane;
-		if (0 == radius)
-		{
-			/* get current "radius" from first scene viewer */
-			Scene_viewer_get_viewing_volume(scene_viewer,
-				&left, &right, &bottom, &top, &near_plane, &far_plane);
-			radius = 0.5*(right - left);
-		}
-		else
-		{
-			/*???RC width_factor should be read in from defaults file */
-			width_factor = 1.05;
-			/* enlarge radius to keep image within edge of window */
-			radius *= width_factor;
-		}
-
-		/*???RC clip_factor should be read in from defaults file: */
-		clip_factor = 10.0;
-
-		return_code = Scene_viewer_set_view_simple(
-			scene_viewer, centre_x, centre_y, centre_z,
-			radius, 40, clip_factor*radius);
-
-	}
-	else
-	{
-		display_message(ERROR_MESSAGE,
-			"Graphics_window_view_all.  Invalid argument(s)");
-		return_code=0;
-	}
-
-	return (return_code);
-}
-#endif
-
 int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_name, struct Time_keeper* time_keeper, float time)
 /*******************************************************************************
 LAST MODIFIED : 23 May 2008
@@ -594,4 +531,218 @@ Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* no
 		return (Cmiss_element_id)0;
 	}
 //	return return_code;
+}
+
+#include "CAPMath.h"
+
+Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y, float time, Point3D& coords)
+{
+	int return_code = 0;
+
+	GLint viewport[4];
+	
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	double viewport_left   = (double)(viewport[0]);
+	double viewport_bottom = (double)(viewport[1]);
+	double viewport_width  = (double)(viewport[2]);
+	double viewport_height = (double)(viewport[3]);
+	
+	double centre_x = x;
+	/* flip y as x event has y=0 at top of window, increasing down */
+	double centre_y = viewport_height-y-1.0;
+	
+//	std::cout << viewport_height <<"," <<centre_y<< std::endl;
+	
+	GLdouble modelview_matrix[16], window_projection_matrix[16];
+
+	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	
+	
+	double size_x = 7.0;//FIX
+	double size_y = 7.0;
+	
+	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
+					modelview_matrix,window_projection_matrix,
+					viewport_left,viewport_bottom,viewport_width,viewport_height,
+					centre_x,centre_y,size_x,size_y);
+	
+	FE_element* nearest_element;
+	struct FE_node *picked_node;
+	struct LIST(Scene_picked_object) *scene_picked_object_list;
+	struct Scene_picked_object *scene_picked_object, *scene_picked_object2;
+	struct GT_element_group *gt_element_group, *gt_element_group_element;
+	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
+	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
+			CmguiManager::getInstance().getCmissCommandData());
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	
+	if (scene_picked_object_list=
+		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
+	{
+		nearest_element = (struct FE_element *)NULL;
+
+		picked_node=Scene_picked_object_list_get_nearest_node(
+											scene_picked_object_list,1 /* use_data */,
+											(struct Cmiss_region *)NULL,&scene_picked_object,
+											&gt_element_group,&gt_element_settings);
+		
+		nearest_element=Scene_picked_object_list_get_nearest_element(
+			scene_picked_object_list,(struct Cmiss_region *)NULL,
+			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
+			/*select_lines_enabled*/0, &scene_picked_object2,
+			&gt_element_group_element,&gt_element_settings_element);
+		
+		/* Reject the previously picked node if the element is nearer */
+		if (picked_node && nearest_element)
+		{
+			if (Scene_picked_object_get_nearest(scene_picked_object) >
+				Scene_picked_object_get_nearest(scene_picked_object2))
+			{
+				picked_node = (struct FE_node *)NULL;
+			}
+		}	
+		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
+	}
+	
+	/* Find the intersection of the element and the interaction volume */
+	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
+	if (picked_node)
+	{
+		return picked_node; // Cmiss_node = FE_node;
+	}
+	else if (nearest_element)
+	{
+		if (!(nearest_element_coordinate_field = 
+				GT_element_settings_get_coordinate_field(gt_element_settings_element)))
+		{
+			nearest_element_coordinate_field = 
+				GT_element_group_get_default_coordinate_field(
+				gt_element_group_element);
+		}
+
+
+//		double node_coordinates[3];
+
+		Viewer_frame_element_constraint_function_data constraint_data;
+		constraint_data.element = nearest_element;
+		constraint_data.found_element = nearest_element;
+		constraint_data.coordinate_field = nearest_element_coordinate_field;
+		for (int i = 0; i < MAXIMUM_ELEMENT_XI_DIMENSIONS; i++)
+		{
+			constraint_data.xi[i] = 0.5;
+		}
+		double node_coordinates[3];
+		return_code = Interaction_volume_get_placement_point(interaction_volume,
+			node_coordinates, Viewer_frame_element_constraint_function,
+			&constraint_data);
+		
+		if (return_code)
+		{
+			Cmiss_region* region = Cmiss_element_get_region(nearest_element); // this doesn't work with groups
+			std::cout << "region = " << Cmiss_region_get_path(region) << std::endl;
+			
+			coords.x = node_coordinates[0], coords.y = node_coordinates[1], coords.z = node_coordinates[2];
+			std::cout << "debug: intersection point = " << coords <<  std::endl;
+					
+			return Cmiss_create_data_point_at_coord(region, nearest_element_coordinate_field, (float*)&coords, time);
+		}
+	}
+	
+	return 0;
+}
+
+Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float time, Point3D& coords)
+{
+	int return_code = 0;
+
+	GLint viewport[4];
+	
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	double viewport_left   = (double)(viewport[0]);
+	double viewport_bottom = (double)(viewport[1]);
+	double viewport_width  = (double)(viewport[2]);
+	double viewport_height = (double)(viewport[3]);
+	
+	double centre_x = x;
+	/* flip y as x event has y=0 at top of window, increasing down */
+	double centre_y = viewport_height-y-1.0;
+	
+//	std::cout << viewport_height <<"," <<centre_y<< std::endl;
+	
+	GLdouble modelview_matrix[16], window_projection_matrix[16];
+
+	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	
+	
+	double size_x = 7.0;//FIX
+	double size_y = 7.0;
+	
+	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
+					modelview_matrix,window_projection_matrix,
+					viewport_left,viewport_bottom,viewport_width,viewport_height,
+					centre_x,centre_y,size_x,size_y);
+	
+	FE_element* nearest_element;
+	struct FE_node *picked_node;
+	struct LIST(Scene_picked_object) *scene_picked_object_list;
+	struct Scene_picked_object *scene_picked_object, *scene_picked_object2;
+	struct GT_element_group *gt_element_group, *gt_element_group_element;
+	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
+	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
+			CmguiManager::getInstance().getCmissCommandData());
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	
+	if (scene_picked_object_list=
+		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
+	{
+		nearest_element = (struct FE_element *)NULL;
+
+		picked_node=Scene_picked_object_list_get_nearest_node(
+											scene_picked_object_list,1 /* use_data */,
+											(struct Cmiss_region *)NULL,&scene_picked_object,
+											&gt_element_group,&gt_element_settings);
+		
+		nearest_element=Scene_picked_object_list_get_nearest_element(
+			scene_picked_object_list,(struct Cmiss_region *)NULL,
+			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
+			/*select_lines_enabled*/0, &scene_picked_object2,
+			&gt_element_group_element,&gt_element_settings_element);
+		
+		/* Reject the previously picked node if the element is nearer */
+		if (picked_node && nearest_element)
+		{
+			if (Scene_picked_object_get_nearest(scene_picked_object) >
+				Scene_picked_object_get_nearest(scene_picked_object2))
+			{
+				picked_node = (struct FE_node *)NULL;
+			}
+		}	
+		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
+	}
+	
+	/* Find the intersection of the element and the interaction volume */
+	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
+	
+	return picked_node; // Cmiss_node = FE_node;
+}
+
+int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, Point3D& coords)
+{
+	double node_coordinates[3];
+	Cmiss_field_id field;
+	FE_element* element = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &field);
+	
+	coords.x = node_coordinates[0], coords.y = node_coordinates[1], coords.z = node_coordinates[2];
+	if (Cmiss_field_set_values_at_node( field, node, time , 3 , (float*)& coords))
+	{
+		return 1;
+	}
+		
+	return 0;
 }
