@@ -68,9 +68,9 @@ void CAPModellingModeApex::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 {
 	assert(!apex_.empty());
 	//remove Cmiss_node from the FE_region
-	FE_region* fe_region = FE_node_get_FE_region(dataPointID); //REVISE
-	fe_region = FE_region_get_data_FE_region(fe_region);
-	FE_region_remove_FE_node(fe_region, dataPointID); // access = 1;
+//	FE_region* fe_region = FE_node_get_FE_region(dataPointID); //REVISE
+//	fe_region = FE_region_get_data_FE_region(fe_region);
+//	FE_region_remove_FE_node(fe_region, dataPointID); // access = 1;
 	apex_.clear();
 }
 
@@ -121,10 +121,10 @@ void CAPModellingModeBase::MoveDataPoint(Cmiss_node* dataPointID, const Point3D&
 void CAPModellingModeBase::RemoveDataPoint(Cmiss_node* dataPointID, float time)
 {
 	assert(!base_.empty());
-	//remove Cmiss_node from the FE_region
-	FE_region* fe_region = FE_node_get_FE_region(dataPointID); //REVISE
-	fe_region = FE_region_get_data_FE_region(fe_region);
-	FE_region_remove_FE_node(fe_region, dataPointID); // access = 1;
+	//remove Cmiss_node from the FE_region 
+//	FE_region* fe_region = FE_node_get_FE_region(dataPointID); //REVISE
+//	fe_region = FE_region_get_data_FE_region(fe_region);
+//	FE_region_remove_FE_node(fe_region, dataPointID); // access = 1;
 	base_.clear();
 }
 

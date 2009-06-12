@@ -16,13 +16,6 @@ extern "C" {
 #include "api/cmiss_element.h"
 }
 
-#ifdef DEL
-// should go to cmiss.h
-struct Material_package* Cmiss_command_data_get_material_package(
-	struct Cmiss_command_data *command_data
-);
-#endif
-
 Cmiss_scene_viewer_id create_Cmiss_scene_viewer_wx(
 	struct Cmiss_scene_viewer_package *cmiss_scene_viewer_package,
 	wxPanel* panel,
@@ -43,19 +36,6 @@ the accumulation_buffer_depth are not tested and the maximum colour buffer depth
 chosen.
 ==============================================================================*/
 
-#ifdef LATER
-int Viewer_view_all(Cmiss_scene_viewer_id *scene_viewer); //can modify to have diff FOV
-/*******************************************************************************
-LAST MODIFIED : 16 October 2001
-
-DESCRIPTION :
-Finds the x, y and z ranges from the scene and sets the view parameters so
-that everything can be seen, and with window's std_view_angle. Also adjusts
-near and far clipping planes; if specific values are required, should follow
-with commands for setting these.
-==============================================================================*/
-#endif 
-
 int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_name, 
 		struct Time_keeper* time_keeper, float time);
 /*******************************************************************************
@@ -67,5 +47,13 @@ DESCRIPTION :
 Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *region, Cmiss_field_id field, float* coords, float time);
 
 Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* coords, Cmiss_field_id* field);
+
+class Point3D;
+
+Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y, float time, Point3D& coords);
+
+Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float time, Point3D& coords);
+
+int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, Point3D& coords);
 
 #endif /* CMGUIEXTENSIONS_H_ */
