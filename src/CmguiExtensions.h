@@ -56,4 +56,8 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float tim
 
 int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, Point3D& coords);
 
+class DataPoint;
+
+Cmiss_node_id Cmiss_node_set_visibility_field(DataPoint& dataPoint, float startTime, float endTime, bool visibility);
+
 #endif /* CMGUIEXTENSIONS_H_ */

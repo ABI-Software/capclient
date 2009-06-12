@@ -167,11 +167,12 @@ DESCRIPTION :
 }
 
 #include "computed_field/computed_field_finite_element.h"
+#include "DataPoint.h"
 
-Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, 
-		struct FE_region* fe_region, struct FE_field *fe_field, float time)
+static Cmiss_node_id Cmiss_node_set_visibility_field_private(DataPoint& dataPoint, 
+		struct FE_region* fe_region, struct FE_field *fe_field, float startTime, float endTime, bool visibility)
 {
-
+	Cmiss_node_id node = dataPoint.GetCmissNode();
 	struct FE_node_field_creator *node_field_creator2;
 	
 	if (node_field_creator2 = CREATE(FE_node_field_creator)(
@@ -179,71 +180,55 @@ Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node,
 	{
 		struct FE_time_sequence *fe_time_sequence;
 		//FE_value times[] = {0.0f, 0,5, 0.7, 1.0};
-		float halfTime = 1.0f/28.0f;
-		float startTime = time - halfTime; 
-		float endTime = time + halfTime;
+		//float halfTime = 1.0f/28.0f;
+//		float startTime = time - halfTime; 
+//		float endTime = time + halfTime;
 		FE_value times[5];
 		FE_value values[5];
 		int numberOfTimes;
 		
+		float newFieldValue = visibility ? 1.0f : 0.0f;
+		
 		//Handle edge cases
-		if (time == 0.0)
+		if (startTime == 0.0f && endTime == 1.0f)
+		{
+			times[0] = 0.0f;
+			times[1] = 1.0f;
+			values[0] = newFieldValue;
+			values[1] = newFieldValue;
+			numberOfTimes = 2;
+		}
+		else if (startTime == 0.0f)
 		{
 			times[0] = 0.0f;
 			times[1] = endTime;
 			times[2] = 1.0f;
-			values[0] = 2;
-			values[1] = 1;
+			values[0] = newFieldValue;
+			values[1] = newFieldValue;
 			values[2] = 0;
 			numberOfTimes = 3;
 		}
-		else if (time == 1.0)
+		else if (endTime == 1.0f)
 		{
 			times[0] = 0.0f;
 			times[1] = startTime;
-			times[2] = time;
+			times[2] = 1.0f;
 			values[0] = 0;
-			values[1] = 1;
-			values[2] = 2;
+			values[1] = newFieldValue;
+			values[2] = newFieldValue;
 			numberOfTimes = 3;
-		}
-		else if (startTime < 0.0)
-		{
-			times[0] = 0.0f;
-			times[1] = time;
-			times[2] = endTime;
-			times[3] = 1.0f;
-			values[0] = 1;
-			values[1] = 2;
-			values[2] = 1;
-			values[3] = 0;
-			numberOfTimes = 4;
-		}
-		else if (endTime > 1.0)
-		{
-			times[0] = 0.0f;
-			times[1] = startTime;
-			times[2] = time;
-			times[3] = endTime;
-			values[0] = 0;
-			values[1] = 1;
-			values[2] = 2;
-			values[3] = 1;
-			numberOfTimes = 4;
 		}
 		else
 		{
 			times[0] = 0.0f;
 			times[1] = startTime;
-			times[2] = time;
-			times[3] = endTime;
-			times[4] = 1.0f;
+			times[2] = endTime;
+			times[3] = 1.0f;
 			values[0] = 0;
-			values[1] = 1;
-			values[2] = 2;
-			values[3] = 1;
-			values[4] = 0;
-			numberOfTimes = 5;
+			values[1] = newFieldValue;
+			values[2] = newFieldValue;
+			values[3] = 0;
+			numberOfTimes = 4;
 		}
 		
 		if (!(fe_time_sequence = FE_region_get_FE_time_sequence_matching_series(
@@ -257,7 +242,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node,
 			/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
 			node_field_creator2))
 		{
-			float one = 1, zero = 0 ,two = 2; //visibility_field > 1 => true
+//			float one = 1, zero = 0 ,two = 2; //visibility_field > 1 => true
 //			Cmiss_field_set_values_at_node( visibilityField, node, 0 , 1 , &zero);
 //			Cmiss_field_set_values_at_node( visibilityField, node, 1 , 1 , &zero);
 //			float halfTime = 1.0f/28.0f;
@@ -286,6 +271,47 @@ Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node,
 
 	return 0;
 }
+
+Cmiss_node_id Cmiss_node_set_visibility_field(DataPoint& dataPoint, float startTime, float endTime, bool visibility)
+{
+	Cmiss_node* node = dataPoint.GetCmissNode();
+	
+	FE_region* fe_region = FE_node_get_FE_region(node);
+	
+	Cmiss_region* cmiss_region;
+	FE_region_get_Cmiss_region(fe_region, &cmiss_region);
+		
+	fe_region = FE_region_get_data_FE_region(fe_region);
+	if (!fe_region)
+	{
+		std::cout << "fe_region is null" << std::endl;
+	}
+	
+	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(cmiss_region);
+	Computed_field* visibilityField = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
+	
+	if (!visibilityField)
+	{
+		display_message(ERROR_MESSAGE,
+			"Cmiss_create_data_point_at_coord.  Can't find visibility field");
+	}
+	
+	struct FE_field *fe_field;
+	struct LIST(FE_field) *fe_field_list;
+	if (visibilityField && (fe_field_list=
+						Computed_field_get_defining_FE_field_list(visibilityField)))
+	{
+		if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
+			(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
+			(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
+			fe_field_list)) && (1 == get_FE_field_number_of_components(
+			fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
+		{
+			return Cmiss_node_set_visibility_field_private( dataPoint, fe_region, fe_field, startTime, endTime, visibility);
+		}
+	}
+}
+
 Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords, float time)
 {	
 	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
@@ -329,27 +355,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 //								std::cout << "Field has been defined at data_point" << std::endl;
 								if (Cmiss_field_set_values_at_node( field, node, time , 3 , coords))
 								{							
-									//TEST								
-									manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(cmiss_region);
-									Computed_field* visibilityField = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
-									
-									if (!visibilityField)
-									{
-										display_message(ERROR_MESSAGE,
-											"Cmiss_create_data_point_at_coord.  Can't find visibility field");
-									}
-									if (visibilityField && (fe_field_list=
-														Computed_field_get_defining_FE_field_list(visibilityField)))
-									{
-										if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
-											(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
-											(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
-											fe_field_list)) && (1 == get_FE_field_number_of_components(
-											fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
-										{
-											return Cmiss_node_set_visibility_field( node, fe_region, fe_field, time);
-										}
-									}
+									return node;
 								}
 							}
 							else

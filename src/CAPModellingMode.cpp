@@ -24,6 +24,24 @@ CAPModellingMode::~CAPModellingMode()
 
 // CAPModellingModeApex
 
+void CAPModellingModeApex::PerformEntryAction()
+{
+	std::vector<DataPoint>::iterator itr = apex_.begin();
+	for (;itr != apex_.end(); ++itr)
+	{
+		itr->SetVisible(true);
+	}
+}
+
+void CAPModellingModeApex::PerformExitAction()
+{
+	std::vector<DataPoint>::iterator itr = apex_.begin();
+	for (;itr != apex_.end(); ++itr)
+	{
+		itr->SetVisible(false);
+	}
+}
+
 CAPModellingMode* CAPModellingModeApex::OnAccept(CAPModeller& modeller)
 {
 	if (apex_.empty())
@@ -38,7 +56,7 @@ CAPModellingMode* CAPModellingModeApex::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeBase();
 }
 
-void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
+void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
 	if (!apex_.empty())
 	{
@@ -53,6 +71,10 @@ void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const DataPoint
 		apex_.clear();
 	}
 
+	DataPoint dataPoint(dataPointID, coord, time);
+	dataPoint.SetValidPeriod(0,1); //REVISE
+	dataPoint.SetVisible(true);
+	
 	apex_.push_back(dataPoint);
 }
 
@@ -82,6 +104,24 @@ const DataPoint& CAPModellingModeApex::GetApex() const
 
 // CAPModellingModeBase
 
+void CAPModellingModeBase::PerformEntryAction()
+{
+	std::vector<DataPoint>::iterator itr = base_.begin();
+	for (;itr != base_.end(); ++itr)
+	{
+		itr->SetVisible(true);
+	}
+}
+
+void CAPModellingModeBase::PerformExitAction()
+{
+	std::vector<DataPoint>::iterator itr = base_.begin();
+	for (;itr != base_.end(); ++itr)
+	{
+		itr->SetVisible(false);
+	}
+}
+
 CAPModellingMode* CAPModellingModeBase::OnAccept(CAPModeller& modeller)
 {
 	if (base_.empty())
@@ -92,7 +132,7 @@ CAPModellingMode* CAPModellingModeBase::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeRV();
 }
 
-void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
+void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
 	if (!base_.empty())
 	{
@@ -107,6 +147,9 @@ void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const DataPoint
 		base_.clear();
 	}
 
+	DataPoint dataPoint(dataPointID, coord, time);
+	dataPoint.SetValidPeriod(0,1); //REVISE
+	dataPoint.SetVisible(true);
 	base_.push_back(dataPoint);
 }
 
@@ -136,6 +179,24 @@ const DataPoint& CAPModellingModeBase::GetBase() const
 
 // CAPModellingModeRV
 
+void CAPModellingModeRV::PerformEntryAction()
+{
+	std::map<Cmiss_node*, DataPoint>::iterator itr = rvInserts_.begin();
+	for (;itr != rvInserts_.end(); ++itr)
+	{
+		itr->second.SetVisible(true);
+	}
+}
+
+void CAPModellingModeRV::PerformExitAction()
+{
+	std::map<Cmiss_node*, DataPoint>::iterator itr = rvInserts_.begin();
+	for (;itr != rvInserts_.end(); ++itr)
+	{
+		itr->second.SetVisible(false);
+	}
+}
+
 CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
 {
 	if ((rvInserts_.size() % 2) || rvInserts_.empty())
@@ -146,8 +207,14 @@ CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeBasePlane();
 }
 
-void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
+void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
+	DataPoint dataPoint(dataPointID, coord, time);
+	float startTime = heartModel_.MapToModelFrameTime(time);
+	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
+	float endTime = startTime + duration;
+	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
+	dataPoint.SetVisible(true);
 	rvInserts_.insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
 }
 
@@ -172,8 +239,32 @@ const std::map<Cmiss_node*, DataPoint>& CAPModellingModeRV::GetRVInsertPoints() 
 
 // CAPModellingModeBasePlane
 
+void CAPModellingModeBasePlane::PerformEntryAction()
+{
+	std::vector<DataPoint>::iterator itr = basePlanePoints_.begin();
+	for (;itr != basePlanePoints_.end(); ++itr)
+	{
+		itr->SetVisible(true);
+	}
+}
+
+void CAPModellingModeBasePlane::PerformExitAction()
+{
+	std::vector<DataPoint>::iterator itr = basePlanePoints_.begin();
+	for (;itr != basePlanePoints_.end(); ++itr)
+	{
+		itr->SetVisible(false);
+	}
+}
+
 CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 {
+	if ((basePlanePoints_.size() % 2) || basePlanePoints_.empty())
+	{
+		std::cout << __func__ << ": Need n pairs of base plane points" << std::endl;
+		return 0;
+	}
+	
 	DataPointTimeLessThan lessThan; // need real lambda functions !
 	std::sort(basePlanePoints_.begin(),basePlanePoints_.end(),lessThan);
 	
@@ -181,8 +272,14 @@ CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeGuidePoints();
 }
 
-void CAPModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
+void CAPModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
+	DataPoint dataPoint(dataPointID, coord, time);
+	float startTime = heartModel_.MapToModelFrameTime(time);
+	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
+	float endTime = startTime + duration;
+	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
+	dataPoint.SetVisible(true);
 	basePlanePoints_.push_back(dataPoint);
 }
 
@@ -259,17 +356,50 @@ CAPModellingModeGuidePoints::~CAPModellingModeGuidePoints()
 	delete solverFactory_;
 }
 
+void CAPModellingModeGuidePoints::PerformEntryAction()
+{
+	std::vector<DataPoints>::iterator vectorIter = vectorOfDataPoints_.begin();
+	for (;vectorIter != vectorOfDataPoints_.end(); ++vectorIter)
+	{
+		std::map<Cmiss_node*, DataPoint>::iterator itr = vectorIter->begin();
+		for (;itr != vectorIter->end(); ++itr)
+		{
+			itr->second.SetVisible(true);
+		}
+	}
+}
+
+void CAPModellingModeGuidePoints::PerformExitAction()
+{
+	std::vector<DataPoints>::iterator vectorIter = vectorOfDataPoints_.begin();
+	for (;vectorIter != vectorOfDataPoints_.end(); ++vectorIter)
+	{
+		std::map<Cmiss_node*, DataPoint>::iterator itr = vectorIter->begin();
+		for (;itr != vectorIter->end(); ++itr)
+		{
+			itr->second.SetVisible(false);
+		}
+	}
+}
+
 CAPModellingMode* CAPModellingModeGuidePoints::OnAccept(CAPModeller& modeller)
 {
 	return 0;
 }
 
-void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const DataPoint& dataPoint)
+void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
 #if defined(NDEBUG)
 	std::cout << "NDEBUG" << std::endl;
 #endif
 	
+	DataPoint dataPoint(dataPointID, coord, time);
+	float startTime = heartModel_.MapToModelFrameTime(time);
+	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
+	float endTime = startTime + duration;
+	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
+	dataPoint.SetVisible(true);
+		
 	int frameNumber = heartModel_.MapToModelFrameNumber(dataPoint.GetTime());
 	
 #ifndef NDEBUG

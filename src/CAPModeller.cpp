@@ -20,16 +20,16 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 :
 	modellingModeApex_(),
 	modellingModeBase_(),
-	modellingModeRV_(),
-	modellingModeBasePlane_(),
+	modellingModeRV_(heartModel),
+	modellingModeBasePlane_(heartModel),
 	modellingModeGuidePoints_(heartModel),
 	currentModellingMode_(&modellingModeApex_)
 {	
 }
 
-void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const DataPoint& dataPoint)
+void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, float time)
 {
-	currentModellingMode_->AddDataPoint(dataPointID, dataPoint);
+	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
 }
 
 void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
@@ -47,7 +47,7 @@ bool CAPModeller::OnAccept()
 	CAPModellingMode* newMode = currentModellingMode_->OnAccept(*this);
 	if (newMode) 
 	{
-		currentModellingMode_ = newMode;
+		ChangeMode(newMode);
 		return true;
 	}
 	
@@ -115,24 +115,34 @@ void CAPModeller::SmoothAlongTime()
 
 void CAPModeller::ChangeMode(ModellingMode mode)
 {
+	CAPModellingMode* newMode;
 	switch (mode)
 	{
 	case APEX:
-		currentModellingMode_ = GetModellingModeApex();
+		newMode = GetModellingModeApex();
 		break;
 	case BASE:
-		currentModellingMode_ = GetModellingModeBase();
+		newMode = GetModellingModeBase();
 		break;
 	case RV:
-		currentModellingMode_ = GetModellingModeRV();
+		newMode = GetModellingModeRV();
 		break;
 	case BASEPLANE:
-		currentModellingMode_ = GetModellingModeBasePlane();
+		newMode = GetModellingModeBasePlane();
 		break;
 	case GUIDEPOINT:
-		currentModellingMode_ = GetModellingModeGuidePoints();
+		newMode = GetModellingModeGuidePoints();
 		break;
 	default :
 		std::cout << __func__ << ": Error (Invalid mode)" << std::endl;
 	}
+	assert(newMode);
+	ChangeMode(newMode);
+}
+
+void CAPModeller::ChangeMode(CAPModellingMode* newMode)
+{
+	currentModellingMode_->PerformExitAction();
+	currentModellingMode_ = newMode;
+	currentModellingMode_->PerformEntryAction();
 }
