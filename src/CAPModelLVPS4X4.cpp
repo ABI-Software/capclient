@@ -562,7 +562,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 			cartesian_to_prolate_spheroidal( interpoint.x,interpoint. y,interpoint. z, focalLength_, &lambda,&mu[i],&theta,0);
 		}
 		
-		std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
+//		std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
 //#endif
 	    
 #ifdef MY_ALGO
