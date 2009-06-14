@@ -729,11 +729,6 @@ void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 //			InitialiseVolumeGraph();
 //		}
 	}
-
-	float currentTime = GetCurrentTime();
-	Time_keeper_request_new_time(timeKeeper_, currentTime - 0.05); //HACK
-	Time_keeper_request_new_time(timeKeeper_, currentTime + 0.05); //HACK
-	Time_keeper_request_new_time(timeKeeper_, currentTime); //HACK
 	
 	RefreshCmguiCanvas();
 }
@@ -752,11 +747,7 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 //		// Error invalid mode transition
 //	}
 	modeller_.ChangeMode((CAPModeller::ModellingMode) choice->GetSelection());//FIX type unsafe
-	
-	float currentTime = GetCurrentTime();
-	Time_keeper_request_new_time(timeKeeper_, currentTime - 0.05); //HACK
-	Time_keeper_request_new_time(timeKeeper_, currentTime + 0.05); //HACK
-	Time_keeper_request_new_time(timeKeeper_, currentTime); //HACK
+
 	RefreshCmguiCanvas();
 }
 
