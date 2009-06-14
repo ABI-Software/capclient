@@ -469,7 +469,7 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 			}
 		}
 		xi_vector.push_back(xi);
-		element_id_vector.push_back(elem_id);
+		element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
 		
 		const Point3D dataPointLocal = heartModel_.TransformToLocalCoordinateRC(itr->second.GetCoordinate());
 		const Point3D dataPointPS = heartModel_.TransformToProlateSheroidal(dataPointLocal);
