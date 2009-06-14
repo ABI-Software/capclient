@@ -606,6 +606,37 @@ void ViewerFrame::InitialiseMII()
 	}
 }
 
+void ViewerFrame::UpdateMII() //FIX
+{
+	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+	
+	const vector<string>& sliceNames = imageSet_->GetSliceNames();
+	vector<string>::const_iterator itr = sliceNames.begin();
+	for (int index = 0;itr != sliceNames.end();++itr, ++index)
+	{
+		const std::string& sliceName = *itr;
+		char str[256];
+		
+		const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
+		const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();
+	
+		gtMatrix mInv;
+		inverseMatrix(m, mInv);
+		transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
+		
+		//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
+		Vector3D normalTransformed = m * plane.normal;
+		sprintf((char*)str, "gfx define field slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+					sliceName.c_str() ,
+					normalTransformed.x, normalTransformed.y, normalTransformed.z);
+		Cmiss_command_data_execute_command(command_data, str);
+		
+		Point3D pointTLCTransformed = mInv * plane.tlc;
+		float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
+		heartModel_.UpdateMII(index, d);
+	}
+}
+
 void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4X4
 {
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
@@ -724,10 +755,11 @@ void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 		int newIndex = std::min(selectionIndex + 1, static_cast<int>(choice->GetCount()));
 		choice->SetSelection(newIndex);
 		//REVISE
-//		if (newIndex == 4) // guide point
-//		{
+		if (newIndex == 4) // guide point
+		{
 //			InitialiseVolumeGraph();
-//		}
+			UpdateMII();
+		}
 	}
 	
 	RefreshCmguiCanvas();
