@@ -315,7 +315,7 @@ void CAPModelLVPS4X4::UpdateMII(int index, double iso_value)
 	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
 	
 	const int indexOffset = 3;
-	std::cout << __func__ << ": numSettings = " << numSettings << ", index = " << index << std::endl;
+//	std::cout << __func__ << ": numSettings = " << numSettings << ", index = " << index << std::endl;
 	assert(index + indexOffset < (numSettings+1));
 	
 	GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,index + indexOffset);

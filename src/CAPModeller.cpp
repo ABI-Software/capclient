@@ -95,13 +95,14 @@ void CAPModeller::InitialiseModel()
 	modellingModeGuidePoints_.InitialiseModelLambdaParams();
 }
 
-void CAPModeller::UpdateTimeVaryingModel()
+void CAPModeller::UpdateTimeVaryingModel() //REVISE
 {
-	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-	if (gpMode)
-	{
-		gpMode->UpdateTimeVaryingModel();
-	}
+//	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
+//	if (gpMode)
+//	{
+//		gpMode->UpdateTimeVaryingModel();
+//	}
+	modellingModeGuidePoints_.UpdateTimeVaryingModel();
 }
 
 void CAPModeller::SmoothAlongTime()

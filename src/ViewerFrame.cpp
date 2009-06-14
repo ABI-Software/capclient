@@ -88,7 +88,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		if (!selectedNode)
 		{
 			cout << "GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode" << endl;
-			frame->InitialiseModel();
+//			frame->InitialiseModel();
 			return 0;
 		}
 		Point3D coords;
@@ -748,11 +748,20 @@ void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
 
+	const char* ModeStrings[] = {
+			"Apex",
+			"Base",
+			"RV Inserts",
+			"Baseline Points",
+			"Guide Points"
+	};//REVISE
+	
 	if (modeller_.OnAccept())
 	{
 		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 		int selectionIndex = choice->GetSelection();
 		int newIndex = std::min(selectionIndex + 1, static_cast<int>(choice->GetCount()));
+		choice->Append(ModeStrings[newIndex]);
 		choice->SetSelection(newIndex);
 		//REVISE
 		if (newIndex == 4) // guide point
@@ -769,17 +778,18 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 {
 	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 	std::cout << "MODE = " << choice->GetStringSelection() << endl;
-	
-//	if (modeller_.ChangeMode(choice->GetStringSelection()))
-//	{
-//		TODO
-//	}
-//	else
-//	{
-//		// Error invalid mode transition
-//	}
-	modeller_.ChangeMode((CAPModeller::ModellingMode) choice->GetSelection());//FIX type unsafe
 
+	int selectionIndex = choice->GetSelection();
+	modeller_.ChangeMode((CAPModeller::ModellingMode) selectionIndex);//FIX type unsafe
+
+	int numberOfItems = choice->GetCount();
+	
+	cout << __func__ << ": numberOfItems = " << numberOfItems << ", selectionIndex = " << selectionIndex << endl;
+	
+	for (int i = numberOfItems-1; i > selectionIndex; i--)
+	{
+		choice->Delete(i);
+	}
 	RefreshCmguiCanvas();
 }
 
