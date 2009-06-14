@@ -80,6 +80,8 @@ private:
 	
 	void InitialiseMII();
 	
+	void UpdateMII();
+	
 	void LoadImages();
 	
 	//Event handlers

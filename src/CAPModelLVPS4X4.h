@@ -90,6 +90,8 @@ public:
 	
 	void SetMIIVisibility(bool visibility, int index);
 	
+	void UpdateMII(int index, double iso_value);
+	
 	void SetModelVisibility(bool visibility);
 
 	float MapToModelFrameTime(float time) const; // maps the argument time to the closest frame in time and returns the frame time
