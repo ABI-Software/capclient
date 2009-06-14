@@ -204,10 +204,12 @@
                                                                     <selection>0</selection>
                                                                     <content>
                                                                         <item>Apex</item>
+<!--
                                                                         <item>Base</item>
                                                                         <item>RV</item>
                                                                         <item>Baseline Points</item>
                                                                         <item>Guide Points</item>
+-->
                                                                     </content>
                                                                 </object>
                                                             </object>

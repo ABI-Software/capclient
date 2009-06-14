@@ -46,7 +46,7 @@ CAPModellingMode* CAPModellingModeApex::OnAccept(CAPModeller& modeller)
 {
 	if (apex_.empty())
 	{
-		std::cout << __func__ << "Apex not defined" << std::endl;
+		std::cout << __func__ << ": Apex not defined" << std::endl;
 		return 0;
 	}
 	// TODO Make the Cmiss_node representation of the apex point invisible
@@ -126,7 +126,7 @@ CAPModellingMode* CAPModellingModeBase::OnAccept(CAPModeller& modeller)
 {
 	if (base_.empty())
 	{
-		std::cout << __func__ << "Apex not defined" << std::endl;
+		std::cout << __func__ << ": Base not defined" << std::endl;
 		return 0;
 	}
 	return modeller.GetModellingModeRV();
@@ -201,7 +201,7 @@ CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
 {
 	if ((rvInserts_.size() % 2) || rvInserts_.empty())
 	{
-		std::cout << __func__ << "Need n pairs of rv insertion points" << std::endl;
+		std::cout << __func__ << ": Need n pairs of rv insertion points" << std::endl;
 		return 0;
 	}
 	return modeller.GetModellingModeBasePlane();
@@ -271,6 +271,7 @@ CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 	std::sort(basePlanePoints_.begin(),basePlanePoints_.end(),lessThan);
 	
 	modeller.InitialiseModel();
+	modeller.UpdateTimeVaryingModel();
 	return modeller.GetModellingModeGuidePoints();
 }
 
