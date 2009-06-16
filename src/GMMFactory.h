@@ -213,9 +213,7 @@ public:
 
 void mult(const GMMGSmoothAMatrix &m, const std::vector<double> &x, std::vector<double> &y) 
 {
-//	cout <<" fsssff" << endl;
-	std::vector<double> temp1(m.B->nrows()), temp2(m.P->nrows());//FIX!!
-	
+	std::vector<double> temp1(m.B->nrows()), temp2(m.P->nrows());
 	
 	gmm::mult(*m.B,x,temp1);//temp1 = G * x;
 	

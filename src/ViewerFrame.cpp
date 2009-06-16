@@ -401,12 +401,6 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	wxString name = objectList_->GetString(selection);
 	std::cout << "Check: " << name << std::endl;
 	
-//	//hack to test the callback works when time is manually set to 0
-//	if ("heart"==name)
-//	{
-//		Time_keeper_request_new_time(timeKeeper_, 0);
-//	}
-	
 	if(objectList_->IsChecked(selection))
 	{
 		SetImageVisibility(true, name.mb_str());

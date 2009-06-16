@@ -132,7 +132,7 @@ void ImageSlice::SetTime(double time)
 	}
 
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	//hack
+	// use the same material for selected material
 	GT_element_settings_set_selected_material(settings, material_);
 
 	if(!GT_element_settings_set_material(settings, material_))
@@ -281,12 +281,13 @@ void ImageSlice::LoadImagePlaneModel()
 	}
 
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	//hack
+	// use the same material for selected material
 	GT_element_settings_set_selected_material(settings, material_);
 
 	if(!GT_element_settings_set_material(settings, material_))
 	{
 		//Error;
+		std::cout << __func__ << " :Error setting material\n";
 	}
 	else
 	{
@@ -303,6 +304,7 @@ void ImageSlice::LoadImagePlaneModel()
 			/*delete_flag*/0, /*position*/-1))
 		 {
 			 //error
+			 std::cout << __func__ << " :Error modifying g element\n";
 		 }
 	}
 
@@ -331,11 +333,9 @@ void ImageSlice::LoadTextures()
 	vector<string>::const_iterator itr = filenames.begin();
 	vector<string>::const_iterator end = filenames.end();
 
-	//char fullpath[256]; //FIX
 	for (; itr != end; ++itr)
 	{
 		const string& filename = *itr;
-		//sprintf(fullpath, "%s/%s", dir_path.c_str(),  filename.c_str()); 
 		string fullpath(dir_path);
 		fullpath.append("/");
 		fullpath.append(filename);
