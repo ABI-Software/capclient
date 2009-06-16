@@ -103,7 +103,6 @@ CimBasis/CimCubicHermiteBasis.cpp
 CimBasis/CimBasis.cpp
 CimBasis/CimLinearBasis.cpp
 CimBasis/CimBiCubicHermiteLinearBasis.cpp
-CimBasis/CimTriLinearBasis.cpp
 )
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/CimBasis)

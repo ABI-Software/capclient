@@ -50,20 +50,6 @@ ImageSlice::ImageSlice(const string& name)
 		cout << "ImageSlice::ImageSlice() Error setting pixel value to brightnessAndContrastTexture_" << endl;
 	}
 	
-//	unsigned char temp[4];
-//	unsigned char fill[1] = {0};
-//	Cmiss_texture_get_pixels(brightnessAndContrastTexture_,
-//		0, 0, 0,
-//		1, 1, 1,
-//		0, 0, 
-//		fill,
-//		4, temp);
-	
-	//printf("%d %d %d %d\n", temp[0], temp[1], temp[2], temp[3]);
-	//int dim;
-	//Texture_get_dimension(brightnessAndContrastTexture_, &dim);
-	//cout << "dim = " << dim << endl;
-	
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
 	this->TransformImagePlane();
@@ -384,40 +370,7 @@ void ImageSlice::TransformImagePlane()
 		imagePlane_ = plane;
 	}
 
-	int nodeNum = 81; // HACK FIX
-	
-	if (sliceName_=="SA2")
-	{
-		nodeNum += 300;
-	}
-	else if (sliceName_=="SA3")
-	{
-		nodeNum += 400;
-	}
-	else if (sliceName_=="SA4")
-	{
-		nodeNum += 500;
-	}
-	else if (sliceName_=="SA5")
-	{
-		nodeNum += 600;
-	}
-	else if (sliceName_=="SA6")
-	{
-		nodeNum += 700;
-	}
-	else if (sliceName_ =="LA1")
-	{
-		nodeNum += 1100;
-	}
-	else if (sliceName_ =="LA2")
-	{
-		nodeNum += 1200;
-	}
-	else if (sliceName_ =="LA3")
-	{
-		nodeNum += 1300;
-	}
+	int nodeNum = 1;
 
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
