@@ -370,6 +370,39 @@ void ImageSlice::TransformImagePlane()
 		imagePlane_ = plane;
 	}
 
+	// Read in plane shift info if it exists for this slice
+	string filePath(prefix);
+	filePath.append("images/");
+	filePath.append(sliceName_);
+	filePath.append(".txt");
+	
+	ifstream planeShiftInfoFile(filePath.c_str());
+	
+	if (planeShiftInfoFile.is_open())
+	{
+		cout << "Plane shift info file present - " << planeShiftInfoFile << endl;
+		
+		planeShiftInfoFile >> plane->tlc >> plane->trc >> plane->blc;
+		
+		Vector3D v = plane->trc - plane->tlc;
+		Vector3D vAdj = v * (208.0/256.0); //FIX
+		Point3D tMid = plane->tlc + (v*0.5);
+		plane->tlc = tMid - (0.5 * vAdj);
+		plane->trc = tMid + (0.5 * vAdj);
+		
+		plane->brc = plane->blc + v;
+		Point3D bMid = plane->blc + (v*0.5);
+		plane->blc = bMid - (0.5 * vAdj);
+		plane->brc = bMid + (0.5 * vAdj);
+		
+		cout << "corrected tlc = " << plane->tlc <<endl;
+		cout << "corrected trc = " << plane->trc <<endl;
+		cout << "corrected blc = " << plane->blc <<endl;
+		cout << "corrected brc = " << plane->brc <<endl;
+		
+		planeShiftInfoFile.close();
+	}
+	
 	int nodeNum = 1;
 
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
