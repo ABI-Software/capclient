@@ -85,8 +85,8 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 		}
 	}
 
-	string exelem_filename(prefix);
-	exelem_filename.append("templates/GlobalHermiteParam.exelem");
+	string exelem_filename(dir_path);
+	exelem_filename.append("GlobalHermiteParam.exelem");
 	if (!Cmiss_region_read_file(region, const_cast<char*>(exelem_filename.c_str())))
 	{
 		std::cout << "Error reading ex file - exelem" << std::endl;

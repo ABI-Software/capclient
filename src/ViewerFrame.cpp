@@ -187,7 +187,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 #endif //TEXTURE_ANIMATION
 	
 	//Load model
-	heartModel_.ReadModelFromFiles("test");	
+	heartModel_.ReadModelFromFiles("MIDLIFE_01");	
 	//heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);//this resets timer frequency for model!! if called after its been cleared!!??
 
 	InitialiseMII();
