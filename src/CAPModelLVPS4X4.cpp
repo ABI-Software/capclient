@@ -78,7 +78,19 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 		//DEBUG
 		//cout << "DEBUG: i = " << i << ", filename = " << filename << endl;
 		float time = static_cast<float>(i)/numberOfModelFrames_;
-		//std::cout << "time = " << time << endl;
+		std::cout << __func__ << ": time = " << time << endl;
+		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
+		{
+			std::cout << "Error reading ex file: " << filename << std::endl;
+		}
+	}
+	// for wrapping around the end point
+	{
+		stringstream filenameStream;
+		filenameStream << dir_path << path << "_" << 1 << ".model.exnode" ;
+		const string& filenameString = filenameStream.str();
+		char* filename = const_cast<char*>(filenameString.c_str());
+		float time = 1.0;
 		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 		{
 			std::cout << "Error reading ex file: " << filename << std::endl;
@@ -469,6 +481,8 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float ti
 
 void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams, float time)
 {
+	std::cout << __func__ << ": time = " << time << std::endl;
+	
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{
 	
@@ -836,16 +850,8 @@ void CAPModelLVPS4X4::SetTheta(int frame)
 
 float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
 {
-	float frameDuration = (float) 1.0 / numberOfModelFrames_;
-	int indexPrevFrame = time / frameDuration;
-//	if ((time - (float)frameDuration*indexPrevFrame) < (frameDuration/2))
-//	{
-		return (float) indexPrevFrame/numberOfModelFrames_;
-//	}
-//	else
-//	{
-//		return (float) (indexPrevFrame+1)/numberOfModelFrames_;
-//	}
+	int indexPrevFrame = MapToModelFrameNumber(time);
+	return (float) indexPrevFrame/numberOfModelFrames_;
 }
 
 int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
@@ -861,8 +867,14 @@ int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 	}
 	
 	float frameDuration = (float) 1.0 / numberOfModelFrames_;
+	float frameFloat = time / frameDuration;
+	int frame = static_cast<int>(frameFloat);
+	if ((frameFloat - frame) > 0.5)
+	{
+		frame++;
+	}
 	
-	return std::min(static_cast<int>(time / frameDuration), numberOfModelFrames_);
+	return std::min(frame, numberOfModelFrames_);
 }
 
 float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
