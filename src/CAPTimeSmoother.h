@@ -24,14 +24,16 @@ public:
 	
 	~CAPTimeSmoother();
 	
-	std::vector<double> FitModel(int parameterIndex, const std::vector<float>& dataPoints, const std::vector<int>& framesWithDataPoints);
+	std::vector<double> FitModel(int parameterIndex, 
+			const std::vector<float>& dataPoints,
+			const std::vector<int>& framesWithDataPoints) const;
 	
-	float ComputeLambda(double xi, const std::vector<double>& params);
+	float ComputeLambda(double xi, const std::vector<double>& params) const;
 	
-	std::vector<double> GetPrior(int paramNumber);
+	std::vector<double> GetPrior(int paramNumber) const;
 	
 private:
-	double MapToXi(float time);
+	double MapToXi(float time) const;
 	CAPTimeSmootherImpl* pImpl;
 	
 	static const int NUMBER_OF_PARAMETERS = 11;

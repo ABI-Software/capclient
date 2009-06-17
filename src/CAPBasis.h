@@ -13,7 +13,7 @@
 class CAPFourierBasis
 {   
 public:
-	void Evaluate(double bf[], double xi[])
+	void Evaluate(double bf[], const double xi[]) const
 	{
 		double x = xi[0];
 		bf[0] = 1.0;
@@ -33,7 +33,7 @@ public:
 class CAPBiCubicHermiteLinearBasis
 {
 public:
-	void Evaluate(double bf[], double xi[])
+	void Evaluate(double bf[], const double xi[]) const
 	{
 		double bf1[4], bf2[4], bf3[2], temp[1];
 		
@@ -86,7 +86,7 @@ public:
 	}
 	
 private:
-	void EvaluateHermiteBasis(double bf[], double xi[])
+	void EvaluateHermiteBasis(double bf[], const double xi[]) const
 	{
 	  bf[0] = 1.0 - 3.0 * xi[0] * xi[0] + 2.0 * xi[0] * xi[0] * xi[0];
 	  bf[1] = 1.0 * xi[0] - 2.0 * xi[0] * xi[0] + xi[0] * xi[0] * xi[0];
@@ -94,7 +94,7 @@ private:
 	  bf[3] = -1.0 * xi[0] * xi[0] + xi[0] * xi[0] * xi[0];
 	}
 	
-	void EvaluateLinearBasis(double bf[], double xi[])
+	void EvaluateLinearBasis(double bf[], const double xi[]) const
 	{
 	  bf[0] = 1.0 - xi[0];
 	  bf[1] = xi[0];

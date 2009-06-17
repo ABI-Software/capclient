@@ -634,7 +634,7 @@ void CAPModellingModeGuidePoints::UpdateTimeVaryingDataPoints(const Vector& x, i
 	}
 }
 
-std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& bezierParams)
+std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& bezierParams) const
 {
 	// convert Bezier params to hermite params to they can be fed to Cmgui
 	// 
@@ -686,7 +686,7 @@ std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& b
 	return temp;
 }
 
-Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plane>& planes, int frame)
+Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const
 {
 	assert(!planes.empty());
 	std::map<int, Plane>::const_iterator itr = planes.begin();
@@ -737,7 +737,7 @@ Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plan
 	return plane;
 }
 
-Plane CAPModellingModeGuidePoints::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis)
+Plane CAPModellingModeGuidePoints::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const
 {
 	// TODO implement cases where there are more than 2 points 
 	Vector3D temp1 = basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate();

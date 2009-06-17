@@ -161,11 +161,11 @@ public:
 private:
 	void FitModel(DataPoints& dataPoints, int frameNumber);
 	
-	Plane InterpolateBasePlane(const std::map<int, Plane>& planes, int frame);
+	Plane InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const;
 	
-	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis);
+	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const;
 	
-	std::vector<float> ConvertToHermite(const Vector&);
+	std::vector<float> ConvertToHermite(const Vector&) const;
 	
 	CAPModelLVPS4X4& heartModel_;
 	

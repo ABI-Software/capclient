@@ -54,7 +54,7 @@ class GSmoothAMatrix : public Matrix
 	// Note that this class (and its subclasses) works as a proxy to the actual Matrices G,S and P
 	// and hence does not own them and not responsible for deleting them
 public:
-	virtual void UpdateData(Matrix& P) = 0;
+	virtual void UpdateData(const Matrix& P) = 0;
 	virtual ~GSmoothAMatrix(){};
 };
 
@@ -84,13 +84,13 @@ public:
 	virtual Matrix* CreateMatrixFromFile(const std::string& filename) const = 0;
 	virtual Matrix* CreateMatrix(int m, int n, const std::vector<Entry>& entries) const = 0;
 	
-	virtual GSmoothAMatrix* CreateGSmoothAMatrix(Matrix& S, Matrix& G) const = 0;
+	virtual GSmoothAMatrix* CreateGSmoothAMatrix(const Matrix& S, const Matrix& G) const = 0;
 	
 	virtual Preconditioner* CreateDiagonalPreconditioner(const Matrix& m) const = 0;
 	
 	virtual void CG(const Matrix& A, Vector& x, const Vector& rhs, const Preconditioner& pre, int maximumIteration, double tolerance) const = 0;
 	
-	virtual const std::string& GetName()
+	virtual const std::string& GetName() const
 	{
 		return name_;
 	}

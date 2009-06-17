@@ -118,7 +118,7 @@ private:
 
 struct DataPointTimeLessThan // used for sorting DataPoints with respect to time
 {
-	bool operator() (const DataPoint& i, const DataPoint& j) 
+	bool operator() (const DataPoint& i, const DataPoint& j)  const
 	{
 		return (i.GetTime()<j.GetTime());
 	}
@@ -131,7 +131,7 @@ public:
 	: id_(id)
 	{}
 	
-	bool operator() (const DataPoint& point)
+	bool operator() (const DataPoint& point) const
 	{
 		return (id_ == point.GetCmissNode());
 	}

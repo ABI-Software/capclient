@@ -56,12 +56,12 @@ CAPTimeSmoother::~CAPTimeSmoother()
 	delete pImpl;
 }
 
-double CAPTimeSmoother::MapToXi(float time)
+double CAPTimeSmoother::MapToXi(float time) const
 {
 	return time;
 }
 
-std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<float>& dataPoints, const std::vector<int>& framesWithDataPoints)
+std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<float>& dataPoints, const std::vector<int>& framesWithDataPoints) const
 {
 	// 1. Project data points (from each frame) to model to get corresponding xi
 	// Here the data points are the nodal parameters at each frame and linearly map to xi
@@ -143,7 +143,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	return x;
 }
 
-std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber)
+std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber) const
 {
 	std::vector<double> prior(11);
 	for (int i =0; i<11; i++)
@@ -154,7 +154,7 @@ std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber)
 	return prior;
 }
 
-float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& params)
+float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& params) const
 {
 	double psi[NUMBER_OF_PARAMETERS];
 	CAPFourierBasis basis;
