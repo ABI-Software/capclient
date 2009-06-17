@@ -42,7 +42,7 @@ public:
 	typedef std::vector<float> parameters;
 	int ReadModelFromFiles(const std::string& path);
 	
-	const std::vector<float> GetLambda(int frame);
+	const std::vector<float> GetLambda(int frame) const;
 
 	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
 	void SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
@@ -108,7 +108,7 @@ public:
 		numberOfModelFrames_ = numberOfFrames;
 	}
 	
-	float ComputeVolume(SurfaceType surface, float time);
+	float ComputeVolume(SurfaceType surface, float time) const;
 	
 private:
 	

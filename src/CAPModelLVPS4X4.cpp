@@ -518,7 +518,7 @@ void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<float>& lambdaParams, 
 	SetLambda(lambdaParams, static_cast<float>(frameNumber)/numberOfModelFrames_);
 }
 
-const std::vector<float> GetLambda(int frame)
+const std::vector<float> CAPModelLVPS4X4::GetLambda(int frame) const
 {
 	std::vector<float> lambdas;
 	for (int i=0; i < 134; i++)
@@ -865,7 +865,7 @@ int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 	return std::min(static_cast<int>(time / frameDuration), numberOfModelFrames_);
 }
 
-float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time)
+float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
 {
 	const int numElements = 16;
 	const int nx = 7, ny = 7;

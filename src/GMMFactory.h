@@ -145,10 +145,10 @@ class GMMGSmoothAMatrix : public GSmoothAMatrix
 	// This class only need to conform to the interface GMM++ cg requires 
 	
 public:
-	gmm::csc_matrix<double>* S, *B;
-	gmm::csc_matrix<double>* P;
+	const gmm::csc_matrix<double>* S, *B;
+	const gmm::csc_matrix<double>* P;
 	
-	GMMGSmoothAMatrix(gmm::csc_matrix<double>& Sref, gmm::csc_matrix<double>& Bref)
+	GMMGSmoothAMatrix(const gmm::csc_matrix<double>& Sref, const gmm::csc_matrix<double>& Bref)
 	{
 		S = &Sref;
 		B = &Bref;
@@ -167,9 +167,9 @@ public:
 		delete[] jc;
 	}
 	
-	void UpdateData(Matrix& M)
+	void UpdateData(const Matrix& M)
 	{
-		P = &(static_cast<GMMMatrix*>(&M)->GetImpl());
+		P = &(static_cast<const GMMMatrix*>(&M)->GetImpl());
 	}
 	
 	// REVISE: Following two functions need to be defined since this class inherits from Matrix (never really used.)
@@ -372,7 +372,7 @@ public:
 		return new GMMMatrix(*m);
 	}
 	
-	GSmoothAMatrix* CreateGSmoothAMatrix(Matrix& S, Matrix& G) const
+	GSmoothAMatrix* CreateGSmoothAMatrix(const Matrix& S, const Matrix& G) const
 	{
 		return new gmm::GMMGSmoothAMatrix(
 				static_cast<const GMMMatrix*>(&S)->GetImpl(),
