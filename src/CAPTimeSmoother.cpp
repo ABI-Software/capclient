@@ -6,7 +6,7 @@
  */
 
 //#include "SolverLibraryFactory.h"
-#include "Cim1DFourierBasis.h"
+#include "CAPBasis.h"
 #include "gmm/gmm.h" // TODO use wrapper
 
 #include "CAPTimeSmoother.h"
@@ -67,7 +67,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	// Here the data points are the nodal parameters at each frame and linearly map to xi
 	// 2. Construct P
 	
-	Cim1DFourierBasis basis;
+	CAPFourierBasis basis;
 	int numRows = dataPoints.size();
 	gmm::dense_matrix<double> P(numRows, NUMBER_OF_PARAMETERS);
 	
@@ -79,7 +79,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 		xiDouble[0] = MapToXi(static_cast<float>(i)/numRows); //REVISE design
 //		std::cout << "dataPoint(" << i << ") = " << dataPoints[i] << ", xi = "<< xiDouble[0] <<'\n';
 		double psi[NUMBER_OF_PARAMETERS];
-		basis.evaluateBasis(psi, xiDouble);
+		basis.Evaluate(psi, xiDouble);
 		for (int columnIndex = 0; columnIndex < NUMBER_OF_PARAMETERS; columnIndex++)
 		{
 			P(i, columnIndex) = psi[columnIndex];
@@ -157,10 +157,10 @@ std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber)
 float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& params)
 {
 	double psi[NUMBER_OF_PARAMETERS];
-	Cim1DFourierBasis basis;
+	CAPFourierBasis basis;
 	double xiDouble[1];
 	xiDouble[0] = xi;
-	basis.evaluateBasis(psi, xiDouble);
+	basis.Evaluate(psi, xiDouble);
 	
 	float lambda(0);
 	for (int i = 0; i<NUMBER_OF_PARAMETERS; i++)

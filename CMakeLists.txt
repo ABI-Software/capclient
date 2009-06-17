@@ -38,7 +38,7 @@ src/CmguiManager.cpp
 src/CAPModeller.cpp
 src/CAPTimeSmoother.cpp
 src/CAPModellingMode.cpp
-src/DataSet.cpp
+#src/DataSet.cpp
 )
 
 SET(ITK_BINDIR ${CMISS_ROOT}/itk/lib/${LIB_ARCH_DIR})
@@ -96,18 +96,9 @@ IF(WIN32)
   SET(common_LIBS "-lws2_32 -lgdi32 -lmsimg32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -lnetapi32 -luuid -lwsock32 -lmpr -lwinmm -lversion -lodbc32 -lstdc++")
 ENDIF(WIN32)
 
-#TODO remove the following when Cmgui supports basis evaluation
-SET(TEMP
-CimBasis/Cim1DFourierBasis.cpp
-CimBasis/CimCubicHermiteBasis.cpp
-CimBasis/CimBasis.cpp
-CimBasis/CimLinearBasis.cpp
-CimBasis/CimBiCubicHermiteLinearBasis.cpp
-)
-
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/CimBasis)
 
-ADD_EXECUTABLE(CAPClient ${SRCS} ${TEMP})
+ADD_EXECUTABLE(CAPClient ${SRCS})
 SET(wxMathPlot ${CMISS_ROOT}/wxMathPlot/lib/libmathplot.a)
 
 # and for each of your dependant executable/library targets:

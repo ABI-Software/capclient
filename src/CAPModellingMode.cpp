@@ -316,7 +316,7 @@ const std::vector<DataPoint>& CAPModellingModeBasePlane::GetBasePlanePoints() co
 #include "CAPMath.h"
 #include "CAPModelLVPS4X4.h"
 
-#include "CimBiCubicHermiteLinearBasis.h"
+#include "CAPBasis.h"
 
 const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
 const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
@@ -486,7 +486,7 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 	//    use this function as a temporary soln until Cmgui supports this
 	double psi[32]; //FIX 32?
 	std::vector<Entry> entries;
-	CimBiCubicHermiteLinearBasis basis;
+	CAPBiCubicHermiteLinearBasis basis;
 	std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
 	std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
 
@@ -496,7 +496,7 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 		temp[0] = itr_xi->x;
 		temp[1] = itr_xi->y;
 		temp[2] = itr_xi->z;
-		basis.evaluateBasis(psi, temp);
+		basis.Evaluate(psi, temp);
 		
 		for (int nodalValueIndex = 0; nodalValueIndex < 32; nodalValueIndex++)
 		{
