@@ -75,8 +75,9 @@ public:
 	
 	void SetValidPeriod(float startTime, float endTime)
 	{
+		const float EPSILON = 0.001;
 		startTime_ = startTime;
-		endTime_ = endTime;
+		endTime_ = endTime - EPSILON;
 	}
 	
 	void SetVisible(bool visibility)
