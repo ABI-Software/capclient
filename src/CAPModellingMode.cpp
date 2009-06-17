@@ -406,7 +406,7 @@ void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Po
 	int frameNumber = heartModel_.MapToModelFrameNumber(dataPoint.GetTime());
 	
 #ifndef NDEBUG
-	std::cout << "frame number = " << frameNumber << std::endl;
+	std::cout << "CAPModellingModeGuidePoints::AddDataPoint time = " << dataPoint.GetTime() << ", frame number = " << frameNumber << std::endl;
 #endif
 	
 	vectorOfDataPoints_[frameNumber].insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
@@ -545,7 +545,7 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 
 	clock_t after = clock();
 	std::cout << solverFactory_->GetName() << " CG time = " << (after - before) << std::endl;
-
+	std::cout << "Frame number = " << frameNumber << std::endl;
 
 	        
 	*x += *prior_;
