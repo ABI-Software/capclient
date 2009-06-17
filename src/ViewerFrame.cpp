@@ -449,9 +449,20 @@ void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
 	int min = slider->GetMin();
 	int max = slider->GetMax();
 	double time =  (double)(value - min) / (double)(max - min);
-	
-//	cout << "time = " << time << endl;;	
+	double prevFrameTime = heartModel_.MapToModelFrameTime(time);
+	if ((time - prevFrameTime) < (0.5)/(heartModel_.GetNumberOfModelFrames()))
+	{
+		time = prevFrameTime;
+	}
+	else
+	{
+		time = prevFrameTime + (float)1/(heartModel_.GetNumberOfModelFrames());
+	}
+	slider->SetValue(time * (max - min));
+	cout << "time = " << time << endl;;	
 //	imageSet_->SetTime(time);
+	time = (time > 0.99) ? 0 : time;
+	
 	Time_keeper_request_new_time(timeKeeper_, time);
 	
 	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
