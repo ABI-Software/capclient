@@ -142,7 +142,7 @@ void ImageSlice::SetTime(double time)
 	}
 	else
 	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
 		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
 
 		GT_element_settings_set_texture_coordinate_field(settings,c_field);
@@ -291,7 +291,7 @@ void ImageSlice::LoadImagePlaneModel()
 	}
 	else
 	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(root_region);
+		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
 		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
 
 		GT_element_settings_set_texture_coordinate_field(settings,c_field);
