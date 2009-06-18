@@ -141,7 +141,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 	// FIX use API calls instead of command line
 	// TODO extract method
 	char str[256];
-	sprintf((char*)str, "gfx define field heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
+	sprintf((char*)str, "gfx define field /heart/heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
 	Cmiss_command_data_execute_command(pImpl_->commandData, str);
 
 	
@@ -481,7 +481,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float ti
 
 void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams, float time)
 {
-	std::cout << __func__ << ": time = " << time << std::endl;
+//	std::cout << __func__ << ": time = " << time << std::endl;
 	
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{
