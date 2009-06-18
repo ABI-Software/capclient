@@ -431,17 +431,17 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float ti
 //	point[0] = lambda, point[1] = mu, point[2] = theta;
 	point[0] = coordLocal.x, point[1] = coordLocal.y, point[2] = coordLocal.z;
 	FE_element* element = 0;
-//	int return_code = Computed_field_find_element_xi(field,
-//		point, /*number_of_values*/3, &element /*FE_element** */, 
-//		xi, /*element_dimension*/3, cmiss_region
-//		, /*propagate_field*/0, /*find_nearest_location*/1);
-	
-	point[0] = lambda, point[1] = mu, point[2] = theta;
-	field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");
 	int return_code = Computed_field_find_element_xi(field,
 		point, /*number_of_values*/3, time, &element /*FE_element** */, 
 		xi, /*element_dimension*/3, cmiss_region
-		, /*propagate_field*/0, /*find_nearest_location*/1);	
+		, /*propagate_field*/0, /*find_nearest_location*/1);
+	
+//	point[0] = lambda, point[1] = mu, point[2] = theta;
+//	field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");
+//	int return_code = Computed_field_find_element_xi(field,
+//		point, /*number_of_values*/3, time, &element /*FE_element** */, 
+//		xi, /*element_dimension*/3, cmiss_region
+//		, /*propagate_field*/0, /*find_nearest_location*/1);	
 	if (return_code)
 	{
 //		if (xi[2] < 0.5)
