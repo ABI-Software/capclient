@@ -459,7 +459,7 @@ void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
 		time = prevFrameTime + (float)1/(heartModel_.GetNumberOfModelFrames());
 	}
 	slider->SetValue(time * (max - min));
-	cout << "time = " << time << endl;;	
+//	cout << "time = " << time << endl;;	
 //	imageSet_->SetTime(time);
 	time = (time > 0.99) ? 0 : time;
 	
@@ -631,7 +631,7 @@ void ViewerFrame::UpdateMII() //FIX
 		
 		//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
 		Vector3D normalTransformed = m * plane.normal;
-		sprintf((char*)str, "gfx define field slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 					sliceName.c_str() ,
 					normalTransformed.x, normalTransformed.y, normalTransformed.z);
 		Cmiss_command_data_execute_command(command_data, str);
@@ -660,7 +660,7 @@ void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS
 	
 	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
 	Vector3D normalTransformed = m * plane.normal;
-	sprintf((char*)str, "gfx define field slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 				sliceName.c_str() ,
 				normalTransformed.x, normalTransformed.y, normalTransformed.z);
 //	cout << str << endl;
