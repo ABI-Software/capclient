@@ -31,6 +31,13 @@ extern "C" {
 
 struct CAPModelLVPS4X4::HeartModelImpl
 {
+	HeartModelImpl()
+	:
+		region(0),
+		field(0),
+		commandData(0)
+	{}
+	
 	Cmiss_command_data* commandData;
 	Cmiss_region* region;
 	//Scene_object* sceneObject;
@@ -53,11 +60,19 @@ using namespace std;
 
 int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 {	
+//	if (pImpl_->region) //REVISE 1. too procedural 2. remove prefix
+//	{
+//		if (!Cmiss_region_destroy(&pImpl_->region))
+//		{
+//			std::cout << __func__ << " - Error : Can't destroy region" << std::endl;
+//		}
+//	}
+	
 	stringstream pathStream;	
 	pathStream << prefix << path << "/";// << modelName << "_";// << 
 	string dir_path = pathStream.str();
 
-	ReadModelInfo(dir_path); // this will set numberOfModelFrames and transformation Matrix
+	ReadModelInfo(dir_path); // this will set numberOfModelFrames, focal length and transformation Matrix 
 
 	pImpl_->commandData = CmguiManager::getInstance().getCmissCommandData();
 
@@ -258,6 +273,9 @@ void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
 	modelInfoFile << patientToGlobalTransform_[3][0] << "i ";
 	modelInfoFile << patientToGlobalTransform_[3][1] << "j ";
 	modelInfoFile << patientToGlobalTransform_[3][2] << "k\n";
+	modelInfoFile << "\n";
+	modelInfoFile << "FocalLength\n";
+	modelInfoFile << focalLength_;
 }
 
 void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
@@ -306,6 +324,20 @@ void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
 	cout << "a2 = " << j_hat <<endl;
 	cout << "a3 = " << k_hat <<endl;
 	cout << "t  = " << translation <<endl;
+	
+	getline(modelInfoFile, line); //empty line
+	cout << line << endl;	
+	getline(modelInfoFile, line); //empty line
+	cout << line << endl;	
+	getline(modelInfoFile, line); //FocalLength:
+	cout << line << endl;
+	float focalLength;
+	modelInfoFile >> focalLength;
+	if (pImpl_->region) //HACK
+	{
+		this->SetFocalLengh(focalLength);
+	}
+	cout << "focal length = " << focalLength_ << endl;
 	
 	Point3D i(1,0,0), j(0,1,0), k(0,0,1); // world coord basis vectors
 	gtMatrix temp;
@@ -1086,4 +1118,20 @@ void CAPModelLVPS4X4::SetFocalLengh(float focalLength)
 	struct Coordinate_system* coordinate_system = Computed_field_get_coordinate_system(pImpl_->field);
 	focalLength_ = focalLength;
 	coordinate_system->parameters.focus = focalLength_;
+	
+	struct FE_field *fe_field;
+	struct LIST(FE_field) *fe_field_list  = Computed_field_get_defining_FE_field_list(pImpl_->field);
+	if (fe_field_list)
+	{
+		if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
+			(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
+			(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
+			fe_field_list)) && (3 == get_FE_field_number_of_components(
+			fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
+		{
+			struct Coordinate_system* coordinate_system = get_FE_field_coordinate_system(fe_field);
+			coordinate_system->parameters.focus = focalLength_;
+		}
+	}
+	return;
 }

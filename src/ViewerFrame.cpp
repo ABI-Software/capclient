@@ -327,7 +327,7 @@ wxPanel* ViewerFrame::getPanel()
 
 void ViewerFrame::TogglePlay(wxCommandEvent& event)
 {
-	wxButton* button = XRCCTRL(*this, "button_1", wxButton);
+	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
 	
 	if (animationIsOn_)
 	{
@@ -819,17 +819,28 @@ void ViewerFrame::OnAbout(wxCommandEvent& event)
 void ViewerFrame::OnOpen(wxCommandEvent& event)
 {
 	wxString defaultPath = "./Data";
-	wxString defaultFilename = "";
-	wxString defaultExtension = "";
-	wxString wildcard = "";
-	int flags = wxOPEN;
+//	wxString defaultFilename = "";
+//	wxString defaultExtension = "";
+//	wxString wildcard = "";
+//	int flags = wxOPEN;
 	
-	wxString filename = wxFileSelector("Choose a file to open",
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if ( !filename.empty() )
+//	wxString filename = wxFileSelector("Choose a file to open",
+//			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+//	if ( !filename.empty() )
+//	{
+//	    // work with the file
+//	    cout << __func__ << " - File name: " << filename.c_str() << endl;
+//	}
+	
+	const wxString& dirname = wxDirSelector("Choose the folder that contains the model");
+	if ( !dirname.empty() )
 	{
-	    // work with the file
-	    cout << __func__ << " - File name: " << filename.c_str() << endl;
+		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
+		string filename(dirname.c_str());
+		size_t positionOfLastSlash = filename.find_last_of('/');
+		string dirOnly = filename.substr(positionOfLastSlash); //FIX
+		heartModel_.ReadModelFromFiles(dirOnly);
+		InitialiseMII();
 	}
 }
 
