@@ -42,6 +42,8 @@ public:
 	typedef std::vector<float> parameters;
 	int ReadModelFromFiles(const std::string& path);
 	
+	void WriteToFile(const std::string& path);
+	
 	const std::vector<float> GetLambda(int frame) const;
 
 	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
@@ -114,7 +116,9 @@ private:
 	
 	static const int NUMBER_OF_NODES = 40; 
 	
-	void ReadModelInfo(std::string modelInfoFilePath);
+	void ReadModelInfo(const std::string& modelInfoFilePath);
+	
+	void WriteModelInfo(const std::string& modelInfoFilePath);
 	
 	gtMatrix patientToGlobalTransform_; // model to world transformation
 	std::string modelName_;

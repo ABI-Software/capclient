@@ -20,6 +20,7 @@ extern "C" {
 #include "graphics/scene.h"
 #include "computed_field/computed_field_finite_element.h"
 #include "general/debug.h"
+#include "finite_element/export_finite_element.h"
 }
 
 #include <iostream>
@@ -165,14 +166,109 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 	return 0;
 }
 
-void CAPModelLVPS4X4::ReadModelInfo(std::string modelInfoFilePath)
+#include <wx/filefn.h>
+
+void CAPModelLVPS4X4::WriteToFile(const std::string& filename)
 {
-	modelInfoFilePath.append("ModelInfo.txt");
-	ifstream modelInfoFile(modelInfoFilePath.c_str());
+	// TODO use a platform/gui toolkit abstraction layer
+	if (!wxMkdir(filename.c_str()))
+	{
+		std::cout << __func__ << " - Error: can't create directory: " << filename << std::endl;
+		return;
+	}
+	
+	int number_of_field_names = 1;
+	char* field_names[] = {"coordinates"};
+	int write_data = 0;
+	FE_write_fields_mode write_fields_mode = FE_WRITE_LISTED_FIELDS;
+	FE_write_criterion write_criterion = FE_WRITE_COMPLETE_GROUP;
+	FE_write_recursion write_recursion = FE_WRITE_NON_RECURSIVE;
+	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
+	
+	for (int i = 0; i < numberOfModelFrames_ ; i++)
+	{
+		FE_value time = static_cast<float>(i)/numberOfModelFrames_;
+		const int write_elements = 0;
+		const int write_nodes = 1;
+		size_t positionOfLastSlash = filename.find_last_of('/');
+		string exnodeFilenamePrefix = filename.substr(positionOfLastSlash);
+		stringstream filenameStream;
+		filenameStream << filename << "/" << exnodeFilenamePrefix << "_" << i+1 << ".model.exnode" ;
+		const string& exnodeFilenameString = filenameStream.str();
+		
+		int ret = write_exregion_file_of_name(exnodeFilenameString.c_str(),
+				pImpl_->region,  root_region,
+				write_elements , write_nodes , write_data,
+				write_fields_mode, number_of_field_names, field_names, time,
+				write_criterion, write_recursion);
+		if (!ret)
+		{
+			std::cout << __func__ << " - Error writing exnode: " << exnodeFilenameString << std::endl;
+		}
+	}
+	
+	// write exelem
+	const int write_elements = 1;
+	const int write_nodes = 0;
+	const FE_value time = 0.0;
+	string exelemFilename(filename);
+	exelemFilename.append("/GlobalHermiteParam.exelem");
+	int ret = write_exregion_file_of_name(exelemFilename.c_str(),
+			pImpl_->region,  root_region,
+			write_elements , write_nodes , write_data,
+			write_fields_mode, number_of_field_names, field_names, time,
+			write_criterion, write_recursion);
+	if (!ret)
+	{
+		std::cout << __func__ << " - Error writing .exelem: " << exelemFilename << std::endl;
+	}
+	
+	// write ModelInfo.txt
+	WriteModelInfo(filename);
+}
+
+void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
+{
+	string modelInfoFileName(modelInfoFilePath);
+	modelInfoFileName.append("/ModelInfo.txt");
+	ofstream modelInfoFile(modelInfoFileName.c_str());
 	
 	if (!modelInfoFile.is_open())
 	{
-		cout << "Can't open ModelInfo.txt - " << modelInfoFilePath << endl;
+		cout << __func__ << " - Can't open ModelInfo.txt - " << modelInfoFileName << endl;
+		return; // should throw?
+	}
+	
+	modelInfoFile << "NumberOfModelFrames:\n";
+	modelInfoFile << numberOfModelFrames_ << "\n\n";
+	modelInfoFile << "ModelToPatientTransform:\n";
+	modelInfoFile << "a1 ";
+	modelInfoFile << patientToGlobalTransform_[0][0] << "i ";
+	modelInfoFile << patientToGlobalTransform_[0][1] << "j ";
+	modelInfoFile << patientToGlobalTransform_[0][2] << "k\n";
+	modelInfoFile << "a2 ";
+	modelInfoFile << patientToGlobalTransform_[1][0] << "i ";
+	modelInfoFile << patientToGlobalTransform_[1][1] << "j ";
+	modelInfoFile << patientToGlobalTransform_[1][2] << "k\n";
+	modelInfoFile << "a3 ";
+	modelInfoFile << patientToGlobalTransform_[2][0] << "i ";
+	modelInfoFile << patientToGlobalTransform_[2][1] << "j ";
+	modelInfoFile << patientToGlobalTransform_[2][2] << "k\n";
+	modelInfoFile << "t ";
+	modelInfoFile << patientToGlobalTransform_[3][0] << "i ";
+	modelInfoFile << patientToGlobalTransform_[3][1] << "j ";
+	modelInfoFile << patientToGlobalTransform_[3][2] << "k\n";
+}
+
+void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
+{
+	string modelInfoFileName(modelInfoFilePath);
+	modelInfoFileName.append("ModelInfo.txt");
+	ifstream modelInfoFile(modelInfoFileName.c_str());
+	
+	if (!modelInfoFile.is_open())
+	{
+		cout << __func__ << " - Can't open ModelInfo.txt - " << modelInfoFileName << endl;
 		return; // should throw?
 	}
 	string line;
