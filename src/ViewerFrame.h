@@ -97,10 +97,14 @@ private:
 	void OnWireframeCheckBox(wxCommandEvent& event);
 	void OnBrightnessSliderEvent(wxCommandEvent& event);
 	void OnContrastSliderEvent(wxCommandEvent& event);
-	
-	
+
 	void OnAcceptButtonPressed(wxCommandEvent& event);
 	void OnModellingModeChanged(wxCommandEvent& event);
+	
+	void OnAbout(wxCommandEvent& event);
+	void OnOpen(wxCommandEvent& event);
+	void OnSave(wxCommandEvent& event);
+	void OnQuit(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 };

@@ -6,6 +6,38 @@
         <style>wxDEFAULT_FRAME_STYLE</style>
         <size>1024, 768</size>
         <title>CAP Client</title>
+        
+        <object class="wxMenuBar" name="MenuBar">
+            <style>wxMB_DOCKABLE</style>
+            <object class="wxMenu" name="FileMenu">
+                <label>File</label>
+                    <style>wxMENU_TEAROFF</style>
+                        <object class="wxMenuItem" name="AboutMenuItem">
+                            <label>About...</label>
+                        </object>
+                        <object class="separator"/>
+                        <object class="wxMenuItem" name="OpenMenuItem">
+                            <label>Open</label>
+                        </object>
+                        <object class="wxMenuItem" name="SaveMenuItem">
+                            <label>Save</label>
+                        </object>
+                        <object class="separator"/>
+                        <object class="wxMenuItem" name="QuitMenuItem">
+                            <label>Exit\tAlt-X</label>
+                        </object>
+            </object>
+<!--
+            <object class="wxMenu" name="Help">
+                <label>Help</label>
+                    <style>wxMENU_TEAROFF</style>
+                        <object class="wxMenuItem" name="AboutMenuItem2">
+                            <label>About...</label>
+                        </object>
+            </object>
+-->
+        </object>
+        
         <object class="wxBoxSizer">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
@@ -33,7 +65,7 @@
                                     <orient>wxHORIZONTAL</orient>
                                     <object class="sizeritem">
                                         <flag>wxALIGN_CENTER_VERTICAL</flag>
-                                        <object class="wxButton" name="button_1">
+                                        <object class="wxButton" name="PlayButton">
                                             <label>Play</label>
                                         </object>
                                     </object>

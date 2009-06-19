@@ -2,6 +2,7 @@
 
 #include "wx/xrc/xmlres.h"
 #include "wx/splitter.h"
+#include <wx/aboutdlg.h>
 //#include "wx/slider.h"
 //#include "wx/button.h"
 
@@ -349,7 +350,13 @@ void ViewerFrame::TogglePlay(wxCommandEvent& event)
 
 void ViewerFrame::Terminate(wxCloseEvent& event)
 {
-	exit(0); //without this, the funny temporary window appears
+//	int answer = wxMessageBox("Quit program?", "Confirm",
+//	                            wxYES_NO | wxCANCEL, this);
+//	if (answer == wxYES)
+//	{
+//		Close();
+		exit(0); //without this, the funny temporary window appears
+//	}
 }
 
 int ViewerFrame::add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox)
@@ -798,8 +805,64 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
+void ViewerFrame::OnAbout(wxCommandEvent& event)
+{
+    wxAboutDialogInfo info;
+    info.SetName(_("CAP Client"));
+    info.SetVersion(_("0.1 Alpha"));
+    info.SetDescription(_("See http://www.cardiacatlas.org"));
+    info.SetCopyright(_T("(C) 2009 ABI"));
+
+    wxAboutBox(info);
+}
+
+void ViewerFrame::OnOpen(wxCommandEvent& event)
+{
+	wxString defaultPath = "./Data";
+	wxString defaultFilename = "";
+	wxString defaultExtension = "";
+	wxString wildcard = "";
+	int flags = wxOPEN;
+	
+	wxString filename = wxFileSelector("Choose a file to open",
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+	if ( !filename.empty() )
+	{
+	    // work with the file
+	    cout << __func__ << " - File name: " << filename.c_str() << endl;
+	}
+}
+
+void ViewerFrame::OnSave(wxCommandEvent& event)
+{
+	wxString defaultPath = "./Data";
+	wxString defaultFilename = "";
+	wxString defaultExtension = "";
+	wxString wildcard = "";
+	int flags = wxSAVE;
+	
+	wxString filename = wxFileSelector("Save file",
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+	if ( !filename.empty() )
+	{
+	    // work with the file
+	    cout << __func__ << " - File name: " << filename.c_str() << endl;
+	    heartModel_.WriteToFile(filename.c_str());
+	}
+}
+
+void ViewerFrame::OnQuit(wxCommandEvent& event)
+{
+	int answer = wxMessageBox("Quit program?", "Confirm",
+	                            wxYES_NO, this);
+	if (answer == wxYES)
+	{
+		Close();
+	}
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
-	EVT_BUTTON(XRCID("button_1"),ViewerFrame::TogglePlay) // play button
+	EVT_BUTTON(XRCID("PlayButton"),ViewerFrame::TogglePlay) // play button
 	EVT_SLIDER(XRCID("AnimationSlider"),ViewerFrame::OnAnimationSliderEvent) // animation slider
 	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
 	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
@@ -813,4 +876,8 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("AcceptButton"),ViewerFrame::OnAcceptButtonPressed)
 	EVT_CHOICE(XRCID("ModeChoice"),ViewerFrame::OnModellingModeChanged)
 	EVT_CLOSE(ViewerFrame::Terminate)
+	EVT_MENU(XRCID("QuitMenuItem"),  ViewerFrame::OnQuit)
+	EVT_MENU(XRCID("AboutMenuItem"), ViewerFrame::OnAbout)
+	EVT_MENU(XRCID("OpenMenuItem"), ViewerFrame::OnOpen)
+	EVT_MENU(XRCID("SaveMenuItem"), ViewerFrame::OnSave)
 END_EVENT_TABLE()
