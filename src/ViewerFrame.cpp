@@ -6,6 +6,7 @@
 //#include "wx/slider.h"
 //#include "wx/button.h"
 
+#include "Config.h"
 #include "ViewerFrame.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
@@ -189,7 +190,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 #endif //TEXTURE_ANIMATION
 	
 	//Load model
-	heartModel_.ReadModelFromFiles("MIDLIFE_01");	
+	heartModel_.ReadModelFromFiles("MIDLIFE_01", CAP_DATA_DIR);	
 	//heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);//this resets timer frequency for model!! if called after its been cleared!!??
 
 	InitialiseMII();
@@ -843,8 +844,9 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 		size_t positionOfLastSlash = filename.find_last_of("/\\");
 		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
 		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX
+		string prefix = filename.substr(0, positionOfLastSlash+1); 
 		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
-		heartModel_.ReadModelFromFiles(dirOnly);
+		heartModel_.ReadModelFromFiles(dirOnly, prefix);
 		InitialiseMII();
 		
 		wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
