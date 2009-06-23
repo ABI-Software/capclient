@@ -835,7 +835,7 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 //	    cout << __func__ << " - File name: " << filename.c_str() << endl;
 //	}
 	
-	const wxString& dirname = wxDirSelector("Choose the folder that contains the model");
+	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
 	if ( !dirname.empty() )
 	{
 		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
@@ -846,6 +846,12 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
 		heartModel_.ReadModelFromFiles(dirOnly);
 		InitialiseMII();
+		
+		wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
+		heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
+		
+		wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
+		heartModel_.SetMIIVisibility(miiCheckBox->IsChecked());
 	}
 }
 
