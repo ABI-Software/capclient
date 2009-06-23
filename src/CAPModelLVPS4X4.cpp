@@ -183,12 +183,12 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
 
 #include <wx/filefn.h>
 
-void CAPModelLVPS4X4::WriteToFile(const std::string& filename)
+void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 {
 	// TODO use a platform/gui toolkit abstraction layer
-	if (!wxMkdir(filename.c_str()))
+	if (!wxMkdir(dirname.c_str()))
 	{
-		std::cout << __func__ << " - Error: can't create directory: " << filename << std::endl;
+		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
 		return;
 	}
 	
@@ -205,12 +205,13 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& filename)
 		FE_value time = static_cast<float>(i)/numberOfModelFrames_;
 		const int write_elements = 0;
 		const int write_nodes = 1;
-		size_t positionOfLastSlash = filename.find_last_of('/');
-		string exnodeFilenamePrefix = filename.substr(positionOfLastSlash);
+		//string exnodeFilenamePrefix(dirname);
+		size_t positionOfLastSlash = dirname.find_last_of("/\\");
+		string exnodeFilenamePrefix = dirname.substr(positionOfLastSlash+1);
 		stringstream filenameStream;
-		filenameStream << filename << "/" << exnodeFilenamePrefix << "_" << i+1 << ".model.exnode" ;
+		filenameStream << dirname << "/" << exnodeFilenamePrefix << "_" << i+1 << ".model.exnode" ;
 		const string& exnodeFilenameString = filenameStream.str();
-		
+
 		int ret = write_exregion_file_of_name(exnodeFilenameString.c_str(),
 				pImpl_->region,  root_region,
 				write_elements , write_nodes , write_data,
@@ -221,12 +222,12 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& filename)
 			std::cout << __func__ << " - Error writing exnode: " << exnodeFilenameString << std::endl;
 		}
 	}
-	
+
 	// write exelem
 	const int write_elements = 1;
 	const int write_nodes = 0;
 	const FE_value time = 0.0;
-	string exelemFilename(filename);
+	string exelemFilename(dirname);
 	exelemFilename.append("/GlobalHermiteParam.exelem");
 	int ret = write_exregion_file_of_name(exelemFilename.c_str(),
 			pImpl_->region,  root_region,
@@ -237,13 +238,13 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& filename)
 	{
 		std::cout << __func__ << " - Error writing .exelem: " << exelemFilename << std::endl;
 	}
-	
+
 	// write ModelInfo.txt
-	WriteModelInfo(filename);
+	WriteModelInfo(dirname);
 }
 
 void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
-{
+{	
 	string modelInfoFileName(modelInfoFilePath);
 	modelInfoFileName.append("/ModelInfo.txt");
 	ofstream modelInfoFile(modelInfoFileName.c_str());
