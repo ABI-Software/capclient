@@ -1120,6 +1120,9 @@ void CAPModelLVPS4X4::SetFocalLengh(float focalLength)
 	focalLength_ = focalLength;
 	coordinate_system->parameters.focus = focalLength_;
 	
+	// The fe_field keeps a copy of the coordinate_system info
+	// This has to be updated too since Cmgui uses this copy when merging regions 
+	// read in from files
 	struct FE_field *fe_field;
 	struct LIST(FE_field) *fe_field_list  = Computed_field_get_defining_FE_field_list(pImpl_->field);
 	if (fe_field_list)
