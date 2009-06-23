@@ -843,7 +843,7 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 		string filename(dirname.c_str());
 		size_t positionOfLastSlash = filename.find_last_of("/\\");
 		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX
+		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
 		string prefix = filename.substr(0, positionOfLastSlash+1); 
 		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
 		heartModel_.ReadModelFromFiles(dirOnly, prefix);
