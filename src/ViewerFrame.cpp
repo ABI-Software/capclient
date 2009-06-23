@@ -6,10 +6,10 @@
 //#include "wx/slider.h"
 //#include "wx/button.h"
 
-#include "Config.h"
 #include "ViewerFrame.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
+#include "ImageSet.h"
 #include "CmguiExtensions.h"
 #include <iostream>
 #include <vector>
@@ -24,6 +24,7 @@ extern "C"
 #include "time/time.h"
 #include "command/cmiss.h"
 #include "graphics/scene.h"	
+#include "graphics/scene_viewer.h"
 #include "three_d_drawing/graphics_buffer.h"
 #include "graphics/graphics_library.h"
 #include "general/debug.h"
@@ -682,6 +683,7 @@ void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS
 	Cmiss_command_data_execute_command(command_data, str);
 }
 
+#ifdef GRAPH
 #include "VolumeGraph.h"
 
 void ViewerFrame::InitialiseVolumeGraph()
@@ -702,6 +704,7 @@ void ViewerFrame::InitialiseVolumeGraph()
 	MyFrame* v = new MyFrame(heartModel_, volumes);
 	v->Show(true);
 }
+#endif
 
 void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)
 {
@@ -837,8 +840,10 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 	{
 		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
 		string filename(dirname.c_str());
-		size_t positionOfLastSlash = filename.find_last_of('/');
-		string dirOnly = filename.substr(positionOfLastSlash); //FIX
+		size_t positionOfLastSlash = filename.find_last_of("/\\");
+		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX
+		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
 		heartModel_.ReadModelFromFiles(dirOnly);
 		InitialiseMII();
 	}

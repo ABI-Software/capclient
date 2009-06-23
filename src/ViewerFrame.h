@@ -7,28 +7,18 @@
     #include "wx/wx.h"
 #endif
 
-//#include "DICOMImage.h"
-#include "ImageSet.h"
 #include "CAPModelLVPS4X4.h"
-//#include "DataPoint.h"
 #include "CAPModeller.h"
 
 struct Cmiss_command_data;
-struct Time_keeper;
-
-extern "C"
-{
-#include "graphics/scene_viewer.h"
-#include "graphics/scene.h"
-}
+class ImageSet;
 
 class ViewerFrame : public wxFrame
 {
 public:
 	ViewerFrame(Cmiss_command_data* command_data_);
-	ViewerFrame(const wxChar* title, int xpos, int ypos, int width, int height);
 	~ViewerFrame();
-	
+
 	wxPanel* getPanel();
 	
 	void PopulateObjectList();
