@@ -40,7 +40,7 @@ public:
 	~CAPModelLVPS4X4();
 	
 	typedef std::vector<float> parameters;
-	int ReadModelFromFiles(const std::string& path);
+	int ReadModelFromFiles(const std::string& modelDirectory, const std::string& directoryPrefix);
 	
 	void WriteToFile(const std::string& path);
 	

@@ -226,13 +226,13 @@ void ImageSlice::LoadImagePlaneModel()
 	
 	// Read in ex files that define the element used to represent the image slice
 	// TODO these should be done programatically
-	sprintf(filename, "%stemplates/%s.exnode", prefix, name.c_str());
+	sprintf(filename, "%stemplates/%s.exnode", CAP_DATA_DIR, name.c_str());
 	if (!Cmiss_region_read_file(region,filename))
 	{
 		std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
 	}
 	
-	sprintf(filename, "%stemplates/%s.exelem", prefix, name.c_str());
+	sprintf(filename, "%stemplates/%s.exelem", CAP_DATA_DIR, name.c_str());
 	if (!Cmiss_region_read_file(region,filename))
 	{
 		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
@@ -318,7 +318,7 @@ void ImageSlice::LoadImagePlaneModel()
 
 void ImageSlice::LoadTextures()
 {
-	string dir_path(prefix);
+	string dir_path(CAP_DATA_DIR);
 	dir_path.append("images/");
 	dir_path.append(sliceName_);
 	
@@ -371,7 +371,7 @@ void ImageSlice::TransformImagePlane()
 	}
 
 	// Read in plane shift info if it exists for this slice
-	string filePath(prefix);
+	string filePath(CAP_DATA_DIR);
 	filePath.append("images/");
 	filePath.append(sliceName_);
 	filePath.append(".txt");

@@ -5,7 +5,6 @@
  *      Author: jchu014
  */
 
-#include "Config.h" //should go to header?
 #include "CAPModelLVPS4X4.h"
 #include "CmguiManager.h"
 #include "CmguiExtensions.h"
@@ -58,7 +57,7 @@ CAPModelLVPS4X4::~CAPModelLVPS4X4()
 
 using namespace std;
 
-int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path)
+int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::string& prefix)
 {	
 //	if (pImpl_->region) //REVISE 1. too procedural 2. remove prefix
 //	{
