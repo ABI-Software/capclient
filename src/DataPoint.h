@@ -106,6 +106,8 @@ public:
 		weight_ = rhs.weight_;
 		startTime_ = rhs.startTime_;
 		endTime_ = rhs.endTime_;
+		
+		return *this;
 	}
 	
 private:
