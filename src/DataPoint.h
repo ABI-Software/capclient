@@ -15,6 +15,8 @@ extern "C" {
 }
 #include "CmguiExtensions.h"
 
+#include <limits>
+
 class DataPoint
 {
 public:
@@ -75,7 +77,7 @@ public:
 	
 	void SetValidPeriod(float startTime, float endTime)
 	{
-		const float EPSILON = 0.001;
+		const float EPSILON = std::numeric_limits<float>::epsilon();
 		startTime_ = startTime;
 		endTime_ = endTime - EPSILON;
 	}
