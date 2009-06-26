@@ -817,8 +817,8 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
 		heartModel_.ReadModelFromFiles(dirOnly, prefix);
 		
-//		delete modeller_;
-//		modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
+		delete modeller_;
+		modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
 
 //		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 //		int numberOfItems = choice->GetCount();

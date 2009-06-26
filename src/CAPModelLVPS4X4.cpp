@@ -177,6 +177,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 		Cmiss_time_notifier_regular_set_frequency(timeNotifier, numberOfModelFrames_);
 	}
 	
+	cout << __func__ << " - Exit" << endl;
 	return 0;
 }
 
