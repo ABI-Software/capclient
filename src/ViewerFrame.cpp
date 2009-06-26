@@ -1,10 +1,6 @@
-// For compilers that don't support precompilation, include "wx/wx.h";
-
 #include "wx/xrc/xmlres.h"
 #include "wx/splitter.h"
 #include <wx/aboutdlg.h>
-//#include "wx/slider.h"
-//#include "wx/button.h"
 
 #include "Config.h"
 #include "ViewerFrame.h"
@@ -20,24 +16,14 @@
 
 extern "C"
 {
-#include "api/cmiss_region.h"
-#include "time/time_keeper.h"
-#include "time/time.h"
+#include "api/cmiss_time_keeper.h"
+#include "api/cmiss_time.h"
 #include "command/cmiss.h"
 #include "graphics/scene.h"	
 #include "graphics/scene_viewer.h"
 #include "three_d_drawing/graphics_buffer.h"
-#include "graphics/graphics_library.h"
 #include "general/debug.h"
-	
-#include "graphics/material.h"
-#include "graphics/element_group_settings.h"
-#include "graphics/glyph.h"
-	
-#include "general/geometry.h"
 }
-
-//#include <OpenGL/gl.h>
 
 using namespace std;
 		
@@ -133,7 +119,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	hideAll_(true),
 	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_)),
 	heartModel_("heart"),
-	modeller_(heartModel_)
+	modeller_(new CAPModeller(heartModel_))
 {
 	// Load layout from .xrc file
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
@@ -225,7 +211,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 
 #endif //NODE_CREATION
 	
-//	modeller_.InitialiseModel();//REVISE
+//	modeller_->InitialiseModel();//REVISE
 	
 	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
@@ -241,6 +227,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 ViewerFrame::~ViewerFrame()
 {
 	delete imageSet_;
+	delete modeller_;
 }
 
 void ViewerFrame::LoadImages()
@@ -266,32 +253,29 @@ float ViewerFrame::GetCurrentTime() const
 	return static_cast<float>(Cmiss_time_keeper_get_time(timeKeeper_));
 }
 
-void ViewerFrame::AddDataPoint(Cmiss_node_id dataPointID, const Point3D& position)
+void ViewerFrame::AddDataPoint(Cmiss_node* dataPointID, const Point3D& position)
 {
-	modeller_.AddDataPoint(dataPointID, position, GetCurrentTime());
+	modeller_->AddDataPoint(dataPointID, position, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
 }
 
-void ViewerFrame::MoveDataPoint(Cmiss_node_id dataPointID, const Point3D& newPosition)
+void ViewerFrame::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& newPosition)
 {
-	modeller_.MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
+	modeller_->MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
 }
 
-void ViewerFrame::RemoveDataPoint(Cmiss_node_id dataPointID)
+void ViewerFrame::RemoveDataPoint(Cmiss_node* dataPointID)
 {
 	cout << __func__ << endl;
-	FE_region* fe_region = FE_node_get_FE_region(dataPointID); //REVISE
-	fe_region = FE_region_get_data_FE_region(fe_region);
-	FE_region_remove_FE_node(fe_region, dataPointID); // access = 1; 
-	modeller_.RemoveDataPoint(dataPointID, GetCurrentTime());
+	modeller_->RemoveDataPoint(dataPointID, GetCurrentTime());
 	RefreshCmguiCanvas();
 }
 
 void ViewerFrame::InitialiseModel()
 {
-	modeller_.InitialiseModel();
-	modeller_.UpdateTimeVaryingModel();
+	modeller_->InitialiseModel();
+	modeller_->UpdateTimeVaryingModel();
 	RefreshCmguiCanvas();
 	
 	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
@@ -300,22 +284,7 @@ void ViewerFrame::InitialiseModel()
 
 void ViewerFrame::SmoothAlongTime()
 {
-	modeller_.SmoothAlongTime();
-	
-#ifdef TEST
-	static bool smooth = false;
-	if (smooth)
-	{
-		modeller_.SmoothAlongTime();
-		smooth = false;
-	}
-	else
-	{
-		modeller_.InitialiseModel();
-		modeller_.UpdateTimeVaryingModel();
-		smooth = true;
-	}
-#endif
+	modeller_->SmoothAlongTime();
 	RefreshCmguiCanvas();
 	
 	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
@@ -772,7 +741,7 @@ void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 			"Guide Points"
 	};//REVISE
 	
-	if (modeller_.OnAccept())
+	if (modeller_->OnAccept())
 	{
 		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 		int selectionIndex = choice->GetSelection();
@@ -796,7 +765,7 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 	std::cout << "MODE = " << choice->GetStringSelection() << endl;
 
 	int selectionIndex = choice->GetSelection();
-	modeller_.ChangeMode((CAPModeller::ModellingMode) selectionIndex);//FIX type unsafe
+	modeller_->ChangeMode((CAPModeller::ModellingMode) selectionIndex);//FIX type unsafe
 
 	int numberOfItems = choice->GetCount();
 	
@@ -847,6 +816,18 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 		string prefix = filename.substr(0, positionOfLastSlash+1); 
 		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
 		heartModel_.ReadModelFromFiles(dirOnly, prefix);
+		
+//		delete modeller_;
+//		modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
+
+//		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+//		int numberOfItems = choice->GetCount();
+//		for (int i = numberOfItems-1; i > 0; i--)
+//		{
+//			// Remove all items except Apex
+//			choice->Delete(i);
+//		}
+		
 		InitialiseMII();
 		
 		wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);

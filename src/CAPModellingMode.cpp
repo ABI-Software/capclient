@@ -9,10 +9,10 @@
 #include "CAPModeller.h"
 #include <iostream>
 
-extern "C"
-{
-#include "finite_element/finite_element_region.h"
-}
+//extern "C"
+//{
+//#include "finite_element/finite_element_region.h"
+//}
 
 CAPModellingMode::CAPModellingMode() 
 {
@@ -60,14 +60,14 @@ void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const Point3D& 
 {
 	if (!apex_.empty())
 	{
-		//remove Cmiss_node from the FE_region
-		Cmiss_node* oldApex = const_cast<Cmiss_node*>(apex_[0].GetCmissNode());
-		assert(oldApex);
-		FE_region* fe_region = FE_node_get_FE_region(oldApex); //REVISE
-		assert(fe_region);
-		fe_region = FE_region_get_data_FE_region(fe_region);
-		assert(fe_region);
-		FE_region_remove_FE_node(fe_region, oldApex); // access = 1;
+//		//remove Cmiss_node from the FE_region
+//		Cmiss_node* oldApex = const_cast<Cmiss_node*>(apex_[0].GetCmissNode());
+//		assert(oldApex);
+//		FE_region* fe_region = FE_node_get_FE_region(oldApex); //REVISE
+//		assert(fe_region);
+//		fe_region = FE_region_get_data_FE_region(fe_region);
+//		assert(fe_region);
+//		FE_region_remove_FE_node(fe_region, oldApex); // access = 1;
 		apex_.clear();
 	}
 
@@ -83,7 +83,6 @@ void CAPModellingModeApex::MoveDataPoint(Cmiss_node* dataPointID, const Point3D&
 	assert(apex_.size() == 1);
 	assert(apex_[0].GetCmissNode() == dataPointID);
 	apex_[0].SetCoordinate(coord);
-	//apex_[0].SetTime(time); ??
 }
 
 void CAPModellingModeApex::RemoveDataPoint(Cmiss_node* dataPointID, float time)
@@ -137,13 +136,13 @@ void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const Point3D& 
 	if (!base_.empty())
 	{
 		//remove Cmiss_node from the FE_region
-		Cmiss_node* oldBase = const_cast<Cmiss_node*>(base_[0].GetCmissNode());
-		assert(oldBase);
-		FE_region* fe_region = FE_node_get_FE_region(oldBase); //REVISE
-		assert(fe_region);
-		fe_region = FE_region_get_data_FE_region(fe_region);
-		assert(fe_region);
-		FE_region_remove_FE_node(fe_region, oldBase); // access = 1;
+//		Cmiss_node* oldBase = const_cast<Cmiss_node*>(base_[0].GetCmissNode());
+//		assert(oldBase);
+//		FE_region* fe_region = FE_node_get_FE_region(oldBase); //REVISE
+//		assert(fe_region);
+//		fe_region = FE_region_get_data_FE_region(fe_region);
+//		assert(fe_region);
+//		FE_region_remove_FE_node(fe_region, oldBase); // access = 1;
 		base_.clear();
 	}
 
@@ -267,7 +266,7 @@ CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 		return 0;
 	}
 	
-	DataPointTimeLessThan lessThan; // need real lambda functions !
+	DataPointTimeLessThan lessThan; // need lambda functions !
 	std::sort(basePlanePoints_.begin(),basePlanePoints_.end(),lessThan);
 	
 	modeller.InitialiseModel();
