@@ -820,13 +820,13 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 		delete modeller_;
 		modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
 
-//		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-//		int numberOfItems = choice->GetCount();
-//		for (int i = numberOfItems-1; i > 0; i--)
-//		{
-//			// Remove all items except Apex
-//			choice->Delete(i);
-//		}
+		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+		int numberOfItems = choice->GetCount();
+		for (int i = numberOfItems-1; i > 0; i--)
+		{
+			// Remove all items except Apex
+			choice->Delete(i);
+		}
 		
 		InitialiseMII();
 		
