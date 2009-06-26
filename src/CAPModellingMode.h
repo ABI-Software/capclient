@@ -176,7 +176,7 @@ private:
 	SolverLibraryFactory* solverFactory_;
 	Matrix* S_;
 	Matrix* G_;
-	Matrix* P_;
+	//Matrix* P_;
 	Preconditioner* preconditioner_;
 	GSmoothAMatrix* aMatrix_;
 	Vector* prior_;
