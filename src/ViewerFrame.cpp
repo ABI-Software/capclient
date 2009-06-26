@@ -791,7 +791,8 @@ void ViewerFrame::OnAbout(wxCommandEvent& event)
 
 void ViewerFrame::OnOpen(wxCommandEvent& event)
 {
-	wxString defaultPath = "./Data";
+	wxString currentWorkingDir = wxGetCwd();
+	wxString defaultPath = currentWorkingDir.Append("/Data");
 //	wxString defaultFilename = "";
 //	wxString defaultExtension = "";
 //	wxString wildcard = "";
@@ -827,6 +828,7 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 			// Remove all items except Apex
 			choice->Delete(i);
 		}
+		choice->SetSelection(0);
 		
 		InitialiseMII();
 		
