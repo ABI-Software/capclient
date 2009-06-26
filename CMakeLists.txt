@@ -36,6 +36,7 @@ src/CmguiManager.cpp
 src/CAPModeller.cpp
 src/CAPTimeSmoother.cpp
 src/CAPModellingMode.cpp
+src/DataPoint.cpp
 #src/DataSet.cpp
 )
 

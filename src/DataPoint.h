@@ -9,108 +9,42 @@
 #define DATAPOINT_H_
 
 #include "CAPMath.h"
+
 extern "C" {
 #include "api/cmiss_node.h"
-#include "finite_element/finite_element.h"
 }
-#include "CmguiExtensions.h"
-
-#include <limits>
 
 class DataPoint
 {
 public:
 	
-	DataPoint(Cmiss_node* node, const Point3D& coord, float time = 0, float weight = 1.0f)
-	:
-		cmissNode_(ACCESS(Cmiss_node)(node)),
-		coordinate_(coord),
-		time_(time),
-		weight_(weight),
-		surfaceType_(0),
-		startTime_(time),
-		endTime_(time)
-	{
-	};
+	DataPoint(Cmiss_node* node, const Point3D& coord, float time = 0, float weight = 1.0f);
 	
-	DataPoint(const DataPoint& other)
-	:
-		cmissNode_(ACCESS(Cmiss_node)(other.cmissNode_)),
-		coordinate_(other.coordinate_),
-		time_(other.time_),
-		weight_(other.weight_),
-		surfaceType_(other.surfaceType_),
-		startTime_(other.startTime_),
-		endTime_(other.endTime_)
-	{
-	};
+	DataPoint(const DataPoint& other);
 		
-	~DataPoint()
-	{
-		destroy_Cmiss_node(&cmissNode_);
-	}
+	~DataPoint();
 	
-	const Cmiss_node* GetCmissNode() const
-	{
-		return cmissNode_;
-	}
+	const Cmiss_node* GetCmissNode() const;
 	
-	Cmiss_node* GetCmissNode()
-	{
-		return cmissNode_;
-	}
+	Cmiss_node* GetCmissNode();
 	
-	const Point3D& GetCoordinate() const
-	{
-		return coordinate_;
-	}
+	const Point3D& GetCoordinate() const;
 	
-	void SetCoordinate(const Point3D& coord)
-	{
-		coordinate_ = coord;
-	}
+	void SetCoordinate(const Point3D& coord);
 	
-	float GetTime() const
-	{
-		return time_;
-	}
+	float GetTime() const;
 	
-	void SetValidPeriod(float startTime, float endTime)
-	{
-		const float EPSILON = std::numeric_limits<float>::epsilon();
-		startTime_ = startTime;
-		endTime_ = endTime - EPSILON;
-	}
+	void SetValidPeriod(float startTime, float endTime);
 	
-	void SetVisible(bool visibility)
-	{
-		Cmiss_node_set_visibility_field(*this, startTime_, endTime_, visibility);
-	}
+	void SetVisible(bool visibility);
 	
 	//HACK
-	int GetSurfaceType() const
-	{
-		return surfaceType_;
-	}
+	int GetSurfaceType() const;
 	
-	void SetSurfaceType(int type)
-	{
-		surfaceType_ = type;
-	}
+	void SetSurfaceType(int type);
 	
 	// assignment operator
-	DataPoint& operator=(const DataPoint& rhs)
-	{
-		DEACCESS(Cmiss_node)(&cmissNode_);
-		cmissNode_ = ACCESS(Cmiss_node)(rhs.cmissNode_);
-		coordinate_ = rhs.coordinate_;
-		time_ = rhs.time_;
-		weight_ = rhs.weight_;
-		startTime_ = rhs.startTime_;
-		endTime_ = rhs.endTime_;
-		
-		return *this;
-	}
+	DataPoint& operator=(const DataPoint& rhs);
 	
 private:
 	Cmiss_node* cmissNode_;

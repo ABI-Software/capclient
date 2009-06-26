@@ -2,7 +2,7 @@
 #define __TEXTFRAME_H__
 
 #include "wx/wxprec.h"
-
+// For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
     #include "wx/wx.h"
 #endif
@@ -11,6 +11,9 @@
 #include "CAPModeller.h"
 
 struct Cmiss_command_data;
+struct Cmiss_node;
+struct Cmiss_time_keeper;
+
 class ImageSet;
 
 class ViewerFrame : public wxFrame
@@ -29,11 +32,11 @@ public:
 	
 	//void AddDataPoint(DataPoint* dataPoint);
 	
-	void AddDataPoint(Cmiss_node_id, const Point3D&);
+	void AddDataPoint(Cmiss_node*, const Point3D&);
 	
-	void MoveDataPoint(Cmiss_node_id, const Point3D&);
+	void MoveDataPoint(Cmiss_node*, const Point3D&);
 	
-	void RemoveDataPoint(Cmiss_node_id dataPointID);
+	void RemoveDataPoint(Cmiss_node* dataPointID);
 	
 	void SmoothAlongTime();
 	
@@ -46,7 +49,7 @@ private:
 	wxPanel* m_pPanel;
 	
 	Cmiss_command_data* command_data;
-	Time_keeper* timeKeeper_;
+	Cmiss_time_keeper* timeKeeper_;
 	ImageSet* imageSet_;
 	
 	bool animationIsOn_;
@@ -55,7 +58,7 @@ private:
 	CAPModelLVPS4X4 heartModel_;
 	
 //	std::vector<DataPoint*> dataPoints_;
-	CAPModeller modeller_;
+	CAPModeller* modeller_;
 	
 	//private utility functions
 	void RenderMII(const std::string& sliceName);
