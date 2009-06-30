@@ -3,6 +3,7 @@ PROJECT(CAPClient)
 ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
 #SET(CMAKE_BUILD_TYPE Release)
 MESSAGE("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
+MESSAGE("CMAKE_SYSTEM_NAME is ${CMAKE_SYSTEM_NAME}")
 
 IF(CMAKE_BUILD_TYPE STREQUAL Release)
   MESSAGE("Building Release")
@@ -24,6 +25,11 @@ IF(WIN32)
   ADD_DEFINITIONS(-mno-cygwin -DWIN32)
   SET(LIB_ARCH_DIR i386-win32)
 ENDIF(WIN32)
+IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
+  ADD_DEFINITIONS(-DUNIX)
+  SET(LIB_ARCH_DIR i686-linux)
+ENDIF()
+
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/image_libraries/${LIB_ARCH_DIR}/include/gdcm-2.0)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/gmm-3.1/include)
@@ -32,7 +38,7 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/gmm-3.1/include)
 SET(SRCS 
   src/ViewerFrame.cpp
   src/main.cpp
-  src/Filesystem.cpp
+  src/FileSystem.cpp
   src/CmguiExtensions.cpp
   src/DICOMImage.cpp
   src/ImageSlice.cpp
@@ -128,6 +134,9 @@ ENDIF(wxWidgets_FOUND)
 IF(WIN32)
   SET(common_LIBS "-lws2_32")
 ENDIF(WIN32)
+IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
+  SET(common_LIBS -lcrypt)
+ENDIF()
 
 ADD_EXECUTABLE(CAPClient ${SRCS})
 #SET(wxMathPlot ${CMISS_ROOT}/wxMathPlot/lib/libmathplot.a)

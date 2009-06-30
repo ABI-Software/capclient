@@ -8,6 +8,8 @@
 #include "CAPModellingMode.h"
 #include "CAPModeller.h"
 #include <iostream>
+#include <algorithm>
+#include <assert.h>
 
 CAPModellingMode::CAPModellingMode() 
 {

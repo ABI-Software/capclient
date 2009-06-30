@@ -356,7 +356,8 @@ Add scene_object as checklistbox item into the box.
 		 checklist->SetSelection(0);
 	}
 	
-	DEALLOCATE(name);
+	//DEALLOCATE(name);
+	free(name);
 	LEAVE;
 	return(1);
 }

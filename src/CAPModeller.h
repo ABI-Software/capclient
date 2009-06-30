@@ -76,7 +76,7 @@ public:
 	void ChangeMode(ModellingMode mode);
 	
 private:
-	void CAPModeller::ChangeMode(CAPModellingMode* newMode);
+	void ChangeMode(CAPModellingMode* newMode);
 	
 	CAPModellingModeApex modellingModeApex_;
 	CAPModellingModeBase modellingModeBase_;
