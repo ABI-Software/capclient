@@ -305,6 +305,7 @@ void ViewerFrame::TogglePlay(wxCommandEvent& event)
 		Time_keeper_stop(timeKeeper_);
 		this->animationIsOn_ = false;
 		button->SetLabel("play");
+		OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 	}
 	else
 	{
