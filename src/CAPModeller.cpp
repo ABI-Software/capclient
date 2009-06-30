@@ -15,6 +15,7 @@
 //#include "CimBiCubicHermiteLinearBasis.h"
 
 #include <iostream>
+#include <assert.h>
 
 CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 :

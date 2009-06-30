@@ -8,6 +8,7 @@
 #include "ImageSet.h"
 #include "ImageSlice.h"
 #include <algorithm>
+#include <assert.h>
 
 using namespace std;
 
