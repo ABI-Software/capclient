@@ -67,6 +67,8 @@ void ImageSlice::SetVisible(bool visibility)
 	{
 		isVisible_ = true;
 		Scene_object_set_visibility(sceneObject_, g_VISIBLE);
+		oldIndex_ = -1; //this forces rebinding & redraw of the texture
+		SetTime(time_);
 	}
 	else
 	{
@@ -78,6 +80,8 @@ void ImageSlice::SetVisible(bool visibility)
 
 void ImageSlice::SetTime(double time)
 {
+	time_ = time; // store time for later use
+	
 	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
 
 	int index = static_cast<int>(time * textures_.size()); // -1
