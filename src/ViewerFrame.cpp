@@ -406,6 +406,9 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	Vector3D up(plane.yside);
 	up.Normalise();
 	
+	//test :: perturb direction vector a little
+	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
+	
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();	
 	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
 			sceneViewer, eye.x, eye.y, eye.z,
@@ -560,25 +563,21 @@ void ViewerFrame::SetImageVisibility(bool visibility, int index)
 
 void ViewerFrame::SetImageVisibility(bool visibility, const std::string& name)
 {
-	if (XRCCTRL(*this, "MII", wxCheckBox)->IsChecked())
+	if (name.length()) //REVISE
 	{
-		if (name.length()) //REVISE
+		const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
+
+		int i = find(sliceNames.begin(),sliceNames.end(), name) - sliceNames.begin();
+		assert(i < sliceNames.size());
+		SetImageVisibility(visibility, i);
+	}
+	else
+	{
+		for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
 		{
-			const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
-	
-			int i = find(sliceNames.begin(),sliceNames.end(), name) - sliceNames.begin();
-			assert(i < sliceNames.size());
-			heartModel_.SetMIIVisibility(visibility, i);
-		}
-		else
-		{
-			for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
-			{
-				heartModel_.SetMIIVisibility(visibility,i);
-			}
+			SetImageVisibility(visibility, i);
 		}
 	}
-	imageSet_->SetVisible(visibility, name);
 }
 
 void ViewerFrame::InitialiseMII()
