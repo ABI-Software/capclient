@@ -9,10 +9,12 @@ IF(CMAKE_BUILD_TYPE STREQUAL Release)
   MESSAGE("Building Release")
   ADD_DEFINITIONS(-DOPTIMISED) 
   SET(BUILD_VERSION cmgui-wx)
+  SET(CAP_CLIENT_EXECUTABLE CAPClient)
 ELSE()
   MESSAGE("Building Debug")
   ADD_DEFINITIONS(-g2 -gdwarf-2)
   SET(BUILD_VERSION cmgui-wx-debug)
+  SET(CAP_CLIENT_EXECUTABLE CAPClient_debug)
 ENDIF()
 
 #how to include common.Makefile?
@@ -138,11 +140,11 @@ IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
   SET(common_LIBS -lcrypt)
 ENDIF()
 
-ADD_EXECUTABLE(CAPClient ${SRCS})
+ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} ${SRCS})
 #SET(wxMathPlot ${CMISS_ROOT}/wxMathPlot/lib/libmathplot.a)
 
 # and for each of your dependant executable/library targets:
-TARGET_LINK_LIBRARIES(CAPClient ${CMGUI_LIB} ${IMAGEMAGICK_LIB}
+TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIB} ${IMAGEMAGICK_LIB}
     ${INTERPRETER_LIB} ${XML2_LIB} ${ITK_LIB} ${wxWidgets_LIBRARIES} 
     ${common_LIBS})
 
@@ -154,6 +156,7 @@ ENABLE_TESTING()
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest-1.3.0/include )
 SET(UNIT_TEST_SRC
   test/UnitTestCAPMath.cpp
+#  test/UnitTestCAPTimeSmoother.cpp
 )
 
 ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
