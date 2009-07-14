@@ -79,11 +79,11 @@ private:
 	
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
-	void TogglePlay(wxCommandEvent& event);
-	void ObjectCheckListChecked(wxCommandEvent& event);
-	void ObjectCheckListSelected(wxCommandEvent& event);
-	void ToggleHideShowAll(wxCommandEvent& event);
-	void ToggleHideShowOthers(wxCommandEvent& event);
+	void OnTogglePlay(wxCommandEvent& event);
+	void OnObjectCheckListChecked(wxCommandEvent& event);
+	void OnObjectCheckListSelected(wxCommandEvent& event);
+	void OnToggleHideShowAll(wxCommandEvent& event);
+	void OnToggleHideShowOthers(wxCommandEvent& event);
 	void OnAnimationSliderEvent(wxCommandEvent& event);
 	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	void OnMIICheckBox(wxCommandEvent& event);

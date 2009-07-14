@@ -222,6 +222,10 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 //	InitialiseVolumeGraph();
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	slider->SetTickFreq(28,0);
+	
+	// we use PNG & JPEG images in our HTML page
+	//wxImage::AddHandler(new wxJPEGHandler);
+	wxImage::AddHandler(new wxPNGHandler);
 }
 
 ViewerFrame::~ViewerFrame()
@@ -296,7 +300,7 @@ wxPanel* ViewerFrame::getPanel()
 	return m_pPanel;
 }
 
-void ViewerFrame::TogglePlay(wxCommandEvent& event)
+void ViewerFrame::OnTogglePlay(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
 	
@@ -374,7 +378,7 @@ void ViewerFrame::PopulateObjectList()
 		 add_scene_object_to_scene_check_box, (void *)objectList_);
 }
 
-void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
+void ViewerFrame::OnObjectCheckListChecked(wxCommandEvent& event)
 {
 	int selection = event.GetInt();
 //	objectList_->SetSelection(selection);
@@ -395,7 +399,7 @@ void ViewerFrame::ObjectCheckListChecked(wxCommandEvent& event)
 	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
 }
 
-void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
+void ViewerFrame::OnObjectCheckListSelected(wxCommandEvent& event)
 {
 	wxString name = objectList_->GetStringSelection();
 	const ImagePlane& plane = imageSet_->GetImagePlane(name.mb_str());
@@ -406,7 +410,7 @@ void ViewerFrame::ObjectCheckListSelected(wxCommandEvent& event)
 	Vector3D up(plane.yside);
 	up.Normalise();
 	
-	//test :: perturb direction vector a little
+	//Hack :: perturb direction vector a little
 	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
 	
 	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();	
@@ -490,7 +494,7 @@ void ViewerFrame::SetTime(double time)
 	return;
 }
 
-void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
+void ViewerFrame::OnToggleHideShowAll(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "HideShowAll", wxButton);
 	if (hideAll_) //means the button says hide all rather than show all
@@ -513,7 +517,7 @@ void ViewerFrame::ToggleHideShowAll(wxCommandEvent& event)
 	this->Refresh(); // work around for the refresh bug
 }
 
-void ViewerFrame::ToggleHideShowOthers(wxCommandEvent& event)
+void ViewerFrame::OnToggleHideShowOthers(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "HideShowOthers", wxButton);
 	static bool showOthers = true;
@@ -779,15 +783,34 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
+#include "CAPHtmlWindow.h"
+
 void ViewerFrame::OnAbout(wxCommandEvent& event)
 {
-    wxAboutDialogInfo info;
-    info.SetName(_("CAP Client"));
-    info.SetVersion(_("0.1 Alpha"));
-    info.SetDescription(_("See http://www.cardiacatlas.org"));
-    info.SetCopyright(_T("(C) 2009 ABI"));
-
-    wxAboutBox(info);
+	wxBoxSizer *topsizer;
+	wxHtmlWindow *html;
+	wxDialog dlg(this, wxID_ANY, wxString(_("About CAP Client")));
+	
+	topsizer = new wxBoxSizer(wxVERTICAL);
+	
+	html = new CAPHtmlWindow(&dlg, wxID_ANY, wxDefaultPosition, wxSize(600, 400));
+	html -> SetBorders(0);
+	html -> LoadPage(wxT("Data/HTML/AboutCAPClient.html"));
+	//html -> SetSize(html -> GetInternalRepresentation() -> GetWidth(),
+	//				html -> GetInternalRepresentation() -> GetHeight());
+	
+	topsizer -> Add(html, 1, wxALL, 10);
+	
+	wxButton *bu1 = new wxButton(&dlg, wxID_OK, _("OK"));
+	bu1 -> SetDefault();
+	
+	topsizer -> Add(bu1, 0, wxALL | wxALIGN_RIGHT, 15);
+	
+	dlg.SetSizer(topsizer);
+	topsizer -> Fit(&dlg);
+	
+	dlg.Center();
+	dlg.ShowModal();
 }
 
 void ViewerFrame::OnOpen(wxCommandEvent& event)
@@ -870,15 +893,15 @@ void ViewerFrame::OnQuit(wxCommandEvent& event)
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
-	EVT_BUTTON(XRCID("PlayButton"),ViewerFrame::TogglePlay) // play button
+	EVT_BUTTON(XRCID("PlayButton"),ViewerFrame::OnTogglePlay) // play button
 	EVT_SLIDER(XRCID("AnimationSlider"),ViewerFrame::OnAnimationSliderEvent) // animation slider
 	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
-	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListChecked)
-	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::ToggleHideShowAll) // hide all button
-	EVT_BUTTON(XRCID("HideShowOthers"),ViewerFrame::ToggleHideShowOthers) // hide others button
+	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::OnObjectCheckListChecked)
+	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::OnToggleHideShowAll) // hide all button
+	EVT_BUTTON(XRCID("HideShowOthers"),ViewerFrame::OnToggleHideShowOthers) // hide others button
 	EVT_CHECKBOX(XRCID("MII"),ViewerFrame::OnMIICheckBox)
 	EVT_CHECKBOX(XRCID("Wireframe"),ViewerFrame::OnWireframeCheckBox)
-	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::ObjectCheckListSelected)
+	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::OnObjectCheckListSelected)
 	EVT_SLIDER(XRCID("BrightnessSlider"),ViewerFrame::OnBrightnessSliderEvent)
 	EVT_SLIDER(XRCID("ContrastSlider"),ViewerFrame::OnContrastSliderEvent)
 	EVT_BUTTON(XRCID("AcceptButton"),ViewerFrame::OnAcceptButtonPressed)
