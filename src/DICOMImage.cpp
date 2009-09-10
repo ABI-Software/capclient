@@ -73,21 +73,75 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 
 	const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
 	gdcm::Attribute<0x0020,0x0032> at;
+//	const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0030));
+//	gdcm::Attribute<0x0020,0x0030> at;
 	at.SetFromDataElement(position);
 	Point3D position3D(at[0],at[1],at[2]);
 
-	const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0037));
-	gdcm::Attribute<0x0020,0x0037> at_ori;
+	//const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0037));
+	//gdcm::Attribute<0x0020,0x0037> at_ori;
+	const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0035));
+	gdcm::Attribute<0x0020,0x0035> at_ori; //test
 	at_ori.SetFromDataElement(orientation);
-	Vector3D orientation1(at_ori[0],at_ori[1],at_ori[2]);
-	Vector3D orientation2(at_ori[3],at_ori[4],at_ori[5]);
+//	Vector3D orientation1(at_ori[0],at_ori[1],at_ori[2]);
+//	Vector3D orientation2(at_ori[3],at_ori[4],at_ori[5]);
+	Vector3D orientation1(-at_ori[0],at_ori[1],-at_ori[2]);
+	Vector3D orientation2(-at_ori[3],at_ori[4],-at_ori[5]);
+	
+//	double temp1 = 0.173970949 * at_ori[0] + 0.44150997 * at_ori[1]	-0.880228979 * at_ori[2];
+//	double temp2 = -0.473034086 * at_ori[0] - 0.746511438 * at_ori[1] - 0.467931006 * at_ori[2];
+//	double temp3 = -0.863697205 * at_ori[0] + 0.497784712 * at_ori[1] + 0.078977961 * at_ori[2];
+//	Vector3D orientation1(temp1,temp2,temp3);
+//	Vector3D orientation2(-at_ori[3],at_ori[4],-at_ori[5]);
 
+	
 	const gdcm::DataElement& spacing = ds.GetDataElement(gdcm::Tag(0x0028,0x0030));
 	gdcm::Attribute<0x0028,0x0030> at_spc;
 	at_spc.SetFromDataElement(spacing);
 	pixelSizeX = at_spc[0];
 	pixelSizeY = at_spc[1];
 
+//	int index;
+//	if (( index = filename.rfind("images/SA")) != string::npos)
+//	{
+//		cout << "SA!!!!!!!!!!!!!!!!!!!!! filename = " << filename << "index = " <<  index << endl;
+//		const gdcm::DataElement& sliceLocationDE = ds.GetDataElement(gdcm::Tag(0x0020,0x1041));
+//		gdcm::Attribute<0x0020,0x1041> at;
+//		at.SetFromDataElement(sliceLocationDE);
+//		float sliceLocation = at.GetValue();
+//		
+//		plane = new ImagePlane();
+//
+//		// JGB - 2007/12/05 - plane's tlc starts from the edge of the first voxel
+//		// rather than centre; (0020, 0032) is the centre of the first voxel
+//		plane->tlc = position3D - pixelSizeX * (0.5f*orientation1 + 0.5f*orientation2);
+//
+//		float fieldOfViewX = width * pixelSizeX;//JDCHUNG consider name change
+//		cout << "width in mm = " << fieldOfViewX ;
+//		
+//		plane->trc = plane->tlc + fieldOfViewX * orientation1;
+//
+//		float fieldOfViewY = height * pixelSizeY;//JDCHUNG
+//		cout << ", height in mm = " << fieldOfViewY << endl ;
+//		
+//		plane->blc = plane->tlc + fieldOfViewY * orientation2;
+//
+//		plane->xside = plane->trc - plane->tlc;
+//		plane->yside = plane->tlc - plane->blc;
+//		plane->normal.CrossProduct(plane->xside, plane->yside);
+//		plane->normal.Normalise();
+//
+//		plane->brc = plane->blc + plane->xside;
+//		
+//		//position3D = position3D + sliceLocation * plane->normal;
+//		string sliceIndexStr = filename.substr(index + 9, index + 11);
+//		int sliceIndex = atoi(sliceIndexStr.c_str());
+//		cout << "sliceIndex = " << sliceIndex << endl;
+//		position3D = position3D + (((float) sliceIndex * 10) - 30.0) * plane->normal;
+//		
+//		delete plane;
+//	}
+	
 	//Now construct the plane from the info
 
 	//int imageSize = std::max<u_int>(width,height);

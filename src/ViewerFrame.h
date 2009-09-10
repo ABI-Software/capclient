@@ -95,6 +95,7 @@ private:
 	void OnModellingModeChanged(wxCommandEvent& event);
 	
 	void OnAbout(wxCommandEvent& event);
+	void OnOpenImages(wxCommandEvent& event);
 	void OnOpen(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);

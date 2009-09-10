@@ -344,8 +344,31 @@ void ImageSlice::LoadTextures()
 		fullpath.append("/");
 		fullpath.append(filename);
 		
+		//temp
+		
+		string texture_path = fullpath;
+		
+		string filename_jpg = filename.substr(0, filename.length() - 3);
+		
+		string jpg_path = "./Data/images/jpg/";
+		jpg_path.append(filename_jpg);
+		jpg_path.append("jpg");
+		
+		ifstream jpg_stream;
+		jpg_stream.open(jpg_path.c_str());
+		if (jpg_stream.is_open())
+		{
+			cout << "filename = " << jpg_path << endl;
+			texture_path = jpg_path;
+		}
+		
+		
+		string textureName(sliceName_);
+		textureName.append(filename);
+//		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
+//			manager, filename.c_str(), io_stream_package, fullpath.c_str());
 		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-			manager, filename.c_str(), io_stream_package, fullpath.c_str());
+			manager, textureName.c_str(), io_stream_package, texture_path.c_str());
 		if (!texture_id)
 		{
 			cout <<"ERROR:: cant create texture from file" << endl;

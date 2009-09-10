@@ -237,15 +237,22 @@ ViewerFrame::~ViewerFrame()
 void ViewerFrame::LoadImages()
 {
 	vector<string> sliceNames;
-	sliceNames.push_back("SA1");
+
+//	sliceNames.push_back("SA1");
 	sliceNames.push_back("SA2");
-	sliceNames.push_back("SA3");
+//	sliceNames.push_back("SA3");
 	sliceNames.push_back("SA4");
-	sliceNames.push_back("SA5");
+//	sliceNames.push_back("SA5");
 	sliceNames.push_back("SA6");
+//	sliceNames.push_back("SA7");
+//	sliceNames.push_back("SA8");
+//	sliceNames.push_back("SA9");
+//	sliceNames.push_back("SA10");
+	//sliceNames.push_back("SA11");
+	//sliceNames.push_back("SA12");
 	sliceNames.push_back("LA1");
 	sliceNames.push_back("LA2");
-	sliceNames.push_back("LA3");
+	//sliceNames.push_back("LA3");
 	
 	imageSet_ = new ImageSet(sliceNames); //REFACTOR
 	
@@ -813,6 +820,80 @@ void ViewerFrame::OnAbout(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
+#include <wx/dir.h>
+
+void EnumerateAllFiles(const wxString& dirname)
+{
+	wxDir dir(dirname);
+	
+	if ( !dir.IsOpened() )
+	{
+		// deal with the error here - wxDir would already log an error message
+		// explaining the exact reason of the failure
+		cout << "Error";
+		return;
+	}
+	
+	puts("Enumerating object files in current directory:");
+	
+//	wxString filename;
+	
+//	bool cont = dir.GetFirst(&filename);
+//	while ( cont )
+//	{
+//		printf("%s\n", filename.c_str());
+//	
+//		cont = dir.GetNext(&filename);
+//	}
+	
+	wxArrayString files;
+	dir.GetAllFiles(dirname, &files);
+	
+	for (int i = 0; i < files.GetCount(); i++)
+	{
+		string filename(files[i].c_str());
+		size_t positionOfLastSlash = filename.find_last_of("/\\");
+		//std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+		string fileNameOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
+		string prefix = filename.substr(0, positionOfLastSlash+1); 
+
+		if (fileNameOnly[0] != '.')
+			cout << files[i] << "\n";
+	}
+}
+
+void ViewerFrame::OnOpenImages(wxCommandEvent& event)
+{
+	wxString currentWorkingDir = wxGetCwd();
+		wxString defaultPath = currentWorkingDir.Append("/Data");
+	//	wxString defaultFilename = "";
+	//	wxString defaultExtension = "";
+	//	wxString wildcard = "";
+	//	int flags = wxOPEN;
+		
+	//	wxString filename = wxFileSelector("Choose a file to open",
+	//			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+	//	if ( !filename.empty() )
+	//	{
+	//	    // work with the file
+	//	    cout << __func__ << " - File name: " << filename.c_str() << endl;
+	//	}
+		
+		const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
+		if ( !dirname.empty() )
+		{
+			cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
+//			string filename(dirname.c_str());
+//			size_t positionOfLastSlash = filename.find_last_of("/\\");
+//			std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+//			string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
+//			string prefix = filename.substr(0, positionOfLastSlash+1); 
+//			std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
+			
+			EnumerateAllFiles(dirname);
+		}
+}
+
 void ViewerFrame::OnOpen(wxCommandEvent& event)
 {
 	wxString currentWorkingDir = wxGetCwd();
@@ -909,6 +990,7 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_CLOSE(ViewerFrame::Terminate)
 	EVT_MENU(XRCID("QuitMenuItem"),  ViewerFrame::OnQuit)
 	EVT_MENU(XRCID("AboutMenuItem"), ViewerFrame::OnAbout)
+	EVT_MENU(XRCID("OpenImagesMenuItem"), ViewerFrame::OnOpenImages)
 	EVT_MENU(XRCID("OpenMenuItem"), ViewerFrame::OnOpen)
 	EVT_MENU(XRCID("SaveMenuItem"), ViewerFrame::OnSave)
 END_EVENT_TABLE()

@@ -16,11 +16,14 @@
                             <label>About...</label>
                         </object>
                         <object class="separator"/>
+                        <object class="wxMenuItem" name="OpenImagesMenuItem">
+                            <label>Open Images</label>
+                        </object>
                         <object class="wxMenuItem" name="OpenMenuItem">
-                            <label>Open</label>
+                            <label>Open Model</label>
                         </object>
                         <object class="wxMenuItem" name="SaveMenuItem">
-                            <label>Save</label>
+                            <label>Save Model</label>
                         </object>
                         <object class="separator"/>
                         <object class="wxMenuItem" name="QuitMenuItem">
