@@ -403,8 +403,8 @@ void ImageSlice::LoadTextures()
 			cout << "image_field_out is null" << endl; 
 		}
 		
-//		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_out);
-		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_in);
+		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_out);
+//		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_in);
 		
 		textures_.push_back(texture_id);
 		
