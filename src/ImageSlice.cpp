@@ -365,15 +365,47 @@ void ImageSlice::LoadTextures()
 		
 		string textureName(sliceName_);
 		textureName.append(filename);
-//		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-//			manager, filename.c_str(), io_stream_package, fullpath.c_str());
-		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-			manager, textureName.c_str(), io_stream_package, texture_path.c_str());
-		if (!texture_id)
-		{
-			cout <<"ERROR:: cant create texture from file" << endl;
-		}
 
+//		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
+//			manager, textureName.c_str(), io_stream_package, texture_path.c_str());
+//		if (!texture_id)
+//		{
+//			cout <<"ERROR:: cant create texture from file" << endl;
+//		}
+		
+		Cmiss_field_id field_in = Cmiss_field_create_image(NULL, NULL);
+		Cmiss_field_image_id image_field_in = Cmiss_field_image_cast(field_in);
+		
+		/* Read image data from a file */
+		Cmiss_field_image_read_file(image_field_in, texture_path.c_str());
+		
+		Cmiss_field_id field_rescale = Cmiss_field_create_image(NULL, NULL);
+		int result = Cmiss_field_set_type_rescale_intensity_image_filter(field_rescale,
+				field_in, 0.0 /* min */, 1.0 /* max */);
+		
+		if (!result) 
+		{
+			cout << "Cant set rescale_intensity_image_filter is null" << endl; 
+		}
+		
+//		Cmiss_field_image_id image_field_out = Cmiss_field_image_cast(field_rescale);
+//		
+//		if (!image_field_out) 
+//		{
+//			cout << "image_field_out is null" << endl; 
+//		}
+		
+		Cmiss_field_id field_out = Cmiss_field_create_image(NULL, field_rescale);
+		Cmiss_field_image_id image_field_out = Cmiss_field_image_cast(field_out);
+		
+		if (!image_field_out) 
+		{
+			cout << "image_field_out is null" << endl; 
+		}
+		
+//		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_out);
+		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_in);
+		
 		textures_.push_back(texture_id);
 		
 		images_.push_back(new DICOMImage(fullpath));
