@@ -3,7 +3,7 @@ uniform sampler1D texture1;
 void main()
 {
 	vec3 texColour = vec3(texture2D(texture0, vec2(gl_TexCoord[0])));
-	texColour *= 5.0;
+	//texColour *= 5.0;
 
 	vec4 brightnessAndContrast = texture1D(texture1,0.0);	
 	
