@@ -351,6 +351,8 @@ void ImageSlice::LoadTextures()
 			cout <<"ERROR:: cant create texture from file" << endl;
 		}
 
+		Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
+
 		textures_.push_back(texture_id);
 		
 		images_.push_back(new DICOMImage(fullpath));
