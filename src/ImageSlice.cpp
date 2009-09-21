@@ -348,19 +348,19 @@ void ImageSlice::LoadTextures()
 		
 		string texture_path = fullpath;
 		
-		string filename_jpg = filename.substr(0, filename.length() - 3);
-		
-		string jpg_path = "./Data/images/jpg/";
-		jpg_path.append(filename_jpg);
-		jpg_path.append("jpg");
-		
-		ifstream jpg_stream;
-		jpg_stream.open(jpg_path.c_str());
-		if (jpg_stream.is_open())
-		{
-			cout << "filename = " << jpg_path << endl;
-			texture_path = jpg_path;
-		}
+//		string filename_jpg = filename.substr(0, filename.length() - 3);
+//		
+//		string jpg_path = "./Data/images/jpg/";
+//		jpg_path.append(filename_jpg);
+//		jpg_path.append("jpg");
+//		
+//		ifstream jpg_stream;
+//		jpg_stream.open(jpg_path.c_str());
+//		if (jpg_stream.is_open())
+//		{
+//			cout << "filename = " << jpg_path << endl;
+//			texture_path = jpg_path;
+//		}
 		
 		
 		string textureName(sliceName_);
@@ -388,13 +388,6 @@ void ImageSlice::LoadTextures()
 			cout << "Cant set rescale_intensity_image_filter is null" << endl; 
 		}
 		
-//		Cmiss_field_image_id image_field_out = Cmiss_field_image_cast(field_rescale);
-//		
-//		if (!image_field_out) 
-//		{
-//			cout << "image_field_out is null" << endl; 
-//		}
-		
 		Cmiss_field_id field_out = Cmiss_field_create_image(NULL, field_rescale);
 		Cmiss_field_image_id image_field_out = Cmiss_field_image_cast(field_out);
 		
@@ -403,9 +396,9 @@ void ImageSlice::LoadTextures()
 			cout << "image_field_out is null" << endl; 
 		}
 		
-		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_out);
-//		Cmiss_texture_id texture_id =Cmiss_field_image_get_texture(image_field_in);
+		Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field_out);
 		
+		Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
 		textures_.push_back(texture_id);
 		
 		images_.push_back(new DICOMImage(fullpath));
