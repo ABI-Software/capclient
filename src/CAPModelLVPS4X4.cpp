@@ -694,7 +694,8 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 			}
 		}
 		
-		float values[3];
+		//float values[3];
+		double values[3];
 		if (!Cmiss_field_evaluate_at_node(pImpl_->field, node,time,numberOfComponents , values))
 		{
 			//Error
@@ -833,7 +834,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 			}
 		}
 
-		float values[3];
+		double values[3];
 		if (!Cmiss_field_evaluate_at_node(pImpl_->field, node,time,numberOfComponents , values))
 		{
 			//Error
