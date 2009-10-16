@@ -186,7 +186,7 @@ static Cmiss_node_id Cmiss_node_set_visibility_field_private(DataPoint& dataPoin
 //		float startTime = time - halfTime; 
 //		float endTime = time + halfTime;
 		FE_value times[5];
-		FE_value values[5];
+		double values[5];
 		int numberOfTimes;
 		
 		float newFieldValue = visibility ? 1.0f : 0.0f;
@@ -297,7 +297,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field(DataPoint& dataPoint, float startT
 	if (!visibilityField)
 	{
 		display_message(ERROR_MESSAGE,
-			"Cmiss_create_data_point_at_coord.  Can't find visibility field");
+			"Cmiss_node_set_visibility_field.  Can't find visibility field");
 	}
 	
 	struct FE_field *fe_field;
@@ -316,7 +316,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field(DataPoint& dataPoint, float startT
 	}
 }
 
-Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, float* coords, float time)
+Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, double* coords, float time)
 {	
 	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
 	fe_region = FE_region_get_data_FE_region(fe_region);
@@ -656,8 +656,11 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y,
 			
 			coords.x = node_coordinates[0], coords.y = node_coordinates[1], coords.z = node_coordinates[2];
 			std::cout << "debug: intersection point = " << coords <<  std::endl;
-					
-			return Cmiss_create_data_point_at_coord(region, nearest_element_coordinate_field, (float*)&coords, time);
+			
+			double coordArray[3];
+			coordArray[0] = coords.x;coordArray[1] = coords.y;coordArray[2] = coords.z;//TODO use double for Point3D?
+			
+			return Cmiss_create_data_point_at_coord(region, nearest_element_coordinate_field, (double*)coordArray, time);
 		}
 	}
 	
@@ -749,7 +752,9 @@ int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, flo
 	FE_element* element = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &field);
 	
 	coords.x = node_coordinates[0], coords.y = node_coordinates[1], coords.z = node_coordinates[2];
-	if (Cmiss_field_set_values_at_node( field, node, time , 3 , (float*)& coords))
+	double coordArray[3];
+	coordArray[0] = coords.x;coordArray[1] = coords.y;coordArray[2] = coords.z;
+	if (Cmiss_field_set_values_at_node( field, node, time , 3 , (double*) coordArray))
 	{
 		return 1;
 	}
