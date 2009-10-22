@@ -31,6 +31,12 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
 //	cout << "input_callback() : input_type = " << input->type << endl;
+//	if (input->type == GRAPHICS_BUFFER_KEY_PRESS)
+//	{
+//		int keyCode = input->key_code;
+//		cout << "Key pressed = " << keyCode << endl;
+//		return 0;
+//	}
 	
 	if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
 	{
@@ -94,6 +100,218 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		cout << "Mouse released" << endl;
 		frame->SmoothAlongTime();
 		selectedNode = NULL;
+	}
+	
+	return 0; // returning false means don't call the other input handlers;
+}
+
+
+struct Viewer_frame_element_constraint_function_data
+{
+	struct FE_element *element, *found_element;
+	FE_value xi[MAXIMUM_ELEMENT_XI_DIMENSIONS];
+	struct Computed_field *coordinate_field;
+}; 
+
+static int Viewer_frame_element_constraint_function(FE_value *point,
+	void *void_data)
+{
+	int return_code;
+	struct Viewer_frame_element_constraint_function_data *data;
+
+	ENTER(Viewer_frame_element_constraint_function_data);
+	if (point && (data = (struct Viewer_frame_element_constraint_function_data *)void_data))
+	{
+		data->found_element = data->element;
+		return_code = Computed_field_find_element_xi(data->coordinate_field,
+			point, /*number_of_values*/3, /*time ok to be 0 since slices don't move wrt time*/ 0.0, &(data->found_element), 
+			data->xi, /*element_dimension*/2, 
+			(struct Cmiss_region *)NULL, /*propagate_field*/0, /*find_nearest_location*/1);
+		Computed_field_evaluate_in_element(data->coordinate_field,
+			data->found_element, data->xi, /*time*/0.0, (struct FE_element *)NULL,
+			point, (FE_value *)NULL);
+	}
+	else
+	{
+		display_message(ERROR_MESSAGE,
+			"Node_tool_element_constraint_function.  Invalid argument(s)");
+		return_code=0;
+	}
+	LEAVE;
+
+	return (return_code);
+} /* Node_tool_element_constraint_function */
+
+Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region)
+{
+	int return_code = 0;
+
+	GLint viewport[4];
+	
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	double viewport_left   = (double)(viewport[0]);
+	double viewport_bottom = (double)(viewport[1]);
+	double viewport_width  = (double)(viewport[2]);
+	double viewport_height = (double)(viewport[3]);
+	
+	double centre_x = x;
+	/* flip y as x event has y=0 at top of window, increasing down */
+	double centre_y = viewport_height-y-1.0;
+	
+//	std::cout << viewport_height <<"," <<centre_y<< std::endl;
+	
+	GLdouble modelview_matrix[16], window_projection_matrix[16];
+
+	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	
+	
+	double size_x = 7.0;//FIX
+	double size_y = 7.0;
+	
+	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
+					modelview_matrix,window_projection_matrix,
+					viewport_left,viewport_bottom,viewport_width,viewport_height,
+					centre_x,centre_y,size_x,size_y);
+	
+	FE_element* nearest_element;
+	struct LIST(Scene_picked_object) *scene_picked_object_list;
+	struct Scene_picked_object *scene_picked_object2;
+	struct GT_element_group *gt_element_group_element;
+	struct GT_element_settings *gt_element_settings_element;
+	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
+			CmguiManager::getInstance().getCmissCommandData());
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	
+	if (scene_picked_object_list=
+		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
+	{
+		nearest_element = (struct FE_element *)NULL;
+
+		nearest_element=Scene_picked_object_list_get_nearest_element(
+			scene_picked_object_list,region,
+			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
+			/*select_lines_enabled*/0, &scene_picked_object2,
+			&gt_element_group_element,&gt_element_settings_element);
+		
+		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
+	}
+	
+	/* Find the intersection of the element and the interaction volume */
+	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
+	if (nearest_element)
+	{
+		if (!(nearest_element_coordinate_field = 
+				GT_element_settings_get_coordinate_field(gt_element_settings_element)))
+		{
+			nearest_element_coordinate_field = 
+				GT_element_group_get_default_coordinate_field(
+				gt_element_group_element);
+		}
+
+		//Test
+		//*field = nearest_element_coordinate_field;
+
+//		double node_coordinates[3];
+
+		Viewer_frame_element_constraint_function_data constraint_data;
+		constraint_data.element = nearest_element;
+		constraint_data.found_element = nearest_element;
+		constraint_data.coordinate_field = nearest_element_coordinate_field;
+		for (int i = 0; i < MAXIMUM_ELEMENT_XI_DIMENSIONS; i++)
+		{
+			constraint_data.xi[i] = 0.5;
+		}
+		return_code = Interaction_volume_get_placement_point(interaction_volume,
+			node_coordinates, Viewer_frame_element_constraint_function,
+			&constraint_data);
+	}
+
+	if (return_code)
+	{
+		Cmiss_region_id region = GT_element_group_get_Cmiss_region(gt_element_group_element);
+		return region;
+	}
+	else
+	{
+		return (Cmiss_region_id)0;
+	}
+//	return return_code;
+}
+
+
+static int input_callback_image_shifting(struct Scene_viewer *scene_viewer, 
+		struct Graphics_buffer_input *input, void *viewer_frame_void)
+{
+	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
+
+	if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
+	{
+		return 1;
+	}
+	
+//	static Cmiss_node_id selectedNode = NULL; // Thread unsafe
+//	ViewerFrame* frame = static_cast<ViewerFrame*>(viewer_frame_void);
+	
+	double x = (double)(input->position_x);
+	double y = (double)(input->position_y);
+	
+	static double coords[3];
+	static Cmiss_region_id selectedRegion;
+	if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
+	{
+		// Select node or create one
+		cout << "Mouse button number = " << input->button_number << endl;
+		selectedRegion = Cmiss_get_slice_region(x, y, (double*)coords, (Cmiss_region_id)0);
+		if (selectedRegion)
+		{
+			string sliceName = Cmiss_region_get_path(selectedRegion);
+			cout << "selected = " << sliceName << endl;
+		}
+
+	}
+	else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
+	{
+		double new_coords[3];
+		//Cmiss_region_id selectedRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
+		if (selectedRegion)
+		{
+			Cmiss_region_id tempRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
+			if (!tempRegion)
+			{
+				cout << __func__ << "ERROR\n";
+			}
+			string sliceName = Cmiss_region_get_path(selectedRegion);
+			cout << "dragged = " << sliceName << endl;
+			cout << "coords = " << coords[0] << ", " << coords[1] << ", " << coords[2] << "\n";
+			cout << "new_coords = " << new_coords[0] << ", " << new_coords[1] << ", " << new_coords[2] << "\n";
+			for (int nodeNum = 1; nodeNum < 5; nodeNum++)
+			{
+				char nodeName[256];
+				sprintf(nodeName,"%d", nodeNum);
+				if (Cmiss_node* node = Cmiss_region_get_node(selectedRegion, nodeName))
+				{
+					float x, y, z;
+					FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
+					cout << "before = " << x << ", " << y << ", " << z << endl;
+					x += (new_coords[0] - coords[0]);
+					y += (new_coords[1] - coords[1]);
+					z += (new_coords[2] - coords[2]);
+					cout << "after = " << x << ", " << y << ", " << z << "\n" << endl ;
+					FE_node_set_position_cartesian(node, 0, x, y, z);
+				}
+			}
+			for (int i = 0; i<3; i++)
+			{
+				coords[i] = new_coords[i];
+			}
+		}
+	}
+	else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
+	{
+		cout << "Mouse released" << endl;
 	}
 	
 	return 0; // returning false means don't call the other input handlers;
@@ -206,10 +424,14 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Time_keeper_request_new_time(timeKeeper_, 0); //HACK
 #define NODE_CREATION
 #ifdef NODE_CREATION
-	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
-			input_callback, (void*)this, 1/*add_first*/);
+//	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+//			input_callback, (void*)this, 1/*add_first*/);
 
 #endif //NODE_CREATION
+	
+	//TEST - Image Shifting
+	Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+			input_callback_image_shifting, (void*)this, 1/*add_first*/);
 	
 //	modeller_->InitialiseModel();//REVISE
 	
