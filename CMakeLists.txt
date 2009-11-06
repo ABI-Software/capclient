@@ -93,7 +93,6 @@ SET(IMAGEMAGICK_LIB
   -lgdcmMSFF 
   -lgdcmDSED 
   -lgdcmzlib 
-  -lgdcmmd5 
   -lgdcmDICT 
   -lgdcmCommon 
   -lgdcmIOD 
