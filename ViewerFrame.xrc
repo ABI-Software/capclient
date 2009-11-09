@@ -258,6 +258,47 @@
                                                     </object>
                                                 </object>
                                             </object>
+                                            
+                                            
+                                            <object class="sizeritem">
+                                                <flag>wxEXPAND</flag>
+                                                <object class="wxStaticBoxSizer">
+                                                    <orient>wxHORIZONTAL</orient>
+                                                    <label>Plane Shifting</label>
+                                                    <object class="sizeritem">
+	                                                    <object class="wxButton" name="PlaneShiftButton">
+	                                                        <label>Start Shifting</label>
+	                                                    </object>
+	                                                </object>
+<!--
+                                                    <object class="sizeritem">
+                                                        <option>1</option>
+                                                        <flag>wxEXPAND</flag>
+                                                        <object class="wxBoxSizer">
+                                                            <orient>wxHORIZONTAL</orient>
+                                                            <object class="sizeritem">
+                                                                <option>1</option>
+                                                                <object class="wxChoice" name="ModeChoice">
+                                                                    <selection>0</selection>
+                                                                    <content>
+
+                                                                    </content>
+                                                                </object>
+                                                            </object>
+                                                            <object class="sizeritem">
+                                                                <flag>wxRIGHT|wxEXPAND</flag>
+                                                                <object class="wxButton" name="AcceptButton">
+                                                                    <label>Accept</label>
+                                                                </object>
+                                                            </object>
+                                                        </object>
+                                                    </object>
+-->                                                    
+                                                    
+                                                </object>
+                                            </object>
+                                            
+                                            
                                         </object>
                                     </object>
                                     </object>

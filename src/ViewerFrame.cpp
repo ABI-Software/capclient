@@ -245,7 +245,7 @@ Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordina
 static int input_callback_image_shifting(struct Scene_viewer *scene_viewer, 
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
-	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
+//	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
 
 	if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
 	{
@@ -424,14 +424,14 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	Time_keeper_request_new_time(timeKeeper_, 0); //HACK
 #define NODE_CREATION
 #ifdef NODE_CREATION
-//	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
-//			input_callback, (void*)this, 1/*add_first*/);
+	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+			input_callback, (void*)this, 1/*add_first*/);
 
 #endif //NODE_CREATION
 	
 	//TEST - Image Shifting
-	Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
-			input_callback_image_shifting, (void*)this, 1/*add_first*/);
+//	Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+//			input_callback_image_shifting, (void*)this, 1/*add_first*/);
 	
 //	modeller_->InitialiseModel();//REVISE
 	
@@ -460,11 +460,11 @@ void ViewerFrame::LoadImages()
 {
 	vector<string> sliceNames;
 
-//	sliceNames.push_back("SA1");
+	sliceNames.push_back("SA1");
 	sliceNames.push_back("SA2");
-//	sliceNames.push_back("SA3");
+	sliceNames.push_back("SA3");
 	sliceNames.push_back("SA4");
-//	sliceNames.push_back("SA5");
+	sliceNames.push_back("SA5");
 	sliceNames.push_back("SA6");
 //	sliceNames.push_back("SA7");
 //	sliceNames.push_back("SA8");
@@ -474,7 +474,7 @@ void ViewerFrame::LoadImages()
 	//sliceNames.push_back("SA12");
 	sliceNames.push_back("LA1");
 	sliceNames.push_back("LA2");
-	//sliceNames.push_back("LA3");
+	sliceNames.push_back("LA3");
 	
 	imageSet_ = new ImageSet(sliceNames); //REFACTOR
 	
@@ -1195,6 +1195,37 @@ void ViewerFrame::OnQuit(wxCommandEvent& event)
 	}
 }
 
+void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
+{
+	static bool isPlaneShiftModeOn = false;
+	
+	wxButton* button = XRCCTRL(*this, "PlaneShiftButton", wxButton);
+	assert(button);
+	
+	if (!isPlaneShiftModeOn)
+	{
+		isPlaneShiftModeOn = true;
+		button->SetLabel("End Shifting");
+		
+		Cmiss_scene_viewer_remove_input_callback(CmguiManager::getInstance().getSceneViewer(),
+						input_callback, (void*)this);
+		Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+						input_callback_image_shifting, (void*)this, 1/*add_first*/);
+	}
+	else
+	{
+		isPlaneShiftModeOn = false;
+		button->SetLabel("Start Shifting");
+		
+		Cmiss_scene_viewer_remove_input_callback(CmguiManager::getInstance().getSceneViewer(),
+						input_callback_image_shifting, (void*)this);
+		Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+						input_callback, (void*)this, 1/*add_first*/);
+	}
+	
+	return;
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("PlayButton"),ViewerFrame::OnTogglePlay) // play button
 	EVT_SLIDER(XRCID("AnimationSlider"),ViewerFrame::OnAnimationSliderEvent) // animation slider
@@ -1215,4 +1246,5 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_MENU(XRCID("OpenImagesMenuItem"), ViewerFrame::OnOpenImages)
 	EVT_MENU(XRCID("OpenMenuItem"), ViewerFrame::OnOpen)
 	EVT_MENU(XRCID("SaveMenuItem"), ViewerFrame::OnSave)
+	EVT_BUTTON(XRCID("PlaneShiftButton"), ViewerFrame::OnPlaneShiftButtonPressed)
 END_EVENT_TABLE()

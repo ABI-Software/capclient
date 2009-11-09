@@ -100,6 +100,8 @@ private:
 	void OnSave(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	
+	void OnPlaneShiftButtonPressed(wxCommandEvent& event);
+	
 	DECLARE_EVENT_TABLE();
 };
 
