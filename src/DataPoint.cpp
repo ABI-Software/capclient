@@ -47,7 +47,7 @@ DataPoint::~DataPoint()
 		fe_region = FE_region_get_data_FE_region(fe_region);
 		FE_region_remove_FE_node(fe_region, cmissNode_); // access = 1; 
 	}
-	destroy_Cmiss_node(&cmissNode_);
+	Cmiss_node_destroy(&cmissNode_);
 }
 	
 const Cmiss_node* DataPoint::GetCmissNode() const
