@@ -71,7 +71,9 @@ public:
 	 * Currently this is just the smallest number of frames of all slices
 	 * 
 	 */
-	int GetNumberOfFrames();
+	int GetNumberOfFrames() const;
+	
+	void WritePlaneInfoToFiles() const;
 	
 private:
 	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices

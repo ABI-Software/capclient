@@ -284,9 +284,9 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 				cout << __func__ << "ERROR\n";
 			}
 			string sliceName = Cmiss_region_get_path(selectedRegion);
-			cout << "dragged = " << sliceName << endl;
-			cout << "coords = " << coords[0] << ", " << coords[1] << ", " << coords[2] << "\n";
-			cout << "new_coords = " << new_coords[0] << ", " << new_coords[1] << ", " << new_coords[2] << "\n";
+//			cout << "dragged = " << sliceName << endl;
+//			cout << "coords = " << coords[0] << ", " << coords[1] << ", " << coords[2] << "\n";
+//			cout << "new_coords = " << new_coords[0] << ", " << new_coords[1] << ", " << new_coords[2] << "\n";
 			for (int nodeNum = 1; nodeNum < 5; nodeNum++)
 			{
 				char nodeName[256];
@@ -299,7 +299,7 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 					x += (new_coords[0] - coords[0]);
 					y += (new_coords[1] - coords[1]);
 					z += (new_coords[2] - coords[2]);
-					cout << "after = " << x << ", " << y << ", " << z << "\n" << endl ;
+//					cout << "after = " << x << ", " << y << ", " << z << "\n" << endl ;
 					FE_node_set_position_cartesian(node, 0, x, y, z);
 				}
 			}
@@ -448,6 +448,10 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	// we use PNG & JPEG images in our HTML page
 	//wxImage::AddHandler(new wxJPEGHandler);
 	wxImage::AddHandler(new wxPNGHandler);
+	
+	CreateStatusBar(3);
+	
+	SetTime(0.0);
 }
 
 ViewerFrame::~ViewerFrame()
@@ -720,6 +724,10 @@ void ViewerFrame::SetTime(double time)
 	//cout << "min = " << min << " ,max = " << max <<endl; 
 	slider->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
 	
+	int frameNumber = heartModel_.MapToModelFrameNumber(time);
+	std::ostringstream frameNumberStringStream;
+	frameNumberStringStream << "Frame Number: " << frameNumber;
+	SetStatusText(wxT(frameNumberStringStream.str().c_str()), 0);
 	return;
 }
 
@@ -1221,6 +1229,8 @@ void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 						input_callback_image_shifting, (void*)this);
 		Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
 						input_callback, (void*)this, 1/*add_first*/);
+		
+		imageSet_->WritePlaneInfoToFiles();
 	}
 	
 	return;

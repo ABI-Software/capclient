@@ -438,15 +438,15 @@ void ImageSlice::TransformImagePlane()
 		planeShiftInfoFile >> plane->tlc >> plane->trc >> plane->blc;
 		
 		Vector3D v = plane->trc - plane->tlc;
-		Vector3D vAdj = v * (208.0/256.0); //FIX
-		Point3D tMid = plane->tlc + (v*0.5);
-		plane->tlc = tMid - (0.5 * vAdj);
-		plane->trc = tMid + (0.5 * vAdj);
+//		Vector3D vAdj = v * (208.0/256.0); //FIX
+//		Point3D tMid = plane->tlc + (v*0.5);
+//		plane->tlc = tMid - (0.5 * vAdj);
+//		plane->trc = tMid + (0.5 * vAdj);
 		
 		plane->brc = plane->blc + v;
-		Point3D bMid = plane->blc + (v*0.5);
-		plane->blc = bMid - (0.5 * vAdj);
-		plane->brc = bMid + (0.5 * vAdj);
+//		Point3D bMid = plane->blc + (v*0.5);
+//		plane->blc = bMid - (0.5 * vAdj);
+//		plane->brc = bMid + (0.5 * vAdj);
 		
 		cout << "corrected tlc = " << plane->tlc <<endl;
 		cout << "corrected trc = " << plane->trc <<endl;
@@ -589,4 +589,69 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 	
 	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(sceneObject_);
 	GT_element_group_add_settings(gt_element_group, settings, 0);
+}
+
+#include <iomanip>
+
+void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
+{
+	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	//Got to find the child region first!!
+	Cmiss_region* region;
+	if(!Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region))
+	{
+		//error
+		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+	}
+	
+	Cmiss_node* node = Cmiss_region_get_node(region, "1");
+	Point3D blc;
+	if (node) {
+		FE_node_get_position_cartesian(node, 0, &(blc.x), &(blc.y), &(blc.z), 0);
+	}
+
+	Point3D tlc;
+	if (node = Cmiss_region_get_node(region, "3"))
+	{
+		FE_node_get_position_cartesian(node, 0, &(tlc.x), &(tlc.y), &(tlc.z), 0);
+	}
+	else
+	{
+		std::cout << "Error:\n";
+	}
+
+	Point3D trc;
+	if (node = Cmiss_region_get_node(region, "4"))
+	{
+		FE_node_get_position_cartesian(node, 0, &(trc.x), &(trc.y), &(trc.z), 0);
+	}
+	
+	std::ofstream outFile(filepath.c_str());
+	//std::cout << sliceName_ << "\n";
+//	std::cout << "tlc";
+//	std::cout << std::setw(12) << tlc.x << "i";
+//	std::cout << std::setw(12) << tlc.y << "j";
+//	std::cout << std::setw(12) << tlc.z << "k";
+//	std::cout << std::endl;
+	
+	outFile << "tlc";
+	outFile << std::setw(12) << tlc.x << "i";
+	outFile << std::setw(12) << tlc.y << "j";
+	outFile << std::setw(12) << tlc.z << "k";
+	outFile << std::endl;
+	
+	outFile << "trc";
+	outFile << std::setw(12) << trc.x << "i";
+	outFile << std::setw(12) << trc.y << "j";
+	outFile << std::setw(12) << trc.z << "k";
+	outFile << std::endl;
+	
+	outFile << "blc";
+	outFile << std::setw(12) << blc.x << "i";
+	outFile << std::setw(12) << blc.y << "j";
+	outFile << std::setw(12) << blc.z << "k";
+	outFile << std::endl;
+
+	outFile.close();
 }

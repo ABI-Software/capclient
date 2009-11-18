@@ -47,6 +47,8 @@ public:
 		return images_.size();
 	}
 	
+	void WritePlaneInfoToFile(const std::string& file) const;
+	
 private:
 	void LoadImagePlaneModel();
 	
