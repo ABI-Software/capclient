@@ -449,7 +449,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	//wxImage::AddHandler(new wxJPEGHandler);
 	wxImage::AddHandler(new wxPNGHandler);
 	
-	CreateStatusBar(3);
+	CreateStatusBar(0);
 	
 	SetTime(0.0);
 }
@@ -1165,13 +1165,22 @@ void ViewerFrame::OnOpen(wxCommandEvent& event)
 		}
 		choice->SetSelection(0);
 		
-		InitialiseMII();
+		InitialiseMII(); // This turns on all MII's
 		
 		wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
 		heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
 		
 		wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
-		heartModel_.SetMIIVisibility(miiCheckBox->IsChecked());
+		//heartModel_.SetMIIVisibility(miiCheckBox->IsChecked());
+		const int numberOfSlices = imageSet_->GetNumberOfSlices();
+		for (int i = 0; i < numberOfSlices; i++)
+		{
+			cout << "slice num = " << i << ", isChecked = " << objectList_->IsChecked(i) << endl;
+			if (!objectList_->IsChecked(i))
+			{
+				heartModel_.SetMIIVisibility(false,i);
+			}
+		}
 	}
 }
 
