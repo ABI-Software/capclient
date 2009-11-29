@@ -559,13 +559,12 @@ void ViewerFrame::OnTogglePlay(wxCommandEvent& event)
 
 void ViewerFrame::Terminate(wxCloseEvent& event)
 {
-//	int answer = wxMessageBox("Quit program?", "Confirm",
-//	                            wxYES_NO | wxCANCEL, this);
-//	if (answer == wxYES)
-//	{
-//		Close();
+	int answer = wxMessageBox("Quit program?", "Confirm",
+	                            wxYES_NO, this);
+	if (answer == wxYES)
+	{
 		exit(0); //without this, the funny temporary window appears
-//	}
+	}
 }
 
 int ViewerFrame::add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox)
@@ -1204,12 +1203,7 @@ void ViewerFrame::OnSave(wxCommandEvent& event)
 
 void ViewerFrame::OnQuit(wxCommandEvent& event)
 {
-	int answer = wxMessageBox("Quit program?", "Confirm",
-	                            wxYES_NO, this);
-	if (answer == wxYES)
-	{
-		Close();
-	}
+	Close();
 }
 
 void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
