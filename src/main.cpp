@@ -23,8 +23,8 @@ extern "C" {
 #include "time/time.h"
 }
 
+#include "CAPTotalLeastSquares.h"
 #include <iostream>
-
 
 using namespace std;
 
@@ -60,6 +60,9 @@ int main(int argc,char *argv[])
 		cout << "Error: Invalid command line options" << endl;
 		return (0);
 	}
+	
+//	TestLSQR();
+//	exit(0); 
 
 	if (struct Cmiss_command_data *command_data = create_Cmiss_command_data(cmgui_argc, cmgui_argv, "0.0"))
 	{

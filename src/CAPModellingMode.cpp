@@ -284,6 +284,7 @@ const std::vector<DataPoint>& CAPModellingModeBasePlane::GetBasePlanePoints() co
 
 #include "SolverLibraryFactory.h"
 #include "GMMFactory.h"
+#include "VNLFactory.h"
 #include "CAPMath.h"
 #include "CAPModelLVPS4X4.h"
 
@@ -296,7 +297,8 @@ const static char* priorFile = "Data/templates/prior.dat";
 CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartModel)
 : 
 	heartModel_(heartModel),
-	solverFactory_(new GMMFactory),
+	//solverFactory_(new GMMFactory),
+	solverFactory_(new VNLFactory),
 	timeVaryingDataPoints_(134),
 	timeSmoother_()
 {
@@ -305,15 +307,18 @@ CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartM
 	std::cout << "Solver Library = " << factory.GetName() << std::endl;
 
 	// Read in S (smoothness matrix)
-	S_ = factory.CreateMatrixFromFile(Sfile);
+	S_ = factory.CreateSparseMatrixFromFile(Sfile);
 	// Read in G (global to local parameter map)
-	G_ = factory.CreateMatrixFromFile(Gfile);
+	G_ = factory.CreateSparseMatrixFromFile(Gfile);
 
+	std::cout << "Done reading S & G matrices\n";
+	
 	// initialize preconditioner and GSMoothAMatrix
 	
 	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
 	
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
+	std::cout << "Done creating GSmoothAMatrix\n";
 	
 	prior_ = factory.CreateVectorFromFile(priorFile);
 	return;
@@ -480,7 +485,7 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 	}
 	
 	// 3. construct P
-	Matrix* P = solverFactory_->CreateMatrix(dataPoints.size(), 512, entries); //FIX
+	SparseMatrix* P = solverFactory_->CreateSparseMatrix(dataPoints.size(), 512, entries); //FIX
 	
 	aMatrix_->UpdateData(*P);
 	

@@ -36,6 +36,8 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/third_party/${LIB_ARCH_DIR}/include/gdcm-2.0)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/gmm-3.1/include)
 #INCLUDE_DIRECTORIES(${CMISS_ROOT}/boost_1_38_0)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Utilities/vxl/vcl)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Utilities/vxl/core)
 
 SET(SRCS 
   src/ViewerFrame.cpp
@@ -121,7 +123,7 @@ IF(wxWidgets_FOUND)
   message("including: " ${wxWidgets_USE_FILE})
   INCLUDE(${wxWidgets_USE_FILE})
   MESSAGE("wxWidgets found")
-  message("linking: " ${wxWidgets_LIBRARIES})
+  message("ing: " ${wxWidgets_LIBRARIES})
   message("lib dir: " ${wxWidgets_LIB_DIR})
   ADD_DEFINITIONS(-DWX_USER_INTERFACE)
 ELSE(wxWidgets_FOUND)

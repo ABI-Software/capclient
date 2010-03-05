@@ -18,7 +18,7 @@
 #include "CAPModellingMode.h"
 
 class CAPModelLVPS4X4;
-//class Matrix;
+//class SparseMatrix;
 //class Vector;
 //class Preconditioner;
 //class GSmoothAMatrix;

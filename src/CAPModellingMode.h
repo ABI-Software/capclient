@@ -122,7 +122,7 @@ private:
 
 #include "CAPTimeSmoother.h"
 
-class Matrix;
+class SparseMatrix;
 class Vector;
 class Preconditioner;
 class GSmoothAMatrix;
@@ -174,14 +174,14 @@ private:
 	std::vector< std::vector<float> > timeVaryingDataPoints_;
 	
 	SolverLibraryFactory* solverFactory_;
-	Matrix* S_;
-	Matrix* G_;
-	//Matrix* P_;
+	SparseMatrix* S_;
+	SparseMatrix* G_;
+	//SparseMatrix* P_;
 	Preconditioner* preconditioner_;
 	GSmoothAMatrix* aMatrix_;
 	Vector* prior_;
 	
-	Matrix* bezierToHermiteTransform_; // Temporary
+	SparseMatrix* bezierToHermiteTransform_; // Temporary
 	
 	CAPTimeSmoother timeSmoother_;
 	std::vector<int> framesWithDataPoints_;
