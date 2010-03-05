@@ -41,11 +41,11 @@ public:
 		return *impl_;
 	}
 	
-	Vector& operator=(double value)
-	{
-		(*impl_).assign(134, value); //FIX
-		return *this;
-	}
+//	Vector& operator=(double value)
+//	{
+//		(*impl_).assign(impl_->size(), value); //FIX
+//		return *this;
+//	}
 	
 	std::string ToString() const
 	{
@@ -89,7 +89,7 @@ private:
 	std::vector<double> *impl_;
 };
 
-class GMMMatrix : public Matrix
+class GMMMatrix : public SparseMatrix
 {
 public:
 	GMMMatrix(gmm::csc_matrix<double>& m)
@@ -167,12 +167,12 @@ public:
 		delete[] jc;
 	}
 	
-	void UpdateData(const Matrix& M)
+	void UpdateData(const SparseMatrix& M)
 	{
 		P = &(static_cast<const GMMMatrix*>(&M)->GetImpl());
 	}
 	
-	// REVISE: Following two functions need to be defined since this class inherits from Matrix (never really used.)
+	// REVISE: Following two functions need to be defined since this class inherits from SparseMatrix (never really used.)
 	Vector* mult(const Vector& v) const
 	{
 		return 0;
@@ -326,7 +326,7 @@ public:
 		return new GMMVector(*y);
 	}
 	
-	Preconditioner* CreateDiagonalPreconditioner(const Matrix& m) const
+	Preconditioner* CreateDiagonalPreconditioner(const SparseMatrix& m) const
 	{
 		return new GMMPreconditioner(
 				static_cast<const GMMMatrix*>(&m)->GetImpl());
@@ -348,7 +348,7 @@ public:
 		gmm::dense_matrix<double>& m_;
 	};
 	
-	Matrix* CreateMatrix(int m, int n, const std::vector<Entry>& entries) const
+	SparseMatrix* CreateSparseMatrix(int m, int n, const std::vector<Entry>& entries) const
 	{
 		gmm::dense_matrix<double> temp(m, n);
 		
@@ -360,11 +360,11 @@ public:
 		gmm::csc_matrix<double>* mat = new gmm::csc_matrix<double>(m,n);
 		mat->init_with(temp);
 		
-//		std::cout << "Matrix constructed = " << *mat << endl;
+//		std::cout << "SparseMatrix constructed = " << *mat << endl;
 		return new GMMMatrix(*mat);
 	}
 			
-	Matrix* CreateMatrixFromFile(const std::string& filename) const
+	SparseMatrix* CreateSparseMatrixFromFile(const std::string& filename) const
 	{
 		gmm::csc_matrix<double>* m = new gmm::csc_matrix<double>;
 		Harwell_Boeing_load(filename, *m);
@@ -372,14 +372,14 @@ public:
 		return new GMMMatrix(*m);
 	}
 	
-	GSmoothAMatrix* CreateGSmoothAMatrix(const Matrix& S, const Matrix& G) const
+	GSmoothAMatrix* CreateGSmoothAMatrix(const SparseMatrix& S, const SparseMatrix& G) const
 	{
 		return new gmm::GMMGSmoothAMatrix(
 				static_cast<const GMMMatrix*>(&S)->GetImpl(),
 				static_cast<const GMMMatrix*>(&G)->GetImpl());
 	}
 	
-	void CG(const Matrix& A, Vector& x, const Vector& rhs, const Preconditioner& pre, int maximumIteration, double tolerance) const
+	void CG(const SparseMatrix& A, Vector& x, const Vector& rhs, const Preconditioner& pre, int maximumIteration, double tolerance) const
 	{
 		std::vector<double>& xImpl = static_cast<GMMVector*>(&x)->GetImpl();
 		const std::vector<double>& rhsImpl = static_cast<const GMMVector*>(&rhs)->GetImpl();
