@@ -297,8 +297,8 @@ const static char* priorFile = "Data/templates/prior.dat";
 CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartModel)
 : 
 	heartModel_(heartModel),
-	//solverFactory_(new GMMFactory),
-	solverFactory_(new VNLFactory),
+	solverFactory_(new GMMFactory),
+	//solverFactory_(new VNLFactory),
 	timeVaryingDataPoints_(134),
 	timeSmoother_()
 {
