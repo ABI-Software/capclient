@@ -1123,7 +1123,7 @@ void ViewerFrame::OnOpenImages(wxCommandEvent& event)
 		}
 }
 
-void ViewerFrame::OnOpen(wxCommandEvent& event)
+void ViewerFrame::OnOpenModel(wxCommandEvent& event)
 {
 	wxString currentWorkingDir = wxGetCwd();
 	wxString defaultPath = currentWorkingDir.Append("/Data");
@@ -1257,7 +1257,7 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_MENU(XRCID("QuitMenuItem"),  ViewerFrame::OnQuit)
 	EVT_MENU(XRCID("AboutMenuItem"), ViewerFrame::OnAbout)
 	EVT_MENU(XRCID("OpenImagesMenuItem"), ViewerFrame::OnOpenImages)
-	EVT_MENU(XRCID("OpenMenuItem"), ViewerFrame::OnOpen)
+	EVT_MENU(XRCID("OpenMenuItem"), ViewerFrame::OnOpenModel)
 	EVT_MENU(XRCID("SaveMenuItem"), ViewerFrame::OnSave)
 	EVT_BUTTON(XRCID("PlaneShiftButton"), ViewerFrame::OnPlaneShiftButtonPressed)
 END_EVENT_TABLE()
