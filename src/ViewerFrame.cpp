@@ -460,26 +460,59 @@ ViewerFrame::~ViewerFrame()
 	delete modeller_;
 }
 
+#include <wx/dir.h>
+
+static vector<string> EnumerateAllSubDirs(const string& dirname)
+{
+	wxString wxDirname(dirname.c_str());
+	wxDir dir(wxDirname);
+
+	if ( !dir.IsOpened() )
+	{
+		// deal with the error here - wxDir would already log an error message
+		// explaining the exact reason of the failure
+		return vector<string>();
+	}
+
+	puts("Enumerating subdirectories in current directory:");
+
+	vector<string> subDirnames;
+	wxString filename;
+
+	bool cont = dir.GetFirst(&filename, "", wxDIR_DIRS);
+	while ( cont )
+	{
+		printf("%s\n", filename.c_str());
+		subDirnames.push_back(filename.c_str());
+		cont = dir.GetNext(&filename);
+	}
+	return subDirnames;
+}
+
 void ViewerFrame::LoadImages()
 {
 	vector<string> sliceNames;
 
-	sliceNames.push_back("SA1");
-	sliceNames.push_back("SA2");
-	sliceNames.push_back("SA3");
-	sliceNames.push_back("SA4");
-	sliceNames.push_back("SA5");
-	sliceNames.push_back("SA6");
-//	sliceNames.push_back("SA7");
-//	sliceNames.push_back("SA8");
-//	sliceNames.push_back("SA9");
-//	sliceNames.push_back("SA10");
-	//sliceNames.push_back("SA11");
-	//sliceNames.push_back("SA12");
-	sliceNames.push_back("LA1");
-	sliceNames.push_back("LA2");
-	sliceNames.push_back("LA3");
+//	sliceNames.push_back("SA1");
+//	sliceNames.push_back("SA2");
+//	sliceNames.push_back("SA3");
+//	sliceNames.push_back("SA4");
+//	sliceNames.push_back("SA5");
+//	sliceNames.push_back("SA6");
+////	sliceNames.push_back("SA7");
+////	sliceNames.push_back("SA8");
+////	sliceNames.push_back("SA9");
+////	sliceNames.push_back("SA10");
+//	//sliceNames.push_back("SA11");
+//	//sliceNames.push_back("SA12");
+//	sliceNames.push_back("LA1");
+//	sliceNames.push_back("LA2");
+//	sliceNames.push_back("LA3");
 	
+	string dir_path(CAP_DATA_DIR);
+	dir_path.append("images/");
+	
+	sliceNames = EnumerateAllSubDirs(dir_path);
 	imageSet_ = new ImageSet(sliceNames); //REFACTOR
 	
 	this->PopulateObjectList(); // fill in slice check box list
@@ -1049,19 +1082,17 @@ void ViewerFrame::OnAbout(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
-#include <wx/dir.h>
-
 void EnumerateAllFiles(const wxString& dirname)
 {
-	wxDir dir(dirname);
-	
-	if ( !dir.IsOpened() )
-	{
-		// deal with the error here - wxDir would already log an error message
-		// explaining the exact reason of the failure
-		cout << "Error";
-		return;
-	}
+//	wxDir dir(dirname);
+//	
+//	if ( !dir.IsOpened() )
+//	{
+//		// deal with the error here - wxDir would already log an error message
+//		// explaining the exact reason of the failure
+//		cout << "Error";
+//		return;
+//	}
 	
 	puts("Enumerating object files in current directory:");
 	
@@ -1076,7 +1107,7 @@ void EnumerateAllFiles(const wxString& dirname)
 //	}
 	
 	wxArrayString files;
-	dir.GetAllFiles(dirname, &files);
+	wxDir::GetAllFiles(dirname, &files);
 	
 	for (int i = 0; i < files.GetCount(); i++)
 	{
