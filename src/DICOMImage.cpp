@@ -89,6 +89,7 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	}
 	else
 	{
+		std::cout << "(0x20,0x37) Image Orientation - Patient is missing. We will compute the orientation from (0x20,0x35) instead.\n";
 		const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0035));
 		gdcm::Attribute<0x0020,0x0035> at_ori; //test
 		at_ori.SetFromDataElement(orientation);
@@ -109,7 +110,7 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 
 	plane = new ImagePlane();
 
-	// JGB - 2007/12/05 - plane's tlc starts from the edge of the first voxel
+	// plane's tlc starts from the edge of the first voxel
 	// rather than centre; (0020, 0032) is the centre of the first voxel
 	plane->tlc = position3D - pixelSizeX * (0.5f*orientation1 + 0.5f*orientation2);
 
