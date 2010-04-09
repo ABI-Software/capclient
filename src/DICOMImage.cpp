@@ -47,8 +47,6 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	//sf.SetFile( r.GetFile() );
 
 	const gdcm::DataElement& rows = ds.GetDataElement(gdcm::Tag(0x0028,0x0010));
-//	const gdcm::ByteValue* value = rows.GetByteValue();
-//	height = *(reinterpret_cast<const unsigned short*>((value->GetPointer()))); //Endianness??
 	gdcm::Attribute<0x0028,0x0010> at_rows;
 	at_rows.SetFromDataElement(rows);
 	height = at_rows.GetValue();
@@ -56,8 +54,6 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	cout << endl;
 
 	const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
-//	value = cols.GetByteValue();
-//	width = *(reinterpret_cast<const unsigned short*>((value->GetPointer())));
 	gdcm::Attribute<0x0028,0x0011> at_cols;
 	at_cols.SetFromDataElement(cols);
 	width = at_cols.GetValue();
@@ -65,16 +61,12 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	cout << endl;
 
 	const gdcm::DataElement& thick = ds.GetDataElement(gdcm::Tag(0x0018,0x0050));
-//	value = thick.GetByteValue();
-//	thickness = *(reinterpret_cast<const float*>(value->GetPointer()));
 	gdcm::Attribute<0x0018,0x0050> at_thick;
 	at_thick.SetFromDataElement(thick);
 	thickness = at_thick.GetValue();
 
 	const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
 	gdcm::Attribute<0x0020,0x0032> at;
-//	const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0030));
-//	gdcm::Attribute<0x0020,0x0030> at;
 	at.SetFromDataElement(position);
 	Point3D position3D(at[0],at[1],at[2]);
 
