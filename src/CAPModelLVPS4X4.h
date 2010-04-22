@@ -110,7 +110,7 @@ public:
 		numberOfModelFrames_ = numberOfFrames;
 	}
 	
-	float ComputeVolume(SurfaceType surface, float time) const;
+	double ComputeVolume(SurfaceType surface, float time) const;
 	
 private:
 	

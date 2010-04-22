@@ -529,7 +529,7 @@ Vector3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Vector3D& global) c
 
 Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
 {
-	float lambda, mu, theta;
+	FE_value lambda, mu, theta;
 		
 	cartesian_to_prolate_spheroidal(rc.x, rc.y, rc.z, focalLength_, &lambda, &mu, &theta,0);
 	//cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
@@ -545,7 +545,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float ti
 //	cout << "Local coord = " << coordLocal << endl;
 	
 	//2. Transform to Prolate Spheroidal
-	float lambda, mu, theta;
+	FE_value lambda, mu, theta;
 	
 	cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, focalLength_, 
 			&lambda,&mu, &theta,0);
@@ -601,7 +601,9 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float ti
 	
 	if (return_code)
 	{
-		xi_coord = xi;
+		xi_coord.x = xi[0];
+		xi_coord.y = xi[1];
+		xi_coord.z = xi[2];
 		return Cmiss_element_get_identifier(element);
 	}
 	
@@ -679,7 +681,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 	
 	//Epi
 	
-	float mu[4];
+	FE_value mu[4];
 	for (int i=0;i<4;i++)
 	{
 		FE_region* fe_region;
@@ -700,12 +702,12 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		{
 			//Error
 		}
-		float lambda = values[0];
-		float theta = values[2];
+		FE_value lambda = values[0];
+		FE_value theta = values[2];
 		mu[i] = values[1] = 0.0;
 		
-		float x, y, z;
-		if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (float*)0))
+		FE_value x, y, z;
+		if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (FE_value*)0))
 		{
 			//Error
 		}
@@ -740,7 +742,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 			if(fabs(zdiff)<1.0e-05) s=0.5;
 			else s = (-z1)/zdiff;
 			Point3D interpoint = lastpoint + s*(point-lastpoint);
-			cartesian_to_prolate_spheroidal( interpoint.x,interpoint. y,interpoint. z, focalLength_, &lambda,&mu[i],&theta,0);
+			cartesian_to_prolate_spheroidal(interpoint.x, interpoint.y, interpoint.z, focalLength_, &lambda,&mu[i],&theta,0);
 		}
 		
 //		std::cout << "frameNumber = " << frameNumber << ", node = " << i +1  << ", mu :CIM_way = " << mu[i] ;
@@ -788,7 +790,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		for (int i=0;i<4;i++)
 		{
 			//modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
-			float value = mu[i]/4.0 * (4.0- (double)j);
+			FE_value value = mu[i]/4.0 * (4.0- (double)j);
 			
 			FE_region* fe_region;
 			struct FE_node *node;
@@ -839,12 +841,12 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		{
 			//Error
 		}
-		float lambda = values[0];
-		float theta = values[2];
+		FE_value lambda = values[0];
+		FE_value theta = values[2];
 		mu[i] = values[1] = 0.0;
 
-		float x, y, z;
-		if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (float*)0))
+		FE_value x, y, z;
+		if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (FE_value*)0))
 		{
 			//Error
 		}
@@ -909,7 +911,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		for (int i=0;i<4;i++)
 		{
 			//modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
-			float value = mu[i]/4.0 * (4.0- (double)j);
+			FE_value value = mu[i]/4.0 * (4.0- (double)j);
 
 			FE_region* fe_region;
 			struct FE_node *node;
@@ -1007,7 +1009,7 @@ int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 	return std::min(frame, numberOfModelFrames_);
 }
 
-float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
+double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
 {
 	const int numElements = 16;
 	const int nx = 7, ny = 7;
@@ -1015,7 +1017,7 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
 	Point3D b[numElements][nx];
 	Point3D p[numElements*nx*ny];
 	Point3D temp;
-	float vol_sum = 0;
+	double vol_sum = 0;
 	Point3D origin(0,0,0);
 
 	// initialise arrays
@@ -1049,14 +1051,18 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
 			{
 				//calculate lamda mu and theta at this point
 				FE_value values[3], xi[3];
-				xi[0] = (float) i/(nx-1);
-				xi[1] = (float) j/(ny-1);
+				xi[0] = (FE_value) i/(nx-1);
+				xi[1] = (FE_value) j/(ny-1);
 				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
-				Computed_field_evaluate_in_element(field, element, xi,
-					time, (struct FE_element *)NULL, values, (FE_value*)0 /*derivatives*/);
+				if (!Computed_field_evaluate_in_element(field, element, xi,
+					time, (struct FE_element *)NULL, values, (FE_value*)0 /*derivatives*/))
+				{
+					std::cout << "Error: Computed_field_evaluate_in_element\n";	
+					return -1.0;
+				}
 
 				prolate_spheroidal_to_cartesian(values[0],values[1],values[2],
-					focalLength_, &temp.x, &temp.y, &temp.z, (float*)0);
+					focalLength_, &temp.x, &temp.y, &temp.z, (FE_value*)0);
 
 //				std::cout << __func__ << ": " << temp.x << " " << temp.y << " " << temp.z << endl;
 
@@ -1070,7 +1076,7 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
 				int n1 = j*(nx) + i ;
 				int n2 = n1 + 1;
 				int n3 = n2 + (nx);
-				float vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
+				double vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
 				vol_sum += vol;
 
 				n1 = n1;
@@ -1101,12 +1107,12 @@ float CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
 			num++;
 		}
 	}
-	c *= (1/(float)num);
+	c *= (1/(double)num);
 	for(int ne=0;ne<4;ne++){
 		for(int i=0;i<nx-1;i++){
 			int n1 = i ;
 			int n2 = n1+1;
-			float vol = ComputeVolumeOfTetrahedron(b[ne][n1], b[ne][n2], c, origin);
+			double vol = ComputeVolumeOfTetrahedron(b[ne][n1], b[ne][n2], c, origin);
 			vol_sum += vol;
 		}
 	}
