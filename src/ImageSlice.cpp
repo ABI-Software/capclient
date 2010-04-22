@@ -132,7 +132,7 @@ void ImageSlice::SetTime(double time)
 	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
 	{
 		//error
-		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
 	}
 
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
@@ -278,10 +278,11 @@ void ImageSlice::LoadImagePlaneModel()
 
 	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
 	//Got to find the child region first!!
+	cout << "Subregion name = " << name << "\n";
 	if(!(region = Cmiss_region_find_subregion_at_path(root_region, name.c_str())))
 	{
 		//error
-		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
 	}
 
 	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
@@ -451,7 +452,7 @@ void ImageSlice::TransformImagePlane()
 	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
 	{
 		//error
-		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
 	}
 	
 	char nodeName[256]; //FIX
@@ -589,7 +590,7 @@ void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
 	{
 		//error
-		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
+		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
 	}
 	
 	Cmiss_node* node = Cmiss_region_get_node(region, "1");
