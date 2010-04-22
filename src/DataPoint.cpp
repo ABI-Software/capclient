@@ -41,13 +41,13 @@ DataPoint::DataPoint(const DataPoint& other)
 		
 DataPoint::~DataPoint()
 {
-	if (2 == get_FE_node_access_count(cmissNode_)) // means this is the last reference to the cmiss node
-	{
-		FE_region* fe_region = FE_node_get_FE_region(cmissNode_); //REVISE
-		fe_region = FE_region_get_data_FE_region(fe_region);
-		FE_region_remove_FE_node(fe_region, cmissNode_); // access = 1; 
-	}
-	Cmiss_node_destroy(&cmissNode_);
+//	if (2 == get_FE_node_access_count(cmissNode_)) // means this is the last reference to the cmiss node
+//	{
+//		FE_region* fe_region = FE_node_get_FE_region(cmissNode_); //REVISE
+//		fe_region = FE_region_get_data_FE_region(fe_region);
+//		FE_region_remove_FE_node(fe_region, cmissNode_); // access = 1; 
+//	}
+//	Cmiss_node_destroy(&cmissNode_);
 }
 	
 const Cmiss_node* DataPoint::GetCmissNode() const

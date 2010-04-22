@@ -132,7 +132,7 @@ DESCRIPTION :
 	return_code = 0;
 	if (region && file_name && (io_stream_package=CREATE(IO_stream_package)()))
 	{
-		temp_region = Cmiss_region_create_share_globals(region);
+		temp_region = Cmiss_region_create_region(region);
 		if (read_exregion_file_of_name(temp_region,file_name,io_stream_package, &time_index))
 		{
 			if (Cmiss_regions_FE_regions_can_be_merged(region,temp_region))
@@ -483,8 +483,8 @@ Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* no
 	struct GT_element_group *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
-			CmguiManager::getInstance().getCmissCommandData());
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
+			CmguiManager::getInstance().getCmissContext()); //FIX singleton
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
 	
@@ -584,8 +584,8 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y,
 	struct GT_element_group *gt_element_group, *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
-			CmguiManager::getInstance().getCmissCommandData());
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
+			CmguiManager::getInstance().getCmissContext()); //FIX singleton
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
 	
@@ -706,8 +706,8 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float tim
 	struct GT_element_group *gt_element_group, *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
-			CmguiManager::getInstance().getCmissCommandData());
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
+			CmguiManager::getInstance().getCmissContext()); //FIX singleton
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
 	

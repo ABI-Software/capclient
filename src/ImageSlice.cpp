@@ -82,7 +82,7 @@ void ImageSlice::SetTime(double time)
 {
 	time_ = time; // store time for later use
 	
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
 
 	int index = static_cast<int>(time * textures_.size()); // -1
 	//boundary checks
@@ -126,10 +126,10 @@ void ImageSlice::SetTime(double time)
 		cout << "Error: cant find material" << endl;
 	}
 	
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
 	//Got to find the child region first!!
 	Cmiss_region* region;
-	if(!Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region))
+	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
 	{
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
@@ -151,7 +151,7 @@ void ImageSlice::SetTime(double time)
 
 		GT_element_settings_set_texture_coordinate_field(settings,c_field);
 
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 		
 		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
@@ -221,12 +221,12 @@ void ImageSlice::SetContrast(float contrast)
 
 void ImageSlice::LoadImagePlaneModel()
 {
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
 	
 	char filename[256];
 	string& name = sliceName_;
 	
-	Cmiss_region* region = Cmiss_command_data_get_root_region(command_data);
+	Cmiss_region* region = Cmiss_context_get_default_region(context);
 	
 	// Read in ex files that define the element used to represent the image slice
 	// TODO these should be done programatically
@@ -269,16 +269,16 @@ void ImageSlice::LoadImagePlaneModel()
 //	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
 //	Material_package_manage_material(material_package, material_);
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	if (!scene)
 	{
 		cout << "Can't find scene" << endl;
 	}
 
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
 	//Got to find the child region first!!
-	if(!Cmiss_region_get_region_from_path(root_region, name.c_str(), &region))
+	if(!(region = Cmiss_region_find_subregion_at_path(root_region, name.c_str())))
 	{
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
@@ -330,13 +330,10 @@ void ImageSlice::LoadTextures()
 	
 	const vector<string>& filenames = fs.getAllFileNames();
 	
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	struct Cmiss_texture_manager* manager = Cmiss_command_data_get_texture_manager(command_data);
-	struct IO_stream_package* io_stream_package = Cmiss_command_data_get_IO_stream_package(command_data);
-
 	vector<string>::const_iterator itr = filenames.begin();
 	vector<string>::const_iterator end = filenames.end();
 
+	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
 	for (; itr != end; ++itr)
 	{
 		const string& filename = *itr;
@@ -365,16 +362,12 @@ void ImageSlice::LoadTextures()
 		
 		string textureName(sliceName_);
 		textureName.append(filename);
-
-//		Cmiss_texture_id texture_id = Cmiss_texture_manager_create_texture_from_file(
-//			manager, textureName.c_str(), io_stream_package, texture_path.c_str());
-//		if (!texture_id)
-//		{
-//			cout <<"ERROR:: cant create texture from file" << endl;
-//		}
 		
-		Cmiss_field_id field_in = Cmiss_field_create_image(NULL, NULL);
-		Cmiss_field_image_id image_field_in = Cmiss_field_image_cast(field_in);
+		Cmiss_region_id region = Cmiss_context_get_default_region(context);
+		Cmiss_field_module_id field_module =  Cmiss_region_get_field_module(region);
+
+		Cmiss_field_id field_in = Cmiss_field_module_create_image(field_module, NULL, NULL);
+		Cmiss_field_image_id image_field_in = Cmiss_field_cast_image(field_in);
 		
 		/* Read image data from a file */
 		Cmiss_field_image_read_file(image_field_in, texture_path.c_str());
@@ -451,11 +444,11 @@ void ImageSlice::TransformImagePlane()
 	
 	int nodeNum = 1;
 
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
+	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
 	//Got to find the child region first!!
 	Cmiss_region* region;
-	if(!Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region))
+	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
 	{
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;
@@ -513,10 +506,10 @@ const ImagePlane& ImageSlice::GetImagePlane() const
 
 Cmiss_field* ImageSlice::CreateVisibilityField()
 {
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
+	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
 	Cmiss_region* region;
-	Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region);
+	region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str());
 	CM_field_type cm_field_type = CM_GENERAL_FIELD;
 	char* name = "visibility";
 	Coordinate_system coordinate_system;
@@ -588,11 +581,12 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 
 void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 {
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(command_data);
+	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
+	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
+
 	//Got to find the child region first!!
 	Cmiss_region* region;
-	if(!Cmiss_region_get_region_from_path(root_region, sliceName_.c_str(), &region))
+	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
 	{
 		//error
 		std::cout << "Cmiss_region_get_region_from_path() returned 0 : "<< region <<endl;

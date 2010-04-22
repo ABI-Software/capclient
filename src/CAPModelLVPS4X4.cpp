@@ -34,10 +34,10 @@ struct CAPModelLVPS4X4::HeartModelImpl
 	:
 		region(0),
 		field(0),
-		commandData(0)
+		cmissContext(0)
 	{}
 	
-	Cmiss_command_data* commandData;
+	Cmiss_context_id cmissContext;
 	Cmiss_region* region;
 	//Scene_object* sceneObject;
 	Cmiss_field_id field;
@@ -73,10 +73,10 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 
 	ReadModelInfo(dir_path); // this will set numberOfModelFrames, focal length and transformation Matrix 
 
-	pImpl_->commandData = CmguiManager::getInstance().getCmissCommandData();
+	pImpl_->cmissContext = CmguiManager::getInstance().getCmissContext();
 
-	Cmiss_region* region = Cmiss_command_data_get_root_region(pImpl_->commandData);
-	struct Time_keeper* time_keeper = Cmiss_command_data_get_default_time_keeper(pImpl_->commandData);
+	Cmiss_region* region = Cmiss_context_get_default_region(pImpl_->cmissContext);
+	struct Time_keeper* time_keeper = Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);
 	
 	for (int i = 0; i<numberOfModelFrames_; i++)
 	{		
@@ -125,7 +125,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 
 	if (scene_object_name)
 	{
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(pImpl_->commandData);
+		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(pImpl_->cmissContext);
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 		if (modelSceneObject_=Scene_get_Scene_object_by_name(scene,
 			scene_object_name))
@@ -144,8 +144,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	}
 
 	// Set focal length from the value read in
-	Cmiss_region* cmiss_region;
-	Cmiss_region_get_region_from_path(region, "heart", &cmiss_region);
+	Cmiss_region_id cmiss_region = Cmiss_region_find_subregion_at_path(region, "heart");
 	pImpl_->region = cmiss_region;
 	Cmiss_field_id field = Cmiss_region_find_field_by_name(cmiss_region, "coordinates");//FIX
 	pImpl_->field = field;
@@ -157,14 +156,14 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	// TODO extract method
 	char str[256];
 	sprintf((char*)str, "gfx define field /heart/heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
-	Cmiss_command_data_execute_command(pImpl_->commandData, str);
+	Cmiss_context_execute_command(pImpl_->cmissContext, str);
 
 	
 	// set the discretizatioin level to be 6 
 	// FIX use API calls instead of command line
 	// NB This resets the time object associated with the scene object ?? WHY???? possible BUG??
 	// NB This maybe because of "clear" in the command - replace with API call GT_element_group_set_element_discretization
-	Cmiss_command_data_execute_command(pImpl_->commandData,
+	Cmiss_context_execute_command(pImpl_->cmissContext,
 	"gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	
 	);//This clears the timer frequency
 	
@@ -198,7 +197,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	FE_write_fields_mode write_fields_mode = FE_WRITE_LISTED_FIELDS;
 	FE_write_criterion write_criterion = FE_WRITE_COMPLETE_GROUP;
 	FE_write_recursion write_recursion = FE_WRITE_NON_RECURSIVE;
-	Cmiss_region* root_region = Cmiss_command_data_get_root_region(pImpl_->commandData);
+	Cmiss_region* root_region = Cmiss_context_get_default_region(pImpl_->cmissContext);
 	
 	for (int i = 0; i < numberOfModelFrames_ ; i++)
 	{
@@ -395,14 +394,14 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 {
 	if (mode == CAPModelLVPS4X4::WIREFRAME)
 	{
-		Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
+		Cmiss_context_id context = pImpl_->cmissContext;
 		
 		//FIX use api calls
-		Cmiss_command_data_execute_command(command_data,
+		Cmiss_context_execute_command(context,
 		"gfx mod g_el heart surfaces exterior face xi3_0 no_select material green selected_material default_selected render_wireframe;"
 		);
 		
-		Cmiss_command_data_execute_command(command_data,
+		Cmiss_context_execute_command(context,
 		"gfx mod g_el heart surfaces exterior face xi3_1 no_select material red selected_material default_selected render_wireframe;"
 		);
 		
