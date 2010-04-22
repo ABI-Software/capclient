@@ -12,6 +12,11 @@
 #include <cmath>
 
 typedef float gtMatrix[4][4];
+#ifdef FE_VALUE_IS_DOUBLE
+typedef double Real;
+#else
+typedef float Real;
+#endif //FE_VALUE_IS_DOUBLE
 
 class Vector3D
 {
@@ -20,16 +25,16 @@ public:
 		x(0), y(0), z(0) {
 	}
 
-	Vector3D(float x_, float y_, float z_) :
+	Vector3D(Real x_, Real y_, Real z_) :
 		x(x_), y(y_), z(z_) {
 	}
 
-	float Length() const {
+	Real Length() const {
 		return sqrtf(x * x + y * y + z * z);
 	}
 
 	void Normalise() {
-		float length = Length();
+		Real length = Length();
 		x /= length;
 		y /= length;
 		z /= length;
@@ -50,11 +55,11 @@ public:
 		return Vector3D(x - rhs.x, y - rhs.y, z - rhs.z);
 	}
 
-	inline Vector3D operator *(const float fScalar) const {
+	inline Vector3D operator *(const Real fScalar) const {
 		return Vector3D(x * fScalar, y * fScalar, z * fScalar);
 	}
 
-	inline float operator *(const Vector3D& rhs) const {
+	inline Real operator *(const Vector3D& rhs) const {
 		return x * rhs.x + y * rhs.y + z * rhs.z;
 	}
 
@@ -82,7 +87,7 @@ public:
 		return false;
 	}
 
-	float x, y, z;
+	Real x, y, z;
 };
 
 inline std::ostream& operator<<(std::ostream &os, const Vector3D &val)
@@ -94,14 +99,14 @@ inline std::ostream& operator<<(std::ostream &os, const Vector3D &val)
 class Point3D
 {
 public:
-	float x,y,z;
-	Point3D(float x_, float y_, float z_)
+	Real x,y,z;
+	Point3D(Real x_, Real y_, Real z_)
 	: x(x_),y(y_),z(z_)
 	{};
 	Point3D()
 	: x(0),y(0),z(0)
 	{};
-	Point3D(float p[]) //for compatibility with Cmgui
+	Point3D(Real p[]) //for compatibility with Cmgui
 	: x(p[0]),y(p[1]),z(p[2])
 	{};
 	
@@ -127,7 +132,7 @@ public:
 		return Vector3D(x - rhs.x, y - rhs.y, z - rhs.z);
 	}
 	
-	Point3D operator/(const float divider) const
+	Point3D operator/(const Real divider) const
 	{
 			return Point3D(x/divider, y/divider, z/divider);
 	}
@@ -151,7 +156,7 @@ inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes transl
 {
 	Point3D r;
 
-	float fInvW = 1.0 / ( m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] );
+	Real fInvW = 1.0 / ( m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] );
 
 	r.x = ( m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] ) * fInvW; // this is 1st row not column
 	r.y = ( m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] ) * fInvW;
@@ -160,7 +165,7 @@ inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes transl
 	return r;
 }
 
-//inline Point3D operator*(float scalar, const Point3D& rhs)
+//inline Point3D operator*(Real scalar, const Point3D& rhs)
 //{
 //	return Point3D(scalar*rhs.x, scalar*rhs.y, scalar*rhs.z);
 //}
@@ -185,7 +190,7 @@ inline std::istream& operator>>(std::istream& in, Point3D &val)
 	return in; 
 }
 
-inline Vector3D operator*(float scalar, const Vector3D& rhs)
+inline Vector3D operator*(Real scalar, const Vector3D& rhs)
 {
 	return Vector3D(scalar*rhs.x, scalar*rhs.y, scalar*rhs.z);
 }
@@ -201,8 +206,6 @@ inline Vector3D operator*(const gtMatrix& m, const Vector3D& v) // no translatio
 	return r;
 }
 
-typedef float Real;
-
 inline std::ostream& operator<<(std::ostream &os, const gtMatrix& m)
 {
 	os << "( " << m[0][0] << ", " << m[0][1] << ", " << m[0][2] << ", " << m[0][3] << ") " << std::endl;
@@ -213,36 +216,36 @@ inline std::ostream& operator<<(std::ostream &os, const gtMatrix& m)
 };
 
 
-inline void inverseMatrix(const float m[4][4], float mInv[4][4])
+inline void inverseMatrix(const gtMatrix m, gtMatrix mInv)
 {
-	Real m00 = m[0][0], m01 = m[0][1], m02 = m[0][2], m03 = m[0][3]; 
-	Real m10 = m[1][0], m11 = m[1][1], m12 = m[1][2], m13 = m[1][3];
-	Real m20 = m[2][0], m21 = m[2][1], m22 = m[2][2], m23 = m[2][3];
-	Real m30 = m[3][0], m31 = m[3][1], m32 = m[3][2], m33 = m[3][3];
+	float m00 = m[0][0], m01 = m[0][1], m02 = m[0][2], m03 = m[0][3]; 
+	float m10 = m[1][0], m11 = m[1][1], m12 = m[1][2], m13 = m[1][3];
+	float m20 = m[2][0], m21 = m[2][1], m22 = m[2][2], m23 = m[2][3];
+	float m30 = m[3][0], m31 = m[3][1], m32 = m[3][2], m33 = m[3][3];
 
-	Real v0 = m20 * m31 - m21 * m30;
-	Real v1 = m20 * m32 - m22 * m30;
-	Real v2 = m20 * m33 - m23 * m30;
-	Real v3 = m21 * m32 - m22 * m31;
-	Real v4 = m21 * m33 - m23 * m31;
-	Real v5 = m22 * m33 - m23 * m32;
+	float v0 = m20 * m31 - m21 * m30;
+	float v1 = m20 * m32 - m22 * m30;
+	float v2 = m20 * m33 - m23 * m30;
+	float v3 = m21 * m32 - m22 * m31;
+	float v4 = m21 * m33 - m23 * m31;
+	float v5 = m22 * m33 - m23 * m32;
 
-	Real t00 = + (v5 * m11 - v4 * m12 + v3 * m13);
-	Real t10 = - (v5 * m10 - v2 * m12 + v1 * m13);
-	Real t20 = + (v4 * m10 - v2 * m11 + v0 * m13);
-	Real t30 = - (v3 * m10 - v1 * m11 + v0 * m12);
+	float t00 = + (v5 * m11 - v4 * m12 + v3 * m13);
+	float t10 = - (v5 * m10 - v2 * m12 + v1 * m13);
+	float t20 = + (v4 * m10 - v2 * m11 + v0 * m13);
+	float t30 = - (v3 * m10 - v1 * m11 + v0 * m12);
 
-	Real invDet = 1 / (t00 * m00 + t10 * m01 + t20 * m02 + t30 * m03);
+	float invDet = 1 / (t00 * m00 + t10 * m01 + t20 * m02 + t30 * m03);
 
-	Real d00 = t00 * invDet;
-	Real d10 = t10 * invDet;
-	Real d20 = t20 * invDet;
-	Real d30 = t30 * invDet;
+	float d00 = t00 * invDet;
+	float d10 = t10 * invDet;
+	float d20 = t20 * invDet;
+	float d30 = t30 * invDet;
 
-	Real d01 = - (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
-	Real d11 = + (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
-	Real d21 = - (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
-	Real d31 = + (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
+	float d01 = - (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
+	float d11 = + (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
+	float d21 = - (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
+	float d31 = + (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
 
 	v0 = m10 * m31 - m11 * m30;
 	v1 = m10 * m32 - m12 * m30;
@@ -251,10 +254,10 @@ inline void inverseMatrix(const float m[4][4], float mInv[4][4])
 	v4 = m11 * m33 - m13 * m31;
 	v5 = m12 * m33 - m13 * m32;
 
-	Real d02 = + (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
-	Real d12 = - (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
-	Real d22 = + (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
-	Real d32 = - (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
+	float d02 = + (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
+	float d12 = - (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
+	float d22 = + (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
+	float d32 = - (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
 
 	v0 = m21 * m10 - m20 * m11;
 	v1 = m22 * m10 - m20 * m12;
@@ -263,10 +266,10 @@ inline void inverseMatrix(const float m[4][4], float mInv[4][4])
 	v4 = m23 * m11 - m21 * m13;
 	v5 = m23 * m12 - m22 * m13;
 
-	Real d03 = - (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
-	Real d13 = + (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
-	Real d23 = - (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
-	Real d33 = + (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
+	float d03 = - (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
+	float d13 = + (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
+	float d23 = - (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
+	float d33 = + (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
 
 	mInv[0][0] = d00, mInv[0][1] = d01, mInv[0][2] = d02, mInv[0][3] = d03;
 	mInv[1][0] = d10, mInv[1][1] = d11, mInv[1][2] = d12, mInv[1][3] = d13;
@@ -402,7 +405,7 @@ struct Plane
 };
 
 inline
-float SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
+double SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
 {
 	// This solves a sin(x) + b cos(x) = c for 0 < x < 180;
 	

@@ -427,7 +427,7 @@ void ImageSlice::TransformImagePlane()
 	
 	if (planeShiftInfoFile.is_open())
 	{
-		cout << "Plane shift info file present - " << planeShiftInfoFile << endl;
+		cout << "Plane shift info file present - " << filePath << endl;
 		
 		planeShiftInfoFile >> plane->tlc >> plane->trc >> plane->blc;
 		

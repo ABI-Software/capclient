@@ -293,7 +293,7 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 				sprintf(nodeName,"%d", nodeNum);
 				if (Cmiss_node* node = Cmiss_region_get_node(selectedRegion, nodeName))
 				{
-					float x, y, z;
+					FE_value x, y, z;
 					FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
 					cout << "before = " << x << ", " << y << ", " << z << endl;
 					x += (new_coords[0] - coords[0]);
@@ -389,7 +389,7 @@ ViewerFrame::ViewerFrame(Cmiss_context_id context)
 #ifdef TIME_OBJECT_CALLBACK_TEST
 	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, 28, 0); // FIX magic number
 	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
-	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
+//	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
 #endif		
 #endif //TEXTURE_ANIMATION
 	
