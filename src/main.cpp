@@ -1,3 +1,10 @@
+extern "C" {
+#include "api/cmiss_scene_viewer.h"
+#include "command/cmiss.h"
+#include "time/time_keeper.h"
+#include "time/time.h"
+}
+
 #include "wx/wxprec.h"
 
 #ifndef WX_PRECOMP
@@ -7,15 +14,6 @@
 
 #include "Config.h"
 #include "ViewerFrame.h"
-extern "C" {
-#include "api/cmiss_scene_viewer.h"
-#include "command/cmiss.h"
-#include "time/time_keeper.h"
-#include "time/time.h"
-}
-//#include "CAPModelLVPS4X4.h"
-//#include "DICOMImage.h"
-//#include "CmguiExtensions.h"
 #include "CmguiManager.h"
 
 #if defined (DARWIN)
