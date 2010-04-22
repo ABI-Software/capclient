@@ -69,6 +69,8 @@ int main(int argc,char *argv[])
 		{
 			CmguiManager cmguiManager(context);
 			
+			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
+			
 			wxXmlResource::Get()->Load("ViewerFrame.xrc");
 	
 			ViewerFrame *frame = new ViewerFrame(context);
