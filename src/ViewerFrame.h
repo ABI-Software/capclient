@@ -1,6 +1,10 @@
 #ifndef __TEXTFRAME_H__
 #define __TEXTFRAME_H__
 
+extern "C" {
+#include "api/cmiss_context.h"
+}
+
 #include "wx/wxprec.h"
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
@@ -10,7 +14,6 @@
 #include "CAPModelLVPS4X4.h"
 #include "CAPModeller.h"
 
-struct Cmiss_command_data;
 struct Cmiss_node;
 struct Cmiss_time_keeper;
 
@@ -19,7 +22,7 @@ class ImageSet;
 class ViewerFrame : public wxFrame
 {
 public:
-	ViewerFrame(Cmiss_command_data* command_data_);
+	ViewerFrame(Cmiss_context_id command_data_);
 	~ViewerFrame();
 
 	wxPanel* getPanel();
@@ -44,22 +47,7 @@ public:
 	
 	float GetCurrentTime() const;
 	
-private:
-	wxCheckListBox* objectList_;
-	wxPanel* m_pPanel;
-	
-	Cmiss_command_data* command_data;
-	Cmiss_time_keeper* timeKeeper_;
-	ImageSet* imageSet_;
-	
-	bool animationIsOn_;
-	bool hideAll_;
-	
-	CAPModelLVPS4X4 heartModel_;
-	
-//	std::vector<DataPoint*> dataPoints_;
-	CAPModeller* modeller_;
-	
+private:	
 	//private utility functions
 	void RenderMII(const std::string& sliceName);
 	
@@ -103,6 +91,21 @@ private:
 	void OnPlaneShiftButtonPressed(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
+	
+	wxCheckListBox* objectList_;
+	wxPanel* m_pPanel;
+	
+	Cmiss_context_id context_;
+	Cmiss_time_keeper* timeKeeper_;
+	ImageSet* imageSet_;
+	
+	bool animationIsOn_;
+	bool hideAll_;
+	
+	CAPModelLVPS4X4 heartModel_;
+	
+//	std::vector<DataPoint*> dataPoints_;
+	CAPModeller* modeller_;
 };
 
 #endif

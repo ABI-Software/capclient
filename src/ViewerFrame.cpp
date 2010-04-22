@@ -1,3 +1,14 @@
+extern "C"
+{
+#include "api/cmiss_time_keeper.h"
+#include "api/cmiss_time.h"
+#include "command/cmiss.h"
+#include "graphics/scene.h"	
+#include "graphics/scene_viewer.h"
+#include "three_d_drawing/graphics_buffer.h"
+#include "general/debug.h"
+}
+
 #include "wx/xrc/xmlres.h"
 #include "wx/splitter.h"
 #include <wx/aboutdlg.h>
@@ -13,17 +24,6 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-
-extern "C"
-{
-#include "api/cmiss_time_keeper.h"
-#include "api/cmiss_time.h"
-#include "command/cmiss.h"
-#include "graphics/scene.h"	
-#include "graphics/scene_viewer.h"
-#include "three_d_drawing/graphics_buffer.h"
-#include "general/debug.h"
-}
 
 using namespace std;
 		
@@ -180,8 +180,8 @@ Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordina
 	struct GT_element_group *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(
-			CmguiManager::getInstance().getCmissCommandData());
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
+			CmguiManager::getInstance().getCmissContext());
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
 	
@@ -330,12 +330,12 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 	return 0;
 }
 
-ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
+ViewerFrame::ViewerFrame(Cmiss_context_id context)
 : 
-	command_data(command_data_),
+	context_(context),
 	animationIsOn_(false),
 	hideAll_(true),
-	timeKeeper_(Cmiss_command_data_get_default_time_keeper(command_data_)),
+	timeKeeper_(Cmiss_context_get_default_time_keeper(context_)),
 	heartModel_("heart"),
 	modeller_(new CAPModeller(heartModel_))
 {
@@ -387,7 +387,7 @@ ViewerFrame::ViewerFrame(Cmiss_command_data* command_data_)
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_notifier_create_regular(28, 0); // FIX magic number
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, 28, 0); // FIX magic number
 	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
 	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
 #endif		
@@ -637,7 +637,7 @@ void ViewerFrame::PopulateObjectList()
 {
 	//TODO move Cmgui specific code to ImageSet
 	//Should just obtain the list of slice names from ImageSet and use that to populate the check list box
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_command_data_get_scene_viewer_package(command_data);
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context_);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	for_each_Scene_object_in_Scene(scene,
 		 add_scene_object_to_scene_check_box, (void *)objectList_);
@@ -864,9 +864,7 @@ void ViewerFrame::InitialiseMII()
 }
 
 void ViewerFrame::UpdateMII() //FIX
-{
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	
+{	
 	const vector<string>& sliceNames = imageSet_->GetSliceNames();
 	vector<string>::const_iterator itr = sliceNames.begin();
 	for (int index = 0;itr != sliceNames.end();++itr, ++index)
@@ -886,7 +884,7 @@ void ViewerFrame::UpdateMII() //FIX
 		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 					sliceName.c_str() ,
 					normalTransformed.x, normalTransformed.y, normalTransformed.z);
-		Cmiss_command_data_execute_command(command_data, str);
+		Cmiss_context_execute_command(context_, str);
 		
 		Point3D pointTLCTransformed = mInv * plane.tlc;
 		float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
@@ -895,9 +893,7 @@ void ViewerFrame::UpdateMII() //FIX
 }
 
 void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4X4
-{
-	Cmiss_command_data* command_data = CmguiManager::getInstance().getCmissCommandData();
-	
+{	
 	char str[256];
 	
 	const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
@@ -916,7 +912,7 @@ void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS
 				sliceName.c_str() ,
 				normalTransformed.x, normalTransformed.y, normalTransformed.z);
 //	cout << str << endl;
-	Cmiss_command_data_execute_command(command_data, str);
+	Cmiss_context_execute_command(context_, str);
 	
 	Point3D pointTLCTransformed = mInv * plane.tlc;
 	float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
@@ -924,7 +920,7 @@ void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS
 	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
 				,sliceName.c_str() ,d);
 //	cout << str << endl;
-	Cmiss_command_data_execute_command(command_data, str);
+	Cmiss_context_execute_command(context_, str);
 }
 
 #ifdef GRAPH

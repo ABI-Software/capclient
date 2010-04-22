@@ -11,7 +11,7 @@ Dependencies
 
 Directory structure for building
 
-cmiss (CMISS_ROOT) ----- cmgui (r6720)
+cmiss (CMISS_ROOT) ----- cmgui (r7040)
                      |
                      --- third_party
                      |

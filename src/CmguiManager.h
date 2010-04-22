@@ -15,39 +15,38 @@
 
 extern "C" {
 #include "api/cmiss_scene_viewer.h"
-#include "api/cmiss_command_data.h"
+#include "api/cmiss_context.h"
 }
 
-struct Cmiss_command_data;
 class wxPanel;
 
 class CmguiManager
 {
 public:
-	CmguiManager(Cmiss_command_data* data);
+	CmguiManager(Cmiss_context_id data);
 	
 	static CmguiManager& getInstance()
 	{
-		assert(instance);
-		return *instance;
+		assert(instance_);
+		return *instance_;
 	}
 	
-	Cmiss_command_data* getCmissCommandData() const
+	Cmiss_context_id getCmissContext() const
 	{
-		return commandData;
+		return contextID_;
 	}
 	
 	Cmiss_scene_viewer_id createSceneViewer(wxPanel* panel);
 	
 	Cmiss_scene_viewer_id getSceneViewer() const
 	{
-		return sceneViewer;
+		return sceneViewer_;
 	}
 	
 private:
-	static CmguiManager* instance;
-	Cmiss_command_data* commandData;
-	Cmiss_scene_viewer_id sceneViewer;
+	static CmguiManager* instance_;
+	Cmiss_context_id contextID_;
+	Cmiss_scene_viewer_id sceneViewer_;
 };
 
 #endif /* CMGUIMANAGER_H_ */
