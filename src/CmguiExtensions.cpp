@@ -761,3 +761,102 @@ int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, flo
 		
 	return 0;
 }
+
+Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region)
+{
+	int return_code = 0;
+
+	GLint viewport[4];
+	
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	double viewport_left   = (double)(viewport[0]);
+	double viewport_bottom = (double)(viewport[1]);
+	double viewport_width  = (double)(viewport[2]);
+	double viewport_height = (double)(viewport[3]);
+	
+	double centre_x = x;
+	/* flip y as x event has y=0 at top of window, increasing down */
+	double centre_y = viewport_height-y-1.0;
+	
+//	std::cout << viewport_height <<"," <<centre_y<< std::endl;
+	
+	GLdouble modelview_matrix[16], window_projection_matrix[16];
+
+	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	
+	
+	double size_x = 7.0;//FIX
+	double size_y = 7.0;
+	
+	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
+					modelview_matrix,window_projection_matrix,
+					viewport_left,viewport_bottom,viewport_width,viewport_height,
+					centre_x,centre_y,size_x,size_y);
+	
+	FE_element* nearest_element;
+	struct LIST(Scene_picked_object) *scene_picked_object_list;
+	struct Scene_picked_object *scene_picked_object2;
+	struct GT_element_group *gt_element_group_element;
+	struct GT_element_settings *gt_element_settings_element;
+	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
+			CmguiManager::getInstance().getCmissContext());
+	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	
+	if (scene_picked_object_list=
+		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
+	{
+		nearest_element = (struct FE_element *)NULL;
+
+		nearest_element=Scene_picked_object_list_get_nearest_element(
+			scene_picked_object_list,region,
+			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
+			/*select_lines_enabled*/0, &scene_picked_object2,
+			&gt_element_group_element,&gt_element_settings_element);
+		
+		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
+	}
+	
+	/* Find the intersection of the element and the interaction volume */
+	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
+	if (nearest_element)
+	{
+		if (!(nearest_element_coordinate_field = 
+				GT_element_settings_get_coordinate_field(gt_element_settings_element)))
+		{
+			nearest_element_coordinate_field = 
+				GT_element_group_get_default_coordinate_field(
+				gt_element_group_element);
+		}
+
+		//Test
+		//*field = nearest_element_coordinate_field;
+
+//		double node_coordinates[3];
+
+		Viewer_frame_element_constraint_function_data constraint_data;
+		constraint_data.element = nearest_element;
+		constraint_data.found_element = nearest_element;
+		constraint_data.coordinate_field = nearest_element_coordinate_field;
+		for (int i = 0; i < MAXIMUM_ELEMENT_XI_DIMENSIONS; i++)
+		{
+			constraint_data.xi[i] = 0.5;
+		}
+		return_code = Interaction_volume_get_placement_point(interaction_volume,
+			node_coordinates, Viewer_frame_element_constraint_function,
+			&constraint_data);
+	}
+
+	if (return_code)
+	{
+		Cmiss_region_id region = GT_element_group_get_Cmiss_region(gt_element_group_element);
+		return region;
+	}
+	else
+	{
+		return (Cmiss_region_id)0;
+	}
+//	return return_code;
+}

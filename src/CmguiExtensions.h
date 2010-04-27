@@ -61,4 +61,5 @@ class DataPoint;
 
 Cmiss_node_id Cmiss_node_set_visibility_field(DataPoint& dataPoint, float startTime, float endTime, bool visibility);
 
+Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region);
 #endif /* CMGUIEXTENSIONS_H_ */
