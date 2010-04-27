@@ -105,143 +105,6 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	return 0; // returning false means don't call the other input handlers;
 }
 
-
-struct Viewer_frame_element_constraint_function_data
-{
-	struct FE_element *element, *found_element;
-	FE_value xi[MAXIMUM_ELEMENT_XI_DIMENSIONS];
-	struct Computed_field *coordinate_field;
-}; 
-
-static int Viewer_frame_element_constraint_function(FE_value *point,
-	void *void_data)
-{
-	int return_code;
-	struct Viewer_frame_element_constraint_function_data *data;
-
-	ENTER(Viewer_frame_element_constraint_function_data);
-	if (point && (data = (struct Viewer_frame_element_constraint_function_data *)void_data))
-	{
-		data->found_element = data->element;
-		return_code = Computed_field_find_element_xi(data->coordinate_field,
-			point, /*number_of_values*/3, /*time ok to be 0 since slices don't move wrt time*/ 0.0, &(data->found_element), 
-			data->xi, /*element_dimension*/2, 
-			(struct Cmiss_region *)NULL, /*propagate_field*/0, /*find_nearest_location*/1);
-		Computed_field_evaluate_in_element(data->coordinate_field,
-			data->found_element, data->xi, /*time*/0.0, (struct FE_element *)NULL,
-			point, (FE_value *)NULL);
-	}
-	else
-	{
-		display_message(ERROR_MESSAGE,
-			"Node_tool_element_constraint_function.  Invalid argument(s)");
-		return_code=0;
-	}
-	LEAVE;
-
-	return (return_code);
-} /* Node_tool_element_constraint_function */
-
-Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region)
-{
-	int return_code = 0;
-
-	GLint viewport[4];
-	
-	glGetIntegerv(GL_VIEWPORT,viewport);
-	double viewport_left   = (double)(viewport[0]);
-	double viewport_bottom = (double)(viewport[1]);
-	double viewport_width  = (double)(viewport[2]);
-	double viewport_height = (double)(viewport[3]);
-	
-	double centre_x = x;
-	/* flip y as x event has y=0 at top of window, increasing down */
-	double centre_y = viewport_height-y-1.0;
-	
-//	std::cout << viewport_height <<"," <<centre_y<< std::endl;
-	
-	GLdouble modelview_matrix[16], window_projection_matrix[16];
-
-	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
-	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
-	
-	
-	double size_x = 7.0;//FIX
-	double size_y = 7.0;
-	
-	struct Interaction_volume *interaction_volume = create_Interaction_volume_ray_frustum(
-					modelview_matrix,window_projection_matrix,
-					viewport_left,viewport_bottom,viewport_width,viewport_height,
-					centre_x,centre_y,size_x,size_y);
-	
-	FE_element* nearest_element;
-	struct LIST(Scene_picked_object) *scene_picked_object_list;
-	struct Scene_picked_object *scene_picked_object2;
-	struct GT_element_group *gt_element_group_element;
-	struct GT_element_settings *gt_element_settings_element;
-	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
-			CmguiManager::getInstance().getCmissContext());
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
-	
-	if (scene_picked_object_list=
-		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
-	{
-		nearest_element = (struct FE_element *)NULL;
-
-		nearest_element=Scene_picked_object_list_get_nearest_element(
-			scene_picked_object_list,region,
-			/*select_elements_enabled*/0, /*select_faces_enabled*/1, 
-			/*select_lines_enabled*/0, &scene_picked_object2,
-			&gt_element_group_element,&gt_element_settings_element);
-		
-		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
-	}
-	
-	/* Find the intersection of the element and the interaction volume */
-	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
-	if (nearest_element)
-	{
-		if (!(nearest_element_coordinate_field = 
-				GT_element_settings_get_coordinate_field(gt_element_settings_element)))
-		{
-			nearest_element_coordinate_field = 
-				GT_element_group_get_default_coordinate_field(
-				gt_element_group_element);
-		}
-
-		//Test
-		//*field = nearest_element_coordinate_field;
-
-//		double node_coordinates[3];
-
-		Viewer_frame_element_constraint_function_data constraint_data;
-		constraint_data.element = nearest_element;
-		constraint_data.found_element = nearest_element;
-		constraint_data.coordinate_field = nearest_element_coordinate_field;
-		for (int i = 0; i < MAXIMUM_ELEMENT_XI_DIMENSIONS; i++)
-		{
-			constraint_data.xi[i] = 0.5;
-		}
-		return_code = Interaction_volume_get_placement_point(interaction_volume,
-			node_coordinates, Viewer_frame_element_constraint_function,
-			&constraint_data);
-	}
-
-	if (return_code)
-	{
-		Cmiss_region_id region = GT_element_group_get_Cmiss_region(gt_element_group_element);
-		return region;
-	}
-	else
-	{
-		return (Cmiss_region_id)0;
-	}
-//	return return_code;
-}
-
-
 static int input_callback_image_shifting(struct Scene_viewer *scene_viewer, 
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
@@ -853,6 +716,59 @@ void ViewerFrame::SetImageVisibility(bool visibility, const std::string& name)
 	}
 }
 
+void ViewerFrame::RenderIsoSurfaces()
+{
+	
+	char str[256];
+	
+	const ImagePlane& plane_SA1 = imageSet_->GetImagePlane("SA1");
+	const ImagePlane& plane_SA6 = imageSet_->GetImagePlane("SA6");
+	
+	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+//	cout << m << endl;
+
+	gtMatrix mInv;
+	inverseMatrix(m, mInv);
+//	cout << mInv << endl;
+	transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
+//	cout << mInv << endl;
+	
+	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
+	Vector3D normalTransformed = m * plane_SA1.normal;
+	
+	Point3D pointTLCTransformed_SA1 = mInv * plane_SA1.tlc;
+	float d_SA1 = DotProduct((pointTLCTransformed_SA1 - Point3D(0,0,0)), normalTransformed);
+	
+	Point3D pointTLCTransformed_SA6 = mInv * plane_SA6.tlc;
+	float d_SA6 = DotProduct((pointTLCTransformed_SA6 - Point3D(0,0,0)), normalTransformed);
+	
+	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+				"ISO_SA1" ,
+				normalTransformed.x, normalTransformed.y, normalTransformed.z);
+	cout << str << endl;
+	Cmiss_context_execute_command(context_, str);
+	
+//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements;"// select_on material white selected_material default_selected;"
+//				,"ISO_SA1" ,d_SA1);
+	
+	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s range_number_of_iso_values 25 first_iso_value %f last_iso_value %f use_elements;"// select_on invisible material default selected_material default_selected;"
+				,"ISO_SA1" ,d_SA1, d_SA6);
+	cout << str << endl;
+	Cmiss_context_execute_command(context_, str);
+	
+	
+	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+				"ISO_SA6" ,
+				normalTransformed.x, normalTransformed.y, normalTransformed.z);
+//	cout << str << endl;
+	Cmiss_context_execute_command(context_, str);
+	
+	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements select_on material gold selected_material default_selected render_shaded line_width 2;"
+				,"ISO_SA6" ,d_SA6);
+//	cout << str << endl;
+	Cmiss_context_execute_command(context_, str);
+}
+
 void ViewerFrame::InitialiseMII()
 {
 	const vector<string>& sliceNames = imageSet_->GetSliceNames();
@@ -1266,6 +1182,12 @@ void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 	return;
 }
 
+void ViewerFrame::OnExportModel(wxCommandEvent& event)
+{
+	cout << __func__ << "\n";
+	RenderIsoSurfaces();
+}
+
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_BUTTON(XRCID("PlayButton"),ViewerFrame::OnTogglePlay) // play button
 	EVT_SLIDER(XRCID("AnimationSlider"),ViewerFrame::OnAnimationSliderEvent) // animation slider
@@ -1286,5 +1208,6 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_MENU(XRCID("OpenImagesMenuItem"), ViewerFrame::OnOpenImages)
 	EVT_MENU(XRCID("OpenMenuItem"), ViewerFrame::OnOpenModel)
 	EVT_MENU(XRCID("SaveMenuItem"), ViewerFrame::OnSave)
+	EVT_MENU(XRCID("ExportMenuItem"), ViewerFrame::OnExportModel)
 	EVT_BUTTON(XRCID("PlaneShiftButton"), ViewerFrame::OnPlaneShiftButtonPressed)
 END_EVENT_TABLE()

@@ -65,6 +65,8 @@ private:
 	
 	void LoadImages();
 	
+	void RenderIsoSurfaces();
+	
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void OnTogglePlay(wxCommandEvent& event);
@@ -87,6 +89,7 @@ private:
 	void OnOpenModel(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
+	void OnExportModel(wxCommandEvent& event);
 	
 	void OnPlaneShiftButtonPressed(wxCommandEvent& event);
 	
