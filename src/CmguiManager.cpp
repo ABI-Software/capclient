@@ -23,7 +23,8 @@ CmguiManager::CmguiManager(Cmiss_context_id context)
 	
 Cmiss_scene_viewer_id CmguiManager::createSceneViewer(wxPanel* panel)
 {
-	sceneViewer_ = create_Cmiss_scene_viewer_wx(Cmiss_context_get_default_scene_viewer_package(contextID_),
+//	sceneViewer_ = create_Cmiss_scene_viewer_wx(Cmiss_context_get_default_scene_viewer_package(contextID_),
+	sceneViewer_ = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(contextID_),
 			panel,
 			CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
 			CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
