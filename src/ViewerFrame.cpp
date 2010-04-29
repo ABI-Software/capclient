@@ -244,9 +244,11 @@ ViewerFrame::ViewerFrame(Cmiss_context_id context)
 #ifdef TEXTURE_ANIMATION
 	LoadImages();
 	
-	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(m_pPanel);
-	Cmiss_scene_viewer_view_all(sceneViewer);
-	Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
+//	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(m_pPanel);
+
+	sceneViewer_ = CmguiManager::getInstance().createSceneViewer(m_pPanel);
+	Cmiss_scene_viewer_view_all(sceneViewer_);
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
 #define TIME_OBJECT_CALLBACK_TEST
 #ifdef TIME_OBJECT_CALLBACK_TEST
@@ -541,9 +543,8 @@ void ViewerFrame::OnObjectCheckListSelected(wxCommandEvent& event)
 	//Hack :: perturb direction vector a little
 	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
 	
-	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();	
 	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
-			sceneViewer, eye.x, eye.y, eye.z,
+			sceneViewer_, eye.x, eye.y, eye.z,
 			planeCenter.x, planeCenter.y, planeCenter.z,
 			up.x, up.y, up.z
 			))
@@ -551,8 +552,8 @@ void ViewerFrame::OnObjectCheckListSelected(wxCommandEvent& event)
 		//Error;
 	}
 	RefreshCmguiCanvas();
-	Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
-//	Cmiss_scene_viewer_view_all(sceneViewer);
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
+//	Cmiss_scene_viewer_view_all(sceneViewer_);
 	return;
 }
 
@@ -600,11 +601,10 @@ void ViewerFrame::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 
 void ViewerFrame::RefreshCmguiCanvas()
 {
-	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().getSceneViewer();
-//	Scene_viewer_redraw(sceneViewer);
-	if (sceneViewer) 
+//	Scene_viewer_redraw(sceneViewer_);
+	if (sceneViewer_) 
 	{
-		Scene_viewer_redraw_now(sceneViewer);
+		Scene_viewer_redraw_now(sceneViewer_);
 	}
 }
 
@@ -742,19 +742,19 @@ void ViewerFrame::RenderIsoSurfaces()
 	Point3D pointTLCTransformed_SA6 = mInv * plane_SA6.tlc;
 	float d_SA6 = DotProduct((pointTLCTransformed_SA6 - Point3D(0,0,0)), normalTransformed);
 	
-	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
-				"ISO_SA1" ,
-				normalTransformed.x, normalTransformed.y, normalTransformed.z);
-	cout << str << endl;
-	Cmiss_context_execute_command(context_, str);
-	
-//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements;"// select_on material white selected_material default_selected;"
-//				,"ISO_SA1" ,d_SA1);
-	
-	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s range_number_of_iso_values 25 first_iso_value %f last_iso_value %f use_elements;"// select_on invisible material default selected_material default_selected;"
-				,"ISO_SA1" ,d_SA1, d_SA6);
-	cout << str << endl;
-	Cmiss_context_execute_command(context_, str);
+//	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+//				"ISO_SA1" ,
+//				normalTransformed.x, normalTransformed.y, normalTransformed.z);
+//	cout << str << endl;
+//	Cmiss_context_execute_command(context_, str);
+//	
+////	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements;"// select_on material white selected_material default_selected;"
+////				,"ISO_SA1" ,d_SA1);
+//	
+//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s range_number_of_iso_values 25 first_iso_value %f last_iso_value %f use_elements scene print_temp;"// select_on invisible material default selected_material default_selected;"
+//				,"ISO_SA1" ,d_SA1, d_SA6);
+//	cout << str << endl;
+//	Cmiss_context_execute_command(context_, str);
 	
 	
 	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
@@ -763,7 +763,7 @@ void ViewerFrame::RenderIsoSurfaces()
 //	cout << str << endl;
 	Cmiss_context_execute_command(context_, str);
 	
-	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements select_on material gold selected_material default_selected render_shaded line_width 2;"
+	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
 				,"ISO_SA6" ,d_SA6);
 //	cout << str << endl;
 	Cmiss_context_execute_command(context_, str);
@@ -1036,6 +1036,19 @@ void EnumerateAllFiles(const wxString& dirname)
 
 void ViewerFrame::OnOpenImages(wxCommandEvent& event)
 {
+	//test
+	int force_onscreen_flag = 0;
+	int width = 256;
+	int height = 256;
+	int antialias = 0;
+	int transparency_layers = 0;
+	const char* file_name = "screen_dump2.png";
+	Cmiss_scene_viewer_redraw_now(sceneViewer_);
+	
+	Cmiss_scene_viewer_write_image_to_file(sceneViewer_, file_name, force_onscreen_flag , width,
+			height, antialias, transparency_layers);
+	
+	/*
 	wxString currentWorkingDir = wxGetCwd();
 		wxString defaultPath = currentWorkingDir.Append("/Data");
 	//	wxString defaultFilename = "";
@@ -1064,6 +1077,7 @@ void ViewerFrame::OnOpenImages(wxCommandEvent& event)
 			
 			EnumerateAllFiles(dirname);
 		}
+		*/
 }
 
 void ViewerFrame::OnOpenModel(wxCommandEvent& event)
@@ -1185,7 +1199,75 @@ void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 void ViewerFrame::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
+	
+	char* file_name = "screen_dump.png";
+	int force_onscreen_flag = 0;
+	int width = 256;
+	int height = 256;
+	int antialias = 0;
+	int transparency_layers = 0;
+	
+	Cmiss_scene_viewer_id scene_viewer = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(context_),
+			//panel,
+			m_pPanel,
+			CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
+			CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
+			/*minimum_colour_buffer_depth*/8,
+			/*minimum_depth_buffer_depth*/8,
+			/*minimum_accumulation_buffer_depth*/8);
+	
+	Cmiss_context_execute_command(context_, "gfx create scene print_temp manual_g_element");
+	Cmiss_scene_viewer_set_scene_by_name(scene_viewer, "print_temp");
+	struct Scene *scene = Scene_viewer_get_scene(scene_viewer);
+	
+	Cmiss_context_execute_command(context_, "gfx draw as heart group heart scene print_temp");
+	// The above doesn't copy the transformation so it has to be done manually
+	char* scene_object_name = "heart";
+	
+	struct Scene_object * modelSceneObject=Scene_get_Scene_object_by_name(scene, scene_object_name);
+	if (modelSceneObject)
+	{
+		const gtMatrix& patientToGlobalTransform = heartModel_.GetLocalToGlobalTransformation();
+		Scene_object_set_transformation(modelSceneObject, const_cast<gtMatrix*>(&patientToGlobalTransform));
+	}
+	else
+	{
+		display_message(ERROR_MESSAGE,"No object named '%s' in scene",scene_object_name);
+	}
+	
 	RenderIsoSurfaces();
+	
+	Cmiss_scene_viewer_view_all(scene_viewer);
+	
+	const ImagePlane& plane = imageSet_->GetImagePlane("SA1");
+	
+	// compute the center of the image plane, eye(camera) position and the up vector
+	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
+	Point3D eye = planeCenter - (plane.normal * 500); // this seems to determine the near clip plane
+	Vector3D up(plane.yside);
+	up.Normalise();
+	
+	//Hack :: perturb direction vector a little
+//	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
+	
+	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
+			scene_viewer, eye.x, eye.y, eye.z,
+			planeCenter.x, planeCenter.y, planeCenter.z,
+			up.x, up.y, up.z
+			))
+	{
+		//Error;
+	}
+	
+//	Cmiss_scene_viewer_set_perturb_lines(scene_viewer, 1 );
+	
+	Cmiss_scene_viewer_redraw_now(scene_viewer);
+	
+	Cmiss_scene_viewer_write_image_to_file(scene_viewer, file_name, force_onscreen_flag , width,
+			height, antialias, transparency_layers);
+	
+	Cmiss_scene_viewer_destroy(&scene_viewer);
+	Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
