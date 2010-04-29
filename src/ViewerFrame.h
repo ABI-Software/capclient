@@ -109,6 +109,8 @@ private:
 	
 //	std::vector<DataPoint*> dataPoints_;
 	CAPModeller* modeller_;
+	
+	Cmiss_scene_viewer_id sceneViewer_;
 };
 
 #endif
