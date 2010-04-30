@@ -25,6 +25,9 @@
                         <object class="wxMenuItem" name="SaveMenuItem">
                             <label>Save Model</label>
                         </object>
+                        <object class="wxMenuItem" name="ExportMenuItem">
+                            <label>Export Model</label>
+                        </object>
                         <object class="separator"/>
                         <object class="wxMenuItem" name="QuitMenuItem">
                             <label>Exit\tAlt-X</label>
