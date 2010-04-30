@@ -763,7 +763,7 @@ void ViewerFrame::RenderIsoSurfaces()
 //	cout << str << endl;
 	Cmiss_context_execute_command(context_, str);
 	
-	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
+	sprintf((char*)str, "gfx modify g_element heart iso_surfaces as XC iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
 				,"ISO_SA6" ,d_SA6);
 //	cout << str << endl;
 	Cmiss_context_execute_command(context_, str);
@@ -1196,6 +1196,48 @@ void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 	return;
 }
 
+void temp_fn(Cmiss_context_id context_)
+{	
+//	char str[256];
+//	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+//				"ISO_SA6" ,
+//				normalTransformed.x, normalTransformed.y, normalTransformed.z);
+//	Cmiss_context_execute_command(context_, str);
+//	
+//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
+//				,"ISO_SA6" ,d_SA6);
+//	Cmiss_context_execute_command(context_, str);
+}
+
+std::pair<double,double> get_range(const ImageSet* imageSet_, const CAPModelLVPS4X4& heartModel_ )
+{
+	char str[256];
+	
+	const ImagePlane& plane_SA1 = imageSet_->GetImagePlane("SA1");
+	const ImagePlane& plane_SA6 = imageSet_->GetImagePlane("SA6");
+	
+	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+//	cout << m << endl;
+
+	gtMatrix mInv;
+	inverseMatrix(m, mInv);
+//	cout << mInv << endl;
+	transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
+//	cout << mInv << endl;
+	
+	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
+	Vector3D normalTransformed = m * plane_SA1.normal;
+	
+	Point3D pointTLCTransformed_SA1 = mInv * plane_SA1.tlc;
+	double d_SA1 = DotProduct((pointTLCTransformed_SA1 - Point3D(0,0,0)), normalTransformed);
+	
+	Point3D pointTLCTransformed_SA6 = mInv * plane_SA6.tlc;
+	double d_SA6 = DotProduct((pointTLCTransformed_SA6 - Point3D(0,0,0)), normalTransformed);
+	
+	return std::make_pair(d_SA1,d_SA6);
+}
+	
+
 void ViewerFrame::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
@@ -1263,11 +1305,57 @@ void ViewerFrame::OnExportModel(wxCommandEvent& event)
 	
 	Cmiss_scene_viewer_redraw_now(scene_viewer);
 	
-	Cmiss_scene_viewer_write_image_to_file(scene_viewer, file_name, force_onscreen_flag , width,
+	std::pair<double, double> range = get_range(imageSet_, heartModel_);
+	double min = std::min(range.first, range.second);
+	double max = std::max(range.first, range.second);
+	int i = 1;
+	for (double d = min; d<max ; d=d+1.0, i++)
+	{	
+//		GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject);
+//		if (!gt_element_group)
+//		{
+//			cout << "Can't find gt_element_group" << endl;
+//			assert(gt_element_group);
+//		}
+//		
+////		int num_settings = GT_element_group_get_number_of_settings(gt_element_group);
+////		cout << "num_settings = " << num_settings << "\n"; 
+//		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,1);
+//		if (!settings)
+//		{
+//			cout << "Can't find settings by position" << endl;
+//			assert(settings);
+//		}
+//		
+//		Cmiss_region_id region = GT_element_group_get_Cmiss_region(gt_element_group);
+//		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
+//		Computed_field* iso_scalar_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("slice_ISO_SA6",cfm);
+//		if (!iso_scalar_field)
+//		{
+//			cout << "Can't find iso_scalar_field\n";
+//		}
+//		if (!GT_element_settings_set_iso_surface_parameters(settings, iso_scalar_field, 1, &d, 0, 0, 0))
+//		{
+//			cout << "Error setting iso surface params\n";
+//		}
+//
+//		GT_element_group_modify(gt_element_group, gt_element_group);
+//		Cmiss_scene_viewer_redraw_now(scene_viewer);
+		
+		char str[256];
+		sprintf((char*)str, "gfx modify g_element heart iso_surfaces as XC iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
+					,"ISO_SA6" ,d);
+	//	cout << str << endl;
+		Cmiss_context_execute_command(context_, str);
+		
+		std::stringstream filenameStream;
+		filenameStream << "binary_" << i << ".png" ;
+		Cmiss_scene_viewer_write_image_to_file(scene_viewer, filenameStream.str().c_str(), force_onscreen_flag , width,
 			height, antialias, transparency_layers);
+	}
 	
-	Cmiss_scene_viewer_destroy(&scene_viewer);
-	Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
+//	Cmiss_scene_viewer_destroy(&scene_viewer);
+//	Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
 }
 
 BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
