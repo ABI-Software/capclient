@@ -289,7 +289,7 @@ ViewerFrame::ViewerFrame(Cmiss_context_id context)
 	Time_keeper_request_new_time(timeKeeper_, 0); //HACK
 #define NODE_CREATION
 #ifdef NODE_CREATION
-	Scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+	Scene_viewer_add_input_callback(sceneViewer_,
 			input_callback, (void*)this, 1/*add_first*/);
 
 #endif //NODE_CREATION
@@ -763,8 +763,10 @@ void ViewerFrame::RenderIsoSurfaces()
 //	cout << str << endl;
 	Cmiss_context_execute_command(context_, str);
 	
-	sprintf((char*)str, "gfx modify g_element heart iso_surfaces as XC iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
-				,"ISO_SA6" ,d_SA6);
+//	sprintf((char*)str, "gfx modify g_element heart iso_surfaces as XC iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
+//				,"ISO_SA6" ,d_SA6);
+	
+	sprintf((char*)str, "gfx modify g_element heart lines scene print_temp");
 //	cout << str << endl;
 	Cmiss_context_execute_command(context_, str);
 }
@@ -1175,9 +1177,9 @@ void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 		isPlaneShiftModeOn = true;
 		button->SetLabel("End Shifting");
 		
-		Cmiss_scene_viewer_remove_input_callback(CmguiManager::getInstance().getSceneViewer(),
+		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
 						input_callback, (void*)this);
-		Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
 						input_callback_image_shifting, (void*)this, 1/*add_first*/);
 	}
 	else
@@ -1185,9 +1187,9 @@ void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 		isPlaneShiftModeOn = false;
 		button->SetLabel("Start Shifting");
 		
-		Cmiss_scene_viewer_remove_input_callback(CmguiManager::getInstance().getSceneViewer(),
+		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
 						input_callback_image_shifting, (void*)this);
-		Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
+		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
 						input_callback, (void*)this, 1/*add_first*/);
 		
 		imageSet_->WritePlaneInfoToFiles();
@@ -1266,6 +1268,16 @@ void ViewerFrame::OnExportModel(wxCommandEvent& event)
 	// The above doesn't copy the transformation so it has to be done manually
 	char* scene_object_name = "heart";
 	
+	RenderIsoSurfaces();
+		
+	double centre_x, centre_y, centre_z, size_x, size_y, size_z;
+	if (!Scene_get_graphics_range(scene, &centre_x, &centre_y, &centre_z, &size_x, &size_y, &size_z))
+	{
+		cout << "Error: Scene_get_graphics_range before transformation\n";
+	}
+	cout << "range before: " << centre_x  << ", " << centre_y << ", " 
+			<< centre_z << ", " << size_x << ", " << size_y <<", "<<  size_z << endl;
+	
 	struct Scene_object * modelSceneObject=Scene_get_Scene_object_by_name(scene, scene_object_name);
 	if (modelSceneObject)
 	{
@@ -1277,9 +1289,7 @@ void ViewerFrame::OnExportModel(wxCommandEvent& event)
 		display_message(ERROR_MESSAGE,"No object named '%s' in scene",scene_object_name);
 	}
 	
-	RenderIsoSurfaces();
-	
-	Cmiss_scene_viewer_view_all(scene_viewer);
+//	RenderIsoSurfaces();
 	
 	const ImagePlane& plane = imageSet_->GetImagePlane("SA1");
 	
@@ -1291,6 +1301,7 @@ void ViewerFrame::OnExportModel(wxCommandEvent& event)
 	
 	//Hack :: perturb direction vector a little
 //	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
+	
 	
 	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
 			scene_viewer, eye.x, eye.y, eye.z,
@@ -1305,54 +1316,62 @@ void ViewerFrame::OnExportModel(wxCommandEvent& event)
 	
 	Cmiss_scene_viewer_redraw_now(scene_viewer);
 	
+	if (!Scene_get_graphics_range(scene, &centre_x, &centre_y, &centre_z, &size_x, &size_y, &size_z))
+	{
+		cout << "Error: Scene_get_graphics_range after transformation\n";
+	}
+	cout << "range after : " << centre_x  << ", " << centre_y << ", "
+			<< centre_z << ", " << size_x << ", " << size_y <<", "<<  size_z << endl;
+	
 	std::pair<double, double> range = get_range(imageSet_, heartModel_);
 	double min = std::min(range.first, range.second);
 	double max = std::max(range.first, range.second);
 	int i = 1;
-	for (double d = min; d<max ; d=d+1.0, i++)
-	{	
-//		GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject);
-//		if (!gt_element_group)
-//		{
-//			cout << "Can't find gt_element_group" << endl;
-//			assert(gt_element_group);
-//		}
+//	for (double d = min; d<max ; d=d+1.0, i++)
+//	{	
+////		GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject);
+////		if (!gt_element_group)
+////		{
+////			cout << "Can't find gt_element_group" << endl;
+////			assert(gt_element_group);
+////		}
+////		
+//////		int num_settings = GT_element_group_get_number_of_settings(gt_element_group);
+//////		cout << "num_settings = " << num_settings << "\n"; 
+////		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,1);
+////		if (!settings)
+////		{
+////			cout << "Can't find settings by position" << endl;
+////			assert(settings);
+////		}
+////		
+////		Cmiss_region_id region = GT_element_group_get_Cmiss_region(gt_element_group);
+////		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
+////		Computed_field* iso_scalar_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("slice_ISO_SA6",cfm);
+////		if (!iso_scalar_field)
+////		{
+////			cout << "Can't find iso_scalar_field\n";
+////		}
+////		if (!GT_element_settings_get_iso_surface_parameters())
+////		if (!GT_element_settings_set_iso_surface_parameters(settings, iso_scalar_field, 1, &d, 0, 0, 0))
+////		{
+////			cout << "Error setting iso surface params\n";
+////		}
+////
+////		GT_element_group_modify(gt_element_group, gt_element_group);
+////		Cmiss_scene_viewer_redraw_now(scene_viewer);
 //		
-////		int num_settings = GT_element_group_get_number_of_settings(gt_element_group);
-////		cout << "num_settings = " << num_settings << "\n"; 
-//		GT_element_settings* settings = get_settings_at_position_in_GT_element_group(gt_element_group,1);
-//		if (!settings)
-//		{
-//			cout << "Can't find settings by position" << endl;
-//			assert(settings);
-//		}
+//		char str[256];
+//		sprintf((char*)str, "gfx modify g_element heart iso_surfaces as XC iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
+//					,"ISO_SA6" ,d);
+//	//	cout << str << endl;
+//		Cmiss_context_execute_command(context_, str);
 //		
-//		Cmiss_region_id region = GT_element_group_get_Cmiss_region(gt_element_group);
-//		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-//		Computed_field* iso_scalar_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("slice_ISO_SA6",cfm);
-//		if (!iso_scalar_field)
-//		{
-//			cout << "Can't find iso_scalar_field\n";
-//		}
-//		if (!GT_element_settings_set_iso_surface_parameters(settings, iso_scalar_field, 1, &d, 0, 0, 0))
-//		{
-//			cout << "Error setting iso surface params\n";
-//		}
-//
-//		GT_element_group_modify(gt_element_group, gt_element_group);
-//		Cmiss_scene_viewer_redraw_now(scene_viewer);
-		
-		char str[256];
-		sprintf((char*)str, "gfx modify g_element heart iso_surfaces as XC iso_scalar slice_%s iso_values %f use_elements select_on material white selected_material default_selected render_shaded scene print_temp;;"
-					,"ISO_SA6" ,d);
-	//	cout << str << endl;
-		Cmiss_context_execute_command(context_, str);
-		
-		std::stringstream filenameStream;
-		filenameStream << "binary_" << i << ".png" ;
-		Cmiss_scene_viewer_write_image_to_file(scene_viewer, filenameStream.str().c_str(), force_onscreen_flag , width,
-			height, antialias, transparency_layers);
-	}
+//		std::stringstream filenameStream;
+//		filenameStream << "binary_" << i << ".png" ;
+//		Cmiss_scene_viewer_write_image_to_file(scene_viewer, filenameStream.str().c_str(), force_onscreen_flag , width,
+//			height, antialias, transparency_layers);
+//	}
 	
 //	Cmiss_scene_viewer_destroy(&scene_viewer);
 //	Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
