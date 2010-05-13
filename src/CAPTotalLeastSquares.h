@@ -83,6 +83,54 @@ int PerformSVDTest()
 	std::cout << "Smallest singular value = " << decomp.W(index) << std::endl;
 	std::cout << "Normal Vector = " << decomp.V().get_column(index) << std::endl;
 	
+	{
+		vnl_matrix<double> M(3,2);
+		M(0,0) = 2; M(0,1) = 4;
+		M(1,0) = 1; M(1,1) = -1;
+		M(2,0) = -4; M(2,1) = -2;
+		
+		vnl_matrix<double> A(M.transpose() * M);
+		vnl_svd<double> decomp(A); // same as diagonalization/eigendecomposition
+		std::cout << decomp.W() << std::endl;
+		int index = decomp.rank() - 1;
+		std::cout << "Smallest singular value = " << decomp.W(index) << std::endl;
+		std::cout << "Normal Vector = " << decomp.V().get_column(index) << std::endl;
+	}
+	
+	{ //another example
+		vnl_matrix<double> M(3,2);
+		M(0,0) = -2; M(0,1) = -1;
+		M(1,0) = -1; M(1,1) =  3;
+		M(2,0) =  3; M(2,1) = -2;
+		
+		vnl_matrix<double> A(M.transpose() * M);
+		vnl_svd<double> decomp(A);
+		std::cout << decomp.W() << std::endl;
+		int index = decomp.rank() - 1;
+		std::cout << "Smallest singular value = " << decomp.W(index) << std::endl;
+		std::cout << "Normal Vector = " << decomp.V().get_column(index) << std::endl;
+	}
+	
+	{   //Ordinary Least Squares.
+		vnl_matrix<double> M(3,2);
+		M(0,0) = 1; M(0,1) = 1;
+		M(1,0) = 2; M(1,1) = 1;
+		M(2,0) = 6; M(2,1) = 1;
+		
+		vnl_matrix<double> A(M.transpose() * M);
+		
+		vnl_vector<double> b(3);
+		b(0) = 2; b(1) = 6; b(2) = 1;
+		b = M.transpose() * b;
+		
+		
+		vnl_svd<double> decomp(A);
+		vnl_vector<double> x(decomp.solve(b));
+		
+		std::cout << "a & b = " << x << std::endl;
+ 
+		
+	}
 	return 0;
 }
 
