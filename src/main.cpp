@@ -33,6 +33,8 @@ int main(int argc,char *argv[])
 	TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
 #endif
 
+//	PerformSVDTest();
+//	exit(0);
 
 	const char** cmgui_argv;
 	int cmgui_argc;
