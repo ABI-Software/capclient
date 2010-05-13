@@ -58,9 +58,31 @@ void TestLSQR()
 	}
 }
 
+#include <iomanip>
+
 int PerformSVDTest()
 {
-	vnl_matrix<double> P(3,4);
+	vnl_matrix<double> P(4,5);
+	P(0,0) = 1; P(0,4) = 2;
+	P(1,2) = 3;
+	P(3,1) = 4;
+	
+	vnl_svd<double> svd(P);
+	
+	std::cout << svd.W() << std::endl;
+	std::cout << svd.V().transpose() << std::endl;
+	
+	vnl_matrix<double> M(3,2);
+	M(0,0) = 2; M(0,1) = 4;
+	M(1,0) = 1; M(1,1) = -1;
+	M(2,0) = -4; M(2,1) = -2;
+	
+	vnl_svd<double> decomp(M);
+	std::cout << decomp.W() << std::endl;
+	int index = decomp.rank() - 1;
+	std::cout << "Smallest singular value = " << decomp.W(index) << std::endl;
+	std::cout << "Normal Vector = " << decomp.V().get_column(index) << std::endl;
+	
 	return 0;
 }
 
