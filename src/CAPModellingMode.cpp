@@ -7,6 +7,7 @@
 
 #include "CAPModellingMode.h"
 #include "CAPModeller.h"
+#include "CAPTotalLeastSquares.h"
 #include <iostream>
 #include <algorithm>
 #include <assert.h>
@@ -715,23 +716,39 @@ Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plan
 
 Plane CAPModellingModeGuidePoints::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const
 {
-	// TODO implement cases where there are more than 2 points 
-	Vector3D temp1 = basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate();
-	temp1.Normalise();
-	
-	Vector3D temp2 = CrossProduct(temp1, xAxis);
-	
 	Plane plane;
-	plane.normal = CrossProduct(temp1, temp2);
-	plane.normal.Normalise();
 	
-	plane.position = basePlanePoints[0].GetCoordinate() + (0.5 * (basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate()));
+	if (basePlanePoints.size() > 2)
+	{
+		// Total Least Squares using SVD
+		std::vector<Point3D> vectorOfPoints;
+		for (std::vector<DataPoint>::const_iterator i = basePlanePoints.begin();
+				i != basePlanePoints.end(); ++i)
+		{
+			vectorOfPoints.push_back(i->GetCoordinate());
+		}
+		plane = FitPlaneUsingTLS(vectorOfPoints);
+	}
+	else
+	{
+		// When only 2 base plane points have been specified
+		Vector3D temp1 = basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate();
+		temp1.Normalise();
+		
+		Vector3D temp2 = CrossProduct(temp1, xAxis);
+		
+		plane.normal = CrossProduct(temp1, temp2);
+		plane.normal.Normalise();
+		
+		plane.position = basePlanePoints[0].GetCoordinate() + (0.5 * (basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate()));
+	}
 	
 	// make sure plane normal is always pointing toward the apex
 	if (DotProduct(plane.normal, xAxis) < 0)
 	{
 		plane.normal *= -1; 
 	}
+	
 	return plane;
 }
 

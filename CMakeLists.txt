@@ -159,6 +159,7 @@ ENABLE_TESTING()
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest-1.3.0/include )
 SET(UNIT_TEST_SRC
   test/UnitTestCAPMath.cpp
+  test/UnitTestTotalLeastSquares.cpp
 #  test/UnitTestCAPTimeSmoother.cpp
 )
 
@@ -166,4 +167,4 @@ ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
 ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/UnitTest)
 
 SET(GTEST_LIB ${CMISS_ROOT}/gtest-1.3.0/make/gtest_main.a)
-TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB})
+TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} ${ITK_LIB})
