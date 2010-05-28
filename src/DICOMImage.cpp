@@ -25,9 +25,67 @@
 
 using namespace std;
 
-DICOMImage::DICOMImage(const string& filename_)
-	: filename(filename_), plane(0)
+DICOMImage::DICOMImage(const string& filename)
+	: filename_(filename), plane(0)
 {
+	ReadDICOMFile();
+}
+
+void DICOMImage::ReadDICOMFile()
+{
+	// sop instance uid (0008,0018) 
+	// rows (0028,0010)
+	// columns (0028,0011)
+	// slice thickness (0018,0050)
+	// image position (0020,0032) - (0020,0030)(old)
+	// image orientation (0020,0037) - (0020,0035)(old)
+	// pixel spacing (0028,0030)
+	// series description (0008,103e) 
+	// trigger time (0018,1060) 
+	// (0018,1090) IS [28]         # 2,1 Cardiac Number of Images
+
+	gdcm::Reader r;
+	r.SetFileName( filename_.c_str() );
+	if( !r.Read() )
+	{
+		cout << "Can't find the file: " << filename_ << endl;
+		throw std::exception();
+	}
+	
+	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
+	
+	// SOP instance UID (0008,0018) 
+	const gdcm::DataElement& sopiuid = ds.GetDataElement(gdcm::Tag(0x0008,0x0018));
+	gdcm::Attribute<0x0008,0x0018> at_sopiuid;
+	at_sopiuid.SetFromDataElement(sopiuid);
+	sopInstanceUID_ = at_sopiuid.GetValue();
+	cout << "UID: " << sopInstanceUID_;
+	cout << endl;
+	
+	// series description (0008,103e)
+	const gdcm::DataElement& seriesDesc = ds.GetDataElement(gdcm::Tag(0x0008,0x103E));
+	gdcm::Attribute<0x0008,0x103E> at_sd;
+	at_sd.SetFromDataElement(seriesDesc);
+	seriesDescription_ = at_sd.GetValue();
+	cout << "Series Description: " << seriesDescription_;
+	cout << endl;
+	
+	// trigger time trigger time (0018,1060)
+	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0037)))
+	{
+		const gdcm::DataElement& triggerTime = ds.GetDataElement(gdcm::Tag(0x0018,0x1060));
+		gdcm::Attribute<0x0018,0x1060> at_tt;
+		at_tt.SetFromDataElement(triggerTime);
+		triggerTime_ = at_tt.GetValue();
+		cout << "Trigger Time : " << triggerTime_;
+		cout << endl;
+	}
+	else
+	{
+		cout << "Trigger Time not found in the DICOM header \n";
+		triggerTime_ = -1;
+	}
+	
 }
 
 ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
@@ -37,10 +95,10 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	//Exception safeness! -> better not perform file i/o in the ctor?
 	//gdcm::StringFilter sf;
 	gdcm::Reader r;
-	r.SetFileName( filename.c_str() );
+	r.SetFileName( filename_.c_str() );
 	if( !r.Read() )
 	{
-		cout << "Can't find the file: " << filename << endl;
+		cout << "Can't find the file: " << filename_ << endl;
 		return 0;
 	}
 	gdcm::DataSet const& ds = r.GetFile().GetDataSet();

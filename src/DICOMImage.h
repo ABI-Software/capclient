@@ -46,13 +46,15 @@ public:
 
 	Vector3D GetOrientation() const;
 	Point3D GetPostion() const; 
-	void SetContrast();
-	void SetBrightNess();
+//	void SetContrast();
+//	void SetBrightNess();
 	ImagePlane* GetImagePlaneFromDICOMHeaderInfo();
-	Cmiss_texture* CreateTextureFromDICOMImage();
+//	Cmiss_texture* CreateTextureFromDICOMImage();
 	
 private:
-	std::string filename;
+	void ReadDICOMFile();
+	
+	std::string filename_;
 	unsigned int width;
 	unsigned int height;
 	float thickness;
@@ -61,8 +63,12 @@ private:
 	
 	double timeInCardiacCycle;
 	
+	std::string sopInstanceUID_;
+	std::string seriesDescription_;
+	double triggerTime_;
+	
 	ImagePlane* plane;
-	Cmiss_texture* texture;
+//	Cmiss_texture* texture;
 };
 
 #endif /* DICOMIMAGE_H_ */
