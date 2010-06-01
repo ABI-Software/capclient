@@ -10,6 +10,8 @@ extern "C"
 }
 
 #include "wx/xrc/xmlres.h"
+#include <wx/dir.h>
+
 #include "wx/splitter.h"
 #include <wx/aboutdlg.h>
 
@@ -325,8 +327,6 @@ ViewerFrame::~ViewerFrame()
 	delete modeller_;
 }
 
-#include <wx/dir.h>
-
 static vector<string> EnumerateAllSubDirs(const string& dirname)
 {
 	wxString wxDirname(dirname.c_str());
@@ -354,6 +354,17 @@ static vector<string> EnumerateAllSubDirs(const string& dirname)
 	return subDirnames;
 }
 
+#include <functional>
+struct SliceNameLessThan : std::binary_function <std::string,std::string,bool>
+// Simple natural order comparison functor for slice names
+{
+	bool operator()(const std::string& a, const std::string& b) const
+	{
+		// This makes sure "LA2" < "LA10"
+		return std::make_pair(a.length(), a) < std::make_pair(a.length(), b);
+	}
+};
+
 void ViewerFrame::LoadImages()
 {
 	vector<string> sliceNames;
@@ -378,6 +389,7 @@ void ViewerFrame::LoadImages()
 	dir_path.append("images/");
 	
 	sliceNames = EnumerateAllSubDirs(dir_path);
+	std::sort(sliceNames.begin(), sliceNames.end(), SliceNameLessThan());
 	imageSet_ = new ImageSet(sliceNames); //REFACTOR
 	
 	this->PopulateObjectList(); // fill in slice check box list
