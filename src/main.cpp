@@ -75,7 +75,7 @@ int main(int argc,char *argv[])
 			
 			wxXmlResource::Get()->Load("ViewerFrame.xrc");
 	
-			ViewerFrame *frame = new ViewerFrame(context);
+			cap::ViewerFrame *frame = new cap::ViewerFrame(context);
 			frame->Show(true);
 	
 			Cmiss_context_run_main_loop(context);//app.OnRun()

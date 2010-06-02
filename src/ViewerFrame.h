@@ -22,7 +22,7 @@ namespace cap
 
 class ImageSet;
 
-} // end namespace cap
+//} // end namespace cap
 
 class ViewerFrame : public wxFrame
 {
@@ -117,5 +117,7 @@ private:
 	
 	Cmiss_scene_viewer_id sceneViewer_;
 };
+
+}
 
 #endif
