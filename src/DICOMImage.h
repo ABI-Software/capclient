@@ -12,6 +12,11 @@
 
 #include <string>
 
+struct Cmiss_texture;
+
+namespace cap
+{
+
 class ImagePlane
 {
 public:
@@ -32,8 +37,6 @@ public:
 //	float          pixelSizeY;     /**< in mm, should be square */
 	float d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
 };
-
-struct Cmiss_texture;
 
 class DICOMImage
 {
@@ -71,4 +74,5 @@ private:
 //	Cmiss_texture* texture;
 };
 
+} // end namespace cap
 #endif /* DICOMIMAGE_H_ */

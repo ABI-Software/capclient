@@ -13,6 +13,9 @@
 #include <iostream>
 #include <fstream>
 
+namespace cap
+{
+
 class Vector
 {
 public:
@@ -98,4 +101,5 @@ protected:
 	std::string name_;
 };
 
+} // end namespace cap
 #endif /* SOLVERLIBRARYFACTORY_H_ */

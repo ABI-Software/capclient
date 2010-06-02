@@ -15,6 +15,9 @@ extern "C" {
 
 #include <limits>
 
+namespace cap
+{
+
 DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, float time, float weight)
 :
 	cmissNode_(ACCESS(Cmiss_node)(node)),
@@ -112,3 +115,4 @@ DataPoint& DataPoint::operator=(const DataPoint& rhs)
 	return *this;
 }
 	
+} // end namespace cap

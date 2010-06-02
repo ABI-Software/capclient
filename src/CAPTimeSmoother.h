@@ -10,6 +10,9 @@
 
 #include <vector>
 
+namespace cap
+{
+
 class CAPTimeSmootherImpl;
 
 class CAPTimeSmoother
@@ -39,4 +42,6 @@ private:
 	static const int NUMBER_OF_PARAMETERS = 11;
 	static const int CAP_WEIGHT_GP = 10;
 };
+
+} // end namespace cap
 #endif /* CAPTIMESMOOTHER_H_ */

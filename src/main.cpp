@@ -69,7 +69,7 @@ int main(int argc,char *argv[])
 		int ret = Cmiss_context_enable_user_interface(context, cmgui_argc, cmgui_argv);
 		if (ret)
 		{
-			CmguiManager cmguiManager(context);
+			cap::CmguiManager cmguiManager(context);
 			
 			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
 			

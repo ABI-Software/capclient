@@ -28,6 +28,7 @@ extern "C"
 #include <algorithm>
 
 using namespace std;
+using namespace cap;
 		
 static int input_callback(struct Scene_viewer *scene_viewer, 
 		struct Graphics_buffer_input *input, void *viewer_frame_void)

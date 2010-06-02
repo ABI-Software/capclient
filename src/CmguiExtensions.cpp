@@ -91,6 +91,8 @@ DESCRIPTION :
 #include "computed_field/computed_field_finite_element.h"
 #include "DataPoint.h"
 
+using namespace cap;
+
 static Cmiss_node_id Cmiss_node_set_visibility_field_private(DataPoint& dataPoint, 
 		struct FE_region* fe_region, 
 		Cmiss_field* visibilityField,

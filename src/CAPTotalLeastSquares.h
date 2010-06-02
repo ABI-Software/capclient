@@ -16,6 +16,9 @@
 #include <vnl/algo/vnl_lsqr.h>
 #include <vnl/vnl_linear_system.h>
 
+namespace cap
+{
+
 inline Point3D ComputeCentroid(const std::vector<Point3D>& points)
 {
 	Point3D centroid;
@@ -99,4 +102,5 @@ inline void TestLSQR()
 	}
 }
 
+} // end namespace cap
 #endif /* CAPTOTALLEASTSQUARES_H_ */

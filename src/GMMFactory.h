@@ -15,6 +15,9 @@
 #include "gmm/gmm.h"
 #include "SolverLibraryFactory.h"
 
+namespace cap
+{
+
 class GMMVector: public Vector
 {
 public:
@@ -136,9 +139,13 @@ private:
 	gmm::csc_matrix<double>* impl_;
 };
 
+} // end namespace cap
+
 namespace gmm {
 typedef gmm::scaled_vector_const_ref<std::vector<double>, double> VectorRef;
 typedef std::vector<double> VectorImpl;
+
+using namespace cap;
 
 class GMMGSmoothAMatrix : public GSmoothAMatrix
 {
@@ -289,7 +296,10 @@ void mult(const GMMGSmoothAMatrix &m, const VectorRef &ref, const std::vector<do
     static value_type access(const const_col_iterator &itcol, size_type j)
     { return col(itcol)[j]; }
   };
-};  
+};  // end namespace gmm
+
+namespace cap
+{
 
 class GMMPreconditioner : public Preconditioner
 {
@@ -409,4 +419,5 @@ private:
 	}
 };
 
+} // end namespace cap
 #endif /* GMMFACTORY_H_ */

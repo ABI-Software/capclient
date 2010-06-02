@@ -11,6 +11,9 @@
 #include <string>
 #include <vector>
 
+namespace cap
+{
+
 class FileSystem
 {
 public:
@@ -23,4 +26,5 @@ private:
 	std::vector<std::string> filenames;
 };
 
+} // end namespace cap
 #endif /* FILESYSTEM_H_ */

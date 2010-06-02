@@ -14,6 +14,9 @@ extern "C" {
 #include "api/cmiss_node.h"
 }
 
+namespace cap
+{
+
 class DataPoint
 {
 public:
@@ -78,4 +81,6 @@ public:
 private:
 	const Cmiss_node* id_;
 };
+
+} // end namespace cap
 #endif /* DATAPOINT_H_ */

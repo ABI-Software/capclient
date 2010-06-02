@@ -23,13 +23,26 @@ extern "C"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
 #include "ImageSlice.h"
+#include "FileSystem.h"
 
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 
 //#include <stdio.h>
+
+int Material_set_material_program_strings(struct Graphical_material *material_to_be_modified,
+	char *vertex_program_string, char *fragment_program_string);//not defined in material.h
+
+int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+	struct Scene *scene, struct GT_element_settings *settings,
+	int delete_flag, int position);  // should add this to a header file somewhere
+
 using namespace std;
+
+namespace cap
+{
 
 ImageSlice::ImageSlice(const string& name)
 	: 
@@ -154,16 +167,13 @@ void ImageSlice::SetTime(double time)
 		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 		
-		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
-			struct Scene *scene, struct GT_element_settings *settings,
-			int delete_flag, int position);  // should add this to a header file somewhere
 
-		 if (!Cmiss_region_modify_g_element(region, scene,settings,
+		if (!Cmiss_region_modify_g_element(region, scene,settings,
 			/*delete_flag*/0, /*position*/-1))
-		 {
+		{
 			 //error
-			 cout << "Cmiss_region_modify_g_element() returned 0" << endl;
-		 }
+			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
+		}
 	}
 
 	return ;
@@ -245,8 +255,6 @@ void ImageSlice::LoadImagePlaneModel()
 	material_ = create_Graphical_material(name.c_str());
 
 	// Initialize shaders that are used for adjusting brightness and contrast
-	int Material_set_material_program_strings(struct Graphical_material *material_to_be_modified,
-		char *vertex_program_string, char *fragment_program_string);//not defined in material.h
 	
 	stringstream vp_stream, fp_stream;
 	ifstream is;
@@ -301,16 +309,12 @@ void ImageSlice::LoadImagePlaneModel()
 
 		GT_element_settings_set_texture_coordinate_field(settings,c_field);
 
-		int Cmiss_region_modify_g_element(struct Cmiss_region *region,
-			struct Scene *scene, struct GT_element_settings *settings,
-			int delete_flag, int position);  // should add this to a header file somewhere
-
-		 if (!Cmiss_region_modify_g_element(region, scene,settings,
+		if (!Cmiss_region_modify_g_element(region, scene,settings,
 			/*delete_flag*/0, /*position*/-1))
-		 {
+		{
 			 //error
-			 std::cout << __func__ << " :Error modifying g element\n";
-		 }
+			std::cout << __func__ << " :Error modifying g element\n";
+		}
 	}
 
 	
@@ -318,8 +322,6 @@ void ImageSlice::LoadImagePlaneModel()
 	sceneObject_ = Scene_get_scene_object_with_Cmiss_region(scene, region);
 	return;
 }
-
-#include "FileSystem.h"
 
 void ImageSlice::LoadTextures()
 {
@@ -578,8 +580,6 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 	GT_element_group_add_settings(gt_element_group, settings, 0);
 }
 
-#include <iomanip>
-
 void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 {
 	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
@@ -643,3 +643,5 @@ void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 
 	outFile.close();
 }
+
+} // end namespace cap

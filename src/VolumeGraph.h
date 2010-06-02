@@ -27,6 +27,9 @@
 
 // MySIN
 
+namespace cap
+{
+
 class VentricularVolume : public mpFX
 {
 	CAPModelLVPS4X4& heartModel_;
@@ -404,6 +407,6 @@ void MyFrame::OnToggleInfoLayer(wxCommandEvent& event)
 ////}
 //
 
-
+} // end namespace cap
 
 #endif /* VOLUMEGRAPH_H_ */

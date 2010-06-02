@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <assert.h>
 
+namespace cap
+{
+
 using namespace std;
 
 ImageSet::ImageSet(const vector<string>& sliceNames)
@@ -141,3 +144,5 @@ void ImageSet::WritePlaneInfoToFiles() const
 		itr->second->WritePlaneInfoToFile(filename);//fix
 	}
 }
+
+} // end namespace cap

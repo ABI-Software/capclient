@@ -17,13 +17,17 @@
 //#include "CAPTimeSmoother.h"
 #include "CAPModellingMode.h"
 
+class Cmiss_node; //REVISE
+
+namespace cap
+{
+
 class CAPModelLVPS4X4;
 //class SparseMatrix;
 //class Vector;
 //class Preconditioner;
 //class GSmoothAMatrix;
 //class SolverLibraryFactory;
-class Cmiss_node; //REVISE
 
 class CAPModeller {
 public:
@@ -89,4 +93,5 @@ private:
 	
 };
 
+} //end namespace cap
 #endif /* CAPMODELLER_H_ */

@@ -22,11 +22,14 @@ extern "C" {
 #include "finite_element/export_finite_element.h"
 }
 
+#include <wx/filefn.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 
+namespace cap
+{
 
 struct CAPModelLVPS4X4::HeartModelImpl
 {
@@ -179,8 +182,6 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	cout << __func__ << " - Exit" << endl;
 	return 0;
 }
-
-#include <wx/filefn.h>
 
 void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 {
@@ -1146,3 +1147,5 @@ void CAPModelLVPS4X4::SetFocalLengh(float focalLength)
 	}
 	return;
 }
+
+} // end namespace cap

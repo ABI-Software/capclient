@@ -14,9 +14,13 @@
 struct Graphical_material;
 struct Scene_object;
 struct Cmiss_texture;
+class Cmiss_field;
+
+namespace cap
+{
+
 class DICOMImage;
 class ImagePlane;
-class Cmiss_field;
 
 // should I separate the graphical representation from this class?
 // ie move Textures, visibility, sceneObject etc to another class??
@@ -80,4 +84,5 @@ private:
 	Cmiss_texture* brightnessAndContrastTexture_;
 };
 
+} // end namespace cap
 #endif /* IMAGESLICE_H_ */

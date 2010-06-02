@@ -17,7 +17,12 @@ extern "C" {
 struct Cmiss_node;
 struct Cmiss_time_keeper;
 
+namespace cap
+{
+
 class ImageSet;
+
+} // end namespace cap
 
 class ViewerFrame : public wxFrame
 {
@@ -35,9 +40,9 @@ public:
 	
 	//void AddDataPoint(DataPoint* dataPoint);
 	
-	void AddDataPoint(Cmiss_node*, const Point3D&);
+	void AddDataPoint(Cmiss_node*, const cap::Point3D&);
 	
-	void MoveDataPoint(Cmiss_node*, const Point3D&);
+	void MoveDataPoint(Cmiss_node*, const cap::Point3D&);
 	
 	void RemoveDataPoint(Cmiss_node* dataPointID);
 	
@@ -100,15 +105,15 @@ private:
 	
 	Cmiss_context_id context_;
 	Cmiss_time_keeper* timeKeeper_;
-	ImageSet* imageSet_;
+	cap::ImageSet* imageSet_;
 	
 	bool animationIsOn_;
 	bool hideAll_;
 	
-	CAPModelLVPS4X4 heartModel_;
+	cap::CAPModelLVPS4X4 heartModel_;
 	
 //	std::vector<DataPoint*> dataPoints_;
-	CAPModeller* modeller_;
+	cap::CAPModeller* modeller_;
 	
 	Cmiss_scene_viewer_id sceneViewer_;
 };

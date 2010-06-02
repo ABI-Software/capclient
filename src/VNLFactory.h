@@ -17,6 +17,9 @@
 #include <vnl/algo/vnl_conjugate_gradient.h>
 #include "SolverLibraryFactory.h"
 
+namespace cap
+{
+
 class VNLVector: public Vector
 {
 public:
@@ -458,4 +461,5 @@ private:
 	}
 };
 
+} // end namespace cap
 #endif /* VNLFACTORY_H_ */

@@ -3,6 +3,8 @@
 
 TEST(Vector3DTest, Creation)
 {
+	using cap::Vector3D;
+	
 	Vector3D vec1(1,2,3);
 	EXPECT_FLOAT_EQ(vec1.x,1);
 	EXPECT_FLOAT_EQ(vec1.y,2);
@@ -15,6 +17,8 @@ TEST(Vector3DTest, Creation)
 
 TEST(Vector3DTest, Length)
 {
+	using cap::Vector3D;
+	
 	Vector3D vec1(1,2,3);
 	EXPECT_FLOAT_EQ(vec1.Length(), 3.741657386773941);
 	Vector3D vec2(3,2,1);
@@ -23,6 +27,8 @@ TEST(Vector3DTest, Length)
 
 TEST(Vector3DTest, Nomalize)
 {
+	using cap::Vector3D;
+	
 	Vector3D vec1(1,2,3);
 	vec1.Normalise();
 	EXPECT_FLOAT_EQ(vec1.Length(), 1);
@@ -33,6 +39,8 @@ TEST(Vector3DTest, Nomalize)
 
 TEST(Vector3DTest, Equality)
 {
+	using cap::Vector3D;
+	
 	Vector3D vec1(1,2,3);
 	Vector3D vec2(1,2,3);
 	EXPECT_EQ(vec1, vec2);
@@ -46,6 +54,8 @@ TEST(Vector3DTest, Equality)
 
 TEST(Vector3DTest, Muliplication)
 {
+	using cap::Vector3D;
+	
 	Vector3D vec1(1,2,3);
 	Vector3D vec2(2,4,6);
 	EXPECT_EQ(vec1*2, vec2);
@@ -70,6 +80,8 @@ TEST(Vector3DTest, Muliplication)
 
 TEST(Vector3DTest, Addition)
 {
+	using cap::Vector3D;
+	
 	Vector3D vec1(1,2,3);
 	Vector3D vec2(0,9,8);
 	EXPECT_EQ(Vector3D(1,11,11), vec1+vec2);
@@ -77,6 +89,8 @@ TEST(Vector3DTest, Addition)
 
 TEST(Vector3DTest, Subtraction)
 {
+	using cap::Vector3D;
+	
 	Vector3D vec1(1,2,3);
 	Vector3D vec2(0,9,8);
 	EXPECT_EQ(Vector3D(1,-7,-5), vec1-vec2);
@@ -84,6 +98,9 @@ TEST(Vector3DTest, Subtraction)
 
 TEST(Vector3DTest, Point3D)
 {
+	using cap::Point3D;
+	using cap::Vector3D;
+	
 	Point3D point1(2,4,5);
 	Point3D point2(1,2,2);
 	Vector3D vec1(1,2,3);
@@ -96,6 +113,8 @@ TEST(Vector3DTest, Point3D)
 
 TEST(ComputeVolumeOfTetrahedronTest, Volume)
 {
+	using namespace cap;
+	
 	// computes 6 * the actual volume (to save some computation)
 	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(0.0f,0.0f,0.0f,
 			1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f), 1);
@@ -116,6 +135,8 @@ TEST(ComputeVolumeOfTetrahedronTest, Volume)
 
 TEST(MathFunctionTest, SolveASinXPlusBCosXIsEqualToC)
 {
+	using namespace cap;
+	
 	double a = 12;
 	double b = 5;
 	double c = 4;

@@ -10,6 +10,10 @@
 
 #include <wx/html/htmlwin.h>
 
+namespace cap
+{
+
+
 class CAPHtmlWindow: public wxHtmlWindow
 {
 public:
@@ -33,4 +37,5 @@ void CAPHtmlWindow::OnLinkClicked(const wxHtmlLinkInfo& link)
 		wxHtmlWindow::OnLinkClicked(link);
 }
 
+} // end namespace cap
 #endif /* CAPHTMLWINDOW_H_ */

@@ -20,6 +20,9 @@ extern "C" {
 
 class wxPanel;
 
+namespace cap
+{
+
 class CmguiManager
 {
 public:
@@ -49,4 +52,5 @@ private:
 	Cmiss_scene_viewer_id sceneViewer_;
 };
 
+} // end namespace cap
 #endif /* CMGUIMANAGER_H_ */

@@ -23,6 +23,9 @@
 #include <string>
 #include <ostream>
 
+namespace cap
+{
+
 using namespace std;
 
 DICOMImage::DICOMImage(const string& filename)
@@ -192,3 +195,5 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 	
 	return plane;
 }
+
+} // end namespace cap
