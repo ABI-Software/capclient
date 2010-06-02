@@ -18,6 +18,9 @@ typedef double Real;
 typedef float Real;
 #endif //FE_VALUE_IS_DOUBLE
 
+namespace cap
+{
+
 class Vector3D
 {
 public:
@@ -450,4 +453,5 @@ double SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
 	return x;
 }
 
+} // end namespace cap
 #endif /* CAPMATH_H_ */

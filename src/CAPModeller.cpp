@@ -17,6 +17,9 @@
 #include <iostream>
 #include <assert.h>
 
+namespace cap
+{
+
 CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 :
 	modellingModeApex_(),
@@ -148,3 +151,5 @@ void CAPModeller::ChangeMode(CAPModellingMode* newMode)
 	currentModellingMode_ = newMode;
 	currentModellingMode_->PerformEntryAction();
 }
+
+} // end namespace cap

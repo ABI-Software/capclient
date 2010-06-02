@@ -11,6 +11,24 @@
 #include <iostream>
 #include <algorithm>
 #include <assert.h>
+#include <ctime>
+
+// CAPModellingModeGuidePoints
+
+#include "SolverLibraryFactory.h"
+#include "GMMFactory.h"
+#include "VNLFactory.h"
+#include "CAPMath.h"
+#include "CAPModelLVPS4X4.h"
+
+#include "CAPBasis.h"
+
+const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
+const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
+const static char* priorFile = "Data/templates/prior.dat";
+
+namespace cap
+{
 
 CAPModellingMode::CAPModellingMode() 
 {
@@ -283,18 +301,6 @@ const std::vector<DataPoint>& CAPModellingModeBasePlane::GetBasePlanePoints() co
 
 // CAPModellingModeGuidePoints
 
-#include "SolverLibraryFactory.h"
-#include "GMMFactory.h"
-#include "VNLFactory.h"
-#include "CAPMath.h"
-#include "CAPModelLVPS4X4.h"
-
-#include "CAPBasis.h"
-
-const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
-const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
-const static char* priorFile = "Data/templates/prior.dat";
-
 CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartModel)
 : 
 	heartModel_(heartModel),
@@ -416,8 +422,6 @@ void CAPModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, float
 	framesWithDataPoints_[frameNumber]--;
 	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
-
-#include <ctime>
 
 void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumber)
 {		
@@ -886,3 +890,5 @@ void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
 //	}
 //#endif
 }
+
+} // end namespace cap

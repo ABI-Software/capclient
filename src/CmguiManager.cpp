@@ -12,6 +12,9 @@ extern "C" {
 #include "command/cmiss.h"
 }
 
+namespace cap
+{
+
 CmguiManager* CmguiManager::instance_ = 0;
 
 CmguiManager::CmguiManager(Cmiss_context_id context)
@@ -33,3 +36,5 @@ Cmiss_scene_viewer_id CmguiManager::createSceneViewer(wxPanel* panel)
 	
 	return sceneViewer_;
 }
+
+} // end namespace cap

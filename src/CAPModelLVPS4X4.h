@@ -12,6 +12,10 @@
 #include <vector>
 
 struct Scene_object;
+
+namespace cap
+{
+
 class Point3D;
 class Vector3D;
 class Plane;
@@ -136,5 +140,7 @@ private:
 	CAPModelLVPS4X4(const CAPModelLVPS4X4& rhs);
 	CAPModelLVPS4X4& operator=(const CAPModelLVPS4X4& rhs);
 };
+
+} // end namespace cap
 
 #endif /* CAPMODELLVPS4X4_H_ */

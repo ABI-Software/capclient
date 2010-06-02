@@ -14,6 +14,9 @@
 #include <vector>
 #include <map>
 
+namespace cap
+{
+
 class CAPModeller;
 
 class CAPModellingMode 
@@ -71,8 +74,13 @@ private:
 	std::vector<DataPoint> base_; // holds at most 1 item
 };
 
+} // end namespace cap
+
 //class CAPModelLVPS4X4;
 #include "CAPModelLVPS4X4.h"
+
+namespace cap
+{
 
 class CAPModellingModeRV : public CAPModellingMode
 {
@@ -120,7 +128,12 @@ private:
 	CAPModelLVPS4X4& heartModel_;
 };
 
+} // end namespace cap
+
 #include "CAPTimeSmoother.h"
+
+namespace cap
+{
 
 class SparseMatrix;
 class Vector;
@@ -186,5 +199,7 @@ private:
 	CAPTimeSmoother timeSmoother_;
 	std::vector<int> framesWithDataPoints_;
 };
+
+} // end namespace cap
 
 #endif /* CAPMODELLINGMODE_H_ */

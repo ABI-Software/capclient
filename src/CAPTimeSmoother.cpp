@@ -11,6 +11,9 @@
 
 #include "CAPTimeSmoother.h"
 
+namespace cap
+{
+
 const static char* Sfile = "Data/templates/GlobalSmoothTVMatrix.dat";
 const static char* priorFile = "Data/templates/time_varying_prior.dat";
 
@@ -170,3 +173,5 @@ float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& param
 	
 	return lambda;
 }
+
+} // end namespace cap

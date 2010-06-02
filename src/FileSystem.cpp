@@ -9,6 +9,9 @@
 #include <dirent.h>
 #include <iostream>
 
+namespace cap
+{
+
 using namespace std;
 
 FileSystem::FileSystem(const string& path)
@@ -51,3 +54,5 @@ const std::vector<std::string>& FileSystem::getAllFileNames()
 	
 	return filenames;
 }
+
+} // end namespace cap

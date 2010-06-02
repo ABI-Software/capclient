@@ -10,6 +10,10 @@
 
 #include <math.h>
 
+namespace cap
+{
+
+
 class CAPFourierBasis
 {   
 public:
@@ -100,4 +104,7 @@ private:
 	  bf[1] = xi[0];
 	}
 };
+
+} //end namespace cap
+
 #endif /* CAPBASIS_H_ */

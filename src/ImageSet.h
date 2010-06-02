@@ -19,6 +19,9 @@
 #include <vector>
 #include <string>
 
+namespace cap
+{
+
 class ImagePlane;
 class ImageSlice;
 
@@ -92,5 +95,5 @@ private:
 	ImageSlicesMap imageSlicesMap_;
 };
 
-
+} // end namespace cap
 #endif /* IMAGESET_H_ */
