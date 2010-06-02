@@ -28,7 +28,9 @@ extern "C"
 #include <algorithm>
 
 using namespace std;
-using namespace cap;
+
+namespace cap 
+{
 		
 static int input_callback(struct Scene_viewer *scene_viewer, 
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
@@ -355,7 +357,12 @@ static vector<string> EnumerateAllSubDirs(const string& dirname)
 	return subDirnames;
 }
 
+} // end namespace cap
 #include <functional>
+
+namespace cap
+{
+
 struct SliceNameLessThan : std::binary_function <std::string,std::string,bool>
 // Simple natural order comparison functor for slice names
 {
@@ -979,7 +986,12 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
+} // end namespace cap
+
 #include "CAPHtmlWindow.h"
+
+namespace cap
+{
 
 void ViewerFrame::OnAbout(wxCommandEvent& event)
 {
@@ -1413,3 +1425,5 @@ BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
 	EVT_MENU(XRCID("ExportMenuItem"), ViewerFrame::OnExportModel)
 	EVT_BUTTON(XRCID("PlaneShiftButton"), ViewerFrame::OnPlaneShiftButtonPressed)
 END_EVENT_TABLE()
+
+} // end namespace cap
