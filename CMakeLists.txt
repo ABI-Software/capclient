@@ -54,6 +54,7 @@ SET(SRCS
   src/CAPTimeSmoother.cpp
   src/CAPModellingMode.cpp
   src/DataPoint.cpp
+  src/CAPXMLFile.cpp
   #src/DataSet.cpp
 )
 

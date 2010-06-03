@@ -66,6 +66,7 @@ private:
 	
 	double timeInCardiacCycle;
 	
+	std::string studyInstanceUID_;
 	std::string sopInstanceUID_;
 	std::string seriesDescription_;
 	double triggerTime_;
