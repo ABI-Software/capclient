@@ -36,6 +36,7 @@ DICOMImage::DICOMImage(const string& filename)
 
 void DICOMImage::ReadDICOMFile()
 {
+	// study instance uid (0020,000d)
 	// sop instance uid (0008,0018) 
 	// rows (0028,0010)
 	// columns (0028,0011)
@@ -56,6 +57,12 @@ void DICOMImage::ReadDICOMFile()
 	}
 	
 	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
+	
+	// Study Instance UID (0020,000d)
+	const gdcm::DataElement& studyiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000d));
+	gdcm::Attribute<0x0020,0x000d> at_studyiuid;
+	at_studyiuid.SetFromDataElement(studyiuid);
+	studyInstanceUID_ = at_studyiuid.GetValue();
 	
 	// SOP instance UID (0008,0018) 
 	const gdcm::DataElement& sopiuid = ds.GetDataElement(gdcm::Tag(0x0008,0x0018));
