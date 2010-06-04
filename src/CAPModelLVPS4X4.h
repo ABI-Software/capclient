@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/scoped_ptr.hpp>
 
 struct Scene_object;
 
@@ -134,7 +135,7 @@ private:
 	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model
 	
 	class HeartModelImpl;
-	HeartModelImpl* pImpl_; // use PIMPL to hide Cmgui related implementation details (region, scene object , etc)
+	boost::scoped_ptr<HeartModelImpl> pImpl_; // use PIMPL to hide Cmgui related implementation details (region, scene object , etc)
 	
 	// Non copyable
 	CAPModelLVPS4X4(const CAPModelLVPS4X4& rhs);

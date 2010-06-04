@@ -55,7 +55,6 @@ CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName)
 
 CAPModelLVPS4X4::~CAPModelLVPS4X4()
 {
-	delete pImpl_;
 }
 
 using namespace std;
