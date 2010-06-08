@@ -35,8 +35,9 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/third_party/${LIB_ARCH_DIR}/include/gdcm-2.0)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/third_party/include/${LIB_ARCH_DIR}/libxml2)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/gmm-3.1/include)
-#INCLUDE_DIRECTORIES(${CMISS_ROOT}/boost_1_38_0)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/boost_1_38_0)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Utilities/vxl/vcl)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Utilities/vxl/core)
 
@@ -107,7 +108,6 @@ SET(IMAGEMAGICK_LIB
   -lgdcmexpat
 )
 
-
 SET(INTERPRETER_PATH ${CMISS_ROOT}/perl_interpreter)
 IF(WIN32)
   SET(INTERPRETER_LIB ${INTERPRETER_PATH}/lib/${LIB_ARCH_DIR}/libperlinterpreter-includeperl.a)
@@ -116,7 +116,11 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 SET(XML2_PATH ${CMISS_ROOT}/third_party)
-SET(XML2_LIB ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a)
+SET(XML2_LIB
+  ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a
+  ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libz.a
+  -liconv
+)
 
 SET(CMGUI_LIB ${CMISS_ROOT}/cmgui/lib/${LIB_ARCH_DIR}/${BUILD_VERSION}/libcmgui.a)
 
@@ -161,6 +165,8 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest-1.3.0/include )
 SET(UNIT_TEST_SRC
   test/UnitTestCAPMath.cpp
   test/UnitTestTotalLeastSquares.cpp
+  test/UnitTestCAPXMLFile.cpp
+  src/CAPXMLFile.cpp
 #  test/UnitTestCAPTimeSmoother.cpp
 )
 
@@ -168,4 +174,5 @@ ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
 ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/UnitTest)
 
 SET(GTEST_LIB ${CMISS_ROOT}/gtest-1.3.0/make/gtest_main.a)
-TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} ${ITK_LIB})
+TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
+    ${XML2_LIB} ${ITK_LIB})
