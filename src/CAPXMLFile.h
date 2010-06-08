@@ -10,17 +10,19 @@
 
 #include <string>
 #include <vector>
+#include <boost/scoped_ptr.hpp>
+#include <boost/utility.hpp>
 
 namespace cap
 {
 
-class Value
+struct Value
 {
 	double value;
 	std::string variable; // lambda, mu, theta
 };
 
-//class Surface // consider enum?
+//struct Surface // consider enum?
 //{
 //	static std::string const EPI;
 //	static std::string const ENDO;
@@ -41,19 +43,19 @@ enum PointType
 	GUIDE
 };
 
-class Point
+struct Point
 {
 	Value lambda, mu, theta;
 	Surface surface;
 	PointType type;
 };
 
-class ContourFile
+struct ContourFile
 {
 	std::string fileName;
 };
 
-class Image
+struct Image
 {
 	std::vector<Point> points;
 	std::vector<ContourFile> countourFiles;
@@ -63,51 +65,55 @@ class Image
 	std::string label;//LA1, SA2 etc
 };
 
-class Frame
+struct Frame
 {
 	std::string exnode;
 	int number;
 };
 
-class Version
+struct Version
 {
 	int number;
 	std::string date;
 	std::string log;
 };
 
-class History
+struct History
 {
 	std::string entry;
 	std::string date;
 };
 
-class Input
+struct Input
 {
 	std::vector<Image> images;
 };
 
-class Output
+struct Output
 {
 	std::vector<Frame> frames;
 };
 
-class Documentation
+struct Documentation
 {
 	Version version;
 	History history;
 };
 
-class CAPXMLFile
+class CAPXMLFile : private boost::noncopyable
 {
 public:
+	CAPXMLFile(std::string const & filename);
+	~CAPXMLFile();// need this so compiler wont generate dtor
+	
 	void Read();
 private:
-	std::string chamber; // LV
-	double focalLength;
-	double interval;
-	std::string name; // 
-	std::string studyIUid; //
+	std::string filename_;
+	std::string chamber_; // LV
+	double focalLength_;
+	double interval_;
+	std::string name_; // 
+	std::string studyIUid_; //
 	
 	// input
 	// images (frame, slice, uid, LABEL)
@@ -123,10 +129,12 @@ private:
 	//   version
 	//   history
 
-	Input input;
-	Output output;
-	Documentation documentation;
+	Input input_;
+	Output output_;
+	Documentation documentation_;
 
+	class Impl;
+	boost::scoped_ptr<Impl> pImpl_;
 };
 
 } // end namespace cap
