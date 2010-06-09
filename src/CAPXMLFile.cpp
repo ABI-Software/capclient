@@ -141,6 +141,79 @@ void ReadInput(Input& input, xmlDocPtr doc, xmlNodePtr cur)
 	} 
 }
 
+void ReadOutput(Output& output, xmlNodePtr cur)
+{
+	// Output has no attributes
+	// Read in exnode filenames
+	cur = cur->xmlChildrenNode;
+	
+	while(cur)
+	{
+		if (!xmlStrcmp(cur->name, (const xmlChar *)"Frame"))
+		{
+			Frame frame;
+			//exnode
+			xmlChar* exnode = xmlGetProp(cur, (xmlChar const*)"exnode");
+			std::cout << "exnode = " << exnode << '\n';
+			frame.exnode = (char*)exnode;
+			xmlFree(exnode);
+			//number
+			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
+			std::cout << "number = " << number << '\n';
+			frame.number = boost::lexical_cast<int>(number);
+			xmlFree(number);
+			
+			output.frames.push_back(frame);
+		}
+		cur = cur->next;
+	}
+}
+
+void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
+{
+	// Input has no attributes
+	// Read in Version and History
+	cur = cur->xmlChildrenNode;
+	
+	while(cur)
+	{
+		using boost::lexical_cast;
+		if (!xmlStrcmp(cur->name, (const xmlChar *)"Version"))
+		{
+			//date
+			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
+			std::cout << "date = " << date << '\n';
+			documentation.version.date = (char*)(date);
+			xmlFree(date);
+			//log
+			xmlChar* log = xmlGetProp(cur, (xmlChar const*)"log"); 
+			std::cout << "log = " << log << '\n';
+			documentation.version.log = (char*)(log);
+			xmlFree(log);
+			//number
+			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number"); 
+			std::cout << "number = " << number << '\n';
+			documentation.version.number = lexical_cast<int>(number);
+			xmlFree(number);
+		}
+		else if (!xmlStrcmp(cur->name, (const xmlChar *)"History"))
+		{
+			//date
+			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
+			std::cout << "date = " << date << '\n';
+			documentation.history.date = (char*)(date);
+			xmlFree(date);
+			//entry
+			xmlChar* entry = xmlGetProp(cur, (xmlChar const*)"entry"); 
+			std::cout << "entry = " << date << '\n';
+			documentation.history.entry = (char*)(entry);
+			xmlFree(entry);
+		}
+		
+		cur = cur->next;
+	}
+}
+
 }
 
 CAPXMLFile::CAPXMLFile(std::string const & filename)
@@ -220,11 +293,12 @@ void CAPXMLFile::ReadFile()
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Output"))
 		{
 			std::cout << i++ << ", "<< cur->name <<'\n';
-			//REad output
+			ReadOutput(output_, cur);
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Documentation"))
 		{
 			std::cout << i++ << ", "<< cur->name <<'\n';
+			ReadDocumentation(documentation_, cur);
 		}
 		cur = cur->next;
 	} 
