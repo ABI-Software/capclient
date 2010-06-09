@@ -10,8 +10,7 @@
 
 #include <string>
 #include <vector>
-#include <boost/scoped_ptr.hpp>
-#include <boost/utility.hpp>
+#include <map>
 
 namespace cap
 {
@@ -45,7 +44,7 @@ enum PointType
 
 struct Point
 {
-	Value lambda, mu, theta;
+	std::map<std::string, Value> values;
 	Surface surface;
 	PointType type;
 };
@@ -100,13 +99,14 @@ struct Documentation
 	History history;
 };
 
-class CAPXMLFile : private boost::noncopyable
+class CAPXMLFile
 {
 public:
 	CAPXMLFile(std::string const & filename);
 	~CAPXMLFile();// need this so compiler wont generate dtor
 	
-	void Read();
+	void ReadFile();
+	
 private:
 	std::string filename_;
 	std::string chamber_; // LV
@@ -132,9 +132,6 @@ private:
 	Input input_;
 	Output output_;
 	Documentation documentation_;
-
-	class Impl;
-	boost::scoped_ptr<Impl> pImpl_;
 };
 
 } // end namespace cap
