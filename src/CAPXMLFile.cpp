@@ -5,38 +5,160 @@
  *      Author: jchu014
  */
 
-#include "CAPXMLFile.h"
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
+
+#include "CAPXMLFile.h"
 
 namespace cap {
 
 //std::string const Surface::EPI("epi");
 //std::string const Surface::ENDO("endo");
 
-struct CAPXMLFile::Impl
+namespace 
 {
-	~Impl()
-	{}
-	xmlDocPtr doc;
-	xmlNodePtr cur;
-};
+void ReadPoint(Point& point, xmlNodePtr cur)
+{
+	// point has 2 attributes - surface and type
+	//frame
+	xmlChar* surface = xmlGetProp(cur, (xmlChar const*)"surface"); 
+	std::cout << "surface = " << surface << '\n';
+	point.surface = (std::string("epi") == (char*)surface) ? EPI : ENDO;
+	xmlFree(surface);
+	
+	//slice
+	xmlChar* typeCStr = xmlGetProp(cur, (xmlChar const*)"type"); 
+	std::cout << "type = " << typeCStr << '\n';
+	PointType type;
+	std::string typeStr((char*)typeCStr);
+	if (typeStr == "apex")
+	{
+		type = APEX;
+	}
+	else if (typeStr == "base")
+	{
+		type = BASE;
+	}
+	else if (typeStr == "rv")
+	{
+		type = RV;
+	}
+	else if (typeStr == "bp")
+	{
+		type = BP;
+	}
+	else if (typeStr == "guide")
+	{
+		type = GUIDE;
+	}
+	point.type = type;
+	xmlFree(typeCStr);
+	
+	cur = cur->xmlChildrenNode;
+	while (cur)
+	{
+		if (!xmlStrcmp(cur->name, (const xmlChar *)"Value"))
+		{
+			Value v;
+			using boost::lexical_cast;
+			
+			//value
+			xmlChar* value = xmlGetProp(cur, (xmlChar const*)"value"); 
+			std::cout << "value = " << value << '\n';
+			v.value = lexical_cast<double>(value);
+			xmlFree(value);
+			
+			//variable
+			xmlChar* variable = xmlGetProp(cur, (xmlChar const*)"variable"); 
+			std::cout << "variable = " << variable << '\n';
+			v.variable = (char*)variable;
+			xmlFree(variable);
+			
+			point.values.insert(std::make_pair(v.variable,v));
+		}
+		cur = cur->next;
+	}
+}
+
+void ReadInput(Input& input, xmlDocPtr doc, xmlNodePtr cur)
+{
+	// Input has no attributes
+	// Read in images (children of input)
+	cur = cur->xmlChildrenNode;
+
+	while (cur) 
+	{
+		if (!xmlStrcmp(cur->name, (const xmlChar *)"Image"))
+		{
+			Image image;
+			
+			using boost::lexical_cast;
+			//frame
+			xmlChar* frame = xmlGetProp(cur, (xmlChar const*)"frame"); 
+			std::cout << "frame = " << frame << '\n';
+			image.frame = lexical_cast<int>(frame);
+			xmlFree(frame);
+			
+			//slice
+			xmlChar* slice = xmlGetProp(cur, (xmlChar const*)"slice"); 
+			std::cout << "slice = " << slice << '\n';
+			image.slice = lexical_cast<int>(slice);
+			xmlFree(slice);
+			
+			//sopiuid		
+			xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
+			std::cout << "sopiuid = " << sopiuid << '\n';
+			image.sopiuid = (char*)sopiuid;
+			xmlFree(sopiuid);
+			
+			xmlNodePtr child = cur->xmlChildrenNode;
+			while (child)
+			{
+				if (!xmlStrcmp(child->name, (const xmlChar *)"Point"))
+				{
+					Point p;
+					ReadPoint(p, child);
+					image.points.push_back(p);
+				}
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"ContourFile"))
+				{
+					ContourFile contourFile;
+					//read contour file
+					xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
+					contourFile.fileName = (char*)filename;
+					std::cout << "ContourFile = " << filename << '\n';
+					image.countourFiles.push_back(contourFile);
+					xmlFree(filename);
+				}
+				child = child->next;
+			}
+			
+			input.images.push_back(image);
+		}
+		cur = cur->next;
+	} 
+}
+
+}
 
 CAPXMLFile::CAPXMLFile(std::string const & filename)
 :
-	filename_(filename),
-	pImpl_(new Impl)
+	filename_(filename)//,
+//	pImpl_(new Impl)
 {}
 
 CAPXMLFile::~CAPXMLFile()
 {}
 
-void CAPXMLFile::Read()
+void CAPXMLFile::ReadFile()
 {
-	xmlDocPtr doc = pImpl_->doc; 
-	xmlNodePtr cur = pImpl_->cur; 
+//	xmlDocPtr& doc = pImpl_->doc; 
+//	xmlNodePtr& cur = pImpl_->cur; 
+	xmlDocPtr doc; 
+	xmlNodePtr cur;
+	
 	doc = xmlParseFile(filename_.c_str()); 
 	if (doc == NULL ) { 
 		std::cerr << "Document not parsed successfully. \n"; 
@@ -93,11 +215,12 @@ void CAPXMLFile::Read()
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Input"))
 		{
-//			ReadInput(doc, cur);
+			ReadInput(input_, doc, cur);
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Output"))
 		{
 			std::cout << i++ << ", "<< cur->name <<'\n';
+			//REad output
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Documentation"))
 		{
