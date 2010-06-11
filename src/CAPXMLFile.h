@@ -106,6 +106,7 @@ public:
 	~CAPXMLFile();// need this so compiler wont generate dtor
 	
 	void ReadFile();
+	void WriteFile(std::string const & filename);
 	
 private:
 	std::string filename_;
