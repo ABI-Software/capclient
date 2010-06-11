@@ -5,12 +5,14 @@
  *      Author: jchu014
  */
 
+#include "CAPXMLFile.h"
+
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 #include <iostream>
-
-#include "CAPXMLFile.h"
 
 namespace cap {
 
@@ -82,6 +84,50 @@ void ReadPoint(Point& point, xmlNodePtr cur)
 	}
 }
 
+void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
+{
+	using boost::lexical_cast;
+	//frame
+	xmlChar* frame = xmlGetProp(cur, (xmlChar const*)"frame"); 
+	std::cout << "frame = " << frame << '\n';
+	image.frame = lexical_cast<int>(frame);
+	xmlFree(frame);
+	
+	//slice
+	xmlChar* slice = xmlGetProp(cur, (xmlChar const*)"slice"); 
+	std::cout << "slice = " << slice << '\n';
+	image.slice = lexical_cast<int>(slice);
+	xmlFree(slice);
+	
+	//sopiuid		
+	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
+	std::cout << "sopiuid = " << sopiuid << '\n';
+	image.sopiuid = (char*)sopiuid;
+	xmlFree(sopiuid);
+	
+	xmlNodePtr child = cur->xmlChildrenNode;
+	while (child)
+	{
+		if (!xmlStrcmp(child->name, (const xmlChar *)"Point"))
+		{
+			Point p;
+			ReadPoint(p, child);
+			image.points.push_back(p);
+		}
+		else if (!xmlStrcmp(child->name, (const xmlChar *)"ContourFile"))
+		{
+			ContourFile contourFile;
+			//read contour file
+			xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
+			contourFile.fileName = (char*)filename;
+			std::cout << "ContourFile = " << filename << '\n';
+			image.countourFiles.push_back(contourFile);
+			xmlFree(filename);
+		}
+		child = child->next;
+	}
+}
+
 void ReadInput(Input& input, xmlDocPtr doc, xmlNodePtr cur)
 {
 	// Input has no attributes
@@ -93,48 +139,7 @@ void ReadInput(Input& input, xmlDocPtr doc, xmlNodePtr cur)
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Image"))
 		{
 			Image image;
-			
-			using boost::lexical_cast;
-			//frame
-			xmlChar* frame = xmlGetProp(cur, (xmlChar const*)"frame"); 
-			std::cout << "frame = " << frame << '\n';
-			image.frame = lexical_cast<int>(frame);
-			xmlFree(frame);
-			
-			//slice
-			xmlChar* slice = xmlGetProp(cur, (xmlChar const*)"slice"); 
-			std::cout << "slice = " << slice << '\n';
-			image.slice = lexical_cast<int>(slice);
-			xmlFree(slice);
-			
-			//sopiuid		
-			xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
-			std::cout << "sopiuid = " << sopiuid << '\n';
-			image.sopiuid = (char*)sopiuid;
-			xmlFree(sopiuid);
-			
-			xmlNodePtr child = cur->xmlChildrenNode;
-			while (child)
-			{
-				if (!xmlStrcmp(child->name, (const xmlChar *)"Point"))
-				{
-					Point p;
-					ReadPoint(p, child);
-					image.points.push_back(p);
-				}
-				else if (!xmlStrcmp(child->name, (const xmlChar *)"ContourFile"))
-				{
-					ContourFile contourFile;
-					//read contour file
-					xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
-					contourFile.fileName = (char*)filename;
-					std::cout << "ContourFile = " << filename << '\n';
-					image.countourFiles.push_back(contourFile);
-					xmlFree(filename);
-				}
-				child = child->next;
-			}
-			
+			ReadImage(image, doc, cur);
 			input.images.push_back(image);
 		}
 		cur = cur->next;
@@ -214,12 +219,103 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 	}
 }
 
+void ConstructValueNode(std::pair<std::string, Value> const &valuePair, xmlNodePtr pointNode)
+{
+	Value const &value = valuePair.second;
+	xmlNodePtr valueNode = xmlNewChild(pointNode, NULL, BAD_CAST "Value", NULL);
+	
+	std::string valueStr = boost::lexical_cast<std::string>(value.value);
+	xmlNewProp(valueNode, BAD_CAST "value", BAD_CAST valueStr.c_str());
+	xmlNewProp(valueNode, BAD_CAST "variable", BAD_CAST value.variable.c_str());
 }
+
+void ConstructPointSubtree(Point const &point, xmlNodePtr imageNode)
+{
+	xmlNodePtr pointNode = xmlNewChild(imageNode, NULL, BAD_CAST "Point", NULL);
+	
+	xmlChar* surfaceStr  = NULL;
+	if (point.surface == EPI)
+	{
+		surfaceStr = BAD_CAST "epi";
+	}
+	else if (point.surface == ENDO)
+	{
+		surfaceStr = BAD_CAST "endo";
+	}
+	xmlNewProp(pointNode, BAD_CAST "surface", surfaceStr);
+	
+	xmlChar* typeStr = NULL;
+	if (point.type == APEX)
+	{
+		typeStr = BAD_CAST "apex";
+	}
+	else if (point.type == BASE)
+	{
+		typeStr = BAD_CAST "base";
+	}
+	else if (point.type == RV)
+	{
+		typeStr = BAD_CAST "rv";
+	}
+	else if (point.type == BP)
+	{
+		typeStr = BAD_CAST "bp";
+	}
+	else if (point.type == GUIDE)
+	{
+		typeStr = BAD_CAST "guide";
+	}
+	else
+	{
+		//invalid type
+		throw std::exception();
+	}
+	xmlNewProp(pointNode, BAD_CAST "type", typeStr);
+	
+	std::for_each(point.values.begin(), point.values.end(), 
+				boost::bind(ConstructValueNode, _1, pointNode));
+	
+}
+
+void ConstructContourFileNode(ContourFile const &contourFile, xmlNodePtr imageNode)
+{
+	xmlNodePtr contourFileNode = xmlNewChild(imageNode, NULL,
+			BAD_CAST "ContourFile", BAD_CAST contourFile.fileName.c_str());
+	
+}
+void ConstructImageSubtree(Image const &image, xmlNodePtr input)
+{
+	xmlNodePtr imageNode = xmlNewChild(input, NULL, BAD_CAST "Image", NULL);
+	std::string frame = boost::lexical_cast<std::string>(image.frame);
+	xmlNewProp(imageNode, BAD_CAST "frame", BAD_CAST frame.c_str());
+	std::string slice = boost::lexical_cast<std::string>(image.slice);
+	xmlNewProp(imageNode, BAD_CAST "slice", BAD_CAST slice.c_str());
+	xmlNewProp(imageNode, BAD_CAST "sopiuid", BAD_CAST image.sopiuid.c_str());
+	if (image.label.length())
+	{
+		xmlNewProp(imageNode, BAD_CAST "label", BAD_CAST image.sopiuid.c_str());
+	}
+	
+	std::for_each(image.points.begin(), image.points.end(), 
+			boost::bind(ConstructPointSubtree, _1, imageNode));
+	
+	std::for_each(image.countourFiles.begin(), image.countourFiles.end(),
+			boost::bind(ConstructContourFileNode, _1, imageNode));
+}
+
+void ConstructFrameNode(Frame const &frame, xmlNodePtr output)
+{
+	xmlNodePtr frameNode = xmlNewChild(output, NULL, BAD_CAST "Frame", NULL);
+	xmlNewProp(frameNode, BAD_CAST "exnode", BAD_CAST frame.exnode.c_str());
+	std::string numberStr(boost::lexical_cast<std::string>(frame.number));
+	xmlNewProp(frameNode, BAD_CAST "number", BAD_CAST numberStr.c_str());
+}
+
+} // end unnamed namespace
 
 CAPXMLFile::CAPXMLFile(std::string const & filename)
 :
-	filename_(filename)//,
-//	pImpl_(new Impl)
+	filename_(filename)
 {}
 
 CAPXMLFile::~CAPXMLFile()
@@ -227,8 +323,6 @@ CAPXMLFile::~CAPXMLFile()
 
 void CAPXMLFile::ReadFile()
 {
-//	xmlDocPtr& doc = pImpl_->doc; 
-//	xmlNodePtr& cur = pImpl_->cur; 
 	xmlDocPtr doc; 
 	xmlNodePtr cur;
 	
@@ -304,5 +398,75 @@ void CAPXMLFile::ReadFile()
 	} 
 }
 
+
+#if defined(LIBXML_TREE_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
+
+
+void CAPXMLFile::WriteFile(std::string const& filename)
+{
+	LIBXML_TEST_VERSION
+	
+	xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
+	xmlNodePtr root_node = xmlNewNode(NULL, BAD_CAST "Analysis");
+	xmlDocSetRootElement(doc, root_node);
+	
+	xmlNewProp(root_node, BAD_CAST "chamber", BAD_CAST chamber_.c_str());
+	std::string focalLength = boost::lexical_cast<std::string>(focalLength_);
+	xmlNewProp(root_node, BAD_CAST "focallength", BAD_CAST focalLength.c_str());
+	std::string interval = boost::lexical_cast<std::string>(interval_);
+	xmlNewProp(root_node, BAD_CAST "interval", BAD_CAST interval.c_str());
+	xmlNewProp(root_node, BAD_CAST "name", BAD_CAST name_.c_str());
+	xmlNewProp(root_node, BAD_CAST "studyiuid", BAD_CAST studyIUid_.c_str());	
+
+	xmlNsPtr ns = xmlNewNs(root_node, BAD_CAST "http://www.cardiacatlas.org", BAD_CAST "cap");	
+	xmlSetNs(root_node, ns);
+	
+	//HACK
+	xmlNewProp(root_node, BAD_CAST "xmlns:xsi", BAD_CAST "http://www.w3.org/2001/XMLSchema-instance");
+	xmlNewProp(root_node, BAD_CAST "xsi:schemaLocation", BAD_CAST "http://www.cardiacatlas.org Analysis.xsd ");
+
+	xmlNodePtr inputNode = xmlNewChild(root_node, NULL , BAD_CAST "Input", NULL);	
+	std::for_each(input_.images.begin(), input_.images.end(),
+			boost::bind(ConstructImageSubtree, _1, inputNode));
+
+	xmlNodePtr outputNode = xmlNewChild(root_node, NULL, BAD_CAST "Output", NULL);
+	std::for_each(output_.frames.begin(), output_.frames.end(),
+			boost::bind(ConstructFrameNode, _1, outputNode));
+	
+	xmlNodePtr documentation = xmlNewChild(root_node, NULL, BAD_CAST "Documentation", NULL);
+	xmlNodePtr version = xmlNewChild(documentation, NULL, BAD_CAST "Version", NULL);
+	xmlNewProp(version, BAD_CAST "date", BAD_CAST documentation_.version.date.c_str());
+	xmlNewProp(version, BAD_CAST "log", BAD_CAST documentation_.version.log.c_str());
+	std::string numberStr(boost::lexical_cast<std::string>(documentation_.version.number));
+	xmlNewProp(version, BAD_CAST "number", BAD_CAST numberStr.c_str());
+	
+	xmlNodePtr history = xmlNewChild(documentation, NULL, BAD_CAST "History", NULL);
+	xmlNewProp(history, BAD_CAST "date", BAD_CAST documentation_.history.date.c_str());
+	xmlNewProp(history, BAD_CAST "entry", BAD_CAST documentation_.history.entry.c_str());
+
+	/* 
+	 * Dumping document to stdio or file
+	 */
+	xmlSaveFormatFileEnc("output_test.xml", doc, "UTF-8", 1);
+
+	/*free the document */
+	xmlFreeDoc(doc);
+
+	/*
+	 *Free the global variables that may
+	 *have been allocated by the parser.
+	 */
+	xmlCleanupParser();
+
+	/*
+	 * this is to debug memory for regression tests
+	 */
+//	xmlMemoryDump();
+
+	using namespace std;
+	cout << "\n";
+}
+
+#endif
 } // end namespace cap
 

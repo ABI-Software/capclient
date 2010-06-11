@@ -26,6 +26,12 @@ TEST(CAPXMLFile, ReadXML)
 
 TEST(CAPXMLFile, WriteXML)
 {
-	EXPECT_EQ(1,1);
+	using namespace cap;
+		
+	CAPXMLFile xmlFile("SampleAnalysisUsingXsd.xml");
+
+	xmlFile.ReadFile();
+	xmlFile.WriteFile("dummy");
+
 }
 
