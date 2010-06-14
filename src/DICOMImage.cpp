@@ -172,7 +172,7 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 
 	// plane's tlc starts from the edge of the first voxel
 	// rather than centre; (0020, 0032) is the centre of the first voxel
-	plane->tlc = position3D - pixelSizeX * (0.5f*orientation1 + 0.5f*orientation2);
+	plane->tlc = position3D - 0.5 * pixelSizeX * orientation1 -  0.5f * pixelSizeY * orientation2;
 
 	float fieldOfViewX = width * pixelSizeX;//JDCHUNG consider name change
 	cout << "width in mm = " << fieldOfViewX ;
