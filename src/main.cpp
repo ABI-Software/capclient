@@ -20,7 +20,6 @@ extern "C" {
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-#include "CAPTotalLeastSquares.h"
 #include <iostream>
 
 using namespace std;
@@ -32,9 +31,6 @@ int main(int argc,char *argv[])
 	GetCurrentProcess(&PSN);
 	TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
 #endif
-
-//	PerformSVDTest();
-//	exit(0);
 
 	const char** cmgui_argv;
 	int cmgui_argc;
@@ -59,9 +55,6 @@ int main(int argc,char *argv[])
 		cout << "Error: Invalid command line options" << endl;
 		return (0);
 	}
-	
-//	TestLSQR();
-//	exit(0); 
 
 	if (Cmiss_context_id context = Cmiss_context_create("CAPClient"))
 	{
