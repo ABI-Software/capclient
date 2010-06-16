@@ -1,5 +1,5 @@
-#ifndef __TEXTFRAME_H__
-#define __TEXTFRAME_H__
+#ifndef __MAINWINDOW_H__
+#define __MAINWINDOW_H__
 
 extern "C" {
 #include "api/cmiss_context.h"
@@ -24,11 +24,11 @@ class ImageSet;
 
 //} // end namespace cap
 
-class ViewerFrame : public wxFrame
+class MainWindow : public wxFrame
 {
 public:
-	ViewerFrame(Cmiss_context_id command_data_);
-	~ViewerFrame();
+	MainWindow(Cmiss_context_id command_data_);
+	~MainWindow();
 
 	wxPanel* getPanel();
 	
