@@ -21,18 +21,19 @@ namespace cap {
 
 namespace 
 {
+
 void ReadPoint(Point& point, xmlNodePtr cur)
 {
 	// point has 2 attributes - surface and type
 	//frame
 	xmlChar* surface = xmlGetProp(cur, (xmlChar const*)"surface"); 
-	std::cout << "surface = " << surface << '\n';
+//	std::cout << "surface = " << surface << '\n';
 	point.surface = (std::string("epi") == (char*)surface) ? EPI : ENDO;
 	xmlFree(surface);
 	
 	//slice
 	xmlChar* typeCStr = xmlGetProp(cur, (xmlChar const*)"type"); 
-	std::cout << "type = " << typeCStr << '\n';
+//	std::cout << "type = " << typeCStr << '\n';
 	PointType type;
 	std::string typeStr((char*)typeCStr);
 	if (typeStr == "apex")
@@ -68,13 +69,13 @@ void ReadPoint(Point& point, xmlNodePtr cur)
 			
 			//value
 			xmlChar* value = xmlGetProp(cur, (xmlChar const*)"value"); 
-			std::cout << "value = " << value << '\n';
+//			std::cout << "value = " << value << '\n';
 			v.value = lexical_cast<double>(value);
 			xmlFree(value);
 			
 			//variable
 			xmlChar* variable = xmlGetProp(cur, (xmlChar const*)"variable"); 
-			std::cout << "variable = " << variable << '\n';
+//			std::cout << "variable = " << variable << '\n';
 			v.variable = (char*)variable;
 			xmlFree(variable);
 			
@@ -89,19 +90,19 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	using boost::lexical_cast;
 	//frame
 	xmlChar* frame = xmlGetProp(cur, (xmlChar const*)"frame"); 
-	std::cout << "frame = " << frame << '\n';
+//	std::cout << "frame = " << frame << '\n';
 	image.frame = lexical_cast<int>(frame);
 	xmlFree(frame);
 	
 	//slice
 	xmlChar* slice = xmlGetProp(cur, (xmlChar const*)"slice"); 
-	std::cout << "slice = " << slice << '\n';
+//	std::cout << "slice = " << slice << '\n';
 	image.slice = lexical_cast<int>(slice);
 	xmlFree(slice);
 	
 	//sopiuid		
 	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
-	std::cout << "sopiuid = " << sopiuid << '\n';
+//	std::cout << "sopiuid = " << sopiuid << '\n';
 	image.sopiuid = (char*)sopiuid;
 	xmlFree(sopiuid);
 	
@@ -120,7 +121,7 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 			//read contour file
 			xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
 			contourFile.fileName = (char*)filename;
-			std::cout << "ContourFile = " << filename << '\n';
+//			std::cout << "ContourFile = " << filename << '\n';
 			image.countourFiles.push_back(contourFile);
 			xmlFree(filename);
 		}
@@ -159,12 +160,12 @@ void ReadOutput(Output& output, xmlNodePtr cur)
 			Frame frame;
 			//exnode
 			xmlChar* exnode = xmlGetProp(cur, (xmlChar const*)"exnode");
-			std::cout << "exnode = " << exnode << '\n';
+//			std::cout << "exnode = " << exnode << '\n';
 			frame.exnode = (char*)exnode;
 			xmlFree(exnode);
 			//number
 			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
-			std::cout << "number = " << number << '\n';
+//			std::cout << "number = " << number << '\n';
 			frame.number = boost::lexical_cast<int>(number);
 			xmlFree(number);
 			
@@ -187,17 +188,17 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 		{
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
-			std::cout << "date = " << date << '\n';
+//			std::cout << "date = " << date << '\n';
 			documentation.version.date = (char*)(date);
 			xmlFree(date);
 			//log
 			xmlChar* log = xmlGetProp(cur, (xmlChar const*)"log"); 
-			std::cout << "log = " << log << '\n';
+//			std::cout << "log = " << log << '\n';
 			documentation.version.log = (char*)(log);
 			xmlFree(log);
 			//number
 			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number"); 
-			std::cout << "number = " << number << '\n';
+//			std::cout << "number = " << number << '\n';
 			documentation.version.number = lexical_cast<int>(number);
 			xmlFree(number);
 		}
@@ -205,12 +206,12 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 		{
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
-			std::cout << "date = " << date << '\n';
+//			std::cout << "date = " << date << '\n';
 			documentation.history.date = (char*)(date);
 			xmlFree(date);
 			//entry
 			xmlChar* entry = xmlGetProp(cur, (xmlChar const*)"entry"); 
-			std::cout << "entry = " << date << '\n';
+//			std::cout << "entry = " << date << '\n';
 			documentation.history.entry = (char*)(entry);
 			xmlFree(entry);
 		}
@@ -268,7 +269,7 @@ void ConstructPointSubtree(Point const &point, xmlNodePtr imageNode)
 	else
 	{
 		//invalid type
-		throw std::exception();
+		throw std::logic_error("Invalid point type");
 	}
 	xmlNewProp(pointNode, BAD_CAST "type", typeStr);
 	
@@ -338,7 +339,7 @@ void CAPXMLFile::ReadFile()
 		return; 
 	} 
 	
-	std::cout << "Root node name = " << cur->name << "\n";
+//	std::cout << "Root node name = " << cur->name << "\n";
 	if (xmlStrcmp(cur->name, (const xmlChar *) "Analysis")) { 
 		std::cerr << "document of the wrong type, root node\n";
 		xmlFreeDoc(doc); 
@@ -347,29 +348,29 @@ void CAPXMLFile::ReadFile()
 	else
 	{
 		xmlChar* chamber = xmlGetProp(cur, (xmlChar const*)"chamber"); 
-		std::cout << "chamber = " << chamber << '\n';
+//		std::cout << "chamber = " << chamber << '\n';
 		chamber_ = (char*)chamber;
 		xmlFree(chamber);
 		
 		using boost::lexical_cast;
 		
 		xmlChar* focalLengthStr = xmlGetProp(cur, (xmlChar const*)"focallength"); 
-		std::cout << "focalLengthStr = " << focalLengthStr << '\n';
+//		std::cout << "focalLengthStr = " << focalLengthStr << '\n';
 		focalLength_ = lexical_cast<double>(focalLengthStr);
 		xmlFree(focalLengthStr);
 		
 		xmlChar* intervalStr = xmlGetProp(cur, (xmlChar const*)"interval"); 
-		std::cout << "intervalStr = " << intervalStr << '\n';
+//		std::cout << "intervalStr = " << intervalStr << '\n';
 		interval_ = lexical_cast<double>(intervalStr);
 		xmlFree(intervalStr);
 		
 		xmlChar* name = xmlGetProp(cur, (xmlChar const*)"name"); 
-		std::cout << "name = " << name << '\n';
+//		std::cout << "name = " << name << '\n';
 		name_ = (char*)name;
 		xmlFree(name);
 		
 		xmlChar* studyiuid = xmlGetProp(cur, (xmlChar const*)"studyiuid"); 
-		std::cout << "studyiuid = " << studyiuid << '\n';
+//		std::cout << "studyiuid = " << studyiuid << '\n';
 		studyIUid_ = (char*)studyiuid;
 		xmlFree(studyiuid);
 	}
@@ -386,12 +387,12 @@ void CAPXMLFile::ReadFile()
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Output"))
 		{
-			std::cout << i++ << ", "<< cur->name <<'\n';
+//			std::cout << i++ << ", "<< cur->name <<'\n';
 			ReadOutput(output_, cur);
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Documentation"))
 		{
-			std::cout << i++ << ", "<< cur->name <<'\n';
+//			std::cout << i++ << ", "<< cur->name <<'\n';
 			ReadDocumentation(documentation_, cur);
 		}
 		cur = cur->next;
@@ -462,9 +463,6 @@ void CAPXMLFile::WriteFile(std::string const& filename)
 	 * this is to debug memory for regression tests
 	 */
 //	xmlMemoryDump();
-
-	using namespace std;
-	cout << "\n";
 }
 
 #endif
