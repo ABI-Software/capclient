@@ -42,7 +42,7 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Util
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Utilities/vxl/core)
 
 SET(SRCS 
-  src/ViewerFrame.cpp
+  src/MainWindow.cpp
   src/main.cpp
   src/FileSystem.cpp
   src/CmguiExtensions.cpp

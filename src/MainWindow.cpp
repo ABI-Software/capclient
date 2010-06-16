@@ -16,7 +16,7 @@ extern "C"
 #include <wx/aboutdlg.h>
 
 #include "Config.h"
-#include "ViewerFrame.h"
+#include "MainWindow.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
 #include "ImageSet.h"
@@ -49,7 +49,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	}
 	
 	static Cmiss_node_id selectedNode = NULL; // Thread unsafe
-	ViewerFrame* frame = static_cast<ViewerFrame*>(viewer_frame_void);
+	MainWindow* frame = static_cast<MainWindow*>(viewer_frame_void);
 	
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
@@ -121,7 +121,7 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 	}
 	
 //	static Cmiss_node_id selectedNode = NULL; // Thread unsafe
-//	ViewerFrame* frame = static_cast<ViewerFrame*>(viewer_frame_void);
+//	MainWindow* frame = static_cast<MainWindow*>(viewer_frame_void);
 	
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
@@ -190,7 +190,7 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 	//DEBUG
 //	cout << "Time_call_back time = " << current_time << endl;
 	
-	ViewerFrame* frame = static_cast<ViewerFrame*>(user_data);
+	MainWindow* frame = static_cast<MainWindow*>(user_data);
 	frame->SetTime(current_time);
 	
 	frame->RefreshCmguiCanvas(); // this forces refresh even when UI is being manipulated by user
@@ -198,7 +198,7 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 	return 0;
 }
 
-ViewerFrame::ViewerFrame(Cmiss_context_id context)
+MainWindow::MainWindow(Cmiss_context_id context)
 : 
 	context_(context),
 	animationIsOn_(false),
@@ -324,7 +324,7 @@ ViewerFrame::ViewerFrame(Cmiss_context_id context)
 	SetTime(0.0);
 }
 
-ViewerFrame::~ViewerFrame()
+MainWindow::~MainWindow()
 {
 	delete imageSet_;
 	delete modeller_;
@@ -373,7 +373,7 @@ struct SliceNameLessThan : std::binary_function <std::string,std::string,bool>
 	}
 };
 
-void ViewerFrame::LoadImages()
+void MainWindow::LoadImages()
 {
 	vector<string> sliceNames;
 
@@ -403,31 +403,31 @@ void ViewerFrame::LoadImages()
 	this->PopulateObjectList(); // fill in slice check box list
 }
 
-float ViewerFrame::GetCurrentTime() const
+float MainWindow::GetCurrentTime() const
 {
 	return static_cast<float>(Cmiss_time_keeper_get_time(timeKeeper_));
 }
 
-void ViewerFrame::AddDataPoint(Cmiss_node* dataPointID, const Point3D& position)
+void MainWindow::AddDataPoint(Cmiss_node* dataPointID, const Point3D& position)
 {
 	modeller_->AddDataPoint(dataPointID, position, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
 }
 
-void ViewerFrame::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& newPosition)
+void MainWindow::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& newPosition)
 {
 	modeller_->MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
 	RefreshCmguiCanvas(); // need to force refreshing
 }
 
-void ViewerFrame::RemoveDataPoint(Cmiss_node* dataPointID)
+void MainWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 {
 	cout << __func__ << endl;
 	modeller_->RemoveDataPoint(dataPointID, GetCurrentTime());
 	RefreshCmguiCanvas();
 }
 
-void ViewerFrame::InitialiseModel()
+void MainWindow::InitialiseModel()
 {
 	modeller_->InitialiseModel();
 	modeller_->UpdateTimeVaryingModel();
@@ -437,7 +437,7 @@ void ViewerFrame::InitialiseModel()
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
 
-void ViewerFrame::SmoothAlongTime()
+void MainWindow::SmoothAlongTime()
 {
 	modeller_->SmoothAlongTime();
 	RefreshCmguiCanvas();
@@ -446,12 +446,12 @@ void ViewerFrame::SmoothAlongTime()
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
 
-wxPanel* ViewerFrame::getPanel()
+wxPanel* MainWindow::getPanel()
 {
 	return m_pPanel;
 }
 
-void ViewerFrame::OnTogglePlay(wxCommandEvent& event)
+void MainWindow::OnTogglePlay(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
 	
@@ -475,7 +475,7 @@ void ViewerFrame::OnTogglePlay(wxCommandEvent& event)
 	return;
 }
 
-void ViewerFrame::Terminate(wxCloseEvent& event)
+void MainWindow::Terminate(wxCloseEvent& event)
 {
 	int answer = wxMessageBox("Quit program?", "Confirm",
 	                            wxYES_NO, this);
@@ -485,7 +485,7 @@ void ViewerFrame::Terminate(wxCloseEvent& event)
 	}
 }
 
-int ViewerFrame::add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox)
+int MainWindow::add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox)
 /*******************************************************************************
 LAST MODIFIED : 2 Match 2007
 
@@ -518,7 +518,7 @@ Add scene_object as checklistbox item into the box.
 }
 
 //test
-void ViewerFrame::PopulateObjectList()
+void MainWindow::PopulateObjectList()
 {
 	//TODO move Cmgui specific code to ImageSet
 	//Should just obtain the list of slice names from ImageSet and use that to populate the check list box
@@ -528,7 +528,7 @@ void ViewerFrame::PopulateObjectList()
 		 add_scene_object_to_scene_check_box, (void *)objectList_);
 }
 
-void ViewerFrame::OnObjectCheckListChecked(wxCommandEvent& event)
+void MainWindow::OnObjectCheckListChecked(wxCommandEvent& event)
 {
 	int selection = event.GetInt();
 //	objectList_->SetSelection(selection);
@@ -549,7 +549,7 @@ void ViewerFrame::OnObjectCheckListChecked(wxCommandEvent& event)
 	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
 }
 
-void ViewerFrame::OnObjectCheckListSelected(wxCommandEvent& event)
+void MainWindow::OnObjectCheckListSelected(wxCommandEvent& event)
 {
 	wxString name = objectList_->GetStringSelection();
 	const ImagePlane& plane = imageSet_->GetImagePlane(name.mb_str());
@@ -577,7 +577,7 @@ void ViewerFrame::OnObjectCheckListSelected(wxCommandEvent& event)
 	return;
 }
 
-void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
+void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	int value = slider->GetValue();
@@ -605,7 +605,7 @@ void ViewerFrame::OnAnimationSliderEvent(wxCommandEvent& event)
 	return;
 }
 
-void ViewerFrame::OnAnimationSpeedControlEvent(wxCommandEvent& event)
+void MainWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 {
 	wxSlider* slider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
 	int value = slider->GetValue();
@@ -619,7 +619,7 @@ void ViewerFrame::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	return;
 }
 
-void ViewerFrame::RefreshCmguiCanvas()
+void MainWindow::RefreshCmguiCanvas()
 {
 //	Scene_viewer_redraw(sceneViewer_);
 	if (sceneViewer_) 
@@ -628,7 +628,7 @@ void ViewerFrame::RefreshCmguiCanvas()
 	}
 }
 
-void ViewerFrame::SetTime(double time)
+void MainWindow::SetTime(double time)
 {
 	//cout << "SetTime" <<endl;
 	imageSet_->SetTime(time);
@@ -646,7 +646,7 @@ void ViewerFrame::SetTime(double time)
 	return;
 }
 
-void ViewerFrame::OnToggleHideShowAll(wxCommandEvent& event)
+void MainWindow::OnToggleHideShowAll(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "HideShowAll", wxButton);
 	if (hideAll_) //means the button says hide all rather than show all
@@ -669,7 +669,7 @@ void ViewerFrame::OnToggleHideShowAll(wxCommandEvent& event)
 	this->Refresh(); // work around for the refresh bug
 }
 
-void ViewerFrame::OnToggleHideShowOthers(wxCommandEvent& event)
+void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "HideShowOthers", wxButton);
 	static bool showOthers = true;
@@ -710,14 +710,14 @@ void ViewerFrame::OnToggleHideShowOthers(wxCommandEvent& event)
 	this->Refresh(); // work around for the refresh bug
 }
 
-void ViewerFrame::SetImageVisibility(bool visibility, int index)
+void MainWindow::SetImageVisibility(bool visibility, int index)
 {
 	if (XRCCTRL(*this, "MII", wxCheckBox)->IsChecked())
 		heartModel_.SetMIIVisibility(visibility, index);
 	imageSet_->SetVisible(visibility, index);
 }
 
-void ViewerFrame::SetImageVisibility(bool visibility, const std::string& name)
+void MainWindow::SetImageVisibility(bool visibility, const std::string& name)
 {
 	if (name.length()) //REVISE
 	{
@@ -736,7 +736,7 @@ void ViewerFrame::SetImageVisibility(bool visibility, const std::string& name)
 	}
 }
 
-void ViewerFrame::RenderIsoSurfaces()
+void MainWindow::RenderIsoSurfaces()
 {
 	
 	char str[256];
@@ -791,7 +791,7 @@ void ViewerFrame::RenderIsoSurfaces()
 	Cmiss_context_execute_command(context_, str);
 }
 
-void ViewerFrame::InitialiseMII()
+void MainWindow::InitialiseMII()
 {
 	const vector<string>& sliceNames = imageSet_->GetSliceNames();
 	vector<string>::const_iterator itr = sliceNames.begin();
@@ -801,7 +801,7 @@ void ViewerFrame::InitialiseMII()
 	}
 }
 
-void ViewerFrame::UpdateMII() //FIX
+void MainWindow::UpdateMII() //FIX
 {	
 	const vector<string>& sliceNames = imageSet_->GetSliceNames();
 	vector<string>::const_iterator itr = sliceNames.begin();
@@ -830,7 +830,7 @@ void ViewerFrame::UpdateMII() //FIX
 	}
 }
 
-void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4X4
+void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4X4
 {	
 	char str[256];
 	
@@ -864,7 +864,7 @@ void ViewerFrame::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS
 #ifdef GRAPH
 #include "VolumeGraph.h"
 
-void ViewerFrame::InitialiseVolumeGraph()
+void MainWindow::InitialiseVolumeGraph()
 {
 	wxPanel* graphPanel = XRCCTRL(*this, "GraphPanel", wxPanel);
 //	VolumeGraph* v = new VolumeGraph(graphPanel);
@@ -884,7 +884,7 @@ void ViewerFrame::InitialiseVolumeGraph()
 }
 #endif
 
-void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)
+void MainWindow::OnMIICheckBox(wxCommandEvent& event)
 {
 	//heartModel_.SetMIIVisibility(event.IsChecked()); TEST
 	for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
@@ -896,14 +896,14 @@ void ViewerFrame::OnMIICheckBox(wxCommandEvent& event)
 	}
 }
 
-void ViewerFrame::OnWireframeCheckBox(wxCommandEvent& event)
+void MainWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
 	heartModel_.SetModelVisibility(event.IsChecked());
 }
 
-void ViewerFrame::OnBrightnessSliderEvent(wxCommandEvent& event)
+void MainWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 {
-//	cout << "ViewerFrame::OnBrightnessSliderEvent" << endl;
+//	cout << "MainWindow::OnBrightnessSliderEvent" << endl;
 	wxSlider* slider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
 	int value = slider->GetValue();
 	int min = slider->GetMin();
@@ -919,9 +919,9 @@ void ViewerFrame::OnBrightnessSliderEvent(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
-void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
+void MainWindow::OnContrastSliderEvent(wxCommandEvent& event)
 {
-//	cout << "ViewerFrame::OnContrastSliderEvent" << endl;
+//	cout << "MainWindow::OnContrastSliderEvent" << endl;
 	wxSlider* slider = XRCCTRL(*this, "ContrastSlider", wxSlider);
 	int value = slider->GetValue();
 	int min = slider->GetMin();
@@ -937,7 +937,7 @@ void ViewerFrame::OnContrastSliderEvent(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
-void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
+void MainWindow::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
 
@@ -967,7 +967,7 @@ void ViewerFrame::OnAcceptButtonPressed(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
-void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
+void MainWindow::OnModellingModeChanged(wxCommandEvent& event)
 {
 	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 	std::cout << "MODE = " << choice->GetStringSelection() << endl;
@@ -993,7 +993,7 @@ void ViewerFrame::OnModellingModeChanged(wxCommandEvent& event)
 namespace cap
 {
 
-void ViewerFrame::OnAbout(wxCommandEvent& event)
+void MainWindow::OnAbout(wxCommandEvent& event)
 {
 	wxBoxSizer *topsizer;
 	wxHtmlWindow *html;
@@ -1061,7 +1061,7 @@ void EnumerateAllFiles(const wxString& dirname)
 	}
 }
 
-void ViewerFrame::OnOpenImages(wxCommandEvent& event)
+void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
 	//test
 	int force_onscreen_flag = 0;
@@ -1107,7 +1107,7 @@ void ViewerFrame::OnOpenImages(wxCommandEvent& event)
 		*/
 }
 
-void ViewerFrame::OnOpenModel(wxCommandEvent& event)
+void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
 	wxString currentWorkingDir = wxGetCwd();
 	wxString defaultPath = currentWorkingDir.Append("/Data");
@@ -1167,7 +1167,7 @@ void ViewerFrame::OnOpenModel(wxCommandEvent& event)
 	}
 }
 
-void ViewerFrame::OnSave(wxCommandEvent& event)
+void MainWindow::OnSave(wxCommandEvent& event)
 {
 	wxString defaultPath = "./Data";
 	wxString defaultFilename = "";
@@ -1185,12 +1185,12 @@ void ViewerFrame::OnSave(wxCommandEvent& event)
 	}
 }
 
-void ViewerFrame::OnQuit(wxCommandEvent& event)
+void MainWindow::OnQuit(wxCommandEvent& event)
 {
 	Close();
 }
 
-void ViewerFrame::OnPlaneShiftButtonPressed(wxCommandEvent& event)
+void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 {
 	static bool isPlaneShiftModeOn = false;
 	
@@ -1265,7 +1265,7 @@ std::pair<double,double> get_range(const ImageSet* imageSet_, const CAPModelLVPS
 }
 	
 
-void ViewerFrame::OnExportModel(wxCommandEvent& event)
+void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
 	
@@ -1402,28 +1402,28 @@ void ViewerFrame::OnExportModel(wxCommandEvent& event)
 //	Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
 }
 
-BEGIN_EVENT_TABLE(ViewerFrame, wxFrame)
-	EVT_BUTTON(XRCID("PlayButton"),ViewerFrame::OnTogglePlay) // play button
-	EVT_SLIDER(XRCID("AnimationSlider"),ViewerFrame::OnAnimationSliderEvent) // animation slider
-	EVT_SLIDER(XRCID("AnimationSpeedControl"),ViewerFrame::OnAnimationSpeedControlEvent)
-	EVT_CHECKLISTBOX(XRCID("SliceList"), ViewerFrame::OnObjectCheckListChecked)
-	EVT_BUTTON(XRCID("HideShowAll"),ViewerFrame::OnToggleHideShowAll) // hide all button
-	EVT_BUTTON(XRCID("HideShowOthers"),ViewerFrame::OnToggleHideShowOthers) // hide others button
-	EVT_CHECKBOX(XRCID("MII"),ViewerFrame::OnMIICheckBox)
-	EVT_CHECKBOX(XRCID("Wireframe"),ViewerFrame::OnWireframeCheckBox)
-	EVT_LISTBOX(XRCID("SliceList"), ViewerFrame::OnObjectCheckListSelected)
-	EVT_SLIDER(XRCID("BrightnessSlider"),ViewerFrame::OnBrightnessSliderEvent)
-	EVT_SLIDER(XRCID("ContrastSlider"),ViewerFrame::OnContrastSliderEvent)
-	EVT_BUTTON(XRCID("AcceptButton"),ViewerFrame::OnAcceptButtonPressed)
-	EVT_CHOICE(XRCID("ModeChoice"),ViewerFrame::OnModellingModeChanged)
-	EVT_CLOSE(ViewerFrame::Terminate)
-	EVT_MENU(XRCID("QuitMenuItem"),  ViewerFrame::OnQuit)
-	EVT_MENU(XRCID("AboutMenuItem"), ViewerFrame::OnAbout)
-	EVT_MENU(XRCID("OpenImagesMenuItem"), ViewerFrame::OnOpenImages)
-	EVT_MENU(XRCID("OpenMenuItem"), ViewerFrame::OnOpenModel)
-	EVT_MENU(XRCID("SaveMenuItem"), ViewerFrame::OnSave)
-	EVT_MENU(XRCID("ExportMenuItem"), ViewerFrame::OnExportModel)
-	EVT_BUTTON(XRCID("PlaneShiftButton"), ViewerFrame::OnPlaneShiftButtonPressed)
+BEGIN_EVENT_TABLE(MainWindow, wxFrame)
+	EVT_BUTTON(XRCID("PlayButton"),MainWindow::OnTogglePlay) // play button
+	EVT_SLIDER(XRCID("AnimationSlider"),MainWindow::OnAnimationSliderEvent) // animation slider
+	EVT_SLIDER(XRCID("AnimationSpeedControl"),MainWindow::OnAnimationSpeedControlEvent)
+	EVT_CHECKLISTBOX(XRCID("SliceList"), MainWindow::OnObjectCheckListChecked)
+	EVT_BUTTON(XRCID("HideShowAll"),MainWindow::OnToggleHideShowAll) // hide all button
+	EVT_BUTTON(XRCID("HideShowOthers"),MainWindow::OnToggleHideShowOthers) // hide others button
+	EVT_CHECKBOX(XRCID("MII"),MainWindow::OnMIICheckBox)
+	EVT_CHECKBOX(XRCID("Wireframe"),MainWindow::OnWireframeCheckBox)
+	EVT_LISTBOX(XRCID("SliceList"), MainWindow::OnObjectCheckListSelected)
+	EVT_SLIDER(XRCID("BrightnessSlider"),MainWindow::OnBrightnessSliderEvent)
+	EVT_SLIDER(XRCID("ContrastSlider"),MainWindow::OnContrastSliderEvent)
+	EVT_BUTTON(XRCID("AcceptButton"),MainWindow::OnAcceptButtonPressed)
+	EVT_CHOICE(XRCID("ModeChoice"),MainWindow::OnModellingModeChanged)
+	EVT_CLOSE(MainWindow::Terminate)
+	EVT_MENU(XRCID("QuitMenuItem"),  MainWindow::OnQuit)
+	EVT_MENU(XRCID("AboutMenuItem"), MainWindow::OnAbout)
+	EVT_MENU(XRCID("OpenImagesMenuItem"), MainWindow::OnOpenImages)
+	EVT_MENU(XRCID("OpenMenuItem"), MainWindow::OnOpenModel)
+	EVT_MENU(XRCID("SaveMenuItem"), MainWindow::OnSave)
+	EVT_MENU(XRCID("ExportMenuItem"), MainWindow::OnExportModel)
+	EVT_BUTTON(XRCID("PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)
 END_EVENT_TABLE()
 
 } // end namespace cap
