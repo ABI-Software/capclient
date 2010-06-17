@@ -13,7 +13,7 @@ extern "C" {
 #include "wx/xrc/xmlres.h"
 
 #include "Config.h"
-#include "ViewerFrame.h"
+#include "MainWindow.h"
 #include "CmguiManager.h"
 
 #if defined (DARWIN)
