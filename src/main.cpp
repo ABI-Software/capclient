@@ -65,8 +65,6 @@ int main(int argc,char *argv[])
 			cap::CmguiManager cmguiManager(context);
 			
 			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
-			
-			wxXmlResource::Get()->Load("ViewerFrame.xrc");
 	
 			cap::MainWindow *frame = new cap::MainWindow(context);
 			frame->Show(true);

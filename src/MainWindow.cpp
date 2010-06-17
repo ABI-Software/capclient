@@ -208,7 +208,8 @@ MainWindow::MainWindow(Cmiss_context_id context)
 	modeller_(new CAPModeller(heartModel_))
 {
 	// Load layout from .xrc file
-	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ViewerFrame"));
+	wxXmlResource::Get()->Load("MainWindow.xrc");
+	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("MainWindow"));
 	
 	// HACK to make sure the layout is properly applied (for Mac)
 	this->Show(true);
