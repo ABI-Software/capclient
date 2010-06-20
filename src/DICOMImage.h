@@ -33,8 +33,8 @@ public:
 //	float          fieldOfView;    /**< should match length of xside */
 //	float          sliceThickness; /**< may vary between series */
 //	float          sliceGap;       /**< non-zero for short axis only */
-//	float          pixelSizeX;     /**< in mm, should be square */
-//	float          pixelSizeY;     /**< in mm, should be square */
+//	float          pixelSizeX_;     /**< in mm, should be square */
+//	float          pixelSizeY_;     /**< in mm, should be square */
 	float d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
 };
 
@@ -44,25 +44,33 @@ public:
 	DICOMImage(const std::string& filename);
 	~DICOMImage()
 	{
-		delete plane;
+		delete plane_;
 	}
 
-	Vector3D GetOrientation() const;
-	Point3D GetPostion() const; 
+	std::pair<Vector3D,Vector3D> GetOrientation() const;
+	Point3D const& GetPosition() const
+	{
+		return position3D_;
+	}
+	
 //	void SetContrast();
 //	void SetBrightNess();
 	ImagePlane* GetImagePlaneFromDICOMHeaderInfo();
 //	Cmiss_texture* CreateTextureFromDICOMImage();
 	
+	int GetSeriesNumber() const
+	{
+		return seriesNumber_;
+	}
+	
 private:
 	void ReadDICOMFile();
 	
 	std::string filename_;
-	unsigned int width;
-	unsigned int height;
-	float thickness;
-//	float floats[14];
-	float pixelSizeX, pixelSizeY;
+	unsigned int width_;
+	unsigned int height_;
+	float thickness_;
+	float pixelSizeX_, pixelSizeY_;
 	
 	double timeInCardiacCycle;
 	
@@ -70,8 +78,11 @@ private:
 	std::string sopInstanceUID_;
 	std::string seriesDescription_;
 	double triggerTime_;
+	int seriesNumber_;
+	Point3D position3D_;
+	Vector3D orientation1_, orientation2_;
 	
-	ImagePlane* plane;
+	ImagePlane* plane_;
 //	Cmiss_texture* texture;
 };
 

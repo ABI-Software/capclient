@@ -29,7 +29,7 @@ namespace cap
 using namespace std;
 
 DICOMImage::DICOMImage(const string& filename)
-	: filename_(filename), plane(0)
+	: filename_(filename), plane_(0)
 {
 	ReadDICOMFile();
 }
@@ -40,7 +40,7 @@ void DICOMImage::ReadDICOMFile()
 	// sop instance uid (0008,0018) 
 	// rows (0028,0010)
 	// columns (0028,0011)
-	// slice thickness (0018,0050)
+	// slice thickness_ (0018,0050)
 	// image position (0020,0032) - (0020,0030)(old)
 	// image orientation (0020,0037) - (0020,0035)(old)
 	// pixel spacing (0028,0030)
@@ -72,6 +72,14 @@ void DICOMImage::ReadDICOMFile()
 	cout << "UID: " << sopInstanceUID_;
 	cout << endl;
 	
+	// series number (0020,0011)
+	const gdcm::DataElement& seriesNum = ds.GetDataElement(gdcm::Tag(0x0020,0x0011));
+	gdcm::Attribute<0x0020,0x0011> at_sn;
+	at_sn.SetFromDataElement(seriesNum);
+	seriesNumber_ = at_sn.GetValue();
+	cout << "Series Number: " << seriesNumber_;
+	cout << endl;
+	
 	// series description (0008,103e)
 	const gdcm::DataElement& seriesDesc = ds.GetDataElement(gdcm::Tag(0x0008,0x103E));
 	gdcm::Attribute<0x0008,0x103E> at_sd;
@@ -95,57 +103,38 @@ void DICOMImage::ReadDICOMFile()
 		cout << "Trigger Time not found in the DICOM header \n";
 		triggerTime_ = -1;
 	}
-	
-}
-
-ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
-{
-	//First, load info from DICOM header
-
-	//Exception safeness! -> better not perform file i/o in the ctor?
-	//gdcm::StringFilter sf;
-	gdcm::Reader r;
-	r.SetFileName( filename_.c_str() );
-	if( !r.Read() )
-	{
-		cout << "Can't find the file: " << filename_ << endl;
-		return 0;
-	}
-	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
-	//sf.SetFile( r.GetFile() );
 
 	const gdcm::DataElement& rows = ds.GetDataElement(gdcm::Tag(0x0028,0x0010));
 	gdcm::Attribute<0x0028,0x0010> at_rows;
 	at_rows.SetFromDataElement(rows);
-	height = at_rows.GetValue();
-	cout << "Rows: " << height;
+	height_ = at_rows.GetValue();
+	cout << "Rows: " << height_;
 	cout << endl;
 
 	const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
 	gdcm::Attribute<0x0028,0x0011> at_cols;
 	at_cols.SetFromDataElement(cols);
-	width = at_cols.GetValue();
-	cout << "Columns: " << width;
+	width_ = at_cols.GetValue();
+	cout << "Columns: " << width_;
 	cout << endl;
 
 	const gdcm::DataElement& thick = ds.GetDataElement(gdcm::Tag(0x0018,0x0050));
 	gdcm::Attribute<0x0018,0x0050> at_thick;
 	at_thick.SetFromDataElement(thick);
-	thickness = at_thick.GetValue();
+	thickness_ = at_thick.GetValue();
 
 	const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
 	gdcm::Attribute<0x0020,0x0032> at;
 	at.SetFromDataElement(position);
-	Point3D position3D(at[0],at[1],at[2]);
+	position3D_ = Point3D(at[0],at[1],at[2]);
 
-	Vector3D orientation1, orientation2;
 	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0037)))
 	{
 		const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0037));
 		gdcm::Attribute<0x0020,0x0037> at_ori;
 		at_ori.SetFromDataElement(orientation);
-		orientation1 = Vector3D(at_ori[0],at_ori[1],at_ori[2]);
-		orientation2 = Vector3D(at_ori[3],at_ori[4],at_ori[5]);
+		orientation1_ = Vector3D(at_ori[0],at_ori[1],at_ori[2]);
+		orientation2_ = Vector3D(at_ori[3],at_ori[4],at_ori[5]);
 	}
 	else
 	{
@@ -153,54 +142,57 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
 		const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0035));
 		gdcm::Attribute<0x0020,0x0035> at_ori; //test
 		at_ori.SetFromDataElement(orientation);
-		orientation1 = Vector3D(-at_ori[0],at_ori[1],-at_ori[2]);
-		orientation2 = Vector3D(-at_ori[3],at_ori[4],-at_ori[5]);
+		orientation1_ = Vector3D(-at_ori[0],at_ori[1],-at_ori[2]);
+		orientation2_ = Vector3D(-at_ori[3],at_ori[4],-at_ori[5]);
 	}
 	
 	const gdcm::DataElement& spacing = ds.GetDataElement(gdcm::Tag(0x0028,0x0030));
 	gdcm::Attribute<0x0028,0x0030> at_spc;
 	at_spc.SetFromDataElement(spacing);
-	pixelSizeX = at_spc[0];
-	pixelSizeY = at_spc[1];
-	
-	//Now construct the plane from the info
+	pixelSizeX_ = at_spc[0];
+	pixelSizeY_ = at_spc[1];
+}
 
-	//int imageSize = std::max<u_int>(width,height);
+ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
+{	
+	//Now construct the plane_ from the info
+
+	//int imageSize = std::max<u_int>(width_,height_);
 	//cout << "imageSize: " << imageSize << endl;
 
-	plane = new ImagePlane();
+	plane_ = new ImagePlane();
 
-	// plane's tlc starts from the edge of the first voxel
+	// plane_'s tlc starts from the edge of the first voxel
 	// rather than centre; (0020, 0032) is the centre of the first voxel
-	plane->tlc = position3D - 0.5 * pixelSizeX * orientation1 -  0.5f * pixelSizeY * orientation2;
+	plane_->tlc = position3D_ - 0.5 * pixelSizeX_ * orientation1_ -  0.5f * pixelSizeY_ * orientation2_;
 
-	float fieldOfViewX = width * pixelSizeX;//JDCHUNG consider name change
+	float fieldOfViewX = width_ * pixelSizeX_;//JDCHUNG consider name change
 	cout << "width in mm = " << fieldOfViewX ;
 	
-	plane->trc = plane->tlc + fieldOfViewX * orientation1;
+	plane_->trc = plane_->tlc + fieldOfViewX * orientation1_;
 
-	float fieldOfViewY = height * pixelSizeY;//JDCHUNG
+	float fieldOfViewY = height_ * pixelSizeY_;//JDCHUNG
 	cout << ", height in mm = " << fieldOfViewY << endl ;
 	
-	plane->blc = plane->tlc + fieldOfViewY * orientation2;
+	plane_->blc = plane_->tlc + fieldOfViewY * orientation2_;
 
-	plane->xside = plane->trc - plane->tlc;
-	plane->yside = plane->tlc - plane->blc;
-	plane->normal.CrossProduct(plane->xside, plane->yside);
-	plane->normal.Normalise();
+	plane_->xside = plane_->trc - plane_->tlc;
+	plane_->yside = plane_->tlc - plane_->blc;
+	plane_->normal.CrossProduct(plane_->xside, plane_->yside);
+	plane_->normal.Normalise();
 
-	plane->brc = plane->blc + plane->xside;
+	plane_->brc = plane_->blc + plane_->xside;
 
 #ifdef DEBUG
-	std::cout << plane->trc << endl;
-	std::cout << plane->tlc << endl;
-	std::cout << plane->brc << endl;
-	std::cout << plane->blc << endl;
+	std::cout << plane_->trc << endl;
+	std::cout << plane_->tlc << endl;
+	std::cout << plane_->brc << endl;
+	std::cout << plane_->blc << endl;
 #endif
 	
-	plane->d = DotProduct((plane->tlc - Point3D(0,0,0)) ,plane->normal);
+	plane_->d = DotProduct((plane_->tlc - Point3D(0,0,0)) ,plane_->normal);
 	
-	return plane;
+	return plane_;
 }
 
 } // end namespace cap
