@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cap:Analysis chamber="LV" focallength="0.0" interval="0.0" name="SampleAnalysisUsingXsd" studyiuid="2.16.124.113543.6006.99.03832048922002137666" xmlns:cap="http://www.cardiacatlas.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
+	<cap:Input>
+	    <cap:Image frame="0" slice="0" sopiuid="2.16.124.113543.6006.99.0413605100261449890" label = "LA1">
+	      	<cap:Point surface="epi" type="base">
+	        	<cap:Value value="0.0" variable="x"/>
+	        	<cap:Value value="0.0" variable="y"/>
+	        	<cap:Value value="0.0" variable="z"/>
+	      	</cap:Point>
+	      	<cap:ContourFile>ContourFile.txt</cap:ContourFile>
+	    </cap:Image>
+	    <cap:Image sopiuid="2.16.124.113543.6006.99.0410981046464571574" slice="1" frame="0">
+	    	<cap:Point surface="endo" type="apex">
+	    		<cap:Value variable="x" value="0.0"/>
+	    		<cap:Value variable="y" value="0.0"/>
+	    		<cap:Value variable="z" value="0.0"/>
+	    	</cap:Point>
+	    </cap:Image>
+  	</cap:Input>
+  	<cap:Output>
+  		<cap:Frame exnode="FileName0.exnode" number="0"/>
+    	<cap:Frame exnode="FileName1.exnode" number="1"/>
+  	</cap:Output>
+  	<cap:Documentation>
+    	<cap:Version date="2001-12-31T12:00:00" log="init" number="1"/>
+    	<cap:History date="2001-12-31T12:00:00" entry="generation of testmodel using xml schema"/>
+  	</cap:Documentation>
+</cap:Analysis>
