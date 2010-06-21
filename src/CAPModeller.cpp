@@ -6,13 +6,7 @@
  */
 
 #include "CAPModeller.h"
-
-//#include "SolverLibraryFactory.h"
-//#include "GMMFactory.h"
-//#include "CAPMath.h"
 #include "CAPModelLVPS4X4.h"
-
-//#include "CimBiCubicHermiteLinearBasis.h"
 
 #include <iostream>
 #include <assert.h>

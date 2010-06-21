@@ -8,14 +8,9 @@
 #ifndef CAPMODELLER_H_
 #define CAPMODELLER_H_
 
+#include "CAPModellingMode.h"
 //#include <boost/ptr_container/ptr_vector.hpp>
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
-//#include <map>
-//#include <vector>
-
-#include "DataPoint.h" // needed for DataPoints. consider Pimpl?
-//#include "CAPTimeSmoother.h"
-#include "CAPModellingMode.h"
 
 class Cmiss_node; //REVISE
 
