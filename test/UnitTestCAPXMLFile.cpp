@@ -14,7 +14,7 @@ TEST(CAPXMLFile, ReadXML)
 {
 	using namespace cap;
 	
-	CAPXMLFile xmlFile("SampleAnalysisUsingXsd.xml");
+	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
 
 	xmlFile.ReadFile();
 	EXPECT_EQ(xmlFile.chamber_, "LV");
@@ -30,7 +30,7 @@ TEST(CAPXMLFile, WriteXML)
 {
 	using namespace cap;
 		
-	CAPXMLFile xmlFile("SampleAnalysisUsingXsd.xml");
+	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
 
 	xmlFile.ReadFile();
 	xmlFile.WriteFile("dummy");
