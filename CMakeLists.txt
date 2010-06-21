@@ -56,6 +56,7 @@ SET(SRCS
   src/CAPModellingMode.cpp
   src/DataPoint.cpp
   src/CAPXMLFile.cpp
+  src/ImageBrowseWindow.cpp
   #src/DataSet.cpp
 )
 
@@ -171,7 +172,7 @@ SET(UNIT_TEST_SRC
 )
 
 ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
-ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/UnitTest)
+#ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/test/UnitTest)
 
 SET(GTEST_LIB ${CMISS_ROOT}/gtest-1.3.0/make/gtest_main.a)
 TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
