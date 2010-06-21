@@ -50,6 +50,11 @@ public:
 		}
 	}
 
+	std::string const& GetFilename()
+	{
+		return filename_;
+	}
+	
 	std::pair<Vector3D,Vector3D> GetOrientation() const;
 	Point3D const& GetPosition() const
 	{
