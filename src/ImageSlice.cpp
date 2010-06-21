@@ -15,7 +15,6 @@ extern "C"
 #include "graphics/scene.h"
 #include "graphics/glyph.h"
 #include "graphics/colour.h"
-#include "graphics/material.h"
 #include "finite_element/finite_element_region.h"
 }
 
