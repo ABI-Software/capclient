@@ -89,16 +89,14 @@ DESCRIPTION :
 }
 
 #include "computed_field/computed_field_finite_element.h"
-#include "DataPoint.h"
 
 using namespace cap;
 
-static Cmiss_node_id Cmiss_node_set_visibility_field_private(DataPoint& dataPoint, 
+static Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node, 
 		struct FE_region* fe_region, 
 		Cmiss_field* visibilityField,
 		struct FE_field *fe_field, float startTime, float endTime, bool visibility)
 {
-	Cmiss_node_id node = dataPoint.GetCmissNode();
 	struct FE_node_field_creator *node_field_creator;
 	
 	if (node_field_creator = CREATE(FE_node_field_creator)(
@@ -200,10 +198,8 @@ static Cmiss_node_id Cmiss_node_set_visibility_field_private(DataPoint& dataPoin
 	return 0;
 }
 
-Cmiss_node_id Cmiss_node_set_visibility_field(DataPoint& dataPoint, float startTime, float endTime, bool visibility)
+Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, float startTime, float endTime, bool visibility)
 {
-	Cmiss_node* node = dataPoint.GetCmissNode();
-	
 	FE_region* fe_region = FE_node_get_FE_region(node);
 	
 	Cmiss_region* cmiss_region;
@@ -235,7 +231,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field(DataPoint& dataPoint, float startT
 			fe_field_list)) && (1 == get_FE_field_number_of_components(
 			fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
 		{
-			return Cmiss_node_set_visibility_field_private( dataPoint, fe_region, visibilityField, fe_field, startTime, endTime, visibility);
+			return Cmiss_node_set_visibility_field_private( node, fe_region, visibilityField, fe_field, startTime, endTime, visibility);
 		}
 	}
 }
