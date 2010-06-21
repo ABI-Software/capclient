@@ -39,4 +39,12 @@ int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, flo
 Cmiss_node_id Cmiss_node_set_visibility_field(cap::DataPoint& dataPoint, float startTime, float endTime, bool visibility);
 
 Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region);
+
+int Material_set_material_program_strings(struct Graphical_material *material_to_be_modified,
+	char *vertex_program_string, char *fragment_program_string);//not defined in material.h
+
+int Cmiss_region_modify_g_element(struct Cmiss_region *region,
+	struct Scene *scene, struct GT_element_settings *settings,
+	int delete_flag, int position);  // not exposed by cmgui
+
 #endif /* CMGUIEXTENSIONS_H_ */

@@ -20,6 +20,7 @@ extern "C"
 
 #include "Config.h"
 #include "CmguiManager.h"
+#include "CmguiExtensions.h"
 #include "DICOMImage.h"
 #include "ImageSlice.h"
 #include "FileSystem.h"
@@ -30,13 +31,6 @@ extern "C"
 #include <iomanip>
 
 //#include <stdio.h>
-
-int Material_set_material_program_strings(struct Graphical_material *material_to_be_modified,
-	char *vertex_program_string, char *fragment_program_string);//not defined in material.h
-
-int Cmiss_region_modify_g_element(struct Cmiss_region *region,
-	struct Scene *scene, struct GT_element_settings *settings,
-	int delete_flag, int position);  // should add this to a header file somewhere
 
 using namespace std;
 
@@ -229,8 +223,6 @@ void ImageSlice::SetContrast(float contrast)
 	}
 	Texture_notify_change(brightnessAndContrastTexture_);
 }
-
-#include "CmguiExtensions.h"
 
 void ImageSlice::LoadImagePlaneModel()
 {
