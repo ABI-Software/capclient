@@ -88,6 +88,14 @@ void DICOMImage::ReadDICOMFile()
 	cout << "Series Description: " << seriesDescription_;
 	cout << endl;
 	
+	// sequence name (0018,0024)
+	const gdcm::DataElement& seqName = ds.GetDataElement(gdcm::Tag(0x0018,0x0024));
+	gdcm::Attribute<0x0018,0x0024> at_seqName;
+	at_seqName.SetFromDataElement(seqName);
+	sequenceName_ = at_seqName.GetValue();
+	cout << "sequenceName_: " << sequenceName_;
+	cout << endl;
+	
 	// trigger time trigger time (0018,1060)
 	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0037)))
 	{

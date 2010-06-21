@@ -53,6 +53,21 @@ public:
 		return position3D_;
 	}
 	
+	std::string const& GetSeriesDescription() const
+	{
+		return seriesDescription_;
+	}
+	
+	std::string const& GetSequenceName() const
+	{
+		return sequenceName_;
+	}
+	
+	double GetTriggerTime() const
+	{
+		return triggerTime_;
+	}
+	
 //	void SetContrast();
 //	void SetBrightNess();
 	ImagePlane* GetImagePlaneFromDICOMHeaderInfo();
@@ -61,6 +76,18 @@ public:
 	int GetSeriesNumber() const
 	{
 		return seriesNumber_;
+	}
+	
+	bool operator<(DICOMImage const& other) const
+	{
+		if (triggerTime_ >= 0.0 && other.triggerTime_ >= 0.0)
+		{
+			return triggerTime_ < other.triggerTime_;
+		}
+		else
+		{
+			return filename_ < other.filename_;
+		}
 	}
 	
 private:
@@ -77,6 +104,7 @@ private:
 	std::string studyInstanceUID_;
 	std::string sopInstanceUID_;
 	std::string seriesDescription_;
+	std::string sequenceName_;
 	double triggerTime_;
 	int seriesNumber_;
 	Point3D position3D_;
