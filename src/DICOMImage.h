@@ -44,7 +44,10 @@ public:
 	DICOMImage(const std::string& filename);
 	~DICOMImage()
 	{
-		delete plane_;
+		if (plane_)
+		{
+			delete plane_;
+		}
 	}
 
 	std::pair<Vector3D,Vector3D> GetOrientation() const;
@@ -70,7 +73,7 @@ public:
 	
 //	void SetContrast();
 //	void SetBrightNess();
-	ImagePlane* GetImagePlaneFromDICOMHeaderInfo();
+	ImagePlane* GetImagePlaneFromDICOMHeaderInfo() const;
 //	Cmiss_texture* CreateTextureFromDICOMImage();
 	
 	int GetSeriesNumber() const
@@ -110,7 +113,7 @@ private:
 	Point3D position3D_;
 	Vector3D orientation1_, orientation2_;
 	
-	ImagePlane* plane_;
+	mutable ImagePlane* plane_;
 //	Cmiss_texture* texture;
 };
 
