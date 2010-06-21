@@ -72,6 +72,10 @@ ImageSlice::ImageSlice(const string& name)
 ImageSlice::~ImageSlice()
 {
 	//TODO clean up material and textures
+	for (int i = 0; i < images_.size() ; ++i)
+	{
+		delete images_[i];
+	}
 }
 
 void ImageSlice::SetVisible(bool visibility)
