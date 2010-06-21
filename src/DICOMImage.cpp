@@ -161,13 +161,18 @@ void DICOMImage::ReadDICOMFile()
 	pixelSizeY_ = at_spc[1];
 }
 
-ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo()
+ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
 {	
 	//Now construct the plane_ from the info
 
 	//int imageSize = std::max<u_int>(width_,height_);
 	//cout << "imageSize: " << imageSize << endl;
 
+	if (plane_)
+	{
+		return plane_;
+	}
+	
 	plane_ = new ImagePlane();
 
 	// plane_'s tlc starts from the edge of the first voxel
