@@ -8,7 +8,7 @@
 #ifndef CMGUIEXTENSIONS_H_
 #define CMGUIEXTENSIONS_H_
 
-class wxPanel;
+//class wxPanel;
 //#define FE_VALUE_IS_DOUBLE
 
 extern "C" {
@@ -27,7 +27,6 @@ Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* co
 namespace cap
 {
 	class Point3D;
-	class DataPoint;
 }
 
 Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y, float time, cap::Point3D& coords);
@@ -36,7 +35,7 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float tim
 
 int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, cap::Point3D& coords);
 
-Cmiss_node_id Cmiss_node_set_visibility_field(cap::DataPoint& dataPoint, float startTime, float endTime, bool visibility);
+Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, float startTime, float endTime, bool visibility);
 
 Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region);
 

@@ -87,7 +87,7 @@ void DataPoint::SetValidPeriod(float startTime, float endTime)
 
 void DataPoint::SetVisible(bool visibility)
 {
-	Cmiss_node_set_visibility_field(*this, startTime_, endTime_, visibility);
+	Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
 }
 
 //HACK
