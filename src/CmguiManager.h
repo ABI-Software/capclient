@@ -28,11 +28,11 @@ class CmguiManager
 public:
 	CmguiManager(Cmiss_context_id data);
 	
-	static CmguiManager& getInstance()
-	{
-		assert(instance_);
-		return *instance_;
-	}
+//	static CmguiManager& getInstance()
+//	{
+//		assert(instance_);
+//		return *instance_;
+//	}
 	
 	Cmiss_context_id getCmissContext() const
 	{

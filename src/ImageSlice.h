@@ -15,6 +15,8 @@ struct Graphical_material;
 struct Scene_object;
 struct Cmiss_texture;
 class Cmiss_field;
+struct Context;
+typedef Context* Cmiss_context_id;
 
 namespace cap
 {
@@ -27,7 +29,7 @@ class ImagePlane;
 class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. node and element)
 {
 public:
-	ImageSlice(const std::string& name);
+	ImageSlice(const std::string& name, Cmiss_context_id context);
 	
 	~ImageSlice();
 	
@@ -71,6 +73,7 @@ private:
 	bool isVisible_;
 	float time_;
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
+	Cmiss_context_id cmissContext_;
 	
 	std::vector<DICOMImage*> images_;
 	

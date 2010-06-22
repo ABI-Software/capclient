@@ -60,14 +60,15 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		cout << "Mouse clicked, time = " << time << endl;
 		cout << "Mouse button number = " << input->button_number << endl;
 		
+		Cmiss_scene_viewer_id scene_viewer = frame->GetCmissSceneViewer();
 		Point3D coords;
-		selectedNode = Cmiss_select_node_from_screen_coords(x, y, time, coords);
+		selectedNode = Cmiss_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
 					
 		if (input->button_number == wxMOUSE_BTN_LEFT )
 		{	
 			if (!selectedNode) //REVISE
 			{
-				if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(x, y, time, coords)) 
+				if (selectedNode = Cmiss_create_or_select_node_from_screen_coords(scene_viewer, x, y, time, coords)) 
 				{
 					frame->AddDataPoint(selectedNode, coords);
 				}
@@ -93,7 +94,8 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 		}
 		Point3D coords;
 		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
-		Cmiss_move_node_to_screen_coords(selectedNode, x, y, time, coords);
+		Cmiss_scene_viewer_id scene_viewer = frame->GetCmissSceneViewer();
+		Cmiss_move_node_to_screen_coords(scene_viewer, selectedNode, x, y, time, coords);
 		
 		cout << "Move coord = " << coords << endl;
 		frame->MoveDataPoint(selectedNode, coords);
@@ -132,7 +134,10 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 	{
 		// Select node or create one
 		cout << "Mouse button number = " << input->button_number << endl;
-		selectedRegion = Cmiss_get_slice_region(x, y, (double*)coords, (Cmiss_region_id)0);
+		
+		MainWindow* frame = static_cast<MainWindow*>(viewer_frame_void);
+		Cmiss_scene_viewer_id scene_viewer = frame->GetCmissSceneViewer();
+		selectedRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)coords, (Cmiss_region_id)0);
 		if (selectedRegion)
 		{
 			string sliceName = Cmiss_region_get_path(selectedRegion);
@@ -146,7 +151,9 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 		//Cmiss_region_id selectedRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
 		if (selectedRegion)
 		{
-			Cmiss_region_id tempRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
+			MainWindow* frame = static_cast<MainWindow*>(viewer_frame_void);
+			Cmiss_scene_viewer_id scene_viewer = frame->GetCmissSceneViewer();
+			Cmiss_region_id tempRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)new_coords, selectedRegion);
 			if (!tempRegion)
 			{
 				cout << __func__ << "ERROR\n";
@@ -204,7 +211,7 @@ MainWindow::MainWindow(Cmiss_context_id context)
 	animationIsOn_(false),
 	hideAll_(true),
 	timeKeeper_(Cmiss_context_get_default_time_keeper(context_)),
-	heartModel_("heart"),
+	heartModel_("heart", context),
 	modeller_(new CAPModeller(heartModel_))
 {
 	// Load layout from .xrc file
@@ -252,7 +259,15 @@ MainWindow::MainWindow(Cmiss_context_id context)
 	
 //	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(m_pPanel);
 
-	sceneViewer_ = CmguiManager::getInstance().createSceneViewer(m_pPanel);
+//	sceneViewer_ = CmguiManager::getInstance().createSceneViewer(m_pPanel);
+	sceneViewer_ = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(context_),
+			m_pPanel,
+			CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
+			CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
+			/*minimum_colour_buffer_depth*/8,
+			/*minimum_depth_buffer_depth*/8,
+			/*minimum_accumulation_buffer_depth*/8);
+	
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
@@ -399,7 +414,7 @@ void MainWindow::LoadImages()
 	
 	sliceNames = EnumerateAllSubDirs(dir_path);
 	std::sort(sliceNames.begin(), sliceNames.end(), SliceNameLessThan());
-	imageSet_ = new ImageSet(sliceNames); //REFACTOR
+	imageSet_ = new ImageSet(sliceNames, context_); //REFACTOR
 	
 	this->PopulateObjectList(); // fill in slice check box list
 }
@@ -447,10 +462,10 @@ void MainWindow::SmoothAlongTime()
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
 
-wxPanel* MainWindow::getPanel()
-{
-	return m_pPanel;
-}
+//wxPanel* MainWindow::getPanel() const
+//{
+//	return m_pPanel;
+//}
 
 void MainWindow::OnTogglePlay(wxCommandEvent& event)
 {

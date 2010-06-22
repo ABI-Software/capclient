@@ -46,12 +46,14 @@ struct CAPModelLVPS4X4::HeartModelImpl
 	Cmiss_field_id field;
 };
 
-CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName)
+CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName, Cmiss_context_id context)
 :
 	modelName_(modelName),
 	focalLength_(42.0), // FIX magic number
 	pImpl_(new CAPModelLVPS4X4::HeartModelImpl)
-{}
+{
+	pImpl_->cmissContext = context;
+}
 
 CAPModelLVPS4X4::~CAPModelLVPS4X4()
 {
@@ -75,7 +77,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 
 	ReadModelInfo(dir_path); // this will set numberOfModelFrames, focal length and transformation Matrix 
 
-	pImpl_->cmissContext = CmguiManager::getInstance().getCmissContext();
+	assert(pImpl_->cmissContext);
 
 	Cmiss_region* region = Cmiss_context_get_default_region(pImpl_->cmissContext);
 	struct Time_keeper* time_keeper = Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);

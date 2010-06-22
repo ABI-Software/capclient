@@ -30,7 +30,12 @@ public:
 	MainWindow(Cmiss_context_id command_data_);
 	~MainWindow();
 
-	wxPanel* getPanel();
+//	wxPanel* getPanel() const;
+	
+	Cmiss_scene_viewer_id GetCmissSceneViewer() const
+	{
+		return sceneViewer_;
+	}
 	
 	void PopulateObjectList();
 	

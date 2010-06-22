@@ -13,6 +13,8 @@
 #include <boost/scoped_ptr.hpp>
 
 struct Scene_object;
+struct Context;
+typedef Context* Cmiss_context_id;
 
 namespace cap
 {
@@ -41,7 +43,7 @@ public:
 		EPICARDIUM
 	};
 	
-	CAPModelLVPS4X4(const std::string& name);
+	CAPModelLVPS4X4(const std::string& name, Cmiss_context_id context);
 	~CAPModelLVPS4X4();
 	
 	typedef std::vector<float> parameters;

@@ -5,15 +5,16 @@ extern "C" {
 #include "time/time.h"
 }
 
-#include "wx/wxprec.h"
-
-#ifndef WX_PRECOMP
-   #include "wx/wx.h"
-#endif
-#include "wx/xrc/xmlres.h"
+//#include "wx/wxprec.h"
+//
+//#ifndef WX_PRECOMP
+//   #include "wx/wx.h"
+//#endif
+//#include "wx/xrc/xmlres.h"
 
 #include "Config.h"
 #include "MainWindow.h"
+#include "ImageBrowseWindow.h"//DEL
 #include "CmguiManager.h"
 
 #if defined (DARWIN)
@@ -67,6 +68,7 @@ int main(int argc,char *argv[])
 			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
 	
 			cap::MainWindow *frame = new cap::MainWindow(context);
+//			cap::ImageBrowseWindow *frame = new cap::ImageBrowseWindow("./XMLZipTest.zip", context);
 			frame->Show(true);
 	
 			Cmiss_context_run_main_loop(context);//app.OnRun()

@@ -365,7 +365,7 @@ DESCRIPTION : need to find the point of intersection between picking ray and obj
 	return (return_code);
 } /* Node_tool_element_constraint_function */
 
-Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* node_coordinates, Cmiss_field_id* field)
+Cmiss_element_id Cmiss_get_ray_intersection_point(Cmiss_scene_viewer_id scene_viewer, double x, double y, double* node_coordinates, Cmiss_field_id* field)
 {
 	int return_code = 0;
 
@@ -385,8 +385,8 @@ Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* no
 	
 	GLdouble modelview_matrix[16], window_projection_matrix[16];
 
-	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
-	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	Scene_viewer_get_modelview_matrix(scene_viewer, modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(scene_viewer, window_projection_matrix);
 	
 	
 	double size_x = 7.0;//FIX
@@ -403,10 +403,8 @@ Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* no
 	struct GT_element_group *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
-			CmguiManager::getInstance().getCmissContext()); //FIX singleton
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(scene_viewer);
 	
 	if (scene_picked_object_list=
 		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
@@ -465,7 +463,7 @@ Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* no
 
 #include "CAPMath.h"
 
-Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y, float time, Point3D& coords)
+Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, float time, Point3D& coords)
 {
 	int return_code = 0;
 
@@ -485,8 +483,8 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y,
 	
 	GLdouble modelview_matrix[16], window_projection_matrix[16];
 
-	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
-	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	Scene_viewer_get_modelview_matrix(scene_viewer, modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(scene_viewer, window_projection_matrix);
 	
 	
 	double size_x = 7.0;//FIX
@@ -504,10 +502,8 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y,
 	struct GT_element_group *gt_element_group, *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
-			CmguiManager::getInstance().getCmissContext()); //FIX singleton
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(scene_viewer);
 	
 	if (scene_picked_object_list=
 		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
@@ -587,7 +583,7 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y,
 	return 0;
 }
 
-Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float time, Point3D& coords)
+Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, float time, Point3D& coords)
 {
 	int return_code = 0;
 
@@ -607,8 +603,8 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float tim
 	
 	GLdouble modelview_matrix[16], window_projection_matrix[16];
 
-	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
-	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	Scene_viewer_get_modelview_matrix(scene_viewer, modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(scene_viewer, window_projection_matrix);
 	
 	
 	double size_x = 7.0;//FIX
@@ -626,10 +622,8 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float tim
 	struct GT_element_group *gt_element_group, *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
-			CmguiManager::getInstance().getCmissContext()); //FIX singleton
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(scene_viewer);
 	
 	if (scene_picked_object_list=
 		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
@@ -665,11 +659,11 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float tim
 	return picked_node; // Cmiss_node = FE_node;
 }
 
-int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, Point3D& coords)
+int Cmiss_move_node_to_screen_coords(Cmiss_scene_viewer_id scene_viewer, Cmiss_node_id node, double x, double y, float time, Point3D& coords)
 {
 	double node_coordinates[3];
 	Cmiss_field_id field;
-	FE_element* element = Cmiss_get_ray_intersection_point(x, y, node_coordinates, &field);
+	FE_element* element = Cmiss_get_ray_intersection_point(scene_viewer, x, y, node_coordinates, &field);
 	
 	coords.x = node_coordinates[0], coords.y = node_coordinates[1], coords.z = node_coordinates[2];
 	double coordArray[3];
@@ -682,7 +676,7 @@ int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, flo
 	return 0;
 }
 
-Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region)
+Cmiss_region_id Cmiss_get_slice_region(Cmiss_scene_viewer_id scene_viewer, double x, double y, double* node_coordinates, Cmiss_region_id region)
 {
 	int return_code = 0;
 
@@ -702,8 +696,8 @@ Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordina
 	
 	GLdouble modelview_matrix[16], window_projection_matrix[16];
 
-	Scene_viewer_get_modelview_matrix(CmguiManager::getInstance().getSceneViewer(), modelview_matrix);
-	Scene_viewer_get_window_projection_matrix(CmguiManager::getInstance().getSceneViewer(), window_projection_matrix);
+	Scene_viewer_get_modelview_matrix(scene_viewer, modelview_matrix);
+	Scene_viewer_get_window_projection_matrix(scene_viewer, window_projection_matrix);
 	
 	
 	double size_x = 7.0;//FIX
@@ -720,10 +714,8 @@ Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordina
 	struct GT_element_group *gt_element_group_element;
 	struct GT_element_settings *gt_element_settings_element;
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(
-			CmguiManager::getInstance().getCmissContext());
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(CmguiManager::getInstance().getSceneViewer());
+	struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
+	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(scene_viewer);
 	
 	if (scene_picked_object_list=
 		Scene_pick_objects(scene,interaction_volume,graphics_buffer))
