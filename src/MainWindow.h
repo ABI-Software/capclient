@@ -21,13 +21,13 @@ namespace cap
 {
 
 class ImageSet;
+class CmguiManager;
 
-//} // end namespace cap
 
 class MainWindow : public wxFrame
 {
 public:
-	explicit MainWindow(Cmiss_context_id command_data_);
+	explicit MainWindow(CmguiManager const& cmguiManager);
 	~MainWindow();
 
 //	wxPanel* getPanel() const;
@@ -108,6 +108,7 @@ private:
 	wxCheckListBox* objectList_;
 	wxPanel* m_pPanel;
 	
+	CmguiManager const& cmguiManager_;
 	Cmiss_context_id context_;
 	Cmiss_time_keeper* timeKeeper_;
 	cap::ImageSet* imageSet_;
@@ -123,6 +124,6 @@ private:
 	Cmiss_scene_viewer_id sceneViewer_;
 };
 
-}
+} // end namespace cap
 
 #endif

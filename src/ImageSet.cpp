@@ -15,7 +15,7 @@ namespace cap
 
 using namespace std;
 
-ImageSet::ImageSet(const vector<string>& sliceNames, Cmiss_context_id context)
+ImageSet::ImageSet(const vector<string>& sliceNames, CmguiManager const& cmguiManager)
 :
 imageSliceNames_(sliceNames)
 {
@@ -24,7 +24,7 @@ imageSliceNames_(sliceNames)
 	{
 		const string& name = *itr;
 		
-		ImageSlice* imageSlice = new ImageSlice(name, context);
+		ImageSlice* imageSlice = new ImageSlice(name, cmguiManager);
 		imageSlicesMap_[name] = imageSlice; // use exception safe container or smartpointers
 	}
 }
