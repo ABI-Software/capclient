@@ -7,7 +7,7 @@
 #include "ImageBrowseWindow.h"
 
 #include "Config.h"
-#include "CmguiManager.h"
+//#include "CmguiManager.h"
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
 
@@ -72,15 +72,14 @@ std::vector<std::string> EnumerateAllFiles(const std::string& dirname)
 namespace cap
 {
 
-ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename)
+ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, Cmiss_context_id context)
 :
 	archiveFilename_(archiveFilename),
+	cmissContext_(context),
 	material_(0)
 {
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
-	
-	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	
 	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
 
@@ -99,8 +98,15 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename)
 	
 	PopulateImageTable();
 	
-
-	sceneViewer_ = CmguiManager::getInstance().createSceneViewer(panel);
+	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
+	sceneViewer_ = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(cmissContext_),
+			panel,
+			CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
+			CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
+			/*minimum_colour_buffer_depth*/8,
+			/*minimum_depth_buffer_depth*/8,
+			/*minimum_accumulation_buffer_depth*/8);
+	
 //		Cmiss_scene_viewer_view_all(sceneViewer_);
 //		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
@@ -110,6 +116,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename)
 
 ImageBrowseWindow::~ImageBrowseWindow()
 {
+	//TODO : destroy textures
 }
 
 void ImageBrowseWindow::PopulateImageTable()
@@ -179,7 +186,6 @@ void ImageBrowseWindow::LoadImages()
 		vector<DICOMPtr>::const_iterator end = images.end();
 		vector<Cmiss_texture_id> textures;
 		
-		Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
 		for (; itr != end; ++itr)
 		{
 			const string& filename = (*itr)->GetFilename();
@@ -187,7 +193,7 @@ void ImageBrowseWindow::LoadImages()
 //			texture_path.append("/");
 //			texture_path.append(filename);
 			
-			Cmiss_region_id region = Cmiss_context_get_default_region(context);
+			Cmiss_region_id region = Cmiss_context_get_default_region(cmissContext_);
 			Cmiss_field_module_id field_module =  Cmiss_region_get_field_module(region);
 	
 			Cmiss_field_id field = Cmiss_field_module_create_image(field_module, NULL, NULL);
@@ -222,11 +228,9 @@ void ImageBrowseWindow::LoadImagePlaneModel()
 {
 	using namespace std;
 	
-	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
-	
 	string name("LA1"); // change
 	char filename[256];
-	Cmiss_region* region = Cmiss_context_get_default_region(context);
+	Cmiss_region* region = Cmiss_context_get_default_region(cmissContext_);
 	
 	// Read in ex files that define the element used to represent the image slice
 	// TODO these should be done programatically
@@ -263,14 +267,14 @@ void ImageBrowseWindow::LoadImagePlaneModel()
 		cout << "Error: cant set material program strings" << endl;
 	}
 	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 	if (!scene)
 	{
 		cout << "Can't find scene" << endl;
 	}
 
-	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
+	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	//Got to find the child region first!!
 	cout << "Subregion name = " << name << "\n";
 	if(!(region = Cmiss_region_find_subregion_at_path(root_region, name.c_str())))
@@ -330,8 +334,7 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 		cout << "Error: cant find material" << endl;
 	}
 	
-	Cmiss_context_id context = CmguiManager::getInstance().getCmissContext();
-	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
+	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	//Got to find the child region first!!
 	Cmiss_region* region;
 	
@@ -358,7 +361,7 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 
 		GT_element_settings_set_texture_coordinate_field(settings,c_field);
 
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
+		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
 		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
 		
 
