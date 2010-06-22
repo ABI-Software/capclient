@@ -19,14 +19,12 @@
 #include <vector>
 #include <string>
 
-struct Context;
-typedef Context* Cmiss_context_id;
-
 namespace cap
 {
 
 class ImagePlane;
 class ImageSlice;
+class CmguiManager;
 
 class ImageSet // The whole lot : ImageManager??
 {
@@ -35,7 +33,7 @@ public:
 	/** Constructs an image set from a vector of slice names 
 	 * @param vector of slice names
 	 */
-	ImageSet(const std::vector<std::string>& sliceNames_, Cmiss_context_id context);
+	ImageSet(const std::vector<std::string>& sliceNames_, CmguiManager const& cmguiManager);
 	
 	/** Sets time for the whole image set
 	 * @param time in a cardiac cycle in second

@@ -37,12 +37,12 @@ using namespace std;
 namespace cap
 {
 
-ImageSlice::ImageSlice(const string& name, Cmiss_context_id context)
+ImageSlice::ImageSlice(const string& name, CmguiManager const& cmguiManager)
 	: 
 	sliceName_(name),
 	oldIndex_(-1),
 	isVisible_(true),
-	cmissContext_(context)
+	cmguiManager_(cmguiManager)
 {
 	// Initialize the texture used to pass brightness and contrast to fragment shader
 	string brightnessAndContrastTextureName(name + "_BrightnessAndContrast"); 
@@ -135,6 +135,7 @@ void ImageSlice::SetTime(double time)
 		cout << "Error: cant find material" << endl;
 	}
 	
+	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	//Got to find the child region first!!
 	Cmiss_region* region;
@@ -225,93 +226,12 @@ void ImageSlice::SetContrast(float contrast)
 
 void ImageSlice::LoadImagePlaneModel()
 {	
-	char filename[256];
 	string& name = sliceName_;
 	
-	Cmiss_region* region = Cmiss_context_get_default_region(cmissContext_);
-	
-	// Read in ex files that define the element used to represent the image slice
-	// TODO these should be done programatically
-	sprintf(filename, "%stemplates/%s.exnode", CAP_DATA_DIR, name.c_str());
-	if (!Cmiss_region_read_file(region,filename))
-	{
-		std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
-	}
-	
-	sprintf(filename, "%stemplates/%s.exelem", CAP_DATA_DIR, name.c_str());
-	if (!Cmiss_region_read_file(region,filename))
-	{
-		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
-	}
-		
-	material_ = create_Graphical_material(name.c_str());
-
-	// Initialize shaders that are used for adjusting brightness and contrast
-	
-	stringstream vp_stream, fp_stream;
-	ifstream is;
-	is.open("Data/shaders/vp.txt");
-	vp_stream << is.rdbuf();
-	is.close();
-	
-	is.open("Data/shaders/fp.txt");
-	fp_stream << is.rdbuf();
-	is.close();
-	
-//	cout << "SHADERS:" << endl << vp_stream.str().c_str() << endl << fp_stream.str().c_str() << endl;
-	if (!Material_set_material_program_strings(material_, 
-			(char*) vp_stream.str().c_str(), (char*) fp_stream.str().c_str())
-			)
-	{
-		cout << "Error: cant set material program strings" << endl;
-	}
-	
-//	Material_package* material_package = Cmiss_command_data_get_material_package(command_data);
-//	Material_package_manage_material(material_package, material_);
-	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	if (!scene)
-	{
-		cout << "Can't find scene" << endl;
-	}
-
-	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
-	//Got to find the child region first!!
-	cout << "Subregion name = " << name << "\n";
-	if(!(region = Cmiss_region_find_subregion_at_path(root_region, name.c_str())))
-	{
-		//error
-		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
-	}
-
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	// use the same material for selected material
-	GT_element_settings_set_selected_material(settings, material_);
-
-	if(!GT_element_settings_set_material(settings, material_))
-	{
-		//Error;
-		std::cout << __func__ << " :Error setting material\n";
-	}
-	else
-	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-
-		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-
-		if (!Cmiss_region_modify_g_element(region, scene,settings,
-			/*delete_flag*/0, /*position*/-1))
-		{
-			 //error
-			std::cout << __func__ << " :Error modifying g element\n";
-		}
-	}
-
-	
-	// cache the sceneObject for convenience
-	sceneObject_ = Scene_get_scene_object_with_Cmiss_region(scene, region);
+	cmguiManager_.ReadRectangularModelFiles(name);			
+	material_ = cmguiManager_.CreateCAPMaterial(name);
+	// Assign material & cache the sceneObject for convenience
+	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_, name);
 	return;
 }
 
@@ -335,58 +255,7 @@ void ImageSlice::LoadTextures()
 		fullpath.append("/");
 		fullpath.append(filename);
 		
-		//temp
-		
-		string texture_path = fullpath;
-		
-//		string filename_jpg = filename.substr(0, filename.length() - 3);
-//		
-//		string jpg_path = "./Data/images/jpg/";
-//		jpg_path.append(filename_jpg);
-//		jpg_path.append("jpg");
-//		
-//		ifstream jpg_stream;
-//		jpg_stream.open(jpg_path.c_str());
-//		if (jpg_stream.is_open())
-//		{
-//			cout << "filename = " << jpg_path << endl;
-//			texture_path = jpg_path;
-//		}
-		
-		
-		string textureName(sliceName_);
-		textureName.append(filename);
-		
-		Cmiss_region_id region = Cmiss_context_get_default_region(cmissContext_);
-		Cmiss_field_module_id field_module =  Cmiss_region_get_field_module(region);
-
-		Cmiss_field_id field_in = Cmiss_field_module_create_image(field_module, NULL, NULL);
-		Cmiss_field_image_id image_field_in = Cmiss_field_cast_image(field_in);
-		
-		/* Read image data from a file */
-		Cmiss_field_image_read_file(image_field_in, texture_path.c_str());
-		
-//		Cmiss_field_id field_rescale = Cmiss_field_create_image(NULL, NULL);
-//		int result = Cmiss_field_set_type_rescale_intensity_image_filter(field_rescale,
-//				field_in, 0.0 /* min */, 1.0 /* max */);
-//		
-//		if (!result) 
-//		{
-//			cout << "Cant set rescale_intensity_image_filter is null" << endl; 
-//		}
-//		
-//		Cmiss_field_id field_out = Cmiss_field_create_image(NULL, field_rescale);
-//		Cmiss_field_image_id image_field_out = Cmiss_field_image_cast(field_out);
-//		
-//		if (!image_field_out) 
-//		{
-//			cout << "image_field_out is null" << endl; 
-//		}
-//		
-//		Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field_out);
-		Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field_in);
-		
-		Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
+		Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
 		textures_.push_back(texture_id);
 		
 		images_.push_back(new DICOMImage(fullpath));
@@ -438,6 +307,7 @@ void ImageSlice::TransformImagePlane()
 	
 	int nodeNum = 1;
 
+	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	//Got to find the child region first!!
 	Cmiss_region* region;
@@ -499,6 +369,7 @@ const ImagePlane& ImageSlice::GetImagePlane() const
 
 Cmiss_field* ImageSlice::CreateVisibilityField()
 {
+	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region* region;
 	region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str());
@@ -571,6 +442,7 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 
 void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 {
+	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 
 	//Got to find the child region first!!

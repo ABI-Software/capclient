@@ -205,13 +205,14 @@ static int time_callback(struct Time_object *time, double current_time, void *us
 	return 0;
 }
 
-MainWindow::MainWindow(Cmiss_context_id context)
+MainWindow::MainWindow(CmguiManager const& cmguiManager)
 : 
-	context_(context),
+	cmguiManager_(cmguiManager),
+	context_(cmguiManager.GetCmissContext()),
 	animationIsOn_(false),
 	hideAll_(true),
-	timeKeeper_(Cmiss_context_get_default_time_keeper(context_)),
-	heartModel_("heart", context),
+	timeKeeper_(Cmiss_context_get_default_time_keeper(cmguiManager.GetCmissContext())),
+	heartModel_("heart", cmguiManager.GetCmissContext()),
 	modeller_(new CAPModeller(heartModel_))
 {
 	// Load layout from .xrc file
@@ -259,14 +260,7 @@ MainWindow::MainWindow(Cmiss_context_id context)
 	
 //	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(m_pPanel);
 
-//	sceneViewer_ = CmguiManager::getInstance().createSceneViewer(m_pPanel);
-	sceneViewer_ = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(context_),
-			m_pPanel,
-			CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
-			CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
-			/*minimum_colour_buffer_depth*/8,
-			/*minimum_depth_buffer_depth*/8,
-			/*minimum_accumulation_buffer_depth*/8);
+	sceneViewer_ = cmguiManager_.CreateSceneViewer(m_pPanel);
 	
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
@@ -414,7 +408,7 @@ void MainWindow::LoadImages()
 	
 	sliceNames = EnumerateAllSubDirs(dir_path);
 	std::sort(sliceNames.begin(), sliceNames.end(), SliceNameLessThan());
-	imageSet_ = new ImageSet(sliceNames, context_); //REFACTOR
+	imageSet_ = new ImageSet(sliceNames, cmguiManager_); //REFACTOR
 	
 	this->PopulateObjectList(); // fill in slice check box list
 }

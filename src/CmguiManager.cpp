@@ -17,6 +17,7 @@ extern "C" {
 #include "command/cmiss.h"
 #include "graphics/material.h"
 #include "graphics/element_group_settings.h"
+#include "graphics/scene.h"
 }
 
 namespace cap
@@ -168,12 +169,22 @@ void CmguiManager::SwitchMaterialTexture(Cmiss_material_id material,
 	return;
 }
 
-void CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
+Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 		Cmiss_material_id material, std::string const& regionName) const
 {
 	using namespace std;
 	
-	struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
+	struct Scene* scene;
+	if (scene_viewer)
+	{
+		scene = Scene_viewer_get_scene(scene_viewer);
+	}
+	else // use default scene
+	{
+		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
+		scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	}
+		
 	if (!scene)
 	{
 		cout << "Can't find scene" << endl;
@@ -212,6 +223,9 @@ void CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 			std::cout << __func__ << " :Error modifying g element\n";
 		}
 	}
+	
+	// return sceneObject for convenience REVISE!!
+	return Scene_get_scene_object_with_Cmiss_region(scene, region);
 }
 
 } // end namespace cap

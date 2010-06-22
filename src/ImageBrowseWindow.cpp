@@ -171,11 +171,7 @@ void ImageBrowseWindow::LoadImages()
 		
 		for (; itr != end; ++itr)
 		{
-			const string& filename = (*itr)->GetFilename();
-//			string texture_path(dir_path);
-//			texture_path.append("/");
-//			texture_path.append(filename);
-	
+			const string& filename = (*itr)->GetFilename();	
 			Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
 			textures.push_back(texture_id);
 		}
@@ -199,9 +195,6 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceKeyType const& key)
 void ImageBrowseWindow::LoadImagePlaneModel()
 {	
 	std::string name("LA1"); // change
-	char filename[256];
-	
-	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	
 	cmguiManager_.ReadRectangularModelFiles(name);	
 	material_ = cmguiManager_.CreateCAPMaterial("ImageBrowseWindow");
