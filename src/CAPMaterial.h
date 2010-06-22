@@ -80,7 +80,7 @@ public:
 		// Initialize the texture used to pass brightness and contrast to fragment shader
 		string brightnessAndContrastTextureName(materialName + "_BrightnessAndContrast"); 
 		brightnessAndContrastTexture_ = CREATE(Texture)(brightnessAndContrastTextureName.c_str());
-		unsigned char source_pixels[4] = {255,25,0,255};//TEST
+		unsigned char source_pixels[4] = {128,128,0,255};//TEST
 		if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
 			1 /*int width */, 1/*int height*/, 1/*int depth*/,
 			4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
