@@ -10,6 +10,7 @@
 
 #include "CmguiExtensions.h"
 
+#include <boost/noncopyable.hpp>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -17,15 +18,7 @@
 
 extern "C"
 {
-//#include "command/cmiss.h"
-//#include "graphics/scene_viewer.h"
-//#include "api/cmiss_texture.h"
 #include "graphics/material.h"
-//#include "graphics/element_group_settings.h"
-//#include "graphics/scene.h"
-//#include "graphics/glyph.h"
-//#include "graphics/colour.h"
-//#include "finite_element/finite_element_region.h"
 }
 
 struct Cmiss_texture;
@@ -39,7 +32,7 @@ namespace cap
 /** Wrapper class around the Cmiss_material
  *  
  */
-class CAPMaterial
+class CAPMaterial : public boost::noncopyable
 {
 public:
 	explicit CAPMaterial(std::string const& materialName)
@@ -91,6 +84,13 @@ public:
 		}
 		
 		Graphical_material_set_second_texture(material_, brightnessAndContrastTexture_);
+	}
+	
+	~CAPMaterial()
+	{
+		// Destroy member fields
+//		DEACCESS(Graphical_material)(&material_);
+//		DESTROY(Texture)(&brightnessAndContrastTexture_);
 	}
 	
 	void SetBrightness(float brightness)

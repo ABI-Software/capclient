@@ -10,6 +10,7 @@
 #include "CmguiManager.h"
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
+#include "CAPMaterial.h"
 
 #include <wx/xrc/xmlres.h>
 #include <wx/listctrl.h>
@@ -63,8 +64,7 @@ namespace cap
 ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager)
 :
 	archiveFilename_(archiveFilename),
-	cmguiManager_(manager),
-	material_("")
+	cmguiManager_(manager)
 {
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
@@ -190,6 +190,7 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceKeyType const& key)
 	
 	DisplayImage(textures[0]);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 }
 
 void ImageBrowseWindow::LoadImagePlaneModel()
@@ -198,7 +199,7 @@ void ImageBrowseWindow::LoadImagePlaneModel()
 	
 	cmguiManager_.ReadRectangularModelFiles(name);	
 	material_ = cmguiManager_.CreateCAPMaterial("ImageBrowseWindow");
-	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_.GetCmissMaterial(), name);
+	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_->GetCmissMaterial(), name);
 	
 	return;
 }
@@ -206,9 +207,9 @@ void ImageBrowseWindow::LoadImagePlaneModel()
 void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 {	
 	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
-	if (material_.GetCmissMaterial())
+	if (material_)
 	{
-		cmguiManager_.SwitchMaterialTexture(material_.GetCmissMaterial(),tex, "LA1"); //FIX "LA1"
+		cmguiManager_.SwitchMaterialTexture(material_->GetCmissMaterial(),tex, "LA1"); //FIX "LA1"
 	}
 	else
 	{

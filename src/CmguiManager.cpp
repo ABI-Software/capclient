@@ -10,6 +10,8 @@
 #include "Config.h"
 #include "CAPMaterial.h"
 
+#include <boost/tr1/memory.hpp>
+#include <boost/make_shared.hpp>
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -58,10 +60,10 @@ Cmiss_texture_id CmguiManager::LoadCmissTexture(std::string const& filename) con
 	return texture_id;
 }
 
-CAPMaterial CmguiManager::CreateCAPMaterial(std::string const& materialName) const
+boost::shared_ptr<CAPMaterial> CmguiManager::CreateCAPMaterial(std::string const& materialName) const
 {
-	CAPMaterial material(materialName);	
-	return material;
+//	boost::shared_ptr<CAPMaterial> material(new CAPMaterial(materialName));	
+	return boost::make_shared<CAPMaterial>(materialName); // faster than shared_ptr<CAPMaterial>(new )
 }
 
 void CmguiManager::ReadRectangularModelFiles(std::string const& modelName) const
