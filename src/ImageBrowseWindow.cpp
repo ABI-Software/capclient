@@ -64,7 +64,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 :
 	archiveFilename_(archiveFilename),
 	cmguiManager_(manager),
-	material_(0)
+	material_("")
 {
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
@@ -198,7 +198,7 @@ void ImageBrowseWindow::LoadImagePlaneModel()
 	
 	cmguiManager_.ReadRectangularModelFiles(name);	
 	material_ = cmguiManager_.CreateCAPMaterial("ImageBrowseWindow");
-	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_, name);
+	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_.GetCmissMaterial(), name);
 	
 	return;
 }
@@ -206,9 +206,9 @@ void ImageBrowseWindow::LoadImagePlaneModel()
 void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 {	
 	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
-	if (material_)
+	if (material_.GetCmissMaterial())
 	{
-		cmguiManager_.SwitchMaterialTexture(material_,tex, "LA1"); //FIX "LA1"
+		cmguiManager_.SwitchMaterialTexture(material_.GetCmissMaterial(),tex, "LA1"); //FIX "LA1"
 	}
 	else
 	{

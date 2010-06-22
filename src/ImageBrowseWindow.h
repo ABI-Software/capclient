@@ -13,6 +13,8 @@
     #include "wx/wx.h"
 #endif
 
+#include "CAPMaterial.h"
+
 #include <boost/tr1/memory.hpp>
 #include <string>
 #include <vector>
@@ -22,7 +24,7 @@ struct Cmiss_scene_viewer;
 typedef struct Cmiss_scene_viewer *Cmiss_scene_viewer_id;
 struct Cmiss_texture;
 typedef struct Cmiss_texture* Cmiss_texture_id;
-struct Graphical_material;
+//struct Graphical_material;
 
 class wxListCtrl;
 class wxListEvent;
@@ -55,7 +57,7 @@ private:
 	std::string archiveFilename_;
 	CmguiManager const& cmguiManager_;
 	Cmiss_scene_viewer_id sceneViewer_;
-	Graphical_material* material_;
+	CAPMaterial material_;
 	
 	wxListCtrl* imageTable_;
 	
