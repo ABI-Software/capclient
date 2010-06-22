@@ -12,9 +12,11 @@
  * 
  */
 #include <cassert>
+#include <string>
 
 extern "C" {
 #include "api/cmiss_scene_viewer.h"
+#include "api/cmiss_material.h"
 #include "api/cmiss_context.h"
 }
 
@@ -26,30 +28,32 @@ namespace cap
 class CmguiManager
 {
 public:
-	CmguiManager(Cmiss_context_id data);
+	CmguiManager(Cmiss_context_id cotext);
 	
-//	static CmguiManager& getInstance()
-//	{
-//		assert(instance_);
-//		return *instance_;
-//	}
-	
-	Cmiss_context_id getCmissContext() const
+	Cmiss_context_id GetCmissContext() const
 	{
-		return contextID_;
+		return cmissContext_;
 	}
 	
-	Cmiss_scene_viewer_id createSceneViewer(wxPanel* panel);
+	Cmiss_scene_viewer_id CreateSceneViewer(wxPanel* panel) const;
 	
-	Cmiss_scene_viewer_id getSceneViewer() const
-	{
-		return sceneViewer_;
-	}
+	Cmiss_texture_id LoadCmissTexture(std::string const& filename) const;
 	
+	void ReadRectangularModelFiles(std::string const& modelName) const;
+	
+	/**
+	 *  This method creates a cmiss material that uses shaders
+	 */
+	Cmiss_material_id CreateCAPMaterial(std::string const& materialName) const;
+	
+	// TODO move the following methods out to a separate class
+	void SwitchMaterialTexture(Cmiss_material_id material, Cmiss_texture_id tex, std::string const& regionName) const;
+	void AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
+			Cmiss_material_id material, std::string const& regionName) const;
+
 private:
-	static CmguiManager* instance_;
-	Cmiss_context_id contextID_;
-	Cmiss_scene_viewer_id sceneViewer_;
+	Cmiss_context_id cmissContext_;
+
 };
 
 } // end namespace cap
