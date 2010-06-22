@@ -66,7 +66,23 @@ std::vector<std::string> EnumerateAllFiles(const std::string& dirname)
 	return filenames;
 }
 
-	const char* TEST_DIR = "./temp/XMLZipTest";
+Cmiss_texture_id LoadCmissTexture(Cmiss_context_id context, std::string const& filename)
+{
+	Cmiss_region_id region = Cmiss_context_get_default_region(context);
+	Cmiss_field_module_id field_module =  Cmiss_region_get_field_module(region);
+
+	Cmiss_field_id field = Cmiss_field_module_create_image(field_module, NULL, NULL);
+	Cmiss_field_image_id image_field = Cmiss_field_cast_image(field);
+	
+	/* Read image data from a file */
+	Cmiss_field_image_read_file(image_field, filename.c_str());
+	Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field);
+	Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
+	
+	return texture_id;
+}
+
+const char* TEST_DIR = "./temp/XMLZipTest";
 } // end anonyous namespace
 
 namespace cap
@@ -109,6 +125,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, Cmiss_c
 	
 //		Cmiss_scene_viewer_view_all(sceneViewer_);
 //		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
+	// TODO This window should use a separate scene from the default one (the one MainWindow uses)
 	
 	LoadImagePlaneModel();
 	LoadImages();
@@ -192,19 +209,8 @@ void ImageBrowseWindow::LoadImages()
 //			string texture_path(dir_path);
 //			texture_path.append("/");
 //			texture_path.append(filename);
-			
-			Cmiss_region_id region = Cmiss_context_get_default_region(cmissContext_);
-			Cmiss_field_module_id field_module =  Cmiss_region_get_field_module(region);
 	
-			Cmiss_field_id field = Cmiss_field_module_create_image(field_module, NULL, NULL);
-			Cmiss_field_image_id image_field = Cmiss_field_cast_image(field);
-			
-			/* Read image data from a file */
-			Cmiss_field_image_read_file(image_field, filename.c_str());
-			Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field);
-			
-			Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
-			
+			Cmiss_texture_id texture_id = LoadCmissTexture(cmissContext_, filename);
 			textures.push_back(texture_id);
 		}
 		
