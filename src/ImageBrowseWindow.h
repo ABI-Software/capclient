@@ -18,6 +18,8 @@
 #include <vector>
 #include <map>
 
+struct Context;
+typedef struct Context* Cmiss_context_id;
 struct Cmiss_scene_viewer;
 typedef struct Cmiss_scene_viewer *Cmiss_scene_viewer_id;
 struct Cmiss_texture;
@@ -35,7 +37,7 @@ class DICOMImage;
 class ImageBrowseWindow : public wxFrame
 {
 public:
-	ImageBrowseWindow(std::string const& archiveFilename);
+	ImageBrowseWindow(std::string const& archiveFilename, Cmiss_context_id command_data);
 	virtual ~ImageBrowseWindow();
 	
 private:
@@ -52,6 +54,7 @@ private:
 	void DisplayImage(Cmiss_texture_id tex);
 	
 	std::string archiveFilename_;
+	Cmiss_context_id cmissContext_;
 	Cmiss_scene_viewer_id sceneViewer_;
 	Graphical_material* material_;
 	
