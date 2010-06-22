@@ -10,9 +10,10 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
-#include <boost/function.hpp>
+//#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
+#include <stdexcept>
 
 namespace cap {
 
