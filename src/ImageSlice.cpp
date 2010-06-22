@@ -42,21 +42,9 @@ ImageSlice::ImageSlice(const string& name, CmguiManager const& cmguiManager)
 	sliceName_(name),
 	oldIndex_(-1),
 	isVisible_(true),
-	cmguiManager_(cmguiManager)
-{
-	// Initialize the texture used to pass brightness and contrast to fragment shader
-	string brightnessAndContrastTextureName(name + "_BrightnessAndContrast"); 
-	brightnessAndContrastTexture_ = CREATE(Texture)(brightnessAndContrastTextureName.c_str());
-	unsigned char source_pixels[4] = {255,25,0,255};//TEST
-	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
-		1 /*int width */, 1/*int height*/, 1/*int depth*/,
-		4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
-		4 /*int source_width_bytes*/, source_pixels))
-	{
-		//Error
-		cout << "ImageSlice::ImageSlice() Error setting pixel value to brightnessAndContrastTexture_" << endl;
-	}
-	
+	cmguiManager_(cmguiManager),
+	material_("") //FIX
+{	
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
 	this->TransformImagePlane();
@@ -116,122 +104,83 @@ void ImageSlice::SetTime(double time)
 		
 	Cmiss_texture* tex= textures_[index];
 	
-	if (material_)
-	{
-		if (!Graphical_material_set_texture(material_,tex))//Bug this never returns 1 (returns garbage) - always returns 0 on windows
-//		if (!Graphical_material_set_texture(material_,brightnessAndContrastTexture_))
-		{
-			//Error
-			//cout << "Error: Graphical_material_set_texture()" << endl;
-		}
-		if (!Graphical_material_set_second_texture(material_, brightnessAndContrastTexture_))
-//		if (!Graphical_material_set_second_texture(material_, tex))
-		{
-			//Error
-		}
-	}
-	else
-	{
-		cout << "Error: cant find material" << endl;
-	}
-	
-	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
-	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
-	//Got to find the child region first!!
-	Cmiss_region* region;
-	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
-	{
-		//error
-		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
-	}
-
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	// use the same material for selected material
-	GT_element_settings_set_selected_material(settings, material_);
-
-	if(!GT_element_settings_set_material(settings, material_))
-	{
-		//Error;
-		cout << "GT_element_settings_set_material() returned 0" << endl;
-	}
-	else
-	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-
-		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
-		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-		
-
-		if (!Cmiss_region_modify_g_element(region, scene,settings,
-			/*delete_flag*/0, /*position*/-1))
-		{
-			 //error
-			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
-		}
-	}
+	cmguiManager_.SwitchMaterialTexture(material_.GetCmissMaterial(), tex, sliceName_);
+//	if (material_.GetCmissMaterial())
+//	{
+//		if (!Graphical_material_set_texture(material_.GetCmissMaterial(),tex))//Bug this never returns 1 (returns garbage) - always returns 0 on windows
+////		if (!Graphical_material_set_texture(material_,brightnessAndContrastTexture_))
+//		{
+//			//Error
+//			//cout << "Error: Graphical_material_set_texture()" << endl;
+//		}
+//		if (!Graphical_material_set_second_texture(material_.GetCmissMaterial(), brightnessAndContrastTexture_))
+////		if (!Graphical_material_set_second_texture(material_, tex))
+//		{
+//			//Error
+//		}
+//	}
+//	else
+//	{
+//		cout << "Error: cant find material" << endl;
+//	}
+//	
+//	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
+//	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
+//	//Got to find the child region first!!
+//	Cmiss_region* region;
+//	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
+//	{
+//		//error
+//		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
+//	}
+//
+//	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
+//	// use the same material for selected material
+//	GT_element_settings_set_selected_material(settings, material_.GetCmissMaterial());
+//
+//	if(!GT_element_settings_set_material(settings, material_.GetCmissMaterial()))
+//	{
+//		//Error;
+//		cout << "GT_element_settings_set_material() returned 0" << endl;
+//	}
+//	else
+//	{
+//		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
+//		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
+//
+//		GT_element_settings_set_texture_coordinate_field(settings,c_field);
+//
+//		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
+//		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+//		
+//
+//		if (!Cmiss_region_modify_g_element(region, scene,settings,
+//			/*delete_flag*/0, /*position*/-1))
+//		{
+//			 //error
+//			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
+//		}
+//	}
 
 	return ;
 }
 
 void ImageSlice::SetBrightness(float brightness)
 {
-	unsigned char pixels[4];
-	unsigned char fill[1] = {0};
-	Cmiss_texture_get_pixels(brightnessAndContrastTexture_,
-		0, 0, 0,
-		1, 1, 1,
-		0, 0, 
-		fill,
-		4, pixels);
-	
-	pixels[0] = 255.0 * brightness;
-	
-	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
-		1 /*int width */, 1/*int height*/, 1/*int depth*/,
-		4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
-		4 /*int source_width_bytes*/, pixels))
-	{
-		//Error
-		cout << "ImageSlice::SetBrightness() Error setting pixel value to brightnessAndContrastTexture_" << endl;
-	}
-	Texture_notify_change(brightnessAndContrastTexture_);
+	material_.SetBrightness(brightness);
 }
 
 void ImageSlice::SetContrast(float contrast)
 {
-	unsigned char pixels[4];
-	unsigned char fill[1] = {0};
-	Cmiss_texture_get_pixels(brightnessAndContrastTexture_,
-		0, 0, 0,
-		1, 1, 1,
-		0, 0, 
-		fill,
-		4, pixels);
-	
-	pixels[1] = 255.0 * contrast;
-	
-	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
-		1 /*int width */, 1/*int height*/, 1/*int depth*/,
-		4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
-		4 /*int source_width_bytes*/, pixels))
-	{
-		//Error
-		cout << "ImageSlice::SetContrast() Error setting pixel value to brightnessAndContrastTexture_" << endl;
-	}
-	Texture_notify_change(brightnessAndContrastTexture_);
+	material_.SetContrast(contrast);
 }
 
 void ImageSlice::LoadImagePlaneModel()
-{	
-	string& name = sliceName_;
-	
-	cmguiManager_.ReadRectangularModelFiles(name);			
-	material_ = cmguiManager_.CreateCAPMaterial(name);
+{		
+	cmguiManager_.ReadRectangularModelFiles(sliceName_);			
+	material_ = cmguiManager_.CreateCAPMaterial(sliceName_);
 	// Assign material & cache the sceneObject for convenience
-	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_, name);
+	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_.GetCmissMaterial(), sliceName_);
 	return;
 }
 
@@ -255,7 +204,7 @@ void ImageSlice::LoadTextures()
 		fullpath.append("/");
 		fullpath.append(filename);
 		
-		Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
+		Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(fullpath);
 		textures_.push_back(texture_id);
 		
 		images_.push_back(new DICOMImage(fullpath));

@@ -26,6 +26,8 @@ struct Scene_object;
 namespace cap
 {
 
+class CAPMaterial;
+
 class CmguiManager
 {
 public:
@@ -45,7 +47,7 @@ public:
 	/**
 	 *  This method creates a cmiss material that uses shaders
 	 */
-	Cmiss_material_id CreateCAPMaterial(std::string const& materialName) const;
+	CAPMaterial CreateCAPMaterial(std::string const& materialName) const;
 	
 	// TODO move the following methods out to a separate class
 	void SwitchMaterialTexture(Cmiss_material_id material, Cmiss_texture_id tex, std::string const& regionName) const;

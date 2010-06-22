@@ -8,6 +8,7 @@
 #include "CmguiManager.h"
 #include "CmguiExtensions.h"
 #include "Config.h"
+#include "CAPMaterial.h"
 
 #include <sstream>
 #include <fstream>
@@ -57,30 +58,9 @@ Cmiss_texture_id CmguiManager::LoadCmissTexture(std::string const& filename) con
 	return texture_id;
 }
 
-Cmiss_material_id CmguiManager::CreateCAPMaterial(std::string const& materialName) const
+CAPMaterial CmguiManager::CreateCAPMaterial(std::string const& materialName) const
 {
-	Cmiss_material_id material = create_Graphical_material(materialName.c_str());
-
-	// Initialize shaders that are used for adjusting brightness and contrast
-	using namespace std;
-	
-	stringstream vp_stream, fp_stream;
-	ifstream is;
-	is.open("Data/shaders/vp.txt");
-	vp_stream << is.rdbuf();
-	is.close();
-	
-	is.open("Data/shaders/fp.txt");
-	fp_stream << is.rdbuf();
-	is.close();
-	
-	if (!Material_set_material_program_strings(material, 
-			(char*) vp_stream.str().c_str(), (char*) fp_stream.str().c_str())
-			)
-	{
-		cout << "Error: cant set material program strings" << endl;
-	}
-	
+	CAPMaterial material(materialName);	
 	return material;
 }
 
@@ -116,10 +96,10 @@ void CmguiManager::SwitchMaterialTexture(Cmiss_material_id material,
 			//Error
 			//cout << "Error: Graphical_material_set_texture()" << endl;
 		}
-//		if (!Graphical_material_set_second_texture(material_, brightnessAndContrastTexture_))
-//		{
-//			//Error
-//		}
+//		if (!Graphical_material_set_second_texture(material, brightnessAndContrastTexture_))
+		{
+			//Error
+		}
 	}
 	else
 	{
