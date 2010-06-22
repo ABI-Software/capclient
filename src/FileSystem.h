@@ -17,7 +17,7 @@ namespace cap
 class FileSystem
 {
 public:
-	FileSystem(const std::string& path);
+	explicit FileSystem(const std::string& path);
 	
 	const std::vector<std::string>& getAllFileNames();
 	

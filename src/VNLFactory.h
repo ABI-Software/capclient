@@ -27,7 +27,7 @@ public:
 	: impl_(new vnl_vector<double>(dim, value))
 	{}
 	
-	VNLVector(vnl_vector<double>& vec)
+	explicit VNLVector(vnl_vector<double>& vec)
 	: impl_(&vec)
 	{}
 	
@@ -91,7 +91,7 @@ private:
 class VNLMatrix : public SparseMatrix
 {
 public:
-	VNLMatrix(vnl_sparse_matrix<double>& m)
+	explicit VNLMatrix(vnl_sparse_matrix<double>& m)
 	: impl_(&m)
 	{}
 	

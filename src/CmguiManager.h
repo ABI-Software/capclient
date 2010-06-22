@@ -28,7 +28,7 @@ namespace cap
 class CmguiManager
 {
 public:
-	CmguiManager(Cmiss_context_id cotext);
+	explicit CmguiManager(Cmiss_context_id context);
 	
 	Cmiss_context_id GetCmissContext() const
 	{
