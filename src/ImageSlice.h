@@ -78,7 +78,7 @@ private:
 	
 	std::vector<DICOMImage*> images_;
 	
-	boost::shared_ptr<CAPMaterial> material_;
+	std::tr1::shared_ptr<CAPMaterial> material_;
 	
 	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
 	

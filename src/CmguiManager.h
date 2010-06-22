@@ -13,6 +13,7 @@
  */
 #include <cassert>
 #include <string>
+#include <boost/tr1/memory.hpp>
 
 extern "C" {
 #include "api/cmiss_scene_viewer.h"
@@ -21,13 +22,7 @@ extern "C" {
 }
 
 class wxPanel;
-struct Scene_object;
-
-namespace boost
-{
-template <class T>
-class shared_ptr;
-}
+struct Scene_object;	
 
 namespace cap
 {
@@ -53,7 +48,7 @@ public:
 	/**
 	 *  This method creates a cmiss material that uses shaders
 	 */
-	boost::shared_ptr<CAPMaterial> CreateCAPMaterial(std::string const& materialName) const;
+	std::tr1::shared_ptr<CAPMaterial> CreateCAPMaterial(std::string const& materialName) const;
 	
 	// TODO move the following methods out to a separate class
 	void SwitchMaterialTexture(Cmiss_material_id material, Cmiss_texture_id tex, std::string const& regionName) const;
