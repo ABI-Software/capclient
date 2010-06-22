@@ -102,7 +102,7 @@ struct Documentation
 class CAPXMLFile
 {
 public:
-	CAPXMLFile(std::string const & filename);
+	explicit CAPXMLFile(std::string const & filename);
 	~CAPXMLFile();// need this so compiler wont generate dtor
 	
 	void ReadFile();

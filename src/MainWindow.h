@@ -27,7 +27,7 @@ class ImageSet;
 class MainWindow : public wxFrame
 {
 public:
-	MainWindow(Cmiss_context_id command_data_);
+	explicit MainWindow(Cmiss_context_id command_data_);
 	~MainWindow();
 
 //	wxPanel* getPanel() const;

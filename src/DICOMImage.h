@@ -41,7 +41,7 @@ public:
 class DICOMImage
 {
 public:
-	DICOMImage(const std::string& filename);
+	explicit DICOMImage(const std::string& filename);
 	~DICOMImage()
 	{
 		if (plane_)

@@ -67,8 +67,8 @@ int main(int argc,char *argv[])
 			
 			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
 	
-			cap::MainWindow *frame = new cap::MainWindow(context);
-//			cap::ImageBrowseWindow *frame = new cap::ImageBrowseWindow("./XMLZipTest.zip", context);
+//			cap::MainWindow *frame = new cap::MainWindow(context);
+			cap::ImageBrowseWindow *frame = new cap::ImageBrowseWindow("./XMLZipTest.zip", cmguiManager);
 			frame->Show(true);
 	
 			Cmiss_context_run_main_loop(context);//app.OnRun()

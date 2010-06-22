@@ -25,7 +25,7 @@ public:
 	: impl_(new std::vector<double>(dim, value))
 	{}
 	
-	GMMVector(std::vector<double>& vec)
+	explicit GMMVector(std::vector<double>& vec)
 	: impl_(&vec)
 	{}
 	
@@ -95,7 +95,7 @@ private:
 class GMMMatrix : public SparseMatrix
 {
 public:
-	GMMMatrix(gmm::csc_matrix<double>& m)
+	explicit GMMMatrix(gmm::csc_matrix<double>& m)
 	: impl_(&m)
 	{}
 	
@@ -304,7 +304,7 @@ namespace cap
 class GMMPreconditioner : public Preconditioner
 {
 public:
-	GMMPreconditioner(const gmm::csc_matrix<double>& m)
+	explicit GMMPreconditioner(const gmm::csc_matrix<double>& m)
 	: impl_(m)
 	{}
 	
@@ -345,7 +345,7 @@ public:
 	class MatrixInsert
 	{
 	public:
-		MatrixInsert(gmm::dense_matrix<double>& mat)
+		explicit MatrixInsert(gmm::dense_matrix<double>& mat)
 		: m_(mat)
 		{}
 		

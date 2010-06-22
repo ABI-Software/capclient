@@ -35,7 +35,7 @@ public:
 		GUIDEPOINT
 	};
 	
-	CAPModeller(CAPModelLVPS4X4& heartModel);
+	explicit CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller(){}
 	
 	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
