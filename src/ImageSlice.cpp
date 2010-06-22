@@ -24,6 +24,7 @@ extern "C"
 #include "DICOMImage.h"
 #include "ImageSlice.h"
 #include "FileSystem.h"
+#include "CAPMaterial.h"
 
 #include <iostream>
 #include <sstream>
@@ -42,8 +43,7 @@ ImageSlice::ImageSlice(const string& name, CmguiManager const& cmguiManager)
 	sliceName_(name),
 	oldIndex_(-1),
 	isVisible_(true),
-	cmguiManager_(cmguiManager),
-	material_("") //FIX use pointer semantics??
+	cmguiManager_(cmguiManager)
 {	
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
@@ -103,19 +103,19 @@ void ImageSlice::SetTime(double time)
 	//cout << "ImageSlice::setTime index = " << index << endl;
 		
 	Cmiss_texture* tex= textures_[index];
-	cmguiManager_.SwitchMaterialTexture(material_.GetCmissMaterial(), tex, sliceName_);
+	cmguiManager_.SwitchMaterialTexture(material_->GetCmissMaterial(), tex, sliceName_);
 
 	return ;
 }
 
 void ImageSlice::SetBrightness(float brightness)
 {
-	material_.SetBrightness(brightness);
+	material_->SetBrightness(brightness);
 }
 
 void ImageSlice::SetContrast(float contrast)
 {
-	material_.SetContrast(contrast);
+	material_->SetContrast(contrast);
 }
 
 void ImageSlice::LoadImagePlaneModel()
@@ -123,7 +123,7 @@ void ImageSlice::LoadImagePlaneModel()
 	cmguiManager_.ReadRectangularModelFiles(sliceName_);			
 	material_ = cmguiManager_.CreateCAPMaterial(sliceName_);
 	// Assign material & cache the sceneObject for convenience
-	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_.GetCmissMaterial(), sliceName_);
+	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_->GetCmissMaterial(), sliceName_);
 	return;
 }
 

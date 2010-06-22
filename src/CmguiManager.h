@@ -23,6 +23,12 @@ extern "C" {
 class wxPanel;
 struct Scene_object;
 
+namespace boost
+{
+template <class T>
+class shared_ptr;
+}
+
 namespace cap
 {
 
@@ -47,7 +53,7 @@ public:
 	/**
 	 *  This method creates a cmiss material that uses shaders
 	 */
-	CAPMaterial CreateCAPMaterial(std::string const& materialName) const;
+	boost::shared_ptr<CAPMaterial> CreateCAPMaterial(std::string const& materialName) const;
 	
 	// TODO move the following methods out to a separate class
 	void SwitchMaterialTexture(Cmiss_material_id material, Cmiss_texture_id tex, std::string const& regionName) const;

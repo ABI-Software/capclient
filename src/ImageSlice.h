@@ -8,10 +8,9 @@
 #ifndef IMAGESLICE_H_
 #define IMAGESLICE_H_
 
-#include "CAPMaterial.h"
-
 #include <vector>
 #include <string>
+#include <boost/tr1/memory.hpp>
 
 struct Graphical_material;
 struct Scene_object;
@@ -24,6 +23,7 @@ namespace cap
 class DICOMImage;
 class ImagePlane;
 class CmguiManager;
+class CAPMaterial;
 
 // should I separate the graphical representation from this class?
 // ie move Textures, visibility, sceneObject etc to another class??
@@ -78,14 +78,15 @@ private:
 	
 	std::vector<DICOMImage*> images_;
 	
-	CAPMaterial material_;
+	boost::shared_ptr<CAPMaterial> material_;
+	
 	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
 	
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 	
 	int oldIndex_; //used to check if texture switch is needed
 	
-	Cmiss_texture* brightnessAndContrastTexture_;
+//	Cmiss_texture* brightnessAndContrastTexture_;
 };
 
 } // end namespace cap

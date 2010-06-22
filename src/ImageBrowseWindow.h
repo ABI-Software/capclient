@@ -13,8 +13,6 @@
     #include "wx/wx.h"
 #endif
 
-#include "CAPMaterial.h"
-
 #include <boost/tr1/memory.hpp>
 #include <string>
 #include <vector>
@@ -34,6 +32,7 @@ namespace cap
 
 class DICOMImage;
 class CmguiManager;
+class CAPMaterial;
 
 class ImageBrowseWindow : public wxFrame
 {
@@ -57,7 +56,7 @@ private:
 	std::string archiveFilename_;
 	CmguiManager const& cmguiManager_;
 	Cmiss_scene_viewer_id sceneViewer_;
-	CAPMaterial material_;
+	std::tr1::shared_ptr<CAPMaterial> material_;
 	
 	wxListCtrl* imageTable_;
 	
