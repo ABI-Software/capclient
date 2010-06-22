@@ -7,7 +7,7 @@
 #include "ImageBrowseWindow.h"
 
 #include "Config.h"
-//#include "CmguiManager.h"
+#include "CmguiManager.h"
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
 
@@ -20,18 +20,6 @@
 #include <boost/lambda/lambda.hpp>
 
 #include <iostream>
-#include <sstream>
-#include <fstream>
-
-extern "C"
-{
-#include "api/cmiss_context.h"
-#include "api/cmiss_scene_viewer.h"
-#include "graphics/material.h"
-#include "graphics/scene_viewer.h"
-#include "graphics/element_group_settings.h"
-#include "region/cmiss_region.h"
-}
 
 namespace
 {
@@ -66,32 +54,16 @@ std::vector<std::string> EnumerateAllFiles(const std::string& dirname)
 	return filenames;
 }
 
-Cmiss_texture_id LoadCmissTexture(Cmiss_context_id context, std::string const& filename)
-{
-	Cmiss_region_id region = Cmiss_context_get_default_region(context);
-	Cmiss_field_module_id field_module =  Cmiss_region_get_field_module(region);
-
-	Cmiss_field_id field = Cmiss_field_module_create_image(field_module, NULL, NULL);
-	Cmiss_field_image_id image_field = Cmiss_field_cast_image(field);
-	
-	/* Read image data from a file */
-	Cmiss_field_image_read_file(image_field, filename.c_str());
-	Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field);
-	Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
-	
-	return texture_id;
-}
-
 const char* TEST_DIR = "./temp/XMLZipTest";
 } // end anonyous namespace
 
 namespace cap
 {
 
-ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, Cmiss_context_id context)
+ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager)
 :
 	archiveFilename_(archiveFilename),
-	cmissContext_(context),
+	cmguiManager_(manager),
 	material_(0)
 {
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
@@ -115,13 +87,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, Cmiss_c
 	PopulateImageTable();
 	
 	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
-	sceneViewer_ = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(cmissContext_),
-			panel,
-			CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
-			CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
-			/*minimum_colour_buffer_depth*/8,
-			/*minimum_depth_buffer_depth*/8,
-			/*minimum_accumulation_buffer_depth*/8);
+	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel);
 	
 //		Cmiss_scene_viewer_view_all(sceneViewer_);
 //		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
@@ -210,7 +176,7 @@ void ImageBrowseWindow::LoadImages()
 //			texture_path.append("/");
 //			texture_path.append(filename);
 	
-			Cmiss_texture_id texture_id = LoadCmissTexture(cmissContext_, filename);
+			Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
 			textures.push_back(texture_id);
 		}
 		
@@ -231,152 +197,29 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceKeyType const& key)
 }
 
 void ImageBrowseWindow::LoadImagePlaneModel()
-{
-	using namespace std;
-	
-	string name("LA1"); // change
+{	
+	std::string name("LA1"); // change
 	char filename[256];
-	Cmiss_region* region = Cmiss_context_get_default_region(cmissContext_);
 	
-	// Read in ex files that define the element used to represent the image slice
-	// TODO these should be done programatically
-	sprintf(filename, "%stemplates/%s.exnode", CAP_DATA_DIR, name.c_str()); 
-	if (!Cmiss_region_read_file(region,filename))
-	{
-		std::cout << "Error reading ex file - ImagePlane.exnode" << std::endl;
-	}
+	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	
-	sprintf(filename, "%stemplates/%s.exelem", CAP_DATA_DIR, name.c_str());
-	if (!Cmiss_region_read_file(region,filename))
-	{
-		std::cout << "Error reading ex file - ImagePlane.exelem" << std::endl;
-	}
-		
-	material_ = create_Graphical_material("ImageBrowseWindow");
-
-	// Initialize shaders that are used for adjusting brightness and contrast
+	cmguiManager_.ReadRectangularModelFiles(name);	
+	material_ = cmguiManager_.CreateCAPMaterial("ImageBrowseWindow");
+	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_, name);
 	
-	stringstream vp_stream, fp_stream;
-	ifstream is;
-	is.open("Data/shaders/vp.txt");
-	vp_stream << is.rdbuf();
-	is.close();
-	
-	is.open("Data/shaders/fp.txt");
-	fp_stream << is.rdbuf();
-	is.close();
-	
-	if (!Material_set_material_program_strings(material_, 
-			(char*) vp_stream.str().c_str(), (char*) fp_stream.str().c_str())
-			)
-	{
-		cout << "Error: cant set material program strings" << endl;
-	}
-	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	if (!scene)
-	{
-		cout << "Can't find scene" << endl;
-	}
-
-	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
-	//Got to find the child region first!!
-	cout << "Subregion name = " << name << "\n";
-	if(!(region = Cmiss_region_find_subregion_at_path(root_region, name.c_str())))
-	{
-		//error
-		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
-	}
-
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	// use the same material for selected material
-	GT_element_settings_set_selected_material(settings, material_);
-
-	if(!GT_element_settings_set_material(settings, material_))
-	{
-		//Error;
-		std::cout << __func__ << " :Error setting material\n";
-	}
-	else
-	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-
-		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-
-		if (!Cmiss_region_modify_g_element(region, scene,settings,
-			/*delete_flag*/0, /*position*/-1))
-		{
-			 //error
-			std::cout << __func__ << " :Error modifying g element\n";
-		}
-	}
-
-	
-	// cache the sceneObject for convenience
-//	sceneObject_ = Scene_get_scene_object_with_Cmiss_region(scene, region);
 	return;
 }
 
 void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
-{
-	using namespace std;
-	
+{	
+	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	if (material_)
 	{
-		if (!Graphical_material_set_texture(material_,tex))//Bug this never returns 1 (returns garbage) - always returns 0 on windows
-		{
-			//Error
-			//cout << "Error: Graphical_material_set_texture()" << endl;
-		}
-//		if (!Graphical_material_set_second_texture(material_, brightnessAndContrastTexture_))
-//		{
-//			//Error
-//		}
+		cmguiManager_.SwitchMaterialTexture(material_,tex, "LA1"); //FIX "LA1"
 	}
 	else
 	{
-		cout << "Error: cant find material" << endl;
-	}
-	
-	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
-	//Got to find the child region first!!
-	Cmiss_region* region;
-	
-	string name("LA1"); //temporary!!
-	if(!(region = Cmiss_region_find_subregion_at_path(root_region, name.c_str())))
-	{
-		//error
-		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
-	}
-
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	// use the same material for selected material
-	GT_element_settings_set_selected_material(settings, material_);
-
-	if(!GT_element_settings_set_material(settings, material_))
-	{
-		//Error;
-		cout << "GT_element_settings_set_material() returned 0" << endl;
-	}
-	else
-	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-
-		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
-		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-		
-
-		if (!Cmiss_region_modify_g_element(region, scene,settings,
-			/*delete_flag*/0, /*position*/-1))
-		{
-			 //error
-			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
-		}
+		std::cout << "Error: cant find material\n";
 	}
 
 	return;
