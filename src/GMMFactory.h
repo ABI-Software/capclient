@@ -409,7 +409,7 @@ private:
 		int dimension;
 		in >> dimension;
 		
-		v.reserve(dimension);
+		v.resize(dimension);
 		
 		for (int index = 0; index < dimension; index++)
 		{
