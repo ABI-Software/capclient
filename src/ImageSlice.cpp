@@ -43,7 +43,7 @@ ImageSlice::ImageSlice(const string& name, CmguiManager const& cmguiManager)
 	oldIndex_(-1),
 	isVisible_(true),
 	cmguiManager_(cmguiManager),
-	material_("") //FIX
+	material_("") //FIX use pointer semantics??
 {	
 	this->LoadImagePlaneModel();
 	this->LoadTextures();
@@ -103,64 +103,7 @@ void ImageSlice::SetTime(double time)
 	//cout << "ImageSlice::setTime index = " << index << endl;
 		
 	Cmiss_texture* tex= textures_[index];
-	
 	cmguiManager_.SwitchMaterialTexture(material_.GetCmissMaterial(), tex, sliceName_);
-//	if (material_.GetCmissMaterial())
-//	{
-//		if (!Graphical_material_set_texture(material_.GetCmissMaterial(),tex))//Bug this never returns 1 (returns garbage) - always returns 0 on windows
-////		if (!Graphical_material_set_texture(material_,brightnessAndContrastTexture_))
-//		{
-//			//Error
-//			//cout << "Error: Graphical_material_set_texture()" << endl;
-//		}
-//		if (!Graphical_material_set_second_texture(material_.GetCmissMaterial(), brightnessAndContrastTexture_))
-////		if (!Graphical_material_set_second_texture(material_, tex))
-//		{
-//			//Error
-//		}
-//	}
-//	else
-//	{
-//		cout << "Error: cant find material" << endl;
-//	}
-//	
-//	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
-//	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
-//	//Got to find the child region first!!
-//	Cmiss_region* region;
-//	if(!(region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str())))
-//	{
-//		//error
-//		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
-//	}
-//
-//	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-//	// use the same material for selected material
-//	GT_element_settings_set_selected_material(settings, material_.GetCmissMaterial());
-//
-//	if(!GT_element_settings_set_material(settings, material_.GetCmissMaterial()))
-//	{
-//		//Error;
-//		cout << "GT_element_settings_set_material() returned 0" << endl;
-//	}
-//	else
-//	{
-//		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-//		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-//
-//		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-//
-//		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
-//		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-//		
-//
-//		if (!Cmiss_region_modify_g_element(region, scene,settings,
-//			/*delete_flag*/0, /*position*/-1))
-//		{
-//			 //error
-//			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
-//		}
-//	}
 
 	return ;
 }
