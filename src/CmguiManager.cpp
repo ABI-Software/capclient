@@ -6,7 +6,7 @@
  */
 
 #include "CmguiManager.h"
-#include "CmguiExtensions.h"
+//#include "CmguiExtensions.h"
 
 extern "C" {
 #include "command/cmiss.h"

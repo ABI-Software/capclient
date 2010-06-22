@@ -107,7 +107,7 @@ private:
 	float thickness_;
 	float pixelSizeX_, pixelSizeY_;
 	
-	double timeInCardiacCycle;
+//	double timeInCardiacCycle;
 	
 	std::string studyInstanceUID_;
 	std::string sopInstanceUID_;
