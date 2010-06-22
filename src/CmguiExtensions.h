@@ -22,22 +22,22 @@ int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_nam
 
 Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *region, Cmiss_field_id field, double* coords, float time);
 
-Cmiss_element_id Cmiss_get_ray_intersection_point(double x, double y, double* coords, Cmiss_field_id* field);
+Cmiss_element_id Cmiss_get_ray_intersection_point(Cmiss_scene_viewer_id scene_viewer, double x, double y, double* coords, Cmiss_field_id* field);
 
 namespace cap
 {
 	class Point3D;
 }
 
-Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(double x, double y, float time, cap::Point3D& coords);
+Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, float time, cap::Point3D& coords);
 
-Cmiss_node_id Cmiss_select_node_from_screen_coords(double x, double y, float time, cap::Point3D& coords);
+Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, float time, cap::Point3D& coords);
 
-int Cmiss_move_node_to_screen_coords(Cmiss_node_id node, double x, double y, float time, cap::Point3D& coords);
+int Cmiss_move_node_to_screen_coords(Cmiss_scene_viewer_id scene_viewer, Cmiss_node_id node, double x, double y, float time, cap::Point3D& coords);
 
 Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, float startTime, float endTime, bool visibility);
 
-Cmiss_region_id Cmiss_get_slice_region(double x, double y, double* node_coordinates, Cmiss_region_id region);
+Cmiss_region_id Cmiss_get_slice_region(Cmiss_scene_viewer_id scene_viewer, double x, double y, double* node_coordinates, Cmiss_region_id region);
 
 int Material_set_material_program_strings(struct Graphical_material *material_to_be_modified,
 	char *vertex_program_string, char *fragment_program_string);//not defined in material.h

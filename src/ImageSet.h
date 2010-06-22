@@ -19,6 +19,9 @@
 #include <vector>
 #include <string>
 
+struct Context;
+typedef Context* Cmiss_context_id;
+
 namespace cap
 {
 
@@ -32,7 +35,7 @@ public:
 	/** Constructs an image set from a vector of slice names 
 	 * @param vector of slice names
 	 */
-	ImageSet(const std::vector<std::string>& sliceNames_);
+	ImageSet(const std::vector<std::string>& sliceNames_, Cmiss_context_id context);
 	
 	/** Sets time for the whole image set
 	 * @param time in a cardiac cycle in second
