@@ -54,7 +54,7 @@ CAPMaterial::CAPMaterial(std::string const& materialName, Cmiss_graphics_module_
 	Cmiss_texture_manager *texture_manager = Cmiss_graphics_module_get_texture_manager(graphics_module);
 	ADD_OBJECT_TO_MANAGER(Texture)(brightnessAndContrastTexture_, texture_manager);
 	
-	unsigned char source_pixels[4] = {128,128,0,255};//TEST
+	unsigned char source_pixels[4] = {128,128,0,255};//Fisrt two bytes define the brightness and contrast respectively
 	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
 		1 /*int width */, 1/*int height*/, 1/*int depth*/,
 		4 /*int number_of_components*/, 1 /*int number_of_bytes_per_component*/,
