@@ -1031,46 +1031,6 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
-void EnumerateAllFiles(const wxString& dirname)
-{
-//	wxDir dir(dirname);
-//	
-//	if ( !dir.IsOpened() )
-//	{
-//		// deal with the error here - wxDir would already log an error message
-//		// explaining the exact reason of the failure
-//		cout << "Error";
-//		return;
-//	}
-	
-	puts("Enumerating object files in current directory:");
-	
-//	wxString filename;
-	
-//	bool cont = dir.GetFirst(&filename);
-//	while ( cont )
-//	{
-//		printf("%s\n", filename.c_str());
-//	
-//		cont = dir.GetNext(&filename);
-//	}
-	
-	wxArrayString files;
-	wxDir::GetAllFiles(dirname, &files);
-	
-	for (int i = 0; i < files.GetCount(); i++)
-	{
-		string filename(files[i].c_str());
-		size_t positionOfLastSlash = filename.find_last_of("/\\");
-		//std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-		string fileNameOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-		string prefix = filename.substr(0, positionOfLastSlash+1); 
-
-		if (fileNameOnly[0] != '.')
-			cout << files[i] << "\n";
-	}
-}
-
 void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
 	//test
