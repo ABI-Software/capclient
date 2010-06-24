@@ -97,7 +97,7 @@ void DICOMImage::ReadDICOMFile()
 	cout << endl;
 	
 	// trigger time trigger time (0018,1060)
-	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0037)))
+	if (ds.FindDataElement(gdcm::Tag(0x0018,0x1060)))
 	{
 		const gdcm::DataElement& triggerTime = ds.GetDataElement(gdcm::Tag(0x0018,0x1060));
 		gdcm::Attribute<0x0018,0x1060> at_tt;
