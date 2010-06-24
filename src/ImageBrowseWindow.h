@@ -62,10 +62,17 @@ private:
 	
 	SliceMap sliceMap_;
 	TextureMap textureMap_; // this could be merged with sliceMap_
+	std::vector<Cmiss_texture_id> const* texturesCurrentlyOnDisplay_;
 	
 	//Event handlers
 	void OnImageTableItemSelected(wxListEvent& event);
-	
+	void OnCloseImageBrowseWindow(wxCloseEvent& event);
+	void OnPlayToggleButtonPressed(wxCommandEvent& event);
+	void OnAnimationSliderEvent(wxCommandEvent& event);
+	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
+	void OnBrightnessSliderEvent(wxCommandEvent& event);
+	void OnContrastSliderEvent(wxCommandEvent& event);
+		
 	DECLARE_EVENT_TABLE();
 };
 
