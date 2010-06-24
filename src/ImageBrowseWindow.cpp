@@ -84,11 +84,11 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	imageTable_->InsertColumn(columnIndex++, _("Images"), wxLIST_FORMAT_CENTRE, 75);
 	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 75);
 	
-//	this->Fit();
 //	wxString str = imageTable_->GetItemText(0);
 //	std::cout << str << '\n';
 //	std::cout << GetCellContentsString(0, 2) << '\n';
 	
+	SortDICOMFiles();
 	PopulateImageTable();
 	
 	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
@@ -101,7 +101,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	LoadImagePlaneModel();
 	LoadImages();
 	
-	// Finally fit the window to the size requirements of its children
+	// Finally fit the window to meet the size requirements of its children
 	// this also forces the cmgui panel to display correctly
 	this->Fit();
 }
@@ -111,7 +111,7 @@ ImageBrowseWindow::~ImageBrowseWindow()
 	//TODO : destroy textures
 }
 
-void ImageBrowseWindow::PopulateImageTable()
+void ImageBrowseWindow::SortDICOMFiles()
 {
 	std::string dirname = TEST_DIR;
 	std::vector<std::string> const& filenames = EnumerateAllFiles(dirname);
@@ -141,7 +141,10 @@ void ImageBrowseWindow::PopulateImageTable()
 			sliceMap_.insert(std::make_pair(key, v));
 		}		
 	}
-	
+}
+
+void ImageBrowseWindow::PopulateImageTable()
+{	
 	int rowNumber = 0;
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
 	{
@@ -215,10 +218,10 @@ void ImageBrowseWindow::LoadImagePlaneModel()
 
 void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 {	
-	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	if (material_)
 	{
 		cmguiManager_.SwitchMaterialTexture(material_->GetCmissMaterial(),tex, IMAGE_PREVIEW);
+		Cmiss_scene_viewer_redraw_now(sceneViewer_);
 	}
 	else
 	{
@@ -263,18 +266,20 @@ void ImageBrowseWindow::OnImageTableItemSelected(wxListEvent& event)
 //	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
 //	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
 	
-//	SliceKeyType const& key = (*sliceValuePtr).first;
-//	std::vector<DICOMPtr> const& images = (*sliceValuePtr).second;
-//	// Update the gui
-//	// Update image info
-//	
-//	// Update image preview
-//	wxSlider* slider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
-//	slider->SetMin(0);
-//	slider->SetMax(images.size());
-//	slider->SetValue(0);	
+	SliceKeyType const& key = (*sliceValuePtr).first;
+	std::vector<DICOMPtr> const& images = (*sliceValuePtr).second;
+	// Update the gui
+	// Update image info
+	
+	// Update image preview panel
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+	assert(slider);
+	
+	slider->SetMin(1);
+	slider->SetMax(images.size());
+	slider->SetValue(1);	
 	// Display the images from the selected row.
-	SwitchSliceToDisplay((*sliceValuePtr).first);
+	SwitchSliceToDisplay(key);
 }
 
 void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
@@ -283,26 +288,10 @@ void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
 
 void ImageBrowseWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	int value = slider->GetValue();
+	int value = event.GetInt();
+	int textureIndex = value - 1; // tex index is 0 based while slider value is 1 based
 	
-	int min = slider->GetMin();
-	int max = slider->GetMax();
-	double time =  (double)(value - min) / (double)(max - min);
-//	double prevFrameTime = heartModel_.MapToModelFrameTime(time);
-//	if ((time - prevFrameTime) < (0.5)/(heartModel_.GetNumberOfModelFrames()))
-//	{
-//		time = prevFrameTime;
-//	}
-//	else
-//	{
-//		time = prevFrameTime + (float)1/(heartModel_.GetNumberOfModelFrames());
-//	}
-	slider->SetValue(time * (max - min));
-//	cout << "time = " << time << endl;;	
-//	imageSet_->SetTime(time);
-	time = (time > 0.99) ? 0 : time;
-	
+	DisplayImage((*texturesCurrentlyOnDisplay_)[value-1]);
 //	Time_keeper_request_new_time(timeKeeper_, time);
 	
 //	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
