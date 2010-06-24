@@ -66,6 +66,9 @@ private:
 	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	void OnBrightnessSliderEvent(wxCommandEvent& event);
 	void OnContrastSliderEvent(wxCommandEvent& event);
+	void OnShortAxisButtonEvent(wxCommandEvent& event);
+	void OnLongAxisButtonEvent(wxCommandEvent& event);
+	void OnNoneButtonEvent(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 	
