@@ -50,9 +50,11 @@ private:
 	void SortDICOMFiles();
 	void PopulateImageTable();
 	void LoadImages();
-	void SwitchSliceToDisplay(SliceKeyType const& key);
+	void SwitchSliceToDisplay(SliceMap::value_type const& slice);
 	void LoadImagePlaneModel();
 	void DisplayImage(Cmiss_texture_id tex);
+	void UpdateImageInfoPanel(DICOMPtr const& image);
+	void UpdatePatientInfoPanel();
 	
 	std::string archiveFilename_;
 	CmguiManager const& cmguiManager_;
