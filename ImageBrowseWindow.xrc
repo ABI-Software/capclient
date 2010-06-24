@@ -132,7 +132,7 @@
 											<flag>wxALL</flag>
 											<border>5</border>
 											<object class="wxStaticText" name="m_staticText7">
-												<label>Dat of Birth</label>
+												<label>Date of Birth</label>
 											</object>
 										</object>
 										<object class="sizeritem">
@@ -192,7 +192,7 @@
 											<flag>wxALL</flag>
 											<border>5</border>
 											<object class="wxStaticText" name="ImageSize">
-												<label>256 X 256</label>
+												<label>N/A</label>
 											</object>
 										</object>
 										<object class="sizeritem">
@@ -208,7 +208,7 @@
 											<flag>wxALL</flag>
 											<border>5</border>
 											<object class="wxStaticText" name="ImagePosition">
-												<label>40.2 30.3 100.2</label>
+												<label>N/A</label>
 											</object>
 										</object>
 									</object>

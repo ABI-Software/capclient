@@ -55,8 +55,9 @@ public:
 		return filename_;
 	}
 	
-	std::pair<Vector3D,Vector3D> GetOrientation() const;
-	Point3D const& GetPosition() const
+	std::pair<Vector3D,Vector3D> GetImageOrientation() const;
+	
+	Point3D const& GetImagePosition() const
 	{
 		return position3D_;
 	}
@@ -86,7 +87,17 @@ public:
 		return seriesNumber_;
 	}
 	
-	bool operator<(DICOMImage const& other) const
+	size_t GetImageWidth() const
+	{
+		return width_;
+	}
+	
+	size_t GetImageHeight() const
+	{
+		return height_;
+	}
+	
+	bool operator<(DICOMImage const& other) const // Better to make this a non member ?
 	{
 		if (triggerTime_ >= 0.0 && other.triggerTime_ >= 0.0)
 		{

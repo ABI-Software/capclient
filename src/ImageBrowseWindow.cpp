@@ -21,6 +21,13 @@
 #include <boost/lambda/lambda.hpp>
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+
+extern "C"
+{
+#include "finite_element/finite_element.h"
+}
 
 namespace
 {
@@ -126,7 +133,7 @@ void ImageBrowseWindow::SortDICOMFiles()
 		DICOMPtr file(new DICOMImage(fullpath));
 		int seriesNum = file->GetSeriesNumber();
 		std::cout << "Series Num = " << seriesNum << '\n';
-		Vector3D v = file->GetPosition() - Point3D(0,0,0);
+		Vector3D v = file->GetImagePosition() - Point3D(0,0,0);
 		double distanceFromOrigin = v.Length();
 		
 		SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
@@ -167,6 +174,8 @@ void ImageBrowseWindow::PopulateImageTable()
 		imageTable_->SetItemData(itemIndex, reinterpret_cast<long int>(&value)); // Check !! is this safe??!!
 		rowNumber++;
 	}
+	
+//	UpdatePatientInfo();
 }
 
 void ImageBrowseWindow::LoadImages()
@@ -194,17 +203,48 @@ void ImageBrowseWindow::LoadImages()
 	return;
 }
 
-void ImageBrowseWindow::SwitchSliceToDisplay(SliceKeyType const& key)
+void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 {
-//	TextureMap::const_iterator itr = textureMap_.find(key);
+//	std::cout << __func__ << '\n';
+	SliceKeyType const& key = slice.first;
+	std::vector<DICOMPtr> const& images = slice.second;
 	assert(textureMap_.find(key) != textureMap_.end());
-	std::cout << __func__ << '\n';
 	std::vector<Cmiss_texture_id> const& textures = textureMap_[key];
 	texturesCurrentlyOnDisplay_ = &textures;
 	
+	// Update the gui
+	UpdateImageInfoPanel(images[0]); // should rename to Series Info?
+	
+	// Update image preview panel
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+	assert(slider);	
+	slider->SetMin(1);
+	slider->SetMax(images.size());
+	slider->SetValue(1);
+	
+	// Resize the rectangular cmgui model
+	// according to the new dimensions
+	// REVISE : Extract to function (possibly to a diff class)
+	size_t width = images[0]->GetImageWidth();
+	size_t height = images[0]->GetImageHeight();
+	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
+	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region* region = Cmiss_region_find_subregion_at_path(root_region, IMAGE_PREVIEW.c_str());
+	assert(region);
+	
+	Cmiss_node* node = Cmiss_region_get_node(region, "1");
+	FE_node_set_position_cartesian(node, 0, 0.0, 0.0, 0.0);	
+	node = Cmiss_region_get_node(region, "2");
+	FE_node_set_position_cartesian(node, 0, width, 0.0, 0.0);
+	node = Cmiss_region_get_node(region, "3");
+	FE_node_set_position_cartesian(node, 0, 0.0, height, 0.0);
+	node = Cmiss_region_get_node(region, "4");
+	FE_node_set_position_cartesian(node, 0, width, height, 0.0);
+	
 	DisplayImage(textures[0]);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
-	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 ); //REVIEW
+	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
 void ImageBrowseWindow::LoadImagePlaneModel()
@@ -221,7 +261,6 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 	if (material_)
 	{
 		material_->ChangeTexture(tex);
-		Cmiss_scene_viewer_redraw_now(sceneViewer_);
 	}
 	else
 	{
@@ -253,33 +292,35 @@ wxString ImageBrowseWindow::GetCellContentsString( long row_number, int column )
 }
 
 void ImageBrowseWindow::OnImageTableItemSelected(wxListEvent& event)
-{
-	std::cout << __func__ << '\n';
-//	std::cout << "id = " << event.GetId() << '\n';
-//	std::cout << "index = " << event.GetIndex() << '\n';
-//	std::cout << "text = " << event.GetText() << '\n';
-//	std::cout << "item.text = " << event.GetItem().GetText() << '\n';
-//	std::cout << "item.id = " << event.GetItem().GetId() << '\n';
-	
+{	
 	SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(event.GetItem().GetData());
 //	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
 //	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
 //	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
-	
-	SliceKeyType const& key = (*sliceValuePtr).first;
-	std::vector<DICOMPtr> const& images = (*sliceValuePtr).second;
-	// Update the gui
-	// Update image info
-	
-	// Update image preview panel
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	assert(slider);
-	
-	slider->SetMin(1);
-	slider->SetMax(images.size());
-	slider->SetValue(1);	
+		
 	// Display the images from the selected row.
-	SwitchSliceToDisplay(key);
+	SwitchSliceToDisplay(*sliceValuePtr);
+}
+
+void ImageBrowseWindow::UpdateImageInfoPanel(DICOMPtr const& dicomPtr)
+{
+	using std::string;
+	using boost::lexical_cast;
+	
+	size_t width = dicomPtr->GetImageWidth();
+	size_t height = dicomPtr->GetImageHeight();
+	string size = lexical_cast<string>(width) + " x " + lexical_cast<string>(height);
+	wxStaticText* stImageSize = XRCCTRL(*this, "ImageSize", wxStaticText);
+	stImageSize->SetLabel(size.c_str());
+	
+	Point3D position = dicomPtr->GetImagePosition();
+	std::stringstream ss;
+	ss << std::setprecision(5) << position.x << " ";
+	ss << std::setprecision(5) << position.x << " ";
+	ss << std::setprecision(5) << position.z;
+	string const &posStr(ss.str());
+	wxStaticText* stImagePosition = XRCCTRL(*this, "ImagePosition", wxStaticText);
+	stImagePosition->SetLabel(posStr.c_str());
 }
 
 void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
@@ -294,7 +335,8 @@ void ImageBrowseWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	DisplayImage((*texturesCurrentlyOnDisplay_)[value-1]);
 //	Time_keeper_request_new_time(timeKeeper_, time);
 	
-//	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
+	// force redraw while silder is manipulated
+	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 	return;
 }
 
