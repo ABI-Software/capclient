@@ -77,6 +77,36 @@ public:
 		return triggerTime_;
 	}
 	
+	std::string const& GetPatientName() const
+	{
+		return patientName_;
+	}
+	
+	std::string const& GetPatientID() const
+	{
+		return patientId_;
+	}
+	
+	std::string const& GetScanDate() const
+	{
+		return scanDate_;
+	}
+	
+	std::string const& GetDateOfBirth() const
+	{
+		return dateOfBirth_;
+	}
+	
+	std::string const& GetGender() const
+	{
+		return gender_;
+	}
+	
+	std::string const& GetAge() const
+	{
+		return age_;
+	}
+	
 //	void SetContrast();
 //	void SetBrightNess();
 	ImagePlane* GetImagePlaneFromDICOMHeaderInfo() const;
@@ -128,6 +158,13 @@ private:
 	int seriesNumber_;
 	Point3D position3D_;
 	Vector3D orientation1_, orientation2_;
+	
+	std::string patientName_;
+	std::string patientId_;
+	std::string scanDate_;
+	std::string dateOfBirth_;
+	std::string gender_;
+	std::string age_;
 	
 	mutable ImagePlane* plane_;
 //	Cmiss_texture* texture;
