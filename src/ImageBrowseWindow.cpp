@@ -27,6 +27,7 @@
 extern "C"
 {
 #include "finite_element/finite_element.h"
+#include "graphics/scene_viewer.h"
 }
 
 namespace
@@ -102,7 +103,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel);
 	
 //		Cmiss_scene_viewer_view_all(sceneViewer_);
-//		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	// TODO This window should use a separate scene from the default one (the one MainWindow uses)
 	
 	LoadImagePlaneModel();
@@ -244,7 +245,8 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	
 	DisplayImage(textures[0]);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
-	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 ); //REVIEW
+	Scene_viewer_viewport_zoom(sceneViewer_, 20.0); //REVIEW
+//	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 ); //REVIEW
 	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
@@ -401,9 +403,25 @@ void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
+void ImageBrowseWindow::OnShortAxisButtonEvent(wxCommandEvent& event)
+{
+	std::cout << __func__ << '\n';
+}
+
+void ImageBrowseWindow::OnLongAxisButtonEvent(wxCommandEvent& event)
+{
+	std::cout << __func__ << '\n';
+}
+
+void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
+{
+	std::cout << __func__ << '\n';
+}
+
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
 {
 	// TODO DO clean up!!
+	exit(0);
 }
 
 BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)
@@ -413,6 +431,9 @@ BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)
 	EVT_SLIDER(XRCID("AnimationSpeedControl"),ImageBrowseWindow::OnAnimationSpeedControlEvent)
 	EVT_SLIDER(XRCID("BrightnessSlider"),ImageBrowseWindow::OnBrightnessSliderEvent)
 	EVT_SLIDER(XRCID("ContrastSlider"),ImageBrowseWindow::OnContrastSliderEvent)
+	EVT_BUTTON(XRCID("ShortAxisButton"), ImageBrowseWindow::OnShortAxisButtonEvent)
+	EVT_BUTTON(XRCID("LongAxisButton"), ImageBrowseWindow::OnLongAxisButtonEvent)
+	EVT_BUTTON(XRCID("NoneButton"), ImageBrowseWindow::OnNoneButtonEvent)
 	EVT_CLOSE(ImageBrowseWindow::OnCloseImageBrowseWindow)
 END_EVENT_TABLE()
 

@@ -226,27 +226,27 @@
 									<option>1</option>
 									<flag>wxALL</flag>
 									<border>5</border>
-									<object class="wxRadioButton" name="ShortAxisButton">
+									<object class="wxButton" name="ShortAxisButton">
 										<label>Short Axis</label>
-										<value>0</value>
+										<default>0</default>
 									</object>
 								</object>
 								<object class="sizeritem">
 									<option>1</option>
 									<flag>wxALL</flag>
 									<border>5</border>
-									<object class="wxRadioButton" name="LongAxisButton">
+									<object class="wxButton" name="LongAxisButton">
 										<label>Long Axis</label>
-										<value>0</value>
+										<default>0</default>
 									</object>
 								</object>
 								<object class="sizeritem">
 									<option>1</option>
 									<flag>wxALL</flag>
 									<border>5</border>
-									<object class="wxRadioButton" name="NoneButton">
+									<object class="wxButton" name="NoneButton">
 										<label>None</label>
-										<value>0</value>
+										<default>0</default>
 									</object>
 								</object>
 							</object>
