@@ -47,6 +47,7 @@ private:
 	typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
 		
 	wxString GetCellContentsString( long row_number, int column );
+	void SortDICOMFiles();
 	void PopulateImageTable();
 	void LoadImages();
 	void SwitchSliceToDisplay(SliceKeyType const& key);
