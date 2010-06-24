@@ -175,7 +175,8 @@ void ImageBrowseWindow::PopulateImageTable()
 		rowNumber++;
 	}
 	
-//	UpdatePatientInfo();
+	DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
+	UpdatePatientInfoPanel(firstImage);
 }
 
 void ImageBrowseWindow::LoadImages()
@@ -291,6 +292,28 @@ wxString ImageBrowseWindow::GetCellContentsString( long row_number, int column )
 	return cell_contents_string;
 }
 
+void ImageBrowseWindow::SetInfoField(std::string const& fieldName, std::string const& data)
+{
+	wxStaticText* st = XRCCTRL(*this, fieldName.c_str(), wxStaticText);
+	st->SetLabel(data.c_str());
+}
+
+void ImageBrowseWindow::UpdatePatientInfoPanel(DICOMPtr const& image)
+{
+	using std::string;
+	string const& name = image->GetPatientName();
+	SetInfoField("PatientName", name);
+	string const& id = image->GetPatientID();
+	SetInfoField("PatientID", id);
+	string const& scanDate = image->GetScanDate();
+	SetInfoField("ScanDate", scanDate);
+	string const& dob = image->GetDateOfBirth();
+	SetInfoField("DateOfBirth", dob);
+	string const& gender = image->GetGender();
+	string const& age = image->GetAge();
+	SetInfoField("GenderAndAge", gender + " " + age);
+}
+
 void ImageBrowseWindow::OnImageTableItemSelected(wxListEvent& event)
 {	
 	SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(event.GetItem().GetData());
@@ -310,8 +333,7 @@ void ImageBrowseWindow::UpdateImageInfoPanel(DICOMPtr const& dicomPtr)
 	size_t width = dicomPtr->GetImageWidth();
 	size_t height = dicomPtr->GetImageHeight();
 	string size = lexical_cast<string>(width) + " x " + lexical_cast<string>(height);
-	wxStaticText* stImageSize = XRCCTRL(*this, "ImageSize", wxStaticText);
-	stImageSize->SetLabel(size.c_str());
+	SetInfoField("ImageSize", size);
 	
 	Point3D position = dicomPtr->GetImagePosition();
 	std::stringstream ss;
@@ -319,8 +341,7 @@ void ImageBrowseWindow::UpdateImageInfoPanel(DICOMPtr const& dicomPtr)
 	ss << std::setprecision(5) << position.x << " ";
 	ss << std::setprecision(5) << position.z;
 	string const &posStr(ss.str());
-	wxStaticText* stImagePosition = XRCCTRL(*this, "ImagePosition", wxStaticText);
-	stImagePosition->SetLabel(posStr.c_str());
+	SetInfoField("ImagePosition", posStr);
 }
 
 void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)

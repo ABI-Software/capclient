@@ -159,6 +159,54 @@ void DICOMImage::ReadDICOMFile()
 	at_spc.SetFromDataElement(spacing);
 	pixelSizeX_ = at_spc[0];
 	pixelSizeY_ = at_spc[1];
+	
+	//patient name (0010,0010) 
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0010));
+		gdcm::Attribute<0x0010,0x0010> at;
+		at.SetFromDataElement(de);
+		patientName_ = at.GetValue();
+	}
+	
+	//patient id (0010,0020)
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0020));
+		gdcm::Attribute<0x0010,0x0020> at;
+		at.SetFromDataElement(de);
+		patientId_ = at.GetValue();
+	}
+	
+	//acquisition date (0008,0022) 
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0008,0x0022));
+		gdcm::Attribute<0x0008,0x0022> at;
+		at.SetFromDataElement(de);
+		scanDate_ = at.GetValue();
+	}
+	
+	//date of birth (0010,0030)
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0030));
+		gdcm::Attribute<0x0010,0x0030> at;
+		at.SetFromDataElement(de);
+		dateOfBirth_ = at.GetValue();
+	}
+	
+	//gender (0010,0040)
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0040));
+		gdcm::Attribute<0x0010,0x0040> at;
+		at.SetFromDataElement(de);
+		gender_ = at.GetValue();
+	}
+	
+	//age (0010,1010)
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x1010));
+		gdcm::Attribute<0x0010,0x1010> at;
+		at.SetFromDataElement(de);
+		age_ = at.GetValue();
+	}
 }
 
 ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const

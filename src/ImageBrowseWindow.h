@@ -54,18 +54,9 @@ private:
 	void LoadImagePlaneModel();
 	void DisplayImage(Cmiss_texture_id tex);
 	void UpdateImageInfoPanel(DICOMPtr const& image);
-	void UpdatePatientInfoPanel();
+	void UpdatePatientInfoPanel(DICOMPtr const& image);
 	
-	std::string archiveFilename_;
-	CmguiManager const& cmguiManager_;
-	Cmiss_scene_viewer_id sceneViewer_;
-	std::tr1::shared_ptr<CAPMaterial> material_;
-	
-	wxListCtrl* imageTable_;
-	
-	SliceMap sliceMap_;
-	TextureMap textureMap_; // this could be merged with sliceMap_
-	std::vector<Cmiss_texture_id> const* texturesCurrentlyOnDisplay_;
+	void SetInfoField(std::string const& fieldName, std::string const& data);
 	
 	//Event handlers
 	void OnImageTableItemSelected(wxListEvent& event);
@@ -77,6 +68,17 @@ private:
 	void OnContrastSliderEvent(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
+	
+	std::string archiveFilename_;
+	CmguiManager const& cmguiManager_;
+	Cmiss_scene_viewer_id sceneViewer_;
+	std::tr1::shared_ptr<CAPMaterial> material_;
+	
+	wxListCtrl* imageTable_;
+	
+	SliceMap sliceMap_;
+	TextureMap textureMap_; // this could be merged with sliceMap_
+	std::vector<Cmiss_texture_id> const* texturesCurrentlyOnDisplay_;
 	
 	static const std::string IMAGE_PREVIEW;
 };
