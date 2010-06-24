@@ -64,6 +64,7 @@ namespace cap
 ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager)
 :
 	archiveFilename_(archiveFilename),
+	texturesCurrentlyOnDisplay_(0),
 	cmguiManager_(manager)
 {
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
@@ -187,6 +188,7 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceKeyType const& key)
 	assert(textureMap_.find(key) != textureMap_.end());
 	std::cout << __func__ << '\n';
 	std::vector<Cmiss_texture_id> const& textures = textureMap_[key];
+	texturesCurrentlyOnDisplay_ = &textures;
 	
 	DisplayImage(textures[0]);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
@@ -259,8 +261,95 @@ void ImageBrowseWindow::OnImageTableItemSelected(wxListEvent& event)
 	SwitchSliceToDisplay((*sliceValuePtr).first);
 }
 
+void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
+{
+}
+
+void ImageBrowseWindow::OnAnimationSliderEvent(wxCommandEvent& event)
+{
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+	int value = slider->GetValue();
+	
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+	double time =  (double)(value - min) / (double)(max - min);
+//	double prevFrameTime = heartModel_.MapToModelFrameTime(time);
+//	if ((time - prevFrameTime) < (0.5)/(heartModel_.GetNumberOfModelFrames()))
+//	{
+//		time = prevFrameTime;
+//	}
+//	else
+//	{
+//		time = prevFrameTime + (float)1/(heartModel_.GetNumberOfModelFrames());
+//	}
+	slider->SetValue(time * (max - min));
+//	cout << "time = " << time << endl;;	
+//	imageSet_->SetTime(time);
+	time = (time > 0.99) ? 0 : time;
+	
+//	Time_keeper_request_new_time(timeKeeper_, time);
+	
+//	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
+	return;
+}
+
+void ImageBrowseWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
+{
+	wxSlider* slider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
+	int value = slider->GetValue();
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+	
+	double speed = (double)(value - min) / (double)(max - min) * 2.0;
+//	Time_keeper_set_speed(timeKeeper_, speed);
+//	
+//	RefreshCmguiCanvas(); // forces redraw while silder is manipulated
+	return;
+}
+
+void ImageBrowseWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
+{
+	int value = event.GetInt();
+	std::cout << __func__ << "- event.GetInt() = " << value << "\n";
+//	wxSlider* slider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
+//	int value = slider->GetValue();
+//	int min = slider->GetMin();
+//	int max = slider->GetMax();
+//	
+//	float brightness = (float)(value - min) / (float)(max - min);
+//	material_->SetBrightness(brightness);
+	
+//	RefreshCmguiCanvas();
+}
+
+void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
+{
+	wxSlider* slider = XRCCTRL(*this, "ContrastSlider", wxSlider);
+	int value = slider->GetValue();
+	int min = slider->GetMin();
+	int max = slider->GetMax();
+	std::cout << __func__ << "- slide.GetMin() = " << min << "\n";
+	std::cout << __func__ << "- sliderGetMax() = " << max << "\n";
+	
+	float contrast = (float)(value - min) / (float)(max - min);
+	material_->SetContrast(contrast);
+		
+//	RefreshCmguiCanvas();
+}
+
+void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
+{
+	// TODO DO clean up!!
+}
+
 BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)
 	EVT_LIST_ITEM_SELECTED(XRCID("ImageTable"), ImageBrowseWindow::OnImageTableItemSelected)
+	EVT_SLIDER(XRCID("AnimationSlider"),ImageBrowseWindow::OnAnimationSliderEvent)
+	EVT_BUTTON(XRCID("PlayButton"),ImageBrowseWindow::OnPlayToggleButtonPressed) 
+	EVT_SLIDER(XRCID("AnimationSpeedControl"),ImageBrowseWindow::OnAnimationSpeedControlEvent)
+	EVT_SLIDER(XRCID("BrightnessSlider"),ImageBrowseWindow::OnBrightnessSliderEvent)
+	EVT_SLIDER(XRCID("ContrastSlider"),ImageBrowseWindow::OnContrastSliderEvent)
+	EVT_CLOSE(ImageBrowseWindow::OnCloseImageBrowseWindow)
 END_EVENT_TABLE()
 
 } // end namespace cap
