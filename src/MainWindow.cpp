@@ -922,10 +922,6 @@ void MainWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 	float brightness = (float)(value - min) / (float)(max - min);
 	imageSet_->SetBrightness(brightness);
 	
-	imageSet_->SetTime(0);
-	imageSet_->SetTime(1);
-	imageSet_->SetTime(GetCurrentTime());//FIX hack to force texture change
-	
 	RefreshCmguiCanvas();
 }
 
@@ -939,10 +935,6 @@ void MainWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	
 	float contrast = (float)(value - min) / (float)(max - min);
 	imageSet_->SetContrast(contrast);
-	
-	imageSet_->SetTime(0);
-	imageSet_->SetTime(1);
-	imageSet_->SetTime(GetCurrentTime());//FIX hack to force texture change
 	
 	RefreshCmguiCanvas();
 }
