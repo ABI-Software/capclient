@@ -26,6 +26,8 @@ typedef Cmiss_texture* Cmiss_texture_id;
 struct Graphical_material;
 typedef Graphical_material* Cmiss_material_id;;
 
+int Graphical_material_changed(struct Graphical_material *material);
+
 namespace cap
 {
 
@@ -35,7 +37,7 @@ namespace cap
 class CAPMaterial : public boost::noncopyable
 {
 public:
-	explicit CAPMaterial(std::string const& materialName)
+	CAPMaterial(std::string const& materialName, Cmiss_graphics_module_id graphics_module)
 	:
 	regionName_(materialName),
 	material_(0),
@@ -48,7 +50,7 @@ public:
 		
 		// User has to make sure each material has correct name as it is also used 
 		// for the region to which this material is applied.
-		material_ = create_Graphical_material(materialName.c_str());
+		material_ = Cmiss_graphics_module_create_material(graphics_module);
 
 		// Initialize shaders that are used for adjusting brightness and contrast
 		using namespace std;
@@ -83,6 +85,11 @@ public:
 			cout << "ImageSlice::ImageSlice() Error setting pixel value to brightnessAndContrastTexture_" << endl;
 		}
 		
+		// Note: cmgui provided an api function Cmiss_material_set_texture
+		// which calls Graphical_material_changed()
+		// but no equivalent exists for Graphical_material_set_second_texture
+		// which here is used for the procedural texture that is used to pass on the
+		// brightness and contrast value to the OpenGL shaders.
 		Graphical_material_set_second_texture(material_, brightnessAndContrastTexture_);
 	}
 	
@@ -139,9 +146,27 @@ public:
 			std::cout << "ImageSlice::SetContrast() Error setting pixel value to brightnessAndContrastTexture_\n";
 		}
 		Texture_notify_change(brightnessAndContrastTexture_);
+		Graphical_material_changed(material_);
 	}
 	
-	void SwitchTexture(Cmiss_texture_id tex); // needs cmiss_context to locate the root region!
+	void ChangeTexture(Cmiss_texture_id tex)
+	{	
+		if (material_)
+		{
+			// Cmiss_material_set_texture calls Graphical_material_changed(material)
+			// Whereas Graphical_material_set_texture doesn't
+			// Currently no such function exists for Graphical_material_set_second_texture
+			if (!Cmiss_material_set_texture(material_,tex))
+			{
+				//Error
+				std::cout << "Error: Cmiss_material_set_texture()\n";
+			}
+		}
+		else
+		{
+			std::cout << __func__ << " - Error: null material pointer\n";
+		}
+	}
 	
 	Cmiss_material_id GetCmissMaterial() const
 	{

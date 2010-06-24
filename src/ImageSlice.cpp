@@ -103,8 +103,7 @@ void ImageSlice::SetTime(double time)
 	//cout << "ImageSlice::setTime index = " << index << endl;
 		
 	Cmiss_texture* tex= textures_[index];
-	cmguiManager_.SwitchMaterialTexture(material_->GetCmissMaterial(), tex, sliceName_);
-
+	material_->ChangeTexture(tex);
 	return ;
 }
 

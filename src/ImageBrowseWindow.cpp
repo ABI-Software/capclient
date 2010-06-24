@@ -220,7 +220,7 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 {	
 	if (material_)
 	{
-		cmguiManager_.SwitchMaterialTexture(material_->GetCmissMaterial(),tex, IMAGE_PREVIEW);
+		material_->ChangeTexture(tex);
 		Cmiss_scene_viewer_redraw_now(sceneViewer_);
 	}
 	else
@@ -315,16 +315,11 @@ void ImageBrowseWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 void ImageBrowseWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 {
 	int value = event.GetInt();
-	std::cout << __func__ << "- event.GetInt() = " << value << "\n";
-//	wxSlider* slider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
-//	int value = slider->GetValue();
-//	int min = slider->GetMin();
-//	int max = slider->GetMax();
-//	
-//	float brightness = (float)(value - min) / (float)(max - min);
-//	material_->SetBrightness(brightness);
+//	std::cout << __func__ << "- event.GetInt() = " << value << "\n";
+	float brightness = static_cast<float>(value)/100.0;
+	material_->SetBrightness(brightness);
 	
-//	RefreshCmguiCanvas();
+	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
 void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
@@ -337,11 +332,10 @@ void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
 //	std::cout << __func__ << "- sliderGetMax() = " << max << "\n";
 	
 	float contrast = (float)(value - min) / (float)(max - min);
-	if (material_)
-	{
-		material_->SetContrast(contrast);
-	}	
-//	RefreshCmguiCanvas();
+	assert(material_);
+	material_->SetContrast(contrast);
+	
+	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
