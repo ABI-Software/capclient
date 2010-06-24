@@ -50,8 +50,7 @@ public:
 	 */
 	std::tr1::shared_ptr<CAPMaterial> CreateCAPMaterial(std::string const& materialName) const;
 	
-	// TODO move the following methods out to a separate class
-	void SwitchMaterialTexture(Cmiss_material_id material, Cmiss_texture_id tex, std::string const& regionName) const;
+	// TODO move the following method out to a more suitable class
 	Scene_object* AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 			Cmiss_material_id material, std::string const& regionName) const;
 

@@ -61,8 +61,9 @@ Cmiss_texture_id CmguiManager::LoadCmissTexture(std::string const& filename) con
 
 std::tr1::shared_ptr<CAPMaterial> CmguiManager::CreateCAPMaterial(std::string const& materialName) const
 {
-//	std::tr1::shared_ptr<CAPMaterial> material(new CAPMaterial(materialName));	
-	return boost::make_shared<CAPMaterial>(materialName); // faster than shared_ptr<CAPMaterial>(new )
+	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
+	// boost::make_pair is faster than shared_ptr<CAPMaterial>(new )
+	return boost::make_shared<CAPMaterial>(materialName, gModule);
 }
 
 void CmguiManager::ReadRectangularModelFiles(std::string const& modelName) const
@@ -83,71 +84,6 @@ void CmguiManager::ReadRectangularModelFiles(std::string const& modelName) const
 	{
 		std::cout << "Error reading ex file - " << modelName << ".exelem" << std::endl;
 	}
-}
-
-void CmguiManager::SwitchMaterialTexture(Cmiss_material_id material, 
-		Cmiss_texture_id tex, std::string const& regionName) const
-{
-	using namespace std;
-	
-	if (material)
-	{
-		if (!Graphical_material_set_texture(material,tex))//Bug this never returns 1 (returns garbage) - always returns 0 on windows
-		{
-			//Error
-			//cout << "Error: Graphical_material_set_texture()" << endl;
-		}
-//		if (!Graphical_material_set_second_texture(material, brightnessAndContrastTexture_))
-		{
-			//Error
-		}
-	}
-	else
-	{
-		cout << __func__ << " - Error: null material pointer\n";
-		return;
-	}
-	
-	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
-	//Got to find the child region first!!
-	Cmiss_region* region;
-	
-//	string regionName("LA1"); //temporary!!
-	if(!(region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str())))
-	{
-		//error
-		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
-	}
-
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_SURFACES);
-	// use the same material for selected material
-	GT_element_settings_set_selected_material(settings, material);
-
-	if(!GT_element_settings_set_material(settings, material))
-	{
-		//Error;
-		cout << "GT_element_settings_set_material() returned 0" << endl;
-	}
-	else
-	{
-		manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-		Computed_field* c_field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("xi",cfm);
-
-		GT_element_settings_set_texture_coordinate_field(settings,c_field);
-
-		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
-		struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-		
-
-		if (!Cmiss_region_modify_g_element(region, scene,settings,
-			/*delete_flag*/0, /*position*/-1))
-		{
-			 //error
-			cout << "Cmiss_region_modify_g_element() returned 0" << endl;
-		}
-	}
-
-	return;
 }
 
 Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
