@@ -61,6 +61,8 @@ const char* TEST_DIR = "./temp/XMLZipTest";
 namespace cap
 {
 
+std::string const ImageBrowseWindow::IMAGE_PREVIEW = std::string("ImagePreview");
+
 ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager)
 :
 	archiveFilename_(archiveFilename),
@@ -74,13 +76,15 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 
 	assert(imageTable_);
 	
-	imageTable_->InsertColumn(0, _("Series Number"));
-	imageTable_->InsertColumn(1, _("Series Desc"));
-	imageTable_->InsertColumn(2, _("Sequence Name"));
-	imageTable_->InsertColumn(3, _("Series Time"));
-	imageTable_->InsertColumn(4, _("Num Images"));
-	imageTable_->InsertColumn(5, _("Label"));
+	long columnIndex = 0;
+	imageTable_->InsertColumn(columnIndex++, _("Series #"), wxLIST_FORMAT_CENTRE, 75);
+	imageTable_->InsertColumn(columnIndex++, _("Series Description"), wxLIST_FORMAT_CENTRE, -1);
+	imageTable_->InsertColumn(columnIndex++, _("Sequence Name"), wxLIST_FORMAT_CENTRE, 120);
+//	imageTable_->InsertColumn(columnIndex++, _("Series Time"));
+	imageTable_->InsertColumn(columnIndex++, _("Images"), wxLIST_FORMAT_CENTRE, 75);
+	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 75);
 	
+	this->Fit();
 //	wxString str = imageTable_->GetItemText(0);
 //	std::cout << str << '\n';
 //	std::cout << GetCellContentsString(0, 2) << '\n';
@@ -145,12 +149,13 @@ void ImageBrowseWindow::PopulateImageTable()
 		std::sort(images.begin(), images.end(), *_1 < *_2);
 		DICOMPtr image = images[0];
 		long itemIndex = imageTable_->InsertItem(rowNumber, lexical_cast<string>(image->GetSeriesNumber()).c_str());
-		imageTable_->SetItem(itemIndex, 1, image->GetSeriesDescription().c_str()); 
-		imageTable_->SetItem(itemIndex, 2, image->GetSequenceName().c_str());
-		double triggerTime = image->GetTriggerTime();
-		std::string seriesTime = triggerTime < 0 ? "" : lexical_cast<string>(image->GetTriggerTime());// fix
-		imageTable_->SetItem(itemIndex, 3, seriesTime.c_str());
-		imageTable_->SetItem(itemIndex, 4, lexical_cast<string>(value.second.size()).c_str());
+		long columnIndex = 1;
+		imageTable_->SetItem(itemIndex, columnIndex++, image->GetSeriesDescription().c_str()); 
+		imageTable_->SetItem(itemIndex, columnIndex++, image->GetSequenceName().c_str());
+//		double triggerTime = image->GetTriggerTime();
+//		std::string seriesTime = triggerTime < 0 ? "" : lexical_cast<string>(image->GetTriggerTime());// fix
+//		imageTable_->SetItem(itemIndex, columnIndex++, seriesTime.c_str());
+		imageTable_->SetItem(itemIndex, columnIndex++, lexical_cast<string>(value.second.size()).c_str());
 		
 		imageTable_->SetItemData(itemIndex, reinterpret_cast<long int>(&value)); // Check !! is this safe??!!
 		rowNumber++;
@@ -197,11 +202,9 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceKeyType const& key)
 
 void ImageBrowseWindow::LoadImagePlaneModel()
 {	
-	std::string name("LA1"); // change
-	
-	cmguiManager_.ReadRectangularModelFiles(name);	
-	material_ = cmguiManager_.CreateCAPMaterial("ImageBrowseWindow");
-	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_->GetCmissMaterial(), name);
+	cmguiManager_.ReadRectangularModelFiles(IMAGE_PREVIEW);	
+	material_ = cmguiManager_.CreateCAPMaterial(IMAGE_PREVIEW);
+	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_->GetCmissMaterial(), IMAGE_PREVIEW);
 	
 	return;
 }
@@ -211,7 +214,7 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	if (material_)
 	{
-		cmguiManager_.SwitchMaterialTexture(material_->GetCmissMaterial(),tex, "LA1"); //FIX "LA1"
+		cmguiManager_.SwitchMaterialTexture(material_->GetCmissMaterial(),tex, IMAGE_PREVIEW);
 	}
 	else
 	{
@@ -328,12 +331,14 @@ void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	int value = slider->GetValue();
 	int min = slider->GetMin();
 	int max = slider->GetMax();
-	std::cout << __func__ << "- slide.GetMin() = " << min << "\n";
-	std::cout << __func__ << "- sliderGetMax() = " << max << "\n";
+//	std::cout << __func__ << "- slide.GetMin() = " << min << "\n";
+//	std::cout << __func__ << "- sliderGetMax() = " << max << "\n";
 	
 	float contrast = (float)(value - min) / (float)(max - min);
-	material_->SetContrast(contrast);
-		
+	if (material_)
+	{
+		material_->SetContrast(contrast);
+	}	
 //	RefreshCmguiCanvas();
 }
 

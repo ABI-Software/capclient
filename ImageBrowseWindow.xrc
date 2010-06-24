@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<resource>
+<resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
 	<object class="wxFrame" name="ImageBrowseWindow">
 		<style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
-		<size>816,641</size>
+		<size>-1,-1</size>
 		<title></title>
 		<object class="wxBoxSizer">
-			<orient>wxVERTICAL</orient>
+			<orient>wxHORIZONTAL</orient>
 			<object class="sizeritem">
-				<option>1</option>
+				<option>3</option>
 				<flag>wxEXPAND|wxALL</flag>
 				<border>5</border>
 				<object class="wxPanel" name="m_panel1">
 					<style>wxTAB_TRAVERSAL</style>
 					<object class="wxBoxSizer">
-						<orient>wxHORIZONTAL</orient>
+						<orient>wxVERTICAL</orient>
 						<object class="sizeritem">
 							<option>0</option>
 							<flag>wxEXPAND|wxRIGHT|wxLEFT</flag>
 							<border>5</border>
 							<object class="wxStaticBoxSizer">
 								<orient>wxVERTICAL</orient>
-								<label>patient list</label>
+								<label>Patient List</label>
 								<object class="sizeritem">
 									<option>0</option>
 									<flag>wxALL</flag>
@@ -28,9 +28,8 @@
 									<object class="wxChoice" name="m_choice1">
 										<selection>0</selection>
 										<content>
-											<item>aaa</item>
-											<item>addas</item>
-											<item>da</item>
+											<item>Patient1 2010/01/01</item>
+											<item>Patient2 2010/01/02</item>
 										</content>
 									</object>
 								</object>
@@ -42,14 +41,13 @@
 							<border>5</border>
 							<object class="wxStaticBoxSizer">
 								<orient>wxVERTICAL</orient>
-								<label>image list</label>
+								<label>Series List</label>
 								<object class="sizeritem">
 									<option>1</option>
 									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
 									<border>5</border>
 									<object class="wxListCtrl" name="ImageTable">
 										<style>wxLC_REPORT|wxLC_SINGLE_SEL</style>
-										<size>600,200</size>
 									</object>
 								</object>
 							</object>
@@ -58,35 +56,196 @@
 				</object>
 			</object>
 			<object class="sizeritem">
-				<option>1</option>
-				<flag>wxEXPAND | wxALL</flag>
+				<option>2</option>
+				<flag>wxALL|wxEXPAND</flag>
 				<border>5</border>
 				<object class="wxPanel" name="m_panel3">
 					<style>wxTAB_TRAVERSAL</style>
 					<object class="wxBoxSizer">
-						<orient>wxHORIZONTAL</orient>
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxStaticBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<label>Patient Info</label>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxGridSizer">
+										<rows>2</rows>
+										<cols>2</cols>
+										<vgap>0</vgap>
+										<hgap>0</hgap>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText1">
+												<label>Patient Name</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="PatientName">
+												<label>Name</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText3">
+												<label>Patient ID</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="PatientID">
+												<label>ID</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText5">
+												<label>Scan Date</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="ScanDate">
+												<label>2010/01/01</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText7">
+												<label>Dat of Birth</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="DateOfBirth">
+												<label>2010/01/01</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText9">
+												<label>Gender/Age</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="GenderAndAge">
+												<label>M 20</label>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxStaticBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<label>Image Info</label>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxGridSizer">
+										<rows>2</rows>
+										<cols>2</cols>
+										<vgap>0</vgap>
+										<hgap>0</hgap>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText11">
+												<label>Image Size</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="ImageSize">
+												<label>256 X 256</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText13">
+												<label>Image Position</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="ImagePosition">
+												<label>40.2 30.3 100.2</label>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
 						<object class="sizeritem">
 							<option>0</option>
 							<flag>wxEXPAND|wxRIGHT|wxLEFT</flag>
 							<border>5</border>
 							<object class="wxStaticBoxSizer">
-								<orient>wxVERTICAL</orient>
-								<label>labels</label>
+								<orient>wxHORIZONTAL</orient>
+								<label>Labels</label>
 								<object class="sizeritem">
-									<option>0</option>
+									<option>1</option>
 									<flag>wxALL</flag>
 									<border>5</border>
-									<object class="wxRadioButton" name="m_radioBtn2">
+									<object class="wxRadioButton" name="ShortAxisButton">
 										<label>Short Axis</label>
 										<value>0</value>
 									</object>
 								</object>
 								<object class="sizeritem">
-									<option>0</option>
+									<option>1</option>
 									<flag>wxALL</flag>
 									<border>5</border>
-									<object class="wxRadioButton" name="m_radioBtn3">
+									<object class="wxRadioButton" name="LongAxisButton">
 										<label>Long Axis</label>
+										<value>0</value>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxRadioButton" name="NoneButton">
+										<label>None</label>
 										<value>0</value>
 									</object>
 								</object>
@@ -94,10 +253,61 @@
 						</object>
 						<object class="sizeritem">
 							<option>1</option>
-							<flag>wxEXPAND | wxALL</flag>
+							<flag>wxEXPAND</flag>
 							<border>5</border>
-							<object class="wxPanel" name="CmguiPanel">
-								<style>wxTAB_TRAVERSAL</style>
+							<object class="wxStaticBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<label>Image Preview</label>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxBoxSizer">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxSlider" name="BrightnessSlider">
+												<style>wxSL_HORIZONTAL</style>
+												<value>50</value>
+												<min>0</min>
+												<max>100</max>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxSlider" name="ContrastSlider">
+												<style>wxSL_HORIZONTAL</style>
+												<value>50</value>
+												<min>0</min>
+												<max>100</max>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxEXPAND | wxALL</flag>
+									<border>5</border>
+									<object class="wxPanel" name="CmguiPanel">
+										<style>wxTAB_TRAVERSAL</style>
+										<size>-1,300</size>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxSlider" name="AnimationSlider">
+										<style>wxSL_HORIZONTAL</style>
+										<value>50</value>
+										<min>0</min>
+										<max>100</max>
+									</object>
+								</object>
 							</object>
 						</object>
 					</object>
