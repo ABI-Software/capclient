@@ -72,8 +72,10 @@ private:
 	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
 	void OnBrightnessSliderEvent(wxCommandEvent& event);
 	void OnContrastSliderEvent(wxCommandEvent& event);
-		
+	
 	DECLARE_EVENT_TABLE();
+	
+	static const std::string IMAGE_PREVIEW;
 };
 
 } // end namespace cap
