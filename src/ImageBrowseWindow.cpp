@@ -84,7 +84,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	imageTable_->InsertColumn(columnIndex++, _("Images"), wxLIST_FORMAT_CENTRE, 75);
 	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 75);
 	
-	this->Fit();
+//	this->Fit();
 //	wxString str = imageTable_->GetItemText(0);
 //	std::cout << str << '\n';
 //	std::cout << GetCellContentsString(0, 2) << '\n';
@@ -100,6 +100,10 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	
 	LoadImagePlaneModel();
 	LoadImages();
+	
+	// Finally fit the window to the size requirements of its children
+	// this also forces the cmgui panel to display correctly
+	this->Fit();
 }
 
 ImageBrowseWindow::~ImageBrowseWindow()
@@ -249,17 +253,26 @@ void ImageBrowseWindow::OnImageTableItemSelected(wxListEvent& event)
 {
 	std::cout << __func__ << '\n';
 //	std::cout << "id = " << event.GetId() << '\n';
-	std::cout << "index = " << event.GetIndex() << '\n';
+//	std::cout << "index = " << event.GetIndex() << '\n';
 //	std::cout << "text = " << event.GetText() << '\n';
 //	std::cout << "item.text = " << event.GetItem().GetText() << '\n';
 //	std::cout << "item.id = " << event.GetItem().GetId() << '\n';
 	
 	SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(event.GetItem().GetData());
-	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
-	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
+//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
+//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
+//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
 	
-	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
-	
+//	SliceKeyType const& key = (*sliceValuePtr).first;
+//	std::vector<DICOMPtr> const& images = (*sliceValuePtr).second;
+//	// Update the gui
+//	// Update image info
+//	
+//	// Update image preview
+//	wxSlider* slider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
+//	slider->SetMin(0);
+//	slider->SetMax(images.size());
+//	slider->SetValue(0);	
 	// Display the images from the selected row.
 	SwitchSliceToDisplay((*sliceValuePtr).first);
 }
