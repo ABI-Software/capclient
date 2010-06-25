@@ -57,6 +57,7 @@ private:
 	void UpdatePatientInfoPanel(DICOMPtr const& image);
 	
 	void SetInfoField(std::string const& fieldName, std::string const& data);
+	void PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::string const& label);
 	
 	//Event handlers
 	void OnImageTableItemSelected(wxListEvent& event);

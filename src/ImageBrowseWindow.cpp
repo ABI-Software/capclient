@@ -408,11 +408,9 @@ void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
-namespace {
-
-void PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::string const& label)
+void ImageBrowseWindow::PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::string const& label)
 {
-	std::cout << __func__ << '\n';
+//	std::cout << __func__ << '\n';
 	long index = imageTable->GetNextItem(-1,
 						wxLIST_NEXT_ALL,
 						wxLIST_STATE_SELECTED);
@@ -428,23 +426,21 @@ void PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::string const& label)
 	}
 }
 
-}
-
 void ImageBrowseWindow::OnShortAxisButtonEvent(wxCommandEvent& event)
 {
-	std::cout << __func__ << '\n';
+//	std::cout << __func__ << '\n';
 	PutLabelOnSelectedSlice(imageTable_, "Short Axis");
 }
 
 void ImageBrowseWindow::OnLongAxisButtonEvent(wxCommandEvent& event)
 {
-	std::cout << __func__ << '\n';
+//	std::cout << __func__ << '\n';
 	PutLabelOnSelectedSlice(imageTable_, "Long Axis");
 }
 
 void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 {
-	std::cout << __func__ << '\n';
+//	std::cout << __func__ << '\n';
 	PutLabelOnSelectedSlice(imageTable_, "");
 }
 
