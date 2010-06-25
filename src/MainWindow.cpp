@@ -219,21 +219,6 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	wxXmlResource::Get()->Load("MainWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("MainWindow"));
 	
-	// HACK to make sure the layout is properly applied (for Mac)
-	this->Show(true);
-	wxSplitterWindow* win = XRCCTRL(*this, "window_1", wxSplitterWindow);
-	assert(win);
-	
-	win->SetSashPosition(800, true);
-//	this->SetSize(1023,767);
-//	this->SetSize(1024,768);
-	
-	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
-	m_pPanel->GetContainingSizer()->SetMinSize(800, 800);
-	m_pPanel->GetContainingSizer()->SetDimension(-1, -1, 800, 800);
-	this->GetSizer()->SetSizeHints(this);
-	this->Fit();
-	
 	// GUI initialization
 
 	// Initialize check box list of scene objects (image slices)
@@ -241,97 +226,46 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	objectList_->SetSelection(wxNOT_FOUND);
 	objectList_->Clear();
 	
-	// Initialize animation speed control
-	wxSlider* animantionSpeedControl = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
-	int min = animantionSpeedControl->GetMin();
-	int max = animantionSpeedControl->GetMax();
-	animantionSpeedControl->SetValue((max - min)/2);
-	
-	this->Layout();
-	this->Fit();
-	
-	this->Show(false);
-	
-//	heartModel_.ReadModelFromFiles("test");	
-	
-#define TEXTURE_ANIMATION
-#ifdef TEXTURE_ANIMATION
+	// Texture animation
 	LoadImages();
+	imageSet_->SetBrightness(0.5);
+	imageSet_->SetContrast(0.5);
 	
-//	Cmiss_scene_viewer_id sceneViewer = CmguiManager::getInstance().createSceneViewer(m_pPanel);
-
+	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(m_pPanel);
-	
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
-#define TIME_OBJECT_CALLBACK_TEST
-#ifdef TIME_OBJECT_CALLBACK_TEST
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, 28, 0); // FIX magic number
-	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
-//	Cmiss_time_keeper_add_time_notifier(timeKeeper_, time_notifier);
-#endif		
-#endif //TEXTURE_ANIMATION
-	
 	//Load model
 	heartModel_.ReadModelFromFiles("MIDLIFE_01", CAP_DATA_DIR);	
-	//heartModel_.SetRenderMode(CAPModelLVPS4X4::WIREFRAME);//this resets timer frequency for model!! if called after its been cleared!!??
-
 	InitialiseMII();
-	
 	heartModel_.SetModelVisibility(false);
 	heartModel_.SetMIIVisibility(false);
 	
-	Time_keeper_set_minimum(timeKeeper_, 0);
-	Time_keeper_set_maximum(timeKeeper_, 1);
-	
-	this->Show(true);
-
-	// initialize brightness and contrast sliders
-	wxSlider* brightnessSlider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
-	min = brightnessSlider->GetMin();
-	max = brightnessSlider->GetMax();
-	brightnessSlider->SetValue((max - min)/2);
-	imageSet_->SetBrightness(0.5);
-	
-	wxSlider* contrastSlider = XRCCTRL(*this, "ContrastSlider", wxSlider);
-	min = contrastSlider->GetMin();
-	max = contrastSlider->GetMax();
-	contrastSlider->SetValue((max - min)/2);
-	imageSet_->SetContrast(0.5);
-	
-	Time_keeper_request_new_time(timeKeeper_, 1);
-	Time_keeper_request_new_time(timeKeeper_, 0); //HACK
-#define NODE_CREATION
-#ifdef NODE_CREATION
-	Scene_viewer_add_input_callback(sceneViewer_,
-			input_callback, (void*)this, 1/*add_first*/);
-
-#endif //NODE_CREATION
-	
-	//TEST - Image Shifting
-//	Cmiss_scene_viewer_add_input_callback(CmguiManager::getInstance().getSceneViewer(),
-//			input_callback_image_shifting, (void*)this, 1/*add_first*/);
+	// Initialize input
+	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
 	
 //	modeller_->InitialiseModel();//REVISE
 	
-	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
+//	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
+//	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
+//	
+//	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
+//	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
 	
-	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
-	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
-	
-//	InitialiseVolumeGraph();
+	// Initialize timer for animation
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, 28, 0); // FIX magic number
+	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
+	Time_keeper_set_minimum(timeKeeper_, 0);
+	Time_keeper_set_maximum(timeKeeper_, 1);
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	slider->SetTickFreq(28,0);
-	
-//	// we use PNG & JPEG images in our HTML page
-//	//wxImage::AddHandler(new wxJPEGHandler);
-//	wxImage::AddHandler(new wxPNGHandler);
 	
 	CreateStatusBar(0);
 	
 	SetTime(0.0);
+	
+	this->Fit();
 }
 
 MainWindow::~MainWindow()
@@ -386,22 +320,6 @@ struct SliceNameLessThan : std::binary_function <std::string,std::string,bool>
 void MainWindow::LoadImages()
 {
 	vector<string> sliceNames;
-
-//	sliceNames.push_back("SA1");
-//	sliceNames.push_back("SA2");
-//	sliceNames.push_back("SA3");
-//	sliceNames.push_back("SA4");
-//	sliceNames.push_back("SA5");
-//	sliceNames.push_back("SA6");
-////	sliceNames.push_back("SA7");
-////	sliceNames.push_back("SA8");
-////	sliceNames.push_back("SA9");
-////	sliceNames.push_back("SA10");
-//	//sliceNames.push_back("SA11");
-//	//sliceNames.push_back("SA12");
-//	sliceNames.push_back("LA1");
-//	sliceNames.push_back("LA2");
-//	sliceNames.push_back("LA3");
 	
 	string dir_path(CAP_DATA_DIR);
 	dir_path.append("images/");
@@ -437,15 +355,15 @@ void MainWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 	RefreshCmguiCanvas();
 }
 
-void MainWindow::InitialiseModel()
-{
-	modeller_->InitialiseModel();
-	modeller_->UpdateTimeVaryingModel();
-	RefreshCmguiCanvas();
-	
-	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
-}
+//void MainWindow::InitialiseModel()
+//{
+//	modeller_->InitialiseModel();
+//	modeller_->UpdateTimeVaryingModel();
+//	RefreshCmguiCanvas();
+//	
+//	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
+//	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
+//}
 
 void MainWindow::SmoothAlongTime()
 {
