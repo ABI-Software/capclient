@@ -325,9 +325,9 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	slider->SetTickFreq(28,0);
 	
-	// we use PNG & JPEG images in our HTML page
-	//wxImage::AddHandler(new wxJPEGHandler);
-	wxImage::AddHandler(new wxPNGHandler);
+//	// we use PNG & JPEG images in our HTML page
+//	//wxImage::AddHandler(new wxJPEGHandler);
+//	wxImage::AddHandler(new wxPNGHandler);
 	
 	CreateStatusBar(0);
 	
