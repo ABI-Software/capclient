@@ -90,7 +90,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	imageTable_->InsertColumn(columnIndex++, _("Sequence Name"), wxLIST_FORMAT_CENTRE, 120);
 //	imageTable_->InsertColumn(columnIndex++, _("Series Time"));
 	imageTable_->InsertColumn(columnIndex++, _("Images"), wxLIST_FORMAT_CENTRE, 75);
-	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 75);
+	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 85);
 	
 //	wxString str = imageTable_->GetItemText(0);
 //	std::cout << str << '\n';
@@ -112,6 +112,11 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	// Finally fit the window to meet the size requirements of its children
 	// this also forces the cmgui panel to display correctly
 	this->Fit();
+	
+	// This stops the window from getting too long in height 
+	// when there are many items in the Image Table
+	this->SetSize(-1, 768);
+	this->Centre();
 }
 
 ImageBrowseWindow::~ImageBrowseWindow()
@@ -403,19 +408,44 @@ void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
+namespace {
+
+void PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::string const& label)
+{
+	std::cout << __func__ << '\n';
+	long index = imageTable->GetNextItem(-1,
+						wxLIST_NEXT_ALL,
+						wxLIST_STATE_SELECTED);
+	if (index != -1)
+	{
+		static long const LABEL_COLUMN_INDEX = 4;
+		imageTable->SetItem(index, LABEL_COLUMN_INDEX, label.c_str());
+		if (index < imageTable->GetItemCount() - 1)
+		{
+			imageTable->SetItemState(index  , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
+			imageTable->SetItemState(index+1, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+		}
+	}
+}
+
+}
+
 void ImageBrowseWindow::OnShortAxisButtonEvent(wxCommandEvent& event)
 {
 	std::cout << __func__ << '\n';
+	PutLabelOnSelectedSlice(imageTable_, "Short Axis");
 }
 
 void ImageBrowseWindow::OnLongAxisButtonEvent(wxCommandEvent& event)
 {
 	std::cout << __func__ << '\n';
+	PutLabelOnSelectedSlice(imageTable_, "Long Axis");
 }
 
 void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 {
 	std::cout << __func__ << '\n';
+	PutLabelOnSelectedSlice(imageTable_, "");
 }
 
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
