@@ -80,17 +80,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
 	
-	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
-
-	assert(imageTable_);
-	
-	long columnIndex = 0;
-	imageTable_->InsertColumn(columnIndex++, _("Series #"), wxLIST_FORMAT_CENTRE, 75);
-	imageTable_->InsertColumn(columnIndex++, _("Series Description"), wxLIST_FORMAT_CENTRE, -1);
-	imageTable_->InsertColumn(columnIndex++, _("Sequence Name"), wxLIST_FORMAT_CENTRE, 120);
-//	imageTable_->InsertColumn(columnIndex++, _("Series Time"));
-	imageTable_->InsertColumn(columnIndex++, _("Images"), wxLIST_FORMAT_CENTRE, 75);
-	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 85);
+	CreateImageTableColumns();
 	
 //	wxString str = imageTable_->GetItemText(0);
 //	std::cout << str << '\n';
@@ -113,6 +103,20 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	// when there are many items in the Image Table
 	this->SetSize(-1, 768);
 	this->Centre();
+}
+
+void ImageBrowseWindow::CreateImageTableColumns()
+{
+	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
+	assert(imageTable_);
+	
+	long columnIndex = 0;
+	imageTable_->InsertColumn(columnIndex++, _("Series #"), wxLIST_FORMAT_CENTRE, 75);
+	imageTable_->InsertColumn(columnIndex++, _("Series Description"), wxLIST_FORMAT_CENTRE, -1);
+	imageTable_->InsertColumn(columnIndex++, _("Sequence Name"), wxLIST_FORMAT_CENTRE, 120);
+//	imageTable_->InsertColumn(columnIndex++, _("Series Time"));
+	imageTable_->InsertColumn(columnIndex++, _("Images"), wxLIST_FORMAT_CENTRE, 75);
+	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 85);
 }
 
 ImageBrowseWindow::~ImageBrowseWindow()
@@ -230,9 +234,19 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	
 	// Resize the rectangular cmgui model
 	// according to the new dimensions
-	// REVISE : Extract to function (possibly to a diff class)
 	size_t width = images[0]->GetImageWidth();
 	size_t height = images[0]->GetImageHeight();
+	ResizePreviewImage(width, height);
+	
+	DisplayImage(textures[0]);
+	Cmiss_scene_viewer_view_all(sceneViewer_);
+	Scene_viewer_viewport_zoom(sceneViewer_, 20.0); //REVIEW
+//	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 ); //REVIEW
+	Cmiss_scene_viewer_redraw_now(sceneViewer_);
+}
+
+void ImageBrowseWindow::ResizePreviewImage(int width, int height)
+{
 	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region* region = Cmiss_region_find_subregion_at_path(root_region, IMAGE_PREVIEW.c_str());
@@ -246,12 +260,6 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	FE_node_set_position_cartesian(node, 0, 0.0, height, 0.0);
 	node = Cmiss_region_get_node(region, "4");
 	FE_node_set_position_cartesian(node, 0, width, height, 0.0);
-	
-	DisplayImage(textures[0]);
-	Cmiss_scene_viewer_view_all(sceneViewer_);
-	Scene_viewer_viewport_zoom(sceneViewer_, 20.0); //REVIEW
-//	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 ); //REVIEW
-	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
 void ImageBrowseWindow::LoadImagePlaneModel()

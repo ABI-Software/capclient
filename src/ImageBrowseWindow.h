@@ -47,11 +47,13 @@ private:
 	typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
 		
 	wxString GetCellContentsString( long row_number, int column );
+	void CreateImageTableColumns();
 	void SortDICOMFiles();
 	void PopulateImageTable();
 	void LoadImages();
 	void SwitchSliceToDisplay(SliceMap::value_type const& slice);
 	void LoadImagePlaneModel();
+	void ResizePreviewImage(int width, int width);
 	void DisplayImage(Cmiss_texture_id tex);
 	void UpdateImageInfoPanel(DICOMPtr const& image);
 	void UpdatePatientInfoPanel(DICOMPtr const& image);
