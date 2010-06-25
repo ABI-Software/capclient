@@ -100,11 +100,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	PopulateImageTable();
 	
 	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
-	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel);
-	
-//		Cmiss_scene_viewer_view_all(sceneViewer_);
-	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
-	// TODO This window should use a separate scene from the default one (the one MainWindow uses)
+	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel, IMAGE_PREVIEW);
 	
 	LoadImagePlaneModel();
 	LoadImages();
@@ -121,7 +117,10 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 
 ImageBrowseWindow::~ImageBrowseWindow()
 {
-	//TODO : destroy textures
+	Cmiss_scene_viewer_destroy(&sceneViewer_);
+	Cmiss_context_execute_command(cmguiManager_.GetCmissContext(),
+			("gfx destroy scene " + IMAGE_PREVIEW).c_str());
+	//TODO : destroy textures??
 }
 
 void ImageBrowseWindow::SortDICOMFiles()
@@ -257,7 +256,7 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 
 void ImageBrowseWindow::LoadImagePlaneModel()
 {	
-	cmguiManager_.ReadRectangularModelFiles(IMAGE_PREVIEW);	
+	cmguiManager_.ReadRectangularModelFiles(IMAGE_PREVIEW, IMAGE_PREVIEW);	
 	material_ = cmguiManager_.CreateCAPMaterial(IMAGE_PREVIEW);
 	cmguiManager_.AssignMaterialToObject(sceneViewer_, material_->GetCmissMaterial(), IMAGE_PREVIEW);
 	

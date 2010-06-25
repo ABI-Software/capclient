@@ -30,7 +30,7 @@ CmguiManager::CmguiManager(Cmiss_context_id context)
 {
 }
 	
-Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel) const
+Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel, std::string const& sceneName) const
 {
 	Cmiss_scene_viewer_id sceneViewer = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(cmissContext_),
 			panel,
@@ -39,6 +39,13 @@ Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel) const
 			/*minimum_colour_buffer_depth*/8,
 			/*minimum_depth_buffer_depth*/8,
 			/*minimum_accumulation_buffer_depth*/8);
+	
+	if (!sceneName.empty())
+	{
+		Cmiss_context_execute_command(cmissContext_, ("gfx create scene " + sceneName + " manual_g_element").c_str());
+		Cmiss_scene_viewer_set_scene_by_name(sceneViewer, sceneName.c_str());
+		Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
+	}
 	
 	return sceneViewer;
 }
@@ -66,7 +73,7 @@ std::tr1::shared_ptr<CAPMaterial> CmguiManager::CreateCAPMaterial(std::string co
 	return boost::make_shared<CAPMaterial>(materialName, gModule);
 }
 
-void CmguiManager::ReadRectangularModelFiles(std::string const& modelName) const
+void CmguiManager::ReadRectangularModelFiles(std::string const& modelName, std::string const& sceneName) const
 {
 	Cmiss_region* region = Cmiss_context_get_default_region(cmissContext_);
 	
@@ -83,6 +90,21 @@ void CmguiManager::ReadRectangularModelFiles(std::string const& modelName) const
 	if (!Cmiss_region_read_file(region,filename))
 	{
 		std::cout << "Error reading ex file - " << modelName << ".exelem" << std::endl;
+	}
+	
+	// model file name needs to be the same as its subregion name!
+	Cmiss_region* subregion = Cmiss_region_find_subregion_at_path(region, modelName.c_str());
+	assert(subregion);
+	
+	if (sceneName != "")
+	{
+		//This means the model is to be loaded into the specified scene.
+		//Currently cmgui doesn't provide an easy way to specify the scene to be used
+		//when readin a model - it always renders them in the default scene.
+		//so we have to use a hack here
+		std::string gfx_command("gfx draw as " + modelName + " group " + modelName + " scene " + sceneName);
+		Cmiss_context_execute_command(cmissContext_, gfx_command.c_str());
+		//DELETE the scene object from the default scene??
 	}
 }
 
