@@ -39,11 +39,11 @@ public:
 		return cmissContext_;
 	}
 	
-	Cmiss_scene_viewer_id CreateSceneViewer(wxPanel* panel) const;
+	Cmiss_scene_viewer_id CreateSceneViewer(wxPanel* panel, std::string const& sceneName = "") const;
 	
 	Cmiss_texture_id LoadCmissTexture(std::string const& filename) const;
 	
-	void ReadRectangularModelFiles(std::string const& modelName) const;
+	void ReadRectangularModelFiles(std::string const& modelName, std::string const& sceneName = "") const;
 	
 	/**
 	 *  This method creates a cmiss material that uses shaders
