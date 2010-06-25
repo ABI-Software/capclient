@@ -82,10 +82,6 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	
 	CreateImageTableColumns();
 	
-//	wxString str = imageTable_->GetItemText(0);
-//	std::cout << str << '\n';
-//	std::cout << GetCellContentsString(0, 2) << '\n';
-	
 	SortDICOMFiles();
 	PopulateImageTable();
 	
