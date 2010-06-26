@@ -77,6 +77,8 @@ private:
 	
 	void RenderIsoSurfaces();
 	
+	void LoadHeartModel(std::string const& dirOnly, std::string const& prefix);
+	
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void OnTogglePlay(wxCommandEvent& event);

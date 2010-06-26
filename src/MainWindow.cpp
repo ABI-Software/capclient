@@ -6,13 +6,13 @@ extern "C"
 #include "graphics/scene.h"	
 #include "graphics/scene_viewer.h"
 #include "three_d_drawing/graphics_buffer.h"
-#include "general/debug.h"
+//#include "general/debug.h"
 }
 
 #include "wx/xrc/xmlres.h"
 #include <wx/dir.h>
 
-#include "wx/splitter.h"
+//#include "wx/splitter.h"
 #include <wx/aboutdlg.h>
 
 #include "Config.h"
@@ -21,6 +21,7 @@ extern "C"
 #include "DICOMImage.h"
 #include "ImageSet.h"
 #include "CmguiExtensions.h"
+#include "ImageBrowseWindow.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -158,7 +159,7 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 			{
 				cout << __func__ << "ERROR\n";
 			}
-			string sliceName = Cmiss_region_get_path(selectedRegion);
+//			string sliceName = Cmiss_region_get_path(selectedRegion);
 //			cout << "dragged = " << sliceName << endl;
 //			cout << "coords = " << coords[0] << ", " << coords[1] << ", " << coords[2] << "\n";
 //			cout << "new_coords = " << new_coords[0] << ", " << new_coords[1] << ", " << new_coords[2] << "\n";
@@ -237,10 +238,11 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
 	//Load model
-	heartModel_.ReadModelFromFiles("MIDLIFE_01", CAP_DATA_DIR);	
-	InitialiseMII();
-	heartModel_.SetModelVisibility(false);
-	heartModel_.SetMIIVisibility(false);
+//	heartModel_.ReadModelFromFiles("MIDLIFE_01", CAP_DATA_DIR);	
+//	InitialiseMII();
+//	heartModel_.SetModelVisibility(false);
+//	heartModel_.SetMIIVisibility(false);
+	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
 	
 	// Initialize input
 	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
@@ -943,17 +945,19 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 
 void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
+	cap::ImageBrowseWindow *frame = new cap::ImageBrowseWindow("./XMLZipTest.zip", cmguiManager_);
+	frame->Show(true);
 	//test
-	int force_onscreen_flag = 0;
-	int width = 256;
-	int height = 256;
-	int antialias = 0;
-	int transparency_layers = 0;
-	const char* file_name = "screen_dump2.png";
-	Cmiss_scene_viewer_redraw_now(sceneViewer_);
-	
-	Cmiss_scene_viewer_write_image_to_file(sceneViewer_, file_name, force_onscreen_flag , width,
-			height, antialias, transparency_layers);
+//	int force_onscreen_flag = 0;
+//	int width = 256;
+//	int height = 256;
+//	int antialias = 0;
+//	int transparency_layers = 0;
+//	const char* file_name = "screen_dump2.png";
+//	Cmiss_scene_viewer_redraw_now(sceneViewer_);
+//	
+//	Cmiss_scene_viewer_write_image_to_file(sceneViewer_, file_name, force_onscreen_flag , width,
+//			height, antialias, transparency_layers);
 	
 	/*
 	wxString currentWorkingDir = wxGetCwd();
@@ -987,6 +991,48 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 		*/
 }
 
+void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
+{
+	heartModel_.ReadModelFromFiles(dirOnly, prefix);
+	
+	if (modeller_)
+	{
+		delete modeller_;
+	}
+	modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
+
+	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+	int numberOfItems = choice->GetCount();
+	for (int i = numberOfItems-1; i > 0; i--)
+	{
+		// Remove all items except Apex
+		choice->Delete(i);
+	}
+	choice->SetSelection(0);
+	
+	wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
+	heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
+	
+	InitialiseMII(); // This turns on all MII's
+	wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
+	if (miiCheckBox->IsChecked())
+	{
+		const int numberOfSlices = imageSet_->GetNumberOfSlices();
+		for (int i = 0; i < numberOfSlices; i++)
+		{
+			cout << "slice num = " << i << ", isChecked = " << objectList_->IsChecked(i) << endl;
+			if (!objectList_->IsChecked(i))
+			{
+				heartModel_.SetMIIVisibility(false,i);
+			}
+		}
+	}
+	else
+	{
+		heartModel_.SetMIIVisibility(false);
+	}
+}
+
 void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
 	wxString currentWorkingDir = wxGetCwd();
@@ -1014,36 +1060,38 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
 		string prefix = filename.substr(0, positionOfLastSlash+1); 
 		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
-		heartModel_.ReadModelFromFiles(dirOnly, prefix);
 		
-		delete modeller_;
-		modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
-
-		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-		int numberOfItems = choice->GetCount();
-		for (int i = numberOfItems-1; i > 0; i--)
-		{
-			// Remove all items except Apex
-			choice->Delete(i);
-		}
-		choice->SetSelection(0);
-		
-		InitialiseMII(); // This turns on all MII's
-		
-		wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
-		heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
-		
-		wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
-		//heartModel_.SetMIIVisibility(miiCheckBox->IsChecked());
-		const int numberOfSlices = imageSet_->GetNumberOfSlices();
-		for (int i = 0; i < numberOfSlices; i++)
-		{
-			cout << "slice num = " << i << ", isChecked = " << objectList_->IsChecked(i) << endl;
-			if (!objectList_->IsChecked(i))
-			{
-				heartModel_.SetMIIVisibility(false,i);
-			}
-		}
+		LoadHeartModel(dirOnly, prefix);
+//		heartModel_.ReadModelFromFiles(dirOnly, prefix);
+//		
+//		delete modeller_;
+//		modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
+//
+//		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+//		int numberOfItems = choice->GetCount();
+//		for (int i = numberOfItems-1; i > 0; i--)
+//		{
+//			// Remove all items except Apex
+//			choice->Delete(i);
+//		}
+//		choice->SetSelection(0);
+//		
+//		InitialiseMII(); // This turns on all MII's
+//		
+//		wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
+//		heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
+//		
+//		wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
+//		//heartModel_.SetMIIVisibility(miiCheckBox->IsChecked());
+//		const int numberOfSlices = imageSet_->GetNumberOfSlices();
+//		for (int i = 0; i < numberOfSlices; i++)
+//		{
+//			cout << "slice num = " << i << ", isChecked = " << objectList_->IsChecked(i) << endl;
+//			if (!objectList_->IsChecked(i))
+//			{
+//				heartModel_.SetMIIVisibility(false,i);
+//			}
+//		}
 	}
 }
 
