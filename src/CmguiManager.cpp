@@ -20,6 +20,7 @@ extern "C" {
 #include "graphics/material.h"
 #include "graphics/element_group_settings.h"
 #include "graphics/scene.h"
+#include "graphics/cmiss_rendition.h"
 }
 
 namespace cap
@@ -104,7 +105,19 @@ void CmguiManager::ReadRectangularModelFiles(std::string const& modelName, std::
 		//so we have to use a hack here
 		std::string gfx_command("gfx draw as " + modelName + " group " + modelName + " scene " + sceneName);
 		Cmiss_context_execute_command(cmissContext_, gfx_command.c_str());
-		//DELETE the scene object from the default scene??
+		//DELETE the scene object from the default scene
+		Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
+		Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+		assert(scene);
+		if (Scene_object* scene_object =
+			Scene_get_Scene_object_by_name(scene, (char*)modelName.c_str()))
+		{
+//			int ret = Scene_remove_Scene_object(scene, scene_object);//cmgui only allows this for manual mode
+			// For now just make the scene object invisible in the default scene.
+			// TODO: use a non-default scene for the MainWindow or set the default scene to use the manual mode
+			int ret = Scene_object_set_visibility(scene_object, g_INVISIBLE);
+			assert(ret);
+		}
 	}
 }
 
