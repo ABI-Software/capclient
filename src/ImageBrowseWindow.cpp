@@ -11,6 +11,7 @@
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
 #include "CAPMaterial.h"
+#include "ImageBrowseWindowClient.h"
 
 #include <wx/xrc/xmlres.h>
 #include <wx/listctrl.h>
@@ -64,6 +65,8 @@ std::vector<std::string> EnumerateAllFiles(const std::string& dirname)
 }
 
 //const char* TEST_DIR = "./temp/XMLZipTest";
+static long const LABEL_COLUMN_INDEX = 4;
+
 } // end anonymous namespace
 
 namespace cap
@@ -71,11 +74,12 @@ namespace cap
 
 std::string const ImageBrowseWindow::IMAGE_PREVIEW = std::string("ImagePreview");
 
-ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager)
+ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
 :
 	archiveFilename_(archiveFilename),
 	texturesCurrentlyOnDisplay_(0),
-	cmguiManager_(manager)
+	cmguiManager_(manager),
+	client_(client)
 {
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
@@ -285,25 +289,43 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 	return;
 }
 
-wxString ImageBrowseWindow::GetCellContentsString( long row_number, int column )
+std::string ImageBrowseWindow::GetCellContentsString( long row_number, int column )
 {
-	wxListItem     row_info;  
-	wxString       cell_contents_string;
+//	wxListItem row_info;  
+//	std::string cell_contents_string;
+//	
+//	// Set what row it is
+//	row_info.SetId(row_number);
+//	// Set what column of that row we want to query for information.
+//	row_info.SetColumn(column);
+//	// Set text mask
+//	row_info.SetState(wxLIST_MASK_TEXT);
+//	
+//	// Get the info and store it in row_info variable.   
+//	imageTable_->GetItem( row_info );
+//	
+//	// Extract the text out that cell
+//	cell_contents_string = row_info.GetText().c_str(); 
 	
-	// Set what row it is
-	row_info.SetId(row_number);
-	// Set what column of that row we want to query for information.
-	row_info.SetColumn(column);
-	// Set text mask
-	row_info.SetState(wxLIST_MASK_TEXT);
-	
-	// Get the info and store it in row_info variable.   
-	imageTable_->GetItem( row_info );
-	
-	// Extract the text out that cell
-	cell_contents_string = row_info.GetText(); 
-	
-	return cell_contents_string;
+//	return cell_contents_string;
+	   wxListItem     row_info;  
+	   wxString       cell_contents_string;
+	 
+	   // Set what row it is (m_itemId is a member of the regular wxListCtrl class)
+	   row_info.m_itemId = row_number;
+	   // Set what column of that row we want to query for information.
+	   row_info.m_col = column;
+	   // Set text mask
+	   row_info.m_mask = wxLIST_MASK_TEXT;
+	 
+	   // Get the info and store it in row_info variable.   
+	   imageTable_->GetItem( row_info );
+	 
+	   // Extract the text out that cell
+	   cell_contents_string = row_info.m_text; 
+	 
+	   return cell_contents_string.c_str();
+
 }
 
 void ImageBrowseWindow::SetInfoField(std::string const& fieldName, std::string const& data)
@@ -415,20 +437,20 @@ void ImageBrowseWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
-void ImageBrowseWindow::PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::string const& label)
+void ImageBrowseWindow::PutLabelOnSelectedSlice(std::string const& label)
 {
-//	std::cout << __func__ << '\n';
-	long index = imageTable->GetNextItem(-1,
+	std::cout << __func__ << '\n';
+	long index = imageTable_->GetNextItem(-1,
 						wxLIST_NEXT_ALL,
 						wxLIST_STATE_SELECTED);
 	if (index != -1)
 	{
-		static long const LABEL_COLUMN_INDEX = 4;
-		imageTable->SetItem(index, LABEL_COLUMN_INDEX, label.c_str());
-		if (index < imageTable->GetItemCount() - 1)
+		imageTable_->SetItem(index, LABEL_COLUMN_INDEX, label.c_str());
+//		std::cout <<  "label = " << GetCellContentsString(index, LABEL_COLUMN_INDEX) << '\n';
+		if (index < imageTable_->GetItemCount() - 1)
 		{
-			imageTable->SetItemState(index  , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
-			imageTable->SetItemState(index+1, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+			imageTable_->SetItemState(index  , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
+			imageTable_->SetItemState(index+1, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
 		}
 	}
 }
@@ -436,19 +458,48 @@ void ImageBrowseWindow::PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::str
 void ImageBrowseWindow::OnShortAxisButtonEvent(wxCommandEvent& event)
 {
 //	std::cout << __func__ << '\n';
-	PutLabelOnSelectedSlice(imageTable_, "Short Axis");
+	PutLabelOnSelectedSlice("Short Axis");
 }
 
 void ImageBrowseWindow::OnLongAxisButtonEvent(wxCommandEvent& event)
 {
 //	std::cout << __func__ << '\n';
-	PutLabelOnSelectedSlice(imageTable_, "Long Axis");
+	PutLabelOnSelectedSlice("Long Axis");
 }
 
 void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 {
 //	std::cout << __func__ << '\n';
-	PutLabelOnSelectedSlice(imageTable_, "");
+	PutLabelOnSelectedSlice("");
+}
+
+void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
+{
+	std::cout << __func__ << '\n';
+	// construct the data structure of type SlicesWithImages to pass to the main window
+	SlicesWithImages slices;
+	long index = imageTable_->GetNextItem(-1);
+	while (index != -1)
+	{
+		std::string label = GetCellContentsString(index, LABEL_COLUMN_INDEX);
+		std::cout << "index = " << index << ", label = " << label << '\n';
+		if (label.length())
+		{
+			long ptr = imageTable_->GetItemData(index);
+			SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(ptr);
+			SliceKeyType const& key = sliceValuePtr->first;
+			SliceInfo sliceInfo = boost::make_tuple(label, &sliceMap_[key], &textureMap_[key]);
+			slices.push_back(sliceInfo);
+		}
+		index = imageTable_->GetNextItem(index);
+	}
+	client_.LoadImages(slices);
+	Close();
+}
+
+void ImageBrowseWindow::OnCancelButtonEvent(wxCommandEvent& event)
+{
+	Close();
 }
 
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
@@ -468,6 +519,8 @@ BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)
 	EVT_BUTTON(XRCID("ShortAxisButton"), ImageBrowseWindow::OnShortAxisButtonEvent)
 	EVT_BUTTON(XRCID("LongAxisButton"), ImageBrowseWindow::OnLongAxisButtonEvent)
 	EVT_BUTTON(XRCID("NoneButton"), ImageBrowseWindow::OnNoneButtonEvent)
+	EVT_BUTTON(XRCID("wxID_OK"), ImageBrowseWindow::OnOKButtonEvent)
+	EVT_BUTTON(XRCID("wxID_CANCEL"), ImageBrowseWindow::OnCancelButtonEvent)
 	EVT_CLOSE(ImageBrowseWindow::OnCloseImageBrowseWindow)
 END_EVENT_TABLE()
 
