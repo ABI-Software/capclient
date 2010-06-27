@@ -30,6 +30,8 @@ extern "C"
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <boost/foreach.hpp>
+#include <boost/make_shared.hpp>
 
 //#include <stdio.h>
 
@@ -51,13 +53,23 @@ ImageSlice::ImageSlice(const string& name, CmguiManager const& cmguiManager)
 	this->InitializeDataPointGraphicalSetting();
 }
 
+ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
+	:
+	sliceName_(info.get<0>()),
+	oldIndex_(-1),
+	isVisible_(true),
+	cmguiManager_(cmguiManager),
+	images_(info.get<1>()),
+	textures_(info.get<2>())
+{
+	this->LoadImagePlaneModel();
+	this->TransformImagePlane();
+	
+	this->InitializeDataPointGraphicalSetting();
+}
+
 ImageSlice::~ImageSlice()
 {
-	//TODO clean up material and textures
-	for (int i = 0; i < images_.size() ; ++i)
-	{
-		delete images_[i];
-	}
 }
 
 void ImageSlice::SetVisible(bool visibility)
@@ -149,7 +161,7 @@ void ImageSlice::LoadTextures()
 		Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(fullpath);
 		textures_.push_back(texture_id);
 		
-		images_.push_back(new DICOMImage(fullpath));
+		images_.push_back(boost::make_shared<DICOMImage>(fullpath));
 	}	
 	return;
 }

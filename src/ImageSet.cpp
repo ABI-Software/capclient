@@ -9,6 +9,8 @@
 #include "ImageSlice.h"
 #include <algorithm>
 #include <assert.h>
+#include <iostream>
+#include <boost/make_shared.hpp>
 
 namespace cap
 {
@@ -24,9 +26,32 @@ imageSliceNames_(sliceNames)
 	{
 		const string& name = *itr;
 		
-		ImageSlice* imageSlice = new ImageSlice(name, cmguiManager);
-		imageSlicesMap_[name] = imageSlice; // use exception safe container or smartpointers
+		using std::tr1::shared_ptr;
+		
+//		shared_ptr<ImageSlice> imageSlice = boost::make_(new ImageSlice(name, cmguiManager));
+		imageSlicesMap_[name] = boost::make_shared<ImageSlice>(name, cmguiManager);
 	}
+}
+
+ImageSet::ImageSet(SlicesWithImages const& slices, CmguiManager const& cmguiManager)
+{
+	SlicesWithImages::const_iterator itr = slices.begin();
+	SlicesWithImages::const_iterator end = slices.end();
+	int shortAxisCounter = 1;
+	int longAxisCounter = 1;
+	for (;itr != end; ++itr)
+	{
+		using boost::tuples::get;
+		std::string const& label = get<0>(*itr);
+		std::cout << "LABEL = " << label << '\n';
+		
+		std::string const& name(itr->get<0>());
+		imageSlicesMap_[name] = boost::make_shared<ImageSlice>(*itr, cmguiManager);
+		imageSliceNames_.push_back(name);
+	}
+	SetBrightness(0.5);
+	SetContrast(0.5);
+	SetTime(0.0);
 }
 
 void ImageSet::SetTime(double time)
@@ -70,7 +95,9 @@ void ImageSet::SetVisible(bool visible, const std::string& sliceName)
 		if (itr == imageSlicesMap_.end())
 		{
 			//error should probably throw exception
-			assert(!"No such name in the imageSliceMap_");
+			std::cout << __func__ << ": No such name in the imageSliceMap_ : " << sliceName << '\n' ;
+			
+			throw std::exception();
 		}
 		else
 		{
@@ -94,7 +121,7 @@ void ImageSet::SetVisible(bool visible, int index)
 	{
 		assert(!"Index out of bound: imageSliceMap_");
 	}
-	else //zero length name string:: set visibility for the whole set
+	else
 	{
 		const std::string& name = imageSliceNames_[index];
 		imageSlicesMap_[name]->SetVisible(visible);
@@ -107,7 +134,7 @@ const ImagePlane& ImageSet::GetImagePlane(const std::string& sliceName) const
 	if (itr == imageSlicesMap_.end())
 	{
 		//error should probably throw exception
-		assert(!"No such name in the imageSliceMap_");
+		std::cout << __func__ << ": No such name in the imageSliceMap_ : " << sliceName << '\n' ;
 		
 		throw std::exception();
 	}
@@ -119,7 +146,7 @@ const ImagePlane& ImageSet::GetImagePlane(const std::string& sliceName) const
 
 int ImageSet::GetNumberOfFrames() const
 {
-	std::map<std::string, ImageSlice*>::const_iterator itr = imageSlicesMap_.begin();
+	ImageSlicesMap::const_iterator itr = imageSlicesMap_.begin();
 	int numberOfFrames = itr->second->GetNumberOfFrames();
 	++itr;
 	for(;itr!=imageSlicesMap_.end();++itr)

@@ -8,6 +8,7 @@
 #ifndef IMAGESLICE_H_
 #define IMAGESLICE_H_
 
+#include "CAPTypes.h"
 #include <vector>
 #include <string>
 #include <boost/tr1/memory.hpp>
@@ -31,6 +32,8 @@ class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. 
 {
 public:
 	ImageSlice(const std::string& name, CmguiManager const& cmguiManager);
+	
+	ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager);
 	
 	~ImageSlice();
 	
@@ -76,7 +79,7 @@ private:
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiManager const& cmguiManager_;
 	
-	std::vector<DICOMImage*> images_;
+	std::vector<std::tr1::shared_ptr<DICOMImage> > images_;
 	
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	

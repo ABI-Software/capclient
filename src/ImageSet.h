@@ -14,10 +14,12 @@
 //	std::vector<ImageSlice*> imageSlices_;
 //	std::string groupName_; //either SA or LA
 //};
+#include "CAPTypes.h"
 
 #include <map>
 #include <vector>
 #include <string>
+#include <boost/tr1/memory.hpp>
 
 namespace cap
 {
@@ -34,6 +36,11 @@ public:
 	 * @param vector of slice names
 	 */
 	ImageSet(const std::vector<std::string>& sliceNames_, CmguiManager const& cmguiManager);
+	
+	/** Constructs an image set from a data structure of type SlicesWithImages 
+	 * @param vector of slice names
+	 */
+	ImageSet(SlicesWithImages const& slices, CmguiManager const& cmguiManager);
 	
 	/** Sets time for the whole image set
 	 * @param time in a cardiac cycle in second
@@ -91,7 +98,7 @@ private:
 	//std::vector<ImageSlice*> imageSlices_;
 	
 	//or
-	typedef std::map<std::string, ImageSlice*> ImageSlicesMap;
+	typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
 	
 	ImageSlicesMap imageSlicesMap_;
 };
