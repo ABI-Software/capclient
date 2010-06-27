@@ -82,6 +82,7 @@ private:
 	CmguiManager const& cmguiManager_;
 	ImageBrowseWindowClient& client_;
 	
+	size_t numberOfDICOMFiles_;
 	Cmiss_scene_viewer_id sceneViewer_;
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	

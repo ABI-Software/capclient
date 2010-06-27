@@ -16,6 +16,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/listctrl.h>
 #include <wx/dir.h>
+#include <wx/progdlg.h>
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -137,6 +138,11 @@ void ImageBrowseWindow::SortDICOMFiles()
 	std::vector<std::string> const& filenames = EnumerateAllFiles(dirname);
 	
 	std::cout << "num files = " << filenames.size() << '\n';
+	numberOfDICOMFiles_ = filenames.size();
+	
+	wxProgressDialog progressDlg(_("Please wait"), _("Analysing DICOM headers"),
+		numberOfDICOMFiles_, this, wxPD_APP_MODAL);
+	int count = 0;
 	
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
@@ -159,7 +165,13 @@ void ImageBrowseWindow::SortDICOMFiles()
 		{
 			std::vector<DICOMPtr> v(1, dicomFile);
 			sliceMap_.insert(std::make_pair(key, v));
-		}		
+		}
+		
+		count++;
+		if (!(count % 10))
+		{
+			progressDlg.Update(count);
+		}
 	}
 }
 
@@ -197,7 +209,10 @@ void ImageBrowseWindow::LoadImages()
 	using namespace std;
 	
 	// load some images and display
+	wxProgressDialog progressDlg(_("Please wait"), _("Loading DICOM images"),
+		numberOfDICOMFiles_, this, wxPD_APP_MODAL);
 	
+	int count = 0;
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
 	{	
 		vector<DICOMPtr>& images = value.second;
@@ -210,6 +225,11 @@ void ImageBrowseWindow::LoadImages()
 			const string& filename = (*itr)->GetFilename();	
 			Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
 			textures.push_back(texture_id);
+			count++;
+			if (!(count % 20))
+			{
+				progressDlg.Update(count);
+			}
 		}
 		
 		textureMap_.insert(make_pair(value.first, textures));
@@ -519,7 +539,6 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 		index = imageTable_->GetNextItem(index);
 	}
 	
-	std::stable_sort(slices.begin(), slices.begin(), SliceInfoSortOrder());
 	if (longAxisCount >= 5)
 	{
 		std::cout << "TOO MANY LONG AXES\n";
@@ -535,6 +554,7 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 		return;
 	}
 	
+	std::stable_sort(slices.begin(), slices.begin(), SliceInfoSortOrder());
 	client_.LoadImages(slices);
 	Close();
 }
