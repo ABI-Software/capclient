@@ -454,7 +454,7 @@ void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
 {
 	// TODO DO clean up!!
-//	Destroy();
+	Destroy();
 //	exit(0);
 }
 
