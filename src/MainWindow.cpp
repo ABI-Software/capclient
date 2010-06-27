@@ -217,7 +217,8 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	hideAll_(true),
 	timeKeeper_(Cmiss_context_get_default_time_keeper(cmguiManager.GetCmissContext())),
 	heartModel_("heart", cmguiManager.GetCmissContext()),
-	modeller_(new CAPModeller(heartModel_))
+	modeller_(new CAPModeller(heartModel_)),
+	imageSet_(0)
 {
 	// Load layout from .xrc file
 	wxXmlResource::Get()->Load("MainWindow.xrc");
@@ -302,13 +303,14 @@ static vector<string> EnumerateAllSubDirs(const string& dirname)
 	return subDirnames;
 }
 
-struct SliceNameLessThan : std::binary_function <std::string,std::string,bool>
+struct SliceNameOrder : std::binary_function <std::string,std::string,bool>
 // Simple natural order comparison functor for slice names
 {
 	bool operator()(const std::string& a, const std::string& b) const
 	{
 		// This makes sure "LA2" < "LA10"
-		return std::make_pair(a.length(), a) < std::make_pair(a.length(), b);
+		// Also, SA1 < LA1 (i.e this does not follow alphabetical order
+		return std::make_pair(-a.length(), a) > std::make_pair(-b.length(), b);
 	}
 };
 
@@ -320,8 +322,9 @@ void MainWindow::LoadImages()
 	dir_path.append("images/");
 	
 	sliceNames = EnumerateAllSubDirs(dir_path);
-	std::sort(sliceNames.begin(), sliceNames.end(), SliceNameLessThan());
+	std::sort(sliceNames.begin(), sliceNames.end(), SliceNameOrder());
 	imageSet_ = new ImageSet(sliceNames, cmguiManager_); //REFACTOR
+	Cmiss_scene_viewer_view_all(sceneViewer_);
 	
 	this->PopulateObjectList(); // fill in slice check box list
 }
@@ -407,6 +410,12 @@ Add scene_object as checklistbox item into the box.
 
 	ENTER(add_scene_object_to_scene_check_box);
 	GET_NAME(Scene_object)(scene_object, &name);
+	if (name[0] != 'L' && name[0] != 'S')
+	{
+		free(name);
+		return 1;
+	}
+	
 	checklist->Append(name);
 	visible =(g_VISIBLE == Scene_object_get_visibility(scene_object));
 	/* default selection */
@@ -428,7 +437,8 @@ Add scene_object as checklistbox item into the box.
 //test
 void MainWindow::PopulateObjectList()
 {
-	//TODO move Cmgui specific code to ImageSet
+	objectList_->Clear();
+	//TODO move Cmgui specific code to ImageSet?
 	//Should just obtain the list of slice names from ImageSet and use that to populate the check list box
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context_);
 	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
@@ -916,27 +926,15 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 void MainWindow::LoadImages(SlicesWithImages const& slices)
 {
 	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-	SlicesWithImages::const_iterator itr = slices.begin();
-	SlicesWithImages::const_iterator end = slices.end();
-	int shortAxisCounter = 1;
-	int longAxisCounter = 1;
-	for (;itr != end; ++itr)
+
+	if(imageSet_)
 	{
-		using boost::tuples::get;
-		std::string const& label = get<0>(*itr);
-		std::cout << "LABEL = " << label;
-				
-		if (label == "Short Axis")
-		{
-			std::cout << " num = " << shortAxisCounter << '\n';
-			shortAxisCounter++;
-		}
-		else
-		{
-			std::cout << " num = " << longAxisCounter << '\n';
-			longAxisCounter++;
-		}
+		delete imageSet_;
 	}
+	imageSet_ = new ImageSet(slices, cmguiManager_);
+	Cmiss_scene_viewer_view_all(sceneViewer_);
+	
+	this->PopulateObjectList(); // fill in slice check box list
 }
 
 void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)

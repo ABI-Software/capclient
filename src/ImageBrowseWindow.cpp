@@ -473,11 +473,22 @@ void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 	PutLabelOnSelectedSlice("");
 }
 
+struct SliceInfoSortOrder
+// for sorting SliceInfo's
+{
+	bool operator()(const SliceInfo& a, const SliceInfo& b) const
+	{
+		return a.get<0>() > b.get<0>(); // this makes sure short axis slices come first
+	}
+};
+
 void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 {
 	std::cout << __func__ << '\n';
 	// construct the data structure of type SlicesWithImages to pass to the main window
 	SlicesWithImages slices;
+	int shortAxisCount = 1;
+	int longAxisCount = 1;
 	long index = imageTable_->GetNextItem(-1);
 	while (index != -1)
 	{
@@ -488,11 +499,22 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 			long ptr = imageTable_->GetItemData(index);
 			SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(ptr);
 			SliceKeyType const& key = sliceValuePtr->first;
-			SliceInfo sliceInfo = boost::make_tuple(label, &sliceMap_[key], &textureMap_[key]);
+			std::string sliceName;
+			if (label == "Short Axis")
+			{
+				sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
+			}
+			else // (label == "Long Axis"
+			{
+				sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
+			}
+			SliceInfo sliceInfo = boost::make_tuple(sliceName, sliceMap_[key], textureMap_[key]);
 			slices.push_back(sliceInfo);
 		}
 		index = imageTable_->GetNextItem(index);
 	}
+	
+	std::stable_sort(slices.begin(), slices.begin(), SliceInfoSortOrder());
 	client_.LoadImages(slices);
 	Close();
 }
