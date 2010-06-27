@@ -63,8 +63,8 @@ std::vector<std::string> EnumerateAllFiles(const std::string& dirname)
 	return filenames;
 }
 
-const char* TEST_DIR = "./temp/XMLZipTest";
-} // end anonyous namespace
+//const char* TEST_DIR = "./temp/XMLZipTest";
+} // end anonymous namespace
 
 namespace cap
 {
@@ -125,31 +125,35 @@ ImageBrowseWindow::~ImageBrowseWindow()
 
 void ImageBrowseWindow::SortDICOMFiles()
 {
-	std::string dirname = TEST_DIR;
+//	std::string dirname = TEST_DIR;
+	// TODO unzip archive file
+	// for now we assume the archive has already been unzipped
+	// and archiveFilename points to the containing dir
+	std::string const& dirname = archiveFilename_;
 	std::vector<std::string> const& filenames = EnumerateAllFiles(dirname);
 	
 	std::cout << "num files = " << filenames.size() << '\n';
 	
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
-		std::cout << filename <<'\n';
-		std::string fullpath = dirname + "/" + (filename);
-		std::cout << fullpath <<'\n';
-		DICOMPtr file(new DICOMImage(fullpath));
-		int seriesNum = file->GetSeriesNumber();
+//		std::cout << filename <<'\n';
+		std::string fullpath = dirname + "/" + filename;
+//		std::cout << fullpath <<'\n';
+		DICOMPtr dicomFile(new DICOMImage(fullpath));
+		int seriesNum = dicomFile->GetSeriesNumber();
 		std::cout << "Series Num = " << seriesNum << '\n';
-		Vector3D v = file->GetImagePosition() - Point3D(0,0,0);
+		Vector3D v = dicomFile->GetImagePosition() - Point3D(0,0,0);
 		double distanceFromOrigin = v.Length();
 		
 		SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
 		SliceMap::iterator itr = sliceMap_.find(key);
 		if (itr != sliceMap_.end())
 		{
-			itr->second.push_back(file);
+			itr->second.push_back(dicomFile);
 		}
 		else
 		{
-			std::vector<DICOMPtr> v(1, file);
+			std::vector<DICOMPtr> v(1, dicomFile);
 			sliceMap_.insert(std::make_pair(key, v));
 		}		
 	}
@@ -450,7 +454,8 @@ void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
 {
 	// TODO DO clean up!!
-	exit(0);
+//	Destroy();
+//	exit(0);
 }
 
 BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)

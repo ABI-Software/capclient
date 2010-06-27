@@ -37,8 +37,6 @@ public:
 		return sceneViewer_;
 	}
 	
-	void PopulateObjectList();
-	
 	void SetTime(double time);
 	
 	void RefreshCmguiCanvas();
@@ -53,7 +51,7 @@ public:
 	
 	void SmoothAlongTime();
 	
-	void InitialiseModel();
+//	void InitialiseModel();
 	
 	float GetCurrentTime() const;
 	
@@ -78,6 +76,8 @@ private:
 	void RenderIsoSurfaces();
 	
 	void LoadHeartModel(std::string const& dirOnly, std::string const& prefix);
+	
+	void PopulateObjectList();
 	
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
