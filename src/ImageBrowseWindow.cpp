@@ -226,6 +226,8 @@ void ImageBrowseWindow::PopulateImageTable()
 	imageTable_->SetItemState(0 , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
 	imageTable_->SetItemState(0 , wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
 	
+//	imageTable_->SetScrollPos(wxVERTICAL, 0); // This does not work on wxListCtrl!
+	
 	DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
 	UpdatePatientInfoPanel(firstImage);
 }
@@ -279,6 +281,45 @@ void ImageBrowseWindow::ConstructTextureMap()
 	return;
 }
 
+}
+
+extern "C"{
+#include <graphics/scene.h>
+}
+int FitSceneViewer(Cmiss_scene_viewer_id scene_viewer, double radius)
+{
+	double centre_x, centre_y, centre_z, clip_factor, //radius,
+		size_x, size_y, size_z, width_factor;
+	int return_code;
+
+	if (scene_viewer)
+	{	
+		Scene_get_graphics_range(Scene_viewer_get_scene(scene_viewer),
+			&centre_x,&centre_y,&centre_z,&size_x,&size_y,&size_z);
+//		radius = 0.3*sqrt(size_x*size_x + size_y*size_y + size_z*size_z);
+		
+		/* enlarge radius to keep image within edge of window */
+		/*???RC width_factor should be read in from defaults file */
+		width_factor = 1.05;
+		radius *= width_factor;
+			
+		/*???RC clip_factor should be read in from defaults file: */
+		clip_factor = 10.0;		
+		return_code = Scene_viewer_set_view_simple(scene_viewer, centre_x, centre_y,
+			centre_z, radius, 40, clip_factor*radius);		
+	}
+	else
+	{
+		display_message(ERROR_MESSAGE,
+			"Scene_viewer_view_all.  Invalid argument(s)");
+		return_code=0;
+	}
+
+	return (return_code);
+} 
+
+namespace cap{
+
 void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 {
 //	std::cout << __func__ << '\n';
@@ -305,9 +346,9 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	ResizePreviewImage(width, height);
 	
 	DisplayImage(textures[0]);
-	Cmiss_scene_viewer_view_all(sceneViewer_);
-	Scene_viewer_viewport_zoom(sceneViewer_, 20.0); //REVIEW
-//	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 ); //REVIEW
+
+	double radius = std::max(width, height) / 2.0;
+	FitSceneViewer(sceneViewer_ ,radius);
 	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
