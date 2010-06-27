@@ -49,9 +49,11 @@ private:
 		
 	std::string GetCellContentsString( long row_number, int column );
 	void CreateImageTableColumns();
+	void ReadInDICOMFiles();
 	void SortDICOMFiles();
 	void PopulateImageTable();
-	void LoadImages();
+	void CreateTexturesFromDICOMFiles();
+	void ConstructTextureMap();
 	void SwitchSliceToDisplay(SliceMap::value_type const& slice);
 	void LoadImagePlaneModel();
 	void ResizePreviewImage(int width, int width);
@@ -75,6 +77,7 @@ private:
 	void OnNoneButtonEvent(wxCommandEvent& event);
 	void OnOKButtonEvent(wxCommandEvent& event);
 	void OnCancelButtonEvent(wxCommandEvent& event);
+	void OnOrderByRadioBox(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 	
@@ -83,6 +86,14 @@ private:
 	ImageBrowseWindowClient& client_;
 	
 	size_t numberOfDICOMFiles_;
+	enum SortingMode
+	{
+		SERIES_NUMBER,
+		SERIES_NUMBER_AND_IMAGE_POSITION
+	};
+	
+	SortingMode sortingMode_;
+	
 	Cmiss_scene_viewer_id sceneViewer_;
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	
@@ -91,6 +102,11 @@ private:
 	SliceMap sliceMap_;
 	TextureMap textureMap_; // this could be merged with sliceMap_
 	std::vector<Cmiss_texture_id> const* texturesCurrentlyOnDisplay_;
+	
+	typedef std::map<std::string, DICOMPtr> DICOMTable;
+	typedef std::map<std::string, Cmiss_texture_id> TextureTable;
+	DICOMTable dicomFileTable_; // unsorted list of all dicom files
+	TextureTable textureTable_; // unsorted list of all textures
 	
 	static const std::string IMAGE_PREVIEW;
 };
