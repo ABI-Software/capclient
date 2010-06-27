@@ -13,6 +13,7 @@ extern "C" {
 
 #include "CAPModelLVPS4X4.h"
 #include "CAPModeller.h"
+#include "ImageBrowseWindowClient.h"
 
 struct Cmiss_node;
 struct Cmiss_time_keeper;
@@ -24,7 +25,7 @@ class ImageSet;
 class CmguiManager;
 
 
-class MainWindow : public wxFrame
+class MainWindow : public wxFrame, public ImageBrowseWindowClient
 {
 public:
 	explicit MainWindow(CmguiManager const& cmguiManager);
@@ -54,6 +55,8 @@ public:
 //	void InitialiseModel();
 	
 	float GetCurrentTime() const;
+	
+	virtual void LoadImages(SlicesWithImages const& slices);
 	
 private:	
 	//private utility functions

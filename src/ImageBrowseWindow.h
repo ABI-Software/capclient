@@ -33,11 +33,12 @@ namespace cap
 class DICOMImage;
 class CmguiManager;
 class CAPMaterial;
+class ImageBrowseWindowClient;
 
 class ImageBrowseWindow : public wxFrame
 {
 public:
-	ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager);
+	ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager ,ImageBrowseWindowClient&);
 	virtual ~ImageBrowseWindow();
 	
 private:
@@ -46,7 +47,7 @@ private:
 	typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap;
 	typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
 		
-	wxString GetCellContentsString( long row_number, int column );
+	std::string GetCellContentsString( long row_number, int column );
 	void CreateImageTableColumns();
 	void SortDICOMFiles();
 	void PopulateImageTable();
@@ -59,7 +60,7 @@ private:
 	void UpdatePatientInfoPanel(DICOMPtr const& image);
 	
 	void SetInfoField(std::string const& fieldName, std::string const& data);
-	void PutLabelOnSelectedSlice(wxListCtrl* imageTable, std::string const& label);
+	void PutLabelOnSelectedSlice(std::string const& label);
 	
 	//Event handlers
 	void OnImageTableItemSelected(wxListEvent& event);
@@ -72,11 +73,15 @@ private:
 	void OnShortAxisButtonEvent(wxCommandEvent& event);
 	void OnLongAxisButtonEvent(wxCommandEvent& event);
 	void OnNoneButtonEvent(wxCommandEvent& event);
+	void OnOKButtonEvent(wxCommandEvent& event);
+	void OnCancelButtonEvent(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE();
 	
 	std::string archiveFilename_;
 	CmguiManager const& cmguiManager_;
+	ImageBrowseWindowClient& client_;
+	
 	Cmiss_scene_viewer_id sceneViewer_;
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	

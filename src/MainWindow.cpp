@@ -22,11 +22,14 @@ extern "C"
 #include "ImageSet.h"
 #include "CmguiExtensions.h"
 #include "ImageBrowseWindow.h"
+#include "CAPHtmlWindow.h"
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <functional>
 
 using namespace std;
 
@@ -228,9 +231,9 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	objectList_->Clear();
 	
 	// Texture animation
-	LoadImages();
-	imageSet_->SetBrightness(0.5);
-	imageSet_->SetContrast(0.5);
+//	LoadImages();
+//	imageSet_->SetBrightness(0.5);
+//	imageSet_->SetContrast(0.5);
 	
 	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(m_pPanel);
@@ -238,7 +241,7 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
 	//Load model
-	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
+//	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
 	
 	// Initialize input
 	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
@@ -261,7 +264,7 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	
 	CreateStatusBar(0);
 	
-	SetTime(0.0);
+//	SetTime(0.0);
 	
 	this->Fit();
 }
@@ -298,12 +301,6 @@ static vector<string> EnumerateAllSubDirs(const string& dirname)
 	}
 	return subDirnames;
 }
-
-} // end namespace cap
-#include <functional>
-
-namespace cap
-{
 
 struct SliceNameLessThan : std::binary_function <std::string,std::string,bool>
 // Simple natural order comparison functor for slice names
@@ -867,13 +864,6 @@ void MainWindow::OnModellingModeChanged(wxCommandEvent& event)
 	RefreshCmguiCanvas();
 }
 
-} // end namespace cap
-
-#include "CAPHtmlWindow.h"
-
-namespace cap
-{
-
 void MainWindow::OnAbout(wxCommandEvent& event)
 {
 	wxBoxSizer *topsizer;
@@ -904,50 +894,49 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 
 void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
-	cap::ImageBrowseWindow *frame = new cap::ImageBrowseWindow("./temp/XMLZipTest", cmguiManager_);
-	frame->Show(true);
-	//test
-//	int force_onscreen_flag = 0;
-//	int width = 256;
-//	int height = 256;
-//	int antialias = 0;
-//	int transparency_layers = 0;
-//	const char* file_name = "screen_dump2.png";
-//	Cmiss_scene_viewer_redraw_now(sceneViewer_);
-//	
-//	Cmiss_scene_viewer_write_image_to_file(sceneViewer_, file_name, force_onscreen_flag , width,
-//			height, antialias, transparency_layers);
-	
-	/*
 	wxString currentWorkingDir = wxGetCwd();
-		wxString defaultPath = currentWorkingDir.Append("/Data");
-	//	wxString defaultFilename = "";
-	//	wxString defaultExtension = "";
-	//	wxString wildcard = "";
-	//	int flags = wxOPEN;
-		
-	//	wxString filename = wxFileSelector("Choose a file to open",
-	//			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	//	if ( !filename.empty() )
-	//	{
-	//	    // work with the file
-	//	    cout << __func__ << " - File name: " << filename.c_str() << endl;
-	//	}
-		
-		const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
-		if ( !dirname.empty() )
+//	wxString defaultPath = currentWorkingDir.Append("/Data");
+	wxString defaultPath = currentWorkingDir.Append("/temp");
+	
+	const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
+	if ( !dirname.empty() )
+	{
+		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
+	}
+	else
+	{
+		return;
+	}
+	
+	cap::ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()),
+			cmguiManager_, *this);
+	frame->Show(true);
+}
+
+void MainWindow::LoadImages(SlicesWithImages const& slices)
+{
+	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
+	SlicesWithImages::const_iterator itr = slices.begin();
+	SlicesWithImages::const_iterator end = slices.end();
+	int shortAxisCounter = 1;
+	int longAxisCounter = 1;
+	for (;itr != end; ++itr)
+	{
+		using boost::tuples::get;
+		std::string const& label = get<0>(*itr);
+		std::cout << "LABEL = " << label;
+				
+		if (label == "Short Axis")
 		{
-			cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
-//			string filename(dirname.c_str());
-//			size_t positionOfLastSlash = filename.find_last_of("/\\");
-//			std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-//			string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-//			string prefix = filename.substr(0, positionOfLastSlash+1); 
-//			std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
-			
-			EnumerateAllFiles(dirname);
+			std::cout << " num = " << shortAxisCounter << '\n';
+			shortAxisCounter++;
 		}
-		*/
+		else
+		{
+			std::cout << " num = " << longAxisCounter << '\n';
+			longAxisCounter++;
+		}
+	}
 }
 
 void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
