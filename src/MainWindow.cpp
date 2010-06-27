@@ -238,10 +238,6 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
 	//Load model
-//	heartModel_.ReadModelFromFiles("MIDLIFE_01", CAP_DATA_DIR);	
-//	InitialiseMII();
-//	heartModel_.SetModelVisibility(false);
-//	heartModel_.SetMIIVisibility(false);
 	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
 	
 	// Initialize input
@@ -357,16 +353,6 @@ void MainWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 	RefreshCmguiCanvas();
 }
 
-//void MainWindow::InitialiseModel()
-//{
-//	modeller_->InitialiseModel();
-//	modeller_->UpdateTimeVaryingModel();
-//	RefreshCmguiCanvas();
-//	
-//	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-//	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
-//}
-
 void MainWindow::SmoothAlongTime()
 {
 	modeller_->SmoothAlongTime();
@@ -375,11 +361,6 @@ void MainWindow::SmoothAlongTime()
 	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
 }
-
-//wxPanel* MainWindow::getPanel() const
-//{
-//	return m_pPanel;
-//}
 
 void MainWindow::OnTogglePlay(wxCommandEvent& event)
 {
@@ -723,6 +704,7 @@ void MainWindow::RenderIsoSurfaces()
 
 void MainWindow::InitialiseMII()
 {
+	// This method only makes sense when both the images and the model have been already loaded.
 	const vector<string>& sliceNames = imageSet_->GetSliceNames();
 	vector<string>::const_iterator itr = sliceNames.begin();
 	for (;itr != sliceNames.end();++itr)
@@ -790,29 +772,6 @@ void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4
 //	cout << str << endl;
 	Cmiss_context_execute_command(context_, str);
 }
-
-#ifdef GRAPH
-#include "VolumeGraph.h"
-
-void MainWindow::InitialiseVolumeGraph()
-{
-	wxPanel* graphPanel = XRCCTRL(*this, "GraphPanel", wxPanel);
-//	VolumeGraph* v = new VolumeGraph(graphPanel);
-//	wxBoxSizer *topsizer = new wxBoxSizer( wxVERTICAL );
-//	topsizer->Add(v,
-//		 wxSizerFlags(1).Align(wxALIGN_CENTER).Expand());
-//	graphPanel->SetSizer(topsizer);
-	
-	std::vector<float> volumes;
-	int numFrames = heartModel_.GetNumberOfModelFrames();
-	for (int i = 0; i < numFrames; i++)
-	{
-		volumes.push_back(heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, (float)i/numFrames));
-	}
-	MyFrame* v = new MyFrame(heartModel_, volumes);
-	v->Show(true);
-}
-#endif
 
 void MainWindow::OnMIICheckBox(wxCommandEvent& event)
 {
@@ -945,7 +904,7 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 
 void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
-	cap::ImageBrowseWindow *frame = new cap::ImageBrowseWindow("./XMLZipTest.zip", cmguiManager_);
+	cap::ImageBrowseWindow *frame = new cap::ImageBrowseWindow("./temp/XMLZipTest", cmguiManager_);
 	frame->Show(true);
 	//test
 //	int force_onscreen_flag = 0;
@@ -1014,6 +973,9 @@ void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& p
 	heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
 	
 	InitialiseMII(); // This turns on all MII's
+	
+	// Update the visibility of each mii according to the ui status
+	// ( = mii checkbox and the slice list)
 	wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
 	if (miiCheckBox->IsChecked())
 	{
@@ -1062,36 +1024,6 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
 		
 		LoadHeartModel(dirOnly, prefix);
-//		heartModel_.ReadModelFromFiles(dirOnly, prefix);
-//		
-//		delete modeller_;
-//		modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
-//
-//		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-//		int numberOfItems = choice->GetCount();
-//		for (int i = numberOfItems-1; i > 0; i--)
-//		{
-//			// Remove all items except Apex
-//			choice->Delete(i);
-//		}
-//		choice->SetSelection(0);
-//		
-//		InitialiseMII(); // This turns on all MII's
-//		
-//		wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
-//		heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
-//		
-//		wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
-//		//heartModel_.SetMIIVisibility(miiCheckBox->IsChecked());
-//		const int numberOfSlices = imageSet_->GetNumberOfSlices();
-//		for (int i = 0; i < numberOfSlices; i++)
-//		{
-//			cout << "slice num = " << i << ", isChecked = " << objectList_->IsChecked(i) << endl;
-//			if (!objectList_->IsChecked(i))
-//			{
-//				heartModel_.SetMIIVisibility(false,i);
-//			}
-//		}
 	}
 }
 
