@@ -127,6 +127,20 @@ void ImageSet::SetVisible(bool visible, int index)
 		imageSlicesMap_[name]->SetVisible(visible);
 	}
 }
+bool ImageSet::IsVisible(const std::string& sliceName) const
+{
+	ImageSlicesMap::const_iterator itr = imageSlicesMap_.find(sliceName);
+	if (itr == imageSlicesMap_.end())
+	{
+		//error should probably throw exception
+		std::cout << __func__ << ": No such name in the imageSliceMap_ : " << sliceName << '\n' ;
+		throw std::exception();
+	}
+	else
+	{
+		return itr->second->IsVisible();
+	} 
+}
 
 const ImagePlane& ImageSet::GetImagePlane(const std::string& sliceName) const
 {
