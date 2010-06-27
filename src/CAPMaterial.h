@@ -31,12 +31,7 @@ class CAPMaterial : public boost::noncopyable
 public:
 	CAPMaterial(std::string const& materialName, Cmiss_graphics_module_id graphics_module);
 	
-	~CAPMaterial()
-	{
-		// Destroy member fields
-//		DEACCESS(Graphical_material)(&material_);
-//		DESTROY(Texture)(&brightnessAndContrastTexture_);
-	}
+	~CAPMaterial();
 	
 	void SetBrightness(float brightness);
 	
@@ -53,6 +48,7 @@ private:
 //	std::string materialName_;
 	Cmiss_material_id material_;
 	Cmiss_texture_id brightnessAndContrastTexture_;
+	Cmiss_graphics_module_id graphicsModule_;
 };
 
 } // end namespace cap
