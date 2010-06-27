@@ -25,6 +25,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 
 extern "C"
 {
@@ -80,21 +81,22 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	archiveFilename_(archiveFilename),
 	texturesCurrentlyOnDisplay_(0),
 	cmguiManager_(manager),
-	client_(client)
-{
+	client_(client),
+	sortingMode_(SERIES_NUMBER)
+{	
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
 	
-	CreateImageTableColumns();
-	
-	SortDICOMFiles();
-	PopulateImageTable();
+	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
 	
 	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel, IMAGE_PREVIEW);
-	
+
 	LoadImagePlaneModel();
-	LoadImages();
+	ReadInDICOMFiles();
+	CreateTexturesFromDICOMFiles();
+	
+	PopulateImageTable();
 	
 	// Finally fit the window to meet the size requirements of its children
 	// this also forces the cmgui panel to display correctly
@@ -107,10 +109,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 }
 
 void ImageBrowseWindow::CreateImageTableColumns()
-{
-	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
-	assert(imageTable_);
-	
+{	
 	long columnIndex = 0;
 	imageTable_->InsertColumn(columnIndex++, _("Series #"), wxLIST_FORMAT_CENTRE, 75);
 	imageTable_->InsertColumn(columnIndex++, _("Series Description"), wxLIST_FORMAT_CENTRE, -1);
@@ -128,9 +127,9 @@ ImageBrowseWindow::~ImageBrowseWindow()
 	//TODO : destroy textures??
 }
 
-void ImageBrowseWindow::SortDICOMFiles()
+void ImageBrowseWindow::ReadInDICOMFiles()
 {
-//	std::string dirname = TEST_DIR;
+	//	std::string dirname = TEST_DIR;
 	// TODO unzip archive file
 	// for now we assume the archive has already been unzipped
 	// and archiveFilename points to the containing dir
@@ -143,17 +142,40 @@ void ImageBrowseWindow::SortDICOMFiles()
 	wxProgressDialog progressDlg(_("Please wait"), _("Analysing DICOM headers"),
 		numberOfDICOMFiles_, this, wxPD_APP_MODAL);
 	int count = 0;
-	
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
 //		std::cout << filename <<'\n';
 		std::string fullpath = dirname + "/" + filename;
 //		std::cout << fullpath <<'\n';
 		DICOMPtr dicomFile(new DICOMImage(fullpath));
+		dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
+		
+		count++;
+		if (!(count % 10))
+		{
+			progressDlg.Update(count);
+		}
+	}
+}
+
+void ImageBrowseWindow::SortDICOMFiles()
+{	
+	sliceMap_.clear();
+	BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
+	{
+		DICOMPtr const &dicomFile = value.second;
 		int seriesNum = dicomFile->GetSeriesNumber();
-		std::cout << "Series Num = " << seriesNum << '\n';
-		Vector3D v = dicomFile->GetImagePosition() - Point3D(0,0,0);
-		double distanceFromOrigin = v.Length();
+//		std::cout << "Series Num = " << seriesNum << '\n';
+		double distanceFromOrigin;
+		if (sortingMode_ == SERIES_NUMBER)
+		{
+			distanceFromOrigin = 0.0;
+		}
+		else if (sortingMode_ == SERIES_NUMBER_AND_IMAGE_POSITION)
+		{
+			Vector3D v = dicomFile->GetImagePosition() - Point3D(0,0,0);
+			distanceFromOrigin = v.Length();
+		}
 		
 		SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
 		SliceMap::iterator itr = sliceMap_.find(key);
@@ -166,17 +188,17 @@ void ImageBrowseWindow::SortDICOMFiles()
 			std::vector<DICOMPtr> v(1, dicomFile);
 			sliceMap_.insert(std::make_pair(key, v));
 		}
-		
-		count++;
-		if (!(count % 10))
-		{
-			progressDlg.Update(count);
-		}
 	}
 }
 
 void ImageBrowseWindow::PopulateImageTable()
 {	
+	SortDICOMFiles();
+	ConstructTextureMap();
+	
+	imageTable_->ClearAll();
+	CreateImageTableColumns();
+	
 	int rowNumber = 0;
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
 	{
@@ -200,17 +222,41 @@ void ImageBrowseWindow::PopulateImageTable()
 		rowNumber++;
 	}
 	
+	// Set the selection to the first item in the list
+	imageTable_->SetItemState(0 , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
+	imageTable_->SetItemState(0 , wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	
 	DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
 	UpdatePatientInfoPanel(firstImage);
 }
 
-void ImageBrowseWindow::LoadImages()
+void ImageBrowseWindow::CreateTexturesFromDICOMFiles()
 {
 	using namespace std;
 	
 	// load some images and display
 	wxProgressDialog progressDlg(_("Please wait"), _("Loading DICOM images"),
 		numberOfDICOMFiles_, this, wxPD_APP_MODAL);
+	
+	int count = 0;
+	BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
+	{	
+		const string& filename = value.first;	
+		Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
+		textureTable_.insert(make_pair(filename, texture_id));
+		
+		count++;
+		if (!(count % 20))
+		{
+			progressDlg.Update(count);
+		}
+	}
+	return;
+}
+
+void ImageBrowseWindow::ConstructTextureMap()
+{
+	using namespace std;
 	
 	int count = 0;
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
@@ -223,13 +269,9 @@ void ImageBrowseWindow::LoadImages()
 		for (; itr != end; ++itr)
 		{
 			const string& filename = (*itr)->GetFilename();	
-			Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
+			Cmiss_texture_id texture_id = textureTable_[filename];
 			textures.push_back(texture_id);
 			count++;
-			if (!(count % 20))
-			{
-				progressDlg.Update(count);
-			}
 		}
 		
 		textureMap_.insert(make_pair(value.first, textures));
@@ -345,7 +387,6 @@ std::string ImageBrowseWindow::GetCellContentsString( long row_number, int colum
 	   cell_contents_string = row_info.m_text; 
 	 
 	   return cell_contents_string.c_str();
-
 }
 
 void ImageBrowseWindow::SetInfoField(std::string const& fieldName, std::string const& data)
@@ -368,6 +409,12 @@ void ImageBrowseWindow::UpdatePatientInfoPanel(DICOMPtr const& image)
 	string const& gender = image->GetGender();
 	string const& age = image->GetAge();
 	SetInfoField("GenderAndAge", gender + " " + age);
+	
+	//FIX temporory
+	wxChoice* choice = XRCCTRL(*this, "m_choice1", wxChoice);
+	choice->Clear();
+	choice->Append((id + " " + scanDate).c_str());
+	choice->SetSelection(0);
 }
 
 void ImageBrowseWindow::OnImageTableItemSelected(wxListEvent& event)
@@ -564,6 +611,25 @@ void ImageBrowseWindow::OnCancelButtonEvent(wxCommandEvent& event)
 	Close();
 }
 
+void ImageBrowseWindow::OnOrderByRadioBox(wxCommandEvent& event)
+{
+//	std::cout << __func__ << " event.GetInt() = " << event.GetInt() << '\n';
+	if (event.GetInt() == 0)
+	{
+		sortingMode_ = SERIES_NUMBER;
+	}
+	else if (event.GetInt() == 1)
+	{
+		sortingMode_ = SERIES_NUMBER_AND_IMAGE_POSITION;
+	}
+	else
+	{
+		throw std::logic_error("Invalid sorting mode");
+	}
+	
+	PopulateImageTable();
+}
+
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
 {
 	// TODO DO clean up!!
@@ -583,6 +649,7 @@ BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)
 	EVT_BUTTON(XRCID("NoneButton"), ImageBrowseWindow::OnNoneButtonEvent)
 	EVT_BUTTON(XRCID("wxID_OK"), ImageBrowseWindow::OnOKButtonEvent)
 	EVT_BUTTON(XRCID("wxID_CANCEL"), ImageBrowseWindow::OnCancelButtonEvent)
+	EVT_RADIOBOX(XRCID("OrderByRadioBox"), ImageBrowseWindow::OnOrderByRadioBox)
 	EVT_CLOSE(ImageBrowseWindow::OnCloseImageBrowseWindow)
 END_EVENT_TABLE()
 
