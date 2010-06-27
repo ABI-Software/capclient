@@ -31,6 +31,8 @@ extern "C"
 #include <algorithm>
 #include <functional>
 
+#include <boost/foreach.hpp>
+
 using namespace std;
 
 namespace cap 
@@ -396,54 +398,22 @@ void MainWindow::Terminate(wxCloseEvent& event)
 	}
 }
 
-int MainWindow::add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox)
-/*******************************************************************************
-LAST MODIFIED : 2 Match 2007
-
-DESCRIPTION :
-Add scene_object as checklistbox item into the box.
-==============================================================================*/
-{
-	wxCheckListBox *checklist = static_cast<wxCheckListBox*>(checklistbox);
-	char *name;
-	int visible;
-
-	ENTER(add_scene_object_to_scene_check_box);
-	GET_NAME(Scene_object)(scene_object, &name);
-	if (name[0] != 'L' && name[0] != 'S')
-	{
-		free(name);
-		return 1;
-	}
-	
-	checklist->Append(name);
-	visible =(g_VISIBLE == Scene_object_get_visibility(scene_object));
-	/* default selection */
-	if ( visible ==1)
-	{
-		 checklist->Check((checklist->GetCount()-1),1);
-	}
-	if (checklist->GetCount() == 1)
-	{
-		 checklist->SetSelection(0);
-	}
-	
-	//DEALLOCATE(name);
-	free(name);
-	LEAVE;
-	return(1);
-}
-
-//test
 void MainWindow::PopulateObjectList()
 {
 	objectList_->Clear();
-	//TODO move Cmgui specific code to ImageSet?
-	//Should just obtain the list of slice names from ImageSet and use that to populate the check list box
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context_);
-	struct Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	for_each_Scene_object_in_Scene(scene,
-		 add_scene_object_to_scene_check_box, (void *)objectList_);
+	
+	const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
+	BOOST_FOREACH(std::string const& sliceName, sliceNames)
+	{
+		objectList_->Append(sliceName.c_str());
+		bool visible = imageSet_->IsVisible(sliceName);
+		/* default selection */
+		if ( visible )
+		{
+			objectList_->Check((objectList_->GetCount()-1),1);
+		}
+		objectList_->SetSelection(wxNOT_FOUND);
+	}
 }
 
 void MainWindow::OnObjectCheckListChecked(wxCommandEvent& event)

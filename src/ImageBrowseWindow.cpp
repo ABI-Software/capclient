@@ -452,6 +452,11 @@ void ImageBrowseWindow::PutLabelOnSelectedSlice(std::string const& label)
 			imageTable_->SetItemState(index  , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
 			imageTable_->SetItemState(index+1, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
 		}
+		else //HACK to refresh the table
+		{
+			imageTable_->SetItemState(index , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
+			imageTable_->SetItemState(index , wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+		}
 	}
 }
 
@@ -515,6 +520,21 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 	}
 	
 	std::stable_sort(slices.begin(), slices.begin(), SliceInfoSortOrder());
+	if (longAxisCount >= 5)
+	{
+		std::cout << "TOO MANY LONG AXES\n";
+		wxMessageBox("Too many long axes slices", "Invalid selection",
+				wxOK, this);
+		return;
+	}
+	if (shortAxisCount >= 14)
+	{
+		std::cout << "TOO MANY SHORT AXES\n";
+		wxMessageBox("Too many long axes slices", "Invalid selection",
+				wxOK, this);
+		return;
+	}
+	
 	client_.LoadImages(slices);
 	Close();
 }

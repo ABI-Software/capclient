@@ -66,8 +66,6 @@ private:
 	
 	void SetImageVisibility(bool visibility, const std::string& name = std::string());
 	
-	static int add_scene_object_to_scene_check_box(struct Scene_object *scene_object, void* checklistbox);
-	
 	void InitialiseVolumeGraph();
 	
 	void InitialiseMII();

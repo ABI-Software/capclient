@@ -59,6 +59,8 @@ public:
 	 */
 	void SetVisible(bool visible, int index ); 
 	
+	bool IsVisible(const std::string& sliceName) const;
+	
 	void SetBrightness(float brightness);
 	
 	void SetContrast(float contrast);
