@@ -589,9 +589,22 @@ void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 struct SliceInfoSortOrder
 // for sorting SliceInfo's
 {
+	SliceInfoSortOrder()
+	{
+//		std::cout << __func__ << '\n';
+	}
+	
 	bool operator()(const SliceInfo& a, const SliceInfo& b) const
 	{
-		return a.get<0>() > b.get<0>(); // this makes sure short axis slices come first
+		std::string const& x = a.get<0>();
+		std::string const& y = b.get<0>();
+		if (x[0] != y[0])
+		{
+			// this makes sure short axis slices come first
+			return x[0] > y[0];
+		}
+		
+		return std::make_pair(x.length(), x) < std::make_pair(y.length(),y); 
 	}
 };
 
@@ -602,8 +615,8 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 	SlicesWithImages slices;
 	int shortAxisCount = 1;
 	int longAxisCount = 1;
-	long index = imageTable_->GetNextItem(-1);
-	while (index != -1)
+	long index = imageTable_->GetItemCount() - 1;
+	while (index >= 0) // iterate from the bottom of the list ( to be compatible with CIM's setup)
 	{
 		std::string label = GetCellContentsString(index, LABEL_COLUMN_INDEX);
 		std::cout << "index = " << index << ", label = " << label << '\n';
@@ -624,7 +637,7 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 			SliceInfo sliceInfo = boost::make_tuple(sliceName, sliceMap_[key], textureMap_[key]);
 			slices.push_back(sliceInfo);
 		}
-		index = imageTable_->GetNextItem(index);
+		index--;
 	}
 	
 	if (longAxisCount >= 5)
@@ -642,7 +655,8 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 		return;
 	}
 	
-	std::stable_sort(slices.begin(), slices.begin(), SliceInfoSortOrder());
+	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
+
 	client_.LoadImages(slices);
 	Close();
 }
