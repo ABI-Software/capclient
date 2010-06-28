@@ -119,16 +119,21 @@ public:
 	
 	double ComputeVolume(SurfaceType surface, float time) const;
 	
+	std::vector<std::string> const& GetFileNames() const
+	{
+		return modelFileNames_;
+	}
+	
 private:
 	
 	static const int NUMBER_OF_NODES = 40; 
 	
 	void ReadModelInfo(const std::string& modelInfoFilePath);
-	
 	void WriteModelInfo(const std::string& modelInfoFilePath);
 	
 	gtMatrix patientToGlobalTransform_; // model to world transformation
 	std::string modelName_;
+	std::vector<std::string> modelFileNames_;
 	int numberOfModelFrames_;
 	
 	float focalLength_;

@@ -7,6 +7,7 @@
 
 #include "CAPXMLFile.h"
 #include "DICOMImage.h"
+#include "CAPModelLVPS4X4.h"
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -512,7 +513,7 @@ void CAPXMLFile::AddFrame(Frame const& frame)
 	output_.frames.push_back(frame);
 }
 
-void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages)
+void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages, CAPModelLVPS4X4 const& heartModel)
 {
 	if (slicesWithImages.empty())
 	{
@@ -546,6 +547,16 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages)
 			AddImage(image);
 		}
 		slice++;
+	}
+	
+	// Output
+	std::vector<std::string> const& modelFiles = heartModel.GetFileNames();
+	for (size_t i = 0; i < modelFiles.size(); i++)
+	{
+		Frame frame;
+		frame.exnode = modelFiles[i];
+		frame.number = i;
+		output_.frames.push_back(frame);
 	}
 }
 

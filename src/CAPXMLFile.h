@@ -17,6 +17,8 @@
 namespace cap
 {
 
+class CAPModelLVPS4X4;
+
 struct Value
 {
 	double value;
@@ -116,7 +118,7 @@ public:
 	
 	void AddFrame(Frame const& frame);
 	
-	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles);
+	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, CAPModelLVPS4X4 const& model);
 	
 	std::vector<Image> const& GetImages() const
 	{
