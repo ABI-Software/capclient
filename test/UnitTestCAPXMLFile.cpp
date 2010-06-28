@@ -37,3 +37,18 @@ TEST(CAPXMLFile, WriteXML)
 	// add tests here
 
 }
+
+TEST(CAPXMLFile, AddImage)
+{
+	using namespace cap;
+		
+	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
+
+	Image image;
+	image.sopiuid = "111";
+	xmlFile.AddImage(image);
+	xmlFile.AddPointToImage("111", Point());
+	xmlFile.AddPointToImage("222", Point());
+	// add tests here
+
+}

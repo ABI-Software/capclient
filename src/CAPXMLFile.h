@@ -108,6 +108,23 @@ public:
 	void ReadFile();
 	void WriteFile(std::string const & filename);
 	
+	void AddImage(Image const& image);
+	void AddPointToImage(std::string const& imageSopiuid, Point const& point);
+	void AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile);
+	
+	void AddFrame(Frame const& frame);
+	
+	std::vector<Image> const& GetImages() const
+	{
+		return input_.images;
+	}
+	
+	void Clear()
+	{
+		input_.images.clear();
+		output_.frames.clear();
+	}
+	
 private:
 	std::string filename_;
 	std::string chamber_; // LV

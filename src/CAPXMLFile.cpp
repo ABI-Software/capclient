@@ -12,6 +12,8 @@
 #include <boost/lexical_cast.hpp>
 //#include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+
 #include <iostream>
 #include <stdexcept>
 
@@ -464,6 +466,39 @@ void CAPXMLFile::WriteFile(std::string const& filename)
 	 * this is to debug memory for regression tests
 	 */
 //	xmlMemoryDump();
+}
+
+
+void CAPXMLFile::AddImage(Image const& image)
+{
+	input_.images.push_back(image);
+}
+
+void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& point)
+{
+	using boost::lambda::_1;
+	using boost::bind;
+	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
+					( bind(&Image::sopiuid, _1) == imageSopiuid) );
+	
+	if (itr != input_.images.end())
+	{
+		std::cout << "Found !\n";
+	}
+	else
+	{
+		std::cout << "Not Found \n";
+	}
+}
+
+void CAPXMLFile::AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile)
+{
+	
+}
+
+void CAPXMLFile::AddFrame(Frame const& frame)
+{
+	output_.frames.push_back(frame);
 }
 
 #endif
