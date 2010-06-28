@@ -904,6 +904,8 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 	imageSet_ = new ImageSet(slices, cmguiManager_);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	
+	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
+	
 	this->PopulateObjectList(); // fill in slice check box list
 }
 
