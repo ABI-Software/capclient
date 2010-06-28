@@ -481,19 +481,26 @@ void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& p
 	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
 					( bind(&Image::sopiuid, _1) == imageSopiuid) );
 	
-	if (itr != input_.images.end())
+	if (itr == input_.images.end())
 	{
-		std::cout << "Found !\n";
+//		std::cout << __func__ << ": No image with the requested uid : " << imageSopiuid << '\n';
+		throw std::invalid_argument("No image with the requested uid : " + imageSopiuid);
 	}
-	else
-	{
-		std::cout << "Not Found \n";
-	}
+	itr->points.push_back(point);
 }
 
 void CAPXMLFile::AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile)
 {
-	
+	using boost::lambda::_1;
+	using boost::bind;
+	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
+					( bind(&Image::sopiuid, _1) == imageSopiuid) );
+	if (itr == input_.images.end())
+	{
+//		std::cout << __func__ << ": No image with the requested uid : " << imageSopiuid << '\n';
+		throw std::invalid_argument("No image with the requested uid : " + imageSopiuid);
+	}
+	itr->countourFiles.push_back(contourFile);
 }
 
 void CAPXMLFile::AddFrame(Frame const& frame)
