@@ -101,6 +101,19 @@ void DataPoint::SetSurfaceType(int type)
 	surfaceType_ = type;
 }
 
+std::string DataPoint::GetSliceName() const
+{
+	FE_region* fe_region = FE_node_get_FE_region(cmissNode_);
+	Cmiss_region* cmiss_region;
+	FE_region_get_Cmiss_region(fe_region, &cmiss_region);
+	
+	char* name_c = Cmiss_region_get_name(cmiss_region);
+	std::string name(name_c);
+	free(name_c);
+	
+	return name;
+}
+
 // assignment operator
 DataPoint& DataPoint::operator=(const DataPoint& rhs)
 {
