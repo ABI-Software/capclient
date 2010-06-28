@@ -15,7 +15,6 @@
 #include <boost/foreach.hpp>
 //#include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -481,7 +480,6 @@ void CAPXMLFile::AddImage(Image const& image)
 
 void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& point)
 {
-	using boost::lambda::_1;
 	using boost::bind;
 	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
 					( bind(&Image::sopiuid, _1) == imageSopiuid) );
@@ -496,7 +494,6 @@ void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& p
 
 void CAPXMLFile::AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile)
 {
-	using boost::lambda::_1;
 	using boost::bind;
 	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
 					( bind(&Image::sopiuid, _1) == imageSopiuid) );
