@@ -947,8 +947,9 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	}
 
 	CAPXMLFile xmlFile(dirname.c_str());
-//	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
-//	xmlFile.ContructCAPXMLFile(slicesAndImages);
+	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
+	xmlFile.ContructCAPXMLFile(slicesAndImages);
+	xmlFile.WriteFile(std::string(dirname.c_str()) + "/" + xmlFile.GetName() + ".xml");
 }
 
 void MainWindow::OnQuit(wxCommandEvent& event)
