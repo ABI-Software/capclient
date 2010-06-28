@@ -127,6 +127,16 @@ public:
 		return height_;
 	}
 	
+	std::string const& GetStudyInstanceUID() const
+	{
+		return studyInstanceUID_;
+	}
+	
+	std::string const& GetSopInstanceUID() const
+	{
+		return sopInstanceUID_;
+	}
+	
 	bool operator<(DICOMImage const& other) const // Better to make this a non member ?
 	{
 		if (triggerTime_ >= 0.0 && other.triggerTime_ >= 0.0)

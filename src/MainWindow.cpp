@@ -23,6 +23,7 @@ extern "C"
 #include "CmguiExtensions.h"
 #include "ImageBrowseWindow.h"
 #include "CAPHtmlWindow.h"
+#include "CAPXMLFile.h"
 
 #include <iostream>
 #include <vector>
@@ -233,11 +234,6 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	objectList_->SetSelection(wxNOT_FOUND);
 	objectList_->Clear();
 	
-	// Texture animation
-//	LoadImages();
-//	imageSet_->SetBrightness(0.5);
-//	imageSet_->SetContrast(0.5);
-	
 	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(m_pPanel);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
@@ -276,59 +272,6 @@ MainWindow::~MainWindow()
 {
 	delete imageSet_;
 	delete modeller_;
-}
-
-static vector<string> EnumerateAllSubDirs(const string& dirname)
-{
-	wxString wxDirname(dirname.c_str());
-	wxDir dir(wxDirname);
-
-	if ( !dir.IsOpened() )
-	{
-		// deal with the error here - wxDir would already log an error message
-		// explaining the exact reason of the failure
-		return vector<string>();
-	}
-
-	puts("Enumerating subdirectories in current directory:");
-
-	vector<string> subDirnames;
-	wxString filename;
-
-	bool cont = dir.GetFirst(&filename, "", wxDIR_DIRS);
-	while ( cont )
-	{
-		printf("%s\n", filename.c_str());
-		subDirnames.push_back(filename.c_str());
-		cont = dir.GetNext(&filename);
-	}
-	return subDirnames;
-}
-
-struct SliceNameOrder : std::binary_function <std::string,std::string,bool>
-// Simple natural order comparison functor for slice names
-{
-	bool operator()(const std::string& a, const std::string& b) const
-	{
-		// This makes sure "LA2" < "LA10"
-		// Also, SA1 < LA1 (i.e this does not follow alphabetical order
-		return std::make_pair(-a.length(), a) > std::make_pair(-b.length(), b);
-	}
-};
-
-void MainWindow::LoadImages()
-{
-	vector<string> sliceNames;
-	
-	string dir_path(CAP_DATA_DIR);
-	dir_path.append("images/");
-	
-	sliceNames = EnumerateAllSubDirs(dir_path);
-	std::sort(sliceNames.begin(), sliceNames.end(), SliceNameOrder());
-	imageSet_ = new ImageSet(sliceNames, cmguiManager_); //REFACTOR
-	Cmiss_scene_viewer_view_all(sceneViewer_);
-	
-	this->PopulateObjectList(); // fill in slice check box list
 }
 
 float MainWindow::GetCurrentTime() const
@@ -994,14 +937,18 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	wxString wildcard = "";
 	int flags = wxSAVE;
 	
-	wxString filename = wxFileSelector("Save file",
+	wxString dirname = wxFileSelector("Save file",
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if ( !filename.empty() )
+	if ( !dirname.empty() )
 	{
 	    // work with the file
-	    cout << __func__ << " - File name: " << filename.c_str() << endl;
-	    heartModel_.WriteToFile(filename.c_str());
+	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
+	    heartModel_.WriteToFile(dirname.c_str());
 	}
+
+	CAPXMLFile xmlFile(dirname.c_str());
+//	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
+//	xmlFile.ContructCAPXMLFile(slicesAndImages);
 }
 
 void MainWindow::OnQuit(wxCommandEvent& event)
