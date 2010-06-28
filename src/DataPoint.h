@@ -46,6 +46,8 @@ public:
 	
 	void SetSurfaceType(int type);
 	
+	std::string GetSliceName() const; // returns the name of the slice this date point belongs to
+	
 	// assignment operator
 	DataPoint& operator=(const DataPoint& rhs);
 	
