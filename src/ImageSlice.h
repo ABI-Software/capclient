@@ -30,9 +30,7 @@ class CAPMaterial;
 // ie move Textures, visibility, sceneObject etc to another class??
 class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. node and element)
 {
-public:
-	ImageSlice(const std::string& name, CmguiManager const& cmguiManager);
-	
+public:	
 	ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager);
 	
 	~ImageSlice();
@@ -59,6 +57,11 @@ public:
 	
 	void WritePlaneInfoToFile(const std::string& file) const;
 	
+	std::vector<DICOMPtr> const& GetImages() const
+	{
+		return images_;
+	}
+	
 private:
 	void LoadImagePlaneModel();
 	
@@ -79,7 +82,7 @@ private:
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiManager const& cmguiManager_;
 	
-	std::vector<std::tr1::shared_ptr<DICOMImage> > images_;
+	std::vector<DICOMPtr> images_;
 	
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	

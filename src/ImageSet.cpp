@@ -17,24 +17,10 @@ namespace cap
 
 using namespace std;
 
-ImageSet::ImageSet(const vector<string>& sliceNames, CmguiManager const& cmguiManager)
-:
-imageSliceNames_(sliceNames)
-{
-	vector<string>::const_iterator itr = sliceNames.begin();
-	for (;itr != sliceNames.end();++itr)
-	{
-		const string& name = *itr;
-		
-		using std::tr1::shared_ptr;
-		
-//		shared_ptr<ImageSlice> imageSlice = boost::make_(new ImageSlice(name, cmguiManager));
-		imageSlicesMap_[name] = boost::make_shared<ImageSlice>(name, cmguiManager);
-	}
-}
-
 ImageSet::ImageSet(SlicesWithImages const& slices, CmguiManager const& cmguiManager)
-{
+:
+	slicesWithImages_(slices)
+{	
 	SlicesWithImages::const_iterator itr = slices.begin();
 	SlicesWithImages::const_iterator end = slices.end();
 	int shortAxisCounter = 1;

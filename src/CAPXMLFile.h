@@ -8,6 +8,8 @@
 #ifndef CAPXMLFILE_H_
 #define CAPXMLFILE_H_
 
+#include "CAPTypes.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -113,6 +115,8 @@ public:
 	void AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile);
 	
 	void AddFrame(Frame const& frame);
+	
+	void ContructCAPXMLFile(std::vector<DICOMPtr> const& dicomFiles);
 	
 	std::vector<Image> const& GetImages() const
 	{

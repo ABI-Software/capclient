@@ -31,11 +31,6 @@ class CmguiManager;
 class ImageSet // The whole lot : ImageManager??
 {
 public:
-
-	/** Constructs an image set from a vector of slice names 
-	 * @param vector of slice names
-	 */
-	ImageSet(const std::vector<std::string>& sliceNames_, CmguiManager const& cmguiManager);
 	
 	/** Constructs an image set from a data structure of type SlicesWithImages 
 	 * @param vector of slice names
@@ -88,6 +83,8 @@ public:
 	
 	void WritePlaneInfoToFiles() const;
 	
+	SlicesWithImages const& GetSlicesWithImages() const;
+	
 private:
 	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices
 //	std::vector<ImageGroup*> imageGroups;
@@ -101,8 +98,9 @@ private:
 	
 	//or
 	typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
-	
 	ImageSlicesMap imageSlicesMap_;
+
+	SlicesWithImages slicesWithImages_;
 };
 
 } // end namespace cap

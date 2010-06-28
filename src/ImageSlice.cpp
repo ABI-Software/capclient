@@ -40,19 +40,6 @@ using namespace std;
 namespace cap
 {
 
-ImageSlice::ImageSlice(const string& name, CmguiManager const& cmguiManager)
-	: 
-	sliceName_(name),
-	oldIndex_(-1),
-	isVisible_(true),
-	cmguiManager_(cmguiManager)
-{	
-	this->LoadImagePlaneModel();
-	this->LoadTextures();
-	this->TransformImagePlane();
-	this->InitializeDataPointGraphicalSetting();
-}
-
 ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
 	:
 	sliceName_(info.get<0>()),
@@ -135,34 +122,6 @@ void ImageSlice::LoadImagePlaneModel()
 	material_ = cmguiManager_.CreateCAPMaterial(sliceName_);
 	// Assign material & cache the sceneObject for convenience
 	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_->GetCmissMaterial(), sliceName_);
-	return;
-}
-
-void ImageSlice::LoadTextures()
-{
-	string dir_path(CAP_DATA_DIR);
-	dir_path.append("images/");
-	dir_path.append(sliceName_);
-	
-	FileSystem fs(dir_path);
-	
-	const vector<string>& filenames = fs.getAllFileNames();
-	
-	vector<string>::const_iterator itr = filenames.begin();
-	vector<string>::const_iterator end = filenames.end();
-
-	for (; itr != end; ++itr)
-	{
-		const string& filename = *itr;
-		string fullpath(dir_path);
-		fullpath.append("/");
-		fullpath.append(filename);
-		
-		Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(fullpath);
-		textures_.push_back(texture_id);
-		
-		images_.push_back(boost::make_shared<DICOMImage>(fullpath));
-	}	
 	return;
 }
 

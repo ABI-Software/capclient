@@ -6,10 +6,12 @@
  */
 
 #include "CAPXMLFile.h"
+#include "DICOMImage.h"
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 //#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -506,6 +508,28 @@ void CAPXMLFile::AddContourFileToImage(std::string const& imageSopiuid, ContourF
 void CAPXMLFile::AddFrame(Frame const& frame)
 {
 	output_.frames.push_back(frame);
+}
+
+void CAPXMLFile::ContructCAPXMLFile(std::vector<DICOMPtr> const& dicomFiles)
+{
+	if (dicomFiles.empty())
+	{
+		std::cout << __func__ << ": No dicom files to construct CAPXMLFile from\n";
+		return;
+	}
+	
+	studyIUid_ = dicomFiles[0]->GetStudyInstanceUID();
+	size_t positionOfLastSlash = filename_.find_last_of("/\\");
+//	std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+	name_ = filename_.substr(positionOfLastSlash+1);
+	chamber_ = "LV";
+	
+	// Input
+	BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
+	{
+		Image image;
+		image.sopiuid = dicomFile->GetSopInstanceUID();
+	}
 }
 
 #endif
