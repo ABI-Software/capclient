@@ -948,7 +948,7 @@ void MainWindow::OnSave(wxCommandEvent& event)
 
 	CAPXMLFile xmlFile(dirname.c_str());
 	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
-	xmlFile.ContructCAPXMLFile(slicesAndImages);
+	xmlFile.ContructCAPXMLFile(slicesAndImages, heartModel_);
 	xmlFile.WriteFile(std::string(dirname.c_str()) + "/" + xmlFile.GetName() + ".xml");
 }
 

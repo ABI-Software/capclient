@@ -222,6 +222,10 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 		{
 			std::cout << __func__ << " - Error writing exnode: " << exnodeFilenameString << std::endl;
 		}
+		
+		stringstream fileNameOnly;
+		fileNameOnly << exnodeFilenamePrefix << "_" << i+1 << ".model.exnode";
+		modelFileNames_.push_back(fileNameOnly.str());
 	}
 
 	// write exelem
