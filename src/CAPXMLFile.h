@@ -116,7 +116,7 @@ public:
 	
 	void AddFrame(Frame const& frame);
 	
-	void ContructCAPXMLFile(std::vector<DICOMPtr> const& dicomFiles);
+	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles);
 	
 	std::vector<Image> const& GetImages() const
 	{
@@ -127,6 +127,11 @@ public:
 	{
 		input_.images.clear();
 		output_.frames.clear();
+	}
+	
+	std::string const& GetName() const
+	{
+		return name_;
 	}
 	
 private:

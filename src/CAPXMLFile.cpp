@@ -299,7 +299,7 @@ void ConstructImageSubtree(Image const &image, xmlNodePtr input)
 	xmlNewProp(imageNode, BAD_CAST "sopiuid", BAD_CAST image.sopiuid.c_str());
 	if (image.label.length())
 	{
-		xmlNewProp(imageNode, BAD_CAST "label", BAD_CAST image.sopiuid.c_str());
+		xmlNewProp(imageNode, BAD_CAST "label", BAD_CAST image.label.c_str());
 	}
 	
 	std::for_each(image.points.begin(), image.points.end(), 
@@ -321,7 +321,9 @@ void ConstructFrameNode(Frame const &frame, xmlNodePtr output)
 
 CAPXMLFile::CAPXMLFile(std::string const & filename)
 :
-	filename_(filename)
+	filename_(filename),
+	interval_(0.0),
+	focalLength_(0.0)
 {}
 
 CAPXMLFile::~CAPXMLFile()
@@ -453,7 +455,7 @@ void CAPXMLFile::WriteFile(std::string const& filename)
 	/* 
 	 * Dumping document to stdio or file
 	 */
-	xmlSaveFormatFileEnc("output_test.xml", doc, "UTF-8", 1);
+	xmlSaveFormatFileEnc(filename.c_str(), doc, "UTF-8", 1);
 
 	/*free the document */
 	xmlFreeDoc(doc);
@@ -510,25 +512,40 @@ void CAPXMLFile::AddFrame(Frame const& frame)
 	output_.frames.push_back(frame);
 }
 
-void CAPXMLFile::ContructCAPXMLFile(std::vector<DICOMPtr> const& dicomFiles)
+void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages)
 {
-	if (dicomFiles.empty())
+	if (slicesWithImages.empty())
 	{
 		std::cout << __func__ << ": No dicom files to construct CAPXMLFile from\n";
 		return;
 	}
 	
-	studyIUid_ = dicomFiles[0]->GetStudyInstanceUID();
+	studyIUid_ = slicesWithImages[0].get<1>()[0]->GetStudyInstanceUID();
 	size_t positionOfLastSlash = filename_.find_last_of("/\\");
 //	std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
 	name_ = filename_.substr(positionOfLastSlash+1);
 	chamber_ = "LV";
 	
 	// Input
-	BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
+	int slice = 0;
+	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
 	{
-		Image image;
-		image.sopiuid = dicomFile->GetSopInstanceUID();
+		std::string const& label = sliceInfo.get<0>();
+		std::vector<DICOMPtr> const& dicomFiles = sliceInfo.get<1>();
+		
+		int frame = 0;
+		BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
+		{
+			Image image;
+			image.sopiuid = dicomFile->GetSopInstanceUID();
+			image.label = label;
+			image.frame = frame++;
+			image.slice = slice;
+			//image.countourFiles;;
+			//image.points; // FIX?
+			AddImage(image);
+		}
+		slice++;
 	}
 }
 

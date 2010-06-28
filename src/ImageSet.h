@@ -83,7 +83,10 @@ public:
 	
 	void WritePlaneInfoToFiles() const;
 	
-	SlicesWithImages const& GetSlicesWithImages() const;
+	SlicesWithImages const& GetSlicesWithImages() const
+	{
+		return slicesWithImages_;
+	}
 	
 private:
 	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices
