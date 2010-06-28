@@ -6,6 +6,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <stdexcept>
 #define private public
 #include "../src/CAPXMLFile.h"
 #undef private
@@ -47,8 +48,14 @@ TEST(CAPXMLFile, AddImage)
 	Image image;
 	image.sopiuid = "111";
 	xmlFile.AddImage(image);
-	xmlFile.AddPointToImage("111", Point());
-	xmlFile.AddPointToImage("222", Point());
-	// add tests here
-
+	EXPECT_EQ(xmlFile.input_.images[0].sopiuid, "111");
+	
+	Point p;
+	p.surface = EPI;
+	p.type = GUIDE;
+	EXPECT_NO_THROW(xmlFile.AddPointToImage("111", p));
+	EXPECT_EQ(xmlFile.input_.images[0].points[0].surface, EPI );
+	EXPECT_EQ(xmlFile.input_.images[0].points[0].type, GUIDE );
+	
+	EXPECT_THROW(xmlFile.AddPointToImage("222", Point()), std::invalid_argument);
 }
