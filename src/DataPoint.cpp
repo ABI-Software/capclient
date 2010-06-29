@@ -38,6 +38,7 @@ DataPoint::DataPoint(const DataPoint& other)
 	time_(other.time_),
 	weight_(other.weight_),
 	surfaceType_(other.surfaceType_),
+	dataPointType_(other.dataPointType_),
 	startTime_(other.startTime_),
 	endTime_(other.endTime_)
 {
@@ -134,6 +135,8 @@ DataPoint& DataPoint::operator=(const DataPoint& rhs)
 	weight_ = rhs.weight_;
 	startTime_ = rhs.startTime_;
 	endTime_ = rhs.endTime_;
+	surfaceType_ = rhs.surfaceType_;
+	dataPointType_ = rhs.dataPointType_;
 	
 	return *this;
 }
