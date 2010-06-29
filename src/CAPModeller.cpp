@@ -11,6 +11,8 @@
 #include <iostream>
 #include <assert.h>
 
+#include <boost/bind.hpp>
+
 namespace cap
 {
 
@@ -144,6 +146,26 @@ void CAPModeller::ChangeMode(CAPModellingMode* newMode)
 	currentModellingMode_->PerformExitAction();
 	currentModellingMode_ = newMode;
 	currentModellingMode_->PerformEntryAction();
+}
+
+std::vector<DataPoint> CAPModeller::GetDataPoints() const
+{
+	std::vector<DataPoint> dataPoints;
+	dataPoints.push_back(modellingModeApex_.GetApex());
+	dataPoints.push_back(modellingModeBase_.GetBase());
+	
+	typedef std::map<Cmiss_node*, DataPoint> Map;
+	Map const& rvInsert = modellingModeRV_.GetRVInsertPoints();
+	std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
+			boost::bind(&Map::value_type::second, _1));
+	
+	typedef std::vector<DataPoint> Vector;
+	Vector const& bps = modellingModeBasePlane_.GetBasePlanePoints();
+	std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
+	Vector const& gps = modellingModeGuidePoints_.GetDataPoints();
+	std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
+	
+	return dataPoints;
 }
 
 } // end namespace cap

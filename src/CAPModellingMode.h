@@ -41,14 +41,16 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
-	const DataPoint& GetApex() const; //REVISE design
+	const DataPoint& GetApex() const; //REVISE design:
+	// Probably its more extensible to provide a uniform interface (virtual GetDataPoints) on all Modes.
+	// However it is unlikely that new modes will be added in the future so probably its ok.
 
-	void PerformEntryAction();
-	void PerformExitAction();
+	virtual void PerformEntryAction();
+	virtual void PerformExitAction();
 	
 private:
 	std::vector<DataPoint> apex_; // holds at most 1 item
@@ -61,14 +63,14 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const DataPoint& GetBase() const;
 	
-	void PerformEntryAction();
-	void PerformExitAction();
+	virtual void PerformEntryAction();
+	virtual void PerformExitAction();
 	
 private:
 	std::vector<DataPoint> base_; // holds at most 1 item
@@ -90,14 +92,14 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const std::map<Cmiss_node*, DataPoint>& GetRVInsertPoints() const;
 	
-	void PerformEntryAction();
-	void PerformExitAction();
+	virtual void PerformEntryAction();
+	virtual void PerformExitAction();
 	
 private:
 	std::map<Cmiss_node*, DataPoint> rvInserts_; // holds n pairs of DataPoints ( n >= 1 )
@@ -113,14 +115,14 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
 	const std::vector<DataPoint>& GetBasePlanePoints() const;
 	
-	void PerformEntryAction();
-	void PerformExitAction();
+	virtual void PerformEntryAction();
+	virtual void PerformExitAction();
 	
 private:
 	std::vector<DataPoint> basePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
@@ -150,14 +152,14 @@ public:
 	~CAPModellingModeGuidePoints();
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
 	
-	const std::vector<DataPoint>& GetDataPoints() const;
+	std::vector<DataPoint> GetDataPoints() const;
 	
-	void PerformEntryAction();
-	void PerformExitAction();
+	virtual void PerformEntryAction();
+	virtual void PerformExitAction();
 	
 	void InitialiseModel(const DataPoint& apex,
 			const DataPoint& base,

@@ -56,6 +56,7 @@ public:
 	
 	CAPModellingModeGuidePoints* GetModellingModeGuidePoints();
 	
+	std::vector<DataPoint> GetDataPoints() const;
 	
 	void SetApex(const std::vector<DataPoint>& apex);
 	
