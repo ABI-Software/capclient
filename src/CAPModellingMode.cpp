@@ -23,9 +23,15 @@
 
 #include "CAPBasis.h"
 
+#include "boost/bind.hpp"
+#include "boost/foreach.hpp"
+
+namespace
+{
 const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
 const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
 const static char* priorFile = "Data/templates/prior.dat";
+}
 
 namespace cap
 {
@@ -889,6 +895,19 @@ void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
 //		std::cout << "vectorOfDataPoints_["<< i << "] : " << vectorOfDataPoints_[i].size() << '\n';
 //	}
 //#endif
+}
+
+std::vector<DataPoint> CAPModellingModeGuidePoints::GetDataPoints() const
+{
+	using boost::bind;
+	std::vector<DataPoint> v;
+	//for each map:
+	typedef std::map<Cmiss_node*, DataPoint> Map;
+	BOOST_FOREACH(Map const& map, vectorOfDataPoints_)
+	{
+		std::transform(map.begin(), map.end(), std::back_inserter(v), bind(&Map::value_type::second, _1));
+	}
+	return v;
 }
 
 } // end namespace cap
