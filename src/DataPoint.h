@@ -8,6 +8,7 @@
 #ifndef DATAPOINT_H_
 #define DATAPOINT_H_
 
+#include "CAPTypes.h"
 #include "CAPMath.h"
 
 extern "C" {
@@ -21,7 +22,7 @@ class DataPoint
 {
 public:
 	
-	DataPoint(Cmiss_node* node, const Point3D& coord, float time = 0, float weight = 1.0f);
+	DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, float time, float weight = 1.0f);
 	
 	DataPoint(const DataPoint& other);
 		
@@ -41,10 +42,14 @@ public:
 	
 	void SetVisible(bool visibility);
 	
-	//HACK
-	int GetSurfaceType() const;
+	DataPointType GetPointType() const;
 	
-	void SetSurfaceType(int type);
+	void SetPointType(DataPointType type);
+	
+	//HACK
+	SurfaceType GetSurfaceType() const;
+	
+	void SetSurfaceType(SurfaceType type);
 	
 	std::string GetSliceName() const; // returns the name of the slice this date point belongs to
 	
@@ -56,8 +61,9 @@ private:
 	Point3D coordinate_;
 	float weight_;
 	float time_;
-	int surfaceType_;
-	float startTime_, endTime_; // these can't be inferred from time only 
+	SurfaceType surfaceType_;
+	DataPointType dataPointType_;
+	float startTime_, endTime_; // these can't be inferred from time only
 };
 
 struct DataPointTimeLessThan // used for sorting DataPoints with respect to time

@@ -33,13 +33,13 @@ void ReadPoint(Point& point, xmlNodePtr cur)
 	//frame
 	xmlChar* surface = xmlGetProp(cur, (xmlChar const*)"surface"); 
 //	std::cout << "surface = " << surface << '\n';
-	point.surface = (std::string("epi") == (char*)surface) ? EPI : ENDO;
+	point.surface = (std::string("epi") == (char*)surface) ? EPICARDIUM : ENDOCARDIUM;
 	xmlFree(surface);
 	
 	//slice
 	xmlChar* typeCStr = xmlGetProp(cur, (xmlChar const*)"type"); 
 //	std::cout << "type = " << typeCStr << '\n';
-	PointType type;
+	DataPointType type;
 	std::string typeStr((char*)typeCStr);
 	if (typeStr == "apex")
 	{
@@ -55,11 +55,11 @@ void ReadPoint(Point& point, xmlNodePtr cur)
 	}
 	else if (typeStr == "bp")
 	{
-		type = BP;
+		type = BASEPLANE;
 	}
 	else if (typeStr == "guide")
 	{
-		type = GUIDE;
+		type = GUIDEPOINT;
 	}
 	point.type = type;
 	xmlFree(typeCStr);
@@ -240,11 +240,11 @@ void ConstructPointSubtree(Point const &point, xmlNodePtr imageNode)
 	xmlNodePtr pointNode = xmlNewChild(imageNode, NULL, BAD_CAST "Point", NULL);
 	
 	xmlChar* surfaceStr  = NULL;
-	if (point.surface == EPI)
+	if (point.surface == EPICARDIUM)
 	{
 		surfaceStr = BAD_CAST "epi";
 	}
-	else if (point.surface == ENDO)
+	else if (point.surface == ENDOCARDIUM)
 	{
 		surfaceStr = BAD_CAST "endo";
 	}
@@ -263,11 +263,11 @@ void ConstructPointSubtree(Point const &point, xmlNodePtr imageNode)
 	{
 		typeStr = BAD_CAST "rv";
 	}
-	else if (point.type == BP)
+	else if (point.type == BASEPLANE)
 	{
 		typeStr = BAD_CAST "bp";
 	}
-	else if (point.type == GUIDE)
+	else if (point.type == GUIDEPOINT)
 	{
 		typeStr = BAD_CAST "guide";
 	}

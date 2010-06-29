@@ -8,6 +8,7 @@
 #ifndef CAPMODELLVPS4X4_H_
 #define CAPMODELLVPS4X4_H_
 
+#include "CAPTypes.h"
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
@@ -36,12 +37,12 @@ public:
 		SOLID
 	};
 	
-	enum SurfaceType
-	{
-		UNDEFINED,
-		ENDOCARDIUM,
-		EPICARDIUM
-	};
+//	enum SurfaceType
+//	{
+//		UNDEFINED,
+//		ENDOCARDIUM,
+//		EPICARDIUM
+//	};
 	
 	CAPModelLVPS4X4(const std::string& name, Cmiss_context_id context);
 	~CAPModelLVPS4X4();
