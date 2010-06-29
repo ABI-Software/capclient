@@ -9,7 +9,75 @@
 #include <stdexcept>
 #define private public
 #include "../src/CAPXMLFile.h"
+#include "../src/DataPoint.h"
 #undef private
+
+/*
+ * fake defintion of DataPoint for testing
+ *
+ */
+
+namespace cap
+{
+
+DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, float time, float weight)
+{};
+	
+DataPoint::DataPoint(const DataPoint& other)
+{};
+		
+DataPoint::~DataPoint()
+{}
+	
+const Cmiss_node* DataPoint::GetCmissNode() const
+{}
+
+Cmiss_node* DataPoint::GetCmissNode()
+{}
+
+const Point3D& DataPoint::GetCoordinate() const
+{}
+
+void DataPoint::SetCoordinate(const Point3D& coord)
+{}
+
+float DataPoint::GetTime() const
+{}
+
+void DataPoint::SetValidPeriod(float startTime, float endTime)
+{}
+
+void DataPoint::SetVisible(bool visibility)
+{
+}
+
+DataPointType DataPoint::GetDataPointType() const
+{
+}
+
+void DataPoint::SetDataPointType(DataPointType type)
+{
+}
+
+SurfaceType DataPoint::GetSurfaceType() const
+{
+}
+
+void DataPoint::SetSurfaceType(SurfaceType type)
+{
+}
+
+std::string DataPoint::GetSliceName() const
+{
+}
+
+// assignment operator
+DataPoint& DataPoint::operator=(const DataPoint& rhs)
+{
+}
+	
+} // end namespace cap
+
 
 TEST(CAPXMLFile, ReadXML)
 {

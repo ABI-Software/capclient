@@ -91,6 +91,16 @@ void DataPoint::SetVisible(bool visibility)
 	Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
 }
 
+DataPointType DataPoint::GetDataPointType() const
+{
+	return dataPointType_;
+}
+
+void DataPoint::SetDataPointType(DataPointType type)
+{
+	dataPointType_ = type;
+}
+
 SurfaceType DataPoint::GetSurfaceType() const
 {
 	return surfaceType_;
