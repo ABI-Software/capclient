@@ -8,6 +8,7 @@
 #include "CAPXMLFile.h"
 #include "DICOMImage.h"
 #include "CAPModelLVPS4X4.h"
+#include "DataPoint.h"
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -18,6 +19,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 namespace cap {
 
@@ -510,7 +512,27 @@ void CAPXMLFile::AddFrame(Frame const& frame)
 	output_.frames.push_back(frame);
 }
 
-void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages, CAPModelLVPS4X4 const& heartModel)
+class EqualToSliceInfoByName 
+{
+	// this is needed as boost::bind and boost::tuple dont mix well
+	// see http://lists.boost.org/boost-users/2007/01/24527.php
+public:
+	EqualToSliceInfoByName(std::string const& name)
+	: sliceName_(name)
+	{}
+	
+	bool operator() (const SliceInfo& sliceInfo) const
+	{
+		return (sliceName_ == sliceInfo.get<0>());
+	}
+	
+private:
+	std::string const& sliceName_;
+};
+
+void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
+									std::vector<DataPoint> const& dataPoints,
+									CAPModelLVPS4X4 const& heartModel)
 {
 	if (slicesWithImages.empty())
 	{
@@ -526,6 +548,7 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages, CA
 	
 	// Input
 	int slice = 0;
+	
 	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
 	{
 		std::string const& label = sliceInfo.get<0>();
@@ -544,6 +567,43 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages, CA
 			AddImage(image);
 		}
 		slice++;
+	}
+	
+	BOOST_FOREACH(DataPoint const& dataPoint, dataPoints)
+	{	
+		Point p;
+		p.surface = dataPoint.GetSurfaceType();
+		p.type = dataPoint.GetDataPointType();
+		Point3D const& coord = dataPoint.GetCoordinate();
+		Value x = {coord.x, "x"};
+		p.values["x"] = x; //REVISE
+		Value y = {coord.y, "y"};
+		p.values["y"] = y;
+		Value z = {coord.z, "z"};
+		p.values["z"] = z;
+		
+		std::string const& sliceName = dataPoint.GetSliceName();
+		float time = dataPoint.GetTime();
+		// time is normailized between 0 and 1, so we can find the frame number from it.
+		
+		EqualToSliceInfoByName pred(sliceName);
+		SlicesWithImages::const_iterator itr = std::find_if(slicesWithImages.begin(), slicesWithImages.end(), pred);
+		assert(itr != slicesWithImages.end());
+		
+		size_t numFrames = itr->get<1>().size();
+		
+		// CHECK for correctless!!
+		double frameDuration = (double) 1.0 / numFrames;
+		double frameFloat = time / frameDuration;
+		size_t frame = static_cast<size_t>(frameFloat);
+		if ((frameFloat - frame) > 0.5)
+		{
+			frame++;
+		}
+		
+		size_t frameNumber = std::min(frame, numFrames);
+		Image& image = input_.images[frameNumber];
+		image.points.push_back(p);
 	}
 	
 	// Output

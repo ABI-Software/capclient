@@ -42,9 +42,9 @@ public:
 	
 	void SetVisible(bool visibility);
 	
-	DataPointType GetPointType() const;
+	DataPointType GetDataPointType() const;
 	
-	void SetPointType(DataPointType type);
+	void SetDataPointType(DataPointType type);
 	
 	//HACK
 	SurfaceType GetSurfaceType() const;

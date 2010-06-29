@@ -18,11 +18,12 @@ namespace cap
 {
 
 class CAPModelLVPS4X4;
+class DataPoint;
 
 struct Value
 {
 	double value;
-	std::string variable; // lambda, mu, theta
+	std::string variable; // lambda, mu, theta or x, y, z
 };
 
 //struct Surface // consider enum?
@@ -103,7 +104,9 @@ public:
 	
 	void AddFrame(Frame const& frame);
 	
-	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, CAPModelLVPS4X4 const& model);
+	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, 
+							std::vector<DataPoint> const& dataPoints,
+							CAPModelLVPS4X4 const& model);
 	
 	std::vector<Image> const& GetImages() const
 	{
