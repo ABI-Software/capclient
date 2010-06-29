@@ -25,6 +25,26 @@ typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 typedef boost::tuple<std::string, std::vector<DICOMPtr>, std::vector<Cmiss_texture_id> > SliceInfo;
 typedef std::vector<SliceInfo> SlicesWithImages;
 
+
+enum SurfaceType
+{
+	EPICARDIUM,
+	ENDOCARDIUM,
+	UNDEFINED_SURFACE_TYPE,
+	MAX_SURFACE_TYPE
+};
+
+enum DataPointType
+{
+	APEX,
+	BASE,
+	RV,
+	BASEPLANE,
+	GUIDEPOINT,
+	UNDEFINED_DATA_POINT_TYPE,
+	MAX_PATA_POINT_TYPE
+};
+
 } // end namespace cap
 
 #endif /* CAPTYPES_H_ */

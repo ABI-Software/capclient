@@ -18,13 +18,14 @@ extern "C" {
 namespace cap
 {
 
-DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, float time, float weight)
+DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, float time, float weight)
 :
 	cmissNode_(ACCESS(Cmiss_node)(node)),
 	coordinate_(coord),
 	time_(time),
 	weight_(weight),
-	surfaceType_(0),
+	surfaceType_(UNDEFINED_SURFACE_TYPE),
+	dataPointType_(dataPointType),
 	startTime_(time),
 	endTime_(time)
 {
@@ -90,13 +91,12 @@ void DataPoint::SetVisible(bool visibility)
 	Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
 }
 
-//HACK
-int DataPoint::GetSurfaceType() const
+SurfaceType DataPoint::GetSurfaceType() const
 {
 	return surfaceType_;
 }
 
-void DataPoint::SetSurfaceType(int type)
+void DataPoint::SetSurfaceType(SurfaceType type)
 {
 	surfaceType_ = type;
 }

@@ -51,11 +51,11 @@ TEST(CAPXMLFile, AddImage)
 	EXPECT_EQ(xmlFile.input_.images[0].sopiuid, "111");
 	
 	Point p;
-	p.surface = EPI;
-	p.type = GUIDE;
+	p.surface = EPICARDIUM;
+	p.type = GUIDEPOINT;
 	EXPECT_NO_THROW(xmlFile.AddPointToImage("111", p));
-	EXPECT_EQ(xmlFile.input_.images[0].points[0].surface, EPI );
-	EXPECT_EQ(xmlFile.input_.images[0].points[0].type, GUIDE );
+	EXPECT_EQ(xmlFile.input_.images[0].points[0].surface, EPICARDIUM );
+	EXPECT_EQ(xmlFile.input_.images[0].points[0].type, GUIDEPOINT );
 	
 	EXPECT_THROW(xmlFile.AddPointToImage("222", Point()), std::invalid_argument);
 }

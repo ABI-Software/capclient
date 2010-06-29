@@ -79,7 +79,7 @@ void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const Point3D& 
 		apex_.clear();
 	}
 
-	DataPoint dataPoint(dataPointID, coord, time);
+	DataPoint dataPoint(dataPointID, coord, APEX, time);
 	dataPoint.SetValidPeriod(0,1); //REVISE
 	dataPoint.SetVisible(true);
 	
@@ -142,7 +142,7 @@ void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const Point3D& 
 		base_.clear();
 	}
 
-	DataPoint dataPoint(dataPointID, coord, time);
+	DataPoint dataPoint(dataPointID, coord, BASE, time);
 	dataPoint.SetValidPeriod(0,1); //REVISE
 	dataPoint.SetVisible(true);
 	base_.push_back(dataPoint);
@@ -199,7 +199,7 @@ CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
 
 void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
-	DataPoint dataPoint(dataPointID, coord, time);
+	DataPoint dataPoint(dataPointID, coord, RV, time);
 	float startTime = heartModel_.MapToModelFrameTime(time);
 	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
 	float endTime = startTime + duration;
@@ -267,7 +267,7 @@ CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 
 void CAPModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
 {
-	DataPoint dataPoint(dataPointID, coord, time);
+	DataPoint dataPoint(dataPointID, coord, BASEPLANE, time);
 	float startTime = heartModel_.MapToModelFrameTime(time);
 	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
 	float endTime = startTime + duration;
@@ -379,7 +379,7 @@ void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Po
 	std::cout << "NDEBUG" << std::endl;
 #endif
 	
-	DataPoint dataPoint(dataPointID, coord, time);
+	DataPoint dataPoint(dataPointID, coord, GUIDEPOINT, time);
 	float startTime = heartModel_.MapToModelFrameTime(time);
 	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
 	float endTime = startTime + duration;
@@ -442,12 +442,12 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 			if (xi.z < 0.5)
 			{
 				xi.z = 0.0f; // projected on endocardium
-				itr->second.SetSurfaceType(CAPModelLVPS4X4::ENDOCARDIUM);
+				itr->second.SetSurfaceType(ENDOCARDIUM);
 			}
 			else
 			{
 				xi.z = 1.0f; // projected on epicardium
-				itr->second.SetSurfaceType(CAPModelLVPS4X4::EPICARDIUM);
+				itr->second.SetSurfaceType(EPICARDIUM);
 			}
 		}
 		xi_vector.push_back(xi);

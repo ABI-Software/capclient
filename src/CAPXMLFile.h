@@ -31,26 +31,11 @@ struct Value
 //	static std::string const ENDO;
 //};
 
-enum Surface
-{
-	EPI,
-	ENDO
-};
-
-enum PointType
-{
-	APEX,
-	BASE,
-	RV,
-	BP,
-	GUIDE
-};
-
 struct Point
 {
 	std::map<std::string, Value> values;
-	Surface surface;
-	PointType type;
+	SurfaceType surface;
+	DataPointType type;
 };
 
 struct ContourFile

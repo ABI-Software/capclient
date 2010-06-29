@@ -1,14 +1,3 @@
-extern "C"
-{
-#include "api/cmiss_time_keeper.h"
-#include "api/cmiss_time.h"
-#include "command/cmiss.h"
-#include "graphics/scene.h"	
-#include "graphics/scene_viewer.h"
-#include "three_d_drawing/graphics_buffer.h"
-//#include "general/debug.h"
-}
-
 #include "wx/xrc/xmlres.h"
 #include <wx/dir.h>
 
@@ -16,6 +5,7 @@ extern "C"
 #include <wx/aboutdlg.h>
 
 #include "Config.h"
+#include "CAPTypes.h"
 #include "MainWindow.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
@@ -33,6 +23,17 @@ extern "C"
 #include <functional>
 
 #include <boost/foreach.hpp>
+
+extern "C"
+{
+#include "api/cmiss_time_keeper.h"
+#include "api/cmiss_time.h"
+#include "command/cmiss.h"
+#include "graphics/scene.h"	
+#include "graphics/scene_viewer.h"
+#include "three_d_drawing/graphics_buffer.h"
+//#include "general/debug.h"
+}
 
 using namespace std;
 
@@ -303,8 +304,8 @@ void MainWindow::SmoothAlongTime()
 	modeller_->SmoothAlongTime();
 	RefreshCmguiCanvas();
 	
-	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
+	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(EPICARDIUM, 0) << endl;
+	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(ENDOCARDIUM, 0) << endl;
 }
 
 void MainWindow::OnTogglePlay(wxCommandEvent& event)
