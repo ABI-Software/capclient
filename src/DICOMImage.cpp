@@ -29,7 +29,9 @@ namespace cap
 using namespace std;
 
 DICOMImage::DICOMImage(const string& filename)
-	: filename_(filename), plane_(0)
+	: filename_(filename),
+	  plane_(0),
+	  isShifted_(false)
 {
 	ReadDICOMFile();
 }

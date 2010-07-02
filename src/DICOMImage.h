@@ -149,6 +149,40 @@ public:
 		}
 	}
 	
+	bool IsShifted()const
+	{
+		return isShifted_;
+	}
+
+//	void SetShifted(bool shifted)
+//	{
+//		isShifted_ = shifted;
+//	}
+
+	Point3D const& GetShiftedImagePosition() const
+	{
+		return shiftedPosition_;
+	}
+
+	void SetShiftedImagePosition(Point3D const& p)
+	{
+		isShifted_ = true;
+		shiftedPosition_ = p;
+	}
+
+	std::pair<Vector3D,Vector3D> GetShiftedImageOrientation() const
+	{
+		return std::make_pair(shiftedOrientation1_, shiftedOrientation2_);
+	}
+
+	void SetShiftedImageOrientation(Vector3D const& v1, Vector3D const& v2)
+	{
+		isShifted_ = true;
+		// cosine vectors
+		shiftedOrientation1_ = v1;
+		shiftedOrientation2_ = v2;
+	}
+
 private:
 	void ReadDICOMFile();
 	
@@ -169,6 +203,9 @@ private:
 	Point3D position3D_;
 	Vector3D orientation1_, orientation2_;
 	
+	Point3D shiftedPosition_;
+	Vector3D shiftedOrientation1_, shiftedOrientation2_;
+
 	std::string patientName_;
 	std::string patientId_;
 	std::string scanDate_;
@@ -178,6 +215,7 @@ private:
 	
 	mutable ImagePlane* plane_;
 //	Cmiss_texture* texture;
+	bool isShifted_;
 };
 
 } // end namespace cap
