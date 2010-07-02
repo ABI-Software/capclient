@@ -117,7 +117,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	}
 
 	string exelem_filename(dir_path);
-	exelem_filename.append("GlobalHermiteParam.exelem");
+	exelem_filename.append(GetExelemFileName());
 	if (!Cmiss_region_read_file(region, const_cast<char*>(exelem_filename.c_str())))
 	{
 		std::cout << "Error reading ex file - exelem" << std::endl;
@@ -225,7 +225,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 		
 		stringstream fileNameOnly;
 		fileNameOnly << exnodeFilenamePrefix << "_" << i+1 << ".model.exnode";
-		modelFileNames_.push_back(fileNameOnly.str());
+		exnodeModelFileNames_.push_back(fileNameOnly.str());
 	}
 
 	// write exelem
