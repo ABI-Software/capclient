@@ -120,11 +120,17 @@ public:
 	
 	double ComputeVolume(SurfaceType surface, float time) const;
 	
-	std::vector<std::string> const& GetFileNames() const
+	std::vector<std::string> const& GetExnodeFileNames() const
 	{
-		return modelFileNames_;
+		return exnodeModelFileNames_;
 	}
 	
+	std::string const& GetExelemFileName() const
+	{
+		static std::string const exelemFileName("GlobalHermiteParam.exelem");
+		return exelemFileName;
+	}
+
 private:
 	
 	static const int NUMBER_OF_NODES = 40; 
@@ -134,7 +140,7 @@ private:
 	
 	gtMatrix patientToGlobalTransform_; // model to world transformation
 	std::string modelName_;
-	std::vector<std::string> modelFileNames_;
+	std::vector<std::string> exnodeModelFileNames_;
 	int numberOfModelFrames_;
 	
 	float focalLength_;
