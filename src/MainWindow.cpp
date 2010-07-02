@@ -426,7 +426,7 @@ void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	{
 		time = prevFrameTime + (float)1/(heartModel_.GetNumberOfModelFrames());
 	}
-	slider->SetValue(time * (max - min));
+	slider->SetValue(static_cast<int>(time * (max - min)));
 //	cout << "time = " << time << endl;;	
 //	imageSet_->SetTime(time);
 	time = (time > 0.99) ? 0 : time;

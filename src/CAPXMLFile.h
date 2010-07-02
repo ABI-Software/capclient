@@ -19,6 +19,8 @@ namespace cap
 
 class CAPModelLVPS4X4;
 class DataPoint;
+class Point3D;
+class Vector3D;
 
 struct Value
 {
@@ -52,6 +54,8 @@ struct Image
 	int frame;
 	int slice;
 	std::string label;//LA1, SA2 etc
+	std::tr1::shared_ptr<Point3D> imagePosition;
+	std::tr1::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
 };
 
 struct Frame
@@ -80,7 +84,10 @@ struct Input
 
 struct Output
 {
+	double focalLength;
+	double interval;
 	std::vector<Frame> frames;
+	std::string elemFileName;
 };
 
 struct Documentation
@@ -127,8 +134,6 @@ public:
 private:
 	std::string filename_;
 	std::string chamber_; // LV
-	double focalLength_;
-	double interval_;
 	std::string name_; // 
 	std::string studyIUid_; //
 	

@@ -32,6 +32,7 @@ extern "C"
 #include <iomanip>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/bind.hpp>
 
 //#include <stdio.h>
 
@@ -164,6 +165,11 @@ void ImageSlice::TransformImagePlane()
 		cout << "corrected blc = " << plane->blc <<endl;
 		cout << "corrected brc = " << plane->brc <<endl;
 		
+		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImagePosition, _1, plane->tlc));
+		Vector3D ori1 = plane->trc - plane->tlc;
+		Vector3D ori2 = plane->blc - plane->tlc;
+		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImageOrientation, _1, ori1, ori2));
+
 		planeShiftInfoFile.close();
 	}
 	
