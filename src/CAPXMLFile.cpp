@@ -10,6 +10,8 @@
 #include "DICOMImage.h"
 #include "CAPModelLVPS4X4.h"
 #include "DataPoint.h"
+#include "CmguiManager.h"
+#include "CmguiExtensions.h"
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -18,6 +20,7 @@
 //#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -237,6 +240,8 @@ void ReadOutput(Output& output, xmlDocPtr doc, xmlNodePtr cur)
 		}
 		cur = cur->next;
 	}
+
+	std::sort(output.frames.begin(), output.frames.end(), boost::bind(&Frame::number, _1));
 }
 
 void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
@@ -725,6 +730,94 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 		frame.exnode = modelFiles[i];
 		frame.number = i;
 		output_.frames.push_back(frame);
+	}
+}
+
+std::string MapSopiuidToFilename(std::string const& dicomFilename)
+{
+	//place holder
+	return std::string();
+}
+
+void CAPXMLFile::ProcessCAPXMLFile(CmguiManager const& cmguiManager,
+									SlicesWithImages & dicomSlices,
+									std::vector<DataPoint> & dataPoints,
+									CAPModelLVPS4X4 & model)
+{
+	dicomSlices.clear();
+	dataPoints.clear();
+
+//	typedef boost::tuple<std::string, std::vector<DICOMPtr>, std::vector<Cmiss_texture_id> > SliceInfo;
+//	typedef std::vector<SliceInfo> SlicesWithImages;
+
+	// Populate SlicesWithImages
+	typedef std::map<std::string, std::vector<DICOMPtr> > DICOMImageMapWithSliceNameAsKey;
+	DICOMImageMapWithSliceNameAsKey dicomMap;
+	BOOST_FOREACH(Image const& image, input_.images)
+	{
+		DICOMPtr dicomImage = boost::make_shared<DICOMImage>(MapSopiuidToFilename(image.sopiuid));
+
+		//TODO handle cases where image label is not present
+		DICOMImageMapWithSliceNameAsKey::iterator itr = dicomMap.find(image.label);
+		if (itr == dicomMap.end())
+		{
+			std::vector<DICOMPtr> v(1, dicomImage);
+			dicomMap.insert(std::make_pair(image.label, v));
+		}
+		else
+		{
+			itr->second.push_back(dicomImage);
+		}
+	}
+
+	BOOST_FOREACH(DICOMImageMapWithSliceNameAsKey::value_type& labelAndImages, dicomMap)
+	{
+		std::string const& label = labelAndImages.first;
+		std::vector<DICOMPtr>& images = labelAndImages.second;
+//		using namespace boost::lambda;
+		std::sort(images.begin(), images.end(), *boost::lambda::_1 < *boost::lambda::_2);
+
+		std::vector<Cmiss_texture_id> textures;
+		BOOST_FOREACH(DICOMPtr const& dicomImage, images)
+		{
+			Cmiss_texture_id texture_id = cmguiManager.LoadCmissTexture(dicomImage->GetFilename());
+			textures.push_back(texture_id);
+		}
+
+		SliceInfo sliceInfo = boost::make_tuple(label, images, textures);
+		dicomSlices.push_back(sliceInfo);
+	}
+
+	std::sort(dicomSlices.begin(), dicomSlices.end(), SliceInfoSortOrder()); // make Short axes appear first
+
+	BOOST_FOREACH(Image const& image, input_.images)
+	{
+		double numFrames = dicomMap[image.label].size();
+
+		BOOST_FOREACH(Point const& p, image.points)
+		{
+			double coords[3];
+			coords[0] = (*p.values.find("x")).second.value;
+			coords[1] = (*p.values.find("y")).second.value;
+			coords[2] = (*p.values.find("z")).second.value;
+
+			float time = static_cast<double>(image.frame) / numFrames;
+			Cmiss_context_id cmiss_context = cmguiManager.GetCmissContext();
+			Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
+			Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());
+			Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
+			Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
+							field, (double*) coords, time);
+
+			//TODO implement data point generation and modeller update
+		}
+	}
+
+	std::string exemFileName = output_.elemFileName;
+	std::vector<std::string> exnodeFileNames;
+	BOOST_FOREACH(Frame const& frame, output_.frames)
+	{
+		exnodeFileNames.push_back(frame.exnode);
 	}
 }
 
