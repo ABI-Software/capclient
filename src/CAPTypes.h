@@ -25,6 +25,27 @@ typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 typedef boost::tuple<std::string, std::vector<DICOMPtr>, std::vector<Cmiss_texture_id> > SliceInfo;
 typedef std::vector<SliceInfo> SlicesWithImages;
 
+struct SliceInfoSortOrder
+// for sorting SliceInfo's
+{
+	SliceInfoSortOrder()
+	{
+//		std::cout << __func__ << '\n';
+	}
+
+	bool operator()(const SliceInfo& a, const SliceInfo& b) const
+	{
+		std::string const& x = a.get<0>();
+		std::string const& y = b.get<0>();
+		if (x[0] != y[0])
+		{
+			// this makes sure short axis slices come first
+			return x[0] > y[0];
+		}
+
+		return std::make_pair(x.length(), x) < std::make_pair(y.length(),y);
+	}
+};
 
 enum SurfaceType
 {

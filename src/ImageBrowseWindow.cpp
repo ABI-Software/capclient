@@ -580,28 +580,6 @@ void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 	PutLabelOnSelectedSlice("");
 }
 
-struct SliceInfoSortOrder
-// for sorting SliceInfo's
-{
-	SliceInfoSortOrder()
-	{
-//		std::cout << __func__ << '\n';
-	}
-	
-	bool operator()(const SliceInfo& a, const SliceInfo& b) const
-	{
-		std::string const& x = a.get<0>();
-		std::string const& y = b.get<0>();
-		if (x[0] != y[0])
-		{
-			// this makes sure short axis slices come first
-			return x[0] > y[0];
-		}
-		
-		return std::make_pair(x.length(), x) < std::make_pair(y.length(),y); 
-	}
-};
-
 void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 {
 	std::cout << __func__ << '\n';
