@@ -21,6 +21,7 @@ class CAPModelLVPS4X4;
 class DataPoint;
 class Point3D;
 class Vector3D;
+class CmguiManager;
 
 struct Value
 {
@@ -111,10 +112,28 @@ public:
 	
 	void AddFrame(Frame const& frame);
 	
+
+	/**
+	 *  Populate member fields of CAPXMLFile from infomation obtained from
+	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
+	 *  so an libxml2 tree can be generated and written to a file
+	 */
 	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, 
 							std::vector<DataPoint> const& dataPoints,
 							CAPModelLVPS4X4 const& model);
 	
+	/**
+	 *  Translate the infomation stored in CAPXMLFile into the form to be
+	 *  consumed by the client
+	 *  (i.e SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4)
+	 *  Also generated the instances of DICOMImage, Cmiss_texture,
+	 *  DataPoint (and the Cmiss_node) and the model.
+	 */
+	void ProcessCAPXMLFile(CmguiManager const& cmguiManager,
+							SlicesWithImages & dicomFiles,
+							std::vector<DataPoint> & dataPoints,
+							CAPModelLVPS4X4 & model);
+
 	std::vector<Image> const& GetImages() const
 	{
 		return input_.images;
