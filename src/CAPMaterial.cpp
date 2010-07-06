@@ -91,7 +91,8 @@ void CAPMaterial::SetBrightness(float brightness)
 		fill,
 		4, pixels);
 	
-	pixels[0] = 255.0 * brightness;
+	assert(brightness >= 0 && brightness <=1);
+	pixels[0] = static_cast<unsigned char>(255.0 * brightness);
 	
 	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
 		1 /*int width */, 1/*int height*/, 1/*int depth*/,
@@ -117,7 +118,8 @@ void CAPMaterial::SetContrast(float contrast)
 		fill,
 		4, pixels);
 	
-	pixels[1] = 255.0 * contrast;
+	assert(contrast >= 0 && contrast <=1);
+	pixels[1] = static_cast<unsigned char>(255.0 * contrast);
 	
 	if (!Cmiss_texture_set_pixels(brightnessAndContrastTexture_,
 		1 /*int width */, 1/*int height*/, 1/*int depth*/,
