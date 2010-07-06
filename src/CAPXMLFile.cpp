@@ -27,6 +27,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <assert.h>
+#include <functional>
 
 namespace cap {
 
@@ -704,7 +705,8 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 		SlicesWithImages::const_iterator itr = std::find_if(slicesWithImages.begin(), slicesWithImages.end(), pred);
 		assert(itr != slicesWithImages.end());
 		
-		size_t numFrames = itr->get<1>().size();
+		std::vector<DICOMPtr> const& dicomFilesWithMatchingSliceName = itr->get<1>();
+		size_t numFrames = dicomFilesWithMatchingSliceName.size();
 		
 		// CHECK for correctless!!
 		double frameDuration = (double) 1.0 / numFrames;
@@ -716,14 +718,18 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 		}
 		
 		size_t frameNumber = std::min(frame, numFrames);
-		Image& image = input_.images[frameNumber];
-		image.points.push_back(p);
+		std::string sopiuid = dicomFilesWithMatchingSliceName.at(frameNumber)->GetSopInstanceUID();
+		std::vector<Image>::iterator image_itr = std::find_if(input_.images.begin(), input_.images.end(),
+				boost::bind(std::equal_to<std::string>() , boost::bind(&Image::sopiuid, _1), sopiuid));
+		assert(image_itr != input_.images.end());
+		image_itr->points.push_back(p);
 	}
 	
 	// Output
-	std::vector<std::string> const& modelFiles = heartModel.GetExnodeFileNames();
+	output_.elemFileName = heartModel.GetExelemFileName();
 	output_.focalLength = heartModel.GetFocalLength();
 	output_.interval = 1.0/heartModel.GetNumberOfModelFrames();// 1.0 = 1 cardiac cycle (normalised) - FIX
+	std::vector<std::string> const& modelFiles = heartModel.GetExnodeFileNames();
 	for (size_t i = 0; i < modelFiles.size(); i++)
 	{
 		Frame frame;
