@@ -41,10 +41,10 @@ const Point3D& DataPoint::GetCoordinate() const
 void DataPoint::SetCoordinate(const Point3D& coord)
 {}
 
-float DataPoint::GetTime() const
+double DataPoint::GetTime() const
 {}
 
-void DataPoint::SetValidPeriod(float startTime, float endTime)
+void DataPoint::SetValidPeriod(double startTime, double endTime)
 {}
 
 void DataPoint::SetVisible(bool visibility)

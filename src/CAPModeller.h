@@ -38,11 +38,11 @@ public:
 	explicit CAPModeller(CAPModelLVPS4X4& heartModel);
 	~CAPModeller(){}
 	
-	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
+	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	
-	void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	bool OnAccept();
 	

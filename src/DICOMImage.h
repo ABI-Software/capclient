@@ -30,12 +30,12 @@ public:
 	Vector3D yside;          /**< vector from blc to tlc */
 	
 //	int            imageSize;      /**< also stored in StudyInfo - image square */
-//	float          fieldOfView;    /**< should match length of xside */
-//	float          sliceThickness; /**< may vary between series */
-//	float          sliceGap;       /**< non-zero for short axis only */
-//	float          pixelSizeX_;     /**< in mm, should be square */
-//	float          pixelSizeY_;     /**< in mm, should be square */
-	float d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
+//	double          fieldOfView;    /**< should match length of xside */
+//	double          sliceThickness; /**< may vary between series */
+//	double          sliceGap;       /**< non-zero for short axis only */
+//	double          pixelSizeX_;     /**< in mm, should be square */
+//	double          pixelSizeY_;     /**< in mm, should be square */
+	double d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
 };
 
 class DICOMImage
@@ -189,8 +189,8 @@ private:
 	std::string filename_;
 	unsigned int width_;
 	unsigned int height_;
-	float thickness_;
-	float pixelSizeX_, pixelSizeY_;
+	double thickness_;
+	double pixelSizeX_, pixelSizeY_;
 	
 //	double timeInCardiacCycle;
 	

@@ -698,7 +698,7 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 		p.values["z"] = z;
 		
 		std::string const& sliceName = dataPoint.GetSliceName();
-		float time = dataPoint.GetTime();
+		double time = dataPoint.GetTime();
 		// time is normailized between 0 and 1, so we can find the frame number from it.
 		
 		EqualToSliceInfoByName pred(sliceName);
@@ -807,7 +807,7 @@ void CAPXMLFile::ProcessCAPXMLFile(CmguiManager const& cmguiManager,
 			coords[1] = (*p.values.find("y")).second.value;
 			coords[2] = (*p.values.find("z")).second.value;
 
-			float time = static_cast<double>(image.frame) / numFrames;
+			double time = static_cast<double>(image.frame) / numFrames;
 			Cmiss_context_id cmiss_context = cmguiManager.GetCmissContext();
 			Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
 			Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());

@@ -27,17 +27,17 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 {	
 }
 
-void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, float time)
+void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, double time)
 {
 	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
 }
 
-void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	currentModellingMode_->MoveDataPoint(dataPointID, coord, time);
 }
 
-void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	currentModellingMode_->RemoveDataPoint(dataPointID, time);
 }

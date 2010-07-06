@@ -141,8 +141,8 @@ TEST(MathFunctionTest, SolveASinXPlusBCosXIsEqualToC)
 	double b = 5;
 	double c = 4;
 	
-	float x = SolveASinXPlusBCosXIsEqualToC(a,b,c);
-	float expected = 139.460 / 180.0 * M_PI;
+	double x = SolveASinXPlusBCosXIsEqualToC(a,b,c);
+	double expected = 139.460 / 180.0 * M_PI;
 	EXPECT_NEAR(x, expected, 0.00001);
 	
 	x = SolveASinXPlusBCosXIsEqualToC(10,10,10);

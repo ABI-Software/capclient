@@ -61,7 +61,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
-	float time = frame->GetCurrentTime(); // TODO REVISE 
+	double time = frame->GetCurrentTime(); // TODO REVISE
 	if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
 	{
 		// Select node or create one
@@ -275,9 +275,9 @@ MainWindow::~MainWindow()
 	delete modeller_;
 }
 
-float MainWindow::GetCurrentTime() const
+double MainWindow::GetCurrentTime() const
 {
-	return static_cast<float>(Cmiss_time_keeper_get_time(timeKeeper_));
+	return Cmiss_time_keeper_get_time(timeKeeper_);
 }
 
 void MainWindow::AddDataPoint(Cmiss_node* dataPointID, const Point3D& position)
@@ -424,10 +424,10 @@ void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	}
 	else
 	{
-		time = prevFrameTime + (float)1/(heartModel_.GetNumberOfModelFrames());
+		time = prevFrameTime + (double)1/(heartModel_.GetNumberOfModelFrames());
 	}
 	slider->SetValue(static_cast<int>(time * (max - min)));
-//	cout << "time = " << time << endl;;	
+	cout << __func__ << ": time = " << time << endl;;
 //	imageSet_->SetTime(time);
 	time = (time > 0.99) ? 0 : time;
 	
@@ -589,10 +589,10 @@ void MainWindow::RenderIsoSurfaces()
 	Vector3D normalTransformed = m * plane_SA1.normal;
 	
 	Point3D pointTLCTransformed_SA1 = mInv * plane_SA1.tlc;
-	float d_SA1 = DotProduct((pointTLCTransformed_SA1 - Point3D(0,0,0)), normalTransformed);
+	double d_SA1 = DotProduct((pointTLCTransformed_SA1 - Point3D(0,0,0)), normalTransformed);
 	
 	Point3D pointTLCTransformed_SA6 = mInv * plane_SA6.tlc;
-	float d_SA6 = DotProduct((pointTLCTransformed_SA6 - Point3D(0,0,0)), normalTransformed);
+	double d_SA6 = DotProduct((pointTLCTransformed_SA6 - Point3D(0,0,0)), normalTransformed);
 	
 //	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 //				"ISO_SA1" ,
@@ -658,7 +658,7 @@ void MainWindow::UpdateMII() //FIX
 		Cmiss_context_execute_command(context_, str);
 		
 		Point3D pointTLCTransformed = mInv * plane.tlc;
-		float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
+		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
 		heartModel_.UpdateMII(index, d);
 	}
 }
@@ -686,7 +686,7 @@ void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4
 	Cmiss_context_execute_command(context_, str);
 	
 	Point3D pointTLCTransformed = mInv * plane.tlc;
-	float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
+	double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
 
 	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
 				,sliceName.c_str() ,d);

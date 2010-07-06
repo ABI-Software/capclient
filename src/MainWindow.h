@@ -54,7 +54,7 @@ public:
 	
 //	void InitialiseModel();
 	
-	float GetCurrentTime() const;
+	double GetCurrentTime() const;
 	
 	virtual void LoadImages(SlicesWithImages const& slices);
 	
