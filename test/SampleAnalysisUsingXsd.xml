@@ -20,14 +20,14 @@
 	    		<cap:Value variable="y" value="0.0"/>
 	    		<cap:Value variable="z" value="0.0"/>
 	    	</cap:Point>
-	    	<cap::ImagePosition x="1" y="2" z="3"/>
-	    	<cap::ImageOrientation Xx = "4" Xy = "5" Xz = "6" Yx = "7" Yy = "8" Yz = "9"/>
+	    	<cap:ImagePosition x="1" y="2" z="3"/>
+	    	<cap:ImageOrientation Xx = "4" Xy = "5" Xz = "6" Yx = "7" Yy = "8" Yz = "9"/>
 	    </cap:Image>
   	</cap:Input>
   	<cap:Output focallength="0.0" interval="0.0">
   		<cap:Frame exnode="FileName0.exnode" number="0"/>
     	<cap:Frame exnode="FileName1.exnode" number="1"/>
-    	<cap:Exeleme>Exelem.exelem</cap:Exelem>
+    	<cap:Exelem>Exelem.exelem</cap:Exelem>
   	</cap:Output>
   	<cap:Documentation>
     	<cap:Version date="2001-12-31T12:00:00" log="init" number="1"/>
