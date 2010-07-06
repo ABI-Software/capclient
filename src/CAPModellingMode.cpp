@@ -78,7 +78,7 @@ CAPModellingMode* CAPModellingModeApex::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeBase();
 }
 
-void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	if (!apex_.empty())
 	{
@@ -92,14 +92,14 @@ void CAPModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const Point3D& 
 	apex_.push_back(dataPoint);
 }
 
-void CAPModellingModeApex::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeApex::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	assert(apex_.size() == 1);
 	assert(apex_[0].GetCmissNode() == dataPointID);
 	apex_[0].SetCoordinate(coord);
 }
 
-void CAPModellingModeApex::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+void CAPModellingModeApex::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	assert(!apex_.empty());
 	apex_.clear();
@@ -141,7 +141,7 @@ CAPModellingMode* CAPModellingModeBase::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeRV();
 }
 
-void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	if (!base_.empty())
 	{
@@ -154,14 +154,14 @@ void CAPModellingModeBase::AddDataPoint(Cmiss_node* dataPointID, const Point3D& 
 	base_.push_back(dataPoint);
 }
 
-void CAPModellingModeBase::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeBase::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	assert(base_.size() == 1);
 	assert(base_[0].GetCmissNode() == dataPointID);
 	base_[0].SetCoordinate(coord);
 }
 
-void CAPModellingModeBase::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+void CAPModellingModeBase::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	assert(!base_.empty());
 	base_.clear();
@@ -203,12 +203,12 @@ CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeBasePlane();
 }
 
-void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	DataPoint dataPoint(dataPointID, coord, RV, time);
-	float startTime = heartModel_.MapToModelFrameTime(time);
-	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
-	float endTime = startTime + duration;
+	double startTime = heartModel_.MapToModelFrameTime(time);
+	double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
+	double endTime = startTime + duration;
 	
 	std::cout << __func__ << ": time = " << time << ", startTime = " << startTime << ", endTime = " << endTime << std::endl;
 	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
@@ -216,14 +216,14 @@ void CAPModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const Point3D& co
 	rvInserts_.insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
 }
 
-void CAPModellingModeRV::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeRV::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	std::map<Cmiss_node*, DataPoint>::iterator itr = rvInserts_.find(dataPointID);
 	assert(itr != rvInserts_.end());
 	itr->second.SetCoordinate(coord);
 }
 
-void CAPModellingModeRV::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+void CAPModellingModeRV::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	std::map<Cmiss_node*, DataPoint>::iterator itr = rvInserts_.find(dataPointID);
 	assert(itr != rvInserts_.end());
@@ -271,18 +271,18 @@ CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
 	return modeller.GetModellingModeGuidePoints();
 }
 
-void CAPModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	DataPoint dataPoint(dataPointID, coord, BASEPLANE, time);
-	float startTime = heartModel_.MapToModelFrameTime(time);
-	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
-	float endTime = startTime + duration;
+	double startTime = heartModel_.MapToModelFrameTime(time);
+	double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
+	double endTime = startTime + duration;
 	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
 	dataPoint.SetVisible(true);
 	basePlanePoints_.push_back(dataPoint);
 }
 
-void CAPModellingModeBasePlane::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeBasePlane::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	DataPointCmissNodeEqualTo equalTo(dataPointID);
 	std::vector<DataPoint>::iterator itr = std::find_if(basePlanePoints_.begin(), basePlanePoints_.end(), equalTo);
@@ -291,12 +291,12 @@ void CAPModellingModeBasePlane::MoveDataPoint(Cmiss_node* dataPointID, const Poi
 	itr->SetCoordinate(coord);
 }
 
-void CAPModellingModeBasePlane::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+void CAPModellingModeBasePlane::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	DataPointCmissNodeEqualTo equalTo(dataPointID);
 	std::vector<DataPoint>::iterator itr = std::find_if(basePlanePoints_.begin(), basePlanePoints_.end(), equalTo);
 	assert(itr != basePlanePoints_.end());
-	
+	std::cout << "Removing BP : " << itr->GetSliceName() << ", time = " << itr->GetTime() << '\n';//debug
 	basePlanePoints_.erase(itr);
 }
 
@@ -379,16 +379,16 @@ CAPModellingMode* CAPModellingModeGuidePoints::OnAccept(CAPModeller& modeller)
 	return 0;
 }
 
-void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 #if defined(NDEBUG)
 	std::cout << "NDEBUG" << std::endl;
 #endif
 	
 	DataPoint dataPoint(dataPointID, coord, GUIDEPOINT, time);
-	float startTime = heartModel_.MapToModelFrameTime(time);
-	float duration = (float)1.0f / heartModel_.GetNumberOfModelFrames();
-	float endTime = startTime + duration;
+	double startTime = heartModel_.MapToModelFrameTime(time);
+	double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
+	double endTime = startTime + duration;
 	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
 	dataPoint.SetVisible(true);
 		
@@ -405,12 +405,12 @@ void CAPModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Po
 //	int elementNumber = heartModel_.ComputeXi(dataPoint->GetCoordinate(), xi);
 	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 //	
-//	std::vector<float> test(160);
+//	std::vector<double> test(160);
 //	
 //	heartModel_.SetLambda(test); //Test
 }
 
-void CAPModellingModeGuidePoints::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModellingModeGuidePoints::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	int frameNumber = heartModel_.MapToModelFrameNumber(time);
 	DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
@@ -419,7 +419,7 @@ void CAPModellingModeGuidePoints::MoveDataPoint(Cmiss_node* dataPointID, const P
 	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
 
-void CAPModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+void CAPModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	int frameNumber = heartModel_.MapToModelFrameNumber(time);
 	DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
@@ -442,7 +442,7 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 	for (int i = 0; itr!=end; ++itr, ++i)
 	{
 		Point3D xi;
-		int elem_id = heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (float)frameNumber/heartModel_.GetNumberOfModelFrames());
+		int elem_id = heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (double)frameNumber/heartModel_.GetNumberOfModelFrames());
 	//	if(!itr->second.GetSurfaceType())
 		{
 			if (xi.z < 0.5)
@@ -539,7 +539,7 @@ void CAPModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumb
 //	std::cout << "x = " << *x << std::endl;
 //	std::cout << "prior_ = " << *prior_ << endl;
 	
-	const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
+	const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
 	
 	// Model should have the notion of frames
 //	heartModel_.SetLambda(hermiteLambdaParams);
@@ -578,8 +578,8 @@ void CAPModellingModeGuidePoints::SmoothAlongTime()
 		
 		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++) //FIX duplicate code
 		{
-			float xi = (float)j/heartModel_.GetNumberOfModelFrames();
-			float lambda = timeSmoother_.ComputeLambda(xi, lambdas);
+			double xi = (double)j/heartModel_.GetNumberOfModelFrames();
+			double lambda = timeSmoother_.ComputeLambda(xi, lambdas);
 			timeVaryingDataPoints_[i][j] = lambda;
 		}
 	}
@@ -596,7 +596,7 @@ void CAPModellingModeGuidePoints::UpdateTimeVaryingModel()
 {
 	for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
 	{
-		float time = (float)j/heartModel_.GetNumberOfModelFrames();
+		double time = (double)j/heartModel_.GetNumberOfModelFrames();
 		Vector* x = solverFactory_->CreateVector(134);
 		for (int i=0; i< 134; i++)
 		{
@@ -604,7 +604,7 @@ void CAPModellingModeGuidePoints::UpdateTimeVaryingModel()
 		}
 //		std::cout << "x(" << j << ")" << *x << std::endl;
 		
-		const std::vector<float>& hermiteLambdaParams = ConvertToHermite(*x);
+		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
 		heartModel_.SetLambda(hermiteLambdaParams, time);
 		delete x;
 	}
@@ -621,7 +621,7 @@ void CAPModellingModeGuidePoints::UpdateTimeVaryingDataPoints(const Vector& x, i
 	}
 }
 
-std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& bezierParams) const
+std::vector<double> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& bezierParams) const
 {
 	// convert Bezier params to hermite params to they can be fed to Cmgui
 	// 
@@ -655,7 +655,7 @@ std::vector<float> CAPModellingModeGuidePoints::ConvertToHermite(const Vector& b
 		invertedIndices[indices[i]-1] = i;
 	}
 	
-	std::vector<float> temp(160);
+	std::vector<double> temp(160);
 	
 	for (int i =0; i < 40 ;i++)
 	{
@@ -715,7 +715,7 @@ Plane CAPModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plan
 	}
 	
 	Plane plane;
-	float coefficient = (float)(frame - prevFrame)/(nextFrame - prevFrame);
+	double coefficient = (double)(frame - prevFrame)/(nextFrame - prevFrame);
 	
 	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
 	
@@ -816,11 +816,11 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	heartModel_.SetLocalToGlobalTransformation(transform);
 	
 	// TODO properly Compute FocalLength
-	float lengthFromApexToBase = (apex.GetCoordinate() - base.GetCoordinate()).Length();
+	double lengthFromApexToBase = (apex.GetCoordinate() - base.GetCoordinate()).Length();
 	std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
 	
-	//float focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
-	float focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
+	//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
+	double focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
 	std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
 	heartModel_.SetFocalLengh(focalLength);
 	
@@ -833,7 +833,7 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	while ( itrSrc!=basePlanePoints.end())
 	{
 		int frameNumber = heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
-		float timeOfNextFrame = (float)(frameNumber+1)/numberOfModelFrames;
+		double timeOfNextFrame = (double)(frameNumber+1)/numberOfModelFrames;
 		std::vector<DataPoint> basePlanePointsInOneFrame;
 		for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 		{
@@ -876,9 +876,9 @@ void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
 //		std::cout << std::endl;
 		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
 		{
-			float xi = (float)j/heartModel_.GetNumberOfModelFrames();
+			double xi = (double)j/heartModel_.GetNumberOfModelFrames();
 			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
-			float lambda = timeSmoother_.ComputeLambda(xi, prior);
+			double lambda = timeSmoother_.ComputeLambda(xi, prior);
 //			std::cout << "(" << xi << ", " << lambda << ") ";
 			timeVaryingDataPoints_[i][j] = lambda;
 		}

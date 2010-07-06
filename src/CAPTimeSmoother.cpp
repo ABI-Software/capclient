@@ -59,12 +59,12 @@ CAPTimeSmoother::~CAPTimeSmoother()
 	delete pImpl;
 }
 
-double CAPTimeSmoother::MapToXi(float time) const
+double CAPTimeSmoother::MapToXi(double time) const
 {
 	return time;
 }
 
-std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<float>& dataPoints, const std::vector<int>& framesWithDataPoints) const
+std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<double>& dataPoints, const std::vector<int>& framesWithDataPoints) const
 {
 	// 1. Project data points (from each frame) to model to get corresponding xi
 	// Here the data points are the nodal parameters at each frame and linearly map to xi
@@ -79,7 +79,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	for (int i = 0; i < numRows; i++)
 	{
 		double xiDouble[1];
-		xiDouble[0] = MapToXi(static_cast<float>(i)/numRows); //REVISE design
+		xiDouble[0] = MapToXi(static_cast<double>(i)/numRows); //REVISE design
 //		std::cout << "dataPoint(" << i << ") = " << dataPoints[i] << ", xi = "<< xiDouble[0] <<'\n';
 		double psi[NUMBER_OF_PARAMETERS];
 		basis.Evaluate(psi, xiDouble);
@@ -120,7 +120,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	//TEST
 //	p[0] *= 10; //more weight for frame 0
 	
-	std::vector<float> dataLambda = dataPoints;
+	std::vector<double> dataLambda = dataPoints;
 	for (int i = 0; i < dataLambda.size(); i++)
 	{
 		if (framesWithDataPoints[i])
@@ -157,7 +157,7 @@ std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber) const
 	return prior;
 }
 
-float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& params) const
+double CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& params) const
 {
 	double psi[NUMBER_OF_PARAMETERS];
 	CAPFourierBasis basis;
@@ -165,7 +165,7 @@ float CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& param
 	xiDouble[0] = xi;
 	basis.Evaluate(psi, xiDouble);
 	
-	float lambda(0);
+	double lambda(0);
 	for (int i = 0; i<NUMBER_OF_PARAMETERS; i++)
 	{
 		lambda += params[i]*psi[i];
