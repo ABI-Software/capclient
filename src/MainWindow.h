@@ -80,6 +80,9 @@ private:
 	
 	void PopulateObjectList();
 	
+	template <typename Widget>
+	Widget* GetWidgetByName(std::string const& name);
+
 	void EnterInitState();
 
 	void EnterImagesLoadedState();
@@ -131,6 +134,15 @@ private:
 	cap::CAPModeller* modeller_;
 	
 	Cmiss_scene_viewer_id sceneViewer_;
+
+	enum MainWindowState
+	{
+		INIT_STATE,
+		IMAGES_LOADED_STATE,
+		MODEL_LOADED_STATE
+	};
+
+	MainWindowState mainWindowState_;
 };
 
 } // end namespace cap
