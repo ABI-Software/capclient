@@ -991,29 +991,25 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 	if ( !filename.empty() )
 	{
 	    // work with the file
-	    cout << __func__ << " - File name: " << filename.c_str() << endl;
+		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-	    CAPXMLFile xmlFile(filename.c_str());
-	    std::cout << "Start reading xml file\n";
-	    xmlFile.ReadFile();
-	    std::cout << "Done reading xml file\n";
-	    SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
-	    std::cout << "SlicesWithImages\n";
-	    std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
-	    std::cout << "SlicesWithImages\n";
-	    std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
-	    std::cout << "SlicesWithImages\n";
-	    std::string const& exelemFileName = xmlFile.GetExelemFileName();
-	    std::cout << "SlicesWithImages\n";
+		CAPXMLFile xmlFile(filename.c_str());
+		std::cout << "Start reading xml file\n";
+		xmlFile.ReadFile();
+		SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
+		// TODO clean up first
+		LoadImages(slicesWithImages);
 
-	    // TODO clean up first
-	    LoadImages(slicesWithImages);
-	    std::cout << "Load SlicesWithImages\n";
+		std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
 
-	    //HACK FIXME
-	    std::string const& modelFilename = exnodeFileNames[0];
+		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
+		std::string const& exelemFileName = xmlFile.GetExelemFileName();
+
+
+		//HACK FIXME
+		std::string const& modelFilename = exnodeFileNames[0];
 		size_t positionOfLastSlash = modelFilename.find_last_of("/\\");
-//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+		//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
 		std::string modelFilePath = modelFilename.substr(0, positionOfLastSlash+1);
 		positionOfLastSlash = modelFilePath.find_last_of("/\\");
 		string dirOnly = modelFilePath.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?

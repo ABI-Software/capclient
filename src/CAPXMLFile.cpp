@@ -760,7 +760,7 @@ boost::unordered_map<std::string, std::string> GenerateSopiuidToFilenameMap(std:
 	std::vector<std::string> const& filenames = fileSystem.getAllFileNames();
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
-		std::string fullpath = path + '/' + filename;
+		std::string fullpath = path + filename;
 		try
 		{
 			DICOMImage image(fullpath);
@@ -835,6 +835,8 @@ SlicesWithImages CAPXMLFile::GetSlicesWithImages(CmguiManager const& cmguiManage
 	}
 
 	std::sort(dicomSlices.begin(), dicomSlices.end(), SliceInfoSortOrder()); // make Short axes appear first
+
+	return dicomSlices;
 }
 
 std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManager) const
@@ -868,7 +870,13 @@ std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManage
 			double time = static_cast<double>(image.frame) / numFrames;
 			Cmiss_context_id cmiss_context = cmguiManager.GetCmissContext();
 			Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
+			assert(root_region);
 			Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());
+			if (!region)
+			{
+				std::cout << __func__ << " : Can't find subregion at path : " << image.label << '\n';
+				continue;
+			}
 			Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
 			Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
 							field, (double*) coords, time);
@@ -879,6 +887,8 @@ std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManage
 			dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));
 		}
 	}
+
+	return dataPoints;
 }
 
 std::string const& CAPXMLFile::GetExelemFileName() const
