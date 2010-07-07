@@ -285,54 +285,71 @@ void MainWindow::SmoothAlongTime()
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(ENDOCARDIUM, 0) << endl;
 }
 
-void DisableWidgetByName(wxWindow& w, std::string const& name)
-{
-	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
-	widget->Disable();
-}
+//void DisableWidgetByName(wxWindow& w, std::string const& name)
+//{
+//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
+//	widget->Disable();
+//}
+//
+//void EnableWidgetByName(wxWindow& w, std::string const& name)
+//{
+//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
+//	widget->Enable();
+//}
 
-void EnableWidgetByName(wxWindow& w, std::string const& name)
+template <typename Widget>
+Widget* MainWindow::GetWidgetByName(std::string const& name)
 {
-	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
-	widget->Enable();
+	Widget* widget = XRCCTRL(*this, name.c_str(), Widget);
+	return  widget;
 }
 
 void MainWindow::EnterInitState()
 {
 	// Put the gui in the init state
-	DisableWidgetByName(*this, "AnimationSlider");
-	DisableWidgetByName(*this, "AnimationSpeedControl");
-	DisableWidgetByName(*this, "PlayButton");
-	DisableWidgetByName(*this, "HideShowAll");
-	DisableWidgetByName(*this, "HideShowOthers");
-	DisableWidgetByName(*this, "MII");
-	DisableWidgetByName(*this, "Wireframe");
-	DisableWidgetByName(*this, "BrightnessSlider");
-	DisableWidgetByName(*this, "ContrastSlider");
-	DisableWidgetByName(*this, "ModeChoice");
-	DisableWidgetByName(*this, "AcceptButton");
-	DisableWidgetByName(*this, "PlaneShiftButton");
+	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(false);
+	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(false);
+	GetWidgetByName<wxButton>("PlayButton")->Enable(false);
+	GetWidgetByName<wxButton>("HideShowAll")->Enable(false);
+	GetWidgetByName<wxButton>("HideShowOthers")->Enable(false);
+	GetWidgetByName<wxCheckBox>("MII")->Enable(false);
+	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(false);
+	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(false);
+	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(false);
+	GetWidgetByName<wxChoice>("ModeChoice")->Enable(false);
+	GetWidgetByName<wxButton>("AcceptButton")->Enable(false);
+	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(false);
+
+	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(false);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
 
 	// Initialize input callback
 	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
 
 	// Also clean up cmgui objects such as scene, regions, materials ..etc
+
+	mainWindowState_ = INIT_STATE;
 }
 
 void MainWindow::EnterImagesLoadedState()
 {
-	EnableWidgetByName(*this, "AnimationSlider");
-	EnableWidgetByName(*this, "AnimationSpeedControl");
-	EnableWidgetByName(*this, "PlayButton");
-	EnableWidgetByName(*this, "HideShowAll");
-	EnableWidgetByName(*this, "HideShowOthers");
-	DisableWidgetByName(*this, "MII");
-	DisableWidgetByName(*this, "Wireframe");
-	EnableWidgetByName(*this, "BrightnessSlider");
-	EnableWidgetByName(*this, "ContrastSlider");
-	EnableWidgetByName(*this, "ModeChoice");
-	EnableWidgetByName(*this, "AcceptButton");
-	EnableWidgetByName(*this, "PlaneShiftButton");
+	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
+	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowAll")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowOthers")->Enable(true);
+	GetWidgetByName<wxCheckBox>("MII")->Enable(false);
+	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(false);
+	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(true);
+	GetWidgetByName<wxChoice>("ModeChoice")->Enable(true);
+	GetWidgetByName<wxButton>("AcceptButton")->Enable(true);
+	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(true);
+
+	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
 
 	// Initialize timer for animation
 	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
@@ -340,22 +357,30 @@ void MainWindow::EnterImagesLoadedState()
 	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
 	Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
 	Time_keeper_set_maximum(timeKeeper_, 1);
+
+	mainWindowState_ = IMAGES_LOADED_STATE;
 }
 
 void MainWindow::EnterModelLoadedState()
 {
-	EnableWidgetByName(*this, "AnimationSlider");
-	EnableWidgetByName(*this, "AnimationSpeedControl");
-	EnableWidgetByName(*this, "PlayButton");
-	EnableWidgetByName(*this, "HideShowAll");
-	EnableWidgetByName(*this, "HideShowOthers");
-	EnableWidgetByName(*this, "MII");
-	EnableWidgetByName(*this, "Wireframe");
-	EnableWidgetByName(*this, "BrightnessSlider");
-	EnableWidgetByName(*this, "ContrastSlider");
-	EnableWidgetByName(*this, "ModeChoice");
-	EnableWidgetByName(*this, "AcceptButton");
-	EnableWidgetByName(*this, "PlaneShiftButton");
+	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
+	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowAll")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowOthers")->Enable(true);
+	GetWidgetByName<wxCheckBox>("MII")->Enable(true);
+	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(true);
+	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(true);
+	GetWidgetByName<wxChoice>("ModeChoice")->Enable(true);
+	GetWidgetByName<wxButton>("AcceptButton")->Enable(true);
+	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(true);
+
+	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
+
+	mainWindowState_ = MODEL_LOADED_STATE;
 }
 
 void MainWindow::OnTogglePlay(wxCommandEvent& event)
@@ -994,7 +1019,7 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	
 	wxString dirname = wxFileSelector("Save file",
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if ( !dirname.empty() )
+	if ( !dirname.empty() && mainWindowState_ == MODEL_LOADED_STATE)
 	{
 	    // work with the file
 	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
@@ -1243,7 +1268,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(XRCID("QuitMenuItem"),  MainWindow::OnQuit)
 	EVT_MENU(XRCID("AboutMenuItem"), MainWindow::OnAbout)
 	EVT_MENU(XRCID("OpenImagesMenuItem"), MainWindow::OnOpenImages)
-	EVT_MENU(XRCID("OpenMenuItem"), MainWindow::OnOpenModel)
+	EVT_MENU(XRCID("OpenModelMenuItem"), MainWindow::OnOpenModel)
 	EVT_MENU(XRCID("SaveMenuItem"), MainWindow::OnSave)
 	EVT_MENU(XRCID("ExportMenuItem"), MainWindow::OnExportModel)
 	EVT_BUTTON(XRCID("PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)

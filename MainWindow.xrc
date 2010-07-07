@@ -16,7 +16,7 @@
 					<label>Open Images</label>
 					<help></help>
 				</object>
-				<object class="wxMenuItem" name="OpenMenuItem">
+				<object class="wxMenuItem" name="OpenModelMenuItem">
 					<label>Open Model</label>
 					<help></help>
 				</object>
