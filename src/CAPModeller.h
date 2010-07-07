@@ -58,6 +58,8 @@ public:
 	
 	std::vector<DataPoint> GetDataPoints() const;
 	
+	void SetDataPoints(std::vector<DataPoint>& allDataPoints); // this is used for feeding in data points read in from external files
+
 	void SetApex(const std::vector<DataPoint>& apex);
 	
 	void SetBase(const std::vector<DataPoint>& base);
