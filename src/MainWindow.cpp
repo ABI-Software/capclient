@@ -267,6 +267,8 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 //	SetTime(0.0);
 	
 	this->Fit();
+
+	EnterInitState();
 }
 
 MainWindow::~MainWindow()
@@ -306,6 +308,79 @@ void MainWindow::SmoothAlongTime()
 	
 	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(EPICARDIUM, 0) << endl;
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(ENDOCARDIUM, 0) << endl;
+}
+
+void DisableWidgetByName(wxWindow& w, std::string const& name)
+{
+	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
+	widget->Disable();
+}
+
+void EnableWidgetByName(wxWindow& w, std::string const& name)
+{
+	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
+	widget->Enable();
+}
+
+void MainWindow::EnterInitState()
+{
+	// Put the gui in the init state
+//	wxSlider* animSlider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+//	animSlider->Disable();
+//	wxSlider* speedSlider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
+//	wxButton* playButton = XRCCTRL(*this, "PlayButton", wxButton);
+//	wxButton* hideShowAllButton = XRCCTRL(*this, "HideShowAll", wxButton);
+//	wxButton* hideShowOthersButton = XRCCTRL(*this, "HideShowOthers", wxButton);
+//	wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
+//	wxCheckBox* wireFrameCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
+//	wxSlider* brightnessSlider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
+//	wxSlider* contrastSlider = XRCCTRL(*this, "ContrastSlider", wxSlider);
+//	wxChoice* modeChoice = XRCCTRL(*this, "ModeChoice", wxChoice);
+//	wxButton* acceptButton = XRCCTRL(*this, "AcceptButton", wxButton);
+//	wxButton* button = XRCCTRL(*this, "PlaneShiftButton", wxButton);
+//	DisableWidgetByName<wxSlider>(*this, "AnimationSlider");
+	DisableWidgetByName(*this, "AnimationSlider");
+	DisableWidgetByName(*this, "PlayButton");
+	DisableWidgetByName(*this, "HideShowAll");
+	DisableWidgetByName(*this, "HideShowOthers");
+	DisableWidgetByName(*this, "MII");
+	DisableWidgetByName(*this, "Wireframe");
+	DisableWidgetByName(*this, "BrightnessSlider");
+	DisableWidgetByName(*this, "ContrastSlider");
+	DisableWidgetByName(*this, "ModeChoice");
+	DisableWidgetByName(*this, "AcceptButton");
+	DisableWidgetByName(*this, "PlaneShiftButton");
+	// Also clean up cmgui objects such as scene, regions, materials ..etc
+}
+
+void MainWindow::EnterImagesLoadedState()
+{
+	EnableWidgetByName(*this, "AnimationSlider");
+	EnableWidgetByName(*this, "PlayButton");
+	EnableWidgetByName(*this, "HideShowAll");
+	EnableWidgetByName(*this, "HideShowOthers");
+	DisableWidgetByName(*this, "MII");
+	DisableWidgetByName(*this, "Wireframe");
+	EnableWidgetByName(*this, "BrightnessSlider");
+	EnableWidgetByName(*this, "ContrastSlider");
+	EnableWidgetByName(*this, "ModeChoice");
+	EnableWidgetByName(*this, "AcceptButton");
+	EnableWidgetByName(*this, "PlaneShiftButton");
+}
+
+void MainWindow::EnterModelLoadedState()
+{
+	EnableWidgetByName(*this, "AnimationSlider");
+	EnableWidgetByName(*this, "PlayButton");
+	EnableWidgetByName(*this, "HideShowAll");
+	EnableWidgetByName(*this, "HideShowOthers");
+	EnableWidgetByName(*this, "MII");
+	EnableWidgetByName(*this, "Wireframe");
+	EnableWidgetByName(*this, "BrightnessSlider");
+	EnableWidgetByName(*this, "ContrastSlider");
+	EnableWidgetByName(*this, "ModeChoice");
+	EnableWidgetByName(*this, "AcceptButton");
+	EnableWidgetByName(*this, "PlaneShiftButton");
 }
 
 void MainWindow::OnTogglePlay(wxCommandEvent& event)
@@ -848,9 +923,11 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 	imageSet_ = new ImageSet(slices, cmguiManager_);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	
-	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
+	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
 	
 	this->PopulateObjectList(); // fill in slice check box list
+
+	EnterImagesLoadedState();
 }
 
 void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
@@ -896,6 +973,8 @@ void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& p
 	{
 		heartModel_.SetMIIVisibility(false);
 	}
+
+	EnterModelLoadedState();
 }
 
 void MainWindow::OnOpenModel(wxCommandEvent& event)

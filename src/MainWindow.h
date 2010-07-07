@@ -80,6 +80,12 @@ private:
 	
 	void PopulateObjectList();
 	
+	void EnterInitState();
+
+	void EnterImagesLoadedState();
+
+	void EnterModelLoadedState();
+
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void OnTogglePlay(wxCommandEvent& event);
@@ -130,3 +136,4 @@ private:
 } // end namespace cap
 
 #endif
+
