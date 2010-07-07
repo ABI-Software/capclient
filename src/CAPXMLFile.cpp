@@ -249,7 +249,10 @@ void ReadOutput(Output& output, xmlDocPtr doc, xmlNodePtr cur)
 	}
 
 	std::cout << "sorting" << std::endl;;
-	std::sort(output.frames.begin(), output.frames.end(), boost::bind(&Frame::number, _1));
+	std::sort(output.frames.begin(), output.frames.end(),
+			boost::bind(std::less<int>(),
+				boost::bind(&Frame::number, _1),
+				boost::bind(&Frame::number, _2)));
 	std::cout << "sorted" << std::endl;
 }
 
