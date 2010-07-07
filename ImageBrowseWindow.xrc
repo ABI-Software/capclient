@@ -13,7 +13,7 @@
 					<orient>wxHORIZONTAL</orient>
 					<object class="sizeritem">
 						<option>3</option>
-						<flag>wxEXPAND|wxALL</flag>
+						<flag>wxEXPAND</flag>
 						<border>5</border>
 						<object class="wxPanel" name="m_panel1">
 							<style>wxTAB_TRAVERSAL</style>
@@ -21,7 +21,7 @@
 								<orient>wxVERTICAL</orient>
 								<object class="sizeritem">
 									<option>0</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxEXPAND|wxALL</flag>
 									<border>5</border>
 									<object class="wxBoxSizer">
 										<orient>wxHORIZONTAL</orient>
@@ -65,7 +65,7 @@
 								</object>
 								<object class="sizeritem">
 									<option>1</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxEXPAND|wxALL</flag>
 									<border>5</border>
 									<object class="wxStaticBoxSizer">
 										<orient>wxVERTICAL</orient>
@@ -85,7 +85,7 @@
 					</object>
 					<object class="sizeritem">
 						<option>2</option>
-						<flag>wxALL|wxEXPAND</flag>
+						<flag>wxEXPAND</flag>
 						<border>5</border>
 						<object class="wxPanel" name="m_panel3">
 							<style>wxTAB_TRAVERSAL</style>
@@ -93,7 +93,7 @@
 								<orient>wxVERTICAL</orient>
 								<object class="sizeritem">
 									<option>0</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxEXPAND|wxALL</flag>
 									<border>5</border>
 									<object class="wxStaticBoxSizer">
 										<orient>wxVERTICAL</orient>
@@ -193,10 +193,10 @@
 								</object>
 								<object class="sizeritem">
 									<option>0</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxEXPAND|wxALL</flag>
 									<border>5</border>
 									<object class="wxStaticBoxSizer">
-										<orient>wxVERTICAL</orient>
+										<orient>wxHORIZONTAL</orient>
 										<label>Image Info</label>
 										<object class="sizeritem">
 											<option>1</option>
@@ -245,43 +245,51 @@
 								</object>
 								<object class="sizeritem">
 									<option>0</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxEXPAND|wxALL</flag>
 									<border>5</border>
 									<object class="wxStaticBoxSizer">
 										<orient>wxHORIZONTAL</orient>
 										<label>Labels</label>
 										<object class="sizeritem">
 											<option>1</option>
-											<flag>wxALL</flag>
+											<flag>wxEXPAND|wxTOP|wxBOTTOM|wxLEFT</flag>
 											<border>5</border>
-											<object class="wxButton" name="ShortAxisButton">
-												<label>Short Axis</label>
-												<default>0</default>
-											</object>
-										</object>
-										<object class="sizeritem">
-											<option>1</option>
-											<flag>wxALL</flag>
-											<border>5</border>
-											<object class="wxButton" name="LongAxisButton">
-												<label>Long Axis</label>
-												<default>0</default>
-											</object>
-										</object>
-										<object class="sizeritem">
-											<option>1</option>
-											<flag>wxALL</flag>
-											<border>5</border>
-											<object class="wxButton" name="NoneButton">
-												<label>None</label>
-												<default>0</default>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxButton" name="ShortAxisButton">
+														<label>Short Axis</label>
+														<default>0</default>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxButton" name="LongAxisButton">
+														<label>Long Axis</label>
+														<default>0</default>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxButton" name="NoneButton">
+														<label>None</label>
+														<default>0</default>
+													</object>
+												</object>
 											</object>
 										</object>
 									</object>
 								</object>
 								<object class="sizeritem">
 									<option>1</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxEXPAND|wxALL</flag>
 									<border>5</border>
 									<object class="wxStaticBoxSizer">
 										<orient>wxVERTICAL</orient>
@@ -318,7 +326,7 @@
 										</object>
 										<object class="sizeritem">
 											<option>1</option>
-											<flag>wxEXPAND | wxALL</flag>
+											<flag>wxEXPAND|wxALL</flag>
 											<border>5</border>
 											<object class="wxPanel" name="CmguiPanel">
 												<style>wxTAB_TRAVERSAL</style>
@@ -333,7 +341,7 @@
 												<style>wxSL_HORIZONTAL|wxSL_LABELS</style>
 												<value>1</value>
 												<min>1</min>
-												<max>1</max>
+												<max>2</max>
 											</object>
 										</object>
 									</object>
@@ -345,21 +353,32 @@
 			</object>
 			<object class="sizeritem">
 				<option>0</option>
-				<flag>wxEXPAND|wxBOTTOM</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
-				<object class="wxStdDialogButtonSizer">
-					<object class="button">
-						<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-						<border>5</border>
-						<object class="wxButton" name="wxID_OK">
-							<label>&amp;OK</label>
-						</object>
-					</object>
-					<object class="button">
-						<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-						<border>5</border>
-						<object class="wxButton" name="wxID_CANCEL">
-							<label>&amp;Cancel</label>
+				<object class="wxPanel" name="m_panel4">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxEXPAND|wxALL</flag>
+							<border>5</border>
+							<object class="wxStdDialogButtonSizer">
+								<object class="button">
+									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxButton" name="wxID_OK">
+										<label>&amp;OK</label>
+									</object>
+								</object>
+								<object class="button">
+									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxButton" name="wxID_CANCEL">
+										<label>&amp;Cancel</label>
+									</object>
+								</object>
+							</object>
 						</object>
 					</object>
 				</object>
