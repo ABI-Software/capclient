@@ -229,6 +229,7 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("MainWindow"));
 	
 	// GUI initialization
+	CreateStatusBar(0);
 
 	// Initialize check box list of scene objects (image slices)
 	objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
@@ -239,32 +240,6 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(m_pPanel);
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
-	
-	//Load model
-//	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
-	
-	// Initialize input
-	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
-	
-//	modeller_->InitialiseModel();//REVISE
-	
-//	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-//	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
-//	
-//	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
-//	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
-	
-	// Initialize timer for animation
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, 28, 0); // FIX magic number
-	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
-	Time_keeper_set_minimum(timeKeeper_, 0);
-	Time_keeper_set_maximum(timeKeeper_, 1);
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	slider->SetTickFreq(28,0);
-	
-	CreateStatusBar(0);
-	
-//	SetTime(0.0);
 	
 	this->Fit();
 
@@ -325,21 +300,8 @@ void EnableWidgetByName(wxWindow& w, std::string const& name)
 void MainWindow::EnterInitState()
 {
 	// Put the gui in the init state
-//	wxSlider* animSlider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-//	animSlider->Disable();
-//	wxSlider* speedSlider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
-//	wxButton* playButton = XRCCTRL(*this, "PlayButton", wxButton);
-//	wxButton* hideShowAllButton = XRCCTRL(*this, "HideShowAll", wxButton);
-//	wxButton* hideShowOthersButton = XRCCTRL(*this, "HideShowOthers", wxButton);
-//	wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
-//	wxCheckBox* wireFrameCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
-//	wxSlider* brightnessSlider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
-//	wxSlider* contrastSlider = XRCCTRL(*this, "ContrastSlider", wxSlider);
-//	wxChoice* modeChoice = XRCCTRL(*this, "ModeChoice", wxChoice);
-//	wxButton* acceptButton = XRCCTRL(*this, "AcceptButton", wxButton);
-//	wxButton* button = XRCCTRL(*this, "PlaneShiftButton", wxButton);
-//	DisableWidgetByName<wxSlider>(*this, "AnimationSlider");
 	DisableWidgetByName(*this, "AnimationSlider");
+	DisableWidgetByName(*this, "AnimationSpeedControl");
 	DisableWidgetByName(*this, "PlayButton");
 	DisableWidgetByName(*this, "HideShowAll");
 	DisableWidgetByName(*this, "HideShowOthers");
@@ -350,12 +312,17 @@ void MainWindow::EnterInitState()
 	DisableWidgetByName(*this, "ModeChoice");
 	DisableWidgetByName(*this, "AcceptButton");
 	DisableWidgetByName(*this, "PlaneShiftButton");
+
+	// Initialize input callback
+	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
+
 	// Also clean up cmgui objects such as scene, regions, materials ..etc
 }
 
 void MainWindow::EnterImagesLoadedState()
 {
 	EnableWidgetByName(*this, "AnimationSlider");
+	EnableWidgetByName(*this, "AnimationSpeedControl");
 	EnableWidgetByName(*this, "PlayButton");
 	EnableWidgetByName(*this, "HideShowAll");
 	EnableWidgetByName(*this, "HideShowOthers");
@@ -366,11 +333,19 @@ void MainWindow::EnterImagesLoadedState()
 	EnableWidgetByName(*this, "ModeChoice");
 	EnableWidgetByName(*this, "AcceptButton");
 	EnableWidgetByName(*this, "PlaneShiftButton");
+
+	// Initialize timer for animation
+	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
+	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
+	Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
+	Time_keeper_set_maximum(timeKeeper_, 1);
 }
 
 void MainWindow::EnterModelLoadedState()
 {
 	EnableWidgetByName(*this, "AnimationSlider");
+	EnableWidgetByName(*this, "AnimationSpeedControl");
 	EnableWidgetByName(*this, "PlayButton");
 	EnableWidgetByName(*this, "HideShowAll");
 	EnableWidgetByName(*this, "HideShowOthers");
