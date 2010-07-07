@@ -22,6 +22,7 @@
 
 #include <string>
 #include <ostream>
+#include <boost/algorithm/string.hpp>
 
 namespace cap
 {
@@ -71,6 +72,9 @@ void DICOMImage::ReadDICOMFile()
 	gdcm::Attribute<0x0008,0x0018> at_sopiuid;
 	at_sopiuid.SetFromDataElement(sopiuid);
 	sopInstanceUID_ = at_sopiuid.GetValue();
+	// gdcm leaves some non alpha numeric characters at the back
+	// get rid of them here
+	boost::trim_right_if(sopInstanceUID_, !boost::is_digit());
 	cout << "UID: " << sopInstanceUID_;
 	cout << endl;
 	
