@@ -104,7 +104,7 @@ public:
 	~CAPXMLFile();// need this so compiler wont generate dtor
 	
 	void ReadFile();
-	void WriteFile(std::string const & filename);
+	void WriteFile(std::string const & filename) const;
 	
 	void AddImage(Image const& image);
 	void AddPointToImage(std::string const& imageSopiuid, Point const& point);
@@ -129,10 +129,14 @@ public:
 	 *  Also generated the instances of DICOMImage, Cmiss_texture,
 	 *  DataPoint (and the Cmiss_node) and the model.
 	 */
-	void ProcessCAPXMLFile(CmguiManager const& cmguiManager,
-							SlicesWithImages & dicomFiles,
-							std::vector<DataPoint> & dataPoints,
-							CAPModelLVPS4X4 & model);
+	SlicesWithImages GetSlicesWithImages(CmguiManager const& cmguiManager) const;
+
+	std::vector<DataPoint> GetDataPoints(CmguiManager const& cmguiManager) const;
+
+	std::vector<std::string> GetExnodeFileNames() const;
+
+	std::string const& GetExelemFileName() const;
+
 
 	std::vector<Image> const& GetImages() const
 	{
