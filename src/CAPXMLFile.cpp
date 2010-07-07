@@ -110,25 +110,25 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	using boost::lexical_cast;
 	//frame
 	xmlChar* frame = xmlGetProp(cur, (xmlChar const*)"frame"); 
-//	std::cout << "frame = " << frame << '\n';
+	std::cout << "frame = " << frame << '\n';
 	image.frame = lexical_cast<int>(frame);
 	xmlFree(frame);
 	
 	//slice
 	xmlChar* slice = xmlGetProp(cur, (xmlChar const*)"slice"); 
-//	std::cout << "slice = " << slice << '\n';
+	std::cout << "slice = " << slice << '\n';
 	image.slice = lexical_cast<int>(slice);
 	xmlFree(slice);
 	
 	//sopiuid		
 	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
-//	std::cout << "sopiuid = " << sopiuid << '\n';
+	std::cout << "sopiuid = " << sopiuid << '\n';
 	image.sopiuid = (char*)sopiuid;
 	xmlFree(sopiuid);
 	
 	//sopiuid
 	xmlChar* label = xmlGetProp(cur, (xmlChar const*)"label");
-//	std::cout << "sopiuid = " << sopiuid << '\n';
+	std::cout << "label = " << label << '\n';
 	if (label) // label is optional
 	{
 		image.label = (char*)label;
@@ -156,29 +156,30 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImagePosition"))
 		{
-			xmlChar* x = xmlGetProp(cur, (xmlChar const*)"x");
-			//	std::cout << "sopiuid = " << sopiuid << '\n';
-			xmlChar* y = xmlGetProp(cur, (xmlChar const*)"y");
-			xmlChar* z = xmlGetProp(cur, (xmlChar const*)"z");
+			xmlChar* x = xmlGetProp(child, (xmlChar const*)"x");
+			std::cout << "x = " << (char*)x << '\n';
+			xmlChar* y = xmlGetProp(child, (xmlChar const*)"y");
+			xmlChar* z = xmlGetProp(child, (xmlChar const*)"z");
 			image.imagePosition = boost::make_shared<Point3D>(
 						boost::lexical_cast<double>((char*)x),
 						boost::lexical_cast<double>((char*)y),
 						boost::lexical_cast<double>((char*)z)
 						);
+			std::cout << "imagePosition.x = " << image.imagePosition->x << std::endl;
 		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImageOrientation"))
 		{
-			xmlChar* Xx = xmlGetProp(cur, (xmlChar const*)"Xx");
-			xmlChar* Xy = xmlGetProp(cur, (xmlChar const*)"Xy");
-			xmlChar* Xz = xmlGetProp(cur, (xmlChar const*)"Xz");
+			xmlChar* Xx = xmlGetProp(child, (xmlChar const*)"Xx");
+			xmlChar* Xy = xmlGetProp(child, (xmlChar const*)"Xy");
+			xmlChar* Xz = xmlGetProp(child, (xmlChar const*)"Xz");
 			Vector3D orientationVector1(
 						boost::lexical_cast<double>((char*)Xx),
 						boost::lexical_cast<double>((char*)Xy),
 						boost::lexical_cast<double>((char*)Xz)
 						);
-			xmlChar* Yx = xmlGetProp(cur, (xmlChar const*)"Yx");
-			xmlChar* Yy = xmlGetProp(cur, (xmlChar const*)"Yy");
-			xmlChar* Yz = xmlGetProp(cur, (xmlChar const*)"Yz");
+			xmlChar* Yx = xmlGetProp(child, (xmlChar const*)"Yx");
+			xmlChar* Yy = xmlGetProp(child, (xmlChar const*)"Yy");
+			xmlChar* Yz = xmlGetProp(child, (xmlChar const*)"Yz");
 			Vector3D orientationVector2(
 						boost::lexical_cast<double>((char*)Yx),
 						boost::lexical_cast<double>((char*)Yy),
@@ -221,15 +222,16 @@ void ReadOutput(Output& output, xmlDocPtr doc, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Frame"))
 		{
+			std::cout << (char*)cur->name << std::endl;
 			Frame frame;
 			//exnode
 			xmlChar* exnode = xmlGetProp(cur, (xmlChar const*)"exnode");
-//			std::cout << "exnode = " << exnode << '\n';
+			std::cout << "exnode = " << exnode << '\n';
 			frame.exnode = (char*)exnode;
 			xmlFree(exnode);
 			//number
 			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
-//			std::cout << "number = " << number << '\n';
+			std::cout << "number = " << number << '\n';
 			frame.number = boost::lexical_cast<int>(number);
 			xmlFree(number);
 			
@@ -238,13 +240,17 @@ void ReadOutput(Output& output, xmlDocPtr doc, xmlNodePtr cur)
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Exelem"))
 		{
 			xmlChar *filename = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			std::cout << "Exelem = " << (char*) filename << '\n';
 			output.elemFileName = (char*)filename;
 			xmlFree(filename);
+			std::cout << "Exelem done\n";
 		}
 		cur = cur->next;
 	}
 
+	std::cout << "sorting" << std::endl;;
 	std::sort(output.frames.begin(), output.frames.end(), boost::bind(&Frame::number, _1));
+	std::cout << "sorted" << std::endl;
 }
 
 void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
@@ -260,17 +266,17 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 		{
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
-//			std::cout << "date = " << date << '\n';
+			std::cout << "date = " << date << '\n';
 			documentation.version.date = (char*)(date);
 			xmlFree(date);
 			//log
 			xmlChar* log = xmlGetProp(cur, (xmlChar const*)"log"); 
-//			std::cout << "log = " << log << '\n';
+			std::cout << "log = " << log << '\n';
 			documentation.version.log = (char*)(log);
 			xmlFree(log);
 			//number
 			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number"); 
-//			std::cout << "number = " << number << '\n';
+			std::cout << "number = " << number << '\n';
 			documentation.version.number = lexical_cast<int>(number);
 			xmlFree(number);
 		}
@@ -278,12 +284,12 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 		{
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
-//			std::cout << "date = " << date << '\n';
+			std::cout << "date = " << date << '\n';
 			documentation.history.date = (char*)(date);
 			xmlFree(date);
 			//entry
 			xmlChar* entry = xmlGetProp(cur, (xmlChar const*)"entry"); 
-//			std::cout << "entry = " << date << '\n';
+			std::cout << "entry = " << date << '\n';
 			documentation.history.entry = (char*)(entry);
 			xmlFree(entry);
 		}
@@ -456,17 +462,17 @@ void CAPXMLFile::ReadFile()
 	else
 	{
 		xmlChar* chamber = xmlGetProp(cur, (xmlChar const*)"chamber"); 
-//		std::cout << "chamber = " << chamber << '\n';
+		std::cout << "chamber = " << chamber << '\n';
 		chamber_ = (char*)chamber;
 		xmlFree(chamber);
 		
 		xmlChar* name = xmlGetProp(cur, (xmlChar const*)"name"); 
-//		std::cout << "name = " << name << '\n';
+		std::cout << "name = " << name << '\n';
 		name_ = (char*)name;
 		xmlFree(name);
 		
 		xmlChar* studyiuid = xmlGetProp(cur, (xmlChar const*)"studyiuid"); 
-//		std::cout << "studyiuid = " << studyiuid << '\n';
+		std::cout << "studyiuid = " << studyiuid << '\n';
 		studyIUid_ = (char*)studyiuid;
 		xmlFree(studyiuid);
 	}
@@ -487,12 +493,12 @@ void CAPXMLFile::ReadFile()
 			using boost::lexical_cast;
 
 			xmlChar* focalLengthStr = xmlGetProp(cur, (xmlChar const*)"focallength");
-	//		std::cout << "focalLengthStr = " << focalLengthStr << '\n';
+			std::cout << "focalLengthStr = " << focalLengthStr << '\n';
 			output_.focalLength = lexical_cast<double>(focalLengthStr);
 			xmlFree(focalLengthStr);
 
 			xmlChar* intervalStr = xmlGetProp(cur, (xmlChar const*)"interval");
-	//		std::cout << "intervalStr = " << intervalStr << '\n';
+			std::cout << "intervalStr = " << intervalStr << '\n';
 			output_.interval = lexical_cast<double>(intervalStr);
 			xmlFree(intervalStr);
 
@@ -504,7 +510,9 @@ void CAPXMLFile::ReadFile()
 			ReadDocumentation(documentation_, cur);
 		}
 		cur = cur->next;
-	} 
+	}
+
+	std::cout << "EXIT:" << __func__ << std::endl;
 }
 
 
@@ -773,6 +781,7 @@ SlicesWithImages CAPXMLFile::GetSlicesWithImages(CmguiManager const& cmguiManage
 
 	typedef boost::unordered_map<std::string, std::string> HashTable;
 	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToDICOMFiles);
+	std::cout << "GenerateSopiuidToFilenameMap\n";
 
 	// Populate SlicesWithImages
 	typedef std::map<std::string, std::vector<DICOMPtr> > DICOMImageMapWithSliceNameAsKey;
@@ -784,6 +793,7 @@ SlicesWithImages CAPXMLFile::GetSlicesWithImages(CmguiManager const& cmguiManage
 		{
 			//Can't locate the file
 			//TODO ask the user to locate the files
+			std::cout << "No matching filename in the sopiuid to filename map\n";
 			continue;
 		}
 
