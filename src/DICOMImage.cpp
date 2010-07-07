@@ -54,7 +54,7 @@ void DICOMImage::ReadDICOMFile()
 	r.SetFileName( filename_.c_str() );
 	if( !r.Read() )
 	{
-		cout << "Can't find the file: " << filename_ << endl;
+		cout << "Can't read file: " << filename_ << endl;
 		throw std::exception();
 	}
 	

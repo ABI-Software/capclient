@@ -23,7 +23,7 @@ extern "C"
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
 #include "ImageSlice.h"
-#include "FileSystem.h"
+//#include "FileSystem.h"
 #include "CAPMaterial.h"
 
 #include <iostream>
