@@ -509,7 +509,7 @@ void CAPXMLFile::ReadFile()
 #if defined(LIBXML_TREE_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 
 
-void CAPXMLFile::WriteFile(std::string const& filename)
+void CAPXMLFile::WriteFile(std::string const& filename) const
 {
 	LIBXML_TEST_VERSION
 	
@@ -730,6 +730,7 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 	output_.focalLength = heartModel.GetFocalLength();
 	output_.interval = 1.0/heartModel.GetNumberOfModelFrames();// 1.0 = 1 cardiac cycle (normalised) - FIX
 	std::vector<std::string> const& modelFiles = heartModel.GetExnodeFileNames();
+	// assume the model files are sorted by the frame number
 	for (size_t i = 0; i < modelFiles.size(); i++)
 	{
 		Frame frame;
@@ -739,23 +740,18 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 	}
 }
 
-std::string MapSopiuidToFilename(std::string const& dicomFilename)
+std::string MapSopiuidToFilename(std::string const& sopiuid)
 {
+	// TODO implement
+	// Generate a sopiuid to filename mapping table
+
 	//place holder
 	return std::string();
 }
 
-void CAPXMLFile::ProcessCAPXMLFile(CmguiManager const& cmguiManager,
-									SlicesWithImages & dicomSlices,
-									std::vector<DataPoint> & dataPoints,
-									CAPModelLVPS4X4 & model)
+SlicesWithImages CAPXMLFile::GetSlicesWithImages(CmguiManager const& cmguiManager) const
 {
-	dicomSlices.clear();
-	dataPoints.clear();
-
-//	typedef boost::tuple<std::string, std::vector<DICOMPtr>, std::vector<Cmiss_texture_id> > SliceInfo;
-//	typedef std::vector<SliceInfo> SlicesWithImages;
-
+	SlicesWithImages dicomSlices;
 	// Populate SlicesWithImages
 	typedef std::map<std::string, std::vector<DICOMPtr> > DICOMImageMapWithSliceNameAsKey;
 	DICOMImageMapWithSliceNameAsKey dicomMap;
@@ -795,10 +791,28 @@ void CAPXMLFile::ProcessCAPXMLFile(CmguiManager const& cmguiManager,
 	}
 
 	std::sort(dicomSlices.begin(), dicomSlices.end(), SliceInfoSortOrder()); // make Short axes appear first
+}
 
+std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManager) const
+{
+	std::map<std::string, size_t> labelToNumframesMap;
 	BOOST_FOREACH(Image const& image, input_.images)
 	{
-		double numFrames = dicomMap[image.label].size();
+		std::map<std::string, size_t>::iterator itr = labelToNumframesMap.find(image.label);
+		if (itr == labelToNumframesMap.end())
+		{
+			labelToNumframesMap.insert(std::make_pair(image.label, 1));
+		}
+		else
+		{
+			itr->second ++;
+		}
+	}
+
+	std::vector<DataPoint> dataPoints;
+	BOOST_FOREACH(Image const& image, input_.images)
+	{
+		double numFrames = static_cast<double>(labelToNumframesMap[image.label]);
 
 		BOOST_FOREACH(Point const& p, image.points)
 		{
@@ -816,17 +830,24 @@ void CAPXMLFile::ProcessCAPXMLFile(CmguiManager const& cmguiManager,
 							field, (double*) coords, time);
 
 			//TODO implement data point generation and modeller update
-		}
-	}
 
-	std::string exemFileName = output_.elemFileName;
-	std::vector<std::string> exnodeFileNames;
-	BOOST_FOREACH(Frame const& frame, output_.frames)
-	{
-		exnodeFileNames.push_back(frame.exnode);
+		}
 	}
 }
 
+std::string const& CAPXMLFile::GetExelemFileName() const
+{
+	return output_.elemFileName;
+}
+
+std::vector<std::string> CAPXMLFile::GetExnodeFileNames() const
+{
+	std::vector<std::string> names;
+	// frames are sorted when they are read in from file.
+	std::transform(output_.frames.begin(), output_.frames.end(),
+			std::back_inserter(names), boost::bind(&Frame::exnode, _1));
+	return names;
+}
 #endif
 } // end namespace cap
 
