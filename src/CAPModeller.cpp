@@ -151,20 +151,37 @@ void CAPModeller::ChangeMode(CAPModellingMode* newMode)
 std::vector<DataPoint> CAPModeller::GetDataPoints() const
 {
 	std::vector<DataPoint> dataPoints;
-	dataPoints.push_back(modellingModeApex_.GetApex());
-	dataPoints.push_back(modellingModeBase_.GetBase());
-	
-	typedef std::map<Cmiss_node*, DataPoint> Map;
-	Map const& rvInsert = modellingModeRV_.GetRVInsertPoints();
-	std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
-			boost::bind(&Map::value_type::second, _1));
 	
 	typedef std::vector<DataPoint> Vector;
 	Vector const& bps = modellingModeBasePlane_.GetBasePlanePoints();
-	std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
-	Vector const& gps = modellingModeGuidePoints_.GetDataPoints();
-	std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
-	
+
+	if (!bps.empty())
+	{
+		// This means the user has reached the guide points modelling stage
+		// i.e the model has been initialised.
+
+		dataPoints.push_back(modellingModeApex_.GetApex());
+		dataPoints.push_back(modellingModeBase_.GetBase());
+
+		typedef std::map<Cmiss_node*, DataPoint> Map;
+		Map const& rvInsert = modellingModeRV_.GetRVInsertPoints();
+
+		std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
+				boost::bind(&Map::value_type::second, _1));
+
+		std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
+		Vector const& gps = modellingModeGuidePoints_.GetDataPoints();
+		std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
+	}
+	else
+	{
+		// this means the model has not been initialised.
+		// return an empty vector
+		// TODO might make more sense to just return the data points that have been put on
+		// even if the model has not been initialised (i.e guide point mode has not been reached)
+		dataPoints.clear(); // this is actually redundant but left here for clarity
+	}
+
 	return dataPoints;
 }
 
