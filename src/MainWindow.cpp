@@ -994,7 +994,9 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 	    cout << __func__ << " - File name: " << filename.c_str() << endl;
 
 	    CAPXMLFile xmlFile(filename.c_str());
+	    std::cout << "Start reading xml file\n";
 	    xmlFile.ReadFile();
+	    std::cout << "Done reading xml file\n";
 	    SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
 	    std::cout << "SlicesWithImages\n";
 	    std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
@@ -1006,6 +1008,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 
 	    // TODO clean up first
 	    LoadImages(slicesWithImages);
+	    std::cout << "Load SlicesWithImages\n";
 
 	    //HACK FIXME
 	    std::string const& modelFilename = exnodeFileNames[0];
