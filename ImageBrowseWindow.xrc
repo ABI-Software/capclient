@@ -2,7 +2,7 @@
 <resource>
 	<object class="wxFrame" name="ImageBrowseWindow">
 		<style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
-		<title></title>
+		<title>Image Browse Window</title>
 		<object class="wxBoxSizer">
 			<orient>wxVERTICAL</orient>
 			<object class="sizeritem">
