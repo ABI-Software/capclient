@@ -206,6 +206,8 @@ void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 		ChangeMode(mode);
 		AddDataPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
 	}
+
+	SmoothAlongTime();
 }
 
 } // end namespace cap

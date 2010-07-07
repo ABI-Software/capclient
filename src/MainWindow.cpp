@@ -981,32 +981,58 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
 	wxString currentWorkingDir = wxGetCwd();
 	wxString defaultPath = currentWorkingDir.Append("/Data");
-//	wxString defaultFilename = "";
-//	wxString defaultExtension = "";
-//	wxString wildcard = "";
-//	int flags = wxOPEN;
+	wxString defaultFilename = "";
+	wxString defaultExtension = "xml";
+	wxString wildcard = "";
+	int flags = wxOPEN;
 	
-//	wxString filename = wxFileSelector("Choose a file to open",
-//			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-//	if ( !filename.empty() )
-//	{
-//	    // work with the file
-//	    cout << __func__ << " - File name: " << filename.c_str() << endl;
-//	}
-	
-	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
-	if ( !dirname.empty() )
+	wxString filename = wxFileSelector("Choose a file to open",
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+	if ( !filename.empty() )
 	{
-		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
-		string filename(dirname.c_str());
-		size_t positionOfLastSlash = filename.find_last_of("/\\");
-		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-		string prefix = filename.substr(0, positionOfLastSlash+1); 
-		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
-		
+	    // work with the file
+	    cout << __func__ << " - File name: " << filename.c_str() << endl;
+
+	    CAPXMLFile xmlFile(filename.c_str());
+	    xmlFile.ReadFile();
+	    SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
+	    std::cout << "SlicesWithImages\n";
+	    std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
+	    std::cout << "SlicesWithImages\n";
+	    std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
+	    std::cout << "SlicesWithImages\n";
+	    std::string const& exelemFileName = xmlFile.GetExelemFileName();
+	    std::cout << "SlicesWithImages\n";
+
+	    // TODO clean up first
+	    LoadImages(slicesWithImages);
+
+	    //HACK FIXME
+	    std::string const& modelFilename = exnodeFileNames[0];
+		size_t positionOfLastSlash = modelFilename.find_last_of("/\\");
+//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+		std::string modelFilePath = modelFilename.substr(0, positionOfLastSlash+1);
+		positionOfLastSlash = modelFilePath.find_last_of("/\\");
+		string dirOnly = modelFilePath.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
+		string prefix = modelFilePath.substr(0, positionOfLastSlash+1);
+
 		LoadHeartModel(dirOnly, prefix);
+		modeller_->SetDataPoints(dataPoints);
 	}
+
+//	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
+//	if ( !dirname.empty() )
+//	{
+//		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
+//		string filename(dirname.c_str());
+//		size_t positionOfLastSlash = filename.find_last_of("/\\");
+//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+//		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
+//		string prefix = filename.substr(0, positionOfLastSlash+1);
+//		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
+//
+//		LoadHeartModel(dirOnly, prefix);
+//	}
 }
 
 void MainWindow::OnSave(wxCommandEvent& event)
