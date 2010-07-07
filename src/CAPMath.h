@@ -109,7 +109,7 @@ public:
 	Point3D()
 	: x(0),y(0),z(0)
 	{};
-	Point3D(Real p[]) //for compatibility with Cmgui
+	explicit Point3D(Real p[]) //for compatibility with Cmgui
 	: x(p[0]),y(p[1]),z(p[2])
 	{};
 	

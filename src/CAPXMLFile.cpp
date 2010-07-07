@@ -12,6 +12,7 @@
 #include "DataPoint.h"
 #include "CmguiManager.h"
 #include "CmguiExtensions.h"
+#include "FileSystem.h"
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -21,6 +22,7 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -740,24 +742,53 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 	}
 }
 
-std::string MapSopiuidToFilename(std::string const& sopiuid)
+boost::unordered_map<std::string, std::string> GenerateSopiuidToFilenameMap(std::string const& path)
 {
-	// TODO implement
-	// Generate a sopiuid to filename mapping table
+	boost::unordered_map<std::string, std::string> hashTable;
+	FileSystem fileSystem(path);
+	std::vector<std::string> const& filenames = fileSystem.getAllFileNames();
+	BOOST_FOREACH(std::string const& filename, filenames)
+	{
+		std::string fullpath = path + '/' + filename;
+		try
+		{
+			DICOMImage image(fullpath);
+			hashTable.insert(std::make_pair(image.GetSopInstanceUID(), fullpath));
+		}
+		catch (std::exception& e)
+		{
+			std::cout << __func__ << ": Invalid DICOM file - " << filename << '\n';
+		}
+	}
 
-	//place holder
-	return std::string();
+	return hashTable;
 }
 
 SlicesWithImages CAPXMLFile::GetSlicesWithImages(CmguiManager const& cmguiManager) const
 {
 	SlicesWithImages dicomSlices;
+
+	size_t positionOfLastSlash = filename_.find_last_of("/\\");
+	std::string pathToDICOMFiles = filename_.substr(0, positionOfLastSlash+1);
+
+	typedef boost::unordered_map<std::string, std::string> HashTable;
+	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToDICOMFiles);
+
 	// Populate SlicesWithImages
 	typedef std::map<std::string, std::vector<DICOMPtr> > DICOMImageMapWithSliceNameAsKey;
 	DICOMImageMapWithSliceNameAsKey dicomMap;
 	BOOST_FOREACH(Image const& image, input_.images)
 	{
-		DICOMPtr dicomImage = boost::make_shared<DICOMImage>(MapSopiuidToFilename(image.sopiuid));
+		HashTable::const_iterator filenameItr = uidToFilenameMap.find(image.sopiuid);
+		if (filenameItr == uidToFilenameMap.end())
+		{
+			//Can't locate the file
+			//TODO ask the user to locate the files
+			continue;
+		}
+
+		std::string const& filename = filenameItr->second;
+		DICOMPtr dicomImage = boost::make_shared<DICOMImage>(filename);
 
 		//TODO handle cases where image label is not present
 		DICOMImageMapWithSliceNameAsKey::iterator itr = dicomMap.find(image.label);
@@ -831,6 +862,8 @@ std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManage
 
 			//TODO implement data point generation and modeller update
 
+			Point3D coordPoint3D(coords);
+			dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));
 		}
 	}
 }
