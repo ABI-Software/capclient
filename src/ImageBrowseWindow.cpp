@@ -180,8 +180,16 @@ void ImageBrowseWindow::ReadInDICOMFiles()
 //		std::cout << filename <<'\n';
 		std::string fullpath = dirname + "/" + filename;
 //		std::cout << fullpath <<'\n';
-		DICOMPtr dicomFile(new DICOMImage(fullpath));
-		dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
+		try
+		{
+			DICOMPtr dicomFile(new DICOMImage(fullpath));
+			dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
+		}
+		catch (std::exception& e)
+		{
+			// This is not a DICOM file
+			std::cout << "Invalid DICOM file : " << filename << '\n';
+		}
 		
 		count++;
 		if (!(count % 10))
