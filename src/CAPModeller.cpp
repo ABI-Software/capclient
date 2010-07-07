@@ -12,6 +12,7 @@
 #include <assert.h>
 
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 namespace cap
 {
@@ -183,6 +184,28 @@ std::vector<DataPoint> CAPModeller::GetDataPoints() const
 	}
 
 	return dataPoints;
+}
+
+void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
+{
+	std::sort(dataPoints.begin(), dataPoints.end(),
+			boost::bind( std::less<DataPointType>(),
+					boost::bind(&DataPoint::GetDataPointType, _1),
+					boost::bind(&DataPoint::GetDataPointType, _2)));
+
+	bool modelIsInitialised(false);
+	BOOST_FOREACH(DataPoint& dataPoint, dataPoints)
+	{
+		// type unsafe but much less verbose than switch cases
+		ModellingMode mode = static_cast<ModellingMode>(dataPoint.GetDataPointType());
+		if (mode == GUIDEPOINT && !modelIsInitialised)
+		{
+			currentModellingMode_->OnAccept(*this); //HACK
+			modelIsInitialised = true;
+		}
+		ChangeMode(mode);
+		AddDataPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
+	}
 }
 
 } // end namespace cap
