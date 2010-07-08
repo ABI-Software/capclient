@@ -915,6 +915,11 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 void MainWindow::LoadImages(SlicesWithImages const& slices)
 {
 	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
+	if (slices.empty())
+	{
+		std::cout << "Empty image set.\n";
+		return;
+	}
 
 	if(imageSet_)
 	{
