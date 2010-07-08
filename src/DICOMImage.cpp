@@ -83,24 +83,24 @@ void DICOMImage::ReadDICOMFile()
 	gdcm::Attribute<0x0020,0x0011> at_sn;
 	at_sn.SetFromDataElement(seriesNum);
 	seriesNumber_ = at_sn.GetValue();
-	cout << "Series Number: " << seriesNumber_;
-	cout << endl;
+//	cout << "Series Number: " << seriesNumber_;
+//	cout << endl;
 	
 	// series description (0008,103e)
 	const gdcm::DataElement& seriesDesc = ds.GetDataElement(gdcm::Tag(0x0008,0x103E));
 	gdcm::Attribute<0x0008,0x103E> at_sd;
 	at_sd.SetFromDataElement(seriesDesc);
 	seriesDescription_ = at_sd.GetValue();
-	cout << "Series Description: " << seriesDescription_;
-	cout << endl;
+//	cout << "Series Description: " << seriesDescription_;
+//	cout << endl;
 	
 	// sequence name (0018,0024)
 	const gdcm::DataElement& seqName = ds.GetDataElement(gdcm::Tag(0x0018,0x0024));
 	gdcm::Attribute<0x0018,0x0024> at_seqName;
 	at_seqName.SetFromDataElement(seqName);
 	sequenceName_ = at_seqName.GetValue();
-	cout << "sequenceName_: " << sequenceName_;
-	cout << endl;
+//	cout << "sequenceName_: " << sequenceName_;
+//	cout << endl;
 	
 	// trigger time trigger time (0018,1060)
 	if (ds.FindDataElement(gdcm::Tag(0x0018,0x1060)))
@@ -109,8 +109,8 @@ void DICOMImage::ReadDICOMFile()
 		gdcm::Attribute<0x0018,0x1060> at_tt;
 		at_tt.SetFromDataElement(triggerTime);
 		triggerTime_ = at_tt.GetValue();
-		cout << "Trigger Time : " << triggerTime_;
-		cout << endl;
+//		cout << "Trigger Time : " << triggerTime_;
+//		cout << endl;
 	}
 	else
 	{
@@ -122,15 +122,15 @@ void DICOMImage::ReadDICOMFile()
 	gdcm::Attribute<0x0028,0x0010> at_rows;
 	at_rows.SetFromDataElement(rows);
 	height_ = at_rows.GetValue();
-	cout << "Rows: " << height_;
-	cout << endl;
+//	cout << "Rows: " << height_;
+//	cout << endl;
 
 	const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
 	gdcm::Attribute<0x0028,0x0011> at_cols;
 	at_cols.SetFromDataElement(cols);
 	width_ = at_cols.GetValue();
-	cout << "Columns: " << width_;
-	cout << endl;
+//	cout << "Columns: " << width_;
+//	cout << endl;
 
 	const gdcm::DataElement& thick = ds.GetDataElement(gdcm::Tag(0x0018,0x0050));
 	gdcm::Attribute<0x0018,0x0050> at_thick;
