@@ -57,6 +57,9 @@ public:
 	DataPoint& operator=(const DataPoint& rhs);
 	
 private:
+
+	void DataPoint::DecrementCmissNodeObjectCount();
+
 	Cmiss_node* cmissNode_;
 	Point3D coordinate_;
 	double weight_;
