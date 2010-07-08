@@ -101,11 +101,11 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 			return 0;
 		}
 		Point3D coords;
-		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
+//		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
 		Cmiss_scene_viewer_id scene_viewer = frame->GetCmissSceneViewer();
 		Cmiss_move_node_to_screen_coords(scene_viewer, selectedNode, x, y, time, coords);
 		
-		cout << "Move coord = " << coords << endl;
+//		cout << "Move coord = " << coords << endl;
 		frame->MoveDataPoint(selectedNode, coords);
 //		frame->RemoveDataPoint(selectedNode);
 //		selectedNode = 0;
@@ -178,7 +178,7 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 				{
 					FE_value x, y, z;
 					FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
-					cout << "before = " << x << ", " << y << ", " << z << endl;
+//					cout << "before = " << x << ", " << y << ", " << z << endl;
 					x += (new_coords[0] - coords[0]);
 					y += (new_coords[1] - coords[1]);
 					z += (new_coords[2] - coords[2]);
@@ -271,7 +271,7 @@ void MainWindow::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& newPositi
 
 void MainWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 {
-	cout << __func__ << endl;
+//	cout << __func__ << endl;
 	modeller_->RemoveDataPoint(dataPointID, GetCurrentTime());
 	RefreshCmguiCanvas();
 }
@@ -502,7 +502,7 @@ void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 		time = prevFrameTime + (double)1/(heartModel_.GetNumberOfModelFrames());
 	}
 	slider->SetValue(static_cast<int>(time * (max - min)));
-	cout << __func__ << ": time = " << time << endl;;
+//	cout << __func__ << ": time = " << time << endl;;
 //	imageSet_->SetTime(time);
 	time = (time > 0.99) ? 0 : time;
 	
@@ -1008,20 +1008,22 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
 
 		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
+		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size();
 		std::string const& exelemFileName = xmlFile.GetExelemFileName();
 
 
 		//HACK FIXME
-		std::string const& modelFilename = exnodeFileNames[0];
-		size_t positionOfLastSlash = modelFilename.find_last_of("/\\");
-		//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-		std::string modelFilePath = modelFilename.substr(0, positionOfLastSlash+1);
+		std::string xmlFilename = filename.c_str();
+		size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
+		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
+		std::cout << "modelFilePath = " << modelFilePath << '\n';
 		positionOfLastSlash = modelFilePath.find_last_of("/\\");
 		string dirOnly = modelFilePath.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
 		string prefix = modelFilePath.substr(0, positionOfLastSlash+1);
 
+		std::cout << __func__ << ", dir = " << dirOnly << ", prefix = " << prefix << '\n';
 		LoadHeartModel(dirOnly, prefix);
-		modeller_->SetDataPoints(dataPoints);
+		modeller_->SetDataPoints(dataPoints); // FIXME heartModel needs to be properly initialised and cleaned up
 	}
 
 //	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
