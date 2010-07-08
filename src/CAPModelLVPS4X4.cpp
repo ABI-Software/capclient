@@ -281,6 +281,8 @@ void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
 	modelInfoFile << patientToGlobalTransform_[3][2] << "k\n";
 	modelInfoFile << "\n";
 	modelInfoFile << "FocalLength\n";
+	modelInfoFile.precision(15);
+	modelInfoFile.setf(ios::scientific,ios::floatfield);
 	modelInfoFile << focalLength_;
 }
 
