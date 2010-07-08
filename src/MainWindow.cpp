@@ -838,6 +838,7 @@ void MainWindow::OnAcceptButtonPressed(wxCommandEvent& event)
 		{
 //			InitialiseVolumeGraph();
 			UpdateMII();
+			EnterModelLoadedState();
 		}
 	}
 	
@@ -1024,6 +1025,24 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::cout << __func__ << ", dir = " << dirOnly << ", prefix = " << prefix << '\n';
 		LoadHeartModel(dirOnly, prefix);
 		modeller_->SetDataPoints(dataPoints); // FIXME heartModel needs to be properly initialised and cleaned up
+
+		//HACK
+		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+
+		//FIXME
+		const char* ModeStrings[] = {
+				"Apex",
+				"Base",
+				"RV Inserts",
+				"Baseline Points",
+				"Guide Points"
+		};
+		for (size_t i = 1; i < 5; i++)
+		{
+			choice->Append(ModeStrings[i]);
+		}
+		choice->SetSelection(CAPModeller::GUIDEPOINT);
+		RefreshCmguiCanvas();
 	}
 
 //	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
