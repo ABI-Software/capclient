@@ -206,6 +206,11 @@ void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 		ChangeMode(mode);
 		AddDataPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
 	}
+	if (!modelIsInitialised) // no guide points defined
+	{
+		CAPModellingMode* newMode = currentModellingMode_->OnAccept(*this);
+		ChangeMode(newMode);
+	}
 
 	SmoothAlongTime();
 }
