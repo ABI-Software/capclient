@@ -14,6 +14,9 @@
 #include "CmguiExtensions.h"
 #include "FileSystem.h"
 
+#include <wx/wx.h>
+#include <wx/dir.h> // FIXME move this out to a separate function/clas
+
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
@@ -110,25 +113,25 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	using boost::lexical_cast;
 	//frame
 	xmlChar* frame = xmlGetProp(cur, (xmlChar const*)"frame"); 
-	std::cout << "frame = " << frame << '\n';
+//	std::cout << "frame = " << frame << '\n';
 	image.frame = lexical_cast<int>(frame);
 	xmlFree(frame);
 	
 	//slice
 	xmlChar* slice = xmlGetProp(cur, (xmlChar const*)"slice"); 
-	std::cout << "slice = " << slice << '\n';
+//	std::cout << "slice = " << slice << '\n';
 	image.slice = lexical_cast<int>(slice);
 	xmlFree(slice);
 	
 	//sopiuid		
 	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
-	std::cout << "sopiuid = " << sopiuid << '\n';
+//	std::cout << "sopiuid = " << sopiuid << '\n';
 	image.sopiuid = (char*)sopiuid;
 	xmlFree(sopiuid);
 	
 	//sopiuid
 	xmlChar* label = xmlGetProp(cur, (xmlChar const*)"label");
-	std::cout << "label = " << label << '\n';
+//	std::cout << "label = " << label << '\n';
 	if (label) // label is optional
 	{
 		image.label = (char*)label;
@@ -157,7 +160,7 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImagePosition"))
 		{
 			xmlChar* x = xmlGetProp(child, (xmlChar const*)"x");
-			std::cout << "x = " << (char*)x << '\n';
+//			std::cout << "x = " << (char*)x << '\n';
 			xmlChar* y = xmlGetProp(child, (xmlChar const*)"y");
 			xmlChar* z = xmlGetProp(child, (xmlChar const*)"z");
 			image.imagePosition = boost::make_shared<Point3D>(
@@ -165,7 +168,7 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 						boost::lexical_cast<double>((char*)y),
 						boost::lexical_cast<double>((char*)z)
 						);
-			std::cout << "imagePosition.x = " << image.imagePosition->x << std::endl;
+//			std::cout << "imagePosition.x = " << image.imagePosition->x << std::endl;
 		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImageOrientation"))
 		{
@@ -222,16 +225,16 @@ void ReadOutput(Output& output, xmlDocPtr doc, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Frame"))
 		{
-			std::cout << (char*)cur->name << std::endl;
+//			std::cout << (char*)cur->name << std::endl;
 			Frame frame;
 			//exnode
 			xmlChar* exnode = xmlGetProp(cur, (xmlChar const*)"exnode");
-			std::cout << "exnode = " << exnode << '\n';
+//			std::cout << "exnode = " << exnode << '\n';
 			frame.exnode = (char*)exnode;
 			xmlFree(exnode);
 			//number
 			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
-			std::cout << "number = " << number << '\n';
+//			std::cout << "number = " << number << '\n';
 			frame.number = boost::lexical_cast<int>(number);
 			xmlFree(number);
 			
@@ -240,20 +243,20 @@ void ReadOutput(Output& output, xmlDocPtr doc, xmlNodePtr cur)
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Exelem"))
 		{
 			xmlChar *filename = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			std::cout << "Exelem = " << (char*) filename << '\n';
+//			std::cout << "Exelem = " << (char*) filename << '\n';
 			output.elemFileName = (char*)filename;
 			xmlFree(filename);
-			std::cout << "Exelem done\n";
+//			std::cout << "Exelem done\n";
 		}
 		cur = cur->next;
 	}
 
-	std::cout << "sorting" << std::endl;;
+//	std::cout << "sorting" << std::endl;;
 	std::sort(output.frames.begin(), output.frames.end(),
 			boost::bind(std::less<int>(),
 				boost::bind(&Frame::number, _1),
 				boost::bind(&Frame::number, _2)));
-	std::cout << "sorted" << std::endl;
+//	std::cout << "sorted" << std::endl;
 }
 
 void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
@@ -269,17 +272,17 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 		{
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
-			std::cout << "date = " << date << '\n';
+//			std::cout << "date = " << date << '\n';
 			documentation.version.date = (char*)(date);
 			xmlFree(date);
 			//log
 			xmlChar* log = xmlGetProp(cur, (xmlChar const*)"log"); 
-			std::cout << "log = " << log << '\n';
+//			std::cout << "log = " << log << '\n';
 			documentation.version.log = (char*)(log);
 			xmlFree(log);
 			//number
 			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number"); 
-			std::cout << "number = " << number << '\n';
+//			std::cout << "number = " << number << '\n';
 			documentation.version.number = lexical_cast<int>(number);
 			xmlFree(number);
 		}
@@ -287,12 +290,12 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 		{
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
-			std::cout << "date = " << date << '\n';
+//			std::cout << "date = " << date << '\n';
 			documentation.history.date = (char*)(date);
 			xmlFree(date);
 			//entry
 			xmlChar* entry = xmlGetProp(cur, (xmlChar const*)"entry"); 
-			std::cout << "entry = " << date << '\n';
+//			std::cout << "entry = " << date << '\n';
 			documentation.history.entry = (char*)(entry);
 			xmlFree(entry);
 		}
@@ -466,17 +469,17 @@ void CAPXMLFile::ReadFile()
 	else
 	{
 		xmlChar* chamber = xmlGetProp(cur, (xmlChar const*)"chamber"); 
-		std::cout << "chamber = " << chamber << '\n';
+//		std::cout << "chamber = " << chamber << '\n';
 		chamber_ = (char*)chamber;
 		xmlFree(chamber);
 		
 		xmlChar* name = xmlGetProp(cur, (xmlChar const*)"name"); 
-		std::cout << "name = " << name << '\n';
+//		std::cout << "name = " << name << '\n';
 		name_ = (char*)name;
 		xmlFree(name);
 		
 		xmlChar* studyiuid = xmlGetProp(cur, (xmlChar const*)"studyiuid"); 
-		std::cout << "studyiuid = " << studyiuid << '\n';
+//		std::cout << "studyiuid = " << studyiuid << '\n';
 		studyIUid_ = (char*)studyiuid;
 		xmlFree(studyiuid);
 	}
@@ -497,17 +500,17 @@ void CAPXMLFile::ReadFile()
 			using boost::lexical_cast;
 
 			xmlChar* focalLengthStr = xmlGetProp(cur, (xmlChar const*)"focallength");
-			std::cout << "focalLengthStr = " << focalLengthStr << '\n';
+//			std::cout << "focalLengthStr = " << focalLengthStr << '\n';
 			output_.focalLength = lexical_cast<double>(focalLengthStr);
 			xmlFree(focalLengthStr);
 
 			xmlChar* intervalStr = xmlGetProp(cur, (xmlChar const*)"interval");
-			std::cout << "intervalStr = " << intervalStr << '\n';
+//			std::cout << "intervalStr = " << intervalStr << '\n';
 			output_.interval = lexical_cast<double>(intervalStr);
 			xmlFree(intervalStr);
 
 			xmlChar* transStr = xmlGetProp(cur, (xmlChar const*)"transformation_matrix");
-			std::cout << "transStr = " << intervalStr << '\n';
+//			std::cout << "transStr = " << transStr << '\n';
 			output_.transformationMatrix = (char*)transStr;
 			xmlFree(transStr);
 
@@ -554,7 +557,7 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 
 	//Output
 	xmlNodePtr outputNode = xmlNewChild(root_node, NULL, BAD_CAST "Output", NULL);
-//	std::string focalLength = boost::lexical_cast<std::string>(output_.focalLength);// FIXME this has to be in the same format as cmgui
+//	std::string focalLength = boost::lexical_cast<std::string>(output_.focalLength);
 	char buf[256];
 	sprintf((char*)buf, "%"FE_VALUE_STRING"", output_.focalLength);
 	std::string focalLength(buf);
@@ -803,7 +806,7 @@ SlicesWithImages CAPXMLFile::GetSlicesWithImages(CmguiManager const& cmguiManage
 
 	typedef boost::unordered_map<std::string, std::string> HashTable;
 	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToDICOMFiles);
-	std::cout << "GenerateSopiuidToFilenameMap\n";
+//	std::cout << "GenerateSopiuidToFilenameMap\n";
 
 	// Populate SlicesWithImages
 	typedef std::map<std::string, std::vector<DICOMPtr> > DICOMImageMapWithSliceNameAsKey;
@@ -811,12 +814,28 @@ SlicesWithImages CAPXMLFile::GetSlicesWithImages(CmguiManager const& cmguiManage
 	BOOST_FOREACH(Image const& image, input_.images)
 	{
 		HashTable::const_iterator filenameItr = uidToFilenameMap.find(image.sopiuid);
-		if (filenameItr == uidToFilenameMap.end())
+		while (filenameItr == uidToFilenameMap.end())
 		{
 			//Can't locate the file
-			//TODO ask the user to locate the files
 			std::cout << "No matching filename in the sopiuid to filename map\n";
-			continue;
+
+			wxString currentWorkingDir = wxGetCwd();
+			wxString defaultPath = currentWorkingDir.Append("/Data");
+
+			const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
+			if ( !dirname.empty() )
+			{
+				std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
+				HashTable newMap = GenerateSopiuidToFilenameMap((dirname + "/").c_str());
+				uidToFilenameMap.insert(newMap.begin(), newMap.end());
+				filenameItr = uidToFilenameMap.find(image.sopiuid);
+			}
+			else
+			{
+				// User cancelled the operation. return empty set
+				dicomSlices.clear();
+				return dicomSlices;
+			}
 		}
 
 		std::string const& filename = filenameItr->second;
@@ -899,8 +918,6 @@ std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManage
 			Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
 			Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
 							field, (double*) coords, time);
-
-			//TODO implement data point generation and modeller update
 
 			Point3D coordPoint3D(coords);
 			dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));
