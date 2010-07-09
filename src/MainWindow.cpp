@@ -1023,8 +1023,10 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		string prefix = modelFilePath.substr(0, positionOfLastSlash+1);
 
 		std::cout << __func__ << ", dir = " << dirOnly << ", prefix = " << prefix << '\n';
+		// FIXME heartModel needs to be properly initialised and cleaned up
+		heartModel_.SetFocalLengh(xmlFile.GetFocalLength());
 		LoadHeartModel(dirOnly, prefix);
-		modeller_->SetDataPoints(dataPoints); // FIXME heartModel needs to be properly initialised and cleaned up
+		modeller_->SetDataPoints(dataPoints);
 
 		//HACK
 		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
