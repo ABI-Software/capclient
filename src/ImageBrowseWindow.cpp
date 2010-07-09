@@ -109,6 +109,12 @@ namespace cap
 
 std::string const ImageBrowseWindow::IMAGE_PREVIEW = std::string("ImagePreview");
 
+static int dummy_input_callback(struct Scene_viewer *scene_viewer,
+		struct Graphics_buffer_input *input, void *viewer_frame_void)
+{
+	return 0; // returning false means don't call the other input handlers;
+}
+
 ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
 :
 	archiveFilename_(archiveFilename),
@@ -124,6 +130,8 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	
 	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel, IMAGE_PREVIEW);
+	Cmiss_scene_viewer_add_input_callback(sceneViewer_,
+			dummy_input_callback, (void*)this, 1/*add_first*/);
 
 	LoadImagePlaneModel();
 	ReadInDICOMFiles();
