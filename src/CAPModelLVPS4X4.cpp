@@ -186,6 +186,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 
 void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 {
+	exnodeModelFileNames_.clear();// FIXME have this method return list of filenames and remove GetFilenames
 	// TODO use a platform/gui toolkit abstraction layer
 	if (!wxMkdir(dirname.c_str()))
 	{
@@ -281,9 +282,12 @@ void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
 	modelInfoFile << patientToGlobalTransform_[3][2] << "k\n";
 	modelInfoFile << "\n";
 	modelInfoFile << "FocalLength\n";
-	modelInfoFile.precision(15);
-	modelInfoFile.setf(ios::scientific,ios::floatfield);
-	modelInfoFile << focalLength_;
+//	modelInfoFile.precision(15);
+//	modelInfoFile.setf(ios::scientific,ios::floatfield);
+//	modelInfoFile << focalLength_;
+	char buf[256]; // How do we get the same format as printf("%22.15le") in iostream? (cmgui requires it)
+	sprintf((char*)buf, "%22.15le\n", focalLength_);
+	modelInfoFile << buf;
 }
 
 void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
