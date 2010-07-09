@@ -6,7 +6,7 @@
  */
 
 #include "CAPXMLFile.h"
-#include "CAPMath.h"
+//#include "CAPMath.h"
 #include "DICOMImage.h"
 #include "CAPModelLVPS4X4.h"
 #include "DataPoint.h"
@@ -505,6 +505,11 @@ void CAPXMLFile::ReadFile()
 			output_.interval = lexical_cast<double>(intervalStr);
 			xmlFree(intervalStr);
 
+			xmlChar* transStr = xmlGetProp(cur, (xmlChar const*)"transformation_matrix");
+			std::cout << "transStr = " << intervalStr << '\n';
+			output_.transformationMatrix = (char*)transStr;
+			xmlFree(transStr);
+
 			ReadOutput(output_, doc, cur);
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Documentation"))
@@ -548,10 +553,11 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 
 	//Output
 	xmlNodePtr outputNode = xmlNewChild(root_node, NULL, BAD_CAST "Output", NULL);
-	std::string focalLength = boost::lexical_cast<std::string>(output_.focalLength);
+	std::string focalLength = boost::lexical_cast<std::string>(output_.focalLength);// FIXME this has to be in the same format as cmgui
 	xmlNewProp(outputNode, BAD_CAST "focallength", BAD_CAST focalLength.c_str());
 	std::string interval = boost::lexical_cast<std::string>(output_.interval);
 	xmlNewProp(outputNode, BAD_CAST "interval", BAD_CAST interval.c_str());
+	xmlNewProp(outputNode, BAD_CAST "transformation_matrix", BAD_CAST output_.transformationMatrix.c_str());
 	xmlNodePtr exelemNode = xmlNewChild(outputNode, NULL, BAD_CAST "Exelem",
 			BAD_CAST output_.elemFileName.c_str());
 	std::for_each(output_.frames.begin(), output_.frames.end(),
@@ -742,6 +748,15 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 	output_.elemFileName = heartModel.GetExelemFileName();
 	output_.focalLength = heartModel.GetFocalLength();
 	output_.interval = 1.0/heartModel.GetNumberOfModelFrames();// 1.0 = 1 cardiac cycle (normalised) - FIX
+	gtMatrix const& gtTrans = heartModel.GetLocalToGlobalTransformation();
+	std::stringstream transformMatrixStream;
+	transformMatrixStream <<
+			gtTrans[0][0] << " " << gtTrans[0][1] << " " << gtTrans[0][2] << " " << gtTrans[0][3] << " " <<
+			gtTrans[1][0] << " " << gtTrans[1][1] << " " << gtTrans[1][2] << " " << gtTrans[1][3] << " " <<
+ 			gtTrans[2][0] << " " << gtTrans[2][1] << " " << gtTrans[2][2] << " " << gtTrans[2][3] << " " <<
+			gtTrans[3][0] << " " << gtTrans[3][1] << " " << gtTrans[3][2] << " " << gtTrans[3][3];
+	output_.transformationMatrix = transformMatrixStream.str();
+
 	std::vector<std::string> const& modelFiles = heartModel.GetExnodeFileNames();
 	// assume the model files are sorted by the frame number
 	for (size_t i = 0; i < modelFiles.size(); i++)
@@ -904,6 +919,24 @@ std::vector<std::string> CAPXMLFile::GetExnodeFileNames() const
 			std::back_inserter(names), boost::bind(&Frame::exnode, _1));
 	return names;
 }
+
+double CAPXMLFile::GetFocalLength() const
+{
+	return boost::lexical_cast<double>(output_.focalLength);
+}
+
+void CAPXMLFile::GetTransformationMatrix(gtMatrix& mat) const
+{
+	std::stringstream matrixStream(output_.transformationMatrix);
+	matrixStream >>
+		mat[0][0] >> mat[0][1] >> mat[0][2] >> mat[0][3] >>
+		mat[1][0] >> mat[1][1] >> mat[1][2] >> mat[1][3] >>
+		mat[2][0] >> mat[2][1] >> mat[2][2] >> mat[2][3] >>
+		mat[3][0] >> mat[3][1] >> mat[3][2] >> mat[3][3];
+
+	return;
+}
+
 #endif
 } // end namespace cap
 
