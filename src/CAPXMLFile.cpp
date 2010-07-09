@@ -434,6 +434,7 @@ CAPXMLFile::CAPXMLFile(std::string const & filename)
 {
 	output_.focalLength = 0.0;
 	output_.interval = 0.0;
+	documentation_.version.number = 0;
 }
 
 CAPXMLFile::~CAPXMLFile()
