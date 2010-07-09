@@ -1003,6 +1003,12 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::cout << "Start reading xml file\n";
 		xmlFile.ReadFile();
 		SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
+		if (slicesWithImages.empty())
+		{
+			std::cout << "Can't locate image files\n";
+			return;
+		}
+
 		// TODO clean up first
 		LoadImages(slicesWithImages);
 
