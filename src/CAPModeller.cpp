@@ -200,7 +200,7 @@ void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 		ModellingMode mode = static_cast<ModellingMode>(dataPoint.GetDataPointType());
 		if (mode == GUIDEPOINT && !modelIsInitialised)
 		{
-			currentModellingMode_->OnAccept(*this); //HACK
+			modellingModeBasePlane_.OnAccept(*this); //HACK
 			modelIsInitialised = true;
 		}
 		ChangeMode(mode);
@@ -208,11 +208,12 @@ void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 	}
 	if (!modelIsInitialised) // no guide points defined
 	{
-		CAPModellingMode* newMode = currentModellingMode_->OnAccept(*this);
+		CAPModellingMode* newMode = modellingModeBasePlane_.OnAccept(*this);
 		ChangeMode(newMode);
 	}
 
 	SmoothAlongTime();
+//	std::cout << "Base is in " << modellingModeBase_.GetBase().GetSliceName() << '\n';
 }
 
 } // end namespace cap
