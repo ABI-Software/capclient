@@ -9,6 +9,7 @@
 #define CAPXMLFILE_H_
 
 #include "CAPTypes.h"
+#include "CAPMath.h"
 
 #include <string>
 #include <vector>
@@ -87,6 +88,7 @@ struct Output
 {
 	double focalLength;
 	double interval;
+	std::string transformationMatrix;
 	std::vector<Frame> frames;
 	std::string elemFileName;
 };
@@ -137,6 +139,9 @@ public:
 
 	std::string const& GetExelemFileName() const;
 
+	void GetTransformationMatrix(gtMatrix& mat) const;
+
+	double GetFocalLength() const;
 
 	std::vector<Image> const& GetImages() const
 	{
