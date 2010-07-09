@@ -345,7 +345,7 @@ void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
 	cout << line << endl;
 	double focalLength;
 	modelInfoFile >> focalLength;
-	if (pImpl_->region) //HACK
+	if (pImpl_->region) //HACK FIXME This should be done by proper clean up of fields and nodes
 	{
 		this->SetFocalLengh(focalLength);
 	}
