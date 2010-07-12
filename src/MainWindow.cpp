@@ -924,12 +924,18 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 
 	if(imageSet_)
 	{
+		imageSet_->SetVisible(false); // HACK should really destroy region
 		delete imageSet_;
 	}
 	imageSet_ = new ImageSet(slices, cmguiManager_);
+	imageSet_->SetVisible(true);//FIXME
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	
 	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
+	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
+	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
+	heartModel_.SetMIIVisibility(false);
+	heartModel_.SetModelVisibility(false);
 	
 	this->PopulateObjectList(); // fill in slice check box list
 
