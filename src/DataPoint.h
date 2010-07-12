@@ -58,7 +58,7 @@ public:
 	
 private:
 
-	void DataPoint::DecrementCmissNodeObjectCount();
+	void DecrementCmissNodeObjectCount();
 
 	Cmiss_node* cmissNode_;
 	Point3D coordinate_;
