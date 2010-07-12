@@ -125,7 +125,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 {	
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
-	
+	Show(true); // gtk crashes without this
 	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
 	
 	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
@@ -345,9 +345,20 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	// Update image preview panel
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	assert(slider);	
-	slider->SetMin(1);
-	slider->SetMax(images.size());
-	slider->SetValue(1);
+	if (images.size() == 1)
+	{
+		// special case where a slice contains only 1 image
+		slider->Enable(false);
+		slider->SetMin(1);
+		slider->SetMax(2); // gtk requires max > min
+	}
+	else
+	{
+		slider->Enable(true);
+		slider->SetMin(1);
+		slider->SetMax(images.size());
+		slider->SetValue(1);
+	}
 	
 	// Resize the rectangular cmgui model
 	// according to the new dimensions
