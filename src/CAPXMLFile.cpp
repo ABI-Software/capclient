@@ -500,12 +500,14 @@ void CAPXMLFile::ReadFile()
 			using boost::lexical_cast;
 
 			xmlChar* focalLengthStr = xmlGetProp(cur, (xmlChar const*)"focallength");
-//			std::cout << "focalLengthStr = " << focalLengthStr << '\n';
-			output_.focalLength = lexical_cast<double>(focalLengthStr);
+			std::cout << "focalLengthStr = " << focalLengthStr << '\n';
+			//output_.focalLength = lexical_cast<double>(focalLengthStr);
+			std::stringstream ss((char*) focalLengthStr);
+			ss >> output_.focalLength;
 			xmlFree(focalLengthStr);
 
 			xmlChar* intervalStr = xmlGetProp(cur, (xmlChar const*)"interval");
-//			std::cout << "intervalStr = " << intervalStr << '\n';
+			std::cout << "intervalStr = " << intervalStr << '\n';
 			output_.interval = lexical_cast<double>(intervalStr);
 			xmlFree(intervalStr);
 
