@@ -861,6 +861,8 @@ void MainWindow::OnModellingModeChanged(wxCommandEvent& event)
 	{
 		choice->Delete(i);
 	}
+
+	choice->SetSelection(selectionIndex);
 	RefreshCmguiCanvas();
 }
 
