@@ -180,11 +180,12 @@ Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_v
 		}
 	}
 	
+	Scene_object* scene_object = Scene_get_scene_object_with_Cmiss_region(scene, region);
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 
 	// return sceneObject for convenience REVISE!!
-	return Scene_get_scene_object_with_Cmiss_region(scene, region);
+	return scene_object;
 }
 
 } // end namespace cap
