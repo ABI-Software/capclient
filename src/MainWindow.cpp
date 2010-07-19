@@ -1184,6 +1184,20 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
 	
+	//// test
+
+	Cmiss_region_id root = Cmiss_context_get_default_region(context_);
+	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, "/heart/");
+	Cmiss_region_id copy = region;
+	Cmiss_region_remove_child(root, region);
+//	std::cout << "Use_count = " <<
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&copy);
+
+	///////
+
+	return;
+
 	char* file_name = "screen_dump.png";
 	int force_onscreen_flag = 0;
 	int width = 256;
