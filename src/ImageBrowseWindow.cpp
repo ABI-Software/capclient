@@ -388,6 +388,9 @@ void ImageBrowseWindow::ResizePreviewImage(int width, int height)
 	FE_node_set_position_cartesian(node, 0, 0.0, height, 0.0);
 	node = Cmiss_region_get_node(region, "4");
 	FE_node_set_position_cartesian(node, 0, width, height, 0.0);
+
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
 }
 
 void ImageBrowseWindow::LoadImagePlaneModel()

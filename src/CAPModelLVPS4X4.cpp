@@ -180,6 +180,9 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 		Cmiss_time_notifier_regular_set_frequency(timeNotifier, numberOfModelFrames_);
 	}
 	
+	Cmiss_region_destroy(&cmiss_region);
+	Cmiss_region_destroy(&region);
+
 	cout << __func__ << " - Exit" << endl;
 	return 0;
 }
@@ -244,6 +247,8 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	{
 		std::cout << __func__ << " - Error writing .exelem: " << exelemFilename << std::endl;
 	}
+
+	Cmiss_region_destroy(&root_region);
 
 	// write ModelInfo.txt
 	WriteModelInfo(dirname);
