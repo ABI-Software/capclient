@@ -31,7 +31,7 @@
 											<border>5</border>
 											<object class="wxStaticBoxSizer">
 												<orient>wxVERTICAL</orient>
-												<label>Patient List</label>
+												<label>Case List</label>
 												<object class="sizeritem">
 													<option>1</option>
 													<flag>wxEXPAND</flag>
@@ -39,8 +39,8 @@
 													<object class="wxChoice" name="m_choice1">
 														<selection>0</selection>
 														<content>
-															<item>Patient1 2010/01/01</item>
-															<item>Patient2 2010/01/02</item>
+															<item>Case1 2010/01/01</item>
+															<item>Case2 2010/01/02</item>
 														</content>
 													</object>
 												</object>
@@ -97,7 +97,7 @@
 									<border>5</border>
 									<object class="wxStaticBoxSizer">
 										<orient>wxVERTICAL</orient>
-										<label>Patient Info</label>
+										<label>Case Info</label>
 										<object class="sizeritem">
 											<option>1</option>
 											<flag>wxEXPAND</flag>
@@ -112,7 +112,7 @@
 													<flag>wxALL</flag>
 													<border>5</border>
 													<object class="wxStaticText" name="m_staticText1">
-														<label>Patient Name</label>
+														<label>Case Name</label>
 													</object>
 												</object>
 												<object class="sizeritem">
@@ -128,7 +128,7 @@
 													<flag>wxALL</flag>
 													<border>5</border>
 													<object class="wxStaticText" name="m_staticText3">
-														<label>Patient ID</label>
+														<label>Case ID</label>
 													</object>
 												</object>
 												<object class="sizeritem">
