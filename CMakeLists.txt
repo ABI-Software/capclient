@@ -123,7 +123,7 @@ SET(XML2_PATH ${CMISS_ROOT}/third_party)
 SET(XML2_LIB
   ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a
   ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libz.a
-  -liconv
+#  -liconv
 )
 
 SET(CMGUI_LIB ${CMISS_ROOT}/cmgui/lib/${LIB_ARCH_DIR}/${BUILD_VERSION}/libcmgui.a)
