@@ -895,11 +895,15 @@ std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManage
 		}
 	}
 
+	Cmiss_context_id cmiss_context = cmguiManager.GetCmissContext();
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
+	assert(root_region);
 	std::vector<DataPoint> dataPoints;
 	BOOST_FOREACH(Image const& image, input_.images)
 	{
 		double numFrames = static_cast<double>(labelToNumframesMap[image.label]);
 
+		Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());
 		BOOST_FOREACH(Point const& p, image.points)
 		{
 			double coords[3];
@@ -908,10 +912,7 @@ std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManage
 			coords[2] = (*p.values.find("z")).second.value;
 
 			double time = static_cast<double>(image.frame) / numFrames;
-			Cmiss_context_id cmiss_context = cmguiManager.GetCmissContext();
-			Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
-			assert(root_region);
-			Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());
+
 			if (!region)
 			{
 				std::cout << __func__ << " : Can't find subregion at path : " << image.label << '\n';
@@ -924,7 +925,9 @@ std::vector<DataPoint> CAPXMLFile::GetDataPoints(CmguiManager const& cmguiManage
 			Point3D coordPoint3D(coords);
 			dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));
 		}
+		Cmiss_region_destroy(&region);
 	}
+	Cmiss_region_destroy(&root_region);
 
 	return dataPoints;
 }
