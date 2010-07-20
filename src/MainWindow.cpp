@@ -14,6 +14,7 @@
 #include "ImageBrowseWindow.h"
 #include "CAPHtmlWindow.h"
 #include "CAPXMLFile.h"
+#include "CAPModeller.h"
 
 #include <iostream>
 #include <vector>
@@ -1184,7 +1185,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
 	
-	char* file_name = "screen_dump.png";
+	char const* file_name = "screen_dump.png";
 	int force_onscreen_flag = 0;
 	int width = 256;
 	int height = 256;
@@ -1206,7 +1207,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	
 	Cmiss_context_execute_command(context_, "gfx draw as heart group heart scene print_temp");
 	// The above doesn't copy the transformation so it has to be done manually
-	char* scene_object_name = "heart";
+	char* scene_object_name = (char*)"heart";
 	
 	RenderIsoSurfaces();
 		

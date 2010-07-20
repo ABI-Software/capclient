@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 #include "CAPModelLVPS4X4.h"
-#include "CAPModeller.h"
+//#include "CAPModeller.h"
 #include "ImageBrowseWindowClient.h"
 
 struct Cmiss_node;
@@ -23,6 +23,7 @@ namespace cap
 
 class ImageSet;
 class CmguiManager;
+class CAPModeller;
 
 
 class MainWindow : public wxFrame, public ImageBrowseWindowClient

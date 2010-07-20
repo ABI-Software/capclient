@@ -6,7 +6,6 @@
  */
 
 #include "CAPModeller.h"
-#include "CAPModelLVPS4X4.h"
 
 #include <iostream>
 #include <assert.h>

@@ -76,13 +76,7 @@ private:
 	std::vector<DataPoint> base_; // holds at most 1 item
 };
 
-} // end namespace cap
-
-//class CAPModelLVPS4X4;
-#include "CAPModelLVPS4X4.h"
-
-namespace cap
-{
+class CAPModelLVPS4X4;
 
 class CAPModellingModeRV : public CAPModellingMode
 {
