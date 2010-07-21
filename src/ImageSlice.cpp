@@ -23,7 +23,7 @@ extern "C"
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
 #include "ImageSlice.h"
-#include "FileSystem.h"
+//#include "FileSystem.h"
 #include "CAPMaterial.h"
 
 #include <iostream>
@@ -32,6 +32,7 @@ extern "C"
 #include <iomanip>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/bind.hpp>
 
 //#include <stdio.h>
 
@@ -164,6 +165,11 @@ void ImageSlice::TransformImagePlane()
 		cout << "corrected blc = " << plane->blc <<endl;
 		cout << "corrected brc = " << plane->brc <<endl;
 		
+		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImagePosition, _1, plane->tlc));
+		Vector3D ori1 = plane->trc - plane->tlc;
+		Vector3D ori2 = plane->blc - plane->tlc;
+		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImageOrientation, _1, ori1, ori2));
+
 		planeShiftInfoFile.close();
 	}
 	
@@ -222,6 +228,9 @@ void ImageSlice::TransformImagePlane()
 	{
 		cout << nodeName << endl;
 	}
+
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
 }
 
 const ImagePlane& ImageSlice::GetImagePlane() const
@@ -255,6 +264,9 @@ Cmiss_field* ImageSlice::CreateVisibilityField()
 	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
 	Computed_field* field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
 	
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
+
 	return field;
 }
 
@@ -337,6 +349,9 @@ void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 		FE_node_get_position_cartesian(node, 0, &(trc.x), &(trc.y), &(trc.z), 0);
 	}
 	
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
+
 	std::ofstream outFile(filepath.c_str());
 	//std::cout << sliceName_ << "\n";
 //	std::cout << "tlc";

@@ -56,7 +56,7 @@ private:
 	void ConstructTextureMap();
 	void SwitchSliceToDisplay(SliceMap::value_type const& slice);
 	void LoadImagePlaneModel();
-	void ResizePreviewImage(int width, int width);
+	void ResizePreviewImage(int width, int height);
 	void DisplayImage(Cmiss_texture_id tex);
 	void UpdateImageInfoPanel(DICOMPtr const& image);
 	void UpdatePatientInfoPanel(DICOMPtr const& image);

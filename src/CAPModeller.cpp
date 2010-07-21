@@ -12,6 +12,7 @@
 #include <assert.h>
 
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 namespace cap
 {
@@ -27,17 +28,17 @@ CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
 {	
 }
 
-void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, float time)
+void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, double time)
 {
 	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
 }
 
-void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time)
+void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	currentModellingMode_->MoveDataPoint(dataPointID, coord, time);
 }
 
-void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, float time)
+void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	currentModellingMode_->RemoveDataPoint(dataPointID, time);
 }
@@ -151,21 +152,68 @@ void CAPModeller::ChangeMode(CAPModellingMode* newMode)
 std::vector<DataPoint> CAPModeller::GetDataPoints() const
 {
 	std::vector<DataPoint> dataPoints;
-	dataPoints.push_back(modellingModeApex_.GetApex());
-	dataPoints.push_back(modellingModeBase_.GetBase());
-	
-	typedef std::map<Cmiss_node*, DataPoint> Map;
-	Map const& rvInsert = modellingModeRV_.GetRVInsertPoints();
-	std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
-			boost::bind(&Map::value_type::second, _1));
 	
 	typedef std::vector<DataPoint> Vector;
 	Vector const& bps = modellingModeBasePlane_.GetBasePlanePoints();
-	std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
-	Vector const& gps = modellingModeGuidePoints_.GetDataPoints();
-	std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
-	
+
+	if (!bps.empty())
+	{
+		// This means the user has reached the guide points modelling stage
+		// i.e the model has been initialised.
+
+		dataPoints.push_back(modellingModeApex_.GetApex());
+		dataPoints.push_back(modellingModeBase_.GetBase());
+
+		typedef std::map<Cmiss_node*, DataPoint> Map;
+		Map const& rvInsert = modellingModeRV_.GetRVInsertPoints();
+
+		std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
+				boost::bind(&Map::value_type::second, _1));
+
+		std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
+		Vector const& gps = modellingModeGuidePoints_.GetDataPoints();
+		std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
+	}
+	else
+	{
+		// this means the model has not been initialised.
+		// return an empty vector
+		// TODO might make more sense to just return the data points that have been put on
+		// even if the model has not been initialised (i.e guide point mode has not been reached)
+		dataPoints.clear(); // this is actually redundant but left here for clarity
+	}
+
 	return dataPoints;
+}
+
+void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
+{
+	std::sort(dataPoints.begin(), dataPoints.end(),
+			boost::bind( std::less<DataPointType>(),
+					boost::bind(&DataPoint::GetDataPointType, _1),
+					boost::bind(&DataPoint::GetDataPointType, _2)));
+
+	bool modelIsInitialised(false);
+	BOOST_FOREACH(DataPoint& dataPoint, dataPoints)
+	{
+		// type unsafe but much less verbose than switch cases
+		ModellingMode mode = static_cast<ModellingMode>(dataPoint.GetDataPointType());
+		if (mode == GUIDEPOINT && !modelIsInitialised)
+		{
+			modellingModeBasePlane_.OnAccept(*this); //HACK
+			modelIsInitialised = true;
+		}
+		ChangeMode(mode);
+		AddDataPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
+	}
+	if (!modelIsInitialised) // no guide points defined
+	{
+		CAPModellingMode* newMode = modellingModeBasePlane_.OnAccept(*this);
+		ChangeMode(newMode);
+	}
+
+	SmoothAlongTime();
+//	std::cout << "Base is in " << modellingModeBase_.GetBase().GetSliceName() << '\n';
 }
 
 } // end namespace cap

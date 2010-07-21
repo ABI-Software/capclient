@@ -22,7 +22,7 @@ class DataPoint
 {
 public:
 	
-	DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, float time, float weight = 1.0f);
+	DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, double time, double weight = 1.0f);
 	
 	DataPoint(const DataPoint& other);
 		
@@ -36,9 +36,9 @@ public:
 	
 	void SetCoordinate(const Point3D& coord);
 	
-	float GetTime() const;
+	double GetTime() const;
 	
-	void SetValidPeriod(float startTime, float endTime);
+	void SetValidPeriod(double startTime, double endTime);
 	
 	void SetVisible(bool visibility);
 	
@@ -57,13 +57,16 @@ public:
 	DataPoint& operator=(const DataPoint& rhs);
 	
 private:
+
+	void DecrementCmissNodeObjectCount();
+
 	Cmiss_node* cmissNode_;
 	Point3D coordinate_;
-	float weight_;
-	float time_;
+	double weight_;
+	double time_;
 	SurfaceType surfaceType_;
 	DataPointType dataPointType_;
-	float startTime_, endTime_; // these can't be inferred from time only
+	double startTime_, endTime_; // these can't be inferred from time only
 };
 
 struct DataPointTimeLessThan // used for sorting DataPoints with respect to time

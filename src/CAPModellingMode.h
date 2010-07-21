@@ -26,9 +26,9 @@ public:
 	virtual ~CAPModellingMode();
 	
 	virtual CAPModellingMode* OnAccept(CAPModeller& modeller) = 0;
-	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time) = 0;
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time) = 0;
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time) = 0;
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time) = 0;
 	
 	virtual void PerformEntryAction() = 0;
 	virtual void PerformExitAction() = 0;
@@ -41,9 +41,9 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	const DataPoint& GetApex() const; //REVISE design:
 	// Probably its more extensible to provide a uniform interface (virtual GetDataPoints) on all Modes.
@@ -63,9 +63,9 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	const DataPoint& GetBase() const;
 	
@@ -92,9 +92,9 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	const std::map<Cmiss_node*, DataPoint>& GetRVInsertPoints() const;
 	
@@ -115,9 +115,9 @@ public:
 	{}
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	const std::vector<DataPoint>& GetBasePlanePoints() const;
 	
@@ -152,9 +152,9 @@ public:
 	~CAPModellingModeGuidePoints();
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
-	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, float time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, float time);
+	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	std::vector<DataPoint> GetDataPoints() const;
 	
@@ -180,13 +180,13 @@ private:
 	
 	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const;
 	
-	std::vector<float> ConvertToHermite(const Vector&) const;
+	std::vector<double> ConvertToHermite(const Vector&) const;
 	
 	CAPModelLVPS4X4& heartModel_;
 	
 	std::vector<DataPoints> vectorOfDataPoints_;
 	
-	std::vector< std::vector<float> > timeVaryingDataPoints_;
+	std::vector< std::vector<double> > timeVaryingDataPoints_;
 	
 	SolverLibraryFactory* solverFactory_;
 	SparseMatrix* S_;

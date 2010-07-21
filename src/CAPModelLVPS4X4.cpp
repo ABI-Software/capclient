@@ -96,7 +96,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 		char* filename = const_cast<char*>(filenameString.c_str());
 		//DEBUG
 		//cout << "DEBUG: i = " << i << ", filename = " << filename << endl;
-		float time = static_cast<float>(i)/numberOfModelFrames_;
+		double time = static_cast<double>(i)/numberOfModelFrames_;
 		std::cout << __func__ << ": time = " << time << endl;
 		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 		{
@@ -109,7 +109,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 		filenameStream << dir_path << path << "_" << 1 << ".model.exnode" ;
 		const string& filenameString = filenameStream.str();
 		char* filename = const_cast<char*>(filenameString.c_str());
-		float time = 1.0;
+		double time = 1.0;
 		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 		{
 			std::cout << "Error reading ex file: " << filename << std::endl;
@@ -117,7 +117,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	}
 
 	string exelem_filename(dir_path);
-	exelem_filename.append("GlobalHermiteParam.exelem");
+	exelem_filename.append(GetExelemFileName());
 	if (!Cmiss_region_read_file(region, const_cast<char*>(exelem_filename.c_str())))
 	{
 		std::cout << "Error reading ex file - exelem" << std::endl;
@@ -180,12 +180,16 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 		Cmiss_time_notifier_regular_set_frequency(timeNotifier, numberOfModelFrames_);
 	}
 	
+	Cmiss_region_destroy(&cmiss_region);
+	Cmiss_region_destroy(&region);
+
 	cout << __func__ << " - Exit" << endl;
 	return 0;
 }
 
 void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 {
+	exnodeModelFileNames_.clear();// FIXME have this method return list of filenames and remove GetFilenames
 	// TODO use a platform/gui toolkit abstraction layer
 	if (!wxMkdir(dirname.c_str()))
 	{
@@ -203,7 +207,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	
 	for (int i = 0; i < numberOfModelFrames_ ; i++)
 	{
-		FE_value time = static_cast<float>(i)/numberOfModelFrames_;
+		FE_value time = static_cast<double>(i)/numberOfModelFrames_;
 		const int write_elements = 0;
 		const int write_nodes = 1;
 		//string exnodeFilenamePrefix(dirname);
@@ -225,7 +229,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 		
 		stringstream fileNameOnly;
 		fileNameOnly << exnodeFilenamePrefix << "_" << i+1 << ".model.exnode";
-		modelFileNames_.push_back(fileNameOnly.str());
+		exnodeModelFileNames_.push_back(fileNameOnly.str());
 	}
 
 	// write exelem
@@ -243,6 +247,8 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	{
 		std::cout << __func__ << " - Error writing .exelem: " << exelemFilename << std::endl;
 	}
+
+	Cmiss_region_destroy(&root_region);
 
 	// write ModelInfo.txt
 	WriteModelInfo(dirname);
@@ -281,7 +287,12 @@ void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
 	modelInfoFile << patientToGlobalTransform_[3][2] << "k\n";
 	modelInfoFile << "\n";
 	modelInfoFile << "FocalLength\n";
-	modelInfoFile << focalLength_;
+//	modelInfoFile.precision(15);
+//	modelInfoFile.setf(ios::scientific,ios::floatfield);
+//	modelInfoFile << focalLength_;
+	char buf[256]; // How do we get the same format as printf("%22.15le") in iostream? (cmgui requires it)
+	sprintf((char*)buf, "%22.15le\n", focalLength_);
+	modelInfoFile << buf;
 }
 
 void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
@@ -337,9 +348,9 @@ void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
 	cout << line << endl;	
 	getline(modelInfoFile, line); //FocalLength:
 	cout << line << endl;
-	float focalLength;
+	double focalLength;
 	modelInfoFile >> focalLength;
-	if (pImpl_->region) //HACK
+	if (pImpl_->region) //HACK FIXME This should be done by proper clean up of fields and nodes
 	{
 		this->SetFocalLengh(focalLength);
 	}
@@ -543,7 +554,7 @@ Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
 	return Point3D(lambda, mu, theta);
 }
 
-int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float time) const
+int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, double time) const
 {
 	//1. Transform to model coordinate 	
 	const Point3D& coordLocal = TransformToLocalCoordinateRC(coord);
@@ -616,7 +627,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, float ti
 	return -1;
 }
 
-void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams, float time)
+void CAPModelLVPS4X4::SetLambda(const std::vector<double>& lambdaParams, double time)
 {
 //	std::cout << __func__ << ": time = " << time << std::endl;
 	
@@ -664,14 +675,14 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<float>& lambdaParams, float ti
 	}
 }
 
-void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber)
+void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<double>& lambdaParams, int frameNumber)
 {
-	SetLambda(lambdaParams, static_cast<float>(frameNumber)/numberOfModelFrames_);
+	SetLambda(lambdaParams, static_cast<double>(frameNumber)/numberOfModelFrames_);
 }
 
-const std::vector<float> CAPModelLVPS4X4::GetLambda(int frame) const
+const std::vector<double> CAPModelLVPS4X4::GetLambda(int frame) const
 {
-	std::vector<float> lambdas;
+	std::vector<double> lambdas;
 	for (int i=0; i < 134; i++)
 	{
 		//TODO we need to get Bezier coefficients. Cmgui only has Hermite.
@@ -680,7 +691,7 @@ const std::vector<float> CAPModelLVPS4X4::GetLambda(int frame) const
 
 void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
 {
-	float time = static_cast<float>(frameNumber)/numberOfModelFrames_;
+	double time = static_cast<double>(frameNumber)/numberOfModelFrames_;
 	const Vector3D& normal = TransformToLocalCoordinateRC(basePlane.normal);
 	const Point3D& position = TransformToLocalCoordinateRC(basePlane.position);
 	const int numberOfComponents = 3; // lambda, mu and theta
@@ -702,7 +713,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 			}
 		}
 		
-		//float values[3];
+		//fdoublevalues[3];
 		double values[3];
 		if (!Cmiss_field_evaluate_at_node(pImpl_->field, node,time,numberOfComponents , values))
 		{
@@ -951,7 +962,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 	
 void CAPModelLVPS4X4::SetTheta(int frame)
 {
-	float time = (float)frame / GetNumberOfModelFrames();
+	double time = (double)frame / GetNumberOfModelFrames();
 	const FE_value thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
 	
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
@@ -986,13 +997,13 @@ void CAPModelLVPS4X4::SetTheta(int frame)
 	}
 }
 
-float CAPModelLVPS4X4::MapToModelFrameTime(float time) const
+double CAPModelLVPS4X4::MapToModelFrameTime(double time) const
 {
 	int indexPrevFrame = MapToModelFrameNumber(time);
-	return (float) indexPrevFrame/numberOfModelFrames_;
+	return (double) indexPrevFrame/numberOfModelFrames_;
 }
 
-int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
+int CAPModelLVPS4X4::MapToModelFrameNumber(double time) const
 {
 	//edge cases
 	if (time < 0)
@@ -1004,8 +1015,8 @@ int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 		time = 1.0; //REVISE
 	}
 	
-	float frameDuration = (float) 1.0 / numberOfModelFrames_;
-	float frameFloat = time / frameDuration;
+	double frameDuration = (double) 1.0 / numberOfModelFrames_;
+	double frameFloat = time / frameDuration;
 	int frame = static_cast<int>(frameFloat);
 	if ((frameFloat - frame) > 0.5)
 	{
@@ -1015,7 +1026,7 @@ int CAPModelLVPS4X4::MapToModelFrameNumber(float time) const
 	return std::min(frame, numberOfModelFrames_);
 }
 
-double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
+double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, double time) const
 {
 	const int numElements = 16;
 	const int nx = 7, ny = 7;
@@ -1127,7 +1138,7 @@ double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, float time) const
 	// (6*1000), 6 times volume of tetrahedron & for ml
 }
 
-void CAPModelLVPS4X4::SetFocalLengh(float focalLength)
+void CAPModelLVPS4X4::SetFocalLengh(double focalLength)
 {
 	struct Coordinate_system* coordinate_system = Computed_field_get_coordinate_system(pImpl_->field);
 	focalLength_ = focalLength;

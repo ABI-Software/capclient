@@ -36,7 +36,7 @@ extern "C" {
 #include "command/cmiss.h"
 }
 
-int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_name, struct Time_keeper* time_keeper, float time)
+int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_name, struct Time_keeper* time_keeper, double time)
 /*******************************************************************************
 LAST MODIFIED : 23 May 2008
 
@@ -95,7 +95,7 @@ using namespace cap;
 static Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node, 
 		struct FE_region* fe_region, 
 		Cmiss_field* visibilityField,
-		struct FE_field *fe_field, float startTime, float endTime, bool visibility)
+		struct FE_field *fe_field, double startTime, double endTime, bool visibility)
 {
 	struct FE_node_field_creator *node_field_creator;
 	
@@ -104,14 +104,14 @@ static Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 	{
 		struct FE_time_sequence *fe_time_sequence;
 		//FE_value times[] = {0.0f, 0,5, 0.7, 1.0};
-		//float halfTime = 1.0f/28.0f;
-//		float startTime = time - halfTime; 
-//		float endTime = time + halfTime;
+		//double halfTime = 1.0f/28.0f;
+//		double startTime = time - halfTime;
+//		double endTime = time + halfTime;
 		FE_value times[5];
 		double values[5];
 		int numberOfTimes;
 		
-		float newFieldValue = visibility ? 1.0f : 0.0f;
+		double newFieldValue = visibility ? 1.0f : 0.0f;
 		
 		//Handle edge cases
 		if (startTime == 0.0f && endTime == 1.0f)
@@ -166,13 +166,13 @@ static Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 			/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
 			node_field_creator))
 		{
-//			float one = 1, zero = 0 ,two = 2; //visibility_field > 1 => true
+//			double one = 1, zero = 0 ,two = 2; //visibility_field > 1 => true
 //			Cmiss_field_set_values_at_node( visibilityField, node, 0 , 1 , &zero);
 //			Cmiss_field_set_values_at_node( visibilityField, node, 1 , 1 , &zero);
-//			float halfTime = 1.0f/28.0f;
-//			float startTime = (time - halfTime) >= 0 ? (time - halfTime) : (time - halfTime +1); 
+//			double halfTime = 1.0f/28.0f;
+//			double startTime = (time - halfTime) >= 0 ? (time - halfTime) : (time - halfTime +1);
 //			Cmiss_field_set_values_at_node( visibilityField, node, startTime , 1 , &zero);
-//			float endTime = (time + halfTime) < 1 ? (time + halfTime) : (time + halfTime - 1); 
+//			double endTime = (time + halfTime) < 1 ? (time + halfTime) : (time + halfTime - 1);
 //			Cmiss_field_set_values_at_node( visibilityField, node, time + halfTime , 1 , &zero);
 //			Cmiss_field_set_values_at_node( visibilityField, node, time , 1 , &zero);
 //	
@@ -198,7 +198,7 @@ static Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 	return 0;
 }
 
-Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, float startTime, float endTime, bool visibility)
+Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, double startTime, double endTime, bool visibility)
 {
 	FE_region* fe_region = FE_node_get_FE_region(node);
 	
@@ -236,7 +236,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, float startTim
 	}
 }
 
-Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, double* coords, float time)
+Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, double* coords, double time)
 {	
 	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
 	fe_region = FE_region_get_data_FE_region(fe_region);
@@ -463,7 +463,7 @@ Cmiss_element_id Cmiss_get_ray_intersection_point(Cmiss_scene_viewer_id scene_vi
 
 #include "CAPMath.h"
 
-Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, float time, Point3D& coords)
+Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, double time, Point3D& coords)
 {
 	int return_code = 0;
 
@@ -583,7 +583,7 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_
 	return 0;
 }
 
-Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, float time, Point3D& coords)
+Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_viewer, double x, double y, double time, Point3D& coords)
 {
 	int return_code = 0;
 
@@ -659,7 +659,7 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_v
 	return picked_node; // Cmiss_node = FE_node;
 }
 
-int Cmiss_move_node_to_screen_coords(Cmiss_scene_viewer_id scene_viewer, Cmiss_node_id node, double x, double y, float time, Point3D& coords)
+int Cmiss_move_node_to_screen_coords(Cmiss_scene_viewer_id scene_viewer, Cmiss_node_id node, double x, double y, double time, Point3D& coords)
 {
 	double node_coordinates[3];
 	Cmiss_field_id field;

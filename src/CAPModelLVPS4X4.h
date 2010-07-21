@@ -47,21 +47,21 @@ public:
 	CAPModelLVPS4X4(const std::string& name, Cmiss_context_id context);
 	~CAPModelLVPS4X4();
 	
-	typedef std::vector<float> parameters;
+	typedef std::vector<double> parameters;
 	int ReadModelFromFiles(const std::string& modelDirectory, const std::string& directoryPrefix);
 	
 	void WriteToFile(const std::string& path);
 	
-	const std::vector<float> GetLambda(int frame) const;
+	const std::vector<double> GetLambda(int frame) const;
 
-	void SetLambda(const std::vector<float>& lambdaParams, float time = 0);
-	void SetLambdaForFrame(const std::vector<float>& lambdaParams, int frameNumber);
+	void SetLambda(const std::vector<double>& lambdaParams, double time = 0);
+	void SetLambdaForFrame(const std::vector<double>& lambdaParams, int frameNumber);
 	
 	void SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber);
 	
 	void SetTheta(int frameNumber);
 	
-//	const std::vector<float>& GetParameters() const;
+//	const std::vector<double>& GetParameters() const;
 
 //	double CalculateVolume();
 //	double CalculateMass();
@@ -78,7 +78,7 @@ public:
 	 *  @param xi the computed xi coord. (output)
 	 *  return value : id of the element that the point is projected onto
 	 */ 
-	int ComputeXi(const Point3D& dataPoint, Point3D& xi, float time) const;
+	int ComputeXi(const Point3D& dataPoint, Point3D& xi, double time) const;
 	
 	Point3D TransformToProlateSheroidal(const Point3D& rc) const;
 	
@@ -86,12 +86,12 @@ public:
 	
 	Vector3D TransformToLocalCoordinateRC(const Vector3D& global) const;
 	
-	float GetFocalLength() const
+	double GetFocalLength() const
 	{
 		return focalLength_;
 	}
 	
-	void SetFocalLengh(float focalLength);
+	void SetFocalLengh(double focalLength);
 	
 	// Member functions related to rendering
 	void SetRenderMode(RenderMode mode);
@@ -104,9 +104,9 @@ public:
 	
 	void SetModelVisibility(bool visibility);
 
-	float MapToModelFrameTime(float time) const; // maps the argument time to the closest frame in time and returns the frame time
+	double MapToModelFrameTime(double time) const; // maps the argument time to the closest frame in time and returns the frame time
 	
-	int MapToModelFrameNumber(float time) const;
+	int MapToModelFrameNumber(double time) const;
 	
 	int GetNumberOfModelFrames() const
 	{
@@ -118,13 +118,19 @@ public:
 		numberOfModelFrames_ = numberOfFrames;
 	}
 	
-	double ComputeVolume(SurfaceType surface, float time) const;
+	double ComputeVolume(SurfaceType surface, double time) const;
 	
-	std::vector<std::string> const& GetFileNames() const
+	std::vector<std::string> const& GetExnodeFileNames() const
 	{
-		return modelFileNames_;
+		return exnodeModelFileNames_;
 	}
 	
+	std::string const& GetExelemFileName() const
+	{
+		static std::string const exelemFileName("GlobalHermiteParam.exelem");
+		return exelemFileName;
+	}
+
 private:
 	
 	static const int NUMBER_OF_NODES = 40; 
@@ -134,10 +140,10 @@ private:
 	
 	gtMatrix patientToGlobalTransform_; // model to world transformation
 	std::string modelName_;
-	std::vector<std::string> modelFileNames_;
+	std::vector<std::string> exnodeModelFileNames_;
 	int numberOfModelFrames_;
 	
-	float focalLength_;
+	double focalLength_;
 	
 	
 	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model

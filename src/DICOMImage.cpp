@@ -22,6 +22,7 @@
 
 #include <string>
 #include <ostream>
+#include <boost/algorithm/string.hpp>
 
 namespace cap
 {
@@ -29,7 +30,9 @@ namespace cap
 using namespace std;
 
 DICOMImage::DICOMImage(const string& filename)
-	: filename_(filename), plane_(0)
+	: filename_(filename),
+	  plane_(0),
+	  isShifted_(false)
 {
 	ReadDICOMFile();
 }
@@ -52,7 +55,7 @@ void DICOMImage::ReadDICOMFile()
 	r.SetFileName( filename_.c_str() );
 	if( !r.Read() )
 	{
-		cout << "Can't find the file: " << filename_ << endl;
+		cout << "Can't read file: " << filename_ << endl;
 		throw std::exception();
 	}
 	
@@ -69,6 +72,9 @@ void DICOMImage::ReadDICOMFile()
 	gdcm::Attribute<0x0008,0x0018> at_sopiuid;
 	at_sopiuid.SetFromDataElement(sopiuid);
 	sopInstanceUID_ = at_sopiuid.GetValue();
+	// gdcm leaves some non alpha numeric characters at the back
+	// get rid of them here
+	boost::trim_right_if(sopInstanceUID_, !boost::is_digit());
 	cout << "UID: " << sopInstanceUID_;
 	cout << endl;
 	
@@ -77,24 +83,24 @@ void DICOMImage::ReadDICOMFile()
 	gdcm::Attribute<0x0020,0x0011> at_sn;
 	at_sn.SetFromDataElement(seriesNum);
 	seriesNumber_ = at_sn.GetValue();
-	cout << "Series Number: " << seriesNumber_;
-	cout << endl;
+//	cout << "Series Number: " << seriesNumber_;
+//	cout << endl;
 	
 	// series description (0008,103e)
 	const gdcm::DataElement& seriesDesc = ds.GetDataElement(gdcm::Tag(0x0008,0x103E));
 	gdcm::Attribute<0x0008,0x103E> at_sd;
 	at_sd.SetFromDataElement(seriesDesc);
 	seriesDescription_ = at_sd.GetValue();
-	cout << "Series Description: " << seriesDescription_;
-	cout << endl;
+//	cout << "Series Description: " << seriesDescription_;
+//	cout << endl;
 	
 	// sequence name (0018,0024)
 	const gdcm::DataElement& seqName = ds.GetDataElement(gdcm::Tag(0x0018,0x0024));
 	gdcm::Attribute<0x0018,0x0024> at_seqName;
 	at_seqName.SetFromDataElement(seqName);
 	sequenceName_ = at_seqName.GetValue();
-	cout << "sequenceName_: " << sequenceName_;
-	cout << endl;
+//	cout << "sequenceName_: " << sequenceName_;
+//	cout << endl;
 	
 	// trigger time trigger time (0018,1060)
 	if (ds.FindDataElement(gdcm::Tag(0x0018,0x1060)))
@@ -103,8 +109,8 @@ void DICOMImage::ReadDICOMFile()
 		gdcm::Attribute<0x0018,0x1060> at_tt;
 		at_tt.SetFromDataElement(triggerTime);
 		triggerTime_ = at_tt.GetValue();
-		cout << "Trigger Time : " << triggerTime_;
-		cout << endl;
+//		cout << "Trigger Time : " << triggerTime_;
+//		cout << endl;
 	}
 	else
 	{
@@ -116,15 +122,15 @@ void DICOMImage::ReadDICOMFile()
 	gdcm::Attribute<0x0028,0x0010> at_rows;
 	at_rows.SetFromDataElement(rows);
 	height_ = at_rows.GetValue();
-	cout << "Rows: " << height_;
-	cout << endl;
+//	cout << "Rows: " << height_;
+//	cout << endl;
 
 	const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
 	gdcm::Attribute<0x0028,0x0011> at_cols;
 	at_cols.SetFromDataElement(cols);
 	width_ = at_cols.GetValue();
-	cout << "Columns: " << width_;
-	cout << endl;
+//	cout << "Columns: " << width_;
+//	cout << endl;
 
 	const gdcm::DataElement& thick = ds.GetDataElement(gdcm::Tag(0x0018,0x0050));
 	gdcm::Attribute<0x0018,0x0050> at_thick;
@@ -227,12 +233,12 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
 	// rather than centre; (0020, 0032) is the centre of the first voxel
 	plane_->tlc = position3D_ - 0.5 * pixelSizeX_ * orientation1_ -  0.5f * pixelSizeY_ * orientation2_;
 
-	float fieldOfViewX = width_ * pixelSizeX_;//JDCHUNG consider name change
+	double fieldOfViewX = width_ * pixelSizeX_;//JDCHUNG consider name change
 	cout << "width in mm = " << fieldOfViewX ;
 	
 	plane_->trc = plane_->tlc + fieldOfViewX * orientation1_;
 
-	float fieldOfViewY = height_ * pixelSizeY_;//JDCHUNG
+	double fieldOfViewY = height_ * pixelSizeY_;//JDCHUNG
 	cout << ", height in mm = " << fieldOfViewY << endl ;
 	
 	plane_->blc = plane_->tlc + fieldOfViewY * orientation2_;
