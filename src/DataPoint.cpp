@@ -18,7 +18,7 @@ extern "C" {
 namespace cap
 {
 
-DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, float time, float weight)
+DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, double time, double weight)
 :
 	cmissNode_(ACCESS(Cmiss_node)(node)),
 	coordinate_(coord),
@@ -46,15 +46,26 @@ DataPoint::DataPoint(const DataPoint& other)
 		
 DataPoint::~DataPoint()
 {
+//	std::cout << __func__ << ": Node id = " << Cmiss_node_get_identifier(cmissNode_) <<
+//			": use count = " << FE_node_get_access_count(cmissNode_) << '\n';
+
+	DecrementCmissNodeObjectCount();
+}
+
+void DataPoint::DecrementCmissNodeObjectCount()
+{
 	if (2 == FE_node_get_access_count(cmissNode_)) // means this is the last reference to the cmiss node
 	{
+//		std::cout << "Cmiss_node use_count = 2\n";
 		FE_region* fe_region = FE_node_get_FE_region(cmissNode_); //REVISE
 		fe_region = FE_region_get_data_FE_region(fe_region);
 		FE_region_remove_FE_node(fe_region, cmissNode_); // access = 1; 
 	}
+//	std::cout << __LINE__ << " : " << FE_node_get_access_count(cmissNode_) << '\n';
 	Cmiss_node_destroy(&cmissNode_);
+//	std::cout << __LINE__ << " : " << FE_node_get_access_count(cmissNode_) << '\n';
 }
-	
+
 const Cmiss_node* DataPoint::GetCmissNode() const
 {
 	return cmissNode_;
@@ -75,14 +86,14 @@ void DataPoint::SetCoordinate(const Point3D& coord)
 	coordinate_ = coord;
 }
 
-float DataPoint::GetTime() const
+double DataPoint::GetTime() const
 {
 	return time_;
 }
 
-void DataPoint::SetValidPeriod(float startTime, float endTime)
+void DataPoint::SetValidPeriod(double startTime, double endTime)
 {
-	const float EPSILON = std::numeric_limits<float>::epsilon();
+	const double EPSILON = std::numeric_limits<double>::epsilon();
 	startTime_ = startTime;
 	endTime_ = endTime - EPSILON;
 }
@@ -128,7 +139,8 @@ std::string DataPoint::GetSliceName() const
 // assignment operator
 DataPoint& DataPoint::operator=(const DataPoint& rhs)
 {
-	DEACCESS(Cmiss_node)(&cmissNode_);
+	DecrementCmissNodeObjectCount();
+
 	cmissNode_ = ACCESS(Cmiss_node)(rhs.cmissNode_);
 	coordinate_ = rhs.coordinate_;
 	time_ = rhs.time_;

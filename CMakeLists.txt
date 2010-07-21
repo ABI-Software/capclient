@@ -20,12 +20,14 @@ ENDIF()
 
 #how to include common.Makefile?
 SET(CMISS_ROOT $ENV{CMISS_ROOT})
+message("CMISS_ROOT = " ${CMISS_ROOT})
+
 IF(APPLE)
   ADD_DEFINITIONS(-DCMGUI -DUNIX -DDARWIN)
   SET(LIB_ARCH_DIR i386-32-darwin)
 ENDIF(APPLE)
 IF(WIN32)
-  ADD_DEFINITIONS(-mno-cygwin -DWIN32)
+  ADD_DEFINITIONS(-mno-cygwin -DWIN32 -DLIBXML_STATIC)
   SET(LIB_ARCH_DIR i386-win32)
 ENDIF(WIN32)
 IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
@@ -37,9 +39,9 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/cmgui/source)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/third_party/${LIB_ARCH_DIR}/include/gdcm-2.0)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/third_party/include/${LIB_ARCH_DIR}/libxml2)
 INCLUDE_DIRECTORIES(${CMISS_ROOT}/gmm-3.1/include)
-INCLUDE_DIRECTORIES(${CMISS_ROOT}/boost_1_38_0)
-INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Utilities/vxl/vcl)
-INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/i386-32-darwin/include/InsightToolkit/Utilities/vxl/core)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/boost)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/${LIB_ARCH_DIR}/include/InsightToolkit/Utilities/vxl/vcl)
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/itk/${LIB_ARCH_DIR}/include/InsightToolkit/Utilities/vxl/core)
 
 SET(SRCS 
   src/MainWindow.cpp
@@ -121,7 +123,7 @@ SET(XML2_PATH ${CMISS_ROOT}/third_party)
 SET(XML2_LIB
   ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a
   ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libz.a
-  -liconv
+#  -liconv
 )
 
 SET(CMGUI_LIB ${CMISS_ROOT}/cmgui/lib/${LIB_ARCH_DIR}/${BUILD_VERSION}/libcmgui.a)
@@ -163,18 +165,21 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 # Unit Testing
 ENABLE_TESTING()
 
-INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest-1.3.0/include )
+INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest/include )
 SET(UNIT_TEST_SRC
   test/UnitTestCAPMath.cpp
   test/UnitTestTotalLeastSquares.cpp
-  test/UnitTestCAPXMLFile.cpp
-  src/CAPXMLFile.cpp
-#  test/UnitTestCAPTimeSmoother.cpp
+#  test/UnitTestCAPXMLFile.cpp
+#  src/CAPXMLFile.cpp
+#  src/CmguiManager.cpp
+#  src/CmguiExtensions.cpp
+#  src/CAPMaterial.cpp
+#  src/DICOMImage.cpp
 )
 
-ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
+#ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
 #ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/test/UnitTest)
 
-SET(GTEST_LIB ${CMISS_ROOT}/gtest-1.3.0/make/gtest_main.a)
-TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
-    ${XML2_LIB} ${ITK_LIB})
+#SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
+#TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
+#    ${XML2_LIB} ${ITK_LIB} ${CMGUI_LIB} ${IMAGEMAGICK_LIB} ${INTERPRETER_LIB} ${wxWidgets_LIBRARIES} ${common_LIBS})

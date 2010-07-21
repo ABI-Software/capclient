@@ -78,7 +78,7 @@ private:
 	//unsigned int numberOfFrames; //redundant
 	
 	bool isVisible_;
-	float time_;
+	double time_;
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiManager const& cmguiManager_;
 	

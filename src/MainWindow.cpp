@@ -61,7 +61,7 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
-	float time = frame->GetCurrentTime(); // TODO REVISE 
+	double time = frame->GetCurrentTime(); // TODO REVISE
 	if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
 	{
 		// Select node or create one
@@ -101,11 +101,11 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 			return 0;
 		}
 		Point3D coords;
-		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
+//		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
 		Cmiss_scene_viewer_id scene_viewer = frame->GetCmissSceneViewer();
 		Cmiss_move_node_to_screen_coords(scene_viewer, selectedNode, x, y, time, coords);
 		
-		cout << "Move coord = " << coords << endl;
+//		cout << "Move coord = " << coords << endl;
 		frame->MoveDataPoint(selectedNode, coords);
 //		frame->RemoveDataPoint(selectedNode);
 //		selectedNode = 0;
@@ -178,7 +178,7 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 				{
 					FE_value x, y, z;
 					FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
-					cout << "before = " << x << ", " << y << ", " << z << endl;
+//					cout << "before = " << x << ", " << y << ", " << z << endl;
 					x += (new_coords[0] - coords[0]);
 					y += (new_coords[1] - coords[1]);
 					z += (new_coords[2] - coords[2]);
@@ -229,6 +229,7 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("MainWindow"));
 	
 	// GUI initialization
+	CreateStatusBar(0);
 
 	// Initialize check box list of scene objects (image slices)
 	objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
@@ -240,33 +241,9 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
-	//Load model
-//	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
-	
-	// Initialize input
-	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
-	
-//	modeller_->InitialiseModel();//REVISE
-	
-//	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0) << endl;
-//	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0) << endl;
-//	
-//	cout << "ES Volume(EPI) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::EPICARDIUM, 0.3) << endl;
-//	cout << "ES Volume(ENDO) = " << heartModel_.ComputeVolume(CAPModelLVPS4X4::ENDOCARDIUM, 0.3) << endl;
-	
-	// Initialize timer for animation
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, 28, 0); // FIX magic number
-	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
-	Time_keeper_set_minimum(timeKeeper_, 0);
-	Time_keeper_set_maximum(timeKeeper_, 1);
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	slider->SetTickFreq(28,0);
-	
-	CreateStatusBar(0);
-	
-//	SetTime(0.0);
-	
 	this->Fit();
+
+	EnterInitState();
 }
 
 MainWindow::~MainWindow()
@@ -275,9 +252,9 @@ MainWindow::~MainWindow()
 	delete modeller_;
 }
 
-float MainWindow::GetCurrentTime() const
+double MainWindow::GetCurrentTime() const
 {
-	return static_cast<float>(Cmiss_time_keeper_get_time(timeKeeper_));
+	return Cmiss_time_keeper_get_time(timeKeeper_);
 }
 
 void MainWindow::AddDataPoint(Cmiss_node* dataPointID, const Point3D& position)
@@ -294,7 +271,7 @@ void MainWindow::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& newPositi
 
 void MainWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 {
-	cout << __func__ << endl;
+//	cout << __func__ << endl;
 	modeller_->RemoveDataPoint(dataPointID, GetCurrentTime());
 	RefreshCmguiCanvas();
 }
@@ -306,6 +283,104 @@ void MainWindow::SmoothAlongTime()
 	
 	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(EPICARDIUM, 0) << endl;
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(ENDOCARDIUM, 0) << endl;
+}
+
+//void DisableWidgetByName(wxWindow& w, std::string const& name)
+//{
+//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
+//	widget->Disable();
+//}
+//
+//void EnableWidgetByName(wxWindow& w, std::string const& name)
+//{
+//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
+//	widget->Enable();
+//}
+
+template <typename Widget>
+Widget* MainWindow::GetWidgetByName(std::string const& name)
+{
+	Widget* widget = XRCCTRL(*this, name.c_str(), Widget);
+	return  widget;
+}
+
+void MainWindow::EnterInitState()
+{
+	// Put the gui in the init state
+	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(false);
+	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(false);
+	GetWidgetByName<wxButton>("PlayButton")->Enable(false);
+	GetWidgetByName<wxButton>("HideShowAll")->Enable(false);
+	GetWidgetByName<wxButton>("HideShowOthers")->Enable(false);
+	GetWidgetByName<wxCheckBox>("MII")->Enable(false);
+	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(false);
+	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(false);
+	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(false);
+	GetWidgetByName<wxChoice>("ModeChoice")->Enable(false);
+	GetWidgetByName<wxButton>("AcceptButton")->Enable(false);
+	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(false);
+
+	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(false);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
+
+	// Initialize input callback
+	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
+
+	// Also clean up cmgui objects such as scene, regions, materials ..etc
+
+	mainWindowState_ = INIT_STATE;
+}
+
+void MainWindow::EnterImagesLoadedState()
+{
+	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
+	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowAll")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowOthers")->Enable(true);
+	GetWidgetByName<wxCheckBox>("MII")->Enable(false);
+	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(false);
+	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(true);
+	GetWidgetByName<wxChoice>("ModeChoice")->Enable(true);
+	GetWidgetByName<wxButton>("AcceptButton")->Enable(true);
+	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(true);
+
+	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
+
+	// Initialize timer for animation
+	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
+	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
+	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
+	Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
+	Time_keeper_set_maximum(timeKeeper_, 1);
+
+	mainWindowState_ = IMAGES_LOADED_STATE;
+}
+
+void MainWindow::EnterModelLoadedState()
+{
+	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
+	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowAll")->Enable(true);
+	GetWidgetByName<wxButton>("HideShowOthers")->Enable(true);
+	GetWidgetByName<wxCheckBox>("MII")->Enable(true);
+	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(true);
+	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(true);
+	GetWidgetByName<wxChoice>("ModeChoice")->Enable(true);
+	GetWidgetByName<wxButton>("AcceptButton")->Enable(true);
+	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(true);
+
+	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
+
+	mainWindowState_ = MODEL_LOADED_STATE;
 }
 
 void MainWindow::OnTogglePlay(wxCommandEvent& event)
@@ -424,10 +499,10 @@ void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	}
 	else
 	{
-		time = prevFrameTime + (float)1/(heartModel_.GetNumberOfModelFrames());
+		time = prevFrameTime + (double)1/(heartModel_.GetNumberOfModelFrames());
 	}
-	slider->SetValue(time * (max - min));
-//	cout << "time = " << time << endl;;	
+	slider->SetValue(static_cast<int>(time * (max - min)));
+//	cout << __func__ << ": time = " << time << endl;;
 //	imageSet_->SetTime(time);
 	time = (time > 0.99) ? 0 : time;
 	
@@ -589,10 +664,10 @@ void MainWindow::RenderIsoSurfaces()
 	Vector3D normalTransformed = m * plane_SA1.normal;
 	
 	Point3D pointTLCTransformed_SA1 = mInv * plane_SA1.tlc;
-	float d_SA1 = DotProduct((pointTLCTransformed_SA1 - Point3D(0,0,0)), normalTransformed);
+	double d_SA1 = DotProduct((pointTLCTransformed_SA1 - Point3D(0,0,0)), normalTransformed);
 	
 	Point3D pointTLCTransformed_SA6 = mInv * plane_SA6.tlc;
-	float d_SA6 = DotProduct((pointTLCTransformed_SA6 - Point3D(0,0,0)), normalTransformed);
+	double d_SA6 = DotProduct((pointTLCTransformed_SA6 - Point3D(0,0,0)), normalTransformed);
 	
 //	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 //				"ISO_SA1" ,
@@ -658,7 +733,7 @@ void MainWindow::UpdateMII() //FIX
 		Cmiss_context_execute_command(context_, str);
 		
 		Point3D pointTLCTransformed = mInv * plane.tlc;
-		float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
+		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
 		heartModel_.UpdateMII(index, d);
 	}
 }
@@ -686,7 +761,7 @@ void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4
 	Cmiss_context_execute_command(context_, str);
 	
 	Point3D pointTLCTransformed = mInv * plane.tlc;
-	float d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
+	double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
 
 	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
 				,sliceName.c_str() ,d);
@@ -763,6 +838,7 @@ void MainWindow::OnAcceptButtonPressed(wxCommandEvent& event)
 		{
 //			InitialiseVolumeGraph();
 			UpdateMII();
+			EnterModelLoadedState();
 		}
 	}
 	
@@ -785,6 +861,8 @@ void MainWindow::OnModellingModeChanged(wxCommandEvent& event)
 	{
 		choice->Delete(i);
 	}
+
+	choice->SetSelection(selectionIndex);
 	RefreshCmguiCanvas();
 }
 
@@ -840,17 +918,30 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 void MainWindow::LoadImages(SlicesWithImages const& slices)
 {
 	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
+	if (slices.empty())
+	{
+		std::cout << "Empty image set.\n";
+		return;
+	}
 
 	if(imageSet_)
 	{
+		imageSet_->SetVisible(false); // HACK should really destroy region
 		delete imageSet_;
 	}
 	imageSet_ = new ImageSet(slices, cmguiManager_);
+	imageSet_->SetVisible(true);//FIXME
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	
-	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR);
+	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
+	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
+	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
+	heartModel_.SetMIIVisibility(false);
+	heartModel_.SetModelVisibility(false);
 	
 	this->PopulateObjectList(); // fill in slice check box list
+
+	EnterImagesLoadedState();
 }
 
 void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
@@ -896,38 +987,93 @@ void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& p
 	{
 		heartModel_.SetMIIVisibility(false);
 	}
+
+	EnterModelLoadedState();
 }
 
 void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
 	wxString currentWorkingDir = wxGetCwd();
 	wxString defaultPath = currentWorkingDir.Append("/Data");
-//	wxString defaultFilename = "";
-//	wxString defaultExtension = "";
-//	wxString wildcard = "";
-//	int flags = wxOPEN;
+	wxString defaultFilename = "";
+	wxString defaultExtension = "xml";
+	wxString wildcard = "";
+	int flags = wxOPEN;
 	
-//	wxString filename = wxFileSelector("Choose a file to open",
-//			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-//	if ( !filename.empty() )
-//	{
-//	    // work with the file
-//	    cout << __func__ << " - File name: " << filename.c_str() << endl;
-//	}
-	
-	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
-	if ( !dirname.empty() )
+	wxString filename = wxFileSelector("Choose a file to open",
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+	if ( !filename.empty() )
 	{
-		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
-		string filename(dirname.c_str());
-		size_t positionOfLastSlash = filename.find_last_of("/\\");
-		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-		string prefix = filename.substr(0, positionOfLastSlash+1); 
-		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
-		
+	    // work with the file
+		cout << __func__ << " - File name: " << filename.c_str() << endl;
+
+		CAPXMLFile xmlFile(filename.c_str());
+		std::cout << "Start reading xml file\n";
+		xmlFile.ReadFile();
+		SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
+		if (slicesWithImages.empty())
+		{
+			std::cout << "Can't locate image files\n";
+			return;
+		}
+
+		// TODO clean up first
+		LoadImages(slicesWithImages);
+
+		std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
+
+		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
+		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size();
+		std::string const& exelemFileName = xmlFile.GetExelemFileName();
+
+
+		//HACK FIXME
+		std::string xmlFilename = filename.c_str();
+		size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
+		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
+		std::cout << "modelFilePath = " << modelFilePath << '\n';
+		positionOfLastSlash = modelFilePath.find_last_of("/\\");
+		string dirOnly = modelFilePath.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
+		string prefix = modelFilePath.substr(0, positionOfLastSlash+1);
+
+		std::cout << __func__ << ", dir = " << dirOnly << ", prefix = " << prefix << '\n';
+		// FIXME heartModel needs to be properly initialised and cleaned up
+		heartModel_.SetFocalLengh(xmlFile.GetFocalLength());
 		LoadHeartModel(dirOnly, prefix);
+		modeller_->SetDataPoints(dataPoints);
+
+		//HACK
+		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+
+		//FIXME
+		const char* ModeStrings[] = {
+				"Apex",
+				"Base",
+				"RV Inserts",
+				"Baseline Points",
+				"Guide Points"
+		};
+		for (size_t i = 1; i < 5; i++)
+		{
+			choice->Append(ModeStrings[i]);
+		}
+		choice->SetSelection(CAPModeller::GUIDEPOINT);
+		RefreshCmguiCanvas();
 	}
+
+//	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
+//	if ( !dirname.empty() )
+//	{
+//		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
+//		string filename(dirname.c_str());
+//		size_t positionOfLastSlash = filename.find_last_of("/\\");
+//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+//		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
+//		string prefix = filename.substr(0, positionOfLastSlash+1);
+//		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
+//
+//		LoadHeartModel(dirOnly, prefix);
+//	}
 }
 
 void MainWindow::OnSave(wxCommandEvent& event)
@@ -940,7 +1086,7 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	
 	wxString dirname = wxFileSelector("Save file",
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if ( !dirname.empty() )
+	if ( !dirname.empty() && mainWindowState_ == MODEL_LOADED_STATE)
 	{
 	    // work with the file
 	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
@@ -1038,6 +1184,20 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
 	
+	//// test
+
+	Cmiss_region_id root = Cmiss_context_get_default_region(context_);
+	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, "/heart/");
+	Cmiss_region_id copy = region;
+	Cmiss_region_remove_child(root, region);
+//	std::cout << "Use_count = " <<
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&copy);
+
+	///////
+
+	return;
+
 	char* file_name = "screen_dump.png";
 	int force_onscreen_flag = 0;
 	int width = 256;
@@ -1189,7 +1349,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(XRCID("QuitMenuItem"),  MainWindow::OnQuit)
 	EVT_MENU(XRCID("AboutMenuItem"), MainWindow::OnAbout)
 	EVT_MENU(XRCID("OpenImagesMenuItem"), MainWindow::OnOpenImages)
-	EVT_MENU(XRCID("OpenMenuItem"), MainWindow::OnOpenModel)
+	EVT_MENU(XRCID("OpenModelMenuItem"), MainWindow::OnOpenModel)
 	EVT_MENU(XRCID("SaveMenuItem"), MainWindow::OnSave)
 	EVT_MENU(XRCID("ExportMenuItem"), MainWindow::OnExportModel)
 	EVT_BUTTON(XRCID("PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)

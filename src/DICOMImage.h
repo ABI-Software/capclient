@@ -30,12 +30,12 @@ public:
 	Vector3D yside;          /**< vector from blc to tlc */
 	
 //	int            imageSize;      /**< also stored in StudyInfo - image square */
-//	float          fieldOfView;    /**< should match length of xside */
-//	float          sliceThickness; /**< may vary between series */
-//	float          sliceGap;       /**< non-zero for short axis only */
-//	float          pixelSizeX_;     /**< in mm, should be square */
-//	float          pixelSizeY_;     /**< in mm, should be square */
-	float d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
+//	double          fieldOfView;    /**< should match length of xside */
+//	double          sliceThickness; /**< may vary between series */
+//	double          sliceGap;       /**< non-zero for short axis only */
+//	double          pixelSizeX_;     /**< in mm, should be square */
+//	double          pixelSizeY_;     /**< in mm, should be square */
+	double d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
 };
 
 class DICOMImage
@@ -149,14 +149,48 @@ public:
 		}
 	}
 	
+	bool IsShifted()const
+	{
+		return isShifted_;
+	}
+
+//	void SetShifted(bool shifted)
+//	{
+//		isShifted_ = shifted;
+//	}
+
+	Point3D const& GetShiftedImagePosition() const
+	{
+		return shiftedPosition_;
+	}
+
+	void SetShiftedImagePosition(Point3D const& p)
+	{
+		isShifted_ = true;
+		shiftedPosition_ = p;
+	}
+
+	std::pair<Vector3D,Vector3D> GetShiftedImageOrientation() const
+	{
+		return std::make_pair(shiftedOrientation1_, shiftedOrientation2_);
+	}
+
+	void SetShiftedImageOrientation(Vector3D const& v1, Vector3D const& v2)
+	{
+		isShifted_ = true;
+		// cosine vectors
+		shiftedOrientation1_ = v1;
+		shiftedOrientation2_ = v2;
+	}
+
 private:
 	void ReadDICOMFile();
 	
 	std::string filename_;
 	unsigned int width_;
 	unsigned int height_;
-	float thickness_;
-	float pixelSizeX_, pixelSizeY_;
+	double thickness_;
+	double pixelSizeX_, pixelSizeY_;
 	
 //	double timeInCardiacCycle;
 	
@@ -169,6 +203,9 @@ private:
 	Point3D position3D_;
 	Vector3D orientation1_, orientation2_;
 	
+	Point3D shiftedPosition_;
+	Vector3D shiftedOrientation1_, shiftedOrientation2_;
+
 	std::string patientName_;
 	std::string patientId_;
 	std::string scanDate_;
@@ -178,6 +215,7 @@ private:
 	
 	mutable ImagePlane* plane_;
 //	Cmiss_texture* texture;
+	bool isShifted_;
 };
 
 } // end namespace cap

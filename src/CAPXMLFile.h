@@ -9,6 +9,7 @@
 #define CAPXMLFILE_H_
 
 #include "CAPTypes.h"
+#include "CAPMath.h"
 
 #include <string>
 #include <vector>
@@ -19,6 +20,9 @@ namespace cap
 
 class CAPModelLVPS4X4;
 class DataPoint;
+class Point3D;
+class Vector3D;
+class CmguiManager;
 
 struct Value
 {
@@ -52,6 +56,8 @@ struct Image
 	int frame;
 	int slice;
 	std::string label;//LA1, SA2 etc
+	std::tr1::shared_ptr<Point3D> imagePosition;
+	std::tr1::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
 };
 
 struct Frame
@@ -80,7 +86,11 @@ struct Input
 
 struct Output
 {
+	double focalLength;
+	double interval;
+	std::string transformationMatrix;
 	std::vector<Frame> frames;
+	std::string elemFileName;
 };
 
 struct Documentation
@@ -96,7 +106,7 @@ public:
 	~CAPXMLFile();// need this so compiler wont generate dtor
 	
 	void ReadFile();
-	void WriteFile(std::string const & filename);
+	void WriteFile(std::string const & filename) const;
 	
 	void AddImage(Image const& image);
 	void AddPointToImage(std::string const& imageSopiuid, Point const& point);
@@ -104,10 +114,35 @@ public:
 	
 	void AddFrame(Frame const& frame);
 	
+
+	/**
+	 *  Populate member fields of CAPXMLFile from infomation obtained from
+	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
+	 *  so an libxml2 tree can be generated and written to a file
+	 */
 	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, 
 							std::vector<DataPoint> const& dataPoints,
 							CAPModelLVPS4X4 const& model);
 	
+	/**
+	 *  Translate the infomation stored in CAPXMLFile into the form to be
+	 *  consumed by the client
+	 *  (i.e SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4)
+	 *  Also generated the instances of DICOMImage, Cmiss_texture,
+	 *  DataPoint (and the Cmiss_node) and the model.
+	 */
+	SlicesWithImages GetSlicesWithImages(CmguiManager const& cmguiManager) const;
+
+	std::vector<DataPoint> GetDataPoints(CmguiManager const& cmguiManager) const;
+
+	std::vector<std::string> GetExnodeFileNames() const;
+
+	std::string const& GetExelemFileName() const;
+
+	void GetTransformationMatrix(gtMatrix& mat) const;
+
+	double GetFocalLength() const;
+
 	std::vector<Image> const& GetImages() const
 	{
 		return input_.images;
@@ -127,8 +162,6 @@ public:
 private:
 	std::string filename_;
 	std::string chamber_; // LV
-	double focalLength_;
-	double interval_;
 	std::string name_; // 
 	std::string studyIUid_; //
 	

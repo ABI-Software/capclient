@@ -109,6 +109,12 @@ namespace cap
 
 std::string const ImageBrowseWindow::IMAGE_PREVIEW = std::string("ImagePreview");
 
+static int dummy_input_callback(struct Scene_viewer *scene_viewer,
+		struct Graphics_buffer_input *input, void *viewer_frame_void)
+{
+	return 0; // returning false means don't call the other input handlers;
+}
+
 ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
 :
 	archiveFilename_(archiveFilename),
@@ -119,11 +125,13 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 {	
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
-	
+	Show(true); // gtk crashes without this
 	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
 	
 	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel, IMAGE_PREVIEW);
+	Cmiss_scene_viewer_add_input_callback(sceneViewer_,
+			dummy_input_callback, (void*)this, 1/*add_first*/);
 
 	LoadImagePlaneModel();
 	ReadInDICOMFiles();
@@ -180,8 +188,16 @@ void ImageBrowseWindow::ReadInDICOMFiles()
 //		std::cout << filename <<'\n';
 		std::string fullpath = dirname + "/" + filename;
 //		std::cout << fullpath <<'\n';
-		DICOMPtr dicomFile(new DICOMImage(fullpath));
-		dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
+		try
+		{
+			DICOMPtr dicomFile(new DICOMImage(fullpath));
+			dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
+		}
+		catch (std::exception& e)
+		{
+			// This is not a DICOM file
+			std::cout << "Invalid DICOM file : " << filename << '\n';
+		}
 		
 		count++;
 		if (!(count % 10))
@@ -329,9 +345,20 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	// Update image preview panel
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	assert(slider);	
-	slider->SetMin(1);
-	slider->SetMax(images.size());
-	slider->SetValue(1);
+	if (images.size() == 1)
+	{
+		// special case where a slice contains only 1 image
+		slider->Enable(false);
+		slider->SetMin(1);
+		slider->SetMax(2); // gtk requires max > min
+	}
+	else
+	{
+		slider->Enable(true);
+		slider->SetMin(1);
+		slider->SetMax(images.size());
+		slider->SetValue(1);
+	}
 	
 	// Resize the rectangular cmgui model
 	// according to the new dimensions
@@ -361,6 +388,9 @@ void ImageBrowseWindow::ResizePreviewImage(int width, int height)
 	FE_node_set_position_cartesian(node, 0, 0.0, height, 0.0);
 	node = Cmiss_region_get_node(region, "4");
 	FE_node_set_position_cartesian(node, 0, width, height, 0.0);
+
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
 }
 
 void ImageBrowseWindow::LoadImagePlaneModel()
@@ -579,28 +609,6 @@ void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 //	std::cout << __func__ << '\n';
 	PutLabelOnSelectedSlice("");
 }
-
-struct SliceInfoSortOrder
-// for sorting SliceInfo's
-{
-	SliceInfoSortOrder()
-	{
-//		std::cout << __func__ << '\n';
-	}
-	
-	bool operator()(const SliceInfo& a, const SliceInfo& b) const
-	{
-		std::string const& x = a.get<0>();
-		std::string const& y = b.get<0>();
-		if (x[0] != y[0])
-		{
-			// this makes sure short axis slices come first
-			return x[0] > y[0];
-		}
-		
-		return std::make_pair(x.length(), x) < std::make_pair(y.length(),y); 
-	}
-};
 
 void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 {
