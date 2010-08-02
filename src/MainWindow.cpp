@@ -35,6 +35,19 @@ extern "C"
 //#include "general/debug.h"
 }
 
+namespace
+{
+
+const char* ModeStrings[] = {
+		"Apex",
+		"Base",
+		"RV Inserts",
+		"Baseplane Points",
+		"Guide Points"
+};//REVISE
+
+}
+
 using namespace std;
 
 namespace cap 
@@ -817,14 +830,6 @@ void MainWindow::OnContrastSliderEvent(wxCommandEvent& event)
 void MainWindow::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
-
-	const char* ModeStrings[] = {
-			"Apex",
-			"Base",
-			"RV Inserts",
-			"Baseline Points",
-			"Guide Points"
-	};//REVISE
 	
 	if (modeller_->OnAccept())
 	{
@@ -1045,14 +1050,6 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		//HACK
 		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 
-		//FIXME
-		const char* ModeStrings[] = {
-				"Apex",
-				"Base",
-				"RV Inserts",
-				"Baseline Points",
-				"Guide Points"
-		};
 		for (size_t i = 1; i < 5; i++)
 		{
 			choice->Append(ModeStrings[i]);
