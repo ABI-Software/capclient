@@ -948,7 +948,7 @@ std::vector<std::string> CAPXMLFile::GetExnodeFileNames() const
 
 double CAPXMLFile::GetFocalLength() const
 {
-	return boost::lexical_cast<double>(output_.focalLength);
+	return output_.focalLength;
 }
 
 void CAPXMLFile::GetTransformationMatrix(gtMatrix& mat) const
