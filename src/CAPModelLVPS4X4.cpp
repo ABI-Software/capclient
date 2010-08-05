@@ -75,7 +75,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	pathStream << prefix << path << "/";// << modelName << "_";// << 
 	string dir_path = pathStream.str();
 
-	ReadModelInfo(dir_path); // this will set numberOfModelFrames, focal length and transformation Matrix 
+//	ReadModelInfo(dir_path); // this will set numberOfModelFrames, focal length and transformation Matrix 
 
 	assert(pImpl_->cmissContext);
 
@@ -250,149 +250,149 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 
 	Cmiss_region_destroy(&root_region);
 
-	// write ModelInfo.txt
-	WriteModelInfo(dirname);
+//	// write ModelInfo.txt
+//	WriteModelInfo(dirname);
 }
 
-void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
-{	
-	string modelInfoFileName(modelInfoFilePath);
-	modelInfoFileName.append("/ModelInfo.txt");
-	ofstream modelInfoFile(modelInfoFileName.c_str());
-	
-	if (!modelInfoFile.is_open())
-	{
-		cout << __func__ << " - Can't open ModelInfo.txt - " << modelInfoFileName << endl;
-		return; // should throw?
-	}
-	
-	modelInfoFile << "NumberOfModelFrames:\n";
-	modelInfoFile << numberOfModelFrames_ << "\n\n";
-	modelInfoFile << "ModelToPatientTransform:\n";
-	modelInfoFile << "a1 ";
-	modelInfoFile << patientToGlobalTransform_[0][0] << "i ";
-	modelInfoFile << patientToGlobalTransform_[0][1] << "j ";
-	modelInfoFile << patientToGlobalTransform_[0][2] << "k\n";
-	modelInfoFile << "a2 ";
-	modelInfoFile << patientToGlobalTransform_[1][0] << "i ";
-	modelInfoFile << patientToGlobalTransform_[1][1] << "j ";
-	modelInfoFile << patientToGlobalTransform_[1][2] << "k\n";
-	modelInfoFile << "a3 ";
-	modelInfoFile << patientToGlobalTransform_[2][0] << "i ";
-	modelInfoFile << patientToGlobalTransform_[2][1] << "j ";
-	modelInfoFile << patientToGlobalTransform_[2][2] << "k\n";
-	modelInfoFile << "t ";
-	modelInfoFile << patientToGlobalTransform_[3][0] << "i ";
-	modelInfoFile << patientToGlobalTransform_[3][1] << "j ";
-	modelInfoFile << patientToGlobalTransform_[3][2] << "k\n";
-	modelInfoFile << "\n";
-	modelInfoFile << "FocalLength\n";
-//	modelInfoFile.precision(15);
-//	modelInfoFile.setf(ios::scientific,ios::floatfield);
-//	modelInfoFile << focalLength_;
-	char buf[256]; // How do we get the same format as printf("%22.15le") in iostream? (cmgui requires it)
-	sprintf((char*)buf, "%22.15le\n", focalLength_);
-	modelInfoFile << buf;
-}
+//void CAPModelLVPS4X4::WriteModelInfo(const std::string& modelInfoFilePath)
+//{	
+//	string modelInfoFileName(modelInfoFilePath);
+//	modelInfoFileName.append("/ModelInfo.txt");
+//	ofstream modelInfoFile(modelInfoFileName.c_str());
+//	
+//	if (!modelInfoFile.is_open())
+//	{
+//		cout << __func__ << " - Can't open ModelInfo.txt - " << modelInfoFileName << endl;
+//		return; // should throw?
+//	}
+//	
+//	modelInfoFile << "NumberOfModelFrames:\n";
+//	modelInfoFile << numberOfModelFrames_ << "\n\n";
+//	modelInfoFile << "ModelToPatientTransform:\n";
+//	modelInfoFile << "a1 ";
+//	modelInfoFile << patientToGlobalTransform_[0][0] << "i ";
+//	modelInfoFile << patientToGlobalTransform_[0][1] << "j ";
+//	modelInfoFile << patientToGlobalTransform_[0][2] << "k\n";
+//	modelInfoFile << "a2 ";
+//	modelInfoFile << patientToGlobalTransform_[1][0] << "i ";
+//	modelInfoFile << patientToGlobalTransform_[1][1] << "j ";
+//	modelInfoFile << patientToGlobalTransform_[1][2] << "k\n";
+//	modelInfoFile << "a3 ";
+//	modelInfoFile << patientToGlobalTransform_[2][0] << "i ";
+//	modelInfoFile << patientToGlobalTransform_[2][1] << "j ";
+//	modelInfoFile << patientToGlobalTransform_[2][2] << "k\n";
+//	modelInfoFile << "t ";
+//	modelInfoFile << patientToGlobalTransform_[3][0] << "i ";
+//	modelInfoFile << patientToGlobalTransform_[3][1] << "j ";
+//	modelInfoFile << patientToGlobalTransform_[3][2] << "k\n";
+//	modelInfoFile << "\n";
+//	modelInfoFile << "FocalLength\n";
+////	modelInfoFile.precision(15);
+////	modelInfoFile.setf(ios::scientific,ios::floatfield);
+////	modelInfoFile << focalLength_;
+//	char buf[256]; // How do we get the same format as printf("%22.15le") in iostream? (cmgui requires it)
+//	sprintf((char*)buf, "%22.15le\n", focalLength_);
+//	modelInfoFile << buf;
+//}
 
-void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
-{
-	string modelInfoFileName(modelInfoFilePath);
-	modelInfoFileName.append("ModelInfo.txt");
-	ifstream modelInfoFile(modelInfoFileName.c_str());
-	
-	if (!modelInfoFile.is_open())
-	{
-		cout << __func__ << " - Can't open ModelInfo.txt - " << modelInfoFileName << endl;
-		return; // should throw?
-	}
-	string line;
-	
-	getline(modelInfoFile, line); // NumberOfModelFrames:
-	cout << line << endl;
-	
-	modelInfoFile >> numberOfModelFrames_;
-	cout << numberOfModelFrames_ <<endl;
-	getline(modelInfoFile, line); //the rest of the line
-	
-	// How to get transformation matrix from the basis vectors of and the translation of the origin
-	//
-	// ii ji ki  0
-	// ij jj kj  0    *  translation
-	// ik jk kk  0
-	//  0  0  0  1
-	// from http://physics.usask.ca/~chang/phys323/notes/lecture1.pdf
-	
-	// Read in model to world coordinate transformation
-
-	getline(modelInfoFile, line); //empty line
-	cout << line << endl;	
-	getline(modelInfoFile, line); //ModelToMagnetTransform:
-	cout << line << endl;	
-	
-	//Point3D i_hat, j_hat, k_hat, translation; //needed for model transformation to world coord
-	//i_hat, j_hat, k_hat =  model coord basis vectors in i, j & k directions
-	//translation = origin translation
-	
-	Point3D i_hat, j_hat, k_hat, translation;
-	modelInfoFile >> i_hat >> j_hat >> k_hat >> translation;
-	
-	cout << "a1 = " << i_hat <<endl;
-	cout << "a2 = " << j_hat <<endl;
-	cout << "a3 = " << k_hat <<endl;
-	cout << "t  = " << translation <<endl;
-	
-	getline(modelInfoFile, line); //empty line
-	cout << line << endl;	
-	getline(modelInfoFile, line); //empty line
-	cout << line << endl;	
-	getline(modelInfoFile, line); //FocalLength:
-	cout << line << endl;
-	double focalLength;
-	modelInfoFile >> focalLength;
-	if (pImpl_->region) //HACK FIXME This should be done by proper clean up of fields and nodes
-	{
-		this->SetFocalLengh(focalLength);
-	}
-	cout << "focal length = " << focalLength_ << endl;
-	
-	Point3D i(1,0,0), j(0,1,0), k(0,0,1); // world coord basis vectors
-	gtMatrix temp;
-	temp[0][0] = DotProduct(i,i_hat);
-	temp[0][1] = DotProduct(j,i_hat);
-	temp[0][2] = DotProduct(k,i_hat);
-
-	temp[1][0] = DotProduct(i,j_hat);
-	temp[1][1] = DotProduct(j,j_hat);
-	temp[1][2] = DotProduct(k,j_hat);
-
-	temp[2][0] = DotProduct(i,k_hat);
-	temp[2][1] = DotProduct(j,k_hat);
-	temp[2][2] = DotProduct(k,k_hat);
-
-	temp[3][0] = translation.x;
-	temp[3][1] = translation.y;
-	temp[3][2] = translation.z;
-
-	patientToGlobalTransform_[0][0]=temp[0][0];
-	patientToGlobalTransform_[0][1]=temp[0][1];
-	patientToGlobalTransform_[0][2]=temp[0][2];
-	patientToGlobalTransform_[0][3]=0; //NB this is the first column not row
-	patientToGlobalTransform_[1][0]=temp[1][0];
-	patientToGlobalTransform_[1][1]=temp[1][1];
-	patientToGlobalTransform_[1][2]=temp[1][2];
-	patientToGlobalTransform_[1][3]=0;
-	patientToGlobalTransform_[2][0]=temp[2][0];
-	patientToGlobalTransform_[2][1]=temp[2][1];
-	patientToGlobalTransform_[2][2]=temp[2][2];
-	patientToGlobalTransform_[2][3]=0;
-	patientToGlobalTransform_[3][0]=temp[3][0];
-	patientToGlobalTransform_[3][1]=temp[3][1];
-	patientToGlobalTransform_[3][2]=temp[3][2];
-	patientToGlobalTransform_[3][3]=1;
-	
-	return;
-}
+//void CAPModelLVPS4X4::ReadModelInfo(const std::string& modelInfoFilePath)
+//{
+//	string modelInfoFileName(modelInfoFilePath);
+//	modelInfoFileName.append("ModelInfo.txt");
+//	ifstream modelInfoFile(modelInfoFileName.c_str());
+//	
+//	if (!modelInfoFile.is_open())
+//	{
+//		cout << __func__ << " - Can't open ModelInfo.txt - " << modelInfoFileName << endl;
+//		return; // should throw?
+//	}
+//	string line;
+//	
+//	getline(modelInfoFile, line); // NumberOfModelFrames:
+//	cout << line << endl;
+//	
+//	modelInfoFile >> numberOfModelFrames_;
+//	cout << numberOfModelFrames_ <<endl;
+//	getline(modelInfoFile, line); //the rest of the line
+//	
+//	// How to get transformation matrix from the basis vectors of and the translation of the origin
+//	//
+//	// ii ji ki  0
+//	// ij jj kj  0    *  translation
+//	// ik jk kk  0
+//	//  0  0  0  1
+//	// from http://physics.usask.ca/~chang/phys323/notes/lecture1.pdf
+//	
+//	// Read in model to world coordinate transformation
+//
+//	getline(modelInfoFile, line); //empty line
+//	cout << line << endl;	
+//	getline(modelInfoFile, line); //ModelToMagnetTransform:
+//	cout << line << endl;	
+//	
+//	//Point3D i_hat, j_hat, k_hat, translation; //needed for model transformation to world coord
+//	//i_hat, j_hat, k_hat =  model coord basis vectors in i, j & k directions
+//	//translation = origin translation
+//	
+//	Point3D i_hat, j_hat, k_hat, translation;
+//	modelInfoFile >> i_hat >> j_hat >> k_hat >> translation;
+//	
+//	cout << "a1 = " << i_hat <<endl;
+//	cout << "a2 = " << j_hat <<endl;
+//	cout << "a3 = " << k_hat <<endl;
+//	cout << "t  = " << translation <<endl;
+//	
+//	getline(modelInfoFile, line); //empty line
+//	cout << line << endl;	
+//	getline(modelInfoFile, line); //empty line
+//	cout << line << endl;	
+//	getline(modelInfoFile, line); //FocalLength:
+//	cout << line << endl;
+//	double focalLength;
+//	modelInfoFile >> focalLength;
+//	if (pImpl_->region) //HACK FIXME This should be done by proper clean up of fields and nodes
+//	{
+//		this->SetFocalLengh(focalLength);
+//	}
+//	cout << "focal length = " << focalLength_ << endl;
+//	
+//	Point3D i(1,0,0), j(0,1,0), k(0,0,1); // world coord basis vectors
+//	gtMatrix temp;
+//	temp[0][0] = DotProduct(i,i_hat);
+//	temp[0][1] = DotProduct(j,i_hat);
+//	temp[0][2] = DotProduct(k,i_hat);
+//
+//	temp[1][0] = DotProduct(i,j_hat);
+//	temp[1][1] = DotProduct(j,j_hat);
+//	temp[1][2] = DotProduct(k,j_hat);
+//
+//	temp[2][0] = DotProduct(i,k_hat);
+//	temp[2][1] = DotProduct(j,k_hat);
+//	temp[2][2] = DotProduct(k,k_hat);
+//
+//	temp[3][0] = translation.x;
+//	temp[3][1] = translation.y;
+//	temp[3][2] = translation.z;
+//
+//	patientToGlobalTransform_[0][0]=temp[0][0];
+//	patientToGlobalTransform_[0][1]=temp[0][1];
+//	patientToGlobalTransform_[0][2]=temp[0][2];
+//	patientToGlobalTransform_[0][3]=0; //NB this is the first column not row
+//	patientToGlobalTransform_[1][0]=temp[1][0];
+//	patientToGlobalTransform_[1][1]=temp[1][1];
+//	patientToGlobalTransform_[1][2]=temp[1][2];
+//	patientToGlobalTransform_[1][3]=0;
+//	patientToGlobalTransform_[2][0]=temp[2][0];
+//	patientToGlobalTransform_[2][1]=temp[2][1];
+//	patientToGlobalTransform_[2][2]=temp[2][2];
+//	patientToGlobalTransform_[2][3]=0;
+//	patientToGlobalTransform_[3][0]=temp[3][0];
+//	patientToGlobalTransform_[3][1]=temp[3][1];
+//	patientToGlobalTransform_[3][2]=temp[3][2];
+//	patientToGlobalTransform_[3][3]=1;
+//	
+//	return;
+//}
 
 void CAPModelLVPS4X4::SetLocalToGlobalTransformation(const gtMatrix& transform)
 {
