@@ -15,7 +15,7 @@
 #include "FileSystem.h"
 
 #include <wx/wx.h>
-#include <wx/dir.h> // FIXME move this out to a separate function/clas
+#include <wx/dir.h> // FIXME move this out to a separate function/class
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -261,7 +261,7 @@ void ReadOutput(Output& output, xmlDocPtr doc, xmlNodePtr cur)
 
 void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 {
-	// Input has no attributes
+	// Documentation has no attributes
 	// Read in Version and History
 	cur = cur->xmlChildrenNode;
 	
@@ -614,7 +614,7 @@ void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& p
 {
 	using boost::bind;
 	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
-					( bind(&Image::sopiuid, _1) == imageSopiuid) );
+					( bind(&Image::sopiuid, _1) == imageSopiuid) ); //FIXME does this predicate actually work????
 	
 	if (itr == input_.images.end())
 	{
@@ -750,7 +750,7 @@ void CAPXMLFile::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
 		std::vector<Image>::iterator image_itr = std::find_if(input_.images.begin(), input_.images.end(),
 				boost::bind(std::equal_to<std::string>() , boost::bind(&Image::sopiuid, _1), sopiuid));
 		assert(image_itr != input_.images.end());
-		image_itr->points.push_back(p);
+		image_itr->points.push_back(p); // FIXME replace with AddPointToImage
 	}
 	
 	// Output
