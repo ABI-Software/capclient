@@ -938,6 +938,21 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 	imageSet_->SetVisible(true);//FIXME
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	
+	//FIXME
+	SlicesWithImages::const_iterator itr = slices.begin();
+	SlicesWithImages::const_iterator end = slices.end();
+	int minNumberOfFrames = itr->get<1>().size();
+	++itr;
+	for (;itr != end; ++itr)
+	{
+		int numberOfFrames =  itr->get<1>().size();
+		if (numberOfFrames < minNumberOfFrames)
+		{
+			minNumberOfFrames = numberOfFrames; 
+		}
+	}
+	
+	heartModel_.SetNumberOfModelFrames(minNumberOfFrames);
 	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
 	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
 	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
@@ -1044,6 +1059,11 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::cout << __func__ << ", dir = " << dirOnly << ", prefix = " << prefix << '\n';
 		// FIXME heartModel needs to be properly initialised and cleaned up
 		heartModel_.SetFocalLengh(xmlFile.GetFocalLength());
+		gtMatrix m;
+		xmlFile.GetTransformationMatrix(m);
+		heartModel_.SetLocalToGlobalTransformation(m);
+		int numberOfModelFrames = exnodeFileNames.size();
+		heartModel_.SetNumberOfModelFrames(numberOfModelFrames);
 		LoadHeartModel(dirOnly, prefix);
 		modeller_->SetDataPoints(dataPoints);
 
@@ -1195,7 +1215,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 
 	return;
 
-	char* file_name = "screen_dump.png";
+	char* file_name = (char*)"screen_dump.png";
 	int force_onscreen_flag = 0;
 	int width = 256;
 	int height = 256;
@@ -1217,7 +1237,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	
 	Cmiss_context_execute_command(context_, "gfx draw as heart group heart scene print_temp");
 	// The above doesn't copy the transformation so it has to be done manually
-	char* scene_object_name = "heart";
+	char* scene_object_name = (char*)"heart";
 	
 	RenderIsoSurfaces();
 		
