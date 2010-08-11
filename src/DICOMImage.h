@@ -189,7 +189,7 @@ private:
 	std::string filename_;
 	unsigned int width_;
 	unsigned int height_;
-	double thickness_;
+//	double thickness_;
 	double pixelSizeX_, pixelSizeY_;
 	
 //	double timeInCardiacCycle;
