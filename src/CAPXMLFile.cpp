@@ -87,22 +87,30 @@ void ReadPoint(Point& point, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Value"))
 		{
-			Value v;
-			using boost::lexical_cast;
-			
-			//value
-			xmlChar* value = xmlGetProp(cur, (xmlChar const*)"value"); 
-//			std::cout << "value = " << value << '\n';
-			v.value = lexical_cast<double>(value);
-			xmlFree(value);
-			
-			//variable
-			xmlChar* variable = xmlGetProp(cur, (xmlChar const*)"variable"); 
-//			std::cout << "variable = " << variable << '\n';
-			v.variable = (char*)variable;
-			xmlFree(variable);
-			
-			point.values.insert(std::make_pair(v.variable,v));
+			xmlNodePtr valueNode = cur->xmlChildrenNode;
+			while(valueNode)
+			{
+				Value v;
+				using boost::lexical_cast;
+				
+				//value
+	//			xmlChar* value = xmlGetProp(cur, (xmlChar const*)"value"); 
+	////			std::cout << "value = " << value << '\n';
+	//			v.value = lexical_cast<double>(value);
+	//			xmlFree(value);
+	//			
+	//			//variable
+	//			xmlChar* variable = xmlGetProp(cur, (xmlChar const*)"variable"); 
+	////			std::cout << "variable = " << variable << '\n';
+	//			v.variable = (char*)variable;
+	//			xmlFree(variable);
+				
+				xmlChar* value = xmlNodeGetContent(valueNode);
+				std::cout << "value = " << value  << '\n';
+				
+				point.values.insert(std::make_pair(v.variable,v));
+				valueNode = valueNode->next;
+			}
 		}
 		cur = cur->next;
 	}
@@ -275,29 +283,29 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 //			std::cout << "date = " << date << '\n';
 			documentation.version.date = (char*)(date);
 			xmlFree(date);
-			//log
-			xmlChar* log = xmlGetProp(cur, (xmlChar const*)"log"); 
-//			std::cout << "log = " << log << '\n';
-			documentation.version.log = (char*)(log);
-			xmlFree(log);
-			//number
-			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number"); 
-//			std::cout << "number = " << number << '\n';
-			documentation.version.number = lexical_cast<int>(number);
-			xmlFree(number);
+//			//log
+//			xmlChar* log = xmlGetProp(cur, (xmlChar const*)"log"); 
+////			std::cout << "log = " << log << '\n';
+//			documentation.version.log = (char*)(log);
+//			xmlFree(log);
+//			//number
+//			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number"); 
+////			std::cout << "number = " << number << '\n';
+//			documentation.version.number = lexical_cast<int>(number);
+//			xmlFree(number);
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"History"))
 		{
 			//date
-			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
+			xmlChar* created = xmlGetProp(cur, (xmlChar const*)"created"); 
 //			std::cout << "date = " << date << '\n';
-			documentation.history.date = (char*)(date);
-			xmlFree(date);
-			//entry
-			xmlChar* entry = xmlGetProp(cur, (xmlChar const*)"entry"); 
-//			std::cout << "entry = " << date << '\n';
-			documentation.history.entry = (char*)(entry);
-			xmlFree(entry);
+//			documentation.history.date = (char*)(date);
+			xmlFree(created);
+//			//entry
+//			xmlChar* entry = xmlGetProp(cur, (xmlChar const*)"entry"); 
+////			std::cout << "entry = " << date << '\n';
+//			documentation.history.entry = (char*)(entry);
+//			xmlFree(entry);
 		}
 		
 		cur = cur->next;
@@ -576,13 +584,13 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	xmlNodePtr documentation = xmlNewChild(root_node, NULL, BAD_CAST "Documentation", NULL);
 	xmlNodePtr version = xmlNewChild(documentation, NULL, BAD_CAST "Version", NULL);
 	xmlNewProp(version, BAD_CAST "date", BAD_CAST documentation_.version.date.c_str());
-	xmlNewProp(version, BAD_CAST "log", BAD_CAST documentation_.version.log.c_str());
-	std::string numberStr(boost::lexical_cast<std::string>(documentation_.version.number));
-	xmlNewProp(version, BAD_CAST "number", BAD_CAST numberStr.c_str());
+//	xmlNewProp(version, BAD_CAST "log", BAD_CAST documentation_.version.log.c_str());
+//	std::string numberStr(boost::lexical_cast<std::string>(documentation_.version.number));
+//	xmlNewProp(version, BAD_CAST "number", BAD_CAST numberStr.c_str());
 	
 	xmlNodePtr history = xmlNewChild(documentation, NULL, BAD_CAST "History", NULL);
-	xmlNewProp(history, BAD_CAST "date", BAD_CAST documentation_.history.date.c_str());
-	xmlNewProp(history, BAD_CAST "entry", BAD_CAST documentation_.history.entry.c_str());
+//	xmlNewProp(history, BAD_CAST "date", BAD_CAST documentation_.history.date.c_str());
+//	xmlNewProp(history, BAD_CAST "entry", BAD_CAST documentation_.history.entry.c_str());
 
 	/* 
 	 * Dumping document to stdio or file
