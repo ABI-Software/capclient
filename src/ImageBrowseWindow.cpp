@@ -89,7 +89,7 @@ std::vector<std::string> EnumerateAllFiles(const std::string& dirname)
 	vector<string> filenames;
 	wxString filename;
 
-	bool cont = dir.GetFirst(&filename, "*.dcm", wxDIR_FILES);
+	bool cont = dir.GetFirst(&filename, "", wxDIR_FILES);
 	while ( cont )
 	{
 		printf("%s\n", filename.c_str());
@@ -134,10 +134,16 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 			dummy_input_callback, (void*)this, 1/*add_first*/);
 
 	LoadImagePlaneModel();
-	ReadInDICOMFiles();
-	CreateTexturesFromDICOMFiles();
-	
-	PopulateImageTable();
+	ReadInDICOMFiles(); // This reads the dicom header and populates dicomFileTable_
+	if (dicomFileTable_.empty())
+	{
+		std::cout << "No valid DICOM files were found here\n";
+	}
+	else
+	{
+		CreateTexturesFromDICOMFiles();
+		PopulateImageTable();
+	}
 	
 	// Finally fit the window to meet the size requirements of its children
 	// this also forces the cmgui panel to display correctly
@@ -652,7 +658,7 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 	if (shortAxisCount >= 14)
 	{
 		std::cout << "TOO MANY SHORT AXES\n";
-		wxMessageBox("Too many long axes slices", "Invalid selection",
+		wxMessageBox("Too many short axes slices", "Invalid selection",
 				wxOK, this);
 		return;
 	}
