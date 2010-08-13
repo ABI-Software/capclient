@@ -61,6 +61,7 @@ CAPModelLVPS4X4::~CAPModelLVPS4X4()
 
 using namespace std;
 
+//int CAPModelLVPS4X4::ReadModelFromFiles()
 int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::string& prefix)
 {	
 //	if (pImpl_->region) //REVISE 1. too procedural 2. remove prefix
@@ -75,24 +76,21 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	pathStream << prefix << path << "/";// << modelName << "_";// << 
 	string dir_path = pathStream.str();
 
-//	ReadModelInfo(dir_path); // this will set numberOfModelFrames, focal length and transformation Matrix 
-
 	assert(pImpl_->cmissContext);
 
 	Cmiss_region* region = Cmiss_context_get_default_region(pImpl_->cmissContext);
 	struct Time_keeper* time_keeper = Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);
 	
+	std::vector<std::string> modelFilenames;
+	for (int i = 0; i<numberOfModelFrames_; i++)
+	{
+		stringstream filenameStream;
+		filenameStream << path << "_" << i+1 << ".model.exnode" ;
+		modelFilenames.push_back(filenameStream.str());
+	}
 	for (int i = 0; i<numberOfModelFrames_; i++)
 	{		
-		stringstream filenameStream;
-		filenameStream << dir_path << path << "_" << i+1 << ".model.exnode" ;
-		
-		// lifetime of temporaries bound to a reference = lifetime of the reference 
-		// note that temporaries can only be bound to const references !
-		const string& filenameString = filenameStream.str();
-		// Note that with RVO, the above statement is the same as
-		// string filenameString = filenameStream.str(); 
-		
+		string filenameString = dir_path + modelFilenames.at(i);
 		char* filename = const_cast<char*>(filenameString.c_str());
 		//DEBUG
 		//cout << "DEBUG: i = " << i << ", filename = " << filename << endl;
