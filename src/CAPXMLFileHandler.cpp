@@ -174,10 +174,11 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 	// assume the model files are sorted by the frame number
 	for (size_t i = 0; i < modelFiles.size(); i++)
 	{
-		CAPXMLFile::Frame frame;
-		frame.exnode = modelFiles[i];
-		frame.number = i;
-		output.frames.push_back(frame);
+		CAPXMLFile::Exnode exnode;
+		exnode.exnode = modelFiles[i];
+		exnode.frame = i;
+//		output.exnodes.push_back(frame);
+		xmlFile_.AddExnode(exnode);
 	}
 }
 

@@ -86,7 +86,7 @@ void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 	while (cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Value"))
-		{
+		{	
 			CAPXMLFile::Value v;
 			
 			//variable
@@ -95,19 +95,15 @@ void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 			v.variable = (char*)variable;
 			xmlFree(variable);
 			
-			xmlNodePtr valueNode = cur->xmlChildrenNode;
-			if(valueNode)
-			{
-				using boost::lexical_cast;
+			using boost::lexical_cast;
 				
-				//value
-				xmlChar* value = xmlNodeGetContent(valueNode);
-				std::cout << "value = " << value  << '\n';
-				v.value = lexical_cast<double>(value);
-				xmlFree(value);
-				
-				point.values.insert(std::make_pair(v.variable,v));
-			}
+			//value
+			xmlChar* value = xmlNodeGetContent(cur);
+			std::cout << "value = " << value  << '\n';
+			v.value = lexical_cast<double>(value);
+			xmlFree(value);
+			
+			point.values.insert(std::make_pair(v.variable,v));
 		}
 		cur = cur->next;
 	}
@@ -164,44 +160,44 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImagePosition"))
 		{
-			//TODO
-//			xmlChar* x = xmlGetProp(child, (xmlChar const*)"x");
-////			std::cout << "x = " << (char*)x << '\n';
-//			xmlChar* y = xmlGetProp(child, (xmlChar const*)"y");
-//			xmlChar* z = xmlGetProp(child, (xmlChar const*)"z");
-//			image.imagePosition = boost::make_shared<Point3D>(
-//						boost::lexical_cast<double>((char*)x),
-//						boost::lexical_cast<double>((char*)y),
-//						boost::lexical_cast<double>((char*)z)
-//						);
+			xmlNodePtr valueNode = child->xmlChildrenNode;
+			std::map<std::string, std::string> valueMap;
+			while (valueNode)
+			{
+				xmlChar* value = xmlNodeGetContent(valueNode);
+//				std::cout << valueNode->name << " = " << (char*) value << '\n';
+				valueMap[std::string((char*)valueNode->name)] = (char*)value;
+				xmlFree(value);
+				valueNode = valueNode->next;
+			}
+			image.imagePosition = boost::make_shared<Point3D>(
+					boost::lexical_cast<double>(valueMap["x"]),
+					boost::lexical_cast<double>(valueMap["y"]),
+					boost::lexical_cast<double>(valueMap["z"]));
 ////			std::cout << "imagePosition.x = " << image.imagePosition->x << std::endl;
 		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImageOrientation"))
 		{
-			//TODO
-//			xmlNodePtr valueNode = child->xmlChildrenNode;
-//			if (valueNode)
-//			{
-//				xmlChar* Xx = xmlGetProp(child, (xmlChar const*)"Xx");
-//				xmlChar* Xy = xmlGetProp(child, (xmlChar const*)"Xy");
-//				xmlChar* Xz = xmlGetProp(child, (xmlChar const*)"Xz");
-//				Vector3D orientationVector1(
-//							boost::lexical_cast<double>((char*)Xx),
-//							boost::lexical_cast<double>((char*)Xy),
-//							boost::lexical_cast<double>((char*)Xz)
-//							);
-//				xmlChar* Yx = xmlGetProp(child, (xmlChar const*)"Yx");
-//				xmlChar* Yy = xmlGetProp(child, (xmlChar const*)"Yy");
-//				xmlChar* Yz = xmlGetProp(child, (xmlChar const*)"Yz");
-//				Vector3D orientationVector2(
-//							boost::lexical_cast<double>((char*)Yx),
-//							boost::lexical_cast<double>((char*)Yy),
-//							boost::lexical_cast<double>((char*)Yz)
-//							);
-//			}
-//
-//			image.imageOrientation = boost::make_shared<std::pair<Vector3D, Vector3D> >
-//						(orientationVector1, orientationVector2);
+			xmlNodePtr valueNode = child->xmlChildrenNode;
+			std::map<std::string, std::string> valueMap;
+			while (valueNode)
+			{
+				xmlChar* value = xmlNodeGetContent(valueNode);
+				valueMap[std::string((char*)valueNode->name)] = (char*)value;
+				xmlFree(value);
+				valueNode = valueNode->next;
+			}
+			Vector3D orientationVector1(
+					boost::lexical_cast<double>(valueMap["Xx"]),
+					boost::lexical_cast<double>(valueMap["Xy"]),
+					boost::lexical_cast<double>(valueMap["Xz"]));
+			Vector3D orientationVector2(
+					boost::lexical_cast<double>(valueMap["Yx"]),
+					boost::lexical_cast<double>(valueMap["Yy"]),
+					boost::lexical_cast<double>(valueMap["Yz"]));
+
+			image.imageOrientation = boost::make_shared<std::pair<Vector3D, Vector3D> >
+						(orientationVector1, orientationVector2);
 		}
 
 		child = child->next;
@@ -234,23 +230,22 @@ void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
 	
 	while(cur)
 	{
-		if (!xmlStrcmp(cur->name, (const xmlChar *)"Frame"))
+		if (!xmlStrcmp(cur->name, (const xmlChar *)"Exnode"))
 		{
-			//TODO
-////			std::cout << (char*)cur->name << std::endl;
-//			Frame frame;
-//			//exnode
-//			xmlChar* exnode = xmlGetProp(cur, (xmlChar const*)"exnode");
-////			std::cout << "exnode = " << exnode << '\n';
-//			frame.exnode = (char*)exnode;
-//			xmlFree(exnode);
-//			//number
-//			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
-////			std::cout << "number = " << number << '\n';
-//			frame.number = boost::lexical_cast<int>(number);
-//			xmlFree(number);
-//			
-//			output.frames.push_back(frame);
+//			std::cout << (char*)cur->name << std::endl;
+			CAPXMLFile::Exnode exnode;
+			//exnode
+			xmlChar* exnodeFilename = xmlNodeGetContent(cur);
+//			std::cout << "exnode = " << exnode << '\n';
+			exnode.exnode = (char*)exnodeFilename;
+			xmlFree(exnodeFilename);
+			//frame number
+			xmlChar* frame = xmlGetProp(cur, (xmlChar const*)"frame");
+//			std::cout << "frame = " << frame << '\n';
+			exnode.frame = boost::lexical_cast<int>(frame);
+			xmlFree(frame);
+			
+			output.exnodes.push_back(exnode);
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Exelem"))
 		{
@@ -264,10 +259,10 @@ void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
 	}
 
 //	std::cout << "sorting" << std::endl;;
-	std::sort(output.frames.begin(), output.frames.end(),
+	std::sort(output.exnodes.begin(), output.exnodes.end(),
 			boost::bind(std::less<int>(),
-				boost::bind(&CAPXMLFile::Frame::number, _1),
-				boost::bind(&CAPXMLFile::Frame::number, _2)));
+				boost::bind(&CAPXMLFile::Exnode::frame, _1),
+				boost::bind(&CAPXMLFile::Exnode::frame, _2)));
 //	std::cout << "sorted" << std::endl;
 }
 
@@ -324,8 +319,7 @@ void ConstructValueNode(std::pair<std::string, CAPXMLFile::Value> const &valuePa
 	xmlNodePtr valueNode = xmlNewChild(pointNode, NULL, BAD_CAST "Value", NULL);
 	
 	std::string valueStr = boost::lexical_cast<std::string>(value.value);
-	//TODO
-//	xmlNewProp(valueNode, BAD_CAST "value", BAD_CAST valueStr.c_str());
+	xmlNodeSetContent(valueNode, BAD_CAST valueStr.c_str());
 	xmlNewProp(valueNode, BAD_CAST "variable", BAD_CAST value.variable.c_str());
 }
 
@@ -401,34 +395,32 @@ void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 	
 	if (image.imagePosition)
 	{
-		//TODO
-//		xmlNodePtr node = xmlNewChild(imageNode, NULL, BAD_CAST "ImagePosition", NULL);
-//		xmlNewProp(node, BAD_CAST "x",
-//			BAD_CAST boost::lexical_cast<std::string>(image.imagePosition->x).c_str());
-//		xmlNewProp(node, BAD_CAST "y",
-//			BAD_CAST boost::lexical_cast<std::string>(image.imagePosition->y).c_str());
-//		xmlNewProp(node, BAD_CAST "z",
-//			BAD_CAST boost::lexical_cast<std::string>(image.imagePosition->z).c_str());
+		xmlNodePtr node = xmlNewChild(imageNode, NULL, BAD_CAST "ImagePosition", NULL);
+		xmlNewChild(node, NULL, BAD_CAST "x",
+			BAD_CAST boost::lexical_cast<std::string>(image.imagePosition->x).c_str());
+		xmlNewChild(node, NULL, BAD_CAST "y",
+			BAD_CAST boost::lexical_cast<std::string>(image.imagePosition->y).c_str());
+		xmlNewChild(node, NULL, BAD_CAST "z",
+			BAD_CAST boost::lexical_cast<std::string>(image.imagePosition->z).c_str());
 	}
 	if (image.imageOrientation)
 	{
-		//TODO
-//		xmlNodePtr node = xmlNewChild(imageNode, NULL, BAD_CAST "ImageOrientation", NULL);
-//		Vector3D const& v1 = image.imageOrientation->first;
-//		xmlNewProp(node, BAD_CAST "Xx",
-//			BAD_CAST boost::lexical_cast<std::string>(v1.x).c_str());
-//		xmlNewProp(node, BAD_CAST "Xy",
-//			BAD_CAST boost::lexical_cast<std::string>(v1.y).c_str());
-//		xmlNewProp(node, BAD_CAST "Xz",
-//			BAD_CAST boost::lexical_cast<std::string>(v1.z).c_str());
-//
-//		Vector3D const& v2 = image.imageOrientation->second;
-//		xmlNewProp(node, BAD_CAST "Yx",
-//			BAD_CAST boost::lexical_cast<std::string>(v2.x).c_str());
-//		xmlNewProp(node, BAD_CAST "Yy",
-//			BAD_CAST boost::lexical_cast<std::string>(v2.y).c_str());
-//		xmlNewProp(node, BAD_CAST "Yz",
-//			BAD_CAST boost::lexical_cast<std::string>(v2.z).c_str());
+		xmlNodePtr node = xmlNewChild(imageNode, NULL, BAD_CAST "ImageOrientation", NULL);
+		Vector3D const& v1 = image.imageOrientation->first;
+		xmlNewChild(node, NULL, BAD_CAST "Xx",
+			BAD_CAST boost::lexical_cast<std::string>(v1.x).c_str());
+		xmlNewChild(node, NULL, BAD_CAST "Xy",
+			BAD_CAST boost::lexical_cast<std::string>(v1.y).c_str());
+		xmlNewChild(node, NULL, BAD_CAST "Xz",
+			BAD_CAST boost::lexical_cast<std::string>(v1.z).c_str());
+
+		Vector3D const& v2 = image.imageOrientation->second;
+		xmlNewChild(node, NULL, BAD_CAST "Yx",
+			BAD_CAST boost::lexical_cast<std::string>(v2.x).c_str());
+		xmlNewChild(node, NULL, BAD_CAST "Yy",
+			BAD_CAST boost::lexical_cast<std::string>(v2.y).c_str());
+		xmlNewChild(node, NULL, BAD_CAST "Yz",
+			BAD_CAST boost::lexical_cast<std::string>(v2.z).c_str());
 	}
 
 	std::for_each(image.points.begin(), image.points.end(), 
@@ -438,13 +430,11 @@ void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 			boost::bind(ConstructContourFileNode, _1, imageNode));
 }
 
-void ConstructFrameNode(CAPXMLFile::Frame const &frame, xmlNodePtr output)
+void ConstructExnodeNode(CAPXMLFile::Exnode const &exnode, xmlNodePtr output)
 {
-	//TODO
-//	xmlNodePtr frameNode = xmlNewChild(output, NULL, BAD_CAST "Frame", NULL);
-//	xmlNewProp(frameNode, BAD_CAST "exnode", BAD_CAST frame.exnode.c_str());
-//	std::string numberStr(boost::lexical_cast<std::string>(frame.number));
-//	xmlNewProp(frameNode, BAD_CAST "number", BAD_CAST numberStr.c_str());
+	xmlNodePtr frameNode = xmlNewChild(output, NULL, BAD_CAST "Exnode", BAD_CAST exnode.exnode.c_str());
+	std::string frameStr(boost::lexical_cast<std::string>(exnode.frame));
+	xmlNewProp(frameNode, BAD_CAST "frame", BAD_CAST frameStr.c_str());
 }
 
 } // end unnamed namespace
@@ -587,8 +577,8 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	xmlNewProp(outputNode, BAD_CAST "transformation_matrix", BAD_CAST output_.transformationMatrix.c_str());
 	xmlNodePtr exelemNode = xmlNewChild(outputNode, NULL, BAD_CAST "Exelem",
 			BAD_CAST output_.elemFileName.c_str());
-	std::for_each(output_.frames.begin(), output_.frames.end(),
-			boost::bind(ConstructFrameNode, _1, outputNode));
+	std::for_each(output_.exnodes.begin(), output_.exnodes.end(),
+			boost::bind(ConstructExnodeNode, _1, outputNode));
 	
 	//Documentation
 	xmlNodePtr documentation = xmlNewChild(root_node, NULL, BAD_CAST "Documentation", NULL);
@@ -657,10 +647,10 @@ void CAPXMLFile::AddContourFileToImage(std::string const& imageSopiuid, ContourF
 	itr->countourFiles.push_back(contourFile);
 }
 
-//void CAPXMLFile::AddFrame(Frame const& frame)
-//{
-//	output_.frames.push_back(frame);
-//}
+void CAPXMLFile::AddExnode(Exnode const& exnode)
+{
+	output_.exnodes.push_back(exnode);
+}
 
 std::string const& CAPXMLFile::GetExelemFileName() const
 {
@@ -671,8 +661,8 @@ std::vector<std::string> CAPXMLFile::GetExnodeFileNames() const
 {
 	std::vector<std::string> names;
 	// frames are sorted when they are read in from file.
-	std::transform(output_.frames.begin(), output_.frames.end(),
-			std::back_inserter(names), boost::bind(&Frame::exnode, _1));
+	std::transform(output_.exnodes.begin(), output_.exnodes.end(),
+			std::back_inserter(names), boost::bind(&Exnode::exnode, _1));
 	return names;
 }
 

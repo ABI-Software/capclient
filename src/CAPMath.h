@@ -155,6 +155,14 @@ public:
 	friend std::ostream& operator<<(std::ostream &_os, const Point3D &val);
 };
 
+template <class Type3D>
+bool operator==(Type3D const& a, Type3D const& b)
+{
+	if (a.x == b.x && a.y == b.y && a.z == b.z)
+		return true;
+	return false;
+}
+
 inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes translation
 {
 	Point3D r;

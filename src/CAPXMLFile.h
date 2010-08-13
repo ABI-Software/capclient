@@ -63,23 +63,23 @@ public:
 		std::tr1::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
 	};
 
-	struct Frame
+	struct Exnode
 	{
 		std::string exnode;
-		int number;
+		int frame;
 	};
 
 	struct Version
 	{
 		int number;
 		std::string date;
-		std::string log;
+//		std::string log;
 	};
 
 	struct History
 	{
 		std::string entry;
-		std::string date;
+//		std::string date;
 	};
 
 	struct Input
@@ -92,7 +92,7 @@ public:
 		double focalLength;
 		double interval;
 		std::string transformationMatrix;
-		std::vector<Frame> frames;
+		std::vector<Exnode> exnodes;
 		std::string elemFileName;
 	};
 
@@ -112,7 +112,7 @@ public:
 	void AddPointToImage(std::string const& imageSopiuid, Point const& point);
 	void AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile);
 	
-	void AddFrame(Frame const& frame);
+	void AddExnode(Exnode const& exnode);
 	
 
 //	/**
@@ -151,7 +151,8 @@ public:
 	void Clear()
 	{
 		input_.images.clear();
-		output_.frames.clear();
+		output_.exnodes.clear();
+		output_.elemFileName = "";
 	}
 	
 	std::string const& GetName() const
