@@ -24,84 +24,84 @@ class Point3D;
 class Vector3D;
 class CmguiManager;
 
-struct Value
-{
-	double value;
-	std::string variable; // lambda, mu, theta or x, y, z
-};
-
-//struct Surface // consider enum?
-//{
-//	static std::string const EPI;
-//	static std::string const ENDO;
-//};
-
-struct Point
-{
-	std::map<std::string, Value> values;
-	SurfaceType surface;
-	DataPointType type;
-};
-
-struct ContourFile
-{
-	std::string fileName;
-};
-
-struct Image
-{
-	std::vector<Point> points;
-	std::vector<ContourFile> countourFiles;
-	std::string sopiuid;
-	int frame;
-	int slice;
-	std::string label;//LA1, SA2 etc
-	std::tr1::shared_ptr<Point3D> imagePosition;
-	std::tr1::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
-};
-
-struct Frame
-{
-	std::string exnode;
-	int number;
-};
-
-struct Version
-{
-	int number;
-	std::string date;
-	std::string log;
-};
-
-struct History
-{
-	std::string entry;
-	std::string date;
-};
-
-struct CAPXMLInput
-{
-	std::vector<Image> images;
-};
-
-struct CAPXMLOutput
-{
-	double focalLength;
-	double interval;
-	std::string transformationMatrix;
-	std::vector<Frame> frames;
-	std::string elemFileName;
-};
-
-struct Documentation
-{
-	Version version;
-	History history;
-};
-
 class CAPXMLFile
 {
 public:
+	struct Value
+	{
+		double value;
+		std::string variable; // lambda, mu, theta or x, y, z
+	};
+
+	//struct Surface // consider enum?
+	//{
+	//	static std::string const EPI;
+	//	static std::string const ENDO;
+	//};
+
+	struct Point
+	{
+		std::map<std::string, Value> values;
+		SurfaceType surface;
+		DataPointType type;
+	};
+
+	struct ContourFile
+	{
+		std::string fileName;
+	};
+
+	struct Image
+	{
+		std::vector<Point> points;
+		std::vector<ContourFile> countourFiles;
+		std::string sopiuid;
+		int frame;
+		int slice;
+		std::string label;//LA1, SA2 etc
+		std::tr1::shared_ptr<Point3D> imagePosition;
+		std::tr1::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
+	};
+
+	struct Frame
+	{
+		std::string exnode;
+		int number;
+	};
+
+	struct Version
+	{
+		int number;
+		std::string date;
+		std::string log;
+	};
+
+	struct History
+	{
+		std::string entry;
+		std::string date;
+	};
+
+	struct Input
+	{
+		std::vector<Image> images;
+	};
+
+	struct Output
+	{
+		double focalLength;
+		double interval;
+		std::string transformationMatrix;
+		std::vector<Frame> frames;
+		std::string elemFileName;
+	};
+
+	struct Documentation
+	{
+		Version version;
+		History history;
+	};
+	
 	explicit CAPXMLFile(std::string const & filename);
 	~CAPXMLFile();// need this so compiler wont generate dtor
 	
@@ -194,12 +194,12 @@ public:
 		studyIUid_ = uid;
 	}
 	
-	CAPXMLInput& GetInput()
+	Input& GetInput()
 	{
 		return input_;
 	}
 	
-	CAPXMLOutput& GetOutput()
+	Output& GetOutput()
 	{
 		return output_;
 	}
@@ -225,8 +225,8 @@ private:
 	//   version
 	//   history
 
-	CAPXMLInput input_;
-	CAPXMLOutput output_;
+	Input input_;
+	Output output_;
 	Documentation documentation_;
 };
 

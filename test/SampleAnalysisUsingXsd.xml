@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cap:Analysis chamber="LV" name="" studyiuid="" xmlns:cap="http://www.cardiacatlas.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
+<cap:Analysis chamber="LV" name="SampleAnalysisUsingXsd" studyiuid="2.16.124.113543.6006.99.03832048922002137666" xmlns:cap="http://www.cardiacatlas.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
   <cap:Input>
     <cap:Image frame="0" label="" slice="0" sopiuid="">
       <cap:Point surface="" type="apex">

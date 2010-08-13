@@ -88,7 +88,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		int frame = 0;
 		BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
 		{
-			Image image;
+			CAPXMLFile::Image image;
 			image.sopiuid = dicomFile->GetSopInstanceUID();
 			image.label = label;
 			image.frame = frame++;
@@ -115,15 +115,15 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 	
 	BOOST_FOREACH(DataPoint const& dataPoint, dataPoints)
 	{	
-		Point p;
+		CAPXMLFile::Point p;
 		p.surface = dataPoint.GetSurfaceType();
 		p.type = dataPoint.GetDataPointType();
 		Point3D const& coord = dataPoint.GetCoordinate();
-		Value x = {coord.x, "x"};
+		CAPXMLFile::Value x = {coord.x, "x"};
 		p.values["x"] = x; //REVISE
-		Value y = {coord.y, "y"};
+		CAPXMLFile::Value y = {coord.y, "y"};
 		p.values["y"] = y;
-		Value z = {coord.z, "z"};
+		CAPXMLFile::Value z = {coord.z, "z"};
 		p.values["z"] = z;
 		
 		std::string const& sliceName = dataPoint.GetSliceName();
@@ -149,15 +149,15 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		size_t frameNumber = std::min(frame, numFrames);
 		std::string sopiuid = dicomFilesWithMatchingSliceName.at(frameNumber)->GetSopInstanceUID();
 		
-		CAPXMLInput& input = xmlFile_.GetInput();
-		std::vector<Image>::iterator image_itr = std::find_if(input.images.begin(), input.images.end(),
-				boost::bind(std::equal_to<std::string>() , boost::bind(&Image::sopiuid, _1), sopiuid));
+		CAPXMLFile::Input& input = xmlFile_.GetInput();
+		std::vector<CAPXMLFile::Image>::iterator image_itr = std::find_if(input.images.begin(), input.images.end(),
+				boost::bind(std::equal_to<std::string>() , boost::bind(&CAPXMLFile::Image::sopiuid, _1), sopiuid));
 		assert(image_itr != input.images.end());
 		image_itr->points.push_back(p); // FIXME replace with AddPointToImage
 	}
 	
-	// CAPXMLOutput
-	CAPXMLOutput& output = xmlFile_.GetOutput();
+	// Output
+	CAPXMLFile::Output& output = xmlFile_.GetOutput();
 	output.elemFileName = heartModel.GetExelemFileName();
 	output.focalLength = heartModel.GetFocalLength();
 	output.interval = 1.0/heartModel.GetNumberOfModelFrames();// 1.0 = 1 cardiac cycle (normalised) - FIX
@@ -174,7 +174,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 	// assume the model files are sorted by the frame number
 	for (size_t i = 0; i < modelFiles.size(); i++)
 	{
-		Frame frame;
+		CAPXMLFile::Frame frame;
 		frame.exnode = modelFiles[i];
 		frame.number = i;
 		output.frames.push_back(frame);
@@ -223,8 +223,8 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 	// Populate SlicesWithImages
 	typedef std::map<std::string, std::vector<DICOMPtr> > DICOMImageMapWithSliceNameAsKey;
 	DICOMImageMapWithSliceNameAsKey dicomMap;
-	CAPXMLInput& input = xmlFile_.GetInput();
-	BOOST_FOREACH(Image const& image, input.images)
+	CAPXMLFile::Input& input = xmlFile_.GetInput();
+	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
 		HashTable::const_iterator filenameItr = uidToFilenameMap.find(image.sopiuid);
 		while (filenameItr == uidToFilenameMap.end())
@@ -293,8 +293,8 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager const& cmguiManager) const
 {
 	std::map<std::string, size_t> labelToNumframesMap;
-	CAPXMLInput& input = xmlFile_.GetInput();
-	BOOST_FOREACH(Image const& image, input.images)
+	CAPXMLFile::Input& input = xmlFile_.GetInput();
+	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
 		std::map<std::string, size_t>::iterator itr = labelToNumframesMap.find(image.label);
 		if (itr == labelToNumframesMap.end())
@@ -311,12 +311,12 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager const& cmgu
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
 	assert(root_region);
 	std::vector<DataPoint> dataPoints;
-	BOOST_FOREACH(Image const& image, input.images)
+	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
 		double numFrames = static_cast<double>(labelToNumframesMap[image.label]);
 
 		Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());
-		BOOST_FOREACH(Point const& p, image.points)
+		BOOST_FOREACH(CAPXMLFile::Point const& p, image.points)
 		{
 			double coords[3];
 			coords[0] = (*p.values.find("x")).second.value;
