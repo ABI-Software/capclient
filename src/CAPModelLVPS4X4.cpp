@@ -65,7 +65,7 @@ using namespace std;
 int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::string& prefix)
 {
 	stringstream pathStream;	
-	pathStream << prefix << path << "/";// << modelName << "_";// << 
+	pathStream << prefix << path;// << modelName << "_";// << 
 	string dir_path = pathStream.str();
 	
 	std::vector<std::string> modelFilenames;
@@ -79,7 +79,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	ReadModelFromFiles(dir_path, modelFilenames);
 }
 
-int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& dir_path, const std::vector<std::string>& modelFilenames)
+int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& model_dir_path, const std::vector<std::string>& modelFilenames)
 {	
 //	if (pImpl_->region) //REVISE 1. too procedural 2. remove prefix
 //	{
@@ -90,6 +90,8 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& dir_path, const std::
 //	}
 	assert(pImpl_->cmissContext);
 
+	std::string dir_path = model_dir_path + "/";
+	
 	Cmiss_region* region = Cmiss_context_get_default_region(pImpl_->cmissContext);
 	struct Time_keeper* time_keeper = Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);
 	
