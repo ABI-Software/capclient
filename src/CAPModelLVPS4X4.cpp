@@ -63,23 +63,10 @@ using namespace std;
 
 //int CAPModelLVPS4X4::ReadModelFromFiles()
 int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::string& prefix)
-{	
-//	if (pImpl_->region) //REVISE 1. too procedural 2. remove prefix
-//	{
-//		if (!Cmiss_region_destroy(&pImpl_->region))
-//		{
-//			std::cout << __func__ << " - Error : Can't destroy region" << std::endl;
-//		}
-//	}
-	
+{
 	stringstream pathStream;	
 	pathStream << prefix << path << "/";// << modelName << "_";// << 
 	string dir_path = pathStream.str();
-
-	assert(pImpl_->cmissContext);
-
-	Cmiss_region* region = Cmiss_context_get_default_region(pImpl_->cmissContext);
-	struct Time_keeper* time_keeper = Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);
 	
 	std::vector<std::string> modelFilenames;
 	for (int i = 0; i<numberOfModelFrames_; i++)
@@ -88,6 +75,24 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 		filenameStream << path << "_" << i+1 << ".model.exnode" ;
 		modelFilenames.push_back(filenameStream.str());
 	}
+	
+	ReadModelFromFiles(dir_path, modelFilenames);
+}
+
+int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& dir_path, const std::vector<std::string>& modelFilenames)
+{	
+//	if (pImpl_->region) //REVISE 1. too procedural 2. remove prefix
+//	{
+//		if (!Cmiss_region_destroy(&pImpl_->region))
+//		{
+//			std::cout << __func__ << " - Error : Can't destroy region" << std::endl;
+//		}
+//	}
+	assert(pImpl_->cmissContext);
+
+	Cmiss_region* region = Cmiss_context_get_default_region(pImpl_->cmissContext);
+	struct Time_keeper* time_keeper = Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);
+	
 	for (int i = 0; i<numberOfModelFrames_; i++)
 	{		
 		string filenameString = dir_path + modelFilenames.at(i);
@@ -103,9 +108,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	}
 	// for wrapping around the end point
 	{
-		stringstream filenameStream;
-		filenameStream << dir_path << path << "_" << 1 << ".model.exnode" ;
-		const string& filenameString = filenameStream.str();
+		const string& filenameString = dir_path + modelFilenames.at(0);
 		char* filename = const_cast<char*>(filenameString.c_str());
 		double time = 1.0;
 		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
