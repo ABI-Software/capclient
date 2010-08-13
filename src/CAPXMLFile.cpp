@@ -42,7 +42,7 @@ namespace cap {
 namespace 
 {
 
-void ReadPoint(Point& point, xmlNodePtr cur)
+void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 {
 	// point has 2 attributes - surface and type
 	//frame
@@ -87,7 +87,7 @@ void ReadPoint(Point& point, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Value"))
 		{
-			Value v;
+			CAPXMLFile::Value v;
 			
 			//variable
 			xmlChar* variable = xmlGetProp(cur, (xmlChar const*)"variable"); 
@@ -113,7 +113,7 @@ void ReadPoint(Point& point, xmlNodePtr cur)
 	}
 }
 
-void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
+void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 {
 	using boost::lexical_cast;
 	//frame
@@ -148,13 +148,13 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(child->name, (const xmlChar *)"Point"))
 		{
-			Point p;
+			CAPXMLFile::Point p;
 			ReadPoint(p, child);
 			image.points.push_back(p);
 		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ContourFile"))
 		{
-			ContourFile contourFile;
+			CAPXMLFile::ContourFile contourFile;
 			//read contour file
 			xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
 			contourFile.fileName = (char*)filename;
@@ -208,7 +208,7 @@ void ReadImage(Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	}
 }
 
-void ReadInput(CAPXMLInput& input, xmlDocPtr doc, xmlNodePtr cur)
+void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 {
 	// CAPXMLInput has no attributes
 	// Read in images (children of input)
@@ -218,7 +218,7 @@ void ReadInput(CAPXMLInput& input, xmlDocPtr doc, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Image"))
 		{
-			Image image;
+			CAPXMLFile::Image image;
 			ReadImage(image, doc, cur);
 			input.images.push_back(image);
 		}
@@ -226,7 +226,7 @@ void ReadInput(CAPXMLInput& input, xmlDocPtr doc, xmlNodePtr cur)
 	} 
 }
 
-void ReadOutput(CAPXMLOutput& output, xmlDocPtr doc, xmlNodePtr cur)
+void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
 {
 	// CAPXMLOutput has no attributes
 	// Read in exnode filenames
@@ -266,12 +266,12 @@ void ReadOutput(CAPXMLOutput& output, xmlDocPtr doc, xmlNodePtr cur)
 //	std::cout << "sorting" << std::endl;;
 	std::sort(output.frames.begin(), output.frames.end(),
 			boost::bind(std::less<int>(),
-				boost::bind(&Frame::number, _1),
-				boost::bind(&Frame::number, _2)));
+				boost::bind(&CAPXMLFile::Frame::number, _1),
+				boost::bind(&CAPXMLFile::Frame::number, _2)));
 //	std::cout << "sorted" << std::endl;
 }
 
-void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
+void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
 {
 	// Documentation has no attributes
 	// Read in Version and History
@@ -318,9 +318,9 @@ void ReadDocumentation(Documentation& documentation, xmlNodePtr cur)
 	}
 }
 
-void ConstructValueNode(std::pair<std::string, Value> const &valuePair, xmlNodePtr pointNode)
+void ConstructValueNode(std::pair<std::string, CAPXMLFile::Value> const &valuePair, xmlNodePtr pointNode)
 {
-	Value const &value = valuePair.second;
+	CAPXMLFile::Value const &value = valuePair.second;
 	xmlNodePtr valueNode = xmlNewChild(pointNode, NULL, BAD_CAST "Value", NULL);
 	
 	std::string valueStr = boost::lexical_cast<std::string>(value.value);
@@ -329,7 +329,7 @@ void ConstructValueNode(std::pair<std::string, Value> const &valuePair, xmlNodeP
 	xmlNewProp(valueNode, BAD_CAST "variable", BAD_CAST value.variable.c_str());
 }
 
-void ConstructPointSubtree(Point const &point, xmlNodePtr imageNode)
+void ConstructPointSubtree(CAPXMLFile::Point const &point, xmlNodePtr imageNode)
 {
 	xmlNodePtr pointNode = xmlNewChild(imageNode, NULL, BAD_CAST "Point", NULL);
 	
@@ -380,13 +380,13 @@ void ConstructPointSubtree(Point const &point, xmlNodePtr imageNode)
 	
 }
 
-void ConstructContourFileNode(ContourFile const &contourFile, xmlNodePtr imageNode)
+void ConstructContourFileNode(CAPXMLFile::ContourFile const &contourFile, xmlNodePtr imageNode)
 {
 	xmlNodePtr contourFileNode = xmlNewChild(imageNode, NULL,
 			BAD_CAST "ContourFile", BAD_CAST contourFile.fileName.c_str());
 	
 }
-void ConstructImageSubtree(Image const &image, xmlNodePtr input)
+void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 {
 	xmlNodePtr imageNode = xmlNewChild(input, NULL, BAD_CAST "Image", NULL);
 	std::string frame = boost::lexical_cast<std::string>(image.frame);
@@ -438,7 +438,7 @@ void ConstructImageSubtree(Image const &image, xmlNodePtr input)
 			boost::bind(ConstructContourFileNode, _1, imageNode));
 }
 
-void ConstructFrameNode(Frame const &frame, xmlNodePtr output)
+void ConstructFrameNode(CAPXMLFile::Frame const &frame, xmlNodePtr output)
 {
 	//TODO
 //	xmlNodePtr frameNode = xmlNewChild(output, NULL, BAD_CAST "Frame", NULL);

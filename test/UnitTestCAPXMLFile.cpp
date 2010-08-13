@@ -15,14 +15,14 @@ TEST(CAPXMLFile, ReadXML)
 {
 	using namespace cap;
 	
-//	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
-//
-//	xmlFile.ReadFile();
-//	EXPECT_EQ(xmlFile.chamber_, "LV");
-//	EXPECT_EQ(xmlFile.output_.focalLength, 0.0);
-//	EXPECT_EQ(xmlFile.output_.interval, 0.0);
-//	EXPECT_EQ(xmlFile.name_, "SampleAnalysisUsingXsd");
-//	EXPECT_EQ(xmlFile.studyIUid_, "2.16.124.113543.6006.99.03832048922002137666");
+	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
+
+	xmlFile.ReadFile();
+	EXPECT_EQ(xmlFile.chamber_, "LV");
+	EXPECT_EQ(xmlFile.output_.focalLength, 0.0);
+	EXPECT_EQ(xmlFile.output_.interval, 0.0);
+	EXPECT_EQ(xmlFile.name_, "SampleAnalysisUsingXsd");
+	EXPECT_EQ(xmlFile.studyIUid_, "2.16.124.113543.6006.99.03832048922002137666");
 	
 	// add more tests
 }
@@ -45,17 +45,17 @@ TEST(CAPXMLFile, AddImage)
 		
 	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
 
-	Image image;
+	CAPXMLFile::Image image;
 	image.sopiuid = "111";
 	xmlFile.AddImage(image);
 	EXPECT_EQ(xmlFile.input_.images[0].sopiuid, "111");
 	
-	Point p;
+	CAPXMLFile::Point p;
 	p.surface = EPICARDIUM;
 	p.type = GUIDEPOINT;
 	EXPECT_NO_THROW(xmlFile.AddPointToImage("111", p));
 	EXPECT_EQ(xmlFile.input_.images[0].points[0].surface, EPICARDIUM );
 	EXPECT_EQ(xmlFile.input_.images[0].points[0].type, GUIDEPOINT );
 	
-	EXPECT_THROW(xmlFile.AddPointToImage("222", Point()), std::invalid_argument);
+	EXPECT_THROW(xmlFile.AddPointToImage("222", CAPXMLFile::Point()), std::invalid_argument);
 }
