@@ -19,10 +19,22 @@ TEST(CAPXMLFile, ReadXML)
 
 	xmlFile.ReadFile();
 	EXPECT_EQ(xmlFile.chamber_, "LV");
-	EXPECT_EQ(xmlFile.output_.focalLength, 0.0);
-	EXPECT_EQ(xmlFile.output_.interval, 0.0);
+	EXPECT_EQ(xmlFile.output_.focalLength, 10.0);
+	EXPECT_EQ(xmlFile.output_.interval, 0.3);
 	EXPECT_EQ(xmlFile.name_, "SampleAnalysisUsingXsd");
 	EXPECT_EQ(xmlFile.studyIUid_, "2.16.124.113543.6006.99.03832048922002137666");
+	
+	CAPXMLFile::Image& image = xmlFile.GetInput().images.at(0);
+	EXPECT_TRUE(image.imagePosition);
+	EXPECT_EQ(*(image.imagePosition), Point3D(4.0, 5.0, 6.0));
+	
+	EXPECT_TRUE(image.imageOrientation);
+	EXPECT_EQ(image.imageOrientation->first, Vector3D(7.0, 8.0, 9.0));
+	EXPECT_EQ(image.imageOrientation->second, Vector3D(10.0, 11.0, 12.0));
+	
+	CAPXMLFile::Exnode& exnode = xmlFile.GetOutput().exnodes.at(0);
+	EXPECT_EQ(exnode.exnode, "cap.exnode");
+	EXPECT_EQ(exnode.frame, 1);
 	
 	// add more tests
 }
