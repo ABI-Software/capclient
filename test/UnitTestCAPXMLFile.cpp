@@ -20,7 +20,7 @@
 namespace cap
 {
 
-DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, float time, float weight)
+DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, double time, double weight)
 {};
 	
 DataPoint::DataPoint(const DataPoint& other)
