@@ -14,6 +14,7 @@
 #include "ImageBrowseWindow.h"
 #include "CAPHtmlWindow.h"
 #include "CAPXMLFile.h"
+#include "CAPXMLFileHandler.h"
 
 #include <iostream>
 #include <vector>
@@ -1030,7 +1031,9 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		CAPXMLFile xmlFile(filename.c_str());
 		std::cout << "Start reading xml file\n";
 		xmlFile.ReadFile();
-		SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
+		
+		CAPXMLFileHandler xmlFileHandler(xmlFile);
+		SlicesWithImages const& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
 		if (slicesWithImages.empty())
 		{
 			std::cout << "Can't locate image files\n";
@@ -1040,7 +1043,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		// TODO clean up first
 		LoadImages(slicesWithImages);
 
-		std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
+		std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints(cmguiManager_);
 
 		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size();
@@ -1113,7 +1116,8 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	CAPXMLFile xmlFile(dirname.c_str());
 	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
-	xmlFile.ContructCAPXMLFile(slicesAndImages, dataPoints, heartModel_);
+	CAPXMLFileHandler xmlFileHandler(xmlFile);
+	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, heartModel_);
 	xmlFile.WriteFile(std::string(dirname.c_str()) + "/" + xmlFile.GetName() + ".xml");
 }
 

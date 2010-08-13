@@ -206,7 +206,7 @@ void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 		ChangeMode(mode);
 		AddDataPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
 	}
-	if (!modelIsInitialised) // no guide points defined
+	if (!modelIsInitialised && dataPoints.size()) // no guide points defined
 	{
 		CAPModellingMode* newMode = modellingModeBasePlane_.OnAccept(*this);
 		ChangeMode(newMode);

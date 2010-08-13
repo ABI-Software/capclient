@@ -13,6 +13,11 @@
 #include <boost/tr1/memory.hpp>
 #include <boost/tuple/tuple.hpp>
 
+extern "C"
+{
+#include "general/value.h"
+}
+
 class Cmiss_texture;
 typedef Cmiss_texture* Cmiss_texture_id;
 
