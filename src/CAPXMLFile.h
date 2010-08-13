@@ -79,12 +79,12 @@ struct History
 	std::string date;
 };
 
-struct Input
+struct CAPXMLInput
 {
 	std::vector<Image> images;
 };
 
-struct Output
+struct CAPXMLOutput
 {
 	double focalLength;
 	double interval;
@@ -115,25 +115,25 @@ public:
 	void AddFrame(Frame const& frame);
 	
 
-	/**
-	 *  Populate member fields of CAPXMLFile from infomation obtained from
-	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
-	 *  so an libxml2 tree can be generated and written to a file
-	 */
-	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, 
-							std::vector<DataPoint> const& dataPoints,
-							CAPModelLVPS4X4 const& model);
-	
-	/**
-	 *  Translate the infomation stored in CAPXMLFile into the form to be
-	 *  consumed by the client
-	 *  (i.e SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4)
-	 *  Also generated the instances of DICOMImage, Cmiss_texture,
-	 *  DataPoint (and the Cmiss_node) and the model.
-	 */
-	SlicesWithImages GetSlicesWithImages(CmguiManager const& cmguiManager) const;
-
-	std::vector<DataPoint> GetDataPoints(CmguiManager const& cmguiManager) const;
+//	/**
+//	 *  Populate member fields of CAPXMLFile from infomation obtained from
+//	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
+//	 *  so an libxml2 tree can be generated and written to a file
+//	 */
+//	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, 
+//							std::vector<DataPoint> const& dataPoints,
+//							CAPModelLVPS4X4 const& model);
+//	
+//	/**
+//	 *  Translate the infomation stored in CAPXMLFile into the form to be
+//	 *  consumed by the client
+//	 *  (i.e SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4)
+//	 *  Also generated the instances of DICOMImage, Cmiss_texture,
+//	 *  DataPoint (and the Cmiss_node) and the model.
+//	 */
+//	SlicesWithImages GetSlicesWithImages(CmguiManager const& cmguiManager) const;
+//
+//	std::vector<DataPoint> GetDataPoints(CmguiManager const& cmguiManager) const;
 
 	std::vector<std::string> GetExnodeFileNames() const;
 
@@ -143,10 +143,10 @@ public:
 
 	double GetFocalLength() const;
 
-	std::vector<Image> const& GetImages() const
-	{
-		return input_.images;
-	}
+//	std::vector<Image> const& GetImages() const
+//	{
+//		return input_.images;
+//	}
 	
 	void Clear()
 	{
@@ -157,6 +157,51 @@ public:
 	std::string const& GetName() const
 	{
 		return name_;
+	}
+	
+	void SetName(std::string const& name)
+	{
+		name_ = name;
+	}
+	
+	std::string const& GetFilename() const
+	{
+		return filename_;
+	}
+	
+	void SetFilename(std::string const& filename)
+	{
+		filename_ = filename;
+	}
+	
+	std::string const& GetChamber() const
+	{
+		return chamber_;
+	}
+	
+	void SetChamber(std::string const& chamber)
+	{
+		chamber_ = chamber;
+	}
+	
+	std::string const& GetStudyInstanceUID() const
+	{
+		return studyIUid_;
+	}
+	
+	void SetStudyInstanceUID(std::string const& uid)
+	{
+		studyIUid_ = uid;
+	}
+	
+	CAPXMLInput& GetInput()
+	{
+		return input_;
+	}
+	
+	CAPXMLOutput& GetOutput()
+	{
+		return output_;
 	}
 	
 private:
@@ -173,14 +218,15 @@ private:
 	// 
 	
 	// output
-	//   Frame exnode="FileName0.exnode" number="0"
+	//   Exnode frame="0"
+	//   Exelem
 	
 	// documentation
 	//   version
 	//   history
 
-	Input input_;
-	Output output_;
+	CAPXMLInput input_;
+	CAPXMLOutput output_;
 	Documentation documentation_;
 };
 

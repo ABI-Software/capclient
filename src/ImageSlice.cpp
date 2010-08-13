@@ -143,35 +143,35 @@ void ImageSlice::TransformImagePlane()
 	}
 
 	// Read in plane shift info if it exists for this slice
-	string filePath(CAP_DATA_DIR);
-	filePath.append("images/");
-	filePath.append(sliceName_);
-	filePath.append(".txt");
+//	string filePath(CAP_DATA_DIR);
+//	filePath.append("images/");
+//	filePath.append(sliceName_);
+//	filePath.append(".txt");
 	
-	ifstream planeShiftInfoFile(filePath.c_str());
-	
-	if (planeShiftInfoFile.is_open())
-	{
-		cout << "Plane shift info file present - " << filePath << endl;
-		
-		planeShiftInfoFile >> plane->tlc >> plane->trc >> plane->blc;
-		
-		Vector3D v = plane->trc - plane->tlc;
-		
-		plane->brc = plane->blc + v;
-		
-		cout << "corrected tlc = " << plane->tlc <<endl;
-		cout << "corrected trc = " << plane->trc <<endl;
-		cout << "corrected blc = " << plane->blc <<endl;
-		cout << "corrected brc = " << plane->brc <<endl;
-		
-		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImagePosition, _1, plane->tlc));
-		Vector3D ori1 = plane->trc - plane->tlc;
-		Vector3D ori2 = plane->blc - plane->tlc;
-		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImageOrientation, _1, ori1, ori2));
-
-		planeShiftInfoFile.close();
-	}
+//	ifstream planeShiftInfoFile(filePath.c_str());
+//	
+//	if (planeShiftInfoFile.is_open())
+//	{
+//		cout << "Plane shift info file present - " << filePath << endl;
+//		
+//		planeShiftInfoFile >> plane->tlc >> plane->trc >> plane->blc;
+//		
+//		Vector3D v = plane->trc - plane->tlc;
+//		
+//		plane->brc = plane->blc + v;
+//		
+//		cout << "corrected tlc = " << plane->tlc <<endl;
+//		cout << "corrected trc = " << plane->trc <<endl;
+//		cout << "corrected blc = " << plane->blc <<endl;
+//		cout << "corrected brc = " << plane->brc <<endl;
+//		
+//		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImagePosition, _1, plane->tlc));
+//		Vector3D ori1 = plane->trc - plane->tlc;
+//		Vector3D ori2 = plane->blc - plane->tlc;
+//		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImageOrientation, _1, ori1, ori2));
+//
+//		planeShiftInfoFile.close();
+//	}
 	
 	int nodeNum = 1;
 
