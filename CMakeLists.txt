@@ -58,6 +58,7 @@ SET(SRCS
   src/CAPModellingMode.cpp
   src/DataPoint.cpp
   src/CAPXMLFile.cpp
+  src/CAPXMLFileHandler.cpp
   src/ImageBrowseWindow.cpp
   src/CAPMaterial.cpp
   #src/DataSet.cpp
@@ -169,17 +170,13 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest/include )
 SET(UNIT_TEST_SRC
   test/UnitTestCAPMath.cpp
   test/UnitTestTotalLeastSquares.cpp
-#  test/UnitTestCAPXMLFile.cpp
-#  src/CAPXMLFile.cpp
-#  src/CmguiManager.cpp
-#  src/CmguiExtensions.cpp
-#  src/CAPMaterial.cpp
-#  src/DICOMImage.cpp
+  test/UnitTestCAPXMLFile.cpp
+  src/CAPXMLFile.cpp
 )
 
-#ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
+ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
 #ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/test/UnitTest)
 
-#SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
-#TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
-#    ${XML2_LIB} ${ITK_LIB} ${CMGUI_LIB} ${IMAGEMAGICK_LIB} ${INTERPRETER_LIB} ${wxWidgets_LIBRARIES} ${common_LIBS})
+SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
+TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
+    ${XML2_LIB} ${ITK_LIB} -liconv)
