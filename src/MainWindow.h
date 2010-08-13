@@ -78,6 +78,10 @@ private:
 	
 	void LoadHeartModel(std::string const& dirOnly, std::string const& prefix);
 	
+	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames);
+	
+	void UpdateStatesAfterLoadingModel();
+	
 	void PopulateObjectList();
 	
 	template <typename Widget>

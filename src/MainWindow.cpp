@@ -965,10 +965,8 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 	EnterImagesLoadedState();
 }
 
-void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
+void MainWindow::UpdateStatesAfterLoadingModel()
 {
-	heartModel_.ReadModelFromFiles(dirOnly, prefix);
-	
 	if (modeller_)
 	{
 		delete modeller_;
@@ -1012,6 +1010,18 @@ void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& p
 	EnterModelLoadedState();
 }
 
+void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
+{
+	heartModel_.ReadModelFromFiles(dirOnly, prefix);
+	UpdateStatesAfterLoadingModel();
+}
+
+void MainWindow::LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames)
+{
+	heartModel_.ReadModelFromFiles(path, modelFilenames);
+	UpdateStatesAfterLoadingModel();
+}
+
 void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
 	wxString currentWorkingDir = wxGetCwd();
@@ -1046,28 +1056,22 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints(cmguiManager_);
 
 		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
-		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size();
+		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size() << '\n';
 		std::string const& exelemFileName = xmlFile.GetExelemFileName();
-
 
 		//HACK FIXME
 		std::string xmlFilename = filename.c_str();
 		size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
 		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 		std::cout << "modelFilePath = " << modelFilePath << '\n';
-		positionOfLastSlash = modelFilePath.find_last_of("/\\");
-		string dirOnly = modelFilePath.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-		string prefix = modelFilePath.substr(0, positionOfLastSlash+1);
 
-		std::cout << __func__ << ", dir = " << dirOnly << ", prefix = " << prefix << '\n';
-		// FIXME heartModel needs to be properly initialised and cleaned up
 		heartModel_.SetFocalLengh(xmlFile.GetFocalLength());
 		gtMatrix m;
 		xmlFile.GetTransformationMatrix(m);
 		heartModel_.SetLocalToGlobalTransformation(m);
 		int numberOfModelFrames = exnodeFileNames.size();
 		heartModel_.SetNumberOfModelFrames(numberOfModelFrames);
-		LoadHeartModel(dirOnly, prefix);
+		LoadHeartModel(modelFilePath, exnodeFileNames);
 		modeller_->SetDataPoints(dataPoints);
 
 		//HACK
@@ -1080,20 +1084,6 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		choice->SetSelection(CAPModeller::GUIDEPOINT);
 		RefreshCmguiCanvas();
 	}
-
-//	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
-//	if ( !dirname.empty() )
-//	{
-//		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
-//		string filename(dirname.c_str());
-//		size_t positionOfLastSlash = filename.find_last_of("/\\");
-//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-//		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-//		string prefix = filename.substr(0, positionOfLastSlash+1);
-//		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
-//
-//		LoadHeartModel(dirOnly, prefix);
-//	}
 }
 
 void MainWindow::OnSave(wxCommandEvent& event)
