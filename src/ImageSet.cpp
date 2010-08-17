@@ -159,16 +159,13 @@ int ImageSet::GetNumberOfFrames() const
 	return numberOfFrames;
 }
 
-void ImageSet::WritePlaneInfoToFiles() const
+void ImageSet::SetShiftedImagePosition()
 {
 	ImageSlicesMap::const_iterator itr = imageSlicesMap_.begin();
 	ImageSlicesMap::const_iterator end = imageSlicesMap_.end();
 	for (;itr != end; ++itr)
 	{
-		std::string filename("Data/images/");
-		filename.append(itr->first);
-		filename.append(".txt");
-		itr->second->WritePlaneInfoToFile(filename);//fix
+		itr->second->SetShiftedImagePosition();
 	}
 }
 

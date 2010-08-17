@@ -175,6 +175,13 @@ public:
 		shiftedPosition_ = p;
 		ComputeImagePlane();
 	}
+	
+	void SetImagePlaneTLC(Point3D const& p)
+	{
+		//covert tlc to ImagePosition
+		Point3D pos = p + 0.5 * pixelSizeX_ * orientation1_ + 0.5f * pixelSizeY_ * orientation2_;
+		SetShiftedImagePosition(pos);
+	}
 
 	void ComputeImagePlane();
 	

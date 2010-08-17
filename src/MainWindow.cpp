@@ -1143,7 +1143,7 @@ void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
 						input_callback, (void*)this, 1/*add_first*/);
 		
-		imageSet_->WritePlaneInfoToFiles();
+		imageSet_->SetShiftedImagePosition();
 	}
 	
 	return;
