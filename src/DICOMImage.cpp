@@ -36,6 +36,7 @@ DICOMImage::DICOMImage(const string& filename)
 	  isRotated_(false)
 {
 	ReadDICOMFile();
+	ComputeImagePlane();
 }
 
 void DICOMImage::ReadDICOMFile()
@@ -276,23 +277,26 @@ void DICOMImage::ReadDICOMFile()
 	cout << "Exiting " << __func__ << '\n';
 }
 
-ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
-{	
-	//Now construct the plane_ from the info
-
-	//int imageSize = std::max<u_int>(width_,height_);
-	//cout << "imageSize: " << imageSize << endl;
-
-	if (plane_)
+void DICOMImage::ComputeImagePlane()
+{
+	if (!plane_)
 	{
-		return plane_;
+		plane_ = new ImagePlane();
 	}
-	
-	plane_ = new ImagePlane();
-
 	// plane_'s tlc starts from the edge of the first voxel
 	// rather than centre; (0020, 0032) is the centre of the first voxel
-	plane_->tlc = position3D_ - 0.5 * pixelSizeX_ * orientation1_ -  0.5f * pixelSizeY_ * orientation2_;
+	
+	Point3D pos;
+	if (IsShifted())
+	{
+		pos = shiftedPosition_;
+	}
+	else
+	{
+		pos = position3D_;
+	}
+	
+	plane_->tlc = pos - 0.5 * pixelSizeX_ * orientation1_ -  0.5f * pixelSizeY_ * orientation2_;
 
 	double fieldOfViewX = width_ * pixelSizeX_;//JDCHUNG consider name change
 	cout << "width in mm = " << fieldOfViewX ;
@@ -319,7 +323,10 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
 #endif
 	
 	plane_->d = DotProduct((plane_->tlc - Point3D(0,0,0)) ,plane_->normal);
-	
+}
+
+ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
+{	
 	return plane_;
 }
 
