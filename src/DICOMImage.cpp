@@ -298,13 +298,13 @@ void DICOMImage::ComputeImagePlane()
 	
 	plane_->tlc = pos - 0.5 * pixelSizeX_ * orientation1_ -  0.5f * pixelSizeY_ * orientation2_;
 
-	double fieldOfViewX = width_ * pixelSizeX_;//JDCHUNG consider name change
-	cout << "width in mm = " << fieldOfViewX ;
+	double fieldOfViewX = width_ * pixelSizeX_;
+//	cout << "width in mm = " << fieldOfViewX ;
 	
 	plane_->trc = plane_->tlc + fieldOfViewX * orientation1_;
 
 	double fieldOfViewY = height_ * pixelSizeY_;//JDCHUNG
-	cout << ", height in mm = " << fieldOfViewY << endl ;
+//	cout << ", height in mm = " << fieldOfViewY << endl ;
 	
 	plane_->blc = plane_->tlc + fieldOfViewY * orientation2_;
 

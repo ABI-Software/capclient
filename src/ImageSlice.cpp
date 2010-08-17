@@ -130,6 +130,7 @@ void ImageSlice::TransformImagePlane()
 {
 	// Now get the necessary info from the DICOM header
 	
+	assert(!images_.empty());
 	DICOMImage& dicomImage = *images_[0]; //just use the first image in the slice
 	ImagePlane* plane = dicomImage.GetImagePlaneFromDICOMHeaderInfo();
 	if (!plane)
@@ -141,37 +142,6 @@ void ImageSlice::TransformImagePlane()
 		cout << plane->tlc << endl;
 		imagePlane_ = plane;
 	}
-
-	// Read in plane shift info if it exists for this slice
-//	string filePath(CAP_DATA_DIR);
-//	filePath.append("images/");
-//	filePath.append(sliceName_);
-//	filePath.append(".txt");
-	
-//	ifstream planeShiftInfoFile(filePath.c_str());
-//	
-//	if (planeShiftInfoFile.is_open())
-//	{
-//		cout << "Plane shift info file present - " << filePath << endl;
-//		
-//		planeShiftInfoFile >> plane->tlc >> plane->trc >> plane->blc;
-//		
-//		Vector3D v = plane->trc - plane->tlc;
-//		
-//		plane->brc = plane->blc + v;
-//		
-//		cout << "corrected tlc = " << plane->tlc <<endl;
-//		cout << "corrected trc = " << plane->trc <<endl;
-//		cout << "corrected blc = " << plane->blc <<endl;
-//		cout << "corrected brc = " << plane->brc <<endl;
-//		
-//		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImagePosition, _1, plane->tlc));
-//		Vector3D ori1 = plane->trc - plane->tlc;
-//		Vector3D ori2 = plane->blc - plane->tlc;
-//		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImageOrientation, _1, ori1, ori2));
-//
-//		planeShiftInfoFile.close();
-//	}
 	
 	int nodeNum = 1;
 
@@ -245,12 +215,12 @@ Cmiss_field* ImageSlice::CreateVisibilityField()
 	Cmiss_region* region;
 	region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str());
 	CM_field_type cm_field_type = CM_GENERAL_FIELD;
-	char* name = "visibility";
+	char* name = (char*)"visibility";
 	Coordinate_system coordinate_system;
 	coordinate_system.type = RECTANGULAR_CARTESIAN;
 	Value_type value_type = FE_VALUE_VALUE;
 	const int number_of_components = 1;
-	char* component_names[] = {"visibility"};
+	char* component_names[] = {(char*)"visibility"};
 	
 	FE_region_get_FE_field_with_properties(
 		Cmiss_region_get_FE_region(region),
@@ -314,7 +284,7 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 	GT_element_group_add_settings(gt_element_group, settings, 0);
 }
 
-void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
+void ImageSlice::SetShiftedImagePosition()
 {
 	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
@@ -327,58 +297,32 @@ void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
 	}
 	
-	Cmiss_node* node = Cmiss_region_get_node(region, "1");
-	Point3D blc;
-	if (node) {
-		FE_node_get_position_cartesian(node, 0, &(blc.x), &(blc.y), &(blc.z), 0);
-	}
+//	Cmiss_node* node = Cmiss_region_get_node(region, "1");
+//	Point3D blc;
+//	if (node) {
+//		FE_node_get_position_cartesian(node, 0, &(blc.x), &(blc.y), &(blc.z), 0);
+//	}
 
+	Cmiss_node* node;
 	Point3D tlc;
 	if (node = Cmiss_region_get_node(region, "3"))
 	{
 		FE_node_get_position_cartesian(node, 0, &(tlc.x), &(tlc.y), &(tlc.z), 0);
+		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetImagePlaneTLC, _1, tlc));
 	}
 	else
 	{
 		std::cout << "Error:\n";
 	}
 
-	Point3D trc;
-	if (node = Cmiss_region_get_node(region, "4"))
-	{
-		FE_node_get_position_cartesian(node, 0, &(trc.x), &(trc.y), &(trc.z), 0);
-	}
+//	Point3D trc;
+//	if (node = Cmiss_region_get_node(region, "4"))
+//	{
+//		FE_node_get_position_cartesian(node, 0, &(trc.x), &(trc.y), &(trc.z), 0);
+//	}
 	
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
-
-	std::ofstream outFile(filepath.c_str());
-	//std::cout << sliceName_ << "\n";
-//	std::cout << "tlc";
-//	std::cout << std::setw(12) << tlc.x << "i";
-//	std::cout << std::setw(12) << tlc.y << "j";
-//	std::cout << std::setw(12) << tlc.z << "k";
-//	std::cout << std::endl;
-	
-	outFile << "tlc";
-	outFile << std::setw(12) << tlc.x << "i";
-	outFile << std::setw(12) << tlc.y << "j";
-	outFile << std::setw(12) << tlc.z << "k";
-	outFile << std::endl;
-	
-	outFile << "trc";
-	outFile << std::setw(12) << trc.x << "i";
-	outFile << std::setw(12) << trc.y << "j";
-	outFile << std::setw(12) << trc.z << "k";
-	outFile << std::endl;
-	
-	outFile << "blc";
-	outFile << std::setw(12) << blc.x << "i";
-	outFile << std::setw(12) << blc.y << "j";
-	outFile << std::setw(12) << blc.z << "k";
-	outFile << std::endl;
-
-	outFile.close();
 }
 
 } // end namespace cap

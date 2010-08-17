@@ -55,7 +55,7 @@ public:
 		return images_.size();
 	}
 	
-	void WritePlaneInfoToFile(const std::string& file) const;
+	void SetShiftedImagePosition();
 	
 	std::vector<DICOMPtr> const& GetImages() const
 	{

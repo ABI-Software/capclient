@@ -81,7 +81,7 @@ public:
 	 */
 	int GetNumberOfFrames() const;
 	
-	void WritePlaneInfoToFiles() const;
+	void SetShiftedImagePosition();
 	
 	SlicesWithImages const& GetSlicesWithImages() const
 	{
