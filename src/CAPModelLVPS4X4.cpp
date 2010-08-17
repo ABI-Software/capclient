@@ -201,7 +201,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	}
 	
 	int number_of_field_names = 1;
-	char* field_names[] = {"coordinates"};
+	char* field_names[] = {(char*)"coordinates"};
 	int write_data = 0;
 	FE_write_fields_mode write_fields_mode = FE_WRITE_LISTED_FIELDS;
 	FE_write_criterion write_criterion = FE_WRITE_COMPLETE_GROUP;
