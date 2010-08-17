@@ -173,8 +173,11 @@ public:
 	{
 		isShifted_ = true;
 		shiftedPosition_ = p;
+		ComputeImagePlane();
 	}
 
+	void ComputeImagePlane();
+	
 	std::pair<Vector3D,Vector3D> GetShiftedImageOrientation() const
 	{
 		return std::make_pair(shiftedOrientation1_, shiftedOrientation2_);
@@ -218,7 +221,7 @@ private:
 	std::string gender_;
 	std::string age_;
 	
-	mutable ImagePlane* plane_;
+	ImagePlane* plane_;
 //	Cmiss_texture* texture;
 	bool isShifted_;
 	bool isRotated_;

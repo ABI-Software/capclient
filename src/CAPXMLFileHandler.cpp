@@ -254,6 +254,12 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 
 		std::string const& filename = filenameItr->second;
 		DICOMPtr dicomImage = boost::make_shared<DICOMImage>(filename);
+		// Image Position
+		if (image.imagePosition)
+		{
+			Point3D const& pos = *image.imagePosition;
+			dicomImage->SetShiftedImagePosition(pos);
+		}
 
 		//TODO handle cases where image label is not present
 		DICOMImageMapWithSliceNameAsKey::iterator itr = dicomMap.find(image.label);
