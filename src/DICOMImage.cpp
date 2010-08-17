@@ -32,7 +32,8 @@ using namespace std;
 DICOMImage::DICOMImage(const string& filename)
 	: filename_(filename),
 	  plane_(0),
-	  isShifted_(false)
+	  isShifted_(false),
+	  isRotated_(false)
 {
 	ReadDICOMFile();
 }

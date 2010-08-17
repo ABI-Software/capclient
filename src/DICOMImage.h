@@ -149,11 +149,16 @@ public:
 		}
 	}
 	
-	bool IsShifted()const
+	bool IsShifted() const
 	{
 		return isShifted_;
 	}
 
+	bool IsRotated() const
+	{
+		return isRotated_;
+	}
+	
 //	void SetShifted(bool shifted)
 //	{
 //		isShifted_ = shifted;
@@ -177,7 +182,7 @@ public:
 
 	void SetShiftedImageOrientation(Vector3D const& v1, Vector3D const& v2)
 	{
-		isShifted_ = true;
+		isRotated_ = true;
 		// cosine vectors
 		shiftedOrientation1_ = v1;
 		shiftedOrientation2_ = v2;
@@ -216,6 +221,7 @@ private:
 	mutable ImagePlane* plane_;
 //	Cmiss_texture* texture;
 	bool isShifted_;
+	bool isRotated_;
 };
 
 } // end namespace cap
