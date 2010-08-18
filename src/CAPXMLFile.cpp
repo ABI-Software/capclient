@@ -220,6 +220,11 @@ void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 		}
 		cur = cur->next;
 	} 
+	// Sort images by frame
+	std::sort(input.images.begin(), input.images.end(),
+			boost::bind(std::less<int>(),
+						boost::bind(&CAPXMLFile::Image::frame, _1),
+						boost::bind(&CAPXMLFile::Image::frame, _2)));
 }
 
 void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)

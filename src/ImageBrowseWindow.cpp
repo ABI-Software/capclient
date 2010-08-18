@@ -20,7 +20,8 @@
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/lambda/lambda.hpp>
+//#include <boost/lambda/lambda.hpp>
+#include <boost/bind.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -244,6 +245,18 @@ void ImageBrowseWindow::SortDICOMFiles()
 			sliceMap_.insert(std::make_pair(key, v));
 		}
 	}
+	
+	// Sort the dicom images in a slice/series by the instance Number
+	BOOST_FOREACH(SliceMap::value_type& slice, sliceMap_)
+	{
+		std::vector<DICOMPtr>& images = slice.second;
+		// use stable_sort to preserve the order of images in case the instance number element is missing
+		// (in which case the GetInstanceNumber returns -1)
+		std::stable_sort(images.begin(), images.end(), 
+				boost::bind(std::less<int>(),
+						boost::bind(&DICOMImage::GetInstanceNumber, _1),
+						boost::bind(&DICOMImage::GetInstanceNumber, _2)));
+	}
 }
 
 void ImageBrowseWindow::PopulateImageTable()
@@ -258,11 +271,9 @@ void ImageBrowseWindow::PopulateImageTable()
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
 	{
 		using boost::lexical_cast;
-		using namespace boost::lambda;
 		using std::string;
 		
 		std::vector<DICOMPtr>& images = value.second;
-		std::sort(images.begin(), images.end(), *_1 < *_2);
 		DICOMPtr image = images[0];
 		long itemIndex = imageTable_->InsertItem(rowNumber, lexical_cast<string>(image->GetSeriesNumber()).c_str());
 		long columnIndex = 1;
@@ -315,7 +326,8 @@ void ImageBrowseWindow::ConstructTextureMap()
 {
 	using namespace std;
 	
-	int count = 0;
+//	int count = 0;
+	textureMap_.clear();
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
 	{	
 		vector<DICOMPtr>& images = value.second;
@@ -328,7 +340,7 @@ void ImageBrowseWindow::ConstructTextureMap()
 			const string& filename = (*itr)->GetFilename();	
 			Cmiss_texture_id texture_id = textureTable_[filename];
 			textures.push_back(texture_id);
-			count++;
+//			count++;
 		}
 		
 		textureMap_.insert(make_pair(value.first, textures));
@@ -648,14 +660,14 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 		index--;
 	}
 	
-	if (longAxisCount >= 5)
+	if (longAxisCount >= 10)
 	{
 		std::cout << "TOO MANY LONG AXES\n";
 		wxMessageBox("Too many long axes slices", "Invalid selection",
 				wxOK, this);
 		return;
 	}
-	if (shortAxisCount >= 14)
+	if (shortAxisCount >= 20)
 	{
 		std::cout << "TOO MANY SHORT AXES\n";
 		wxMessageBox("Too many short axes slices", "Invalid selection",

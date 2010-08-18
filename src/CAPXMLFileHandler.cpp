@@ -16,13 +16,10 @@
 #include <wx/wx.h>
 #include <wx/dir.h> // FIXME move this out to a separate function/class
 
-//#include <libxml/xmlmemory.h>
-//#include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <iostream>
@@ -278,8 +275,6 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 	{
 		std::string const& label = labelAndImages.first;
 		std::vector<DICOMPtr>& images = labelAndImages.second;
-//		using namespace boost::lambda;
-		std::sort(images.begin(), images.end(), *boost::lambda::_1 < *boost::lambda::_2);
 
 		std::vector<Cmiss_texture_id> textures;
 		BOOST_FOREACH(DICOMPtr const& dicomImage, images)
