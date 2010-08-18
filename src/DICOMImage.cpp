@@ -274,6 +274,20 @@ void DICOMImage::ReadDICOMFile()
 		age_ = "N/A";
 	}
 	
+	//instanceNumber_ (0020,0013)
+	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0013)))
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0020,0x0013));
+		gdcm::Attribute<0x0020,0x0013> at;
+		at.SetFromDataElement(de);
+		instanceNumber_ = at.GetValue();
+	}
+	else
+	{
+		cout << "Instance Number (0020,0013) not found\n";
+		instanceNumber_ = -1;
+	}
+	
 	cout << "Exiting " << __func__ << '\n';
 }
 

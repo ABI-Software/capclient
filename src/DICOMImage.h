@@ -137,16 +137,9 @@ public:
 		return sopInstanceUID_;
 	}
 	
-	bool operator<(DICOMImage const& other) const // Better to make this a non member ?
+	int GetInstanceNumber() const
 	{
-		if (triggerTime_ >= 0.0 && other.triggerTime_ >= 0.0)
-		{
-			return triggerTime_ < other.triggerTime_;
-		}
-		else
-		{
-			return filename_ < other.filename_;
-		}
+		return instanceNumber_;
 	}
 	
 	bool IsShifted() const
@@ -221,6 +214,8 @@ private:
 	Point3D shiftedPosition_;
 	Vector3D shiftedOrientation1_, shiftedOrientation2_;
 
+	int instanceNumber_;
+	
 	std::string patientName_;
 	std::string patientId_;
 	std::string scanDate_;
