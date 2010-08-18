@@ -667,7 +667,7 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 				wxOK, this);
 		return;
 	}
-	if (shortAxisCount >= 20)
+	if (shortAxisCount >= 30)
 	{
 		std::cout << "TOO MANY SHORT AXES\n";
 		wxMessageBox("Too many short axes slices", "Invalid selection",
