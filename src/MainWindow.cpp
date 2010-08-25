@@ -178,7 +178,8 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 			Cmiss_region_id tempRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)new_coords, selectedRegion);
 			if (!tempRegion)
 			{
-				cout << __func__ << "ERROR\n";
+				cout << __func__ << ": ERROR\n";
+				return 0;
 			}
 //			string sliceName = Cmiss_region_get_path(selectedRegion);
 //			cout << "dragged = " << sliceName << endl;
