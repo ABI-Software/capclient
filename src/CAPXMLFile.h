@@ -69,17 +69,16 @@ public:
 		int frame;
 	};
 
-	struct Version
+	struct ProvenanceDetail
 	{
-		int number;
 		std::string date;
-//		std::string log;
-	};
-
-	struct History
-	{
-		std::string entry;
-//		std::string date;
+		std::string operatingSystem;
+		std::string package;
+		std::string platform;
+		std::string programParams;
+		std::string programVersion;
+		std::string step;
+		std::string comment;
 	};
 
 	struct Input
@@ -98,8 +97,7 @@ public:
 
 	struct Documentation
 	{
-		Version version;
-		History history;
+		std::vector<ProvenanceDetail> provenanceDetails;
 	};
 	
 	explicit CAPXMLFile(std::string const & filename);

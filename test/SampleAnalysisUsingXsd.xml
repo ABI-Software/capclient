@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cap:Analysis chamber="LV" name="SampleAnalysisUsingXsd" studyiuid="2.16.124.113543.6006.99.03832048922002137666" xmlns:cap="http://www.cardiacatlas.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
   <cap:Input>
-    <cap:Image frame="0" label="SA1" slice="0" sopiuid="1.2.3.4">
+    <cap:Image frame="0" label="SA1" slice="0" seriesiuid="2.16.124.1" sopiuid="1.2.3.4">
       <cap:Point surface="" type="apex">
         <cap:Value variable="x">1.0</cap:Value>
         <cap:Value variable="y">2.0</cap:Value>
@@ -28,9 +28,16 @@
     <cap:Exelem>cap.exelem</cap:Exelem>
   </cap:Output>
   <cap:Documentation>
-    <cap:Version date="2001-12-31T12:00:00">0</cap:Version>
-    <cap:History created="2001-12-31T12:00:00">
-      <cap:Comment date="2001-12-31T12:00:00">cap:Comment</cap:Comment>
-    </cap:History>
+    <cap:provenanceDetail date="2010-08-25T16:49:14">
+      <cap:operatingSystem>Max OS X 10.6</cap:operatingSystem>
+      <cap:package>CAP</cap:package>
+      <cap:platform>Mac OS X</cap:platform>
+      <cap:process>Conversion from CIM model</cap:process>
+      <cap:program>CIMModelToCAPModel.py</cap:program>
+      <cap:programParams>none</cap:programParams>
+      <cap:programVersion>1.0</cap:programVersion>
+      <cap:step>1</cap:step>
+      <cap:comment>Converted from CIM model</cap:comment>
+    </cap:provenanceDetail>
   </cap:Documentation>
 </cap:Analysis>
