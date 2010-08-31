@@ -154,6 +154,11 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	// when there are many items in the Image Table
 	this->SetSize(-1, 768);
 	this->Centre();
+	
+	// Hack for working around bug ID: 3053989
+	// see https://sourceforge.net/tracker/?func=detail&aid=3053989&group_id=237340&atid=1103258 for more info
+	this->SetSize(-1, 767);
+	this->SetSize(-1, 768);
 }
 
 void ImageBrowseWindow::CreateImageTableColumns()
