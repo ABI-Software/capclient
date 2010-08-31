@@ -6,16 +6,6 @@
  */
 
 #include "CAPXMLFile.h"
-//#include "CAPMath.h"
-//#include "DICOMImage.h"
-//#include "CAPModelLVPS4X4.h"
-//#include "DataPoint.h"
-//#include "CmguiManager.h"
-//#include "CmguiExtensions.h"
-//#include "FileSystem.h"
-//
-//#include <wx/wx.h>
-//#include <wx/dir.h> // FIXME move this out to a separate function/class
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -280,38 +270,53 @@ void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
 	while(cur)
 	{
 		using boost::lexical_cast;
-		if (!xmlStrcmp(cur->name, (const xmlChar *)"Version"))
+		if (!xmlStrcmp(cur->name, (const xmlChar *)"provenanceDetail"))
 		{
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
 //			std::cout << "date = " << date << '\n';
-			documentation.version.date = (char*)(date);
+			CAPXMLFile::ProvenanceDetail provenanceDetail;
+			provenanceDetail.date = (char*)(date);
 			xmlFree(date);
-			//TODO
-//			//log
-//			xmlChar* log = xmlGetProp(cur, (xmlChar const*)"log"); 
-////			std::cout << "log = " << log << '\n';
-//			documentation.version.log = (char*)(log);
-//			xmlFree(log);
-//			//number
-//			xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number"); 
-////			std::cout << "number = " << number << '\n';
-//			documentation.version.number = lexical_cast<int>(number);
-//			xmlFree(number);
-		}
-		else if (!xmlStrcmp(cur->name, (const xmlChar *)"History"))
-		{
-			//date
-			xmlChar* created = xmlGetProp(cur, (xmlChar const*)"created"); 
-			//TODO
-//			std::cout << "date = " << date << '\n';
-//			documentation.history.date = (char*)(date);
-			xmlFree(created);
-//			//entry
-//			xmlChar* entry = xmlGetProp(cur, (xmlChar const*)"entry"); 
-////			std::cout << "entry = " << date << '\n';
-//			documentation.history.entry = (char*)(entry);
-//			xmlFree(entry);
+			
+			xmlNodePtr child = cur->xmlChildrenNode;
+			
+			while (child)
+			{
+				xmlChar* value = xmlNodeGetContent(child);
+				if (!xmlStrcmp(cur->name, (const xmlChar *)"operatingSystem"))
+				{
+					provenanceDetail.operatingSystem = (char*)value;
+				}
+				else if (!xmlStrcmp(cur->name, (const xmlChar *)"package"))
+				{
+					provenanceDetail.package = (char*)value;
+				}
+				else if (!xmlStrcmp(cur->name, (const xmlChar *)"platform"))
+				{
+					provenanceDetail.platform = (char*)value;
+				}
+				else if (!xmlStrcmp(cur->name, (const xmlChar *)"programParams"))
+				{
+					provenanceDetail.programParams = (char*)value;
+				}
+				else if (!xmlStrcmp(cur->name, (const xmlChar *)"programVersion"))
+				{
+					provenanceDetail.programVersion = (char*)value;
+				}
+				else if (!xmlStrcmp(cur->name, (const xmlChar *)"step"))
+				{
+					provenanceDetail.step = (char*)value;
+				}
+				else if (!xmlStrcmp(cur->name, (const xmlChar *)"comment"))
+				{
+					provenanceDetail.comment = (char*)value;
+				}
+
+				child = child->next;
+			}
+			
+			documentation.provenanceDetails.push_back(provenanceDetail);
 		}
 		
 		cur = cur->next;
@@ -450,7 +455,6 @@ CAPXMLFile::CAPXMLFile(std::string const & filename)
 {
 	output_.focalLength = 0.0;
 	output_.interval = 0.0;
-	documentation_.version.number = 0;
 }
 
 CAPXMLFile::~CAPXMLFile()
@@ -587,17 +591,13 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	
 	//Documentation
 	xmlNodePtr documentation = xmlNewChild(root_node, NULL, BAD_CAST "Documentation", NULL);
-	xmlNodePtr version = xmlNewChild(documentation, NULL, BAD_CAST "Version", NULL);
-	xmlNewProp(version, BAD_CAST "date", BAD_CAST documentation_.version.date.c_str());
+//	xmlNodePtr version = xmlNewChild(documentation, NULL, BAD_CAST "provenaceDetail", NULL);
+//	xmlNewProp(version, BAD_CAST "date", BAD_CAST documentation_.provenanceDetail.date.c_str());
 	//TODO
 //	xmlNewProp(version, BAD_CAST "log", BAD_CAST documentation_.version.log.c_str());
 //	std::string numberStr(boost::lexical_cast<std::string>(documentation_.version.number));
 //	xmlNewProp(version, BAD_CAST "number", BAD_CAST numberStr.c_str());
 	
-	xmlNodePtr history = xmlNewChild(documentation, NULL, BAD_CAST "History", NULL);
-	//TODO
-//	xmlNewProp(history, BAD_CAST "date", BAD_CAST documentation_.history.date.c_str());
-//	xmlNewProp(history, BAD_CAST "entry", BAD_CAST documentation_.history.entry.c_str());
 
 	/* 
 	 * Dumping document to stdio or file
