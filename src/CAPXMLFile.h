@@ -146,7 +146,7 @@ public:
 //		return input_.images;
 //	}
 	
-	void Clear()
+	void ClearInputAndOutput()
 	{
 		input_.images.clear();
 		output_.exnodes.clear();
