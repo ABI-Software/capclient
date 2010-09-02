@@ -55,7 +55,7 @@ void DICOMImage::ReadDICOMFile()
 
 	gdcm::Reader r;
 	r.SetFileName( filename_.c_str() );
-	cout << "DICOM filename = " << filename_ << '\n';
+//	cout << "DICOM filename = " << filename_ << '\n';
 	if( !r.Read() )
 	{
 		cout << "Can't read file: " << filename_ << endl;
@@ -64,22 +64,36 @@ void DICOMImage::ReadDICOMFile()
 	
 	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
 	
-	// Study Instance UID (0020,000d)
-	const gdcm::DataElement& studyiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000d));
-	gdcm::Attribute<0x0020,0x000d> at_studyiuid;
-	at_studyiuid.SetFromDataElement(studyiuid);
-	studyInstanceUID_ = at_studyiuid.GetValue();
+	{
+		// SOP instance UID (0008,0018) 
+		const gdcm::DataElement& sopiuid = ds.GetDataElement(gdcm::Tag(0x0008,0x0018));
+		gdcm::Attribute<0x0008,0x0018> at_sopiuid;
+		at_sopiuid.SetFromDataElement(sopiuid);
+		sopInstanceUID_ = at_sopiuid.GetValue();
+		// gdcm leaves some non alpha numeric characters at the back
+		// get rid of them here
+		boost::trim_right_if(sopInstanceUID_, !boost::is_digit());
+	//	cout << "UID: " << sopInstanceUID_;
+	//	cout << endl;
+	}
 	
-	// SOP instance UID (0008,0018) 
-	const gdcm::DataElement& sopiuid = ds.GetDataElement(gdcm::Tag(0x0008,0x0018));
-	gdcm::Attribute<0x0008,0x0018> at_sopiuid;
-	at_sopiuid.SetFromDataElement(sopiuid);
-	sopInstanceUID_ = at_sopiuid.GetValue();
-	// gdcm leaves some non alpha numeric characters at the back
-	// get rid of them here
-	boost::trim_right_if(sopInstanceUID_, !boost::is_digit());
-	cout << "UID: " << sopInstanceUID_;
-	cout << endl;
+	{
+		// Study Instance UID (0020,000d)
+		const gdcm::DataElement& studyiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000d));
+		gdcm::Attribute<0x0020,0x000d> at_studyiuid;
+		at_studyiuid.SetFromDataElement(studyiuid);
+		studyInstanceUID_ = at_studyiuid.GetValue();
+		boost::trim_right_if(studyInstanceUID_, !boost::is_digit());
+	}
+	
+	{
+		// Series Instance UID (0020,000E)
+		const gdcm::DataElement& seriesiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000e));
+		gdcm::Attribute<0x0020,0x000e> at_seriesiuid;
+		at_seriesiuid.SetFromDataElement(seriesiuid);
+		seriesInstanceUID_ = at_seriesiuid.GetValue();
+		boost::trim_right_if(seriesInstanceUID_, !boost::is_digit());
+	}
 	
 	// series number (0020,0011)
 	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0011)))
@@ -151,8 +165,8 @@ void DICOMImage::ReadDICOMFile()
 		gdcm::Attribute<0x0028,0x0010> at_rows;
 		at_rows.SetFromDataElement(rows);
 		height_ = at_rows.GetValue();
-		cout << "Rows: " << height_;
-		cout << endl;
+//		cout << "Rows: " << height_;
+//		cout << endl;
 	}
 	else
 	{
@@ -160,12 +174,14 @@ void DICOMImage::ReadDICOMFile()
 		throw std::exception();
 	}
 
-	const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
-	gdcm::Attribute<0x0028,0x0011> at_cols;
-	at_cols.SetFromDataElement(cols);
-	width_ = at_cols.GetValue();
-	cout << "Columns: " << width_;
-	cout << endl;
+	{
+		const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
+		gdcm::Attribute<0x0028,0x0011> at_cols;
+		at_cols.SetFromDataElement(cols);
+		width_ = at_cols.GetValue();
+//		cout << "Columns: " << width_;
+//		cout << endl;
+	}
 
 //	if (ds.FindDataElement(gdcm::Tag(0x0018,0x0050)))
 //	{
@@ -211,12 +227,14 @@ void DICOMImage::ReadDICOMFile()
 		orientation2_ = Vector3D(-at_ori[3],at_ori[4],-at_ori[5]);
 	}
 	
-	const gdcm::DataElement& spacing = ds.GetDataElement(gdcm::Tag(0x0028,0x0030));
-	gdcm::Attribute<0x0028,0x0030> at_spc;
-	at_spc.SetFromDataElement(spacing);
-	pixelSizeX_ = at_spc[0];
-	pixelSizeY_ = at_spc[1];
-	cout << "pixelSize\n";
+	{
+		const gdcm::DataElement& spacing = ds.GetDataElement(gdcm::Tag(0x0028,0x0030));
+		gdcm::Attribute<0x0028,0x0030> at_spc;
+		at_spc.SetFromDataElement(spacing);
+		pixelSizeX_ = at_spc[0];
+		pixelSizeY_ = at_spc[1];
+//		cout << "pixelSize\n";
+	}
 	
 	//patient name (0010,0010) 
 	{
