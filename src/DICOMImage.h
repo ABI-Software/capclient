@@ -137,6 +137,11 @@ public:
 		return sopInstanceUID_;
 	}
 	
+	std::string const& GetSeriesInstanceUID() const
+	{
+		return seriesInstanceUID_;
+	}
+	
 	int GetInstanceNumber() const
 	{
 		return instanceNumber_;
@@ -204,6 +209,7 @@ private:
 	
 	std::string studyInstanceUID_;
 	std::string sopInstanceUID_;
+	std::string seriesInstanceUID_;
 	std::string seriesDescription_;
 	std::string sequenceName_;
 	double triggerTime_;
