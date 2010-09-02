@@ -77,6 +77,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 	// CAPXMLInput
 	int slice = 0;
 	
+	xmlFile_.ClearInputAndOutput();
 	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
 	{
 		std::string const& label = sliceInfo.get<0>();
@@ -98,6 +99,9 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 			{
 				Point3D const& pos = dicomFile->GetShiftedImagePosition();
 				image.imagePosition = boost::make_shared<Point3D>(pos);
+			}
+			if (dicomFile->IsRotated())
+			{
 				typedef std::pair<Vector3D, Vector3D> Orientation;
 				Orientation ori = dicomFile->GetShiftedImageOrientation();
 				image.imageOrientation = boost::make_shared<Orientation>(ori);
