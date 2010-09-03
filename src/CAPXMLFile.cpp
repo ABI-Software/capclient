@@ -284,33 +284,42 @@ void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
 			while (child)
 			{
 				xmlChar* value = xmlNodeGetContent(child);
-				if (!xmlStrcmp(cur->name, (const xmlChar *)"operatingSystem"))
+				std::string valueStr((char*)value);
+				if (!xmlStrcmp(child->name, (const xmlChar *)"operatingSystem"))
 				{
-					provenanceDetail.operatingSystem = (char*)value;
+					provenanceDetail.operatingSystem = valueStr;
 				}
-				else if (!xmlStrcmp(cur->name, (const xmlChar *)"package"))
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"package"))
 				{
-					provenanceDetail.package = (char*)value;
+					provenanceDetail.package = valueStr;
 				}
-				else if (!xmlStrcmp(cur->name, (const xmlChar *)"platform"))
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"platform"))
 				{
-					provenanceDetail.platform = (char*)value;
+					provenanceDetail.platform = valueStr;
 				}
-				else if (!xmlStrcmp(cur->name, (const xmlChar *)"programParams"))
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"programParams"))
 				{
-					provenanceDetail.programParams = (char*)value;
+					provenanceDetail.programParams = valueStr;
 				}
-				else if (!xmlStrcmp(cur->name, (const xmlChar *)"programVersion"))
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"programVersion"))
 				{
-					provenanceDetail.programVersion = (char*)value;
+					provenanceDetail.programVersion = valueStr;
 				}
-				else if (!xmlStrcmp(cur->name, (const xmlChar *)"step"))
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"step"))
 				{
-					provenanceDetail.step = (char*)value;
+					provenanceDetail.step = valueStr;
 				}
-				else if (!xmlStrcmp(cur->name, (const xmlChar *)"comment"))
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"comment"))
 				{
-					provenanceDetail.comment = (char*)value;
+					provenanceDetail.comment = valueStr;
+				}
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"program"))
+				{
+					provenanceDetail.program = valueStr;
+				}
+				else if (!xmlStrcmp(child->name, (const xmlChar *)"process"))
+				{
+					provenanceDetail.process = valueStr;
 				}
 
 				child = child->next;
@@ -395,13 +404,14 @@ void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 	xmlNodePtr imageNode = xmlNewChild(input, NULL, BAD_CAST "Image", NULL);
 	std::string frame = boost::lexical_cast<std::string>(image.frame);
 	xmlNewProp(imageNode, BAD_CAST "frame", BAD_CAST frame.c_str());
-	std::string slice = boost::lexical_cast<std::string>(image.slice);
-	xmlNewProp(imageNode, BAD_CAST "slice", BAD_CAST slice.c_str());
-	xmlNewProp(imageNode, BAD_CAST "sopiuid", BAD_CAST image.sopiuid.c_str());
 	if (image.label.length())
 	{
 		xmlNewProp(imageNode, BAD_CAST "label", BAD_CAST image.label.c_str());
 	}
+	xmlNewProp(imageNode, BAD_CAST "seriesiuid", BAD_CAST image.seriesiuid.c_str());
+	std::string slice = boost::lexical_cast<std::string>(image.slice);
+	xmlNewProp(imageNode, BAD_CAST "slice", BAD_CAST slice.c_str());
+	xmlNewProp(imageNode, BAD_CAST "sopiuid", BAD_CAST image.sopiuid.c_str());
 	
 	if (image.imagePosition)
 	{
@@ -445,6 +455,21 @@ void ConstructExnodeNode(CAPXMLFile::Exnode const &exnode, xmlNodePtr output)
 	xmlNodePtr frameNode = xmlNewChild(output, NULL, BAD_CAST "Exnode", BAD_CAST exnode.exnode.c_str());
 	std::string frameStr(boost::lexical_cast<std::string>(exnode.frame));
 	xmlNewProp(frameNode, BAD_CAST "frame", BAD_CAST frameStr.c_str());
+}
+
+void ConstructProvenanceDetailNode(CAPXMLFile::ProvenanceDetail const& provenanceDetail, xmlNodePtr documentation)
+{
+	xmlNodePtr pdNode = xmlNewChild(documentation, NULL, BAD_CAST "provenanceDetail", NULL);
+	xmlNewProp(pdNode, BAD_CAST "date", BAD_CAST provenanceDetail.date.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "step", BAD_CAST provenanceDetail.step.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "platform", BAD_CAST provenanceDetail.platform.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "operatingSystem", BAD_CAST provenanceDetail.operatingSystem.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "package", BAD_CAST provenanceDetail.package.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "program", BAD_CAST provenanceDetail.program.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "programVersion", BAD_CAST provenanceDetail.programVersion.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "programParams", BAD_CAST provenanceDetail.programParams.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "process", BAD_CAST provenanceDetail.process.c_str());
+	xmlNewChild(pdNode, NULL, BAD_CAST "comment", BAD_CAST provenanceDetail.comment.c_str());
 }
 
 } // end unnamed namespace
@@ -590,14 +615,9 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 			boost::bind(ConstructExnodeNode, _1, outputNode));
 	
 	//Documentation
-	xmlNodePtr documentation = xmlNewChild(root_node, NULL, BAD_CAST "Documentation", NULL);
-//	xmlNodePtr version = xmlNewChild(documentation, NULL, BAD_CAST "provenaceDetail", NULL);
-//	xmlNewProp(version, BAD_CAST "date", BAD_CAST documentation_.provenanceDetail.date.c_str());
-	//TODO
-//	xmlNewProp(version, BAD_CAST "log", BAD_CAST documentation_.version.log.c_str());
-//	std::string numberStr(boost::lexical_cast<std::string>(documentation_.version.number));
-//	xmlNewProp(version, BAD_CAST "number", BAD_CAST numberStr.c_str());
-	
+	xmlNodePtr documentationNode = xmlNewChild(root_node, NULL, BAD_CAST "Documentation", NULL);
+	std::for_each(documentation_.provenanceDetails.begin(), documentation_.provenanceDetails.end(),
+			boost::bind(ConstructProvenanceDetailNode, _1, documentationNode));
 
 	/* 
 	 * Dumping document to stdio or file

@@ -88,6 +88,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		{
 			CAPXMLFile::Image image;
 			image.sopiuid = dicomFile->GetSopInstanceUID();
+			image.seriesiuid = dicomFile->GetSeriesInstanceUID();
 			image.label = label;
 			image.frame = frame++;
 			image.slice = slice;

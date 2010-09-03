@@ -56,6 +56,7 @@ public:
 		std::vector<Point> points;
 		std::vector<ContourFile> countourFiles;
 		std::string sopiuid;
+		std::string seriesiuid;
 		int frame;
 		int slice;
 		std::string label;//LA1, SA2 etc
@@ -72,12 +73,14 @@ public:
 	struct ProvenanceDetail
 	{
 		std::string date;
+		std::string step;
+		std::string platform;
 		std::string operatingSystem;
 		std::string package;
-		std::string platform;
-		std::string programParams;
+		std::string program;
 		std::string programVersion;
-		std::string step;
+		std::string programParams;
+		std::string process;
 		std::string comment;
 	};
 
