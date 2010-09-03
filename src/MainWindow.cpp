@@ -12,6 +12,7 @@
 #include "ImageSet.h"
 #include "CmguiExtensions.h"
 #include "ImageBrowseWindow.h"
+#include "UserCommentDialog.h"
 #include "CAPHtmlWindow.h"
 #include "CAPXMLFile.h"
 #include "CAPXMLFileHandler.h"
@@ -257,7 +258,8 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
 	this->Fit();
-
+	this->Centre();
+	
 	EnterInitState();
 }
 
@@ -366,6 +368,12 @@ void MainWindow::EnterImagesLoadedState()
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
 
+	// Reset capXMLFilePtr_
+//	if (capXMLFilePtr_)
+//	{
+//		capXMLFilePtr_.reset(0);
+//	}
+	
 	// Initialize timer for animation
 	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
 	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
@@ -917,6 +925,7 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 		return;
 	}
 	
+	//FIXME memory leak?
 	cap::ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()),
 			cmguiManager_, *this);
 	frame->Show(true);
@@ -1039,7 +1048,9 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-		CAPXMLFile xmlFile(filename.c_str());
+//		CAPXMLFile xmlFile(filename.c_str());
+		capXMLFilePtr_.reset(new CAPXMLFile(filename.c_str()));
+		CAPXMLFile& xmlFile(*capXMLFilePtr_);
 		std::cout << "Start reading xml file\n";
 		xmlFile.ReadFile();
 		
@@ -1104,12 +1115,67 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	    heartModel_.WriteToFile(dirname.c_str());
 	}
 
-	CAPXMLFile xmlFile(dirname.c_str());
+//	CAPXMLFile xmlFile(dirname.c_str());
+	if (!capXMLFilePtr_)
+	{
+		capXMLFilePtr_.reset(new CAPXMLFile(dirname.c_str()));
+	}
+	CAPXMLFile& xmlFile(*capXMLFilePtr_);
+	
+	std::string const& userComment = PromptForUserComment();
+	std::cout << "User comment = " << userComment << "\n";
+	if (userComment.empty())
+	{
+		// save has been canceled 
+		return;
+	}
+	
 	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
 	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, heartModel_);
-	xmlFile.WriteFile(std::string(dirname.c_str()) + "/" + xmlFile.GetName() + ".xml");
+	
+	std::string dirnameStl(dirname.c_str());
+	size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
+	std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);
+	xmlFile.SetName(modelName);
+	std::string xmlFilename = std::string(dirname.c_str()) + "/" + modelName + ".xml";
+	std::cout << "xmlFilename = " << xmlFilename << '\n';
+	
+	xmlFile.WriteFile(xmlFilename);
+}
+
+std::string MainWindow::PromptForUserComment()
+{
+	UserCommentDialog dialog(this);
+	dialog.Center();
+	std::string comment;
+	
+	while (true)
+	{
+		if (dialog.ShowModal() == wxID_OK)
+		{
+			comment = dialog.GetComment();
+			if (!comment.empty())
+			{
+				break;
+			}
+			
+			int answer = wxMessageBox("Please enter user comment", "Empty Comment",
+											wxOK, this);
+		}
+		else
+		{
+			int answer = wxMessageBox("Cancel Save?", "Confirm",
+											wxYES_NO, this);
+			if (answer == wxYES)
+			{
+				break;
+			}
+		}
+	}
+	
+	return comment;
 }
 
 void MainWindow::OnQuit(wxCommandEvent& event)

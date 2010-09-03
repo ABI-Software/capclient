@@ -15,6 +15,8 @@ extern "C" {
 #include "CAPModeller.h"
 #include "ImageBrowseWindowClient.h"
 
+#include <boost/scoped_ptr.hpp>
+
 struct Cmiss_node;
 struct Cmiss_time_keeper;
 
@@ -23,7 +25,7 @@ namespace cap
 
 class ImageSet;
 class CmguiManager;
-
+class CAPXMLFile;
 
 class MainWindow : public wxFrame, public ImageBrowseWindowClient
 {
@@ -92,6 +94,8 @@ private:
 	void EnterImagesLoadedState();
 
 	void EnterModelLoadedState();
+	
+	std::string PromptForUserComment();
 
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
@@ -147,6 +151,7 @@ private:
 	};
 
 	MainWindowState mainWindowState_;
+	boost::scoped_ptr<CAPXMLFile> capXMLFilePtr_;
 };
 
 } // end namespace cap
