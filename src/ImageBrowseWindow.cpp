@@ -146,8 +146,7 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 		PopulateImageTable();
 	}
 	
-	// Finally fit the window to meet the size requirements of its children
-	// this also forces the cmgui panel to display correctly
+	// fit the window to meet the size requirements of its children
 	this->Fit();
 	
 	// This stops the window from getting too long in height 
