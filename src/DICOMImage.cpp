@@ -55,7 +55,7 @@ void DICOMImage::ReadDICOMFile()
 
 	gdcm::Reader r;
 	r.SetFileName( filename_.c_str() );
-//	cout << "DICOM filename = " << filename_ << '\n';
+	cout << "DICOM filename = " << filename_ << '\n';
 	if( !r.Read() )
 	{
 		cout << "Can't read file: " << filename_ << endl;
@@ -134,7 +134,7 @@ void DICOMImage::ReadDICOMFile()
 		gdcm::Attribute<0x0018,0x0024> at_seqName;
 		at_seqName.SetFromDataElement(seqName);
 		sequenceName_ = at_seqName.GetValue();
-		cout << "sequenceName_: " << sequenceName_ << '\n';
+//		cout << "sequenceName_: " << sequenceName_ << '\n';
 	//	cout << endl;
 	}
 	else
@@ -260,7 +260,7 @@ void DICOMImage::ReadDICOMFile()
 		scanDate_ = at.GetValue();
 	}
 	
-	cout << "acquisition time\n";
+//	cout << "acquisition time\n";
 	
 	//date of birth (0010,0030)
 	{
@@ -306,7 +306,7 @@ void DICOMImage::ReadDICOMFile()
 		instanceNumber_ = -1;
 	}
 	
-	cout << "Exiting " << __func__ << '\n';
+//	cout << "Exiting " << __func__ << '\n';
 }
 
 void DICOMImage::ComputeImagePlane()
