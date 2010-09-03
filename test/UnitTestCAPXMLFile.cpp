@@ -36,6 +36,8 @@ TEST(CAPXMLFile, ReadXML)
 	EXPECT_EQ(exnode.exnode, "cap.exnode");
 	EXPECT_EQ(exnode.frame, 1);
 	
+	CAPXMLFile::ProvenanceDetail& pd = xmlFile.documentation_.provenanceDetails[0];
+	EXPECT_EQ(pd.comment, "Converted from CIM model");
 	// add more tests
 }
 
