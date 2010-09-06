@@ -41,24 +41,16 @@ public:
 		wxButton *bu1 = new wxButton(this, wxID_OK, _("Accept"));
 //		bu1 -> SetDefault();
 		wxButton *bu2 = new wxButton(this, wxID_CANCEL, _("Cancel"));
-//		bu1 -> SetDefault();
 				
-		buttonsizer->Add(bu1, 0, wxALL | wxALIGN_RIGHT, 5);
-		buttonsizer->Add(bu2, 0, wxALL | wxALIGN_RIGHT, 5);
+		buttonsizer->Add(bu1, 0, wxALL, 5);
+		buttonsizer->Add(bu2, 0, wxALL, 5);
 		
 		topsizer->Add(buttonsizer, 0, wxALL | wxALIGN_RIGHT, 5);
 		
 		SetSizer(topsizer);
 		topsizer->Fit(this);
-		
-//		Center();
-//		ShowModal();
 	}
 
-//	void OnClose(wxCloseEvent& event)
-//	{
-////		Destroy();
-//	};
 	void OnAcceptButtonEvent(wxCommandEvent& event)
 	{
 		if ( IsModal() )
@@ -71,10 +63,6 @@ public:
 			this->Show(false); // If modeless
 		}
 	};
-//	void OnCancelButtonEvent(wxCommandEvent& event)
-//	{
-//		Close();
-//	};
 
 	DECLARE_EVENT_TABLE();
 	
