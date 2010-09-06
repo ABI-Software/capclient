@@ -58,7 +58,11 @@ public:
 	
 	double GetCurrentTime() const;
 	
-	virtual void LoadImages(SlicesWithImages const& slices);
+	void LoadImages(SlicesWithImages const& slices);
+	
+	void LoadImagesFromXMLFile(SlicesWithImages const& slices);
+
+	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices);
 	
 private:	
 	//private utility functions
@@ -96,6 +100,10 @@ private:
 	void EnterModelLoadedState();
 	
 	std::string PromptForUserComment();
+	
+	void PlayCine();
+	
+	void StopCine();
 
 	//Event handlers
 	void Terminate(wxCloseEvent& event);

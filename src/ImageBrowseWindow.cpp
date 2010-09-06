@@ -681,7 +681,7 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 	
 	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
 
-	client_.LoadImages(slices);
+	client_.LoadImagesFromImageBrowseWindow(slices);
 	Close();
 }
 
