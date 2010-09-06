@@ -57,6 +57,7 @@ SET(SRCS
   src/CAPTimeSmoother.cpp
   src/CAPModellingMode.cpp
   src/DataPoint.cpp
+  src/CAPHtmlWindow.cpp
   src/CAPXMLFile.cpp
   src/CAPXMLFileHandler.cpp
   src/ImageBrowseWindow.cpp
