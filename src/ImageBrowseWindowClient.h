@@ -18,7 +18,7 @@ class ImageBrowseWindowClient
 {
 public:
 	virtual ~ImageBrowseWindowClient() {};
-	virtual void LoadImages(SlicesWithImages const& slices) = 0;
+	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices) = 0;
 };
 
 } // end namespace cap

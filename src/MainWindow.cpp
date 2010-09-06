@@ -374,6 +374,8 @@ void MainWindow::EnterImagesLoadedState()
 //		capXMLFilePtr_.reset(0);
 //	}
 	
+	StopCine();
+	
 	// Initialize timer for animation
 	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
 	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
@@ -403,30 +405,42 @@ void MainWindow::EnterModelLoadedState()
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
 
+	StopCine();
+	
 	mainWindowState_ = MODEL_LOADED_STATE;
 }
 
-void MainWindow::OnTogglePlay(wxCommandEvent& event)
+void MainWindow::PlayCine()
 {
 	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
-	
+	Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
+	Time_keeper_set_play_loop(timeKeeper_);
+	//Time_keeper_set_play_every_frame(timeKeeper_);
+	Time_keeper_set_play_skip_frames(timeKeeper_);
+	this->animationIsOn_ = true;
+	button->SetLabel("stop");
+}
+
+void MainWindow::StopCine()
+{
+	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
+	Time_keeper_stop(timeKeeper_);
+	this->animationIsOn_ = false;
+	button->SetLabel("play");
+	wxCommandEvent event;
+	OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
+}
+
+void MainWindow::OnTogglePlay(wxCommandEvent& event)
+{	
 	if (animationIsOn_)
 	{
-		Time_keeper_stop(timeKeeper_);
-		this->animationIsOn_ = false;
-		button->SetLabel("play");
-		OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
+		StopCine();
 	}
 	else
 	{
-		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
-		Time_keeper_set_play_loop(timeKeeper_);
-		//Time_keeper_set_play_every_frame(timeKeeper_);
-		Time_keeper_set_play_skip_frames(timeKeeper_);
-		this->animationIsOn_ = true;
-		button->SetLabel("stop");
+		PlayCine();
 	}
-	
 	return;
 }
 
@@ -932,6 +946,16 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 }
 
 void MainWindow::LoadImages(SlicesWithImages const& slices)
+{
+	
+}
+
+void MainWindow::LoadImagesFromXMLFile(SlicesWithImages const& slices)
+{
+	
+}
+
+void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 {
 	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
 	if (slices.empty())
