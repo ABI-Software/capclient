@@ -681,6 +681,13 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 	
 	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
 
+	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
+	if (slices.empty())
+	{
+		std::cout << "Empty image set.\n";
+		return;
+	}
+	
 	client_.LoadImagesFromImageBrowseWindow(slices);
 	Close();
 }

@@ -367,12 +367,6 @@ void MainWindow::EnterImagesLoadedState()
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
-
-	// Reset capXMLFilePtr_
-//	if (capXMLFilePtr_)
-//	{
-//		capXMLFilePtr_.reset(0);
-//	}
 	
 	StopCine();
 	
@@ -947,22 +941,7 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 
 void MainWindow::LoadImages(SlicesWithImages const& slices)
 {
-	
-}
-
-void MainWindow::LoadImagesFromXMLFile(SlicesWithImages const& slices)
-{
-	
-}
-
-void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
-{
-	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-	if (slices.empty())
-	{
-		std::cout << "Empty image set.\n";
-		return;
-	}
+	assert(!slices.empty());
 
 	if(imageSet_)
 	{
@@ -972,6 +951,24 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 	imageSet_ = new ImageSet(slices, cmguiManager_);
 	imageSet_->SetVisible(true);//FIXME
 	Cmiss_scene_viewer_view_all(sceneViewer_);
+	
+	this->PopulateObjectList(); // fill in slice check box list
+}
+
+void MainWindow::LoadImagesFromXMLFile(SlicesWithImages const& slices)
+{
+	LoadImages(slices);
+}
+
+void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
+{
+	// Reset capXMLFilePtr_
+	if (capXMLFilePtr_)
+	{
+		capXMLFilePtr_.reset(0);
+	}
+	
+	LoadImages(slices);
 	
 	//FIXME
 	SlicesWithImages::const_iterator itr = slices.begin();
@@ -993,8 +990,6 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
 	heartModel_.SetMIIVisibility(false);
 	heartModel_.SetModelVisibility(false);
-	
-	this->PopulateObjectList(); // fill in slice check box list
 
 	EnterImagesLoadedState();
 }
@@ -1087,7 +1082,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		}
 
 		// TODO clean up first
-		LoadImages(slicesWithImages);
+		LoadImagesFromXMLFile(slicesWithImages);
 
 		std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints(cmguiManager_);
 
