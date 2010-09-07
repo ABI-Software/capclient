@@ -1143,6 +1143,11 @@ double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, double time) const
 
 void CAPModelLVPS4X4::SetFocalLengh(double focalLength)
 {
+	if (!pImpl_->field)
+	{
+		std::cout << __func__ << " : pImpl_->field is not defined yet\n"; 
+		return;
+	}
 	struct Coordinate_system* coordinate_system = Computed_field_get_coordinate_system(pImpl_->field);
 	focalLength_ = focalLength;
 	coordinate_system->parameters.focus = focalLength_;
