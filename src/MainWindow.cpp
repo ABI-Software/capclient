@@ -1151,6 +1151,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		xmlFile.GetTransformationMatrix(m);
 		heartModelPtr_->SetLocalToGlobalTransformation(m);
 		modeller_->SetDataPoints(dataPoints);
+		UpdateMII();
 
 		//HACK
 		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
