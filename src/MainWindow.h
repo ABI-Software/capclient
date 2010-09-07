@@ -139,15 +139,15 @@ private:
 	CmguiManager const& cmguiManager_;
 	Cmiss_context_id context_;
 	Cmiss_time_keeper* timeKeeper_;
-	cap::ImageSet* imageSet_;
+	ImageSet* imageSet_;
 	
 	bool animationIsOn_;
 	bool hideAll_;
 	
-	cap::CAPModelLVPS4X4 heartModel_;
+	CAPModelLVPS4X4 heartModel_;
 	
 //	std::vector<DataPoint*> dataPoints_;
-	cap::CAPModeller* modeller_;
+	CAPModeller* modeller_;
 	
 	Cmiss_scene_viewer_id sceneViewer_;
 
