@@ -1016,7 +1016,7 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 	EnterImagesLoadedState();
 }
 
-void MainWindow::UpdateStatesAfterLoadingModel()
+void MainWindow::CreateModeller()
 {
 	if (modeller_)
 	{
@@ -1024,7 +1024,11 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 	}
 	assert(heartModelPtr_);
 	modeller_ = new CAPModeller(*heartModelPtr_); // initialise modeller and all the data points
+}
 
+void MainWindow::ResetModeChoice()
+{
+	// Resets the mode choice UI widget to Apex mode
 	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 	int numberOfItems = choice->GetCount();
 	for (int i = numberOfItems-1; i > 0; i--)
@@ -1033,13 +1037,17 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 		choice->Delete(i);
 	}
 	choice->SetSelection(0);
-	
+}
+
+void MainWindow::UpdateModelVisibilityAccordingToUI()
+{
 	wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
 	assert(heartModelPtr_);
 	heartModelPtr_->SetModelVisibility(modelVisibilityCheckBox->IsChecked());
-	
-	InitialiseMII(); // This turns on all MII's
-	
+}
+
+void MainWindow::UpdateMIIVisibilityAccordingToUI()
+{
 	// Update the visibility of each mii according to the ui status
 	// ( = mii checkbox and the slice list)
 	wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
@@ -1059,7 +1067,18 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 	{
 		heartModelPtr_->SetMIIVisibility(false);
 	}
+}
 
+void MainWindow::UpdateStatesAfterLoadingModel()
+{
+	CreateModeller();
+	ResetModeChoice();
+	
+	UpdateModelVisibilityAccordingToUI();
+	
+	InitialiseMII(); // This turns on all MII's
+	UpdateMIIVisibilityAccordingToUI();
+	
 	EnterModelLoadedState();
 }
 

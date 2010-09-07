@@ -104,6 +104,14 @@ private:
 	
 	void PlayCine();
 
+	void CreateModeller();
+
+	void ResetModeChoice();
+
+	void UpdateModelVisibilityAccordingToUI();
+
+	void UpdateMIIVisibilityAccordingToUI();
+	
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void OnTogglePlay(wxCommandEvent& event);
