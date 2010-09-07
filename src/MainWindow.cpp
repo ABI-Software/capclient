@@ -307,18 +307,6 @@ void MainWindow::SmoothAlongTime()
 	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(ENDOCARDIUM, 0) << endl;
 }
 
-//void DisableWidgetByName(wxWindow& w, std::string const& name)
-//{
-//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
-//	widget->Disable();
-//}
-//
-//void EnableWidgetByName(wxWindow& w, std::string const& name)
-//{
-//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
-//	widget->Enable();
-//}
-
 template <typename Widget>
 Widget* MainWindow::GetWidgetByName(std::string const& name)
 {
@@ -405,7 +393,8 @@ void MainWindow::EnterModelLoadedState()
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
 
 	StopCine();
-//	heartModel_.SetModelVisibility(true);
+	heartModel_.SetModelVisibility(true);
+	GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
 	
 	mainWindowState_ = MODEL_LOADED_STATE;
 }
