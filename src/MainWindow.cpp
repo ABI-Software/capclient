@@ -74,6 +74,11 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	static Cmiss_node_id selectedNode = NULL; // Thread unsafe
 	MainWindow* frame = static_cast<MainWindow*>(viewer_frame_void);
 	
+	// We have to stop the animation when the user clicks on the 3D panel.
+	// Since dragging a point while cine is playing can cause a problem
+	// But Is this the best place put this code?
+	frame->StopCine();
+	
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
 	double time = frame->GetCurrentTime(); // TODO REVISE
