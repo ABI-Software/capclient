@@ -144,9 +144,8 @@ private:
 	bool animationIsOn_;
 	bool hideAll_;
 	
-	CAPModelLVPS4X4 heartModel_;
+	boost::scoped_ptr<CAPModelLVPS4X4> heartModelPtr_;
 	
-//	std::vector<DataPoint*> dataPoints_;
 	CAPModeller* modeller_;
 	
 	Cmiss_scene_viewer_id sceneViewer_;

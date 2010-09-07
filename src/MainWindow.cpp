@@ -241,8 +241,10 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	animationIsOn_(false),
 	hideAll_(true),
 	timeKeeper_(Cmiss_context_get_default_time_keeper(cmguiManager.GetCmissContext())),
-	heartModel_("heart", cmguiManager.GetCmissContext()),
-	modeller_(new CAPModeller(heartModel_)),
+//	heartModel_("heart", cmguiManager.GetCmissContext()),
+	heartModelPtr_(new CAPModelLVPS4X4("heart", cmguiManager.GetCmissContext())),
+//	modeller_(new CAPModeller(heartModel_)),
+	modeller_(new CAPModeller(*heartModelPtr_)),
 	imageSet_(0)
 {
 	// Load layout from .xrc file
@@ -303,8 +305,9 @@ void MainWindow::SmoothAlongTime()
 	modeller_->SmoothAlongTime();
 	RefreshCmguiCanvas();
 	
-	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(EPICARDIUM, 0) << endl;
-	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(ENDOCARDIUM, 0) << endl;
+	assert(heartModelPtr_);
+	cout << "ED Volume(EPI) = " << heartModelPtr_->ComputeVolume(EPICARDIUM, 0) << endl;
+	cout << "ED Volume(ENDO) = " << heartModelPtr_->ComputeVolume(ENDOCARDIUM, 0) << endl;
 }
 
 template <typename Widget>
@@ -393,7 +396,8 @@ void MainWindow::EnterModelLoadedState()
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
 
 	StopCine();
-	heartModel_.SetModelVisibility(true);
+	assert(heartModelPtr_);
+	heartModelPtr_->SetModelVisibility(true);
 	GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
 	
 	mainWindowState_ = MODEL_LOADED_STATE;
@@ -518,14 +522,15 @@ void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	int min = slider->GetMin();
 	int max = slider->GetMax();
 	double time =  (double)(value - min) / (double)(max - min);
-	double prevFrameTime = heartModel_.MapToModelFrameTime(time);
-	if ((time - prevFrameTime) < (0.5)/(heartModel_.GetNumberOfModelFrames()))
+	assert(heartModelPtr_);
+	double prevFrameTime = heartModelPtr_->MapToModelFrameTime(time);
+	if ((time - prevFrameTime) < (0.5)/(heartModelPtr_->GetNumberOfModelFrames()))
 	{
 		time = prevFrameTime;
 	}
 	else
 	{
-		time = prevFrameTime + (double)1/(heartModel_.GetNumberOfModelFrames());
+		time = prevFrameTime + (double)1/(heartModelPtr_->GetNumberOfModelFrames());
 	}
 	slider->SetValue(static_cast<int>(time * (max - min)));
 //	cout << __func__ << ": time = " << time << endl;;
@@ -572,7 +577,8 @@ void MainWindow::SetTime(double time)
 	//cout << "min = " << min << " ,max = " << max <<endl; 
 	slider->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
 	
-	int frameNumber = heartModel_.MapToModelFrameNumber(time);
+	assert(heartModelPtr_);
+	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
 	std::ostringstream frameNumberStringStream;
 	frameNumberStringStream << "Frame Number: " << frameNumber;
 	SetStatusText(wxT(frameNumberStringStream.str().c_str()), 0);
@@ -645,8 +651,9 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 
 void MainWindow::SetImageVisibility(bool visibility, int index)
 {
+	assert(heartModelPtr_);
 	if (XRCCTRL(*this, "MII", wxCheckBox)->IsChecked())
-		heartModel_.SetMIIVisibility(visibility, index);
+		heartModelPtr_->SetMIIVisibility(visibility, index);
 	imageSet_->SetVisible(visibility, index);
 }
 
@@ -677,7 +684,8 @@ void MainWindow::RenderIsoSurfaces()
 	const ImagePlane& plane_SA1 = imageSet_->GetImagePlane("SA1");
 	const ImagePlane& plane_SA6 = imageSet_->GetImagePlane("SA6");
 	
-	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+	assert(heartModelPtr_);
+	const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
 //	cout << m << endl;
 
 	gtMatrix mInv;
@@ -745,7 +753,8 @@ void MainWindow::UpdateMII() //FIX
 		char str[256];
 		
 		const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
-		const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();
+		assert(heartModelPtr_);
+		const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();
 	
 		gtMatrix mInv;
 		inverseMatrix(m, mInv);
@@ -760,7 +769,7 @@ void MainWindow::UpdateMII() //FIX
 		
 		Point3D pointTLCTransformed = mInv * plane.tlc;
 		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
-		heartModel_.UpdateMII(index, d);
+		heartModelPtr_->UpdateMII(index, d);
 	}
 }
 
@@ -769,7 +778,8 @@ void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4
 	char str[256];
 	
 	const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
-	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+	assert(heartModelPtr_);
+	const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
 //	cout << m << endl;
 
 	gtMatrix mInv;
@@ -797,19 +807,20 @@ void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4
 
 void MainWindow::OnMIICheckBox(wxCommandEvent& event)
 {
-	//heartModel_.SetMIIVisibility(event.IsChecked()); TEST
+	assert(heartModelPtr_);
 	for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
 	{
 		if (objectList_->IsChecked(i))
 		{
-			heartModel_.SetMIIVisibility(event.IsChecked(),i);
+			heartModelPtr_->SetMIIVisibility(event.IsChecked(),i);
 		}
 	}
 }
 
 void MainWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
-	heartModel_.SetModelVisibility(event.IsChecked());
+	assert(heartModelPtr_);
+	heartModelPtr_->SetModelVisibility(event.IsChecked());
 }
 
 void MainWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
@@ -979,12 +990,13 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 		}
 	}
 	
-	heartModel_.SetNumberOfModelFrames(minNumberOfFrames);
+	assert(heartModelPtr_);
+	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
 	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
 	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
 	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
-	heartModel_.SetMIIVisibility(false);
-	heartModel_.SetModelVisibility(false);
+	heartModelPtr_->SetMIIVisibility(false);
+	heartModelPtr_->SetModelVisibility(false);
 
 	EnterImagesLoadedState();
 }
@@ -995,7 +1007,8 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 	{
 		delete modeller_;
 	}
-	modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
+	assert(heartModelPtr_);
+	modeller_ = new CAPModeller(*heartModelPtr_); // initialise modeller and all the data points
 
 	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 	int numberOfItems = choice->GetCount();
@@ -1007,7 +1020,8 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 	choice->SetSelection(0);
 	
 	wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
-	heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
+	assert(heartModelPtr_);
+	heartModelPtr_->SetModelVisibility(modelVisibilityCheckBox->IsChecked());
 	
 	InitialiseMII(); // This turns on all MII's
 	
@@ -1022,13 +1036,13 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 			cout << "slice num = " << i << ", isChecked = " << objectList_->IsChecked(i) << endl;
 			if (!objectList_->IsChecked(i))
 			{
-				heartModel_.SetMIIVisibility(false,i);
+				heartModelPtr_->SetMIIVisibility(false,i);
 			}
 		}
 	}
 	else
 	{
-		heartModel_.SetMIIVisibility(false);
+		heartModelPtr_->SetMIIVisibility(false);
 	}
 
 	EnterModelLoadedState();
@@ -1036,13 +1050,15 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 
 void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
 {
-	heartModel_.ReadModelFromFiles(dirOnly, prefix);
+	assert(heartModelPtr_);
+	heartModelPtr_->ReadModelFromFiles(dirOnly, prefix);
 	UpdateStatesAfterLoadingModel();
 }
 
 void MainWindow::LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames)
 {
-	heartModel_.ReadModelFromFiles(path, modelFilenames);
+	assert(heartModelPtr_);
+	heartModelPtr_->ReadModelFromFiles(path, modelFilenames);
 	UpdateStatesAfterLoadingModel();
 }
 
@@ -1091,13 +1107,14 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 		std::cout << "modelFilePath = " << modelFilePath << '\n';
 
-		heartModel_.SetFocalLengh(xmlFile.GetFocalLength());
+		assert(heartModelPtr_);
+		heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
 		int numberOfModelFrames = exnodeFileNames.size();
-		heartModel_.SetNumberOfModelFrames(numberOfModelFrames);
+		heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
 		LoadHeartModel(modelFilePath, exnodeFileNames);
 		gtMatrix m;
 		xmlFile.GetTransformationMatrix(m);
-		heartModel_.SetLocalToGlobalTransformation(m);
+		heartModelPtr_->SetLocalToGlobalTransformation(m);
 		modeller_->SetDataPoints(dataPoints);
 
 		//HACK
@@ -1122,11 +1139,15 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	
 	wxString dirname = wxFileSelector("Save file",
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if ( !dirname.empty() && mainWindowState_ == MODEL_LOADED_STATE)
+	if (!dirname.empty())
 	{
-	    // work with the file
-	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
-	    heartModel_.WriteToFile(dirname.c_str());
+		std::string const& userComment = PromptForUserComment();
+		std::cout << "User comment = " << userComment << "\n";
+		if (userComment.empty())
+		{
+			// save has been canceled 
+			return;
+		}
 	}
 
 //	CAPXMLFile xmlFile(dirname.c_str());
@@ -1136,18 +1157,10 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	}
 	CAPXMLFile& xmlFile(*capXMLFilePtr_);
 	
-	std::string const& userComment = PromptForUserComment();
-	std::cout << "User comment = " << userComment << "\n";
-	if (userComment.empty())
-	{
-		// save has been canceled 
-		return;
-	}
-	
 	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
-	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, heartModel_);
+	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, *heartModelPtr_);
 	
 	std::string dirnameStl(dirname.c_str());
 	size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
@@ -1157,6 +1170,14 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	std::cout << "xmlFilename = " << xmlFilename << '\n';
 	
 	xmlFile.WriteFile(xmlFilename);
+	
+	if (mainWindowState_ == MODEL_LOADED_STATE)
+	{
+	    // work with the file
+	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
+	    assert(heartModelPtr_);
+	    heartModelPtr_->WriteToFile(dirname.c_str());
+	}
 }
 
 std::string MainWindow::PromptForUserComment()
@@ -1327,7 +1348,8 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	struct Scene_object * modelSceneObject=Scene_get_Scene_object_by_name(scene, scene_object_name);
 	if (modelSceneObject)
 	{
-		const gtMatrix& patientToGlobalTransform = heartModel_.GetLocalToGlobalTransformation();
+		assert(heartModelPtr_);
+		const gtMatrix& patientToGlobalTransform = heartModelPtr_->GetLocalToGlobalTransformation();
 		Scene_object_set_transformation(modelSceneObject, const_cast<gtMatrix*>(&patientToGlobalTransform));
 	}
 	else
@@ -1369,7 +1391,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	cout << "range after : " << centre_x  << ", " << centre_y << ", "
 			<< centre_z << ", " << size_x << ", " << size_y <<", "<<  size_z << endl;
 	
-	std::pair<double, double> range = get_range(imageSet_, heartModel_);
+	std::pair<double, double> range = get_range(imageSet_, *heartModelPtr_);
 	double min = std::min(range.first, range.second);
 	double max = std::max(range.first, range.second);
 	int i = 1;
