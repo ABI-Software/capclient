@@ -241,10 +241,9 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	animationIsOn_(false),
 	hideAll_(true),
 	timeKeeper_(Cmiss_context_get_default_time_keeper(cmguiManager.GetCmissContext())),
-//	heartModel_("heart", cmguiManager.GetCmissContext()),
-	heartModelPtr_(new CAPModelLVPS4X4("heart", cmguiManager.GetCmissContext())),
-//	modeller_(new CAPModeller(heartModel_)),
-	modeller_(new CAPModeller(*heartModelPtr_)),
+	timeNotifier_(0),
+	heartModelPtr_(0),
+	modeller_(0),
 	imageSet_(0)
 {
 	// Load layout from .xrc file
@@ -302,6 +301,10 @@ void MainWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 
 void MainWindow::SmoothAlongTime()
 {
+	if (!modeller_)
+	{
+		return;//FIXME
+	}
 	modeller_->SmoothAlongTime();
 	RefreshCmguiCanvas();
 	
@@ -368,8 +371,13 @@ void MainWindow::EnterImagesLoadedState()
 	
 	// Initialize timer for animation
 	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
-	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
+	if (timeNotifier_)
+	{
+		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
+		Cmiss_time_notifier_destroy(&timeNotifier_);
+	}
+	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
+	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 	Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
 	Time_keeper_set_maximum(timeKeeper_, 1);
 
@@ -393,7 +401,7 @@ void MainWindow::EnterModelLoadedState()
 
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);//FIXME
 
 	StopCine();
 	assert(heartModelPtr_);
@@ -516,6 +524,11 @@ void MainWindow::OnObjectCheckListSelected(wxCommandEvent& event)
 
 void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
+	if (!heartModelPtr_) //FIXME
+	{
+		return;
+	}
+	
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	int value = slider->GetValue();
 	
@@ -964,6 +977,7 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 void MainWindow::LoadImagesFromXMLFile(SlicesWithImages const& slices)
 {
 	LoadImages(slices);
+	EnterImagesLoadedState();
 }
 
 void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
@@ -990,6 +1004,7 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 		}
 	}
 	
+	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
 	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
@@ -1107,6 +1122,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 		std::cout << "modelFilePath = " << modelFilePath << '\n';
 
+		heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
 		assert(heartModelPtr_);
 		heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
 		int numberOfModelFrames = exnodeFileNames.size();
@@ -1150,7 +1166,21 @@ void MainWindow::OnSave(wxCommandEvent& event)
 		}
 	}
 
-//	CAPXMLFile xmlFile(dirname.c_str());
+	if (!wxMkdir(dirname.c_str()))
+	{
+		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
+		return;
+	}
+	
+	// Need to write the model files first 
+	// FIXME : this is brittle code. shoule be less dependent on the order of execution
+	if (mainWindowState_ == MODEL_LOADED_STATE)
+	{
+	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
+	    assert(heartModelPtr_);
+	    heartModelPtr_->WriteToFile(dirname.c_str());
+	}
+	
 	if (!capXMLFilePtr_)
 	{
 		capXMLFilePtr_.reset(new CAPXMLFile(dirname.c_str()));
@@ -1170,14 +1200,6 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	std::cout << "xmlFilename = " << xmlFilename << '\n';
 	
 	xmlFile.WriteFile(xmlFilename);
-	
-	if (mainWindowState_ == MODEL_LOADED_STATE)
-	{
-	    // work with the file
-	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
-	    assert(heartModelPtr_);
-	    heartModelPtr_->WriteToFile(dirname.c_str());
-	}
 }
 
 std::string MainWindow::PromptForUserComment()
@@ -1296,16 +1318,17 @@ std::pair<double,double> get_range(const ImageSet* imageSet_, const CAPModelLVPS
 void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
-	
+	return;
 	//// test
 
-	Cmiss_region_id root = Cmiss_context_get_default_region(context_);
-	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, "/heart/");
-	Cmiss_region_id copy = region;
-	Cmiss_region_remove_child(root, region);
-//	std::cout << "Use_count = " <<
-	Cmiss_region_destroy(&region);
-	Cmiss_region_destroy(&copy);
+	heartModelPtr_.reset(0);
+//	Cmiss_region_id root = Cmiss_context_get_default_region(context_);
+//	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, "/heart/");
+//	Cmiss_region_id copy = region;
+//	Cmiss_region_remove_child(root, region);
+////	std::cout << "Use_count = " <<
+//	Cmiss_region_destroy(&region);
+//	Cmiss_region_destroy(&copy);
 
 	///////
 

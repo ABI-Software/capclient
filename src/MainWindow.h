@@ -18,7 +18,6 @@ extern "C" {
 #include <boost/scoped_ptr.hpp>
 
 struct Cmiss_node;
-struct Cmiss_time_keeper;
 
 namespace cap
 {
@@ -139,6 +138,7 @@ private:
 	CmguiManager const& cmguiManager_;
 	Cmiss_context_id context_;
 	Cmiss_time_keeper* timeKeeper_;
+	Cmiss_time_notifier* timeNotifier_;
 	ImageSet* imageSet_;
 	
 	bool animationIsOn_;

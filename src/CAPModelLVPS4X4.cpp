@@ -22,7 +22,6 @@ extern "C" {
 #include "finite_element/export_finite_element.h"
 }
 
-#include <wx/filefn.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -57,14 +56,23 @@ CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName, Cmiss_context_id 
 
 CAPModelLVPS4X4::~CAPModelLVPS4X4()
 {
+	// FIXME check the access_count of field and region
+	// we need to make sure they are 0
+	
 	if (pImpl_->field)
 	{
 		Cmiss_field_destroy(&pImpl_->field);
 	}
 	
 	if (pImpl_->region)
-	{
-		Cmiss_region_destroy(&pImpl_->region);
+	{	
+		Cmiss_region_id root = Cmiss_context_get_default_region(pImpl_->cmissContext);
+		Cmiss_region_id region = pImpl_->region;
+		Cmiss_region_remove_child(root, region);
+	//	std::cout << "Use_count = " <<
+//		Cmiss_region_destroy(&region);
+//		Cmiss_region_destroy(&pImpl_->region);
+		Cmiss_region_destroy(&root);
 	}
 }
 
@@ -201,12 +209,6 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& model_dir_path, const
 void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 {
 	exnodeModelFileNames_.clear();// FIXME have this method return list of filenames and remove GetFilenames
-	// TODO use a platform/gui toolkit abstraction layer
-	if (!wxMkdir(dirname.c_str()))
-	{
-		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
-		return;
-	}
 	
 	int number_of_field_names = 1;
 	char* field_names[] = {(char*)"coordinates"};
