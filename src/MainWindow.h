@@ -46,6 +46,8 @@ public:
 	
 	//void AddDataPoint(DataPoint* dataPoint);
 	
+	void StopCine();
+	
 	void AddDataPoint(Cmiss_node*, const cap::Point3D&);
 	
 	void MoveDataPoint(Cmiss_node*, const cap::Point3D&);
@@ -102,8 +104,6 @@ private:
 	std::string PromptForUserComment();
 	
 	void PlayCine();
-	
-	void StopCine();
 
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
