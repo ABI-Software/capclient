@@ -405,6 +405,7 @@ void MainWindow::EnterModelLoadedState()
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
 
 	StopCine();
+//	heartModel_.SetModelVisibility(true);
 	
 	mainWindowState_ = MODEL_LOADED_STATE;
 }
@@ -1102,12 +1103,12 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		std::cout << "modelFilePath = " << modelFilePath << '\n';
 
 		heartModel_.SetFocalLengh(xmlFile.GetFocalLength());
-		gtMatrix m;
-		xmlFile.GetTransformationMatrix(m);
-		heartModel_.SetLocalToGlobalTransformation(m);
 		int numberOfModelFrames = exnodeFileNames.size();
 		heartModel_.SetNumberOfModelFrames(numberOfModelFrames);
 		LoadHeartModel(modelFilePath, exnodeFileNames);
+		gtMatrix m;
+		xmlFile.GetTransformationMatrix(m);
+		heartModel_.SetLocalToGlobalTransformation(m);
 		modeller_->SetDataPoints(dataPoints);
 
 		//HACK
