@@ -1,20 +1,5 @@
-extern "C" {
-#include "api/cmiss_scene_viewer.h"
-#include "command/cmiss.h"
-#include "time/time_keeper.h"
-#include "time/time.h"
-}
-
-//#include "wx/wxprec.h"
-//
-//#ifndef WX_PRECOMP
-//   #include "wx/wx.h"
-//#endif
-//#include "wx/xrc/xmlres.h"
-
 #include "Config.h"
 #include "MainWindow.h"
-//#include "ImageBrowseWindow.h"//DEL
 #include "CAPEulaDialog.h"
 #include "CmguiManager.h"
 
