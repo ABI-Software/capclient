@@ -62,6 +62,7 @@ SET(SRCS
   src/CAPXMLFileHandler.cpp
   src/ImageBrowseWindow.cpp
   src/CAPMaterial.cpp
+  src/PlatformInfo.cpp
   #src/DataSet.cpp
 )
 
