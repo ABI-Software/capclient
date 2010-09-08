@@ -87,4 +87,25 @@ std::string PlatformInfo::GetOSVersion()
 }
 #else //Linux
 
+#include <sys/utsname.h>
+
+namespace cap
+{
+
+std::string PlatformInfo::GetOSVersion()
+{
+	struct utsname platformInfo;
+	if (0 <= uname(&platformInfo))
+	{
+//		cout << "sysname = " << platformInfo.sysname << '\n';
+//		cout << "nodename = " << platformInfo.nodename << "\n";
+//		cout << "release = " << platformInfo.release <<"\n";
+//		cout << "version = " << platformInfo.version << "\n";
+//		cout << "machine = " << platformInfo.machine << "\n";
+		return std::string(platformInfo.release);
+	}
+	return std::string();
+}
+
+}
 #endif
