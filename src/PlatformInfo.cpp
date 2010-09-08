@@ -54,12 +54,8 @@ std::string PlatformInfo::GetOSVersion()
 }
 
 #elif WIN32
-#include "stdafx.h"
-#include <wbemidl.h>
-#include <comdef.h>
-
-#include <wstring>
-# pragma comment(lib, "wbemuuid.lib")
+#include <windows.h>
+#include <iostream>
 
 namespace cap
 {
