@@ -1175,15 +1175,17 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	
 	wxString dirname = wxFileSelector("Save file",
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if (!dirname.empty())
+	if (dirname.empty())
 	{
-		std::string const& userComment = PromptForUserComment();
-		std::cout << "User comment = " << userComment << "\n";
-		if (userComment.empty())
-		{
-			// save has been canceled 
-			return;
-		}
+		return;
+	}
+	
+	std::string const& userComment = PromptForUserComment();
+	std::cout << "User comment = " << userComment << "\n";
+	if (userComment.empty())
+	{
+		// save has been canceled 
+		return;
 	}
 
 	if (!wxMkdir(dirname.c_str()))
@@ -1211,6 +1213,7 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
 	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, *heartModelPtr_);
+	xmlFileHandler.AddProvenanceDetail(userComment);
 	
 	std::string dirnameStl(dirname.c_str());
 	size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
