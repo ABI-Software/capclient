@@ -196,6 +196,8 @@ public:
 		studyIUid_ = uid;
 	}
 	
+private:
+	
 	Input& GetInput()
 	{
 		return input_;
@@ -206,30 +208,16 @@ public:
 		return output_;
 	}
 	
-private:
 	std::string filename_;
 	std::string chamber_; // LV
 	std::string name_; // 
 	std::string studyIUid_; //
-	
-	// input
-	// images (frame, slice, uid, LABEL)
-	//   point (Surface, type - apex base rv bp guide)
-	//      value (value, variable)
-	//   ContourFile
-	// 
-	
-	// output
-	//   Exnode frame="0"
-	//   Exelem
-	
-	// documentation
-	//   version
-	//   history
 
 	Input input_;
 	Output output_;
 	Documentation documentation_;
+	
+	friend class CAPXMLFileHandler;
 };
 
 } // end namespace cap

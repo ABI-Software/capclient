@@ -42,18 +42,8 @@ public:
 
 	std::vector<DataPoint> GetDataPoints(CmguiManager const& cmguiManager) const;
 
-//	std::vector<std::string> GetExnodeFileNames() const;
-//
-//	std::string const& GetExelemFileName() const;
-//
-//	void GetTransformationMatrix(gtMatrix& mat) const;
-//
-//	double GetFocalLength() const;
-
-//	std::vector<Image> const& GetImages() const
-//	{
-//		return input_.images;
-//	}
+	void AddProvenanceDetail(std::string const& comment);
+	
 private:
 	CAPXMLFile& xmlFile_;
 };
