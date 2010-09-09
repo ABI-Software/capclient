@@ -938,9 +938,7 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 
 void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
-	wxString currentWorkingDir = wxGetCwd();
-//	wxString defaultPath = currentWorkingDir.Append("/Data");
-	wxString defaultPath = currentWorkingDir.Append("/temp");
+	wxString defaultPath = wxGetCwd();;
 	
 	const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
 	if ( !dirname.empty() )
@@ -1098,8 +1096,7 @@ void MainWindow::LoadHeartModel(std::string const& path, std::vector<std::string
 
 void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
-	wxString currentWorkingDir = wxGetCwd();
-	wxString defaultPath = currentWorkingDir.Append("/Data");
+	wxString defaultPath = wxGetCwd();
 	wxString defaultFilename = "";
 	wxString defaultExtension = "xml";
 	wxString wildcard = "";
@@ -1167,7 +1164,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 
 void MainWindow::OnSave(wxCommandEvent& event)
 {
-	wxString defaultPath = "./Data";
+	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = "";
 	wxString defaultExtension = "";
 	wxString wildcard = "";
