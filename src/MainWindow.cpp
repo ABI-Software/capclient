@@ -1007,7 +1007,7 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
-	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
+	LoadHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
 	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
 	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
 	heartModelPtr_->SetMIIVisibility(false);
