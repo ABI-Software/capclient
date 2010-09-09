@@ -950,7 +950,6 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 		return;
 	}
 	
-	//FIXME memory leak?
 	cap::ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()),
 			cmguiManager_, *this);
 	frame->Show(true);
