@@ -193,7 +193,7 @@ void ImageBrowseWindow::ReadInDICOMFiles()
 	numberOfDICOMFiles_ = filenames.size();
 	
 	wxProgressDialog progressDlg(_("Please wait"), _("Analysing DICOM headers"),
-		numberOfDICOMFiles_, this, wxPD_APP_MODAL);
+		numberOfDICOMFiles_, this);
 	int count = 0;
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
@@ -309,7 +309,7 @@ void ImageBrowseWindow::CreateTexturesFromDICOMFiles()
 	
 	// load some images and display
 	wxProgressDialog progressDlg(_("Please wait"), _("Loading DICOM images"),
-		numberOfDICOMFiles_, this, wxPD_APP_MODAL);
+		numberOfDICOMFiles_, this);
 	
 	int count = 0;
 	BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
