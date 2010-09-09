@@ -148,6 +148,9 @@ ENDIF(wxWidgets_FOUND)
 #LIST(REMOVE_ITEM wxWidgets_LIBRARIES -lwxtiff-2.8 -lwxjpeg-2.8 -lwxpng-2.8 -lz -lpthread)
 #message("After REMOVE_ITEM: " ${wxWidgets_LIBRARIES})
 
+IF(APPLE)
+  SET(common_LIBS "-liconv")
+ENDIF(APPLE)
 IF(WIN32)
   SET(common_LIBS "-lws2_32")
 ENDIF(WIN32)
@@ -181,4 +184,4 @@ ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
 
 SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
 TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
-    ${XML2_LIB} ${ITK_LIB} -liconv)
+    ${XML2_LIB} ${ITK_LIB} ${common_LIBS})
