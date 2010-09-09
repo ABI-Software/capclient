@@ -9,6 +9,8 @@ Dependencies
 
 3. gmm++ (http://home.gna.org/getfem/gmm_intro.html)
 
+4. boost (http://www.boost.org)
+
 Directory structure for building
 
 cmiss (CMISS_ROOT) ----- cmgui (r7040)
@@ -19,7 +21,9 @@ cmiss (CMISS_ROOT) ----- cmgui (r7040)
                      |
                      --- wxWidgets
                      |
-                     --- gtest-1.3.0
+                     --- gtest
+                     |
+                     --- boost
                      |
                      --- gmm-3.1
                      |
@@ -31,9 +35,9 @@ cd build
 ccmake ..
 
 set following CMake variables
-CMAKE_BUILD_TYPE
-wxWidgets_USE_DEBUG
-wxWidgets_CONFIG_EXECUTABLE
+CMAKE_BUILD_TYPE (Release/Debug)
+wxWidgets_USE_DEBUG (YES/NO)
+wxWidgets_CONFIG_EXECUTABLE (path/to/wx-config)
 
 cmake ..
 make
