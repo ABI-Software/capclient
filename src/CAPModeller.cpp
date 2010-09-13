@@ -188,6 +188,15 @@ std::vector<DataPoint> CAPModeller::GetDataPoints() const
 
 void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 {
+	if (dataPoints.empty()) //FIXME 
+	{
+		// This handles the case where no data points are defined
+		// e.g model files converted from CIM models
+		modellingModeGuidePoints_.InitialiseModelLambdaParams();
+		ChangeMode(GetModellingModeGuidePoints());
+		return;
+	}
+	
 	std::sort(dataPoints.begin(), dataPoints.end(),
 			boost::bind( std::less<DataPointType>(),
 					boost::bind(&DataPoint::GetDataPointType, _1),
@@ -197,6 +206,7 @@ void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 	BOOST_FOREACH(DataPoint& dataPoint, dataPoints)
 	{
 		// type unsafe but much less verbose than switch cases
+		// TODO could be made cleaner.
 		ModellingMode mode = static_cast<ModellingMode>(dataPoint.GetDataPointType());
 		if (mode == GUIDEPOINT && !modelIsInitialised)
 		{
