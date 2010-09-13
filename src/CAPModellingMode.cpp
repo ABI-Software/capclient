@@ -859,9 +859,9 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 		//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 	}
 	
-	// REVISE
-	framesWithDataPoints_.clear();
-	framesWithDataPoints_.resize(numberOfModelFrames, 0);
+//	// REVISE
+//	framesWithDataPoints_.clear();
+//	framesWithDataPoints_.resize(numberOfModelFrames, 0);
 	
 	return;
 }
@@ -886,7 +886,9 @@ void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
 //		std::cout << "timeVaryingDataPoints_ : " << timeVaryingDataPoints_[i]  << std::endl;
 	}
 	
+	vectorOfDataPoints_.clear();
 	vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
+	framesWithDataPoints_.assign(heartModel_.GetNumberOfModelFrames(), 0);
 	
 //#ifndef NDEBUG
 //	std::cout << "vectorOfDataPoints_.size() = " << vectorOfDataPoints_.size() << '\n';
