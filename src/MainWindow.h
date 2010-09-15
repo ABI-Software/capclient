@@ -67,7 +67,6 @@ public:
 	
 private:	
 	//private utility functions
-	void RenderMII(const std::string& sliceName);
 	
 	void SetImageVisibility(bool visibility, int index);
 	
