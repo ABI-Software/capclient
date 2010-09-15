@@ -52,10 +52,20 @@ CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName, Cmiss_context_id 
 	pImpl_(new CAPModelLVPS4X4::HeartModelImpl)
 {
 	// initialize patientToGlobalTransform_ to identity matrix
-	patientToGlobalTransform_[0][0] = 1.0;
-	patientToGlobalTransform_[1][1] = 1.0;
-	patientToGlobalTransform_[2][2] = 1.0;
-	patientToGlobalTransform_[3][3] = 1.0;
+	for (int i = 0; i < 4 ;++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			if (i == j)
+			{
+				patientToGlobalTransform_[i][j] = 1.0;
+			}
+			else
+			{
+				patientToGlobalTransform_[i][j] = 0.0;
+			}
+		}
+	}
 	
 	pImpl_->cmissContext = context;
 }

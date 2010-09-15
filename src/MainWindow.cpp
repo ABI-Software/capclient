@@ -752,7 +752,19 @@ void MainWindow::InitialiseMII()
 	vector<string>::const_iterator itr = sliceNames.begin();
 	for (;itr != sliceNames.end();++itr)
 	{
-		RenderMII(*itr);
+		string const& sliceName = *itr;
+		char str[256];
+
+		// Initialize the MII-related field and iso_scalar to some dummy values
+		// This is done to set the graphical attributes that are needed for the MII rendering
+
+		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
+					sliceName.c_str() );
+		Cmiss_context_execute_command(context_, str);
+
+		sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
+					,sliceName.c_str());
+		Cmiss_context_execute_command(context_, str);
 	}
 }
 
@@ -784,38 +796,6 @@ void MainWindow::UpdateMII() //FIX
 		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
 		heartModelPtr_->UpdateMII(index, d);
 	}
-}
-
-void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4X4
-{	
-	char str[256];
-	
-	const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
-	assert(heartModelPtr_);
-	const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
-//	cout << m << endl;
-
-	gtMatrix mInv;
-	inverseMatrix(m, mInv);
-//	cout << mInv << endl;
-	transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
-//	cout << mInv << endl;
-	
-	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
-	Vector3D normalTransformed = m * plane.normal;
-	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
-				sliceName.c_str() ,
-				normalTransformed.x, normalTransformed.y, normalTransformed.z);
-//	cout << str << endl;
-	Cmiss_context_execute_command(context_, str);
-	
-	Point3D pointTLCTransformed = mInv * plane.tlc;
-	double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
-
-	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
-				,sliceName.c_str() ,d);
-//	cout << str << endl;
-	Cmiss_context_execute_command(context_, str);
 }
 
 void MainWindow::OnMIICheckBox(wxCommandEvent& event)
