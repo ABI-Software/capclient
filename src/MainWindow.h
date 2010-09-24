@@ -86,6 +86,8 @@ private:
 	
 	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames);
 	
+	void InitializeModelTemplate(SlicesWithImages const& slices);
+	
 	void UpdateStatesAfterLoadingModel();
 	
 	void PopulateObjectList();
