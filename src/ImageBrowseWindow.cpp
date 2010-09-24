@@ -199,7 +199,7 @@ ImageBrowseWindow::ImageBrowseWindow(SlicesWithImages const& slicesWithImages, C
 				std::string longLabel;
 				if (label.find("LA") == 0)
 				{
-					longLabel ="Long Axis";
+					longLabel = "Long Axis";
 				}
 				else if (label.find("SA") == 0)
 				{

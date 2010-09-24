@@ -930,8 +930,7 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 		return;
 	}
 	
-	cap::ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()),
-			cmguiManager_, *this);
+	ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
 	frame->Show(true);
 }
 
@@ -966,7 +965,12 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 	}
 	
 	LoadImages(slices);
-	
+	InitializeModelTemplate(slices);
+	EnterImagesLoadedState();
+}
+
+void MainWindow::InitializeModelTemplate(SlicesWithImages const& slices)
+{
 	//FIXME
 	SlicesWithImages::const_iterator itr = slices.begin();
 	SlicesWithImages::const_iterator end = slices.end();
@@ -989,8 +993,6 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
 	heartModelPtr_->SetMIIVisibility(false);
 	heartModelPtr_->SetModelVisibility(false);
-
-	EnterImagesLoadedState();
 }
 
 void MainWindow::CreateModeller()
@@ -1109,6 +1111,15 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 
 		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size() << '\n';
+		if (exnodeFileNames.empty())
+		{
+			// This means no output element is defined
+			InitializeModelTemplate(slicesWithImages);
+			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+			frame->Show(true);
+			return;
+		}
+		
 		std::string const& exelemFileName = xmlFile.GetExelemFileName();
 
 		//HACK FIXME
@@ -1318,9 +1329,9 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
 	
-	SlicesWithImages const& slicesWithImages = imageSet_->GetSlicesWithImages();
-	ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
-	frame->Show(true);
+//	SlicesWithImages const& slicesWithImages = imageSet_->GetSlicesWithImages();
+//	ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+//	frame->Show(true);
 	
 	return;
 	//// test
