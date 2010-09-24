@@ -1117,6 +1117,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		{
 			// This means no output element is defined
 			InitializeModelTemplate(slicesWithImages);
+			modeller_->SetDataPoints(dataPoints);
 			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
 			frame->Show(true);
 			return;
