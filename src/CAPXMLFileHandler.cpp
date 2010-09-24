@@ -189,9 +189,9 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 namespace
 {
 
-boost::unordered_map<std::string, std::string> GenerateSopiuidToFilenameMap(std::string const& path)
+boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::string const& path)
 {
-	boost::unordered_map<std::string, std::string> hashTable;
+	boost::unordered_map<std::string, DICOMPtr> hashTable;
 	FileSystem fileSystem(path);
 	std::vector<std::string> const& filenames = fileSystem.getAllFileNames();
 	BOOST_FOREACH(std::string const& filename, filenames)
@@ -199,8 +199,8 @@ boost::unordered_map<std::string, std::string> GenerateSopiuidToFilenameMap(std:
 		std::string fullpath = path + filename;
 		try
 		{
-			DICOMImage image(fullpath);
-			hashTable.insert(std::make_pair(image.GetSopInstanceUID(), fullpath));
+			DICOMPtr image  = boost::make_shared<DICOMImage>(fullpath);
+			hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
 		}
 		catch (std::exception& e)
 		{
@@ -221,7 +221,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 	size_t positionOfLastSlash = filename.find_last_of("/\\");
 	std::string pathToDICOMFiles = filename.substr(0, positionOfLastSlash+1);
 
-	typedef boost::unordered_map<std::string, std::string> HashTable;
+	typedef boost::unordered_map<std::string, DICOMPtr> HashTable;
 	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToDICOMFiles);
 //	std::cout << "GenerateSopiuidToFilenameMap\n";
 
@@ -231,8 +231,8 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 	CAPXMLFile::Input& input = xmlFile_.GetInput();
 	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
-		HashTable::const_iterator filenameItr = uidToFilenameMap.find(image.sopiuid);
-		while (filenameItr == uidToFilenameMap.end())
+		HashTable::const_iterator dicomFileItr = uidToFilenameMap.find(image.sopiuid);
+		while (dicomFileItr == uidToFilenameMap.end())
 		{
 			//Can't locate the file
 			std::cout << "No matching filename in the sopiuid to filename map\n";
@@ -246,7 +246,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 				std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
 				HashTable newMap = GenerateSopiuidToFilenameMap((dirname + "/").c_str());
 				uidToFilenameMap.insert(newMap.begin(), newMap.end());
-				filenameItr = uidToFilenameMap.find(image.sopiuid);
+				dicomFileItr = uidToFilenameMap.find(image.sopiuid);
 			}
 			else
 			{
@@ -256,8 +256,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 			}
 		}
 
-		std::string const& filename = filenameItr->second;
-		DICOMPtr dicomImage = boost::make_shared<DICOMImage>(filename);
+		DICOMPtr dicomImage = dicomFileItr->second;
 		// Image Position
 		if (image.imagePosition)
 		{
