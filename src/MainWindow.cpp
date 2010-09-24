@@ -988,7 +988,7 @@ void MainWindow::InitializeModelTemplate(SlicesWithImages const& slices)
 	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
-	LoadHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
+	LoadTemplateHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
 	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
 	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
 	heartModelPtr_->SetMIIVisibility(false);
@@ -1057,12 +1057,13 @@ void MainWindow::UpdateStatesAfterLoadingModel()
 	
 	InitialiseMII(); // This turns on all MII's
 	UpdateMIIVisibilityAccordingToUI();
-	
-	EnterModelLoadedState();
 }
 
-void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
+void MainWindow::LoadTemplateHeartModel(std::string const& dirOnly, std::string const& prefix)
 {
+	// This function is used to load the unfitted generic heart model.
+	// Currently this is necessary. It might be possible to eliminate the use of generic model
+	// in the future by creating the related cmgui nodes, fields and element completely thru cmgui api
 	assert(heartModelPtr_);
 	heartModelPtr_->ReadModelFromFiles(dirOnly, prefix);
 	UpdateStatesAfterLoadingModel();
@@ -1073,6 +1074,7 @@ void MainWindow::LoadHeartModel(std::string const& path, std::vector<std::string
 	assert(heartModelPtr_);
 	heartModelPtr_->ReadModelFromFiles(path, modelFilenames);
 	UpdateStatesAfterLoadingModel();
+	EnterModelLoadedState();
 }
 
 void MainWindow::OnOpenModel(wxCommandEvent& event)

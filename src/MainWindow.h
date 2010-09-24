@@ -82,7 +82,7 @@ private:
 	
 	void RenderIsoSurfaces();
 	
-	void LoadHeartModel(std::string const& dirOnly, std::string const& prefix);
+	void LoadTemplateHeartModel(std::string const& dirOnly, std::string const& prefix);
 	
 	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames);
 	
