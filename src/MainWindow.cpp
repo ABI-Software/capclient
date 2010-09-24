@@ -1317,6 +1317,11 @@ std::pair<double,double> get_range(const ImageSet* imageSet_, const CAPModelLVPS
 void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
+	
+	SlicesWithImages const& slicesWithImages = imageSet_->GetSlicesWithImages();
+	ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+	frame->Show(true);
+	
 	return;
 	//// test
 

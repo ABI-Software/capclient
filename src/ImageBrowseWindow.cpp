@@ -27,6 +27,7 @@
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
+#include <set>
 
 extern "C"
 {
@@ -124,17 +125,9 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 	client_(client),
 	sortingMode_(SERIES_NUMBER)
 {	
-	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
-	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
-	Show(true); // gtk crashes without this
-	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
+	LoadWindowLayout();
+	CreatePreviewPanel();
 	
-	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
-	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel, IMAGE_PREVIEW);
-	Cmiss_scene_viewer_add_input_callback(sceneViewer_,
-			dummy_input_callback, (void*)this, 1/*add_first*/);
-
-	LoadImagePlaneModel();
 	ReadInDICOMFiles(); // This reads the dicom header and populates dicomFileTable_
 	if (dicomFileTable_.empty())
 	{
@@ -146,6 +139,101 @@ ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiMa
 		PopulateImageTable();
 	}
 	
+	FitWindow();
+}
+
+ImageBrowseWindow::ImageBrowseWindow(SlicesWithImages const& slicesWithImages, CmguiManager const& manager, ImageBrowseWindowClient& client)
+:
+	texturesCurrentlyOnDisplay_(0),
+	cmguiManager_(manager),
+	client_(client),
+	sortingMode_(SERIES_NUMBER)
+{	
+	LoadWindowLayout();
+	CreatePreviewPanel();
+	
+	std::set<int> setOfSeriesNumbers;
+	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
+	{
+		size_t numberOfFrames = sliceInfo.get<1>().size();
+		assert(numberOfFrames);
+		for (size_t i = 0; i < numberOfFrames; ++i)
+		{
+			// Need to assign unigue id for each image (here we use the file name)
+			// this id is used to map a DICOMFile object to its corresponding Cmiss_texture
+			DICOMPtr const& dicomPtr = sliceInfo.get<1>().at(i);
+			std::string const& filename = dicomPtr->GetFilename();
+			dicomFileTable_.insert(std::make_pair(filename, dicomPtr));
+			Cmiss_texture_id texture = sliceInfo.get<2>().at(i);
+			textureTable_.insert(std::make_pair(filename, texture));
+		}
+		
+		// Check if sortingMode_ is SERIES_NUMBER or SERIES_NUMBER_AND_IMAGE_POSITION
+		// by looking at whether images from any two slices share the same series number
+		DICOMPtr const& dicomPtr = sliceInfo.get<1>().at(0);
+		int seriesNumber = dicomPtr->GetSeriesNumber();
+		if (setOfSeriesNumbers.count(seriesNumber))
+		{
+			sortingMode_ = SERIES_NUMBER_AND_IMAGE_POSITION;
+		}
+		setOfSeriesNumbers.insert(seriesNumber);
+	}
+	
+	PopulateImageTable();
+	// Now populate the Image Table with the correct labels
+	// Since the sliceMap may not be in the same sort order as slicesWithImages,
+	// We need to map the two 
+	// TODO: revise the data structures used so this mapping is not needed?
+	long index = 0;
+	BOOST_FOREACH(SliceMap::value_type const& value, sliceMap_)
+	{
+		// find the matching slice in the SlicesWithImages
+		// Not that this is O(n^2) operation but should be ok as the number of slices are usually small (20~40)
+		std::string const& filename1 = value.second.at(0)->GetSopInstanceUID();
+		BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
+		{
+			std::string const& filename2 = sliceInfo.get<1>().at(0)->GetSopInstanceUID();
+			if (filename1 == filename2) // matching slices
+			{
+				std::string const& label = sliceInfo.get<0>();
+				std::string longLabel;
+				if (label.find("LA") == 0)
+				{
+					longLabel ="Long Axis";
+				}
+				else if (label.find("SA") == 0)
+				{
+					longLabel = "Short Axis";
+				}
+				imageTable_->SetItem(index, LABEL_COLUMN_INDEX, longLabel.c_str());
+				index ++;
+			}
+		}
+	}
+	
+	FitWindow();
+}
+
+void ImageBrowseWindow::LoadWindowLayout()
+{
+	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
+	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
+	Show(true); // gtk crashes without this
+	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
+}
+
+void ImageBrowseWindow::CreatePreviewPanel()
+{
+	wxPanel* panel = XRCCTRL(*this, "CmguiPanel", wxPanel);
+	sceneViewer_ = cmguiManager_.CreateSceneViewer(panel, IMAGE_PREVIEW);
+	Cmiss_scene_viewer_add_input_callback(sceneViewer_,
+			dummy_input_callback, (void*)this, 1/*add_first*/);
+
+	LoadImagePlaneModel();
+}
+
+void ImageBrowseWindow::FitWindow()
+{
 	// fit the window to meet the size requirements of its children
 	this->Fit();
 	
