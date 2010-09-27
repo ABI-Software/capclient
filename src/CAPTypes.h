@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <boost/tr1/memory.hpp>
-#include <boost/tuple/tuple.hpp>
 
 extern "C"
 {
@@ -27,7 +26,39 @@ namespace cap
 class DICOMImage;
 
 typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
-typedef boost::tuple<std::string, std::vector<DICOMPtr>, std::vector<Cmiss_texture_id> > SliceInfo;
+
+class SliceInfo
+{
+public:
+	SliceInfo(std::string const& label, std::vector<DICOMPtr> const& dicomImages, std::vector<Cmiss_texture_id> const& textures)
+	:
+		label_(label),
+		dicomImages_(dicomImages),
+		textures_(textures)
+	{		
+	}
+	
+	std::string const& GetLabel() const
+	{
+		return label_;
+	}
+	
+	std::vector<DICOMPtr> const& GetDICOMImages() const
+	{
+		return dicomImages_;
+	}
+	
+	std::vector<Cmiss_texture_id> const& GetTextures() const
+	{
+		return textures_;
+	}
+	
+private:
+	std::string label_;
+	std::vector<DICOMPtr> dicomImages_;
+	std::vector<Cmiss_texture_id> textures_;
+};
+
 typedef std::vector<SliceInfo> SlicesWithImages;
 
 struct SliceInfoSortOrder
@@ -40,15 +71,15 @@ struct SliceInfoSortOrder
 
 	bool operator()(const SliceInfo& a, const SliceInfo& b) const
 	{
-		std::string const& x = a.get<0>();
-		std::string const& y = b.get<0>();
+		std::string const& x = a.GetLabel();
+		std::string const& y = b.GetLabel();
 		if (x[0] != y[0])
 		{
 			// this makes sure short axis slices come first
 			return x[0] > y[0];
 		}
 
-		return std::make_pair(x.length(), x) < std::make_pair(y.length(),y);
+		return std::make_pair(x.length(), x) < std::make_pair(y.length(), y);
 	}
 };
 

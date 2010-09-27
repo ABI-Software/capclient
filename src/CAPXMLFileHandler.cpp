@@ -34,24 +34,6 @@
 namespace cap
 {
 
-class EqualToSliceInfoByName 
-{
-	// this is needed as boost::bind and boost::tuple dont mix well
-	// see http://lists.boost.org/boost-users/2007/01/24527.php
-public:
-	EqualToSliceInfoByName(std::string const& name)
-	: sliceName_(name)
-	{}
-	
-	bool operator() (const SliceInfo& sliceInfo) const
-	{
-		return (sliceName_ == sliceInfo.get<0>());
-	}
-	
-private:
-	std::string const& sliceName_;
-};
-
 CAPXMLFileHandler::CAPXMLFileHandler(CAPXMLFile& xmlFile)
 :
 	xmlFile_(xmlFile)
@@ -67,7 +49,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		return;
 	}
 	
-	std::string studyIUid = slicesWithImages[0].get<1>()[0]->GetStudyInstanceUID();
+	std::string studyIUid = slicesWithImages[0].GetDICOMImages()[0]->GetStudyInstanceUID();
 	xmlFile_.SetStudyInstanceUID(studyIUid);
 	std::string const& filename = xmlFile_.GetFilename();
 	size_t positionOfLastSlash = filename.find_last_of("/\\");
@@ -82,8 +64,8 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 	xmlFile_.ClearInputAndOutput();
 	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
 	{
-		std::string const& label = sliceInfo.get<0>();
-		std::vector<DICOMPtr> const& dicomFiles = sliceInfo.get<1>();
+		std::string const& label = sliceInfo.GetLabel();
+		std::vector<DICOMPtr> const& dicomFiles = sliceInfo.GetDICOMImages();
 		
 		int frame = 0;
 		BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
@@ -134,11 +116,13 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		double time = dataPoint.GetTime();
 		// time is normailized between 0 and 1, so we can find the frame number from it.
 		
-		EqualToSliceInfoByName pred(sliceName);
-		SlicesWithImages::const_iterator itr = std::find_if(slicesWithImages.begin(), slicesWithImages.end(), pred);
+		SlicesWithImages::const_iterator itr = std::find_if(slicesWithImages.begin(), slicesWithImages.end(), 
+															boost::bind(std::equal_to<std::string>(),
+																		boost::bind(&SliceInfo::GetLabel, _1),
+																		sliceName));
 		assert(itr != slicesWithImages.end());
 		
-		std::vector<DICOMPtr> const& dicomFilesWithMatchingSliceName = itr->get<1>();
+		std::vector<DICOMPtr> const& dicomFilesWithMatchingSliceName = itr->GetDICOMImages();
 		size_t numFrames = dicomFilesWithMatchingSliceName.size();
 		
 		// CHECK for correctless!!
@@ -289,7 +273,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 			textures.push_back(texture_id);
 		}
 
-		SliceInfo sliceInfo = boost::make_tuple(label, images, textures);
+		SliceInfo sliceInfo(label, images, textures);
 		dicomSlices.push_back(sliceInfo);
 	}
 

@@ -155,22 +155,22 @@ ImageBrowseWindow::ImageBrowseWindow(SlicesWithImages const& slicesWithImages, C
 	std::set<int> setOfSeriesNumbers;
 	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
 	{
-		size_t numberOfFrames = sliceInfo.get<1>().size();
+		size_t numberOfFrames = sliceInfo.GetDICOMImages().size();
 		assert(numberOfFrames);
 		for (size_t i = 0; i < numberOfFrames; ++i)
 		{
 			// Need to assign unigue id for each image (here we use the file name)
 			// this id is used to map a DICOMFile object to its corresponding Cmiss_texture
-			DICOMPtr const& dicomPtr = sliceInfo.get<1>().at(i);
+			DICOMPtr const& dicomPtr = sliceInfo.GetDICOMImages().at(i);
 			std::string const& filename = dicomPtr->GetFilename();
 			dicomFileTable_.insert(std::make_pair(filename, dicomPtr));
-			Cmiss_texture_id texture = sliceInfo.get<2>().at(i);
+			Cmiss_texture_id texture = sliceInfo.GetTextures().at(i);
 			textureTable_.insert(std::make_pair(filename, texture));
 		}
 		
 		// Check if sortingMode_ is SERIES_NUMBER or SERIES_NUMBER_AND_IMAGE_POSITION
 		// by looking at whether images from any two slices share the same series number
-		DICOMPtr const& dicomPtr = sliceInfo.get<1>().at(0);
+		DICOMPtr const& dicomPtr = sliceInfo.GetDICOMImages().at(0);
 		int seriesNumber = dicomPtr->GetSeriesNumber();
 		if (setOfSeriesNumbers.count(seriesNumber))
 		{
@@ -192,10 +192,10 @@ ImageBrowseWindow::ImageBrowseWindow(SlicesWithImages const& slicesWithImages, C
 		std::string const& filename1 = value.second.at(0)->GetSopInstanceUID();
 		BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
 		{
-			std::string const& filename2 = sliceInfo.get<1>().at(0)->GetSopInstanceUID();
+			std::string const& filename2 = sliceInfo.GetDICOMImages().at(0)->GetSopInstanceUID();
 			if (filename1 == filename2) // matching slices
 			{
-				std::string const& label = sliceInfo.get<0>();
+				std::string const& label = sliceInfo.GetLabel();
 				std::string longLabel;
 				if (label.find("LA") == 0)
 				{
@@ -419,7 +419,6 @@ void ImageBrowseWindow::ConstructTextureMap()
 {
 	using namespace std;
 	
-//	int count = 0;
 	textureMap_.clear();
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
 	{	
@@ -433,7 +432,6 @@ void ImageBrowseWindow::ConstructTextureMap()
 			const string& filename = (*itr)->GetFilename();	
 			Cmiss_texture_id texture_id = textureTable_[filename];
 			textures.push_back(texture_id);
-//			count++;
 		}
 		
 		textureMap_.insert(make_pair(value.first, textures));
@@ -529,40 +527,23 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 
 std::string ImageBrowseWindow::GetCellContentsString( long row_number, int column )
 {
-//	wxListItem row_info;  
-//	std::string cell_contents_string;
-//	
-//	// Set what row it is
-//	row_info.SetId(row_number);
-//	// Set what column of that row we want to query for information.
-//	row_info.SetColumn(column);
-//	// Set text mask
-//	row_info.SetState(wxLIST_MASK_TEXT);
-//	
-//	// Get the info and store it in row_info variable.   
-//	imageTable_->GetItem( row_info );
-//	
-//	// Extract the text out that cell
-//	cell_contents_string = row_info.GetText().c_str(); 
+	wxListItem     row_info;  
+	wxString       cell_contents_string;
 	
-//	return cell_contents_string;
-	   wxListItem     row_info;  
-	   wxString       cell_contents_string;
-	 
-	   // Set what row it is (m_itemId is a member of the regular wxListCtrl class)
-	   row_info.m_itemId = row_number;
-	   // Set what column of that row we want to query for information.
-	   row_info.m_col = column;
-	   // Set text mask
-	   row_info.m_mask = wxLIST_MASK_TEXT;
-	 
-	   // Get the info and store it in row_info variable.   
-	   imageTable_->GetItem( row_info );
-	 
-	   // Extract the text out that cell
-	   cell_contents_string = row_info.m_text; 
-	 
-	   return cell_contents_string.c_str();
+	// Set what row it is (m_itemId is a member of the regular wxListCtrl class)
+	row_info.m_itemId = row_number;
+	// Set what column of that row we want to query for information.
+	row_info.m_col = column;
+	// Set text mask
+	row_info.m_mask = wxLIST_MASK_TEXT;
+	
+	// Get the info and store it in row_info variable.   
+	imageTable_->GetItem( row_info );
+	
+	// Extract the text out that cell
+	cell_contents_string = row_info.m_text; 
+	
+	return cell_contents_string.c_str();
 }
 
 void ImageBrowseWindow::SetInfoField(std::string const& fieldName, std::string const& data)
@@ -747,7 +728,7 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 			{
 				sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
 			}
-			SliceInfo sliceInfo = boost::make_tuple(sliceName, sliceMap_[key], textureMap_[key]);
+			SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
 			slices.push_back(sliceInfo);
 		}
 		index--;
