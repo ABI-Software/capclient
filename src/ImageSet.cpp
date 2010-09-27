@@ -27,11 +27,7 @@ ImageSet::ImageSet(SlicesWithImages const& slices, CmguiManager const& cmguiMana
 	int longAxisCounter = 1;
 	for (;itr != end; ++itr)
 	{
-		using boost::tuples::get;
-		std::string const& label = get<0>(*itr);
-		std::cout << "LABEL = " << label << '\n';
-		
-		std::string const& name(itr->get<0>());
+		std::string const& name(itr->GetLabel());
 		imageSlicesMap_[name] = boost::make_shared<ImageSlice>(*itr, cmguiManager);
 		imageSliceNames_.push_back(name);
 	}

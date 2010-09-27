@@ -43,12 +43,12 @@ namespace cap
 
 ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
 	:
-	sliceName_(info.get<0>()),
+	sliceName_(info.GetLabel()),
 	oldIndex_(-1),
 	isVisible_(true),
 	cmguiManager_(cmguiManager),
-	images_(info.get<1>()),
-	textures_(info.get<2>())
+	images_(info.GetDICOMImages()),
+	textures_(info.GetTextures())
 {
 	this->LoadImagePlaneModel();
 	this->TransformImagePlane();
@@ -296,12 +296,6 @@ void ImageSlice::SetShiftedImagePosition()
 		//error
 		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
 	}
-	
-//	Cmiss_node* node = Cmiss_region_get_node(region, "1");
-//	Point3D blc;
-//	if (node) {
-//		FE_node_get_position_cartesian(node, 0, &(blc.x), &(blc.y), &(blc.z), 0);
-//	}
 
 	Cmiss_node* node;
 	Point3D tlc;
@@ -314,12 +308,6 @@ void ImageSlice::SetShiftedImagePosition()
 	{
 		std::cout << "Error:\n";
 	}
-
-//	Point3D trc;
-//	if (node = Cmiss_region_get_node(region, "4"))
-//	{
-//		FE_node_get_position_cartesian(node, 0, &(trc.x), &(trc.y), &(trc.z), 0);
-//	}
 	
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);

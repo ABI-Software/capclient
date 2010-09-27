@@ -969,21 +969,25 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 	EnterImagesLoadedState();
 }
 
-void MainWindow::InitializeModelTemplate(SlicesWithImages const& slices)
+namespace
 {
-	//FIXME
-	SlicesWithImages::const_iterator itr = slices.begin();
-	SlicesWithImages::const_iterator end = slices.end();
-	int minNumberOfFrames = itr->get<1>().size();
-	++itr;
-	for (;itr != end; ++itr)
+
+	struct ComparatorForNumFrames
 	{
-		int numberOfFrames =  itr->get<1>().size();
-		if (numberOfFrames < minNumberOfFrames)
+		bool operator() (SliceInfo const& a, SliceInfo const& b)
 		{
-			minNumberOfFrames = numberOfFrames; 
+			return (a.GetDICOMImages().size() < b.GetDICOMImages().size());
 		}
-	}
+	};
+
+} // unnamed namespace
+
+void MainWindow::InitializeModelTemplate(SlicesWithImages const& slices)
+{	
+	SlicesWithImages::const_iterator 
+		itrToMinNumberOfFrames = std::min_element(slices.begin(), slices.end(),
+													ComparatorForNumFrames());
+	int minNumberOfFrames = itrToMinNumberOfFrames->GetDICOMImages().size();
 	
 	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
 	assert(heartModelPtr_);
