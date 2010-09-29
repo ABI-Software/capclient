@@ -21,6 +21,8 @@ extern "C" {
 #include "graphics/element_group_settings.h"
 #include "graphics/scene.h"
 #include "graphics/cmiss_rendition.h"
+#include "interaction/interactive_tool.h"
+#include "graphics/transform_tool.h"
 }
 
 namespace cap
@@ -47,6 +49,9 @@ Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel, std::strin
 		Cmiss_scene_viewer_set_scene_by_name(sceneViewer, sceneName.c_str());
 		Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
 	}
+	
+	struct Interactive_tool * intTool = Scene_viewer_get_interactive_tool(sceneViewer);
+	Interactive_tool_transform_set_free_spin(intTool, 0);
 	
 	return sceneViewer;
 }
