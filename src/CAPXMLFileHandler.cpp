@@ -114,7 +114,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		
 		std::string const& sliceName = dataPoint.GetSliceName();
 		double time = dataPoint.GetTime();
-		// time is normailized between 0 and 1, so we can find the frame number from it.
+		// time is normalized between 0 and 1, so we can find the frame number from it.
 		
 		SlicesWithImages::const_iterator itr = std::find_if(slicesWithImages.begin(), slicesWithImages.end(), 
 															boost::bind(std::equal_to<std::string>(),
@@ -125,7 +125,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		std::vector<DICOMPtr> const& dicomFilesWithMatchingSliceName = itr->GetDICOMImages();
 		size_t numFrames = dicomFilesWithMatchingSliceName.size();
 		
-		// CHECK for correctless!!
+		// CHECK for correctness!!
 		double frameDuration = (double) 1.0 / numFrames;
 		double frameFloat = time / frameDuration;
 		size_t frame = static_cast<size_t>(frameFloat);
