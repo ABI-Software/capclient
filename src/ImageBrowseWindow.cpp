@@ -598,10 +598,15 @@ void ImageBrowseWindow::UpdateImageInfoPanel(DICOMPtr const& dicomPtr)
 	Point3D position = dicomPtr->GetImagePosition();
 	std::stringstream ss;
 	ss << std::setprecision(5) << position.x << " ";
-	ss << std::setprecision(5) << position.x << " ";
+	ss << std::setprecision(5) << position.y << " ";
 	ss << std::setprecision(5) << position.z;
 	string const &posStr(ss.str());
 	SetInfoField("ImagePosition", posStr);
+	
+	std::pair<Vector3D,Vector3D> const& orientation = dicomPtr->GetImageOrientation();
+	//FIXME wrong value is printed
+	std::cout << "ori 1: " << orientation.first.x << " " << orientation.first.y << " " << orientation.first.z << "\n";
+	std::cout << "ori 2: " << orientation.second.x << " " << orientation.second.y << " " << orientation.second.z << "\n";
 }
 
 void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
