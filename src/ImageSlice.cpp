@@ -250,6 +250,7 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 	Colour yellow = {0,1,1}; //BGR
 	Graphical_material_set_diffuse(material, &yellow);
 	Graphical_material_set_diffuse(materialSelected, &green);
+	GT_element_settings_set_select_mode(settings, GRAPHICS_SELECT_ON);
 	GT_element_settings_set_material(settings,material);
 	GT_element_settings_set_selected_material(settings, materialSelected);
 
