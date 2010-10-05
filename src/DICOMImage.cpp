@@ -227,6 +227,7 @@ void DICOMImage::ReadDICOMFile()
 		orientation2_ = Vector3D(-at_ori[3],at_ori[4],-at_ori[5]);
 	}
 	
+	if (ds.FindDataElement(gdcm::Tag(0x0028,0x0030)))
 	{
 		const gdcm::DataElement& spacing = ds.GetDataElement(gdcm::Tag(0x0028,0x0030));
 		gdcm::Attribute<0x0028,0x0030> at_spc;
@@ -235,47 +236,82 @@ void DICOMImage::ReadDICOMFile()
 		pixelSizeY_ = at_spc[1];
 //		cout << "pixelSize\n";
 	}
+	else
+	{
+		cout << "Pixel Spacing not found\n";
+		throw std::exception();
+	}
 	
 	//patient name (0010,0010) 
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0010)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0010));
 		gdcm::Attribute<0x0010,0x0010> at;
 		at.SetFromDataElement(de);
 		patientName_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Patient Name not found\n";
+		patientName_ = "N/A";
+	}
 	
 	//patient id (0010,0020)
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0020)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0020));
 		gdcm::Attribute<0x0010,0x0020> at;
 		at.SetFromDataElement(de);
 		patientId_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Patient ID Not found\n";
+		patientId_ = "N/A";
+	}
 	
 	//acquisition date (0008,0022) 
+	if (ds.FindDataElement(gdcm::Tag(0x0008,0x0022)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0008,0x0022));
 		gdcm::Attribute<0x0008,0x0022> at;
 		at.SetFromDataElement(de);
 		scanDate_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Scan Date Not found\n";
+		scanDate_ = "N/A";
+	}
 	
 //	cout << "acquisition time\n";
 	
 	//date of birth (0010,0030)
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0030)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0030));
 		gdcm::Attribute<0x0010,0x0030> at;
 		at.SetFromDataElement(de);
 		dateOfBirth_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Date of Birth Not found\n";
+		dateOfBirth_ = "N/A";
+	}
 	
 	//gender (0010,0040)
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0040)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0040));
 		gdcm::Attribute<0x0010,0x0040> at;
 		at.SetFromDataElement(de);
 		gender_ = at.GetValue();
+	}
+	else
+	{
+		cout << "Gender Not found\n";
+		gender_ = "N/A";
 	}
 	
 	//age (0010,1010)
@@ -288,7 +324,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Patient's name (0010,1010) not found\n";
+		cout << "Patient's age (0010,1010) not found\n";
 		age_ = "N/A";
 	}
 	
