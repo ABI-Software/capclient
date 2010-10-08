@@ -57,7 +57,7 @@ public:
 	
 	std::pair<Vector3D,Vector3D> GetImageOrientation() const
 	{
-		std::make_pair(orientation1_, orientation2_);
+		return std::make_pair(orientation1_, orientation2_);
 	}
 	
 	Point3D const& GetImagePosition() const
