@@ -7,7 +7,7 @@
         <cap:Value variable="y">2.0</cap:Value>
         <cap:Value variable="z">3.0</cap:Value>
       </cap:Point>
-      <cap:ContourFile>cap:ContourFile</cap:ContourFile>
+      <cap:ContourFile number = "1">cap:ContourFile</cap:ContourFile>
       <cap:ImagePosition>
         <cap:x>4.0</cap:x>
         <cap:y>5.0</cap:y>

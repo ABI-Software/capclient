@@ -144,7 +144,7 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 			//read contour file
 			xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
 			contourFile.fileName = (char*)filename;
-			xmlChar* numberStr = xmlGetProp(child->xmlChildrenNode, (xmlChar const*)"number");
+			xmlChar* numberStr = xmlGetProp(child, (xmlChar const*)"number");
 			if (numberStr) // number attribute found
 			{
 				contourFile.number = boost::lexical_cast<int>((char*)numberStr);
