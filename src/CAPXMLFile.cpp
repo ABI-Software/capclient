@@ -144,6 +144,11 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 			//read contour file
 			xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
 			contourFile.fileName = (char*)filename;
+			xmlChar* numberStr = xmlGetProp(child->xmlChildrenNode, (xmlChar const*)"number");
+			if (numberStr) // number attribute found
+			{
+				contourFile.number = boost::lexical_cast<int>((char*)numberStr);
+			}
 //			std::cout << "ContourFile = " << filename << '\n';
 			image.countourFiles.push_back(contourFile);
 			xmlFree(filename);
@@ -397,7 +402,8 @@ void ConstructContourFileNode(CAPXMLFile::ContourFile const &contourFile, xmlNod
 {
 	xmlNodePtr contourFileNode = xmlNewChild(imageNode, NULL,
 			BAD_CAST "ContourFile", BAD_CAST contourFile.fileName.c_str());
-	
+	std::string number = boost::lexical_cast<std::string>(contourFile.number);
+	xmlNewProp(contourFileNode, BAD_CAST "number", BAD_CAST number.c_str());
 }
 void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 {

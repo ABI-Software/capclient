@@ -49,6 +49,7 @@ public:
 	struct ContourFile
 	{
 		std::string fileName;
+		int number;
 	};
 
 	struct Image
