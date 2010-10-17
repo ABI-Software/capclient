@@ -31,11 +31,14 @@ TEST(CAPXMLFile, ReadXML)
 	EXPECT_TRUE(image.imageOrientation);
 	EXPECT_EQ(image.imageOrientation->first, Vector3D(7.0, 8.0, 9.0));
 	EXPECT_EQ(image.imageOrientation->second, Vector3D(10.0, 11.0, 12.0));
+
+	EXPECT_EQ(image.countourFiles.at(0).fileName, "cap:ContourFile");
+	EXPECT_EQ(image.countourFiles.at(0).number, 1);
 	
 	CAPXMLFile::Exnode& exnode = xmlFile.GetOutput().exnodes.at(0);
 	EXPECT_EQ(exnode.exnode, "cap.exnode");
 	EXPECT_EQ(exnode.frame, 1);
-	
+
 	CAPXMLFile::ProvenanceDetail& pd = xmlFile.documentation_.provenanceDetails[0];
 	EXPECT_EQ(pd.comment, "Converted from CIM model");
 	// add more tests
