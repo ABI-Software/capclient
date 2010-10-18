@@ -91,8 +91,6 @@ private:
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 	
 	int oldIndex_; //used to check if texture switch is needed
-	
-//	Cmiss_texture* brightnessAndContrastTexture_;
 };
 
 } // end namespace cap
