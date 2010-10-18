@@ -26,7 +26,7 @@ namespace cap
 /** Wrapper class around the Cmiss_material
  *  
  */
-class CAPMaterial : public boost::noncopyable
+class CAPMaterial : boost::noncopyable
 {
 public:
 	CAPMaterial(std::string const& materialName, Cmiss_graphics_module_id graphics_module);
