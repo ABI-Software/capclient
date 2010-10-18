@@ -11,11 +11,15 @@
 #include "../src/CAPXMLFile.h"
 #undef private
 
+namespace
+{
+	std::string test_file("../test/SampleAnalysisUsingXsd.xml");
+}
 TEST(CAPXMLFile, ReadXML)
 {
 	using namespace cap;
 	
-	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
+	CAPXMLFile xmlFile(test_file);
 
 	xmlFile.ReadFile();
 	EXPECT_EQ(xmlFile.chamber_, "LV");
@@ -48,7 +52,7 @@ TEST(CAPXMLFile, WriteXML)
 {
 	using namespace cap;
 		
-	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
+	CAPXMLFile xmlFile(test_file);
 
 	xmlFile.ReadFile();
 	xmlFile.WriteFile("dummy");
