@@ -115,27 +115,6 @@ public:
 	void AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile);
 	
 	void AddExnode(Exnode const& exnode);
-	
-
-//	/**
-//	 *  Populate member fields of CAPXMLFile from infomation obtained from
-//	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
-//	 *  so an libxml2 tree can be generated and written to a file
-//	 */
-//	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, 
-//							std::vector<DataPoint> const& dataPoints,
-//							CAPModelLVPS4X4 const& model);
-//	
-//	/**
-//	 *  Translate the infomation stored in CAPXMLFile into the form to be
-//	 *  consumed by the client
-//	 *  (i.e SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4)
-//	 *  Also generated the instances of DICOMImage, Cmiss_texture,
-//	 *  DataPoint (and the Cmiss_node) and the model.
-//	 */
-//	SlicesWithImages GetSlicesWithImages(CmguiManager const& cmguiManager) const;
-//
-//	std::vector<DataPoint> GetDataPoints(CmguiManager const& cmguiManager) const;
 
 	std::vector<std::string> GetExnodeFileNames() const;
 
