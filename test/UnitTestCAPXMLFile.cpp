@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <cstdio>
 #define private public
 #include "../src/CAPXMLFile.h"
 #undef private
@@ -58,6 +59,36 @@ TEST(CAPXMLFile, WriteXML)
 	xmlFile.WriteFile("dummy");
 	// add tests here
 
+	CAPXMLFile xmlFile2("dummy");
+	xmlFile2.ReadFile();
+	
+	EXPECT_EQ(xmlFile.chamber_, xmlFile2.chamber_);
+	EXPECT_EQ(xmlFile.output_.focalLength, xmlFile2.output_.focalLength);
+	EXPECT_EQ(xmlFile.output_.interval, xmlFile2.output_.interval);
+	EXPECT_EQ(xmlFile.name_, xmlFile2.name_);
+	EXPECT_EQ(xmlFile.studyIUid_, xmlFile2.studyIUid_);
+	
+	CAPXMLFile::Image& image = xmlFile.GetInput().images.at(0);
+	CAPXMLFile::Image& image2 = xmlFile2.GetInput().images.at(0);
+	
+	EXPECT_EQ(*(image.imagePosition), *(image2.imagePosition));
+	
+	EXPECT_EQ(image.imageOrientation->first, image2.imageOrientation->first);
+	EXPECT_EQ(image.imageOrientation->second, image2.imageOrientation->second);
+
+	EXPECT_EQ(image.countourFiles.at(0).fileName, image2.countourFiles.at(0).fileName);
+	EXPECT_EQ(image.countourFiles.at(0).number, image2.countourFiles.at(0).number);
+	
+	CAPXMLFile::Exnode& exnode = xmlFile.GetOutput().exnodes.at(0);
+	CAPXMLFile::Exnode& exnode2 = xmlFile2.GetOutput().exnodes.at(0);
+	EXPECT_EQ(exnode.exnode, exnode2.exnode);
+	EXPECT_EQ(exnode.frame, exnode2.frame);
+
+	CAPXMLFile::ProvenanceDetail& pd = xmlFile.documentation_.provenanceDetails[0];
+	CAPXMLFile::ProvenanceDetail& pd2 = xmlFile2.documentation_.provenanceDetails[0];
+	EXPECT_EQ(pd.comment, pd2.comment);
+	
+	EXPECT_EQ(remove("dummy"), 0);
 }
 
 TEST(CAPXMLFile, AddImage)
