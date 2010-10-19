@@ -180,9 +180,22 @@ SET(UNIT_TEST_SRC
   src/CAPXMLFile.cpp
 )
 
+SET(UNIT_TEST_MODELLER_SRC
+  test/UnitTestCAPModeller.cpp
+  src/CAPModellingMode.cpp
+  src/CAPModeller.cpp
+  src/CAPTimeSmoother.cpp
+)
+
 ADD_EXECUTABLE(test/UnitTest ${UNIT_TEST_SRC})
 ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/test/UnitTest)
+
+ADD_EXECUTABLE(test/UnitTestCAPModeller ${UNIT_TEST_MODELLER_SRC})
+ADD_TEST(UnitTestCAPModeller ${EXECUTABLE_OUTPUT_PATH}/test/UnitTestCAPModeller)
 
 SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
 TARGET_LINK_LIBRARIES(test/UnitTest ${GTEST_LIB} 
     ${XML2_LIB} ${ITK_LIB} ${common_LIBS})
+    
+TARGET_LINK_LIBRARIES(test/UnitTestCAPModeller ${GTEST_LIB}
+    ${ITK_LIB})
