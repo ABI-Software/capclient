@@ -1,12 +1,14 @@
 /*
- * CAPTypes.h
+ * SliceInfo.h
  *
  *  Created on: Jun 27, 2010
  *      Author: jchu014
  */
 
-#ifndef CAPTYPES_H_
-#define CAPTYPES_H_
+#ifndef SLICEINFO_H_
+#define SLICEINFO_H_
+
+#include "DICOMImage.h"
 
 #include <string>
 #include <vector>
@@ -22,10 +24,6 @@ typedef Cmiss_texture* Cmiss_texture_id;
 
 namespace cap
 {
-
-class DICOMImage;
-
-typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 
 class SliceInfo
 {
@@ -104,4 +102,4 @@ enum DataPointType
 
 } // end namespace cap
 
-#endif /* CAPTYPES_H_ */
+#endif /* SLICEINFO_H_ */
