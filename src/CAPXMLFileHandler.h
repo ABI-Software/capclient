@@ -8,15 +8,16 @@
 #ifndef CAPXMLFILEHANDLER_H_
 #define CAPXMLFILEHANDLER_H_
 
-//#include "CAPMath.h"
-#include "CAPXMLFile.h"
+#include "SliceInfo.h"
+#include <string>
 
 namespace cap
 {
 
-//#include "CAPTypes.h"
-
-//class CAPXMLFile;
+class CAPXMLFile;
+class DataPoint;
+class CAPModelLVPS4X4;
+class CmguiManager;
 
 class CAPXMLFileHandler
 {

@@ -8,7 +8,7 @@
 #ifndef CAPXMLFILE_H_
 #define CAPXMLFILE_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include "CAPMath.h"
 
 #include <string>

@@ -5,7 +5,7 @@
 #include <wx/aboutdlg.h>
 
 #include "Config.h"
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include "MainWindow.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"

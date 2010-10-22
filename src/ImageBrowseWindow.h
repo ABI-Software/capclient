@@ -8,7 +8,7 @@
 #ifndef IMAGEBROWSEWINDOW_H_
 #define IMAGEBROWSEWINDOW_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 
 #include "wx/wxprec.h"
 // For compilers that don't support precompilation, include "wx/wx.h";

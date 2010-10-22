@@ -8,7 +8,7 @@
 #ifndef IMAGEBROWSEWINDOWCLIENT_H_
 #define IMAGEBROWSEWINDOWCLIENT_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 
 namespace cap
 {

@@ -14,7 +14,7 @@
 //	std::vector<ImageSlice*> imageSlices_;
 //	std::string groupName_; //either SA or LA
 //};
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 
 #include <map>
 #include <vector>

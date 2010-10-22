@@ -6,6 +6,7 @@
  */
 
 #include "CAPXMLFileHandler.h"
+#include "CAPXMLFile.h"
 #include "DICOMImage.h"
 #include "CAPModelLVPS4X4.h"
 #include "DataPoint.h"

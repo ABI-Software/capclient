@@ -8,7 +8,7 @@
 #ifndef IMAGESLICE_H_
 #define IMAGESLICE_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include <vector>
 #include <string>
 #include <boost/tr1/memory.hpp>
