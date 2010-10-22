@@ -8,7 +8,7 @@
 #ifndef CAPMODELLVPS4X4_H_
 #define CAPMODELLVPS4X4_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
