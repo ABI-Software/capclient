@@ -11,8 +11,11 @@
 #include "CAPMath.h"
 
 #include <string>
+#include <vector>
+#include <boost/tr1/memory.hpp>
+#include <boost/utility.hpp>
 
-struct Cmiss_texture;
+//struct Cmiss_texture;
 
 namespace cap
 {
@@ -38,7 +41,9 @@ public:
 	double d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
 };
 
-class DICOMImage
+class Contour {};
+
+class DICOMImage : boost::noncopyable
 {
 public:
 	explicit DICOMImage(const std::string& filename);
@@ -199,6 +204,10 @@ public:
 		shiftedOrientation2_ = v2;
 	}
 
+	std::vector<Contour> const& GetContours();
+	
+	void AddContour(Contour const& con);
+	
 private:
 	void ReadDICOMFile();
 	
@@ -233,10 +242,16 @@ private:
 	std::string age_;
 	
 	ImagePlane* plane_;
-//	Cmiss_texture* texture;
+//	Cmiss_texture* texture_;
+	std::vector<Contour> contours_;
+	
 	bool isShifted_;
 	bool isRotated_;
 };
+
+//class DICOMImage;
+
+typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 
 } // end namespace cap
 #endif /* DICOMIMAGE_H_ */
