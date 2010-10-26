@@ -64,6 +64,7 @@ SET(SRCS
   src/ImageBrowseWindow.cpp
   src/CAPMaterial.cpp
   src/PlatformInfo.cpp
+  src/CAPContour.cpp
   #src/DataSet.cpp
 )
 

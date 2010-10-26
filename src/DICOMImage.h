@@ -41,8 +41,6 @@ public:
 	double d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
 };
 
-class Contour {};
-
 class DICOMImage : boost::noncopyable
 {
 public:
@@ -204,9 +202,9 @@ public:
 		shiftedOrientation2_ = v2;
 	}
 
-	std::vector<Contour> const& GetContours();
-	
-	void AddContour(Contour const& con);
+//	std::vector<CAPContour> const& GetContours();
+//	
+//	void AddContour(CAPContour const& con);
 	
 private:
 	void ReadDICOMFile();
@@ -243,7 +241,7 @@ private:
 	
 	ImagePlane* plane_;
 //	Cmiss_texture* texture_;
-	std::vector<Contour> contours_;
+//	std::vector<Contour> contours_;
 	
 	bool isShifted_;
 	bool isRotated_;
