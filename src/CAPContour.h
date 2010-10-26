@@ -11,6 +11,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
+
 extern "C" {
 #include "api/cmiss_node.h"
 #include "api/cmiss_context.h"
@@ -19,7 +22,7 @@ extern "C" {
 namespace cap
 {
 
-class CAPContour
+class CAPContour : boost::noncopyable
 {
 public:
 	CAPContour(size_t contourNumber, size_t frameNumber);
@@ -35,6 +38,8 @@ private:
 	double startTime_, endTime_;
 	std::vector<Cmiss_node_id> nodes_; //FIXME
 };
+
+typedef boost::shared_ptr<CAPContour> ContourPtr;
 
 } // namespace cap
 #endif /* CAPCONTOUR_H_ */
