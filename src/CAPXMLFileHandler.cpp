@@ -14,6 +14,7 @@
 #include "CmguiExtensions.h"
 #include "FileSystem.h"
 #include "PlatformInfo.h"
+#include "CAPContour.h"
 
 #include <wx/wx.h>
 #include <wx/dir.h> // FIXME move this out to a separate function/class
@@ -23,6 +24,7 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -181,6 +183,14 @@ boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::st
 	std::vector<std::string> const& filenames = fileSystem.getAllFileNames();
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
+		// Skip files that are known not to be dicom files
+		if (boost::iends_with(filename, ".exnode") ||
+			boost::iends_with(filename, ".exelem") ||
+			boost::iends_with(filename, ".xml"))
+		{
+			continue;
+		}
+		
 		std::string fullpath = path + filename;
 		try
 		{
@@ -204,10 +214,11 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 
 	std::string const& filename = xmlFile_.GetFilename();
 	size_t positionOfLastSlash = filename.find_last_of("/\\");
-	std::string pathToDICOMFiles = filename.substr(0, positionOfLastSlash+1);
+	// Search for the dicom files in the same dir as the xml dir first.
+	std::string pathToXMLFile = filename.substr(0, positionOfLastSlash+1);
 
 	typedef boost::unordered_map<std::string, DICOMPtr> HashTable;
-	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToDICOMFiles);
+	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToXMLFile);
 //	std::cout << "GenerateSopiuidToFilenameMap\n";
 
 	// Populate SlicesWithImages
@@ -219,7 +230,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 		HashTable::const_iterator dicomFileItr = uidToFilenameMap.find(image.sopiuid);
 		while (dicomFileItr == uidToFilenameMap.end())
 		{
-			//Can't locate the file
+			//Can't locate the file. Ask the user to locate the dicom file.
 			std::cout << "No matching filename in the sopiuid to filename map\n";
 
 			wxString currentWorkingDir = wxGetCwd();
@@ -247,6 +258,15 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 		{
 			Point3D const& pos = *image.imagePosition;
 			dicomImage->SetShiftedImagePosition(pos);
+		}
+		
+		//TEST
+		std::cout << "TEST: " << image.countourFiles.size() << '\n';
+		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.countourFiles)
+		{
+			// Create Contour and add to dicomImage
+			CAPContour capContour(contour.number, image.frame);
+			capContour.ReadFromExFile(pathToXMLFile + contour.fileName, cmguiManager.GetCmissContext());
 		}
 
 		//TODO handle cases where image label is not present
