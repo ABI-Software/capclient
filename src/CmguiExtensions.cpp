@@ -200,6 +200,8 @@ static Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 
 Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, double startTime, double endTime, bool visibility)
 {
+//	std::cout << __func__ << " : start = " << startTime << " , end = " << endTime << '\n';
+	
 	FE_region* fe_region = FE_node_get_FE_region(node);
 	
 	Cmiss_region* cmiss_region;

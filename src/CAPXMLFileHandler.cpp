@@ -224,6 +224,9 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 	// Populate SlicesWithImages
 	typedef std::map<std::string, std::vector<DICOMPtr> > DICOMImageMapWithSliceNameAsKey;
 	DICOMImageMapWithSliceNameAsKey dicomMap;
+	
+	std::map<int, size_t > numberOfFrameForSlice;
+	
 	CAPXMLFile::Input& input = xmlFile_.GetInput();
 	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
@@ -260,25 +263,36 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 			dicomImage->SetShiftedImagePosition(pos);
 		}
 		
-		//TEST
-		std::cout << "TEST: " << image.countourFiles.size() << '\n';
-		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.countourFiles)
-		{
-			// Create Contour and add to dicomImage
-			CAPContour capContour(contour.number, image.frame);
-			capContour.ReadFromExFile(pathToXMLFile + contour.fileName, cmguiManager.GetCmissContext());
-		}
-
 		//TODO handle cases where image label is not present
 		DICOMImageMapWithSliceNameAsKey::iterator itr = dicomMap.find(image.label);
 		if (itr == dicomMap.end())
 		{
 			std::vector<DICOMPtr> v(1, dicomImage);
 			dicomMap.insert(std::make_pair(image.label, v));
+			
+			// compute number of frames for each slice
+			size_t numberOfFrames = std::count_if(input.images.begin(), input.images.end(),
+					boost::bind(&CAPXMLFile::Image::slice, _1) == image.slice);
+			numberOfFrameForSlice.insert(std::make_pair(image.slice, numberOfFrames));
 		}
 		else
 		{
 			itr->second.push_back(dicomImage);
+		}		
+		
+		//TEST
+//		std::cout << "TEST: " << image.countourFiles.size() << '\n';
+		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.countourFiles)
+		{
+			// Create Contour and add to dicomImage
+			CAPContour capContour(contour.number, image.frame);
+			capContour.ReadFromExFile(pathToXMLFile + contour.fileName, cmguiManager.GetCmissContext());
+			size_t numberOfFrames = numberOfFrameForSlice[image.slice];
+			double startTime = (double)image.frame / (double) numberOfFrames;
+			double duration = (double)1.0 / numberOfFrames;
+			double endTime = startTime + duration;
+			capContour.SetValidPeriod(startTime, endTime);
+			capContour.SetVisibility(true);
 		}
 	}
 
