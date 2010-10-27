@@ -205,7 +205,7 @@ public:
 	}
 
 	//FIXME
-	std::vector<ContourPtr> const& GetContours()
+	std::vector<ContourPtr>& GetContours()
 	{
 		return contours_;
 	}

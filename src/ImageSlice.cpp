@@ -50,6 +50,21 @@ ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
 	images_(info.GetDICOMImages()),
 	textures_(info.GetTextures())
 {
+	size_t numberOfFrames = images_.size();
+	for (size_t frame = 0; frame < numberOfFrames; ++ frame)
+	{
+		std::vector<ContourPtr>& contours = images_.at(frame)->GetContours();
+		BOOST_FOREACH(ContourPtr& capContour, contours)
+		{
+			capContour->ReadFromExFile(cmguiManager.GetCmissContext());
+			double startTime = (double)frame / (double) numberOfFrames;
+			double duration = (double)1.0 / numberOfFrames;
+			double endTime = startTime + duration;
+			capContour->SetValidPeriod(startTime, endTime);
+			capContour->SetVisibility(true);
+		}
+	}
+	
 	this->LoadImagePlaneModel();
 	this->TransformImagePlane();
 	
@@ -58,6 +73,17 @@ ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
 
 ImageSlice::~ImageSlice()
 {
+	Cmiss_region_id root = Cmiss_context_get_default_region(cmguiManager_.GetCmissContext());
+	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, sliceName_.c_str());
+	if(!region)
+	{
+		//error
+		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
+	}
+	Cmiss_region_remove_child(root, region);
+	std::cout << __func__ << '\n';
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root);
 }
 
 namespace {

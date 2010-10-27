@@ -22,18 +22,48 @@ extern "C" {
 namespace cap
 {
 
-CAPContour::CAPContour(size_t contourNumber, size_t frameNumber )
+struct CAPContour::ContourImpl
+{
+	ContourImpl()
+	:
+		region(0),
+		cmissContext(0),
+		sceneObject(0)
+	{}
+	
+	Cmiss_context_id cmissContext;
+	Cmiss_region* region;
+	Scene_object* sceneObject;
+//	Cmiss_field_id field;
+};
+
+
+CAPContour::CAPContour(size_t contourNumber, size_t frameNumber, std::string const& filename )
 :
 		contourNumber_(contourNumber),
-		frameNumber_(frameNumber)
+		frameNumber_(frameNumber),
+		filename_(filename),
+		pImpl_(new CAPContour::ContourImpl())
 {
 	
 }
 
 CAPContour::~CAPContour()
 {
+	if (pImpl_->region == 0)
+	{
+		return;
+	}
+	
 	// clean up cmgui resources
 	// = nodes, region etc
+	Cmiss_region_id root = Cmiss_context_get_default_region(pImpl_->cmissContext);
+	Cmiss_region_id region = pImpl_->region;
+	Cmiss_region_remove_child(root, region);
+	std::cout << __func__ << '\n';
+//		Cmiss_region_destroy(&region);
+//		Cmiss_region_destroy(&pImpl_->region);
+	Cmiss_region_destroy(&root);
 }
 
 namespace
@@ -48,20 +78,23 @@ int AddNodesToVector(Cmiss_node_id node, void *user_data)
 
 } // unnamed namespace
 
-void CAPContour::ReadFromExFile(std::string const& filename, Cmiss_context_id context)
+// FIXME : currently this func has to be called after previous image set has been deleted
+//
+void CAPContour::ReadFromExFile(Cmiss_context_id context)
 {
-	filename_ = filename;
+	pImpl_->cmissContext = context;
+	
 	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
 	
-	if (!Cmiss_region_read_file(root_region,filename.c_str()))
+	if (!Cmiss_region_read_file(root_region,filename_.c_str()))
 	{
-		std::cout << "Error reading ex file - " << filename << std::endl;
+		std::cout << "Error reading ex file - " << filename_ << std::endl;
 	}
 	
-	size_t positionOfLastSlash = filename.find_last_of("/\\");
-	size_t positionOfDotExnodeExtension = filename.find_last_of(".");
+	size_t positionOfLastSlash = filename_.find_last_of("/\\");
+	size_t positionOfDotExnodeExtension = filename_.find_last_of(".");
 	size_t regionNameLength = positionOfDotExnodeExtension - positionOfLastSlash - 1;
-	std::string regionName = filename.substr(positionOfLastSlash + 1, regionNameLength);
+	std::string regionName = filename_.substr(positionOfLastSlash + 1, regionNameLength);
 	//DEBUG
 	std::cout << "contour region = " << regionName <<"\n";
 	
@@ -75,6 +108,8 @@ void CAPContour::ReadFromExFile(std::string const& filename, Cmiss_context_id co
 		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region << '\n';
 		throw std::exception();
 	}
+	pImpl_->region = region;
+	
 	Cmiss_region_for_each_node_in_region(region, AddNodesToVector, (void*)&nodes_);
 	
 	// Create visibility field //TODO Factor out
@@ -108,7 +143,7 @@ void CAPContour::ReadFromExFile(std::string const& filename, Cmiss_context_id co
 	
 	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
 	Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	sceneObject_ = Scene_get_scene_object_with_Cmiss_region(scene, region);
+	pImpl_->sceneObject = Scene_get_scene_object_with_Cmiss_region(scene, region);
 	
 	// Clean up
 	Cmiss_region_destroy(&region);
@@ -209,7 +244,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 void CAPContour::SetVisibility(bool visibility)
 {
 //	std::cout << __func__ << ": " << nodes_.size() << '\n';
-	Scene_object_set_visibility(sceneObject_, visibility ? g_VISIBLE : g_INVISIBLE );
+	Scene_object_set_visibility(pImpl_->sceneObject, visibility ? g_VISIBLE : g_INVISIBLE );
 }
 
 void CAPContour::SetValidPeriod(double startTime, double endTime)
@@ -253,15 +288,11 @@ void CAPContour::SetValidPeriod(double startTime, double endTime)
 			fe_field_list)) && (1 == get_FE_field_number_of_components(
 			fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
 		{
-//			Cmiss_node_set_visibility_field_private( node, fe_region, visibilityField, fe_field, startTime, endTime, visibility);
 			std::for_each(nodes_.begin(), nodes_.end(),
 					boost::bind(Cmiss_node_set_visibility_field_private, _1, fe_region, visibilityField,
 							fe_field, startTime_, endTime_, true));
 		}
 	}
-	
-//	std::for_each(nodes_.begin(), nodes_.end(),
-//			boost::bind(Cmiss_node_set_visibility_field, _1, startTime_, endTime_, visibility));
 }
 
 }

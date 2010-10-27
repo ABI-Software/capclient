@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <boost/tr1/memory.hpp>
+#include <boost/noncopyable.hpp>
 
 struct Graphical_material;
 struct Scene_object;
@@ -28,7 +29,7 @@ class CAPMaterial;
 
 // should I separate the graphical representation from this class?
 // ie move Textures, visibility, sceneObject etc to another class??
-class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. node and element)
+class ImageSlice : boost::noncopyable //should contain info about imagePlane, exnode and exelem (ie. node and element)
 {
 public:	
 	ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager);
