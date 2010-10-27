@@ -50,7 +50,7 @@ public:
 	
 	const ImagePlane& GetImagePlane() const;
 	
-	int GetNumberOfFrames() const
+	size_t GetNumberOfFrames() const
 	{
 		return images_.size();
 	}
@@ -90,7 +90,7 @@ private:
 	
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 	
-	int oldIndex_; //used to check if texture switch is needed
+	size_t oldIndex_; //used to check if texture switch is needed
 };
 
 } // end namespace cap

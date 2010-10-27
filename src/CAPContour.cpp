@@ -13,6 +13,8 @@
 extern "C" {
 #include "api/cmiss_region.h"
 #include "finite_element/finite_element_region.h"
+#include "graphics/scene.h"
+#include "graphics/scene_viewer.h"
 }
 //#include "CmguiExtensions.h"
 #include "computed_field/computed_field_finite_element.h"
@@ -104,6 +106,10 @@ void CAPContour::ReadFromExFile(std::string const& filename, Cmiss_context_id co
 	
 	Cmiss_context_execute_command(context, ss.str().c_str());
 	
+	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
+	Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+	sceneObject_ = Scene_get_scene_object_with_Cmiss_region(scene, region);
+	
 	// Clean up
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
@@ -116,7 +122,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 		Cmiss_field* visibilityField,
 		struct FE_field *fe_field, double startTime, double endTime, bool visibility)
 {
-	std::cout << __func__ << " : start = " << startTime << " , end = " << endTime << '\n';
+//	std::cout << __func__ << " : start = " << startTime << " , end = " << endTime << '\n';
 	
 	struct FE_node_field_creator *node_field_creator;
 	
@@ -202,9 +208,20 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 
 void CAPContour::SetVisibility(bool visibility)
 {
-	std::cout << __func__ << ": " << nodes_.size() << '\n';
-	Cmiss_node_id node = nodes_.at(0);
+//	std::cout << __func__ << ": " << nodes_.size() << '\n';
+	Scene_object_set_visibility(sceneObject_, visibility ? g_VISIBLE : g_INVISIBLE );
+}
+
+void CAPContour::SetValidPeriod(double startTime, double endTime)
+{
+//	std::cout << __func__ << " : start = " << startTime << " , end = " << endTime << '\n';
 	
+	const double EPSILON = std::numeric_limits<double>::epsilon();
+	startTime_ = startTime;
+	endTime_ = endTime - EPSILON;
+	
+	Cmiss_node_id node = nodes_.at(0);
+		
 	FE_region* fe_region = FE_node_get_FE_region(node);
 	
 	Cmiss_region* cmiss_region;
@@ -239,20 +256,12 @@ void CAPContour::SetVisibility(bool visibility)
 //			Cmiss_node_set_visibility_field_private( node, fe_region, visibilityField, fe_field, startTime, endTime, visibility);
 			std::for_each(nodes_.begin(), nodes_.end(),
 					boost::bind(Cmiss_node_set_visibility_field_private, _1, fe_region, visibilityField,
-							fe_field, startTime_, endTime_, visibility));
+							fe_field, startTime_, endTime_, true));
 		}
 	}
 	
 //	std::for_each(nodes_.begin(), nodes_.end(),
 //			boost::bind(Cmiss_node_set_visibility_field, _1, startTime_, endTime_, visibility));
-}
-
-void CAPContour::SetValidPeriod(double startTime, double endTime)
-{
-//	std::cout << __func__ <<'\n';
-	const double EPSILON = std::numeric_limits<double>::epsilon();
-	startTime_ = startTime;
-	endTime_ = endTime - EPSILON;
 }
 
 }

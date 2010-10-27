@@ -19,6 +19,8 @@ extern "C" {
 #include "api/cmiss_context.h"
 }
 
+struct Scene_object;
+
 namespace cap
 {
 
@@ -37,6 +39,8 @@ private:
 	std::string filename_;
 	double startTime_, endTime_;
 	std::vector<Cmiss_node_id> nodes_; //FIXME
+	
+	Scene_object* sceneObject_;
 };
 
 typedef boost::shared_ptr<CAPContour> ContourPtr;
