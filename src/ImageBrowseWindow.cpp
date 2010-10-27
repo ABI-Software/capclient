@@ -769,6 +769,15 @@ void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 
 void ImageBrowseWindow::OnCancelButtonEvent(wxCommandEvent& event)
 {
+	//TODO Cleanup textures - REVISE design
+	// Should probably use reference counted smart pointer for Cmiss_texture
+	// Since the ownership is shared between ImageSlice and this (ImageBrowseWindow)
+	
+	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	{
+		Cmiss_texture_id tex = value.second;
+		DESTROY(Texture)(&tex);
+	}
 	Close();
 }
 
