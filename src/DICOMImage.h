@@ -9,11 +9,13 @@
 #define DICOMIMAGE_H_
 
 #include "CAPMath.h"
+#include "CAPContour.h"
 
 #include <string>
 #include <vector>
 #include <boost/tr1/memory.hpp>
 #include <boost/utility.hpp>
+#include <boost/bind.hpp>
 
 //struct Cmiss_texture;
 
@@ -202,9 +204,22 @@ public:
 		shiftedOrientation2_ = v2;
 	}
 
-//	std::vector<CAPContour> const& GetContours();
+	//FIXME
+	std::vector<ContourPtr> const& GetContours()
+	{
+		return contours_;
+	}
 //	
-//	void AddContour(CAPContour const& con);
+	void AddContour(ContourPtr const& con)
+	{
+		contours_.push_back(con);
+	}
+	
+	void SetContourVisibility(bool visibility)
+	{
+		std::for_each(contours_.begin(), contours_.end(), 
+				boost::bind(&CAPContour::SetVisibility, _1, visibility));
+	}
 	
 private:
 	void ReadDICOMFile();
@@ -241,7 +256,7 @@ private:
 	
 	ImagePlane* plane_;
 //	Cmiss_texture* texture_;
-//	std::vector<Contour> contours_;
+	std::vector<ContourPtr> contours_; //FIXME
 	
 	bool isShifted_;
 	bool isRotated_;

@@ -60,6 +60,23 @@ ImageSlice::~ImageSlice()
 {
 }
 
+namespace {
+	size_t MapTimeToIndex(double time, size_t totalNumberOfFrames)
+	{
+		size_t index = static_cast<int>(time * totalNumberOfFrames); // -1
+		//boundary checks
+		if (index >= totalNumberOfFrames)
+		{
+			index = totalNumberOfFrames - 1;
+		}
+		else if (index < 0)
+		{
+			index = 0;
+		}
+		
+		return index;
+	}
+}
 void ImageSlice::SetVisible(bool visibility)
 {
 	if (visibility)
@@ -74,6 +91,12 @@ void ImageSlice::SetVisible(bool visibility)
 		isVisible_ = false;
 		Scene_object_set_visibility(sceneObject_, g_INVISIBLE);
 	}
+	
+	//TEST
+	// Set visibility of contours
+	std::for_each(images_.begin(), images_.end(), 
+			boost::bind(&DICOMImage::SetContourVisibility,_1,visibility));
+	
 	return;
 }
 
@@ -81,16 +104,7 @@ void ImageSlice::SetTime(double time)
 {
 	time_ = time; // store time for later use
 
-	int index = static_cast<int>(time * textures_.size()); // -1
-	//boundary checks
-	if (index >= textures_.size())
-	{
-		index = textures_.size() - 1;
-	}
-	else if (index < 0)
-	{
-		index = 0;
-	}
+	size_t index = MapTimeToIndex(time, textures_.size());
 	
 	//update texture only when it is necessary
 	if (index == oldIndex_|| !isVisible_)
