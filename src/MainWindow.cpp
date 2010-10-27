@@ -1122,8 +1122,10 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 			// This means no output element is defined
 			InitializeModelTemplate(slicesWithImages);
 			modeller_->SetDataPoints(dataPoints);
-			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
-			frame->Show(true);
+			// FIXME memory is prematurely released when ok button is pressed from the following window
+			// Suppress this feature for now
+//			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+//			frame->Show(true);
 			return;
 		}
 		

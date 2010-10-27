@@ -74,20 +74,23 @@ CAPMaterial::~CAPMaterial()
 	std::cout << __func__ << '\n';
 	// Destroy member fields
 	// TODO need to find out how to destroy material and texture properly	
-	Cmiss_texture_id tex1 = brightnessAndContrastTexture_;
-	DEACCESS(Texture)(&tex1);
-	struct MANAGER(Texture) * texture_manager = 
-			Cmiss_graphics_module_get_texture_manager(graphicsModule_);
-	REMOVE_OBJECT_FROM_MANAGER(Texture)(brightnessAndContrastTexture_, texture_manager);
-//	DESTROY(Texture)(&brightnessAndContrastTexture_);
 	
 //	int pers = Cmiss_material_get_persistent(material_);
 //	std::cout << "Pers = " << pers << '\n';
 	
 	Cmiss_material_set_persistent(material_, 0);
-	Cmiss_material_id tempMaterial = material_;
-	Cmiss_material_destroy(&tempMaterial);
+	Cmiss_material_id tempMaterial1 = material_;
+	Cmiss_material_id tempMaterial2 = material_;
+	Cmiss_material_destroy(&tempMaterial1);
+	Cmiss_material_destroy(&tempMaterial2);
 	Cmiss_material_destroy(&material_);
+	
+//	Cmiss_texture_id tex1 = brightnessAndContrastTexture_;
+//	DEACCESS(Texture)(&tex1);
+	struct MANAGER(Texture) * texture_manager = 
+			Cmiss_graphics_module_get_texture_manager(graphicsModule_);
+	REMOVE_OBJECT_FROM_MANAGER(Texture)(brightnessAndContrastTexture_, texture_manager);
+//	DESTROY(Texture)(&brightnessAndContrastTexture_);
 }
 
 void CAPMaterial::SetBrightness(float brightness)

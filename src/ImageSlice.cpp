@@ -84,6 +84,13 @@ ImageSlice::~ImageSlice()
 	std::cout << __func__ << '\n';
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root);
+	
+	BOOST_FOREACH(Cmiss_texture* tex, textures_)
+	{
+//		Cmiss_texture* temp = tex;
+//		DEACCESS(Texture)(&temp);
+		DESTROY(Texture)(&tex);
+	}
 }
 
 namespace {
