@@ -318,12 +318,18 @@ void ImageBrowseWindow::SortDICOMFiles()
 		double distanceFromOrigin;
 		if (sortingMode_ == SERIES_NUMBER)
 		{
+			// Don't use the position for sorting : set it to 0 for all images
 			distanceFromOrigin = 0.0;
 		}
 		else if (sortingMode_ == SERIES_NUMBER_AND_IMAGE_POSITION)
 		{
-			Vector3D v = dicomFile->GetImagePosition() - Point3D(0,0,0);
-			distanceFromOrigin = v.Length();
+			// Use the dot product of the position and the normal vector
+			// as the measure of the position
+			Vector3D pos = dicomFile->GetImagePosition() - Point3D(0,0,0);
+			std::pair<Vector3D,Vector3D> oris = dicomFile->GetImageOrientation();
+			Vector3D normal = CrossProduct(oris.first, oris.second);
+			normal.Normalise();
+			distanceFromOrigin = - DotProduct(pos, normal);
 		}
 		
 		SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
