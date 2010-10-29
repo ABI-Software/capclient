@@ -610,7 +610,7 @@ void ImageBrowseWindow::UpdateImageInfoPanel(DICOMPtr const& dicomPtr)
 	SetInfoField("ImagePosition", posStr);
 	
 	std::pair<Vector3D,Vector3D> const& orientation = dicomPtr->GetImageOrientation();
-	//FIXME wrong value is printed
+
 	std::cout << "ori 1: " << orientation.first.x << " " << orientation.first.y << " " << orientation.first.z << "\n";
 	std::cout << "ori 2: " << orientation.second.x << " " << orientation.second.y << " " << orientation.second.z << "\n";
 }
