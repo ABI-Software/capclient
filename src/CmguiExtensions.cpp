@@ -576,7 +576,7 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_
 			std::cout << "debug: intersection point = " << coords <<  std::endl;
 			
 			double coordArray[3];
-			coordArray[0] = coords.x;coordArray[1] = coords.y;coordArray[2] = coords.z;//TODO use double for Point3D?
+			coordArray[0] = coords.x;coordArray[1] = coords.y;coordArray[2] = coords.z;
 			
 			return Cmiss_create_data_point_at_coord(region, nearest_element_coordinate_field, (double*)coordArray, time);
 		}

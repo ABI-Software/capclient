@@ -71,9 +71,6 @@ CAPModellingMode* CAPModellingModeApex::OnAccept(CAPModeller& modeller)
 		std::cout << __func__ << ": Apex not defined" << std::endl;
 		return 0;
 	}
-	// TODO Make the Cmiss_node representation of the apex point invisible
-	//		which should be made visible when entering this state(mode)
-	// provide EntryAction and ExitAction that can be invoked by the context (= CAPModeller)
 	
 	return modeller.GetModellingModeBase();
 }
