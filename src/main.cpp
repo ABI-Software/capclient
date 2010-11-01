@@ -70,8 +70,6 @@ int main(int argc,char *argv[])
 			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
 			frame->Show(true);
 			Cmiss_context_run_main_loop(context);//app.OnRun()
-			
-			delete frame;
 		}
 		Cmiss_context_destroy(&context);
 	}
