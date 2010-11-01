@@ -271,6 +271,7 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 
 MainWindow::~MainWindow()
 {
+	cout << __func__ << endl;
 	delete imageSet_;
 	delete modeller_;
 }
@@ -451,7 +452,10 @@ void MainWindow::Terminate(wxCloseEvent& event)
 	                            wxYES_NO, this);
 	if (answer == wxYES)
 	{
-		exit(0); //without this, the funny temporary window appears
+//		Destroy();
+//		exit(0); //without this, the funny temporary window appears
+//		Cmiss_context_execute_command(context_, "QUIT");
+		wxExit();
 	}
 }
 
