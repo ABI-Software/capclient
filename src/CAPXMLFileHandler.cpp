@@ -94,8 +94,17 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 				Orientation ori = dicomFile->GetShiftedImageOrientation();
 				image.imageOrientation = boost::make_shared<Orientation>(ori);
 			}
-
-			//image.countourFiles;;
+			
+			BOOST_FOREACH(ContourPtr& contour, dicomFile->GetContours())
+			{	
+				std::string const& filename = contour->GetFilename();
+				size_t positionOfLastSlash = filename.find_last_of("/\\");
+				std::string baseName = filename.substr(positionOfLastSlash + 1);
+				int number = contour->GetContourNumber();
+				CAPXMLFile::ContourFile contourFile = {baseName, number};
+				image.contourFiles.push_back(contourFile);
+			}
+			
 			//image.points; // FIX?
 			xmlFile_.AddImage(image);
 		}
@@ -282,7 +291,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 		
 		//TEST
 //		std::cout << "TEST: " << image.countourFiles.size() << '\n';
-		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.countourFiles)
+		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.contourFiles)
 		{
 			// Create Contour and add to dicomImage
 			ContourPtr capContour = boost::make_shared<CAPContour>(contour.number, image.frame, pathToXMLFile + contour.fileName);

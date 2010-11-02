@@ -34,6 +34,14 @@ public:
 	void ReadFromExFile(Cmiss_context_id context); // FIXME
 	void SetVisibility(bool visibility);
 	void SetValidPeriod(double startTime, double endTime);
+	std::string const& GetFilename() const
+	{
+		return filename_;
+	}
+	size_t GetContourNumber() const
+	{
+		return contourNumber_;
+	}
 private:
 	size_t contourNumber_;
 	size_t frameNumber_;
