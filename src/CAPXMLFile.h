@@ -55,7 +55,7 @@ public:
 	struct Image
 	{
 		std::vector<Point> points;
-		std::vector<ContourFile> countourFiles;
+		std::vector<ContourFile> contourFiles;
 		std::string sopiuid;
 		std::string seriesiuid;
 		int frame;

@@ -150,7 +150,7 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 				contourFile.number = boost::lexical_cast<int>((char*)numberStr);
 			}
 //			std::cout << "ContourFile = " << filename << '\n';
-			image.countourFiles.push_back(contourFile);
+			image.contourFiles.push_back(contourFile);
 			xmlFree(filename);
 		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImagePosition"))
@@ -452,7 +452,7 @@ void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 	std::for_each(image.points.begin(), image.points.end(), 
 			boost::bind(ConstructPointSubtree, _1, imageNode));
 	
-	std::for_each(image.countourFiles.begin(), image.countourFiles.end(),
+	std::for_each(image.contourFiles.begin(), image.contourFiles.end(),
 			boost::bind(ConstructContourFileNode, _1, imageNode));
 }
 
@@ -675,7 +675,7 @@ void CAPXMLFile::AddContourFileToImage(std::string const& imageSopiuid, ContourF
 //		std::cout << __func__ << ": No image with the requested uid : " << imageSopiuid << '\n';
 		throw std::invalid_argument("No image with the requested uid : " + imageSopiuid);
 	}
-	itr->countourFiles.push_back(contourFile);
+	itr->contourFiles.push_back(contourFile);
 }
 
 void CAPXMLFile::AddExnode(Exnode const& exnode)
