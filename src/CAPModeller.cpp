@@ -187,28 +187,37 @@ std::vector<DataPoint> CAPModeller::GetDataPoints() const
 
 void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 {
+	if (dataPoints.empty()) //FIXME 
+	{
+		// This handles the case where no data points are defined
+		// e.g model files converted from CIM models
+		modellingModeGuidePoints_.InitialiseModelLambdaParams();
+		ChangeMode(GetModellingModeGuidePoints());
+		return;
+	}
+	
 	std::sort(dataPoints.begin(), dataPoints.end(),
 			boost::bind( std::less<DataPointType>(),
 					boost::bind(&DataPoint::GetDataPointType, _1),
 					boost::bind(&DataPoint::GetDataPointType, _2)));
 
-	bool modelIsInitialised(false);
+	currentModellingMode_ = GetModellingModeApex();
+	ModellingMode currentModeEnum = APEX;
 	BOOST_FOREACH(DataPoint& dataPoint, dataPoints)
 	{
 		// type unsafe but much less verbose than switch cases
 		ModellingMode mode = static_cast<ModellingMode>(dataPoint.GetDataPointType());
-		if (mode == GUIDEPOINT && !modelIsInitialised)
+		if (mode != currentModeEnum)
 		{
-			modellingModeBasePlane_.OnAccept(*this); //HACK
-			modelIsInitialised = true;
+			// Change mode and call OnAccept on the currentModellingMode_
+			OnAccept();
+			currentModeEnum = mode;
 		}
-		ChangeMode(mode);
 		AddDataPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
 	}
-	if (!modelIsInitialised) // no guide points defined
+	if (currentModeEnum == BASEPLANE) // no guide points defined
 	{
-		CAPModellingMode* newMode = modellingModeBasePlane_.OnAccept(*this);
-		ChangeMode(newMode);
+		OnAccept();
 	}
 
 	SmoothAlongTime();

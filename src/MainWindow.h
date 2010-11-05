@@ -15,8 +15,9 @@ extern "C" {
 //#include "CAPModeller.h"
 #include "ImageBrowseWindowClient.h"
 
+#include <boost/scoped_ptr.hpp>
+
 struct Cmiss_node;
-struct Cmiss_time_keeper;
 
 namespace cap
 {
@@ -24,7 +25,7 @@ namespace cap
 class ImageSet;
 class CmguiManager;
 class CAPModeller;
-
+class CAPXMLFile;
 
 class MainWindow : public wxFrame, public ImageBrowseWindowClient
 {
@@ -45,6 +46,8 @@ public:
 	
 	//void AddDataPoint(DataPoint* dataPoint);
 	
+	void StopCine();
+	
 	void AddDataPoint(Cmiss_node*, const cap::Point3D&);
 	
 	void MoveDataPoint(Cmiss_node*, const cap::Point3D&);
@@ -57,11 +60,14 @@ public:
 	
 	double GetCurrentTime() const;
 	
-	virtual void LoadImages(SlicesWithImages const& slices);
+	void LoadImages(SlicesWithImages const& slices);
+	
+	void LoadImagesFromXMLFile(SlicesWithImages const& slices);
+
+	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices);
 	
 private:	
 	//private utility functions
-	void RenderMII(const std::string& sliceName);
 	
 	void SetImageVisibility(bool visibility, int index);
 	
@@ -77,7 +83,13 @@ private:
 	
 	void RenderIsoSurfaces();
 	
-	void LoadHeartModel(std::string const& dirOnly, std::string const& prefix);
+	void LoadTemplateHeartModel(std::string const& dirOnly, std::string const& prefix);
+	
+	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames);
+	
+	void InitializeModelTemplate(SlicesWithImages const& slices);
+	
+	void UpdateStatesAfterLoadingModel();
 	
 	void PopulateObjectList();
 	
@@ -89,7 +101,19 @@ private:
 	void EnterImagesLoadedState();
 
 	void EnterModelLoadedState();
+	
+	std::string PromptForUserComment();
+	
+	void PlayCine();
 
+	void CreateModeller();
+
+	void ResetModeChoice();
+
+	void UpdateModelVisibilityAccordingToUI();
+
+	void UpdateMIIVisibilityAccordingToUI();
+	
 	//Event handlers
 	void Terminate(wxCloseEvent& event);
 	void OnTogglePlay(wxCommandEvent& event);
@@ -124,15 +148,15 @@ private:
 	CmguiManager const& cmguiManager_;
 	Cmiss_context_id context_;
 	Cmiss_time_keeper* timeKeeper_;
-	cap::ImageSet* imageSet_;
+	Cmiss_time_notifier* timeNotifier_;
+	ImageSet* imageSet_;
 	
 	bool animationIsOn_;
 	bool hideAll_;
 	
-	cap::CAPModelLVPS4X4 heartModel_;
+	boost::scoped_ptr<CAPModelLVPS4X4> heartModelPtr_;
 	
-//	std::vector<DataPoint*> dataPoints_;
-	cap::CAPModeller* modeller_;
+	CAPModeller* modeller_;
 	
 	Cmiss_scene_viewer_id sceneViewer_;
 
@@ -144,6 +168,7 @@ private:
 	};
 
 	MainWindowState mainWindowState_;
+	boost::scoped_ptr<CAPXMLFile> capXMLFilePtr_;
 };
 
 } // end namespace cap

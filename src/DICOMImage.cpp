@@ -32,9 +32,11 @@ using namespace std;
 DICOMImage::DICOMImage(const string& filename)
 	: filename_(filename),
 	  plane_(0),
-	  isShifted_(false)
+	  isShifted_(false),
+	  isRotated_(false)
 {
 	ReadDICOMFile();
+	ComputeImagePlane();
 }
 
 void DICOMImage::ReadDICOMFile()
@@ -53,6 +55,7 @@ void DICOMImage::ReadDICOMFile()
 
 	gdcm::Reader r;
 	r.SetFileName( filename_.c_str() );
+	cout << "DICOM filename = " << filename_ << '\n';
 	if( !r.Read() )
 	{
 		cout << "Can't read file: " << filename_ << endl;
@@ -61,46 +64,84 @@ void DICOMImage::ReadDICOMFile()
 	
 	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
 	
-	// Study Instance UID (0020,000d)
-	const gdcm::DataElement& studyiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000d));
-	gdcm::Attribute<0x0020,0x000d> at_studyiuid;
-	at_studyiuid.SetFromDataElement(studyiuid);
-	studyInstanceUID_ = at_studyiuid.GetValue();
+	{
+		// SOP instance UID (0008,0018) 
+		const gdcm::DataElement& sopiuid = ds.GetDataElement(gdcm::Tag(0x0008,0x0018));
+		gdcm::Attribute<0x0008,0x0018> at_sopiuid;
+		at_sopiuid.SetFromDataElement(sopiuid);
+		sopInstanceUID_ = at_sopiuid.GetValue();
+		// gdcm leaves some non alpha numeric characters at the back
+		// get rid of them here
+		boost::trim_right_if(sopInstanceUID_, !boost::is_digit());
+	//	cout << "UID: " << sopInstanceUID_;
+	//	cout << endl;
+	}
 	
-	// SOP instance UID (0008,0018) 
-	const gdcm::DataElement& sopiuid = ds.GetDataElement(gdcm::Tag(0x0008,0x0018));
-	gdcm::Attribute<0x0008,0x0018> at_sopiuid;
-	at_sopiuid.SetFromDataElement(sopiuid);
-	sopInstanceUID_ = at_sopiuid.GetValue();
-	// gdcm leaves some non alpha numeric characters at the back
-	// get rid of them here
-	boost::trim_right_if(sopInstanceUID_, !boost::is_digit());
-	cout << "UID: " << sopInstanceUID_;
-	cout << endl;
+	{
+		// Study Instance UID (0020,000d)
+		const gdcm::DataElement& studyiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000d));
+		gdcm::Attribute<0x0020,0x000d> at_studyiuid;
+		at_studyiuid.SetFromDataElement(studyiuid);
+		studyInstanceUID_ = at_studyiuid.GetValue();
+		boost::trim_right_if(studyInstanceUID_, !boost::is_digit());
+	}
+	
+	{
+		// Series Instance UID (0020,000E)
+		const gdcm::DataElement& seriesiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000e));
+		gdcm::Attribute<0x0020,0x000e> at_seriesiuid;
+		at_seriesiuid.SetFromDataElement(seriesiuid);
+		seriesInstanceUID_ = at_seriesiuid.GetValue();
+		boost::trim_right_if(seriesInstanceUID_, !boost::is_digit());
+	}
 	
 	// series number (0020,0011)
-	const gdcm::DataElement& seriesNum = ds.GetDataElement(gdcm::Tag(0x0020,0x0011));
-	gdcm::Attribute<0x0020,0x0011> at_sn;
-	at_sn.SetFromDataElement(seriesNum);
-	seriesNumber_ = at_sn.GetValue();
-//	cout << "Series Number: " << seriesNumber_;
-//	cout << endl;
+	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0011)))
+	{
+		const gdcm::DataElement& seriesNum = ds.GetDataElement(gdcm::Tag(0x0020,0x0011));
+		gdcm::Attribute<0x0020,0x0011> at_sn;
+		at_sn.SetFromDataElement(seriesNum);
+		seriesNumber_ = at_sn.GetValue();
+	//	cout << "Series Number: " << seriesNumber_;
+	//	cout << endl;
+	}
+	else
+	{
+		cout << "Series number not found\n";
+		throw std::exception();
+	}
 	
 	// series description (0008,103e)
-	const gdcm::DataElement& seriesDesc = ds.GetDataElement(gdcm::Tag(0x0008,0x103E));
-	gdcm::Attribute<0x0008,0x103E> at_sd;
-	at_sd.SetFromDataElement(seriesDesc);
-	seriesDescription_ = at_sd.GetValue();
-//	cout << "Series Description: " << seriesDescription_;
-//	cout << endl;
+	if (ds.FindDataElement(gdcm::Tag(0x0008,0x103E)))
+	{
+		const gdcm::DataElement& seriesDesc = ds.GetDataElement(gdcm::Tag(0x0008,0x103E));
+		gdcm::Attribute<0x0008,0x103E> at_sd;
+		at_sd.SetFromDataElement(seriesDesc);
+		seriesDescription_ = at_sd.GetValue();
+	//	cout << "Series Description: " << seriesDescription_;
+	//	cout << endl;
+	}
+	else
+	{
+		cout << "Series description not found\n";
+		seriesDescription_ = "";
+	}
 	
 	// sequence name (0018,0024)
-	const gdcm::DataElement& seqName = ds.GetDataElement(gdcm::Tag(0x0018,0x0024));
-	gdcm::Attribute<0x0018,0x0024> at_seqName;
-	at_seqName.SetFromDataElement(seqName);
-	sequenceName_ = at_seqName.GetValue();
-//	cout << "sequenceName_: " << sequenceName_;
-//	cout << endl;
+	if (ds.FindDataElement(gdcm::Tag(0x0018,0x0024)))
+	{
+		const gdcm::DataElement& seqName = ds.GetDataElement(gdcm::Tag(0x0018,0x0024));
+		gdcm::Attribute<0x0018,0x0024> at_seqName;
+		at_seqName.SetFromDataElement(seqName);
+		sequenceName_ = at_seqName.GetValue();
+//		cout << "sequenceName_: " << sequenceName_ << '\n';
+	//	cout << endl;
+	}
+	else
+	{
+		cout << "Sequence Name not found in the DICOM header \n";
+		sequenceName_ = "";
+	}
 	
 	// trigger time trigger time (0018,1060)
 	if (ds.FindDataElement(gdcm::Tag(0x0018,0x1060)))
@@ -118,29 +159,55 @@ void DICOMImage::ReadDICOMFile()
 		triggerTime_ = -1;
 	}
 
-	const gdcm::DataElement& rows = ds.GetDataElement(gdcm::Tag(0x0028,0x0010));
-	gdcm::Attribute<0x0028,0x0010> at_rows;
-	at_rows.SetFromDataElement(rows);
-	height_ = at_rows.GetValue();
-//	cout << "Rows: " << height_;
-//	cout << endl;
+	if (ds.FindDataElement(gdcm::Tag(0x0028,0x0010)))
+	{
+		const gdcm::DataElement& rows = ds.GetDataElement(gdcm::Tag(0x0028,0x0010));
+		gdcm::Attribute<0x0028,0x0010> at_rows;
+		at_rows.SetFromDataElement(rows);
+		height_ = at_rows.GetValue();
+//		cout << "Rows: " << height_;
+//		cout << endl;
+	}
+	else
+	{
+		cout << "Rows not found.\n";
+		throw std::exception();
+	}
 
-	const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
-	gdcm::Attribute<0x0028,0x0011> at_cols;
-	at_cols.SetFromDataElement(cols);
-	width_ = at_cols.GetValue();
-//	cout << "Columns: " << width_;
-//	cout << endl;
+	{
+		const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
+		gdcm::Attribute<0x0028,0x0011> at_cols;
+		at_cols.SetFromDataElement(cols);
+		width_ = at_cols.GetValue();
+//		cout << "Columns: " << width_;
+//		cout << endl;
+	}
 
-	const gdcm::DataElement& thick = ds.GetDataElement(gdcm::Tag(0x0018,0x0050));
-	gdcm::Attribute<0x0018,0x0050> at_thick;
-	at_thick.SetFromDataElement(thick);
-	thickness_ = at_thick.GetValue();
+//	if (ds.FindDataElement(gdcm::Tag(0x0018,0x0050)))
+//	{
+//		const gdcm::DataElement& thick = ds.GetDataElement(gdcm::Tag(0x0018,0x0050));
+//		gdcm::Attribute<0x0018,0x0050> at_thick;
+//		at_thick.SetFromDataElement(thick);
+//		thickness_ = at_thick.GetValue();
+//	}
+//	else
+//	{
+//		cout << "Slice Thickness not found.\n";
+//		thickness_ = 0.0;
+//	}
 
-	const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
-	gdcm::Attribute<0x0020,0x0032> at;
-	at.SetFromDataElement(position);
-	position3D_ = Point3D(at[0],at[1],at[2]);
+	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0032)))
+	{
+		const gdcm::DataElement& position = ds.GetDataElement(gdcm::Tag(0x0020,0x0032));
+		gdcm::Attribute<0x0020,0x0032> at;
+		at.SetFromDataElement(position);
+		position3D_ = Point3D(at[0],at[1],at[2]);
+	}
+	else
+	{
+		cout << "Image Position not found.\n";
+		throw std::exception();
+	}
 
 	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0037)))
 	{
@@ -160,86 +227,152 @@ void DICOMImage::ReadDICOMFile()
 		orientation2_ = Vector3D(-at_ori[3],at_ori[4],-at_ori[5]);
 	}
 	
-	const gdcm::DataElement& spacing = ds.GetDataElement(gdcm::Tag(0x0028,0x0030));
-	gdcm::Attribute<0x0028,0x0030> at_spc;
-	at_spc.SetFromDataElement(spacing);
-	pixelSizeX_ = at_spc[0];
-	pixelSizeY_ = at_spc[1];
+	if (ds.FindDataElement(gdcm::Tag(0x0028,0x0030)))
+	{
+		const gdcm::DataElement& spacing = ds.GetDataElement(gdcm::Tag(0x0028,0x0030));
+		gdcm::Attribute<0x0028,0x0030> at_spc;
+		at_spc.SetFromDataElement(spacing);
+		pixelSizeX_ = at_spc[0];
+		pixelSizeY_ = at_spc[1];
+//		cout << "pixelSize\n";
+	}
+	else
+	{
+		cout << "Pixel Spacing not found\n";
+		throw std::exception();
+	}
 	
 	//patient name (0010,0010) 
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0010)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0010));
 		gdcm::Attribute<0x0010,0x0010> at;
 		at.SetFromDataElement(de);
 		patientName_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Patient Name not found\n";
+		patientName_ = "N/A";
+	}
 	
 	//patient id (0010,0020)
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0020)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0020));
 		gdcm::Attribute<0x0010,0x0020> at;
 		at.SetFromDataElement(de);
 		patientId_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Patient ID Not found\n";
+		patientId_ = "N/A";
+	}
 	
 	//acquisition date (0008,0022) 
+	if (ds.FindDataElement(gdcm::Tag(0x0008,0x0022)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0008,0x0022));
 		gdcm::Attribute<0x0008,0x0022> at;
 		at.SetFromDataElement(de);
 		scanDate_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Scan Date Not found\n";
+		scanDate_ = "N/A";
+	}
+	
+//	cout << "acquisition time\n";
 	
 	//date of birth (0010,0030)
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0030)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0030));
 		gdcm::Attribute<0x0010,0x0030> at;
 		at.SetFromDataElement(de);
 		dateOfBirth_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Date of Birth Not found\n";
+		dateOfBirth_ = "N/A";
+	}
 	
 	//gender (0010,0040)
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0040)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0040));
 		gdcm::Attribute<0x0010,0x0040> at;
 		at.SetFromDataElement(de);
 		gender_ = at.GetValue();
 	}
+	else
+	{
+		cout << "Gender Not found\n";
+		gender_ = "N/A";
+	}
 	
 	//age (0010,1010)
+	if (ds.FindDataElement(gdcm::Tag(0x0010,0x1010)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x1010));
 		gdcm::Attribute<0x0010,0x1010> at;
 		at.SetFromDataElement(de);
 		age_ = at.GetValue();
 	}
-}
-
-ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
-{	
-	//Now construct the plane_ from the info
-
-	//int imageSize = std::max<u_int>(width_,height_);
-	//cout << "imageSize: " << imageSize << endl;
-
-	if (plane_)
+	else
 	{
-		return plane_;
+		cout << "Patient's age (0010,1010) not found\n";
+		age_ = "N/A";
 	}
 	
-	plane_ = new ImagePlane();
+	//instanceNumber_ (0020,0013)
+	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0013)))
+	{
+		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0020,0x0013));
+		gdcm::Attribute<0x0020,0x0013> at;
+		at.SetFromDataElement(de);
+		instanceNumber_ = at.GetValue();
+	}
+	else
+	{
+		cout << "Instance Number (0020,0013) not found\n";
+		instanceNumber_ = -1;
+	}
+	
+//	cout << "Exiting " << __func__ << '\n';
+}
 
+void DICOMImage::ComputeImagePlane()
+{
+	if (!plane_)
+	{
+		plane_ = new ImagePlane();
+	}
 	// plane_'s tlc starts from the edge of the first voxel
 	// rather than centre; (0020, 0032) is the centre of the first voxel
-	plane_->tlc = position3D_ - 0.5 * pixelSizeX_ * orientation1_ -  0.5f * pixelSizeY_ * orientation2_;
+	
+	Point3D pos;
+	if (IsShifted())
+	{
+		pos = shiftedPosition_;
+	}
+	else
+	{
+		pos = position3D_;
+	}
+	
+	plane_->tlc = pos - 0.5 * pixelSizeX_ * orientation1_ -  0.5f * pixelSizeY_ * orientation2_;
 
-	double fieldOfViewX = width_ * pixelSizeX_;//JDCHUNG consider name change
-	cout << "width in mm = " << fieldOfViewX ;
+	double fieldOfViewX = width_ * pixelSizeX_;
+//	cout << "width in mm = " << fieldOfViewX ;
 	
 	plane_->trc = plane_->tlc + fieldOfViewX * orientation1_;
 
 	double fieldOfViewY = height_ * pixelSizeY_;//JDCHUNG
-	cout << ", height in mm = " << fieldOfViewY << endl ;
+//	cout << ", height in mm = " << fieldOfViewY << endl ;
 	
 	plane_->blc = plane_->tlc + fieldOfViewY * orientation2_;
 
@@ -258,7 +391,10 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
 #endif
 	
 	plane_->d = DotProduct((plane_->tlc - Point3D(0,0,0)) ,plane_->normal);
-	
+}
+
+ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
+{	
 	return plane_;
 }
 

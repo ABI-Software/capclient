@@ -43,13 +43,28 @@ namespace cap
 
 ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
 	:
-	sliceName_(info.get<0>()),
+	sliceName_(info.GetLabel()),
 	oldIndex_(-1),
 	isVisible_(true),
 	cmguiManager_(cmguiManager),
-	images_(info.get<1>()),
-	textures_(info.get<2>())
+	images_(info.GetDICOMImages()),
+	textures_(info.GetTextures())
 {
+	size_t numberOfFrames = images_.size();
+	for (size_t frame = 0; frame < numberOfFrames; ++ frame)
+	{
+		std::vector<ContourPtr>& contours = images_.at(frame)->GetContours();
+		BOOST_FOREACH(ContourPtr& capContour, contours)
+		{
+			capContour->ReadFromExFile(cmguiManager.GetCmissContext());
+			double startTime = (double)frame / (double) numberOfFrames;
+			double duration = (double)1.0 / numberOfFrames;
+			double endTime = startTime + duration;
+			capContour->SetValidPeriod(startTime, endTime);
+			capContour->SetVisibility(true);
+		}
+	}
+	
 	this->LoadImagePlaneModel();
 	this->TransformImagePlane();
 	
@@ -58,8 +73,43 @@ ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
 
 ImageSlice::~ImageSlice()
 {
+	Cmiss_region_id root = Cmiss_context_get_default_region(cmguiManager_.GetCmissContext());
+	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, sliceName_.c_str());
+	if(!region)
+	{
+		//error
+		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
+	}
+	Cmiss_region_remove_child(root, region);
+	std::cout << __func__ << '\n';
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root);
+	
+	BOOST_FOREACH(Cmiss_texture* tex, textures_)
+	{
+//		Cmiss_texture* temp = tex;
+//		DEACCESS(Texture)(&temp);
+		DESTROY(Texture)(&tex);
+	}
 }
 
+namespace {
+	size_t MapTimeToIndex(double time, size_t totalNumberOfFrames)
+	{
+		size_t index = static_cast<int>(time * totalNumberOfFrames); // -1
+		//boundary checks
+		if (index >= totalNumberOfFrames)
+		{
+			index = totalNumberOfFrames - 1;
+		}
+		else if (index < 0)
+		{
+			index = 0;
+		}
+		
+		return index;
+	}
+}
 void ImageSlice::SetVisible(bool visibility)
 {
 	if (visibility)
@@ -74,6 +124,12 @@ void ImageSlice::SetVisible(bool visibility)
 		isVisible_ = false;
 		Scene_object_set_visibility(sceneObject_, g_INVISIBLE);
 	}
+	
+	//TEST
+	// Set visibility of contours
+	std::for_each(images_.begin(), images_.end(), 
+			boost::bind(&DICOMImage::SetContourVisibility,_1,visibility));
+	
 	return;
 }
 
@@ -81,16 +137,7 @@ void ImageSlice::SetTime(double time)
 {
 	time_ = time; // store time for later use
 
-	int index = static_cast<int>(time * textures_.size()); // -1
-	//boundary checks
-	if (index >= textures_.size())
-	{
-		index = textures_.size() - 1;
-	}
-	else if (index < 0)
-	{
-		index = 0;
-	}
+	size_t index = MapTimeToIndex(time, textures_.size());
 	
 	//update texture only when it is necessary
 	if (index == oldIndex_|| !isVisible_)
@@ -130,6 +177,7 @@ void ImageSlice::TransformImagePlane()
 {
 	// Now get the necessary info from the DICOM header
 	
+	assert(!images_.empty());
 	DICOMImage& dicomImage = *images_[0]; //just use the first image in the slice
 	ImagePlane* plane = dicomImage.GetImagePlaneFromDICOMHeaderInfo();
 	if (!plane)
@@ -140,37 +188,6 @@ void ImageSlice::TransformImagePlane()
 	{
 		cout << plane->tlc << endl;
 		imagePlane_ = plane;
-	}
-
-	// Read in plane shift info if it exists for this slice
-	string filePath(CAP_DATA_DIR);
-	filePath.append("images/");
-	filePath.append(sliceName_);
-	filePath.append(".txt");
-	
-	ifstream planeShiftInfoFile(filePath.c_str());
-	
-	if (planeShiftInfoFile.is_open())
-	{
-		cout << "Plane shift info file present - " << filePath << endl;
-		
-		planeShiftInfoFile >> plane->tlc >> plane->trc >> plane->blc;
-		
-		Vector3D v = plane->trc - plane->tlc;
-		
-		plane->brc = plane->blc + v;
-		
-		cout << "corrected tlc = " << plane->tlc <<endl;
-		cout << "corrected trc = " << plane->trc <<endl;
-		cout << "corrected blc = " << plane->blc <<endl;
-		cout << "corrected brc = " << plane->brc <<endl;
-		
-		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImagePosition, _1, plane->tlc));
-		Vector3D ori1 = plane->trc - plane->tlc;
-		Vector3D ori2 = plane->blc - plane->tlc;
-		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetShiftedImageOrientation, _1, ori1, ori2));
-
-		planeShiftInfoFile.close();
 	}
 	
 	int nodeNum = 1;
@@ -228,6 +245,9 @@ void ImageSlice::TransformImagePlane()
 	{
 		cout << nodeName << endl;
 	}
+
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
 }
 
 const ImagePlane& ImageSlice::GetImagePlane() const
@@ -242,12 +262,12 @@ Cmiss_field* ImageSlice::CreateVisibilityField()
 	Cmiss_region* region;
 	region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str());
 	CM_field_type cm_field_type = CM_GENERAL_FIELD;
-	char* name = "visibility";
+	char* name = (char*)"visibility";
 	Coordinate_system coordinate_system;
 	coordinate_system.type = RECTANGULAR_CARTESIAN;
 	Value_type value_type = FE_VALUE_VALUE;
 	const int number_of_components = 1;
-	char* component_names[] = {"visibility"};
+	char* component_names[] = {(char*)"visibility"};
 	
 	FE_region_get_FE_field_with_properties(
 		Cmiss_region_get_FE_region(region),
@@ -261,6 +281,9 @@ Cmiss_field* ImageSlice::CreateVisibilityField()
 	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
 	Computed_field* field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
 	
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
+
 	return field;
 }
 
@@ -274,6 +297,7 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 	Colour yellow = {0,1,1}; //BGR
 	Graphical_material_set_diffuse(material, &yellow);
 	Graphical_material_set_diffuse(materialSelected, &green);
+	GT_element_settings_set_select_mode(settings, GRAPHICS_SELECT_ON);
 	GT_element_settings_set_material(settings,material);
 	GT_element_settings_set_selected_material(settings, materialSelected);
 
@@ -308,7 +332,7 @@ void ImageSlice::InitializeDataPointGraphicalSetting()
 	GT_element_group_add_settings(gt_element_group, settings, 0);
 }
 
-void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
+void ImageSlice::SetShiftedImagePosition()
 {
 	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
@@ -320,56 +344,21 @@ void ImageSlice::WritePlaneInfoToFile(const std::string& filepath) const
 		//error
 		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region <<endl;
 	}
-	
-	Cmiss_node* node = Cmiss_region_get_node(region, "1");
-	Point3D blc;
-	if (node) {
-		FE_node_get_position_cartesian(node, 0, &(blc.x), &(blc.y), &(blc.z), 0);
-	}
 
+	Cmiss_node* node;
 	Point3D tlc;
 	if (node = Cmiss_region_get_node(region, "3"))
 	{
 		FE_node_get_position_cartesian(node, 0, &(tlc.x), &(tlc.y), &(tlc.z), 0);
+		std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetImagePlaneTLC, _1, tlc));
 	}
 	else
 	{
 		std::cout << "Error:\n";
 	}
-
-	Point3D trc;
-	if (node = Cmiss_region_get_node(region, "4"))
-	{
-		FE_node_get_position_cartesian(node, 0, &(trc.x), &(trc.y), &(trc.z), 0);
-	}
 	
-	std::ofstream outFile(filepath.c_str());
-	//std::cout << sliceName_ << "\n";
-//	std::cout << "tlc";
-//	std::cout << std::setw(12) << tlc.x << "i";
-//	std::cout << std::setw(12) << tlc.y << "j";
-//	std::cout << std::setw(12) << tlc.z << "k";
-//	std::cout << std::endl;
-	
-	outFile << "tlc";
-	outFile << std::setw(12) << tlc.x << "i";
-	outFile << std::setw(12) << tlc.y << "j";
-	outFile << std::setw(12) << tlc.z << "k";
-	outFile << std::endl;
-	
-	outFile << "trc";
-	outFile << std::setw(12) << trc.x << "i";
-	outFile << std::setw(12) << trc.y << "j";
-	outFile << std::setw(12) << trc.z << "k";
-	outFile << std::endl;
-	
-	outFile << "blc";
-	outFile << std::setw(12) << blc.x << "i";
-	outFile << std::setw(12) << blc.y << "j";
-	outFile << std::setw(12) << blc.z << "k";
-	outFile << std::endl;
-
-	outFile.close();
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
 }
 
 } // end namespace cap

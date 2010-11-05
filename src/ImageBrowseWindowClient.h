@@ -8,7 +8,7 @@
 #ifndef IMAGEBROWSEWINDOWCLIENT_H_
 #define IMAGEBROWSEWINDOWCLIENT_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 
 namespace cap
 {
@@ -18,7 +18,7 @@ class ImageBrowseWindowClient
 {
 public:
 	virtual ~ImageBrowseWindowClient() {};
-	virtual void LoadImages(SlicesWithImages const& slices) = 0;
+	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices) = 0;
 };
 
 } // end namespace cap

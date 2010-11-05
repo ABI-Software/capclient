@@ -1,20 +1,6 @@
-extern "C" {
-#include "api/cmiss_scene_viewer.h"
-#include "command/cmiss.h"
-#include "time/time_keeper.h"
-#include "time/time.h"
-}
-
-//#include "wx/wxprec.h"
-//
-//#ifndef WX_PRECOMP
-//   #include "wx/wx.h"
-//#endif
-//#include "wx/xrc/xmlres.h"
-
 #include "Config.h"
 #include "MainWindow.h"
-#include "ImageBrowseWindow.h"//DEL
+#include "CAPEulaDialog.h"
 #include "CmguiManager.h"
 
 #if defined (DARWIN)
@@ -25,6 +11,17 @@ extern "C" {
 
 using namespace std;
 
+bool HandleEula()
+{
+	cap::CAPEulaDialog eulaDialog;	
+	eulaDialog.Center();
+	if (eulaDialog.ShowModal() != wxID_OK)
+	{
+		return false;
+	}
+	return true;
+}
+
 int main(int argc,char *argv[])
 {	
 #if defined (DARWIN)
@@ -32,7 +29,7 @@ int main(int argc,char *argv[])
 	GetCurrentProcess(&PSN);
 	TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
 #endif
-
+	
 	const char** cmgui_argv;
 	int cmgui_argc;
 	
@@ -66,12 +63,13 @@ int main(int argc,char *argv[])
 			cap::CmguiManager cmguiManager(context);
 			
 			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
-	
+			
+			if (!HandleEula())
+				return 0;
+			
 			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
 			frame->Show(true);
 			Cmiss_context_run_main_loop(context);//app.OnRun()
-			
-			delete frame;
 		}
 		Cmiss_context_destroy(&context);
 	}

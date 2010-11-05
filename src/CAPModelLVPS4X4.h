@@ -8,7 +8,7 @@
 #ifndef CAPMODELLVPS4X4_H_
 #define CAPMODELLVPS4X4_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
@@ -50,6 +50,8 @@ public:
 	typedef std::vector<double> parameters;
 	int ReadModelFromFiles(const std::string& modelDirectory, const std::string& directoryPrefix);
 	
+	int ReadModelFromFiles(const std::string& dir_path, const std::vector<std::string>& modelFilenames);
+
 	void WriteToFile(const std::string& path);
 	
 	const std::vector<double> GetLambda(int frame) const;

@@ -21,6 +21,8 @@ extern "C" {
 #include "graphics/element_group_settings.h"
 #include "graphics/scene.h"
 #include "graphics/cmiss_rendition.h"
+#include "interaction/interactive_tool.h"
+#include "graphics/transform_tool.h"
 }
 
 namespace cap
@@ -48,6 +50,9 @@ Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel, std::strin
 		Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
 	}
 	
+	struct Interactive_tool * intTool = Scene_viewer_get_interactive_tool(sceneViewer);
+	Interactive_tool_transform_set_free_spin(intTool, 0);
+	
 	return sceneViewer;
 }
 
@@ -64,6 +69,7 @@ Cmiss_texture_id CmguiManager::LoadCmissTexture(std::string const& filename) con
 	Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field);
 	Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
 	
+	Cmiss_region_destroy(&region);
 	return texture_id;
 }
 
@@ -94,8 +100,8 @@ void CmguiManager::ReadRectangularModelFiles(std::string const& modelName, std::
 	}
 	
 	// model file name needs to be the same as its subregion name!
-	Cmiss_region* subregion = Cmiss_region_find_subregion_at_path(region, modelName.c_str());
-	assert(subregion);
+//	Cmiss_region* subregion = Cmiss_region_find_subregion_at_path(region, modelName.c_str());
+//	assert(subregion);
 	
 	if (sceneName != "")
 	{
@@ -119,6 +125,9 @@ void CmguiManager::ReadRectangularModelFiles(std::string const& modelName, std::
 			assert(ret);
 		}
 	}
+
+
+	Cmiss_region_destroy(&region);
 }
 
 Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
@@ -176,8 +185,12 @@ Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_v
 		}
 	}
 	
+	Scene_object* scene_object = Scene_get_scene_object_with_Cmiss_region(scene, region);
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
+
 	// return sceneObject for convenience REVISE!!
-	return Scene_get_scene_object_with_Cmiss_region(scene, region);
+	return scene_object;
 }
 
 } // end namespace cap

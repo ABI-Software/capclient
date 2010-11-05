@@ -8,10 +8,11 @@
 #ifndef IMAGESLICE_H_
 #define IMAGESLICE_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include <vector>
 #include <string>
 #include <boost/tr1/memory.hpp>
+#include <boost/noncopyable.hpp>
 
 struct Graphical_material;
 struct Scene_object;
@@ -28,7 +29,7 @@ class CAPMaterial;
 
 // should I separate the graphical representation from this class?
 // ie move Textures, visibility, sceneObject etc to another class??
-class ImageSlice //should contain info about imagePlane, exnode and exelem (ie. node and element)
+class ImageSlice : boost::noncopyable //should contain info about imagePlane, exnode and exelem (ie. node and element)
 {
 public:	
 	ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager);
@@ -50,12 +51,12 @@ public:
 	
 	const ImagePlane& GetImagePlane() const;
 	
-	int GetNumberOfFrames() const
+	size_t GetNumberOfFrames() const
 	{
 		return images_.size();
 	}
 	
-	void WritePlaneInfoToFile(const std::string& file) const;
+	void SetShiftedImagePosition();
 	
 	std::vector<DICOMPtr> const& GetImages() const
 	{
@@ -90,9 +91,7 @@ private:
 	
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 	
-	int oldIndex_; //used to check if texture switch is needed
-	
-//	Cmiss_texture* brightnessAndContrastTexture_;
+	size_t oldIndex_; //used to check if texture switch is needed
 };
 
 } // end namespace cap
