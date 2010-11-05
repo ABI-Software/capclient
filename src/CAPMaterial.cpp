@@ -71,14 +71,26 @@ CAPMaterial::CAPMaterial(std::string const& materialName, Cmiss_graphics_module_
 
 CAPMaterial::~CAPMaterial()
 {
+	std::cout << __func__ << '\n';
 	// Destroy member fields
-	// TODO need to find out how to destroy material and texture properly
-//	struct MANAGER(Graphical_material) * material_manager = 
-//			Cmiss_graphics_module_get_material_manager(graphicsModule_);
-//	REMOVE_OBJECT_FROM_MANAGER(Graphical_material)(material_, material_manager);
-//	DEACCESS(Graphical_material)(&material_);
-//	DESTROY(Graphical_material)(&material_);
-//		DESTROY(Texture)(&brightnessAndContrastTexture_);
+	// TODO need to find out how to destroy material and texture properly	
+	
+//	int pers = Cmiss_material_get_persistent(material_);
+//	std::cout << "Pers = " << pers << '\n';
+	
+	Cmiss_material_set_persistent(material_, 0);
+	Cmiss_material_id tempMaterial1 = material_;
+	Cmiss_material_id tempMaterial2 = material_;
+	Cmiss_material_destroy(&tempMaterial1);
+	Cmiss_material_destroy(&tempMaterial2);
+	Cmiss_material_destroy(&material_);
+	
+//	Cmiss_texture_id tex1 = brightnessAndContrastTexture_;
+//	DEACCESS(Texture)(&tex1);
+	struct MANAGER(Texture) * texture_manager = 
+			Cmiss_graphics_module_get_texture_manager(graphicsModule_);
+	REMOVE_OBJECT_FROM_MANAGER(Texture)(brightnessAndContrastTexture_, texture_manager);
+//	DESTROY(Texture)(&brightnessAndContrastTexture_);
 }
 
 void CAPMaterial::SetBrightness(float brightness)

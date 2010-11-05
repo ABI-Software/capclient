@@ -27,11 +27,7 @@ ImageSet::ImageSet(SlicesWithImages const& slices, CmguiManager const& cmguiMana
 	int longAxisCounter = 1;
 	for (;itr != end; ++itr)
 	{
-		using boost::tuples::get;
-		std::string const& label = get<0>(*itr);
-		std::cout << "LABEL = " << label << '\n';
-		
-		std::string const& name(itr->get<0>());
+		std::string const& name(itr->GetLabel());
 		imageSlicesMap_[name] = boost::make_shared<ImageSlice>(*itr, cmguiManager);
 		imageSliceNames_.push_back(name);
 	}
@@ -159,16 +155,13 @@ int ImageSet::GetNumberOfFrames() const
 	return numberOfFrames;
 }
 
-void ImageSet::WritePlaneInfoToFiles() const
+void ImageSet::SetShiftedImagePosition()
 {
 	ImageSlicesMap::const_iterator itr = imageSlicesMap_.begin();
 	ImageSlicesMap::const_iterator end = imageSlicesMap_.end();
 	for (;itr != end; ++itr)
 	{
-		std::string filename("Data/images/");
-		filename.append(itr->first);
-		filename.append(".txt");
-		itr->second->WritePlaneInfoToFile(filename);//fix
+		itr->second->SetShiftedImagePosition();
 	}
 }
 

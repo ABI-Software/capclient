@@ -8,7 +8,7 @@
 #ifndef DATAPOINT_H_
 #define DATAPOINT_H_
 
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include "CAPMath.h"
 
 extern "C" {

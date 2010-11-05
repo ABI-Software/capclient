@@ -7,6 +7,9 @@
 
 #ifndef IMAGEBROWSEWINDOW_H_
 #define IMAGEBROWSEWINDOW_H_
+
+#include "SliceInfo.h"
+
 #include "wx/wxprec.h"
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
@@ -39,6 +42,7 @@ class ImageBrowseWindow : public wxFrame
 {
 public:
 	ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager ,ImageBrowseWindowClient&);
+	ImageBrowseWindow(SlicesWithImages const& slicesWithImages, CmguiManager const& manager, ImageBrowseWindowClient&);
 	virtual ~ImageBrowseWindow();
 	
 private:
@@ -46,7 +50,11 @@ private:
 	typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 	typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap;
 	typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
-		
+	
+	void LoadWindowLayout();
+	void CreatePreviewPanel();
+	void FitWindow();
+	
 	std::string GetCellContentsString( long row_number, int column );
 	void CreateImageTableColumns();
 	void ReadInDICOMFiles();

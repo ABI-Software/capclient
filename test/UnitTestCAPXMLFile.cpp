@@ -7,91 +7,45 @@
 
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <cstdio>
 #define private public
 #include "../src/CAPXMLFile.h"
-#include "../src/DataPoint.h"
 #undef private
 
-/*
- * fake defintion of DataPoint for testing
- *
- */
-
-namespace cap
+namespace
 {
-
-DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, float time, float weight)
-{};
-	
-DataPoint::DataPoint(const DataPoint& other)
-{};
-		
-DataPoint::~DataPoint()
-{}
-	
-const Cmiss_node* DataPoint::GetCmissNode() const
-{}
-
-Cmiss_node* DataPoint::GetCmissNode()
-{}
-
-const Point3D& DataPoint::GetCoordinate() const
-{}
-
-void DataPoint::SetCoordinate(const Point3D& coord)
-{}
-
-double DataPoint::GetTime() const
-{}
-
-void DataPoint::SetValidPeriod(double startTime, double endTime)
-{}
-
-void DataPoint::SetVisible(bool visibility)
-{
+	std::string test_file("../test/SampleAnalysisUsingXsd.xml");
 }
-
-DataPointType DataPoint::GetDataPointType() const
-{
-}
-
-void DataPoint::SetDataPointType(DataPointType type)
-{
-}
-
-SurfaceType DataPoint::GetSurfaceType() const
-{
-}
-
-void DataPoint::SetSurfaceType(SurfaceType type)
-{
-}
-
-std::string DataPoint::GetSliceName() const
-{
-}
-
-// assignment operator
-DataPoint& DataPoint::operator=(const DataPoint& rhs)
-{
-}
-	
-} // end namespace cap
-
-
 TEST(CAPXMLFile, ReadXML)
 {
 	using namespace cap;
 	
-//	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
-//
-//	xmlFile.ReadFile();
-//	EXPECT_EQ(xmlFile.chamber_, "LV");
-//	EXPECT_EQ(xmlFile.output_.focalLength, 0.0);
-//	EXPECT_EQ(xmlFile.output_.interval, 0.0);
-//	EXPECT_EQ(xmlFile.name_, "SampleAnalysisUsingXsd");
-//	EXPECT_EQ(xmlFile.studyIUid_, "2.16.124.113543.6006.99.03832048922002137666");
+	CAPXMLFile xmlFile(test_file);
+
+	xmlFile.ReadFile();
+	EXPECT_EQ(xmlFile.chamber_, "LV");
+	EXPECT_EQ(xmlFile.output_.focalLength, 10.0);
+	EXPECT_EQ(xmlFile.output_.interval, 0.3);
+	EXPECT_EQ(xmlFile.name_, "SampleAnalysisUsingXsd");
+	EXPECT_EQ(xmlFile.studyIUid_, "2.16.124.113543.6006.99.03832048922002137666");
 	
+	CAPXMLFile::Image& image = xmlFile.GetInput().images.at(0);
+	EXPECT_TRUE(image.imagePosition);
+	EXPECT_EQ(*(image.imagePosition), Point3D(4.0, 5.0, 6.0));
+	
+	EXPECT_TRUE(image.imageOrientation);
+	EXPECT_EQ(image.imageOrientation->first, Vector3D(7.0, 8.0, 9.0));
+	EXPECT_EQ(image.imageOrientation->second, Vector3D(10.0, 11.0, 12.0));
+
+	EXPECT_EQ(image.contourFiles.at(0).fileName, "cap:ContourFile");
+	EXPECT_EQ(image.contourFiles.at(0).number, 1);
+	
+	CAPXMLFile::Exnode& exnode = xmlFile.GetOutput().exnodes.at(0);
+	EXPECT_EQ(exnode.exnode, "cap.exnode");
+	EXPECT_EQ(exnode.frame, 1);
+
+	CAPXMLFile::ProvenanceDetail& pd = xmlFile.documentation_.provenanceDetails[0];
+	EXPECT_EQ(pd.comment, "Converted from CIM model");
 	// add more tests
 }
 
@@ -99,12 +53,42 @@ TEST(CAPXMLFile, WriteXML)
 {
 	using namespace cap;
 		
-	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
+	CAPXMLFile xmlFile(test_file);
 
 	xmlFile.ReadFile();
 	xmlFile.WriteFile("dummy");
 	// add tests here
 
+	CAPXMLFile xmlFile2("dummy");
+	xmlFile2.ReadFile();
+	
+	EXPECT_EQ(xmlFile.chamber_, xmlFile2.chamber_);
+	EXPECT_EQ(xmlFile.output_.focalLength, xmlFile2.output_.focalLength);
+	EXPECT_EQ(xmlFile.output_.interval, xmlFile2.output_.interval);
+	EXPECT_EQ(xmlFile.name_, xmlFile2.name_);
+	EXPECT_EQ(xmlFile.studyIUid_, xmlFile2.studyIUid_);
+	
+	CAPXMLFile::Image& image = xmlFile.GetInput().images.at(0);
+	CAPXMLFile::Image& image2 = xmlFile2.GetInput().images.at(0);
+	
+	EXPECT_EQ(*(image.imagePosition), *(image2.imagePosition));
+	
+	EXPECT_EQ(image.imageOrientation->first, image2.imageOrientation->first);
+	EXPECT_EQ(image.imageOrientation->second, image2.imageOrientation->second);
+
+	EXPECT_EQ(image.contourFiles.at(0).fileName, image2.contourFiles.at(0).fileName);
+	EXPECT_EQ(image.contourFiles.at(0).number, image2.contourFiles.at(0).number);
+	
+	CAPXMLFile::Exnode& exnode = xmlFile.GetOutput().exnodes.at(0);
+	CAPXMLFile::Exnode& exnode2 = xmlFile2.GetOutput().exnodes.at(0);
+	EXPECT_EQ(exnode.exnode, exnode2.exnode);
+	EXPECT_EQ(exnode.frame, exnode2.frame);
+
+	CAPXMLFile::ProvenanceDetail& pd = xmlFile.documentation_.provenanceDetails[0];
+	CAPXMLFile::ProvenanceDetail& pd2 = xmlFile2.documentation_.provenanceDetails[0];
+	EXPECT_EQ(pd.comment, pd2.comment);
+	
+	EXPECT_EQ(remove("dummy"), 0);
 }
 
 TEST(CAPXMLFile, AddImage)
@@ -113,17 +97,17 @@ TEST(CAPXMLFile, AddImage)
 		
 	CAPXMLFile xmlFile("test/SampleAnalysisUsingXsd.xml");
 
-	Image image;
+	CAPXMLFile::Image image;
 	image.sopiuid = "111";
 	xmlFile.AddImage(image);
 	EXPECT_EQ(xmlFile.input_.images[0].sopiuid, "111");
 	
-	Point p;
+	CAPXMLFile::Point p;
 	p.surface = EPICARDIUM;
 	p.type = GUIDEPOINT;
 	EXPECT_NO_THROW(xmlFile.AddPointToImage("111", p));
 	EXPECT_EQ(xmlFile.input_.images[0].points[0].surface, EPICARDIUM );
 	EXPECT_EQ(xmlFile.input_.images[0].points[0].type, GUIDEPOINT );
 	
-	EXPECT_THROW(xmlFile.AddPointToImage("222", Point()), std::invalid_argument);
+	EXPECT_THROW(xmlFile.AddPointToImage("222", CAPXMLFile::Point()), std::invalid_argument);
 }

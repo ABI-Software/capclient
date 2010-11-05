@@ -28,6 +28,7 @@ IF(APPLE)
 ENDIF(APPLE)
 IF(WIN32)
   ADD_DEFINITIONS(-mno-cygwin -DWIN32 -DLIBXML_STATIC)
+  SET(CMAKE_EXE_LINKER_FLAGS -mno-cygwin)
   SET(LIB_ARCH_DIR i386-win32)
 ENDIF(WIN32)
 IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
@@ -57,9 +58,13 @@ SET(SRCS
   src/CAPTimeSmoother.cpp
   src/CAPModellingMode.cpp
   src/DataPoint.cpp
+  src/CAPHtmlWindow.cpp
   src/CAPXMLFile.cpp
+  src/CAPXMLFileHandler.cpp
   src/ImageBrowseWindow.cpp
   src/CAPMaterial.cpp
+  src/PlatformInfo.cpp
+  src/CAPContour.cpp
   #src/DataSet.cpp
 )
 
@@ -123,7 +128,7 @@ SET(XML2_PATH ${CMISS_ROOT}/third_party)
 SET(XML2_LIB
   ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a
   ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libz.a
-  -liconv
+#  -liconv
 )
 
 SET(CMGUI_LIB ${CMISS_ROOT}/cmgui/lib/${LIB_ARCH_DIR}/${BUILD_VERSION}/libcmgui.a)
@@ -133,7 +138,7 @@ IF(wxWidgets_FOUND)
   message("including: " ${wxWidgets_USE_FILE})
   INCLUDE(${wxWidgets_USE_FILE})
   MESSAGE("wxWidgets found")
-  message("ing: " ${wxWidgets_LIBRARIES})
+  message("linking: " ${wxWidgets_LIBRARIES})
   message("lib dir: " ${wxWidgets_LIB_DIR})
   ADD_DEFINITIONS(-DWX_USER_INTERFACE)
 ELSE(wxWidgets_FOUND)
@@ -145,6 +150,9 @@ ENDIF(wxWidgets_FOUND)
 #LIST(REMOVE_ITEM wxWidgets_LIBRARIES -lwxtiff-2.8 -lwxjpeg-2.8 -lwxpng-2.8 -lz -lpthread)
 #message("After REMOVE_ITEM: " ${wxWidgets_LIBRARIES})
 
+IF(APPLE)
+  SET(common_LIBS "-liconv")
+ENDIF(APPLE)
 IF(WIN32)
   SET(common_LIBS "-lws2_32")
 ENDIF(WIN32)
@@ -169,17 +177,26 @@ INCLUDE_DIRECTORIES(${CMISS_ROOT}/gtest/include )
 SET(UNIT_TEST_SRC
   test/UnitTestCAPMath.cpp
   test/UnitTestTotalLeastSquares.cpp
-#  test/UnitTestCAPXMLFile.cpp
-#  src/CAPXMLFile.cpp
-#  src/CmguiManager.cpp
-#  src/CmguiExtensions.cpp
-#  src/CAPMaterial.cpp
-#  src/DICOMImage.cpp
+  test/UnitTestCAPXMLFile.cpp
+  src/CAPXMLFile.cpp
 )
 
-#ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
-#ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/test/UnitTest)
+SET(UNIT_TEST_MODELLER_SRC
+  test/UnitTestCAPModeller.cpp
+  src/CAPModellingMode.cpp
+  src/CAPModeller.cpp
+  src/CAPTimeSmoother.cpp
+)
 
-#SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
-#TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
-#    ${XML2_LIB} ${ITK_LIB} ${CMGUI_LIB} ${IMAGEMAGICK_LIB} ${INTERPRETER_LIB} ${wxWidgets_LIBRARIES} ${common_LIBS})
+ADD_EXECUTABLE(test/UnitTest ${UNIT_TEST_SRC})
+ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/test/UnitTest)
+
+ADD_EXECUTABLE(test/UnitTestCAPModeller ${UNIT_TEST_MODELLER_SRC})
+ADD_TEST(UnitTestCAPModeller ${EXECUTABLE_OUTPUT_PATH}/test/UnitTestCAPModeller)
+
+SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
+TARGET_LINK_LIBRARIES(test/UnitTest ${GTEST_LIB} 
+    ${XML2_LIB} ${ITK_LIB} ${common_LIBS})
+    
+TARGET_LINK_LIBRARIES(test/UnitTestCAPModeller ${GTEST_LIB}
+    ${ITK_LIB})

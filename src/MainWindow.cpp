@@ -5,16 +5,18 @@
 #include <wx/aboutdlg.h>
 
 #include "Config.h"
-#include "CAPTypes.h"
+#include "SliceInfo.h"
 #include "MainWindow.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
 #include "ImageSet.h"
 #include "CmguiExtensions.h"
 #include "ImageBrowseWindow.h"
+#include "UserCommentDialog.h"
 #include "CAPHtmlWindow.h"
 #include "CAPXMLFile.h"
 #include "CAPModeller.h"
+#include "CAPXMLFileHandler.h"
 
 #include <iostream>
 #include <vector>
@@ -34,6 +36,20 @@ extern "C"
 #include "graphics/scene_viewer.h"
 #include "three_d_drawing/graphics_buffer.h"
 //#include "general/debug.h"
+#include "finite_element/export_finite_element.h"
+}
+
+namespace
+{
+
+const char* ModeStrings[] = {
+		"Apex",
+		"Base",
+		"RV Inserts",
+		"Baseplane Points",
+		"Guide Points"
+};//REVISE
+
 }
 
 using namespace std;
@@ -59,6 +75,11 @@ static int input_callback(struct Scene_viewer *scene_viewer,
 	
 	static Cmiss_node_id selectedNode = NULL; // Thread unsafe
 	MainWindow* frame = static_cast<MainWindow*>(viewer_frame_void);
+	
+	// We have to stop the animation when the user clicks on the 3D panel.
+	// Since dragging a point while cine is playing can cause a problem
+	// But Is this the best place put this code?
+	frame->StopCine();
 	
 	double x = (double)(input->position_x);
 	double y = (double)(input->position_y);
@@ -165,7 +186,8 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 			Cmiss_region_id tempRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)new_coords, selectedRegion);
 			if (!tempRegion)
 			{
-				cout << __func__ << "ERROR\n";
+				cout << __func__ << ": ERROR\n";
+				return 0;
 			}
 //			string sliceName = Cmiss_region_get_path(selectedRegion);
 //			cout << "dragged = " << sliceName << endl;
@@ -221,8 +243,9 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	animationIsOn_(false),
 	hideAll_(true),
 	timeKeeper_(Cmiss_context_get_default_time_keeper(cmguiManager.GetCmissContext())),
-	heartModel_("heart", cmguiManager.GetCmissContext()),
-	modeller_(new CAPModeller(heartModel_)),
+	timeNotifier_(0),
+	heartModelPtr_(0),
+	modeller_(0),
 	imageSet_(0)
 {
 	// Load layout from .xrc file
@@ -243,12 +266,14 @@ MainWindow::MainWindow(CmguiManager const& cmguiManager)
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	
 	this->Fit();
-
+	this->Centre();
+	
 	EnterInitState();
 }
 
 MainWindow::~MainWindow()
 {
+	cout << __func__ << endl;
 	delete imageSet_;
 	delete modeller_;
 }
@@ -279,24 +304,17 @@ void MainWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 
 void MainWindow::SmoothAlongTime()
 {
+	if (!modeller_)
+	{
+		return;//FIXME
+	}
 	modeller_->SmoothAlongTime();
 	RefreshCmguiCanvas();
 	
-	cout << "ED Volume(EPI) = " << heartModel_.ComputeVolume(EPICARDIUM, 0) << endl;
-	cout << "ED Volume(ENDO) = " << heartModel_.ComputeVolume(ENDOCARDIUM, 0) << endl;
+	assert(heartModelPtr_);
+	cout << "ED Volume(EPI) = " << heartModelPtr_->ComputeVolume(EPICARDIUM, 0) << endl;
+	cout << "ED Volume(ENDO) = " << heartModelPtr_->ComputeVolume(ENDOCARDIUM, 0) << endl;
 }
-
-//void DisableWidgetByName(wxWindow& w, std::string const& name)
-//{
-//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
-//	widget->Disable();
-//}
-//
-//void EnableWidgetByName(wxWindow& w, std::string const& name)
-//{
-//	wxWindow* widget = XRCCTRL(w, name.c_str(), wxWindow);
-//	widget->Enable();
-//}
 
 template <typename Widget>
 Widget* MainWindow::GetWidgetByName(std::string const& name)
@@ -351,11 +369,18 @@ void MainWindow::EnterImagesLoadedState()
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
-
+	
+	StopCine();
+	
 	// Initialize timer for animation
 	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
-	Cmiss_time_notifier_id time_notifier = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
-	Cmiss_time_notifier_add_callback(time_notifier, time_callback, (void*)this);
+	if (timeNotifier_)
+	{
+		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
+		Cmiss_time_notifier_destroy(&timeNotifier_);
+	}
+	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
+	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 	Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
 	Time_keeper_set_maximum(timeKeeper_, 1);
 
@@ -379,32 +404,47 @@ void MainWindow::EnterModelLoadedState()
 
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);//FIXME
 
+	StopCine();
+	assert(heartModelPtr_);
+	heartModelPtr_->SetModelVisibility(true);
+	GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
+	
 	mainWindowState_ = MODEL_LOADED_STATE;
 }
 
-void MainWindow::OnTogglePlay(wxCommandEvent& event)
+void MainWindow::PlayCine()
 {
 	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
-	
+	Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
+	Time_keeper_set_play_loop(timeKeeper_);
+	//Time_keeper_set_play_every_frame(timeKeeper_);
+	Time_keeper_set_play_skip_frames(timeKeeper_);
+	this->animationIsOn_ = true;
+	button->SetLabel("stop");
+}
+
+void MainWindow::StopCine()
+{
+	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
+	Time_keeper_stop(timeKeeper_);
+	this->animationIsOn_ = false;
+	button->SetLabel("play");
+	wxCommandEvent event;
+	OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
+}
+
+void MainWindow::OnTogglePlay(wxCommandEvent& event)
+{	
 	if (animationIsOn_)
 	{
-		Time_keeper_stop(timeKeeper_);
-		this->animationIsOn_ = false;
-		button->SetLabel("play");
-		OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
+		StopCine();
 	}
 	else
 	{
-		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
-		Time_keeper_set_play_loop(timeKeeper_);
-		//Time_keeper_set_play_every_frame(timeKeeper_);
-		Time_keeper_set_play_skip_frames(timeKeeper_);
-		this->animationIsOn_ = true;
-		button->SetLabel("stop");
+		PlayCine();
 	}
-	
 	return;
 }
 
@@ -414,7 +454,10 @@ void MainWindow::Terminate(wxCloseEvent& event)
 	                            wxYES_NO, this);
 	if (answer == wxYES)
 	{
-		exit(0); //without this, the funny temporary window appears
+//		Destroy();
+//		exit(0); //without this, the funny temporary window appears
+//		Cmiss_context_execute_command(context_, "QUIT");
+		wxExit();
 	}
 }
 
@@ -487,20 +530,26 @@ void MainWindow::OnObjectCheckListSelected(wxCommandEvent& event)
 
 void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
+	if (!heartModelPtr_) //FIXME
+	{
+		return;
+	}
+	
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	int value = slider->GetValue();
 	
 	int min = slider->GetMin();
 	int max = slider->GetMax();
 	double time =  (double)(value - min) / (double)(max - min);
-	double prevFrameTime = heartModel_.MapToModelFrameTime(time);
-	if ((time - prevFrameTime) < (0.5)/(heartModel_.GetNumberOfModelFrames()))
+	assert(heartModelPtr_);
+	double prevFrameTime = heartModelPtr_->MapToModelFrameTime(time);
+	if ((time - prevFrameTime) < (0.5)/(heartModelPtr_->GetNumberOfModelFrames()))
 	{
 		time = prevFrameTime;
 	}
 	else
 	{
-		time = prevFrameTime + (double)1/(heartModel_.GetNumberOfModelFrames());
+		time = prevFrameTime + (double)1/(heartModelPtr_->GetNumberOfModelFrames());
 	}
 	slider->SetValue(static_cast<int>(time * (max - min)));
 //	cout << __func__ << ": time = " << time << endl;;
@@ -547,7 +596,8 @@ void MainWindow::SetTime(double time)
 	//cout << "min = " << min << " ,max = " << max <<endl; 
 	slider->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
 	
-	int frameNumber = heartModel_.MapToModelFrameNumber(time);
+	assert(heartModelPtr_);
+	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
 	std::ostringstream frameNumberStringStream;
 	frameNumberStringStream << "Frame Number: " << frameNumber;
 	SetStatusText(wxT(frameNumberStringStream.str().c_str()), 0);
@@ -620,8 +670,9 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 
 void MainWindow::SetImageVisibility(bool visibility, int index)
 {
+	assert(heartModelPtr_);
 	if (XRCCTRL(*this, "MII", wxCheckBox)->IsChecked())
-		heartModel_.SetMIIVisibility(visibility, index);
+		heartModelPtr_->SetMIIVisibility(visibility, index);
 	imageSet_->SetVisible(visibility, index);
 }
 
@@ -652,7 +703,8 @@ void MainWindow::RenderIsoSurfaces()
 	const ImagePlane& plane_SA1 = imageSet_->GetImagePlane("SA1");
 	const ImagePlane& plane_SA6 = imageSet_->GetImagePlane("SA6");
 	
-	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+	assert(heartModelPtr_);
+	const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
 //	cout << m << endl;
 
 	gtMatrix mInv;
@@ -706,7 +758,19 @@ void MainWindow::InitialiseMII()
 	vector<string>::const_iterator itr = sliceNames.begin();
 	for (;itr != sliceNames.end();++itr)
 	{
-		RenderMII(*itr);
+		string const& sliceName = *itr;
+		char str[256];
+
+		// Initialize the MII-related field and iso_scalar to some dummy values
+		// This is done to set the graphical attributes that are needed for the MII rendering
+
+		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
+					sliceName.c_str() );
+		Cmiss_context_execute_command(context_, str);
+
+		sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
+					,sliceName.c_str());
+		Cmiss_context_execute_command(context_, str);
 	}
 }
 
@@ -720,7 +784,8 @@ void MainWindow::UpdateMII() //FIX
 		char str[256];
 		
 		const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
-		const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();
+		assert(heartModelPtr_);
+		const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();
 	
 		gtMatrix mInv;
 		inverseMatrix(m, mInv);
@@ -735,56 +800,26 @@ void MainWindow::UpdateMII() //FIX
 		
 		Point3D pointTLCTransformed = mInv * plane.tlc;
 		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
-		heartModel_.UpdateMII(index, d);
+		heartModelPtr_->UpdateMII(index, d);
 	}
-}
-
-void MainWindow::RenderMII(const std::string& sliceName) //MOVE to CAPModelLVPS4X4
-{	
-	char str[256];
-	
-	const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
-	const gtMatrix& m = heartModel_.GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
-//	cout << m << endl;
-
-	gtMatrix mInv;
-	inverseMatrix(m, mInv);
-//	cout << mInv << endl;
-	transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
-//	cout << mInv << endl;
-	
-	//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
-	Vector3D normalTransformed = m * plane.normal;
-	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
-				sliceName.c_str() ,
-				normalTransformed.x, normalTransformed.y, normalTransformed.z);
-//	cout << str << endl;
-	Cmiss_context_execute_command(context_, str);
-	
-	Point3D pointTLCTransformed = mInv * plane.tlc;
-	double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
-
-	sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values %f use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
-				,sliceName.c_str() ,d);
-//	cout << str << endl;
-	Cmiss_context_execute_command(context_, str);
 }
 
 void MainWindow::OnMIICheckBox(wxCommandEvent& event)
 {
-	//heartModel_.SetMIIVisibility(event.IsChecked()); TEST
+	assert(heartModelPtr_);
 	for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
 	{
 		if (objectList_->IsChecked(i))
 		{
-			heartModel_.SetMIIVisibility(event.IsChecked(),i);
+			heartModelPtr_->SetMIIVisibility(event.IsChecked(),i);
 		}
 	}
 }
 
 void MainWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
-	heartModel_.SetModelVisibility(event.IsChecked());
+	assert(heartModelPtr_);
+	heartModelPtr_->SetModelVisibility(event.IsChecked());
 }
 
 void MainWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
@@ -818,14 +853,6 @@ void MainWindow::OnContrastSliderEvent(wxCommandEvent& event)
 void MainWindow::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
-
-	const char* ModeStrings[] = {
-			"Apex",
-			"Base",
-			"RV Inserts",
-			"Baseline Points",
-			"Guide Points"
-	};//REVISE
 	
 	if (modeller_->OnAccept())
 	{
@@ -897,9 +924,7 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 
 void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
-	wxString currentWorkingDir = wxGetCwd();
-//	wxString defaultPath = currentWorkingDir.Append("/Data");
-	wxString defaultPath = currentWorkingDir.Append("/temp");
+	wxString defaultPath = wxGetCwd();;
 	
 	const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
 	if ( !dirname.empty() )
@@ -911,19 +936,13 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 		return;
 	}
 	
-	cap::ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()),
-			cmguiManager_, *this);
+	ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
 	frame->Show(true);
 }
 
 void MainWindow::LoadImages(SlicesWithImages const& slices)
 {
-	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-	if (slices.empty())
-	{
-		std::cout << "Empty image set.\n";
-		return;
-	}
+	assert(!slices.empty());
 
 	if(imageSet_)
 	{
@@ -934,27 +953,71 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 	imageSet_->SetVisible(true);//FIXME
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	
-	LoadHeartModel("MIDLIFE_01", CAP_DATA_DIR); //HACK FIXME
-	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
-	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
-	heartModel_.SetMIIVisibility(false);
-	heartModel_.SetModelVisibility(false);
-	
 	this->PopulateObjectList(); // fill in slice check box list
+}
 
+void MainWindow::LoadImagesFromXMLFile(SlicesWithImages const& slices)
+{
+	LoadImages(slices);
 	EnterImagesLoadedState();
 }
 
-void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& prefix)
+void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
 {
-	heartModel_.ReadModelFromFiles(dirOnly, prefix);
+	// Reset capXMLFilePtr_
+	if (capXMLFilePtr_)
+	{
+		capXMLFilePtr_.reset(0);
+	}
 	
+	LoadImages(slices);
+	InitializeModelTemplate(slices);
+	EnterImagesLoadedState();
+}
+
+namespace
+{
+
+	struct ComparatorForNumFrames
+	{
+		bool operator() (SliceInfo const& a, SliceInfo const& b)
+		{
+			return (a.GetDICOMImages().size() < b.GetDICOMImages().size());
+		}
+	};
+
+} // unnamed namespace
+
+void MainWindow::InitializeModelTemplate(SlicesWithImages const& slices)
+{	
+	SlicesWithImages::const_iterator 
+		itrToMinNumberOfFrames = std::min_element(slices.begin(), slices.end(),
+													ComparatorForNumFrames());
+	int minNumberOfFrames = itrToMinNumberOfFrames->GetDICOMImages().size();
+	
+	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
+	assert(heartModelPtr_);
+	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
+	LoadTemplateHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
+	XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false);
+	XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
+	heartModelPtr_->SetMIIVisibility(false);
+	heartModelPtr_->SetModelVisibility(false);
+}
+
+void MainWindow::CreateModeller()
+{
 	if (modeller_)
 	{
 		delete modeller_;
 	}
-	modeller_ = new CAPModeller(heartModel_); // initialise modeller and all the data points
+	assert(heartModelPtr_);
+	modeller_ = new CAPModeller(*heartModelPtr_); // initialise modeller and all the data points
+}
 
+void MainWindow::ResetModeChoice()
+{
+	// Resets the mode choice UI widget to Apex mode
 	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 	int numberOfItems = choice->GetCount();
 	for (int i = numberOfItems-1; i > 0; i--)
@@ -963,12 +1026,17 @@ void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& p
 		choice->Delete(i);
 	}
 	choice->SetSelection(0);
-	
+}
+
+void MainWindow::UpdateModelVisibilityAccordingToUI()
+{
 	wxCheckBox* modelVisibilityCheckBox = XRCCTRL(*this, "Wireframe", wxCheckBox);
-	heartModel_.SetModelVisibility(modelVisibilityCheckBox->IsChecked());
-	
-	InitialiseMII(); // This turns on all MII's
-	
+	assert(heartModelPtr_);
+	heartModelPtr_->SetModelVisibility(modelVisibilityCheckBox->IsChecked());
+}
+
+void MainWindow::UpdateMIIVisibilityAccordingToUI()
+{
 	// Update the visibility of each mii according to the ui status
 	// ( = mii checkbox and the slice list)
 	wxCheckBox* miiCheckBox = XRCCTRL(*this, "MII", wxCheckBox);
@@ -980,22 +1048,48 @@ void MainWindow::LoadHeartModel(std::string const& dirOnly, std::string const& p
 			cout << "slice num = " << i << ", isChecked = " << objectList_->IsChecked(i) << endl;
 			if (!objectList_->IsChecked(i))
 			{
-				heartModel_.SetMIIVisibility(false,i);
+				heartModelPtr_->SetMIIVisibility(false,i);
 			}
 		}
 	}
 	else
 	{
-		heartModel_.SetMIIVisibility(false);
+		heartModelPtr_->SetMIIVisibility(false);
 	}
+}
 
+void MainWindow::UpdateStatesAfterLoadingModel()
+{
+	CreateModeller();
+	ResetModeChoice();
+	
+	UpdateModelVisibilityAccordingToUI();
+	
+	InitialiseMII(); // This turns on all MII's
+	UpdateMIIVisibilityAccordingToUI();
+}
+
+void MainWindow::LoadTemplateHeartModel(std::string const& dirOnly, std::string const& prefix)
+{
+	// This function is used to load the unfitted generic heart model.
+	// Currently this is necessary. It might be possible to eliminate the use of generic model
+	// in the future by creating the related cmgui nodes, fields and element completely thru cmgui api
+	assert(heartModelPtr_);
+	heartModelPtr_->ReadModelFromFiles(dirOnly, prefix);
+	UpdateStatesAfterLoadingModel();
+}
+
+void MainWindow::LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames)
+{
+	assert(heartModelPtr_);
+	heartModelPtr_->ReadModelFromFiles(path, modelFilenames);
+	UpdateStatesAfterLoadingModel();
 	EnterModelLoadedState();
 }
 
 void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
-	wxString currentWorkingDir = wxGetCwd();
-	wxString defaultPath = currentWorkingDir.Append("/Data");
+	wxString defaultPath = wxGetCwd();
 	wxString defaultFilename = "";
 	wxString defaultExtension = "xml";
 	wxString wildcard = "";
@@ -1008,10 +1102,14 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-		CAPXMLFile xmlFile(filename.c_str());
+//		CAPXMLFile xmlFile(filename.c_str());
+		capXMLFilePtr_.reset(new CAPXMLFile(filename.c_str()));
+		CAPXMLFile& xmlFile(*capXMLFilePtr_);
 		std::cout << "Start reading xml file\n";
 		xmlFile.ReadFile();
-		SlicesWithImages const& slicesWithImages = xmlFile.GetSlicesWithImages(cmguiManager_);
+		
+		CAPXMLFileHandler xmlFileHandler(xmlFile);
+		SlicesWithImages const& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
 		if (slicesWithImages.empty())
 		{
 			std::cout << "Can't locate image files\n";
@@ -1019,41 +1117,47 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		}
 
 		// TODO clean up first
-		LoadImages(slicesWithImages);
+		LoadImagesFromXMLFile(slicesWithImages);
 
-		std::vector<DataPoint> dataPoints = xmlFile.GetDataPoints(cmguiManager_);
+		std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints(cmguiManager_);
 
 		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
-		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size();
+		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size() << '\n';
+		if (exnodeFileNames.empty())
+		{
+			// This means no output element is defined
+			InitializeModelTemplate(slicesWithImages);
+			modeller_->SetDataPoints(dataPoints);
+			// FIXME memory is prematurely released when ok button is pressed from the following window
+			// Suppress this feature for now
+//			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+//			frame->Show(true);
+			return;
+		}
+		
 		std::string const& exelemFileName = xmlFile.GetExelemFileName();
-
 
 		//HACK FIXME
 		std::string xmlFilename = filename.c_str();
 		size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
 		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 		std::cout << "modelFilePath = " << modelFilePath << '\n';
-		positionOfLastSlash = modelFilePath.find_last_of("/\\");
-		string dirOnly = modelFilePath.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-		string prefix = modelFilePath.substr(0, positionOfLastSlash+1);
 
-		std::cout << __func__ << ", dir = " << dirOnly << ", prefix = " << prefix << '\n';
-		// FIXME heartModel needs to be properly initialised and cleaned up
-		heartModel_.SetFocalLengh(xmlFile.GetFocalLength());
-		LoadHeartModel(dirOnly, prefix);
+		heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
+		assert(heartModelPtr_);
+		heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
+		int numberOfModelFrames = exnodeFileNames.size();
+		heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
+		LoadHeartModel(modelFilePath, exnodeFileNames);
+		gtMatrix m;
+		xmlFile.GetTransformationMatrix(m);
+		heartModelPtr_->SetLocalToGlobalTransformation(m);
 		modeller_->SetDataPoints(dataPoints);
+		UpdateMII();
 
 		//HACK
 		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 
-		//FIXME
-		const char* ModeStrings[] = {
-				"Apex",
-				"Base",
-				"RV Inserts",
-				"Baseline Points",
-				"Guide Points"
-		};
 		for (size_t i = 1; i < 5; i++)
 		{
 			choice->Append(ModeStrings[i]);
@@ -1061,25 +1165,38 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		choice->SetSelection(CAPModeller::GUIDEPOINT);
 		RefreshCmguiCanvas();
 	}
+}
 
-//	const wxString& dirname = wxDirSelector("Choose the folder that contains the model", defaultPath);
-//	if ( !dirname.empty() )
-//	{
-//		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
-//		string filename(dirname.c_str());
-//		size_t positionOfLastSlash = filename.find_last_of("/\\");
-//		std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
-//		string dirOnly = filename.substr(positionOfLastSlash+1); //FIX use wxFileName::SplitPath?
-//		string prefix = filename.substr(0, positionOfLastSlash+1);
-//		std::cout << __func__ << " - dirOnly = " << dirOnly << std::endl;
-//
-//		LoadHeartModel(dirOnly, prefix);
-//	}
+namespace {
+
+void WriteNodesToFile(const std::string& filename, Cmiss_region_id region, Cmiss_region_id root_region)
+{	
+	FE_value time = 0.0;
+	const int write_elements = 0;
+	const int write_nodes = 1;
+	int number_of_field_names = 1;
+	char* field_names[] = {(char*)"coordinates_rect"};
+	int write_data = 0;
+	FE_write_fields_mode write_fields_mode = FE_WRITE_LISTED_FIELDS;
+	FE_write_criterion write_criterion = FE_WRITE_COMPLETE_GROUP;
+	FE_write_recursion write_recursion = FE_WRITE_NON_RECURSIVE;
+	
+	int ret = write_exregion_file_of_name(filename.c_str(),
+			region,  root_region,
+			write_elements , write_nodes , write_data,
+			write_fields_mode, number_of_field_names, field_names, time,
+			write_criterion, write_recursion);
+	if (!ret)
+	{
+		std::cout << __func__ << " - Error writing exnode: " << filename << std::endl;
+	}
+}
+
 }
 
 void MainWindow::OnSave(wxCommandEvent& event)
 {
-	wxString defaultPath = "./Data";
+	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = "";
 	wxString defaultExtension = "";
 	wxString wildcard = "";
@@ -1087,18 +1204,108 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	
 	wxString dirname = wxFileSelector("Save file",
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if ( !dirname.empty() && mainWindowState_ == MODEL_LOADED_STATE)
+	if (dirname.empty())
 	{
-	    // work with the file
-	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
-	    heartModel_.WriteToFile(dirname.c_str());
+		return;
+	}
+	
+	std::string const& userComment = PromptForUserComment();
+	std::cout << "User comment = " << userComment << "\n";
+	if (userComment.empty())
+	{
+		// save has been canceled 
+		return;
 	}
 
-	CAPXMLFile xmlFile(dirname.c_str());
+	if (!wxMkdir(dirname.c_str()))
+	{
+		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
+		return;
+	}
+	
+	// Need to write the model files first 
+	// FIXME : this is brittle code. shoule be less dependent on the order of execution
+	if (mainWindowState_ == MODEL_LOADED_STATE)
+	{
+	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
+	    assert(heartModelPtr_);
+	    heartModelPtr_->WriteToFile(dirname.c_str());
+	}
+	
+	if (!capXMLFilePtr_)
+	{
+		capXMLFilePtr_.reset(new CAPXMLFile(dirname.c_str()));
+	}
+	CAPXMLFile& xmlFile(*capXMLFilePtr_);
+	
 	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
-	xmlFile.ContructCAPXMLFile(slicesAndImages, dataPoints, heartModel_);
-	xmlFile.WriteFile(std::string(dirname.c_str()) + "/" + xmlFile.GetName() + ".xml");
+	CAPXMLFileHandler xmlFileHandler(xmlFile);
+	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, *heartModelPtr_);
+	xmlFileHandler.AddProvenanceDetail(userComment);
+	
+	std::string dirnameStl(dirname.c_str());
+	size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
+	std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);
+	xmlFile.SetName(modelName);
+	std::string xmlFilename = std::string(dirname.c_str()) + "/" + modelName + ".xml";
+	std::cout << "xmlFilename = " << xmlFilename << '\n';
+	
+	xmlFile.WriteFile(xmlFilename);
+	
+	// Write contour .exnode files - HACK
+	Cmiss_region* root_region = Cmiss_context_get_default_region(context_);
+	Cmiss_region_id child = Cmiss_region_get_first_child(root_region);
+	while (child)
+	{
+		char* name = Cmiss_region_get_name(child);
+//		cout << name << "\n";
+		std::string regionName(name);
+		free(name);
+		if (regionName.substr(0,8) == "contour_")
+		{
+			std::string filename  = std::string(dirname.c_str()) + "/" + regionName + ".exnode";
+			WriteNodesToFile(filename, child, root_region);
+		}
+		
+		Cmiss_region_id copy = child;
+		child =  Cmiss_region_get_next_sibling(child);
+		Cmiss_region_destroy(&copy);
+	}
+	Cmiss_region_destroy(&root_region);
+}
+
+std::string MainWindow::PromptForUserComment()
+{
+	UserCommentDialog dialog(this);
+	dialog.Center();
+	std::string comment;
+	
+	while (true)
+	{
+		if (dialog.ShowModal() == wxID_OK)
+		{
+			comment = dialog.GetComment();
+			if (!comment.empty())
+			{
+				break;
+			}
+			
+			int answer = wxMessageBox("Please enter user comment", "Empty Comment",
+											wxOK, this);
+		}
+		else
+		{
+			int answer = wxMessageBox("Cancel Save?", "Confirm",
+											wxYES_NO, this);
+			if (answer == wxYES)
+			{
+				break;
+			}
+		}
+	}
+	
+	return comment;
 }
 
 void MainWindow::OnQuit(wxCommandEvent& event)
@@ -1133,7 +1340,7 @@ void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
 						input_callback, (void*)this, 1/*add_first*/);
 		
-		imageSet_->WritePlaneInfoToFiles();
+		imageSet_->SetShiftedImagePosition();
 	}
 	
 	return;
@@ -1185,7 +1392,27 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
 	
-	char const* file_name = "screen_dump.png";
+//	SlicesWithImages const& slicesWithImages = imageSet_->GetSlicesWithImages();
+//	ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+//	frame->Show(true);
+	
+	return;
+	//// test
+
+	heartModelPtr_.reset(0);
+//	Cmiss_region_id root = Cmiss_context_get_default_region(context_);
+//	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, "/heart/");
+//	Cmiss_region_id copy = region;
+//	Cmiss_region_remove_child(root, region);
+////	std::cout << "Use_count = " <<
+//	Cmiss_region_destroy(&region);
+//	Cmiss_region_destroy(&copy);
+
+	///////
+
+	return;
+
+	char* file_name = (char*)"screen_dump.png";
 	int force_onscreen_flag = 0;
 	int width = 256;
 	int height = 256;
@@ -1222,7 +1449,8 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	struct Scene_object * modelSceneObject=Scene_get_Scene_object_by_name(scene, scene_object_name);
 	if (modelSceneObject)
 	{
-		const gtMatrix& patientToGlobalTransform = heartModel_.GetLocalToGlobalTransformation();
+		assert(heartModelPtr_);
+		const gtMatrix& patientToGlobalTransform = heartModelPtr_->GetLocalToGlobalTransformation();
 		Scene_object_set_transformation(modelSceneObject, const_cast<gtMatrix*>(&patientToGlobalTransform));
 	}
 	else
@@ -1264,7 +1492,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	cout << "range after : " << centre_x  << ", " << centre_y << ", "
 			<< centre_z << ", " << size_x << ", " << size_y <<", "<<  size_z << endl;
 	
-	std::pair<double, double> range = get_range(imageSet_, heartModel_);
+	std::pair<double, double> range = get_range(imageSet_, *heartModelPtr_);
 	double min = std::min(range.first, range.second);
 	double max = std::max(range.first, range.second);
 	int i = 1;
