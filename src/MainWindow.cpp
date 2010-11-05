@@ -551,6 +551,14 @@ void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	{
 		time = prevFrameTime + (double)1/(heartModelPtr_->GetNumberOfModelFrames());
 	}
+
+	// fix for the bug where the client crashes on linux
+	int newFrame = static_cast<int>(time * (max - min));
+	if (newFrame == value)
+	{
+		return;
+	}
+
 	slider->SetValue(static_cast<int>(time * (max - min)));
 //	cout << __func__ << ": time = " << time << endl;;
 //	imageSet_->SetTime(time);
