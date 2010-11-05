@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <limits>
 #include <boost/bind.hpp>
 
 extern "C" {
