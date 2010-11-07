@@ -18,12 +18,6 @@
 namespace cap
 {
 
-class CAPModelLVPS4X4;
-class DataPoint;
-class Point3D;
-class Vector3D;
-class CmguiManager;
-
 class CAPXMLFile
 {
 public:
