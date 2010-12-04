@@ -101,8 +101,8 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 				size_t positionOfLastSlash = filename.find_last_of("/\\");
 				std::string baseName = filename.substr(positionOfLastSlash + 1);
 				int number = contour->GetContourNumber();
-				CAPXMLFile::ContourFile contourFile = {baseName, number};
-				image.contourFiles.push_back(contourFile);
+//				CAPXMLFile::ContourFile contourFile = {baseName, number};
+//				image.contourFiles.push_back(contourFile);
 			}
 			
 			//image.points; // FIX?
@@ -291,20 +291,20 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 		
 		//TEST
 //		std::cout << "TEST: " << image.countourFiles.size() << '\n';
-		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.contourFiles)
-		{
-			// Create Contour and add to dicomImage
-			ContourPtr capContour = boost::make_shared<CAPContour>(contour.number, image.frame, pathToXMLFile + contour.fileName);
-//			capContour->ReadFromExFile(pathToXMLFile + contour.fileName, cmguiManager.GetCmissContext());
-//			size_t numberOfFrames = numberOfFrameForSlice[image.slice];
-//			double startTime = (double)image.frame / (double) numberOfFrames;
-//			double duration = (double)1.0 / numberOfFrames;
-//			double endTime = startTime + duration;
-//			capContour->SetValidPeriod(startTime, endTime);
-//			capContour->SetVisibility(true);
-			
-			dicomImage->AddContour(capContour);
-		}
+//		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.contourFiles)
+//		{
+//			// Create Contour and add to dicomImage
+//			ContourPtr capContour = boost::make_shared<CAPContour>(contour.number, image.frame, pathToXMLFile + contour.fileName);
+////			capContour->ReadFromExFile(pathToXMLFile + contour.fileName, cmguiManager.GetCmissContext());
+////			size_t numberOfFrames = numberOfFrameForSlice[image.slice];
+////			double startTime = (double)image.frame / (double) numberOfFrames;
+////			double duration = (double)1.0 / numberOfFrames;
+////			double endTime = startTime + duration;
+////			capContour->SetValidPeriod(startTime, endTime);
+////			capContour->SetVisibility(true);
+//			
+//			dicomImage->AddContour(capContour);
+//		}
 	}
 
 	BOOST_FOREACH(DICOMImageMapWithSliceNameAsKey::value_type& labelAndImages, dicomMap)

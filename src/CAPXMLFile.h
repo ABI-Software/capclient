@@ -40,16 +40,16 @@ public:
 		DataPointType type;
 	};
 
-	struct ContourFile
-	{
-		std::string fileName;
-		int number;
-	};
+//	struct ContourFile
+//	{
+//		std::string fileName;
+//		int number;
+//	};
 
 	struct Image
 	{
 		std::vector<Point> points;
-		std::vector<ContourFile> contourFiles;
+//		std::vector<ContourFile> contourFiles;
 		std::string sopiuid;
 		std::string seriesiuid;
 		int frame;
@@ -79,6 +79,32 @@ public:
 		std::string comment;
 	};
 
+	struct ContourPoint
+	{
+		double x,y;
+	};
+	
+	typedef gtMatrix TransformationMatrix;
+	
+	struct Contour
+	{
+		int number;
+		std::vector<ContourPoint> contourPoints;
+		TransformationMatrix transformationMatrix;
+	};
+	
+	struct ImageContours
+	{
+		std::string sopiuid;
+		std::vector<Contour> contours;
+	};
+	
+	struct StudyContours
+	{
+		std::string studyiuid;
+		std::vector<ImageContours> listOfImageContours;
+	};
+	
 	struct Input
 	{
 		std::vector<Image> images;
@@ -106,7 +132,7 @@ public:
 	
 	void AddImage(Image const& image);
 	void AddPointToImage(std::string const& imageSopiuid, Point const& point);
-	void AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile);
+//	void AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile);
 	
 	void AddExnode(Exnode const& exnode);
 

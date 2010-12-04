@@ -188,15 +188,27 @@ SET(UNIT_TEST_MODELLER_SRC
   src/CAPTimeSmoother.cpp
 )
 
+SET(UNIT_TEST_ANNOTATION_SRC
+  test/UnitTestCAPAnnotationFile.cpp
+  src/CAPAnnotationFile.cpp
+)
+
 ADD_EXECUTABLE(test/UnitTest ${UNIT_TEST_SRC})
 ADD_TEST(UnitTest ${EXECUTABLE_OUTPUT_PATH}/test/UnitTest)
 
 ADD_EXECUTABLE(test/UnitTestCAPModeller ${UNIT_TEST_MODELLER_SRC})
 ADD_TEST(UnitTestCAPModeller ${EXECUTABLE_OUTPUT_PATH}/test/UnitTestCAPModeller)
 
+ADD_EXECUTABLE(test/UnitTestCAPAnnotationFile ${UNIT_TEST_ANNOTATION_SRC})
+ADD_TEST(UnitTestCAPAnnotationFile ${EXECUTABLE_OUTPUT_PATH}/test/UnitTestCAPAnnotationFile)
+
 SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
+
 TARGET_LINK_LIBRARIES(test/UnitTest ${GTEST_LIB} 
     ${XML2_LIB} ${ITK_LIB} ${common_LIBS})
     
 TARGET_LINK_LIBRARIES(test/UnitTestCAPModeller ${GTEST_LIB}
     ${ITK_LIB})
+
+TARGET_LINK_LIBRARIES(test/UnitTestCAPAnnotationFile ${GTEST_LIB}
+    ${XML2_LIB} ${common_LIBS})
