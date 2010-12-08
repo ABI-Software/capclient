@@ -95,15 +95,15 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 				image.imageOrientation = boost::make_shared<Orientation>(ori);
 			}
 			
-			BOOST_FOREACH(ContourPtr& contour, dicomFile->GetContours())
-			{	
-				std::string const& filename = contour->GetFilename();
-				size_t positionOfLastSlash = filename.find_last_of("/\\");
-				std::string baseName = filename.substr(positionOfLastSlash + 1);
-				int number = contour->GetContourNumber();
-//				CAPXMLFile::ContourFile contourFile = {baseName, number};
-//				image.contourFiles.push_back(contourFile);
-			}
+//			BOOST_FOREACH(ContourPtr& contour, dicomFile->GetContours())
+//			{	
+//				std::string const& filename = contour->GetFilename();
+//				size_t positionOfLastSlash = filename.find_last_of("/\\");
+//				std::string baseName = filename.substr(positionOfLastSlash + 1);
+//				int number = contour->GetContourNumber();
+////				CAPXMLFile::ContourFile contourFile = {baseName, number};
+////				image.contourFiles.push_back(contourFile);
+//			}
 			
 			//image.points; // FIX?
 			xmlFile_.AddImage(image);
@@ -305,6 +305,31 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 //			
 //			dicomImage->AddContour(capContour);
 //		}
+		
+		CAPXMLFile::StudyContours const& studyContours = input.studyContours;
+		 
+		std::vector<CAPXMLFile::ImageContours>::const_iterator imageContours_itr =
+				std::find_if(studyContours.listOfImageContours.begin(),
+							studyContours.listOfImageContours.end(),
+							boost::bind(std::equal_to<std::string>(),
+									boost::bind(&CAPXMLFile::ImageContours::sopiuid, _1),
+									image.sopiuid));
+		if (imageContours_itr != studyContours.listOfImageContours.end())
+		{
+			CAPXMLFile::ImageContours const& imageContours = *imageContours_itr;
+			BOOST_FOREACH(CAPXMLFile::Contour const& contour, imageContours.contours)
+			{
+				std::vector<Point3D> points;
+				points.reserve(contour.contourPoints.size());
+				BOOST_FOREACH(CAPXMLFile::ContourPoint const& contourPoint, contour.contourPoints)
+				{
+					points.push_back(Point3D(contourPoint.x, contourPoint.y, 0));
+				}
+				ContourPtr capContour = boost::make_shared<CAPContour>(contour.number, contour.transformationMatrix, points);
+				dicomImage->AddContour(capContour);
+			}
+		}
+		
 	}
 
 	BOOST_FOREACH(DICOMImageMapWithSliceNameAsKey::value_type& labelAndImages, dicomMap)

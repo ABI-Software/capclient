@@ -39,12 +39,17 @@ struct CAPContour::ContourImpl
 };
 
 
-CAPContour::CAPContour(size_t contourNumber, size_t frameNumber, std::string const& filename )
-:
-		contourNumber_(contourNumber),
-		frameNumber_(frameNumber),
-		filename_(filename),
-		pImpl_(new CAPContour::ContourImpl())
+//CAPContour::CAPContour(size_t contourNumber, size_t frameNumber, std::string const& filename )
+//:
+//		contourNumber_(contourNumber),
+//		frameNumber_(frameNumber),
+//		filename_(filename),
+//		pImpl_(new CAPContour::ContourImpl())
+//{
+//	
+//}
+
+CAPContour::CAPContour(size_t contourNumber, const gtMatrix transform, std::vector<Point3D> const& points)
 {
 	
 }
@@ -81,75 +86,75 @@ int AddNodesToVector(Cmiss_node_id node, void *user_data)
 
 // FIXME : currently this func has to be called after previous image set has been deleted
 //
-void CAPContour::ReadFromExFile(Cmiss_context_id context)
-{
-	pImpl_->cmissContext = context;
-	
-	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
-	
-	if (!Cmiss_region_read_file(root_region,filename_.c_str()))
-	{
-		std::cout << "Error reading ex file - " << filename_ << std::endl;
-	}
-	
-	size_t positionOfLastSlash = filename_.find_last_of("/\\");
-	size_t positionOfDotExnodeExtension = filename_.find_last_of(".");
-	size_t regionNameLength = positionOfDotExnodeExtension - positionOfLastSlash - 1;
-	std::string regionName = filename_.substr(positionOfLastSlash + 1, regionNameLength);
-	//DEBUG
-	std::cout << "contour region = " << regionName <<"\n";
-	
-	//Store pointers to nodes so we can directly manipulate their visibility attributes
-	nodes_.clear();
-	
-	Cmiss_region_id region;
-	if(!(region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str())))
-	{
-		//error
-		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region << '\n';
-		throw std::exception();
-	}
-	pImpl_->region = region;
-	
-	Cmiss_region_for_each_node_in_region(region, AddNodesToVector, (void*)&nodes_);
-	
-	// Create visibility field //TODO Factor out
-	CM_field_type cm_field_type = CM_GENERAL_FIELD;
-	char* name = (char*)"visibility";
-	Coordinate_system coordinate_system;
-	coordinate_system.type = RECTANGULAR_CARTESIAN;
-	Value_type value_type = FE_VALUE_VALUE;
-	const int number_of_components = 1;
-	char* component_names[] = {(char*)"visibility"};
-	
-	FE_region_get_FE_field_with_properties(
-		Cmiss_region_get_FE_region(region),
-		name, GENERAL_FE_FIELD,
-		/*indexer_field*/(struct FE_field *)NULL, /*number_of_indexed_values*/0,
-		cm_field_type, &coordinate_system,
-		value_type, number_of_components, component_names,
-		/*number_of_times*/0, /*time_value_type*/UNKNOWN_VALUE,
-		/*external*/(struct FE_field_external_information *)NULL);
-	
-//	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-//	Computed_field* field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
-	
-	std::stringstream ss;
-	ss << "gfx mod g_e ";
-	ss << regionName;
-	ss << " node_points visibility_field visibility";
-	
-	
-	Cmiss_context_execute_command(context, ss.str().c_str());
-	
-	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
-	Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
-	pImpl_->sceneObject = Scene_get_scene_object_with_Cmiss_region(scene, region);
-	
-	// Clean up
-	Cmiss_region_destroy(&region);
-	Cmiss_region_destroy(&root_region);
-}
+//void CAPContour::ReadFromExFile(Cmiss_context_id context)
+//{
+//	pImpl_->cmissContext = context;
+//	
+//	Cmiss_region* root_region = Cmiss_context_get_default_region(context);
+//	
+//	if (!Cmiss_region_read_file(root_region,filename_.c_str()))
+//	{
+//		std::cout << "Error reading ex file - " << filename_ << std::endl;
+//	}
+//	
+//	size_t positionOfLastSlash = filename_.find_last_of("/\\");
+//	size_t positionOfDotExnodeExtension = filename_.find_last_of(".");
+//	size_t regionNameLength = positionOfDotExnodeExtension - positionOfLastSlash - 1;
+//	std::string regionName = filename_.substr(positionOfLastSlash + 1, regionNameLength);
+//	//DEBUG
+//	std::cout << "contour region = " << regionName <<"\n";
+//	
+//	//Store pointers to nodes so we can directly manipulate their visibility attributes
+//	nodes_.clear();
+//	
+//	Cmiss_region_id region;
+//	if(!(region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str())))
+//	{
+//		//error
+//		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region << '\n';
+//		throw std::exception();
+//	}
+//	pImpl_->region = region;
+//	
+//	Cmiss_region_for_each_node_in_region(region, AddNodesToVector, (void*)&nodes_);
+//	
+//	// Create visibility field //TODO Factor out
+//	CM_field_type cm_field_type = CM_GENERAL_FIELD;
+//	char* name = (char*)"visibility";
+//	Coordinate_system coordinate_system;
+//	coordinate_system.type = RECTANGULAR_CARTESIAN;
+//	Value_type value_type = FE_VALUE_VALUE;
+//	const int number_of_components = 1;
+//	char* component_names[] = {(char*)"visibility"};
+//	
+//	FE_region_get_FE_field_with_properties(
+//		Cmiss_region_get_FE_region(region),
+//		name, GENERAL_FE_FIELD,
+//		/*indexer_field*/(struct FE_field *)NULL, /*number_of_indexed_values*/0,
+//		cm_field_type, &coordinate_system,
+//		value_type, number_of_components, component_names,
+//		/*number_of_times*/0, /*time_value_type*/UNKNOWN_VALUE,
+//		/*external*/(struct FE_field_external_information *)NULL);
+//	
+////	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
+////	Computed_field* field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
+//	
+//	std::stringstream ss;
+//	ss << "gfx mod g_e ";
+//	ss << regionName;
+//	ss << " node_points visibility_field visibility";
+//	
+//	
+//	Cmiss_context_execute_command(context, ss.str().c_str());
+//	
+//	Cmiss_scene_viewer_package* scene_viewer_package = Cmiss_context_get_default_scene_viewer_package(context);
+//	Scene* scene = Cmiss_scene_viewer_package_get_default_scene(scene_viewer_package);
+//	pImpl_->sceneObject = Scene_get_scene_object_with_Cmiss_region(scene, region);
+//	
+//	// Clean up
+//	Cmiss_region_destroy(&region);
+//	Cmiss_region_destroy(&root_region);
+//}
 
 namespace {
 

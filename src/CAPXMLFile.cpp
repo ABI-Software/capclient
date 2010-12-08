@@ -340,7 +340,7 @@ void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
 void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
 {
 	xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
-	contour.number = boost::lexical_cast<int>((char*)number);
+	contour.number = boost::lexical_cast<size_t>((char*)number);
 	
 	cur = cur->xmlChildrenNode;
 	
