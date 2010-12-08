@@ -56,7 +56,7 @@ ImageSlice::ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager)
 		std::vector<ContourPtr>& contours = images_.at(frame)->GetContours();
 		BOOST_FOREACH(ContourPtr& capContour, contours)
 		{
-			capContour->ReadFromExFile(cmguiManager.GetCmissContext());
+//			capContour->ReadFromExFile(cmguiManager.GetCmissContext());
 			double startTime = (double)frame / (double) numberOfFrames;
 			double duration = (double)1.0 / numberOfFrames;
 			double endTime = startTime + duration;

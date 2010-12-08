@@ -88,7 +88,7 @@ public:
 	
 	struct Contour
 	{
-		int number;
+		size_t number;
 		std::vector<ContourPoint> contourPoints;
 		TransformationMatrix transformationMatrix;
 	};
@@ -108,6 +108,7 @@ public:
 	struct Input
 	{
 		std::vector<Image> images;
+		StudyContours studyContours;
 	};
 
 	struct Output
