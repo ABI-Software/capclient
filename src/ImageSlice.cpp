@@ -45,7 +45,7 @@ class ImageSlice::CmguiImpl
 {
 public:
 	std::string sliceName_;
-	Scene_object* sceneObject_;
+	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiManager const& cmguiManager_;
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	
@@ -341,14 +341,12 @@ void ImageSlice::SetVisible(bool visibility)
 	if (visibility)
 	{
 		isVisible_ = true;
-//		Scene_object_set_visibility(sceneObject_, g_VISIBLE);
 		oldIndex_ = -1; //this forces rebinding & redraw of the texture
 		SetTime(time_);
 	}
 	else
 	{
 		isVisible_ = false;
-//		Scene_object_set_visibility(sceneObject_, g_INVISIBLE);
 	}
 	pImpl_->SetVisible(visibility);
 	
@@ -377,20 +375,17 @@ void ImageSlice::SetTime(double time)
 	//cout << "ImageSlice::setTime index = " << index << endl;
 		
 	Cmiss_texture* tex= textures_[index];
-//	material_->ChangeTexture(tex);
 	pImpl_->ChangeTexture(tex);
 	return ;
 }
 
 void ImageSlice::SetBrightness(float brightness)
 {
-//	material_->SetBrightness(brightness);
 	pImpl_->SetBrightness(brightness);
 }
 
 void ImageSlice::SetContrast(float contrast)
 {
-//	material_->SetContrast(contrast);
 	pImpl_->SetContrast(contrast);
 }
 
