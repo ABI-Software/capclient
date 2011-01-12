@@ -9,6 +9,7 @@
 #include "MainWindow.h"
 #include "CmguiManager.h"
 #include "DICOMImage.h"
+#include "ImageSetBuilder.h"
 #include "ImageSet.h"
 #include "CmguiExtensions.h"
 #include "ImageBrowseWindow.h"
@@ -957,7 +958,9 @@ void MainWindow::LoadImages(SlicesWithImages const& slices)
 		imageSet_->SetVisible(false); // HACK should really destroy region
 		delete imageSet_;
 	}
-	imageSet_ = new ImageSet(slices, cmguiManager_);
+
+	ImageSetBuilder builder(slices, cmguiManager_);
+	imageSet_ = builder.build();
 	imageSet_->SetVisible(true);//FIXME
 	Cmiss_scene_viewer_view_all(sceneViewer_);
 	

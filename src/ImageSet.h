@@ -28,6 +28,8 @@ class ImagePlane;
 class ImageSlice;
 class CmguiManager;
 
+typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
+
 class ImageSet // The whole lot : ImageManager??
 {
 public:
@@ -35,7 +37,10 @@ public:
 	/** Constructs an image set from a data structure of type SlicesWithImages 
 	 * @param vector of slice names
 	 */
-	ImageSet(SlicesWithImages const& slices, CmguiManager const& cmguiManager);
+	
+	ImageSet(SlicesWithImages const& slices, 
+			std::vector<std::string> const& imageSliceNames,
+			ImageSlicesMap const& map);
 	
 	/** Sets time for the whole image set
 	 * @param time in a cardiac cycle in second
@@ -100,7 +105,7 @@ private:
 	//std::vector<ImageSlice*> imageSlices_;
 	
 	//or
-	typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
+//	typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
 	ImageSlicesMap imageSlicesMap_;
 
 	SlicesWithImages slicesWithImages_;
