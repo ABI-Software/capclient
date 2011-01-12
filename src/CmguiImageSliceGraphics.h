@@ -11,11 +11,13 @@
 #include "ImageSliceGraphics.h"
 
 #include <string>
+#include <vector>
 
 #include <boost/tr1/memory.hpp>
 
 class Computed_field;
 class Scene_object;
+class Cmiss_texture;
 
 namespace cap
 {
@@ -27,13 +29,15 @@ class CmguiImageSliceGraphics : public ImageSliceGraphics
 {
 public:
 	
-	CmguiImageSliceGraphics(CmguiManager const& cmguiManager, std::string const& sliceName);
+	CmguiImageSliceGraphics(CmguiManager const& cmguiManager,
+			std::string const& sliceName,
+			std::vector<Cmiss_texture*> const& textures);
 	
 	~CmguiImageSliceGraphics();
 	
 	virtual void SetVisible(bool visibility);
 	
-	virtual void ChangeTexture(Cmiss_texture* tex);
+	virtual void ChangeTexture(size_t index);
 
 	virtual void SetBrightness(float brightness);
 	
@@ -54,6 +58,7 @@ private:
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiManager const& cmguiManager_;
 	std::tr1::shared_ptr<CAPMaterial> material_;
+	std::vector<Cmiss_texture*> textures_;
 };
 
 } // namespace cap

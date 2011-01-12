@@ -12,11 +12,13 @@
 
 #include <iostream>
 
+#include <boost/foreach.hpp>
+
 extern "C"
 {
 #include "command/cmiss.h"
 #include "graphics/scene_viewer.h"
-//#include "api/cmiss_texture.h"
+#include "api/cmiss_texture.h"
 #include "graphics/material.h"
 #include "graphics/element_group_settings.h"
 #include "graphics/scene.h"
@@ -28,10 +30,14 @@ extern "C"
 namespace cap
 {
 	
-CmguiImageSliceGraphics::CmguiImageSliceGraphics(CmguiManager const& cmguiManager, std::string const& sliceName)
+CmguiImageSliceGraphics::CmguiImageSliceGraphics(
+		CmguiManager const& cmguiManager,
+		std::string const& sliceName,
+		std::vector<Cmiss_texture*> const& textures)
 :
 	cmguiManager_(cmguiManager),
-	sliceName_(sliceName)
+	sliceName_(sliceName),
+	textures_(textures)
 {
 	this->LoadImagePlaneModel();
 //		this->TransformImagePlane();
@@ -52,6 +58,13 @@ CmguiImageSliceGraphics::~CmguiImageSliceGraphics()
 	std::cout << __func__ << '\n';
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root);
+	
+	BOOST_FOREACH(Cmiss_texture* tex, textures_)
+	{
+//		Cmiss_texture* temp = tex;
+//		DEACCESS(Texture)(&temp);
+		DESTROY(Texture)(&tex);
+	}
 }
 	
 void CmguiImageSliceGraphics::SetVisible(bool visibility)
@@ -60,8 +73,9 @@ void CmguiImageSliceGraphics::SetVisible(bool visibility)
 	Scene_object_set_visibility(sceneObject_, visible);
 }
 	
-void CmguiImageSliceGraphics::ChangeTexture(Cmiss_texture* tex)
+void CmguiImageSliceGraphics::ChangeTexture(size_t index)
 {
+	Cmiss_texture* tex = textures_[index];
 	material_->ChangeTexture(tex);
 	return ;
 }

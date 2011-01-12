@@ -8,18 +8,13 @@
 #ifndef IMAGESLICE_H_
 #define IMAGESLICE_H_
 
-#include "SliceInfo.h"
+#include "DICOMImage.h"
 #include <vector>
-#include <string>
-#include <boost/tr1/memory.hpp>
 #include <boost/noncopyable.hpp>
-
-struct Cmiss_texture;
 
 namespace cap
 {
 
-class DICOMImage;
 class ImagePlane;
 class ImageSliceGraphics;
 
@@ -27,7 +22,7 @@ class ImageSliceGraphics;
 class ImageSlice : boost::noncopyable
 {
 public:	
-	ImageSlice(SliceInfo const& info, ImageSliceGraphics* graphics);
+	ImageSlice(std::vector<DICOMPtr> const& images, ImageSliceGraphics* graphics);
 	
 	~ImageSlice();
 	
@@ -61,7 +56,7 @@ public:
 private:
 	void TransformImagePlane(); //need region& nodenumber
 	
-	std::string sliceName_;
+//	std::string sliceName_;
 	//unsigned int sliceNumber;
 	//unsigned int numberOfFrames; //redundant
 	
@@ -69,9 +64,7 @@ private:
 	double time_;
 	
 	std::vector<DICOMPtr> images_;
-	
-	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
-	
+		
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 	
 	size_t oldIndex_; //used to check if texture switch is needed
