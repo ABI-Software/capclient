@@ -65,6 +65,7 @@ SET(SRCS
   src/CAPMaterial.cpp
   src/PlatformInfo.cpp
   src/CAPContour.cpp
+  src/CmguiImageSliceGraphics.cpp
   #src/DataSet.cpp
 )
 

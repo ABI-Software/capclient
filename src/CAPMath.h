@@ -451,5 +451,28 @@ double SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
 	return x;
 }
 
+class ImagePlane
+{
+// This class defines a rectangular object in 3D space
+	
+public:
+	Point3D tlc;            /**< top left corner */
+	Point3D trc;            /**< top right corner */
+	Point3D blc;            /**< bottom left corner */
+	Point3D brc;            /**< bottom right corner */
+	Vector3D normal;         /**< normal of the plane */
+	
+	Vector3D xside;          /**< vector from blc to brc */
+	Vector3D yside;          /**< vector from blc to tlc */
+	
+//	int            imageSize;      /**< also stored in StudyInfo - image square */
+//	double          fieldOfView;    /**< should match length of xside */
+//	double          sliceThickness; /**< may vary between series */
+//	double          sliceGap;       /**< non-zero for short axis only */
+//	double          pixelSizeX_;     /**< in mm, should be square */
+//	double          pixelSizeY_;     /**< in mm, should be square */
+	double d; // the constant of the plane equation ax + by + cz = d (a,b & c are the 3 components of this->normal)
+};
+
 } // end namespace cap
 #endif /* CAPMATH_H_ */

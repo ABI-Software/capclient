@@ -21,14 +21,13 @@ namespace cap
 
 class DICOMImage;
 class ImagePlane;
-class CmguiManager;
+class ImageSliceGraphics;
 
-// should I separate the graphical representation from this class?
-// ie move Textures, visibility, sceneObject etc to another class??
+// move Textures to another class??
 class ImageSlice : boost::noncopyable
 {
 public:	
-	ImageSlice(SliceInfo const& info, CmguiManager const& cmguiManager);
+	ImageSlice(SliceInfo const& info, ImageSliceGraphics* graphics);
 	
 	~ImageSlice();
 	
@@ -68,7 +67,6 @@ private:
 	
 	bool isVisible_;
 	double time_;
-	CmguiManager const& cmguiManager_;
 	
 	std::vector<DICOMPtr> images_;
 	
@@ -78,8 +76,7 @@ private:
 	
 	size_t oldIndex_; //used to check if texture switch is needed
 	
-	class CmguiImpl;
-	CmguiImpl* pImpl_;
+	ImageSliceGraphics* graphics_; // graphics component
 };
 
 } // end namespace cap

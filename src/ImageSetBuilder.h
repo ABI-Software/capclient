@@ -11,6 +11,7 @@
 #include "SliceInfo.h"
 #include "ImageSet.h"
 #include "ImageSlice.h"
+#include "CmguiImageSliceGraphics.h"
 #include <boost/make_shared.hpp>
 
 namespace cap
@@ -42,7 +43,8 @@ public:
 		for (;itr != end; ++itr)
 		{
 			std::string const& name(itr->GetLabel());
-			imageSlicesMap[name] = boost::make_shared<ImageSlice>(*itr, cmguiManager_);
+			ImageSliceGraphics* graphics = new CmguiImageSliceGraphics(cmguiManager_, name);
+			imageSlicesMap[name] = boost::make_shared<ImageSlice>(*itr, graphics);
 			imageSliceNames.push_back(name);
 		}
 		
