@@ -180,6 +180,7 @@ SET(UNIT_TEST_SRC
   test/UnitTestTotalLeastSquares.cpp
   test/UnitTestCAPXMLFile.cpp
   src/CAPXMLFile.cpp
+  test/UnitTestImageSet.cpp
 )
 
 SET(UNIT_TEST_MODELLER_SRC
