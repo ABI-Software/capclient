@@ -10,27 +10,20 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
-#include <boost/make_shared.hpp>
 
 namespace cap
 {
 
 using namespace std;
 
-ImageSet::ImageSet(SlicesWithImages const& slices, CmguiManager const& cmguiManager)
+ImageSet::ImageSet(SlicesWithImages const& slices, 
+		std::vector<std::string> const& imageSliceNames,
+		ImageSlicesMap const& map)
 :
-	slicesWithImages_(slices)
-{	
-	SlicesWithImages::const_iterator itr = slices.begin();
-	SlicesWithImages::const_iterator end = slices.end();
-	int shortAxisCounter = 1;
-	int longAxisCounter = 1;
-	for (;itr != end; ++itr)
-	{
-		std::string const& name(itr->GetLabel());
-		imageSlicesMap_[name] = boost::make_shared<ImageSlice>(*itr, cmguiManager);
-		imageSliceNames_.push_back(name);
-	}
+	slicesWithImages_(slices),
+	imageSliceNames_(imageSliceNames),
+	imageSlicesMap_(map)
+{
 	SetBrightness(0.5);
 	SetContrast(0.5);
 	SetTime(0.0);
