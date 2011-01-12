@@ -14,10 +14,10 @@
 #include <boost/tr1/memory.hpp>
 #include <boost/noncopyable.hpp>
 
-struct Graphical_material;
-struct Scene_object;
+//struct Graphical_material;
+//struct Scene_object;
 struct Cmiss_texture;
-class Cmiss_field;
+//class Cmiss_field;
 
 namespace cap
 {
@@ -25,7 +25,7 @@ namespace cap
 class DICOMImage;
 class ImagePlane;
 class CmguiManager;
-class CAPMaterial;
+//class CAPMaterial;
 
 // should I separate the graphical representation from this class?
 // ie move Textures, visibility, sceneObject etc to another class??
@@ -64,15 +64,13 @@ public:
 	}
 	
 private:
-	void LoadImagePlaneModel();
+//	void LoadImagePlaneModel();
 	
 	void TransformImagePlane(); //need region& nodenumber
 	
-	void LoadTextures();  // should go to DICOImage??
-
-	void InitializeDataPointGraphicalSetting();
-	
-	Cmiss_field* CreateVisibilityField();
+//	void InitializeDataPointGraphicalSetting();
+//	
+//	Cmiss_field* CreateVisibilityField();
 	
 	std::string sliceName_;
 	//unsigned int sliceNumber;
@@ -80,18 +78,21 @@ private:
 	
 	bool isVisible_;
 	double time_;
-	Scene_object* sceneObject_; // the scene object this slice corresponds to
+//	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiManager const& cmguiManager_;
 	
 	std::vector<DICOMPtr> images_;
 	
-	std::tr1::shared_ptr<CAPMaterial> material_;
+//	std::tr1::shared_ptr<CAPMaterial> material_;
 	
 	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
 	
 	ImagePlane* imagePlane_; //Redundant?? its in DICOMImage
 	
 	size_t oldIndex_; //used to check if texture switch is needed
+	
+	class CmguiImpl;
+	CmguiImpl* pImpl_;
 };
 
 } // end namespace cap
