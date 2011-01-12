@@ -8,7 +8,7 @@
 #ifndef IMAGESLICEGRAPHICS_H_
 #define IMAGESLICEGRAPHICS_H_
 
-struct Cmiss_texture;
+#include <stddef.h>
 
 namespace cap
 {
@@ -21,7 +21,7 @@ class ImageSliceGraphics
 public:
 	virtual ~ImageSliceGraphics() {};
 	virtual void SetVisible(bool visibility) = 0;
-	virtual void ChangeTexture(Cmiss_texture* tex) = 0;
+	virtual void ChangeTexture(size_t index) = 0;
 	virtual void SetBrightness(float brightness) = 0;
 	virtual void SetContrast(float contrast) = 0;
 	virtual Point3D GetTopLeftCornerPosition() = 0;

@@ -9,34 +9,21 @@
 
 #include "DICOMImage.h"
 #include "ImageSliceGraphics.h"
-#include "CmguiImageSliceGraphics.h"
 
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <iomanip>
 #include <boost/foreach.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
-
-extern "C"
-{
-#include "graphics/texture.h"
-#include "api/cmiss_texture.h"
-}
 
 using namespace std;
 
 namespace cap
 {
 
-ImageSlice::ImageSlice(SliceInfo const& info, ImageSliceGraphics* graphics)
+ImageSlice::ImageSlice(std::vector<DICOMPtr> const& images, ImageSliceGraphics* graphics)
 	:
-	sliceName_(info.GetLabel()),
 	oldIndex_(-1),
 	isVisible_(true),
-	images_(info.GetDICOMImages()),
-	textures_(info.GetTextures()),
+	images_(images),
 	graphics_(graphics)
 {
 	size_t numberOfFrames = images_.size();
@@ -60,13 +47,6 @@ ImageSlice::ImageSlice(SliceInfo const& info, ImageSliceGraphics* graphics)
 ImageSlice::~ImageSlice()
 {
 	delete graphics_;
-	
-	BOOST_FOREACH(Cmiss_texture* tex, textures_)
-	{
-//		Cmiss_texture* temp = tex;
-//		DEACCESS(Texture)(&temp);
-		DESTROY(Texture)(&tex);
-	}
 }
 
 namespace {
@@ -113,7 +93,7 @@ void ImageSlice::SetTime(double time)
 {
 	time_ = time; // store time for later use
 
-	size_t index = MapTimeToIndex(time, textures_.size());
+	size_t index = MapTimeToIndex(time, images_.size());
 	
 	//update texture only when it is necessary
 	if (index == oldIndex_|| !isVisible_)
@@ -125,8 +105,7 @@ void ImageSlice::SetTime(double time)
 	//DEBUG
 	//cout << "ImageSlice::setTime index = " << index << endl;
 		
-	Cmiss_texture* tex= textures_[index];
-	graphics_->ChangeTexture(tex);
+	graphics_->ChangeTexture(index);
 	return ;
 }
 

@@ -43,8 +43,8 @@ public:
 		for (;itr != end; ++itr)
 		{
 			std::string const& name(itr->GetLabel());
-			ImageSliceGraphics* graphics = new CmguiImageSliceGraphics(cmguiManager_, name);
-			imageSlicesMap[name] = boost::make_shared<ImageSlice>(*itr, graphics);
+			ImageSliceGraphics* graphics = new CmguiImageSliceGraphics(cmguiManager_, name, itr->GetTextures());
+			imageSlicesMap[name] = boost::make_shared<ImageSlice>(itr->GetDICOMImages(), graphics);
 			imageSliceNames.push_back(name);
 		}
 		
