@@ -64,13 +64,7 @@ public:
 	}
 	
 private:
-//	void LoadImagePlaneModel();
-	
 	void TransformImagePlane(); //need region& nodenumber
-	
-//	void InitializeDataPointGraphicalSetting();
-//	
-//	Cmiss_field* CreateVisibilityField();
 	
 	std::string sliceName_;
 	//unsigned int sliceNumber;
@@ -78,12 +72,9 @@ private:
 	
 	bool isVisible_;
 	double time_;
-//	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiManager const& cmguiManager_;
 	
 	std::vector<DICOMPtr> images_;
-	
-//	std::tr1::shared_ptr<CAPMaterial> material_;
 	
 	std::vector<Cmiss_texture*> textures_; // should go to DICOMImage?? or might consider having a Texture manager class
 	
