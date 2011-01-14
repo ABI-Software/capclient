@@ -26,20 +26,20 @@ ImageSlice::ImageSlice(std::vector<DICOMPtr> const& images, ImageSliceGraphics* 
 	images_(images),
 	graphics_(graphics)
 {
-	size_t numberOfFrames = images_.size();
-	for (size_t frame = 0; frame < numberOfFrames; ++ frame)
-	{
-		std::vector<ContourPtr>& contours = images_.at(frame)->GetContours();
-		BOOST_FOREACH(ContourPtr& capContour, contours)
-		{
-//			capContour->ReadFromExFile(cmguiManager.GetCmissContext());
-			double startTime = (double)frame / (double) numberOfFrames;
-			double duration = (double)1.0 / numberOfFrames;
-			double endTime = startTime + duration;
-			capContour->SetValidPeriod(startTime, endTime);
-			capContour->SetVisibility(true);
-		}
-	}
+//	size_t numberOfFrames = images_.size();
+//	for (size_t frame = 0; frame < numberOfFrames; ++ frame)
+//	{
+//		std::vector<ContourPtr>& contours = images_.at(frame)->GetContours();
+//		BOOST_FOREACH(ContourPtr& capContour, contours)
+//		{
+////			capContour->ReadFromExFile(cmguiManager.GetCmissContext());
+//			double startTime = (double)frame / (double) numberOfFrames;
+//			double duration = (double)1.0 / numberOfFrames;
+//			double endTime = startTime + duration;
+//			capContour->SetValidPeriod(startTime, endTime);
+//			capContour->SetVisibility(true);
+//		}
+//	}
 
 	this->TransformImagePlane();
 }
@@ -83,8 +83,8 @@ void ImageSlice::SetVisible(bool visibility)
 	
 	//TEST
 	// Set visibility of contours
-	std::for_each(images_.begin(), images_.end(), 
-			boost::bind(&DICOMImage::SetContourVisibility,_1,visibility));
+//	std::for_each(images_.begin(), images_.end(), 
+//			boost::bind(&DICOMImage::SetContourVisibility,_1,visibility));
 	
 	return;
 }

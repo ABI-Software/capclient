@@ -28,7 +28,6 @@ class CAPModelLVPS4X4
 {
 	
 public:
-	typedef float gtMatrix[4][4];
 	
 	enum RenderMode
 	{

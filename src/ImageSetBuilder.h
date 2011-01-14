@@ -12,7 +12,9 @@
 #include "ImageSet.h"
 #include "ImageSlice.h"
 #include "CmguiImageSliceGraphics.h"
+
 #include <boost/make_shared.hpp>
+#include <boost/foreach.hpp>
 
 namespace cap
 {
@@ -43,7 +45,31 @@ public:
 		for (;itr != end; ++itr)
 		{
 			std::string const& name(itr->GetLabel());
-			ImageSliceGraphics* graphics = new CmguiImageSliceGraphics(cmguiManager_, name, itr->GetTextures());
+			
+			// Create the cmgui specific component that handles the graphical representation
+			// of the image slice.
+			// The cmgui region which contains the image plane, data points and contour nodes
+			// is created by CmguiImageSliceGraphics.
+			CmguiImageSliceGraphics* graphics = new CmguiImageSliceGraphics(cmguiManager_, name, itr->GetTextures());
+			
+			// Create the cmgui nodes which represent contour lines on the images.
+			size_t numberOfFrames = itr->GetDICOMImages().size();
+			size_t frame = 0;
+			BOOST_FOREACH(DICOMPtr const& dicom, itr->GetDICOMImages())
+			{
+				BOOST_FOREACH(ContourPtr const& contour, dicom->GetContours())
+				{
+					double startTime = (double)frame / (double) numberOfFrames;
+					double duration = (double)1.0 / numberOfFrames;
+					double endTime = startTime + duration;
+					
+					graphics->CreateContour(contour->GetContourNumber(),
+							contour->GetCoordinates(),
+							std::make_pair(startTime, endTime),
+							contour->GetTransformation());
+				}
+				frame ++;
+			}
 			imageSlicesMap[name] = boost::make_shared<ImageSlice>(itr->GetDICOMImages(), graphics);
 			imageSliceNames.push_back(name);
 		}
