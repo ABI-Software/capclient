@@ -194,11 +194,11 @@ public:
 		contours_.push_back(con);
 	}
 	
-	void SetContourVisibility(bool visibility)
-	{
-		std::for_each(contours_.begin(), contours_.end(), 
-				boost::bind(&CAPContour::SetVisibility, _1, visibility));
-	}
+//	void SetContourVisibility(bool visibility)
+//	{
+//		std::for_each(contours_.begin(), contours_.end(), 
+//				boost::bind(&CAPContour::SetVisibility, _1, visibility));
+//	}
 	
 private:
 	void ReadDICOMFile();

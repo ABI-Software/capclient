@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include <boost/foreach.hpp>
+#include <boost/bind.hpp>
 
 extern "C"
 {
@@ -267,7 +268,206 @@ void CmguiImageSliceGraphics::InitializeDataPointGraphicalSetting()
 	
 	GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(sceneObject_);
 	GT_element_group_add_settings(gt_element_group, settings, 0);
+	
+	/////////////////////////////////////////////////////////////////////
+	// Do the same for node points
+	// TODO eliminate code duplication
+	{
+		GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_NODE_POINTS);
+		Graphical_material* material = create_Graphical_material("NodePoints");//TODO Need to clean up consider using Material_package
+		Graphical_material* materialSelected = create_Graphical_material("NodePointsSelected");
+		
+		Colour green = {0,1,0}; //BGR
+		Colour yellow = {0,1,1}; //BGR
+		Graphical_material_set_diffuse(material, &yellow);
+		Graphical_material_set_diffuse(materialSelected, &green);
+		GT_element_settings_set_select_mode(settings, GRAPHICS_SELECT_ON);
+		GT_element_settings_set_material(settings,material);
+		GT_element_settings_set_selected_material(settings, materialSelected);
+	
+		//Glyphs
+		GT_object *glyph, *old_glyph;
+		Glyph_scaling_mode glyph_scaling_mode;
+		Triple glyph_centre,glyph_scale_factors,glyph_size;
+		Computed_field *orientation_scale_field, *variable_scale_field; ;
+		glyph=make_glyph_point("point",g_POINT_MARKER, 1);
+		
+		Triple new_glyph_size;
+		new_glyph_size[0] = 2, new_glyph_size[1] = 2, new_glyph_size[2] = 2;
+		
+		if (!(GT_element_settings_get_glyph_parameters(settings,
+			 &old_glyph, &glyph_scaling_mode ,glyph_centre, glyph_size,
+			 &orientation_scale_field, glyph_scale_factors,
+			 &variable_scale_field) &&
+			GT_element_settings_set_glyph_parameters(settings,glyph,
+			 glyph_scaling_mode, glyph_centre, new_glyph_size,
+			 orientation_scale_field, glyph_scale_factors,
+			 variable_scale_field)))
+		{
+			std::cout << "No glyphs defined" << std::endl;
+		}
+	
+		//Initialze fields needed for time-dependent visibility control
+	
+		Cmiss_field* visibilityField = CreateVisibilityField();
+		GT_element_settings_set_visibility_field(settings, visibilityField);
+		
+		GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(sceneObject_);
+		GT_element_group_add_settings(gt_element_group, settings, 0);
+	}
+	
 }
 
+namespace {
+
+Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node, 
+		struct FE_region* fe_region, 
+		Cmiss_field* visibilityField,
+		struct FE_field *fe_field, double startTime, double endTime, bool visibility)
+{
+//	std::cout << __func__ << " : start = " << startTime << " , end = " << endTime << '\n';
+	
+	struct FE_node_field_creator *node_field_creator;
+	
+	if (node_field_creator = CREATE(FE_node_field_creator)(
+		/*number_of_components*/1))
+	{
+		struct FE_time_sequence *fe_time_sequence;
+		FE_value times[5];
+		double values[5];
+		int numberOfTimes;
+		double newFieldValue = visibility ? 1.0f : 0.0f;
+		
+		//Handle edge cases
+		if (startTime == 0.0f && endTime == 1.0f)
+		{
+			times[0] = 0.0f;
+			times[1] = 1.0f;
+			values[0] = newFieldValue;
+			values[1] = newFieldValue;
+			numberOfTimes = 2;
+		}
+		else if (startTime == 0.0f)
+		{
+			times[0] = 0.0f;
+			times[1] = endTime;
+			times[2] = 1.0f;
+			values[0] = newFieldValue;
+			values[1] = newFieldValue;
+			values[2] = 0;
+			numberOfTimes = 3;
+		}
+		else if (endTime == 1.0f)
+		{
+			times[0] = 0.0f;
+			times[1] = startTime;
+			times[2] = 1.0f;
+			values[0] = 0;
+			values[1] = newFieldValue;
+			values[2] = newFieldValue;
+			numberOfTimes = 3;
+		}
+		else
+		{
+			times[0] = 0.0f;
+			times[1] = startTime;
+			times[2] = endTime;
+			times[3] = 1.0f;
+			values[0] = 0;
+			values[1] = newFieldValue;
+			values[2] = newFieldValue;
+			values[3] = 0;
+			numberOfTimes = 4;
+		}
+		
+		if (!(fe_time_sequence = FE_region_get_FE_time_sequence_matching_series(
+								fe_region, numberOfTimes, times)))
+		{
+			//Error
+			std::cout << "Error: " << __func__ << " can't get time_sequence" << std::endl;
+		}
+		
+		if (define_FE_field_at_node(node,fe_field,
+			/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
+			node_field_creator))
+		{
+			int number_of_values;
+			for (int i = 0; i < numberOfTimes; ++i)
+			{									 													
+				Cmiss_field_set_values_at_node( visibilityField, node, times[i] , 1 , &(values[i]));
+			}
+			DESTROY(FE_node_field_creator)(&node_field_creator);
+			return node;
+		}
+		else
+		{
+			std::cout << "Error define_FE_field_at_node\n";
+		}
+	}
+}
+
+#include "computed_field/computed_field_finite_element.h"
+
+void SetValidPeriod(std::vector<Cmiss_node*> nodes, double startTime, double endTime)
+{
+//	std::cout << __func__ << " : start = " << startTime << " , end = " << endTime << '\n';
+	
+	const double EPSILON = std::numeric_limits<double>::epsilon();
+//	startTime_ = startTime;
+	endTime = endTime - EPSILON;
+	
+	Cmiss_node_id node = nodes.at(0);
+		
+	FE_region* fe_region = FE_node_get_FE_region(node);
+	
+	Cmiss_region* cmiss_region;
+	FE_region_get_Cmiss_region(fe_region, &cmiss_region);
+		
+//	fe_region = FE_region_get_data_FE_region(fe_region);
+//	if (!fe_region)
+//	{
+//		std::cout << "fe_region is null" << std::endl;
+//	}
+	
+	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(cmiss_region);
+	Computed_field* visibilityField = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
+	
+	if (!visibilityField)
+	{
+		display_message(ERROR_MESSAGE,
+			"Cmiss_node_set_visibility_field.  Can't find visibility field");
+	}
+	
+	struct FE_field *fe_field;
+	struct LIST(FE_field) *fe_field_list;
+	if (visibilityField && (fe_field_list=
+						Computed_field_get_defining_FE_field_list(visibilityField)))
+	{
+		if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
+			(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
+			(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
+			fe_field_list)) && (1 == get_FE_field_number_of_components(
+			fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
+		{
+			std::for_each(nodes.begin(), nodes.end(),
+					boost::bind(Cmiss_node_set_visibility_field_private, _1, fe_region, visibilityField,
+							fe_field, startTime, endTime, true));
+		}
+	}
+}
+
+} // unnamed namespace
+
+void CmguiImageSliceGraphics::CreateContour(size_t contourNum,
+		std::vector<Point3D> const& coords,
+		std::pair<double, double> const& validTimeRange,
+		gtMatrix const& transform)
+{
+	// Create a cmiss node for each coordinate point in coords
+	
+	// Set the valid time range for the nodes.
+	
+	// Set the transformation on the nodes.
+}
 
 } // namespace cap

@@ -9,6 +9,7 @@
 #define CMGUIIMAGESLICEGRAPHICS_H_
 
 #include "ImageSliceGraphics.h"
+#include "CAPMath.h"
 
 #include <string>
 #include <vector>
@@ -46,6 +47,11 @@ public:
 	virtual Point3D GetTopLeftCornerPosition();
 	
 	virtual void TransformTo(ImagePlane* plane);
+	
+	void CreateContour(size_t contourNum,
+			std::vector<Point3D> const& coords,
+			std::pair<double, double> const& validTimeRange,
+			gtMatrix const& transform);
 	
 private:
 	void LoadImagePlaneModel();

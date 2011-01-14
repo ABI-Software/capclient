@@ -17,26 +17,32 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 
-extern "C" {
-#include "api/cmiss_node.h"
-#include "api/cmiss_context.h"
-}
+//extern "C" {
+//#include "api/cmiss_node.h"
+//#include "api/cmiss_context.h"
+//}
 
-struct Scene_object;
+//struct Scene_object;
 
 namespace cap
 {
+
+// This class represents a contour line on an image.
+// Note that this class does not contain any implementation details
+// related to actually displaying the contour line in 3D.
+// That is done by a class that implements the ImageSliceGraphics interface
+// (e.g CmguiImageSliceGraphics)
 
 class CAPContour : boost::noncopyable
 {
 public:
 //	CAPContour(size_t contourNumber, size_t frameNumber, std::string const& filename);
-	CAPContour(size_t contourNumber, const gtMatrix transform, std::vector<Point3D> const& points);
+	CAPContour(size_t contourNumber, const gtMatrix& transform, std::vector<Point3D> const& points);
 	~CAPContour();
 	
 //	void ReadFromExFile(Cmiss_context_id context); // FIXME
-	void SetVisibility(bool visibility);
-	void SetValidPeriod(double startTime, double endTime);
+//	void SetVisibility(bool visibility);
+//	void SetValidPeriod(double startTime, double endTime);
 //	std::string const& GetFilename() const
 //	{
 //		return filename_;
@@ -45,15 +51,36 @@ public:
 	{
 		return contourNumber_;
 	}
+	
+	std::vector<Point3D> const& GetCoordinates() const
+	{
+		return coords_;
+	}
+	
+//	std::pair<double, double> GetValidTimeRange() const
+//	{
+//		return std::make_pair(startTime_, endTime_);
+//	}
+	
+	gtMatrix const& GetTransformation() const
+	{
+		return transform_;
+	}
+	
 private:
 	size_t contourNumber_;
 //	size_t frameNumber_;
 //	std::string filename_;
 	double startTime_, endTime_;
-	std::vector<Cmiss_node_id> nodes_; //FIXME
 	
-	struct ContourImpl;
-	boost::scoped_ptr<ContourImpl> pImpl_;
+	gtMatrix transform_;
+	
+	std::vector<Point3D> coords_;
+	
+//	std::vector<Cmiss_node_id> nodes_; //FIXME
+	
+//	struct ContourImpl;
+//	boost::scoped_ptr<ContourImpl> pImpl_;
 };
 
 typedef boost::shared_ptr<CAPContour> ContourPtr;
