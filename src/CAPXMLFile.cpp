@@ -199,6 +199,104 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	}
 }
 
+void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
+{
+	xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
+	contour.number = boost::lexical_cast<size_t>((char*)number);
+	
+	cur = cur->xmlChildrenNode;
+	
+	while(cur)
+	{
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"ContourPoint"))
+		{
+			CAPXMLFile::ContourPoint p;
+			xmlNodePtr child = cur->xmlChildrenNode;
+			while (child)
+			{
+				if (!xmlStrcmp(child->name, (const xmlChar*)"x"))
+				{
+					xmlChar* x = xmlNodeGetContent(child);
+					p.x = boost::lexical_cast<double>(x);
+				}
+				else if (!xmlStrcmp(child->name, (const xmlChar*)"y"))
+				{
+					xmlChar* y = xmlNodeGetContent(child);
+					p.y = boost::lexical_cast<double>(y);
+				}
+				
+				child = child->next;
+			}
+			
+			contour.contourPoints.push_back(p);
+		}
+		else if (!xmlStrcmp(cur->name, (const xmlChar*)"TransformationMatrix"))
+		{
+			CAPXMLFile::TransformationMatrix t;
+			xmlNodePtr child = cur->xmlChildrenNode;
+			while (child)
+			{
+				if (!xmlStrcmp(child->name, (const xmlChar*)"cell"))
+				{
+					xmlChar* col = xmlGetProp(child, (xmlChar const*)"col");
+					xmlChar* row = xmlGetProp(child, (xmlChar const*)"row");
+					xmlChar* value = xmlNodeGetContent(child);
+					t[boost::lexical_cast<int>(row)][boost::lexical_cast<int>(col)]
+					                                 = boost::lexical_cast<float>(value);	
+				}
+				child = child->next;
+			}
+		}
+		
+		cur = cur->next;
+	}
+}
+
+void ReadImageContours(CAPXMLFile::ImageContours& imageContours, xmlNodePtr cur)
+{
+	// read attribute sopiuid
+	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
+	imageContours.sopiuid = (char*)sopiuid;
+	
+	cur = cur->xmlChildrenNode;
+	
+	while(cur)
+	{
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"Contour"))
+		{
+			CAPXMLFile::Contour contour;
+			ReadContour(contour, cur);
+			imageContours.contours.push_back(contour);
+		}
+		
+		cur = cur->next;
+	}
+}
+
+void ReadStudyContours(CAPXMLFile::StudyContours& studyContours, xmlNodePtr cur)
+{
+	// Read in studyiuid
+	xmlChar* studyiuid = xmlGetProp(cur, (xmlChar const*)"studyiuid"); 
+	studyContours.studyiuid = (char*)studyiuid;
+	
+	// TODO Read other attributes for the case of a stand alone contour file
+	// (these attributes are only present when the
+	// contours are stored in a separate file)
+	cur = cur->xmlChildrenNode;
+	
+	while(cur)
+	{
+		if (!xmlStrcmp(cur->name, (const xmlChar *)"ImageContours"))
+		{
+			CAPXMLFile::ImageContours imageContours;
+			ReadImageContours(imageContours, cur);
+			studyContours.listOfImageContours.push_back(imageContours);
+		}
+		
+		cur = cur->next;
+	}
+}
+
 void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 {
 	// CAPXMLInput has no attributes
@@ -212,6 +310,10 @@ void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 			CAPXMLFile::Image image;
 			ReadImage(image, doc, cur);
 			input.images.push_back(image);
+		}
+		else if (!xmlStrcmp(cur->name, (const xmlChar *)"StudyContours"))
+		{
+			ReadStudyContours(input.studyContours, cur);
 		}
 		cur = cur->next;
 	} 
@@ -331,104 +433,6 @@ void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
 			}
 			
 			documentation.provenanceDetails.push_back(provenanceDetail);
-		}
-		
-		cur = cur->next;
-	}
-}
-
-void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
-{
-	xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
-	contour.number = boost::lexical_cast<size_t>((char*)number);
-	
-	cur = cur->xmlChildrenNode;
-	
-	while(cur)
-	{
-		if (!xmlStrcmp(cur->name, (const xmlChar*)"ContourPoint"))
-		{
-			CAPXMLFile::ContourPoint p;
-			xmlNodePtr child = cur->xmlChildrenNode;
-			while (child)
-			{
-				if (!xmlStrcmp(child->name, (const xmlChar*)"x"))
-				{
-					xmlChar* x = xmlNodeGetContent(child);
-					p.x = boost::lexical_cast<double>(x);
-				}
-				else if (!xmlStrcmp(child->name, (const xmlChar*)"y"))
-				{
-					xmlChar* y = xmlNodeGetContent(child);
-					p.y = boost::lexical_cast<double>(y);
-				}
-				
-				child = child->next;
-			}
-			
-			contour.contourPoints.push_back(p);
-		}
-		else if (!xmlStrcmp(cur->name, (const xmlChar*)"TransformationMatrix"))
-		{
-			CAPXMLFile::TransformationMatrix t;
-			xmlNodePtr child = cur->xmlChildrenNode;
-			while (child)
-			{
-				if (!xmlStrcmp(child->name, (const xmlChar*)"cell"))
-				{
-					xmlChar* col = xmlGetProp(child, (xmlChar const*)"col");
-					xmlChar* row = xmlGetProp(child, (xmlChar const*)"row");
-					xmlChar* value = xmlNodeGetContent(child);
-					t[boost::lexical_cast<int>(row)][boost::lexical_cast<int>(col)]
-					                                 = boost::lexical_cast<float>(value);	
-				}
-				child = child->next;
-			}
-		}
-		
-		cur = cur->next;
-	}
-}
-
-void ReadImageContours(CAPXMLFile::ImageContours& imageContours, xmlNodePtr cur)
-{
-	// read attribute sopiuid
-	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
-	imageContours.sopiuid = (char*)sopiuid;
-	
-	cur = cur->xmlChildrenNode;
-	
-	while(cur)
-	{
-		if (!xmlStrcmp(cur->name, (const xmlChar*)"Contour"))
-		{
-			CAPXMLFile::Contour contour;
-			ReadContour(contour, cur);
-			imageContours.contours.push_back(contour);
-		}
-		
-		cur = cur->next;
-	}
-}
-
-void ReadStudyContours(CAPXMLFile::StudyContours& studyContours, xmlNodePtr cur)
-{
-	// Read in studyiuid
-	xmlChar* studyiuid = xmlGetProp(cur, (xmlChar const*)"studyiuid"); 
-	studyContours.studyiuid = (char*)studyiuid;
-	
-	// TODO Read other attributes for the case of a stand alone contour file
-	// (these attributes are only present when the
-	// contours are stored in a separate file)
-	cur = cur->xmlChildrenNode;
-	
-	while(cur)
-	{
-		if (!xmlStrcmp(cur->name, (const xmlChar *)"ImageContours"))
-		{
-			CAPXMLFile::ImageContours imageContours;
-			ReadImageContours(imageContours, cur);
-			studyContours.listOfImageContours.push_back(imageContours);
 		}
 		
 		cur = cur->next;
