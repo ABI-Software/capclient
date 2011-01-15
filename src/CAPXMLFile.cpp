@@ -232,7 +232,7 @@ void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar*)"TransformationMatrix"))
 		{
-			CAPXMLFile::TransformationMatrix t;
+			CAPXMLFile::TransformationMatrix& t = contour.transformationMatrix;
 			xmlNodePtr child = cur->xmlChildrenNode;
 			while (child)
 			{
@@ -242,7 +242,10 @@ void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
 					xmlChar* row = xmlGetProp(child, (xmlChar const*)"row");
 					xmlChar* value = xmlNodeGetContent(child);
 					t[boost::lexical_cast<int>(row)][boost::lexical_cast<int>(col)]
-					                                 = boost::lexical_cast<float>(value);	
+					                                 = boost::lexical_cast<float>(value);
+					
+//					std::cout << "t[" << boost::lexical_cast<int>(row) << "][" << boost::lexical_cast<int>(col)
+//							<< "] = " << boost::lexical_cast<float>(value) << '\n';
 				}
 				child = child->next;
 			}
