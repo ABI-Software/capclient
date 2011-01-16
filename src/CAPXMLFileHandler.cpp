@@ -289,25 +289,8 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 			itr->second.push_back(dicomImage);
 		}		
 		
-		//TEST
-//		std::cout << "TEST: " << image.countourFiles.size() << '\n';
-//		BOOST_FOREACH(CAPXMLFile::ContourFile const& contour, image.contourFiles)
-//		{
-//			// Create Contour and add to dicomImage
-//			ContourPtr capContour = boost::make_shared<CAPContour>(contour.number, image.frame, pathToXMLFile + contour.fileName);
-////			capContour->ReadFromExFile(pathToXMLFile + contour.fileName, cmguiManager.GetCmissContext());
-////			size_t numberOfFrames = numberOfFrameForSlice[image.slice];
-////			double startTime = (double)image.frame / (double) numberOfFrames;
-////			double duration = (double)1.0 / numberOfFrames;
-////			double endTime = startTime + duration;
-////			capContour->SetValidPeriod(startTime, endTime);
-////			capContour->SetVisibility(true);
-//			
-//			dicomImage->AddContour(capContour);
-//		}
-		
+		// Create Contour objects
 		CAPXMLFile::StudyContours const& studyContours = input.studyContours;
-		 
 		std::vector<CAPXMLFile::ImageContours>::const_iterator imageContours_itr =
 				std::find_if(studyContours.listOfImageContours.begin(),
 							studyContours.listOfImageContours.end(),
