@@ -249,7 +249,7 @@ Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region
 	}
 	
 	int node_identifier = FE_region_get_next_FE_node_identifier(fe_region, /*start*/1);
-	std::cout << "node id = " << node_identifier << std::endl;
+//	std::cout << "node id = " << node_identifier << std::endl;
 	
 	if (Cmiss_node_id node = /*ACCESS(FE_node)*/(CREATE(FE_node)(node_identifier, fe_region, (struct FE_node *)NULL)))
 	{

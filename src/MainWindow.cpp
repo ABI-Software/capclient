@@ -227,7 +227,7 @@ static int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 static int time_callback(struct Time_object *time, double current_time, void *user_data)
 {
 	//DEBUG
-//	cout << "Time_call_back time = " << current_time << endl;
+	cout << "Time_call_back time = " << current_time << endl;
 	
 	MainWindow* frame = static_cast<MainWindow*>(user_data);
 	frame->SetTime(current_time);
@@ -380,7 +380,7 @@ void MainWindow::EnterImagesLoadedState()
 		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
 		Cmiss_time_notifier_destroy(&timeNotifier_);
 	}
-	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
+	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames * 2, 0);
 	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 	Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
 	Time_keeper_set_maximum(timeKeeper_, 1);
