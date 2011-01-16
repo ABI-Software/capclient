@@ -59,6 +59,7 @@ public:
 			{
 				BOOST_FOREACH(ContourPtr const& contour, dicom->GetContours())
 				{
+					std::cout << "Creating contour:: Frame numbr = " << frame << '\n';
 					double startTime = (double)frame / (double) numberOfFrames;
 					double duration = (double)1.0 / numberOfFrames;
 					double endTime = startTime + duration;
