@@ -380,7 +380,7 @@ void MainWindow::EnterImagesLoadedState()
 		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
 		Cmiss_time_notifier_destroy(&timeNotifier_);
 	}
-	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames * 2, 0);
+	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
 	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 	Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
 	Time_keeper_set_maximum(timeKeeper_, 1);
