@@ -8,6 +8,9 @@
 #ifndef CAPANNOTATIONFILE_H_
 #define CAPANNOTATIONFILE_H_
 
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+
 #include <string>
 #include <vector>
 
@@ -22,6 +25,8 @@ public:
 	void ReadFile();
 	
 	void WriteFile(std::string const& filename);
+	
+	void ConstructCardiacAnnotation(xmlNodePtr root);
 	
 	typedef std::string Scope; // Study/Series/Instance - Image/Slice ??
 	
