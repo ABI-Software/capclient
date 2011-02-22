@@ -20,6 +20,10 @@
 					<label>Open Model</label>
 					<help></help>
 				</object>
+				<object class="wxMenuItem" name="OpenAnnotationMenuItem">
+					<label>Open Annotation</label>
+					<help></help>
+				</object>
 				<object class="wxMenuItem" name="SaveMenuItem">
 					<label>Save Model</label>
 					<help></help>
@@ -31,6 +35,13 @@
 				<object class="separator" />
 				<object class="wxMenuItem" name="QuitMenuItem">
 					<label>Exit\tAlt-X</label>
+					<help></help>
+				</object>
+			</object>
+			<object class="wxMenu" name="ViewMenu">
+				<label>View</label>
+				<object class="wxMenuItem" name="ImageBrowseWindowMenuItem">
+					<label>Open Image Browse Window</label>
 					<help></help>
 				</object>
 			</object>
