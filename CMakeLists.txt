@@ -61,6 +61,7 @@ SET(SRCS
   src/CAPHtmlWindow.cpp
   src/CAPXMLFile.cpp
   src/CAPXMLFileHandler.cpp
+  src/CAPAnnotationFile.cpp
   src/ImageBrowseWindow.cpp
   src/CAPMaterial.cpp
   src/PlatformInfo.cpp
