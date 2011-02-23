@@ -127,6 +127,7 @@ const ImagePlane& ImageSlice::GetImagePlane() const
 void ImageSlice::SetShiftedImagePosition()
 {	
 	Point3D tlc = graphics_->GetTopLeftCornerPosition(); // TODO error handling
+	// FIXME : need to shift contour lines too!!
 	std::for_each(images_.begin(), images_.end(), boost::bind(&DICOMImage::SetImagePlaneTLC, _1, tlc));
 }
 
