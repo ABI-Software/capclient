@@ -20,14 +20,6 @@ namespace cap
 class CAPAnnotationFile
 {
 public:
-	CAPAnnotationFile(std::string const& filename);
-	
-	void ReadFile();
-	
-	void WriteFile(std::string const& filename);
-	
-	void ConstructCardiacAnnotation(xmlNodePtr root);
-	
 	typedef std::string Scope; // Study/Series/Instance - Image/Slice ??
 	
 	struct Coordinates
@@ -63,6 +55,21 @@ public:
 		std::string studyiuid;
 		std::vector<ImageAnnotation> imageAnnotations;
 	};
+	
+	CardiacAnnotation const& GetCardiacAnnotation() const
+	{
+		return cardiacAnnotation_;
+	}
+	
+	CAPAnnotationFile(std::string const& filename);
+	
+	void ReadFile();
+	
+	void WriteFile(std::string const& filename);
+	
+	void ReadCardiacAnnotation(CardiacAnnotation& anno, xmlNodePtr cur);
+	
+	void ConstructCardiacAnnotation(xmlNodePtr root);
 	
 private:
 	std::string filename_;

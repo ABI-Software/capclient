@@ -147,6 +147,25 @@ CAPAnnotationFile::CAPAnnotationFile(std::string const& filename)
 {	
 }
 
+void CAPAnnotationFile::ReadCardiacAnnotation(CardiacAnnotation& anno, xmlNodePtr cur)
+{
+	xmlChar* studyiuid = xmlGetProp(cur, BAD_CAST "studyiuid");
+	cardiacAnnotation_.studyiuid = (char*)studyiuid;
+	xmlFree(studyiuid);
+	
+	cur = cur->xmlChildrenNode;
+	
+	while (cur)
+	{
+		if (!xmlStrcmp(cur->name, BAD_CAST "ImageAnnotation"))
+		{
+			ImageAnnotation imageAnnotation = ReadImageAnnotation(cur);
+			cardiacAnnotation_.imageAnnotations.push_back(imageAnnotation);
+		}
+		cur = cur->next;
+	}
+}
+
 void CAPAnnotationFile::ReadFile()
 {
 	xmlDocPtr doc; 
@@ -173,21 +192,7 @@ void CAPAnnotationFile::ReadFile()
 	}
 	else
 	{
-		xmlChar* studyiuid = xmlGetProp(cur, BAD_CAST "studyiuid");
-		cardiacAnnotation_.studyiuid = (char*)studyiuid;
-		xmlFree(studyiuid);
-	}
-	
-	cur = cur->xmlChildrenNode;
-	
-	while (cur)
-	{
-		if (!xmlStrcmp(cur->name, BAD_CAST "ImageAnnotation"))
-		{
-			ImageAnnotation imageAnnotation = ReadImageAnnotation(cur);
-			cardiacAnnotation_.imageAnnotations.push_back(imageAnnotation);
-		}
-		cur = cur->next;
+		ReadCardiacAnnotation(cardiacAnnotation_, cur);
 	}
 	
 	xmlFreeDoc(doc);
