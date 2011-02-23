@@ -256,9 +256,9 @@ void ConstructImageAnnotation(CAPAnnotationFile::ImageAnnotation const& imageAnn
 
 } // unnamed namespace
 
-void CAPAnnotationFile::ConstructCardiacAnnotation(xmlNodePtr root)
+void CAPAnnotationFile::ConstructCardiacAnnotation(CardiacAnnotation const& cardiacAnnotation, xmlNodePtr root)
 {
-	std::for_each(cardiacAnnotation_.imageAnnotations.begin(), cardiacAnnotation_.imageAnnotations.end(),
+	std::for_each(cardiacAnnotation.imageAnnotations.begin(), cardiacAnnotation.imageAnnotations.end(),
 		boost::bind(ConstructImageAnnotation, _1, root));
 }
 
@@ -279,7 +279,7 @@ void CAPAnnotationFile::WriteFile(std::string const& filename)
 	xmlNewProp(root_node, BAD_CAST "xmlns:xsi", BAD_CAST "http://www.w3.org/2001/XMLSchema-instance");
 	xmlNewProp(root_node, BAD_CAST "xsi:schemaLocation", BAD_CAST "http://www.cardiacatlas.org Analysis.xsd ");
 	
-	ConstructCardiacAnnotation(root_node);
+	ConstructCardiacAnnotation(cardiacAnnotation_, root_node);
 	
 	// Save to file
 	xmlSaveFormatFileEnc(filename.c_str(), doc, "UTF-8", 1);

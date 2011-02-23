@@ -69,7 +69,7 @@ public:
 	
 	void ReadCardiacAnnotation(CardiacAnnotation& anno, xmlNodePtr cur);
 	
-	void ConstructCardiacAnnotation(xmlNodePtr root);
+	void ConstructCardiacAnnotation(CardiacAnnotation const& cardiacAnnotation, xmlNodePtr root);
 	
 private:
 	std::string filename_;
