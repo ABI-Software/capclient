@@ -10,6 +10,7 @@
 
 #include "SliceInfo.h"
 #include "CAPMath.h"
+#include "CAPAnnotationFile.h" //REVISE
 
 #include <string>
 #include <vector>
@@ -109,6 +110,7 @@ public:
 	{
 		std::vector<Image> images;
 		StudyContours studyContours;
+		CAPAnnotationFile::CardiacAnnotation cardiacAnnotation;
 	};
 
 	struct Output
