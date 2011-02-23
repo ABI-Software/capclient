@@ -318,6 +318,11 @@ void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 		{
 			ReadStudyContours(input.studyContours, cur);
 		}
+		else if (!xmlStrcmp(cur->name, (const xmlChar *)"CardiacAnnotation"))
+		{
+			CAPAnnotationFile annoFile(""); // instantiate a dummy object to use its method
+			annoFile.ReadCardiacAnnotation(input.cardiacAnnotation, cur);
+		}
 		cur = cur->next;
 	} 
 	// Sort images by frame
@@ -763,6 +768,9 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	xmlNodePtr inputNode = xmlNewChild(root_node, NULL , BAD_CAST "Input", NULL);	
 	std::for_each(input_.images.begin(), input_.images.end(),
 			boost::bind(ConstructImageSubtree, _1, inputNode));
+	ContructStudyContoursSubtree(input_.studyContours, inputNode);
+	CAPAnnotationFile annoFile("");
+	annoFile.ConstructCardiacAnnotation(input_.cardiacAnnotation, inputNode);
 
 	//CAPXMLOutput
 	xmlNodePtr outputNode = xmlNewChild(root_node, NULL, BAD_CAST "Output", NULL);
