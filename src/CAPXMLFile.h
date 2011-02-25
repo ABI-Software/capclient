@@ -110,7 +110,7 @@ public:
 	{
 		std::vector<Image> images;
 		StudyContours studyContours;
-		CAPAnnotationFile::CardiacAnnotation cardiacAnnotation;
+		CardiacAnnotation cardiacAnnotation;
 	};
 
 	struct Output
@@ -155,7 +155,7 @@ public:
 	void ClearInputAndOutput()
 	{
 		input_.images.clear();
-		input_.cardiacAnnotation = CAPAnnotationFile::CardiacAnnotation();
+		input_.cardiacAnnotation = CardiacAnnotation();
 		input_.studyContours = StudyContours();
 		output_.exnodes.clear();
 		output_.elemFileName = "";

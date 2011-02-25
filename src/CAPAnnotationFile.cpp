@@ -21,9 +21,9 @@ namespace cap
 namespace
 {
 
-CAPAnnotationFile::Coordinates ReadPoint(xmlNodePtr cur)
+Coordinates ReadPoint(xmlNodePtr cur)
 {
-	CAPAnnotationFile::Coordinates point;
+	Coordinates point;
 	point.number = -1; // number is optional: -1 means not present
 	
 	xmlChar* number = xmlGetProp(cur, BAD_CAST "number");
@@ -58,9 +58,9 @@ CAPAnnotationFile::Coordinates ReadPoint(xmlNodePtr cur)
 	return point;
 }
 
-CAPAnnotationFile::Label ReadLabel(xmlNodePtr cur)
+Label ReadLabel(xmlNodePtr cur)
 {
-	CAPAnnotationFile::Label label;
+	Label label;
 	
 	xmlChar* rid = xmlGetProp(cur, BAD_CAST "rid");
 	if (rid == NULL)
@@ -87,9 +87,9 @@ CAPAnnotationFile::Label ReadLabel(xmlNodePtr cur)
 	return label;
 }
 
-CAPAnnotationFile::ROI ReadROI(xmlNodePtr cur)
+ROI ReadROI(xmlNodePtr cur)
 {
-	CAPAnnotationFile::ROI rOI;
+	ROI rOI;
 	
 	cur = cur->xmlChildrenNode;
 	
@@ -97,12 +97,12 @@ CAPAnnotationFile::ROI ReadROI(xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, BAD_CAST "Label"))
 		{
-			CAPAnnotationFile::Label label = ReadLabel(cur);
+			Label label = ReadLabel(cur);
 			rOI.labels.push_back(label);
 		}
 		else if (!xmlStrcmp(cur->name, BAD_CAST "Point"))
 		{
-			CAPAnnotationFile::Coordinates point = ReadPoint(cur);
+			Coordinates point = ReadPoint(cur);
 			rOI.points.push_back(point);
 		}
 		cur = cur->next;
@@ -111,9 +111,9 @@ CAPAnnotationFile::ROI ReadROI(xmlNodePtr cur)
 	return rOI;
 }
 
-CAPAnnotationFile::ImageAnnotation ReadImageAnnotation(xmlNodePtr cur)
+ImageAnnotation ReadImageAnnotation(xmlNodePtr cur)
 {
-	CAPAnnotationFile::ImageAnnotation imageAnnotation;
+	ImageAnnotation imageAnnotation;
 	
 	xmlChar* sopiuid = xmlGetProp(cur, BAD_CAST "sopiuid");
 	imageAnnotation.sopiuid = (char*)sopiuid;
@@ -124,12 +124,12 @@ CAPAnnotationFile::ImageAnnotation ReadImageAnnotation(xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, BAD_CAST "ROI"))
 		{
-			CAPAnnotationFile::ROI rOI = ReadROI(cur);
+			ROI rOI = ReadROI(cur);
 			imageAnnotation.rOIs.push_back(rOI);
 		}
 		else if (!xmlStrcmp(cur->name, BAD_CAST "Label"))
 		{
-			CAPAnnotationFile::Label label = ReadLabel(cur);
+			Label label = ReadLabel(cur);
 			imageAnnotation.labels.push_back(label);
 		}
 		
@@ -201,7 +201,7 @@ void CAPAnnotationFile::ReadFile()
 namespace
 {
 
-void ConstructPoint(CAPAnnotationFile::Coordinates const& coords, xmlNodePtr parentNode)
+void ConstructPoint(Coordinates const& coords, xmlNodePtr parentNode)
 {
 	xmlNodePtr node = xmlNewChild(parentNode, NULL, BAD_CAST "Point", NULL);
 	
@@ -222,7 +222,7 @@ void ConstructPoint(CAPAnnotationFile::Coordinates const& coords, xmlNodePtr par
 	xmlNodeSetContent(y, BAD_CAST y_str.c_str());
 }
 
-void ConstructLabel(CAPAnnotationFile::Label const& label, xmlNodePtr parentNode)
+void ConstructLabel(Label const& label, xmlNodePtr parentNode)
 {
 	xmlNodePtr node = xmlNewChild(parentNode, NULL, BAD_CAST "Label", NULL);
 	xmlNewProp(node, BAD_CAST "rid", BAD_CAST label.rid.c_str());
@@ -231,7 +231,7 @@ void ConstructLabel(CAPAnnotationFile::Label const& label, xmlNodePtr parentNode
 	xmlNodeSetContent(node, BAD_CAST label.label.c_str());
 }
 
-void ConstructROI(CAPAnnotationFile::ROI const& rOI, xmlNodePtr parentNode)
+void ConstructROI(ROI const& rOI, xmlNodePtr parentNode)
 {
 	xmlNodePtr node = xmlNewChild(parentNode, NULL, BAD_CAST "ROI", NULL);
 	
@@ -242,7 +242,7 @@ void ConstructROI(CAPAnnotationFile::ROI const& rOI, xmlNodePtr parentNode)
 		boost::bind(ConstructPoint, _1, node));
 }
 
-void ConstructImageAnnotation(CAPAnnotationFile::ImageAnnotation const& imageAnnotation, xmlNodePtr parentNode)
+void ConstructImageAnnotation(ImageAnnotation const& imageAnnotation, xmlNodePtr parentNode)
 {
 	xmlNodePtr node = xmlNewChild(parentNode, NULL, BAD_CAST "ImageAnnotation", NULL);
 	xmlNewProp(node, BAD_CAST "sopiuid", BAD_CAST imageAnnotation.sopiuid.c_str());

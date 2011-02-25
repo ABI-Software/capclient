@@ -17,45 +17,45 @@
 namespace cap
 {
 
+typedef std::string Scope; // Study/Series/Instance - Image/Slice ??
+
+struct Coordinates
+{
+	double x;
+	double y;
+	int number; //optional
+};
+
+struct Label
+{
+	std::string rid;
+	Scope scope;
+	std::string label;
+};
+
+struct ROI
+{
+	std::vector<Label> labels;
+	std::vector<Coordinates> points;
+};
+
+struct ImageAnnotation
+{
+	std::string sopiuid;
+	
+	std::vector<ROI> rOIs;
+	std::vector<Label> labels;
+};
+
+struct CardiacAnnotation
+{
+	std::string studyiuid;
+	std::vector<ImageAnnotation> imageAnnotations;
+};
+
 class CAPAnnotationFile
 {
-public:
-	typedef std::string Scope; // Study/Series/Instance - Image/Slice ??
-	
-	struct Coordinates
-	{
-		double x;
-		double y;
-		int number; //optional
-	};
-	
-	struct Label
-	{
-		std::string rid;
-		Scope scope;
-		std::string label;
-	};
-	
-	struct ROI
-	{
-		std::vector<Label> labels;
-		std::vector<Coordinates> points;
-	};
-	
-	struct ImageAnnotation
-	{
-		std::string sopiuid;
-		
-		std::vector<ROI> rOIs;
-		std::vector<Label> labels;
-	};
-	
-	struct CardiacAnnotation
-	{
-		std::string studyiuid;
-		std::vector<ImageAnnotation> imageAnnotations;
-	};
-	
+public:	
 	CardiacAnnotation const& GetCardiacAnnotation() const
 	{
 		return cardiacAnnotation_;
