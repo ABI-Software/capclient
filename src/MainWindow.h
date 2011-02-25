@@ -26,6 +26,7 @@ class ImageSet;
 class CmguiManager;
 class CAPModeller;
 class CAPXMLFile;
+class CAPAnnotationFile;
 
 class MainWindow : public wxFrame, public ImageBrowseWindowClient
 {
@@ -81,8 +82,6 @@ private:
 	
 	void LoadImages();
 	
-	void RenderIsoSurfaces();
-	
 	void LoadTemplateHeartModel(std::string const& dirOnly, std::string const& prefix);
 	
 	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames);
@@ -134,6 +133,7 @@ private:
 	void OnAbout(wxCommandEvent& event);
 	void OnOpenImages(wxCommandEvent& event);
 	void OnOpenModel(wxCommandEvent& event);
+	void OnOpenAnnotation(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnExportModel(wxCommandEvent& event);
@@ -169,6 +169,7 @@ private:
 
 	MainWindowState mainWindowState_;
 	boost::scoped_ptr<CAPXMLFile> capXMLFilePtr_;
+	boost::scoped_ptr<CAPAnnotationFile> capAnnotationFilePtr_;
 };
 
 } // end namespace cap
