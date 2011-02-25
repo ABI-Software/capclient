@@ -22,6 +22,9 @@ bool HandleEula()
 	return true;
 }
 
+#include "AnnotationWindow.h"
+#include "AnnotationEditor.h"
+
 int main(int argc,char *argv[])
 {	
 #if defined (DARWIN)
@@ -64,11 +67,14 @@ int main(int argc,char *argv[])
 			
 			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
 			
-			if (!HandleEula())
-				return 0;
+//			if (!HandleEula())
+//				return 0;
 			
-			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
-			frame->Show(true);
+//			cap::AnnotationEditor editor;
+//			cap::AnnotationWindow* anno = new cap::AnnotationWindow(editor);
+//			anno->Show(true);
+//			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
+//			frame->Show(true);
 			Cmiss_context_run_main_loop(context);//app.OnRun()
 		}
 		Cmiss_context_destroy(&context);

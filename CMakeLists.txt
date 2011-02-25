@@ -67,6 +67,8 @@ SET(SRCS
   src/PlatformInfo.cpp
   src/CAPContour.cpp
   src/CmguiImageSliceGraphics.cpp
+  src/AnnotationWindow.cpp
+  src/AnnotationEditor.cpp
   #src/DataSet.cpp
 )
 
@@ -195,6 +197,8 @@ SET(UNIT_TEST_MODELLER_SRC
 SET(UNIT_TEST_ANNOTATION_SRC
   test/UnitTestCAPAnnotationFile.cpp
   src/CAPAnnotationFile.cpp
+  test/UnitTestAnnotationEditor.cpp
+  src/AnnotationEditor.cpp
 )
 
 ADD_EXECUTABLE(test/UnitTest ${UNIT_TEST_SRC})

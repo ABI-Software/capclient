@@ -33,7 +33,7 @@ TEST(CAPAnnotationFile, ReadXML)
 	
 	EXPECT_EQ(anno.cardiacAnnotation_.imageAnnotations.size(), 234);
 	
-	CAPAnnotationFile::ImageAnnotation& imageAnnotation =
+	ImageAnnotation& imageAnnotation =
 			anno.cardiacAnnotation_.imageAnnotations.at(0);
 	
 	EXPECT_EQ(imageAnnotation.sopiuid, 
@@ -65,7 +65,7 @@ TEST(CAPAnnotationFile, WriteXML)
 	EXPECT_EQ(anno.cardiacAnnotation_.studyiuid, anno2.cardiacAnnotation_.studyiuid);
 	EXPECT_EQ(anno.cardiacAnnotation_.imageAnnotations.size(), anno2.cardiacAnnotation_.imageAnnotations.size());
 	
-	CAPAnnotationFile::ImageAnnotation& imageAnnotation =
+	ImageAnnotation& imageAnnotation =
 				anno2.cardiacAnnotation_.imageAnnotations.at(0);
 		
 	EXPECT_EQ(imageAnnotation.sopiuid, 
