@@ -41,13 +41,17 @@ class ImageBrowseWindowClient;
 class ImageBrowseWindow : public wxFrame
 {
 public:
+	typedef std::map<std::string, DICOMPtr> DICOMTable;
+	typedef std::map<std::string, Cmiss_texture_id> TextureTable;
+	
 	ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager ,ImageBrowseWindowClient&);
 	ImageBrowseWindow(SlicesWithImages const& slicesWithImages, CmguiManager const& manager, ImageBrowseWindowClient&);
+	ImageBrowseWindow(DICOMTable const& dicomFileTable, TextureTable const& textureTable, CmguiManager const& manager, ImageBrowseWindowClient&);
 	virtual ~ImageBrowseWindow();
 	
 private:
 	typedef std::pair<int, double> SliceKeyType;
-	typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
+//	typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 	typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap;
 	typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
 	
@@ -111,8 +115,8 @@ private:
 	TextureMap textureMap_; // this could be merged with sliceMap_
 	std::vector<Cmiss_texture_id> const* texturesCurrentlyOnDisplay_;
 	
-	typedef std::map<std::string, DICOMPtr> DICOMTable;
-	typedef std::map<std::string, Cmiss_texture_id> TextureTable;
+//	typedef std::map<std::string, DICOMPtr> DICOMTable;
+//	typedef std::map<std::string, Cmiss_texture_id> TextureTable;
 	DICOMTable dicomFileTable_; // unsorted list of all dicom files
 	TextureTable textureTable_; // unsorted list of all textures
 	

@@ -155,6 +155,8 @@ public:
 	void ClearInputAndOutput()
 	{
 		input_.images.clear();
+		input_.cardiacAnnotation = CAPAnnotationFile::CardiacAnnotation();
+		input_.studyContours = StudyContours();
 		output_.exnodes.clear();
 		output_.elemFileName = "";
 	}

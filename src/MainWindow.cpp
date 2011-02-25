@@ -327,6 +327,9 @@ Widget* MainWindow::GetWidgetByName(std::string const& name)
 
 void MainWindow::EnterInitState()
 {
+	// TODO also set the state of the ui to the init state
+	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
+	
 	// Put the gui in the init state
 	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(false);
 	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(false);
@@ -349,13 +352,26 @@ void MainWindow::EnterInitState()
 	Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
 
 	// Also clean up cmgui objects such as scene, regions, materials ..etc
+	capXMLFilePtr_.reset(0);
+	capAnnotationFilePtr_.reset(0);
+	if(imageSet_)
+	{
+		delete imageSet_;
+		imageSet_ = 0;
+	}
+	heartModelPtr_.reset(0);
+	objectList_->Clear();
 
 	mainWindowState_ = INIT_STATE;
 }
 
 void MainWindow::EnterImagesLoadedState()
 {
+	// TODO also set the state of the ui to the init state
+	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
+	
 	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
+	GetWidgetByName<wxSlider>("AnimationSlider")->SetValue(0);
 	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
 	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
 	GetWidgetByName<wxButton>("HideShowAll")->Enable(true);
@@ -392,6 +408,9 @@ void MainWindow::EnterImagesLoadedState()
 
 void MainWindow::EnterModelLoadedState()
 {
+	// TODO also set the state of the ui to the init state
+	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
+	
 	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
 	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
 	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
@@ -1139,14 +1158,39 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-		CAPAnnotationFile annotationFile(filename.c_str());
+		CAPAnnotationFile* annotationFile = new CAPAnnotationFile(filename.c_str());
 		std::cout << "Start reading xml file\n";
-		annotationFile.ReadFile();
+		annotationFile->ReadFile();
 		
 		// Create DICOMTable (filename -> DICOMImage map)
 		// Create TextureTable (filename -> Cmiss_texture* map)
 		
-		// Open Image Browse Window
+		// check if a valid file 
+		if (annotationFile->GetCardiacAnnotation().imageAnnotations.empty())
+		{
+			cout << "Invalid Annotation File\n";
+			return;
+		}
+		
+		const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
+		if ( !dirname.empty() )
+		{
+			std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
+		}
+		else
+		{
+			// User cancelled the operation
+			cout << "Invalid directory\n";
+			return;
+		}
+		
+		EnterInitState();
+		capAnnotationFilePtr_.reset(annotationFile);
+		
+		ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
+		frame->Show(true);
+		
+		// Set annotations to the images in the ImageBrowseWindow.
 	}
 }
 

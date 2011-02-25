@@ -214,6 +214,15 @@ ImageBrowseWindow::ImageBrowseWindow(SlicesWithImages const& slicesWithImages, C
 	FitWindow();
 }
 
+ImageBrowseWindow::ImageBrowseWindow(DICOMTable const& dicomFileTable, TextureTable const& textureTable, CmguiManager const& manager, ImageBrowseWindowClient& client)
+:
+		dicomFileTable_(dicomFileTable),
+		textureTable_(textureTable),
+		cmguiManager_(manager),
+		client_(client)
+{	
+}
+
 void ImageBrowseWindow::LoadWindowLayout()
 {
 	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");

@@ -182,6 +182,7 @@ SET(UNIT_TEST_SRC
   test/UnitTestCAPXMLFile.cpp
   src/CAPXMLFile.cpp
   test/UnitTestImageSet.cpp
+  src/CAPAnnotationFile.cpp
 )
 
 SET(UNIT_TEST_MODELLER_SRC
