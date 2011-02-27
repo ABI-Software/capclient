@@ -11,6 +11,7 @@
 #include "CAPMath.h"
 #include "DICOMImage.h"
 #include "FileSystem.h"
+#include "SliceInfo.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
@@ -325,65 +326,65 @@ public:
 		// TODO update CardiacAnnotation
 	}
 
-//	void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
-//	{
-//		std::cout << __func__ << '\n';
-//		// construct the data structure of type SlicesWithImages to pass to the main window
-//		SlicesWithImages slices;
-//		int shortAxisCount = 1;
-//		int longAxisCount = 1;
-//		long index = imageTable_->GetItemCount() - 1;
-//		while (index >= 0) // iterate from the bottom of the list ( to be compatible with CIM's setup)
-//		{
-//			std::string label = GetCellContentsString(index, LABEL_COLUMN_INDEX);
-//			std::cout << "index = " << index << ", label = " << label << '\n';
-//			if (label.length())
-//			{
-//				long ptr = imageTable_->GetItemData(index);
-//				SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(ptr);
-//				SliceKeyType const& key = sliceValuePtr->first;
-//				std::string sliceName;
-//				if (label == "Short Axis")
-//				{
-//					sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
-//				}
-//				else // (label == "Long Axis"
-//				{
-//					sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
-//				}
-//				SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
-//				slices.push_back(sliceInfo);
-//			}
-//			index--;
-//		}
-//		
-//		if (longAxisCount >= 10)
-//		{
-//			std::cout << "TOO MANY LONG AXES\n";
-//			wxMessageBox("Too many long axes slices", "Invalid selection",
-//					wxOK, this);
-//			return;
-//		}
-//		if (shortAxisCount >= 30)
-//		{
-//			std::cout << "TOO MANY SHORT AXES\n";
-//			wxMessageBox("Too many short axes slices", "Invalid selection",
-//					wxOK, this);
-//			return;
-//		}
-//		
-//		std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
-//
-//		std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-//		if (slices.empty())
-//		{
-//			std::cout << "Empty image set.\n";
-//			return;
-//		}
-//		
+	void OnOKButtonEvent()
+	{
+		std::cout << __func__ << '\n';
+		// construct the data structure of type SlicesWithImages to pass to the main window
+		SlicesWithImages slices;
+		
+		std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
+		
+		int shortAxisCount = 1;
+		int longAxisCount = 1;
+		
+		typedef std::pair<std::string, long int> LabelPair;
+		BOOST_FOREACH(LabelPair const& labelPair, labels)
+		{
+			SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(labelPair.second);
+			SliceKeyType const& key = sliceValuePtr->first;
+			std::string sliceName;
+			std::string const& label = labelPair.first;
+			if (label == "Short Axis")
+			{
+				sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
+			}
+			else if (label == "Long Axis")
+			{
+				sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
+			}
+			else
+			{
+				throw std::logic_error("Invalid label : " + label);
+			}
+			SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
+			slices.push_back(sliceInfo);
+		}
+		
+		if (longAxisCount >= 10)
+		{
+			std::cout << "TOO MANY LONG AXES\n";
+			gui_->CreateMessageBox("Too many long axes slices", "Invalid selection");
+			return;
+		}
+		if (shortAxisCount >= 30)
+		{
+			std::cout << "TOO MANY SHORT AXES\n";
+			gui_->CreateMessageBox("Too many short axes slices", "Invalid selection");
+			return;
+		}
+		
+		std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
+
+		std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
+		if (slices.empty())
+		{
+			std::cout << "Empty image set.\n";
+			return;
+		}
+		
 //		client_.LoadImagesFromImageBrowseWindow(slices);
-//		Close();
-//	}
+		gui_->Close();
+	}
 
 //	void ImageBrowseWindow::OnCancelButtonEvent(wxCommandEvent& event)
 //	{
