@@ -67,16 +67,16 @@ public:
 	void CreateMessageBox(std::string const& message, std::string const& caption);
 	
 	std::vector<std::pair<std::string, long int> > GetListOfLabelsFromImageTable() const;
-			
+	
+	void LoadWindowLayout();
+	void CreatePreviewPanel();
+	void FitWindow();
+	
 private:
 	typedef std::pair<int, double> SliceKeyType;
 //	typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 	typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap;
 	typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
-	
-	void LoadWindowLayout();
-	void CreatePreviewPanel();
-	void FitWindow();
 	
 	std::string GetCellContentsString( long row_number, int column ) const;
 	void CreateImageTableColumns();

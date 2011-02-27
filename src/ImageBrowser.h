@@ -12,6 +12,8 @@
 #include "DICOMImage.h"
 #include "FileSystem.h"
 #include "SliceInfo.h"
+#include "ImageBrowseWindowClient.h"
+#include "CmguiManager.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
@@ -21,6 +23,7 @@
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
+#include <iostream>
 
 struct Cmiss_texture;
 typedef struct Cmiss_texture* Cmiss_texture_id;
@@ -35,13 +38,45 @@ typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
 typedef std::map<std::string, DICOMPtr> DICOMTable;
 typedef std::map<std::string, Cmiss_texture_id> TextureTable;
 
-template <typename ImageBrowseWindow>
+template <typename ImageBrowseWindow, typename CmguiManager>
 class ImageBrowser
 {
 public:
+	
+	ImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
+	:
+		archiveFilename_(archiveFilename),
+		cmguiManager_(manager),
+		client_(client),
+		texturesCurrentlyOnDisplay_(0),
+		sortingMode_(SERIES_NUMBER)
+	{
+	}
+	
 	void SetImageBrowseWindow(ImageBrowseWindow* gui)
 	{
 		gui_ = gui;
+	}
+	
+	void Initialize() // Should be called after the call to SetImageBrowseWindow
+	{
+		assert(gui_);
+		
+		gui_->LoadWindowLayout();
+		gui_->CreatePreviewPanel();
+		
+		ReadInDICOMFiles(); // This reads the dicom header and populates dicomFileTable_
+		if (dicomFileTable_.empty())
+		{
+			std::cout << "No valid DICOM files were found here\n";
+		}
+		else
+		{
+			CreateTexturesFromDICOMFiles();
+			PopulateImageTable();
+		}
+		
+		gui_->FitWindow();
 	}
 	
 	void UpdatePatientInfoPanel(DICOMPtr const& image)
@@ -265,31 +300,30 @@ public:
 		gui_->DestroyProgressDialog(); // REVISE interface 
 	}
 	
-//	void CreateTexturesFromDICOMFiles()
-//	{
-//		using namespace std;
-//		
-//		// load some images and display
-////		ProgressDialog progressDlg("Please wait", "Loading DICOM images",
-////			numberOfDICOMFiles_, this);
-//		gui_->CreateProgressDialog("Please wait", "Loading DICOM images", numberOfDICOMFiles_);
-//		
-//		int count = 0;
-//		BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
-//		{	
-//			const string& filename = value.first;	
-////			Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
-//			textureTable_.insert(make_pair(filename, texture_id));
-//			
-//			count++;
-//			if (!(count % 20))
-//			{
-////				progressDlg.Update(count);
-//				gui_->UpdateProgressDialog(count);
-//			}
-//		}
-//		return;
-//	}
+	void CreateTexturesFromDICOMFiles()
+	{
+		using namespace std;
+		
+		// load some images and display
+		gui_->CreateProgressDialog("Please wait", "Loading DICOM images", numberOfDICOMFiles_);
+		
+		int count = 0;
+		BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
+		{	
+			const string& filename = value.first;	
+			Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
+			textureTable_.insert(make_pair(filename, texture_id));
+			
+			count++;
+			if (!(count % 20))
+			{
+				gui_->UpdateProgressDialog(count);
+			}
+		}
+		
+		gui_->DestroyProgressDialog();
+		return;
+	}
 	
 	void OnAnimationSliderEvent(int value)
 	{
@@ -382,7 +416,7 @@ public:
 			return;
 		}
 		
-//		client_.LoadImagesFromImageBrowseWindow(slices);
+		client_.LoadImagesFromImageBrowseWindow(slices);
 		gui_->Close();
 	}
 
@@ -443,6 +477,9 @@ private:
 	
 	std::string archiveFilename_;
 	size_t numberOfDICOMFiles_;
+	
+	CmguiManager const& cmguiManager_;
+	ImageBrowseWindowClient& client_;
 };
 
 } //namespace cap
