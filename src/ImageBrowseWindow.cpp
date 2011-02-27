@@ -593,7 +593,7 @@ void ImageBrowseWindow::DisplayImage(Cmiss_texture_id tex)
 	return;
 }
 
-std::string ImageBrowseWindow::GetCellContentsString( long row_number, int column )
+std::string ImageBrowseWindow::GetCellContentsString( long row_number, int column ) const
 {
 	wxListItem     row_info;  
 	wxString       cell_contents_string;
@@ -775,50 +775,75 @@ void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 	PutLabelOnSelectedSlice("");
 }
 
+std::vector<std::pair<std::string, long int> > ImageBrowseWindow::GetListOfLabelsFromImageTable() const
+{
+	std::vector<std::pair<std::string, long int> > labels;
+	
+	long index = imageTable_->GetItemCount() - 1;
+	while (index >= 0) // iterate from the bottom of the list ( to be compatible with CIM's setup)
+	{
+		std::string label = GetCellContentsString(index, LABEL_COLUMN_INDEX);
+		std::cout << "index = " << index << ", label = " << label << '\n';		
+		if (label.length())
+		{
+			long ptr = imageTable_->GetItemData(index);
+			labels.push_back(std::make_pair(label, ptr));
+		}
+		index--;
+	}
+	
+	return labels;
+}
+
+void ImageBrowseWindow::CreateMessageBox(std::string const& message, std::string const& caption)
+{
+	wxMessageBox(message.c_str(), caption.c_str(), wxOK, this);
+}
+
 void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 {
 	std::cout << __func__ << '\n';
 	// construct the data structure of type SlicesWithImages to pass to the main window
 	SlicesWithImages slices;
+	
+	std::vector<std::pair<std::string, long int> > labels = GetListOfLabelsFromImageTable();
+	
 	int shortAxisCount = 1;
 	int longAxisCount = 1;
-	long index = imageTable_->GetItemCount() - 1;
-	while (index >= 0) // iterate from the bottom of the list ( to be compatible with CIM's setup)
+	
+	typedef std::pair<std::string, long int> LabelPair;
+	BOOST_FOREACH(LabelPair const& labelPair, labels)
 	{
-		std::string label = GetCellContentsString(index, LABEL_COLUMN_INDEX);
-		std::cout << "index = " << index << ", label = " << label << '\n';
-		if (label.length())
+		SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(labelPair.second);
+		SliceKeyType const& key = sliceValuePtr->first;
+		std::string sliceName;
+		std::string const& label = labelPair.first;
+		if (label == "Short Axis")
 		{
-			long ptr = imageTable_->GetItemData(index);
-			SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(ptr);
-			SliceKeyType const& key = sliceValuePtr->first;
-			std::string sliceName;
-			if (label == "Short Axis")
-			{
-				sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
-			}
-			else // (label == "Long Axis"
-			{
-				sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
-			}
-			SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
-			slices.push_back(sliceInfo);
+			sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
 		}
-		index--;
+		else if (label == "Long Axis")
+		{
+			sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
+		}
+		else
+		{
+			throw std::logic_error("Invalid label : " + label);
+		}
+		SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
+		slices.push_back(sliceInfo);
 	}
 	
 	if (longAxisCount >= 10)
 	{
 		std::cout << "TOO MANY LONG AXES\n";
-		wxMessageBox("Too many long axes slices", "Invalid selection",
-				wxOK, this);
+		CreateMessageBox("Too many long axes slices", "Invalid selection");
 		return;
 	}
 	if (shortAxisCount >= 30)
 	{
 		std::cout << "TOO MANY SHORT AXES\n";
-		wxMessageBox("Too many short axes slices", "Invalid selection",
-				wxOK, this);
+		CreateMessageBox("Too many short axes slices", "Invalid selection");
 		return;
 	}
 	
