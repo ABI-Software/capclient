@@ -16,6 +16,7 @@
     #include "wx/wx.h"
 #endif
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/tr1/memory.hpp>
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@ typedef struct Cmiss_texture* Cmiss_texture_id;
 
 class wxListCtrl;
 class wxListEvent;
+class wxProgressDialog;
 
 namespace cap
 {
@@ -48,6 +50,19 @@ public:
 	ImageBrowseWindow(SlicesWithImages const& slicesWithImages, CmguiManager const& manager, ImageBrowseWindowClient&);
 	ImageBrowseWindow(DICOMTable const& dicomFileTable, TextureTable const& textureTable, CmguiManager const& manager, ImageBrowseWindowClient&);
 	virtual ~ImageBrowseWindow();
+	
+	void SetInfoField(std::string const& fieldName, std::string const& data);
+	void SetAnimationSliderMax(size_t max);
+	void PopulateImageTableRow(int rowNumber,
+			int seriesNumber, std::string const& seriesDescription,
+			std::string const& sequenceName, size_t numImages,
+			long int const& userDataPtr);
+	void SelectFirstRowInImageTable();
+	void ClearImageTable();
+	
+	void CreateProgressDialog(std::string const& title, std::string const& message, int max);
+	void UpdateProgressDialog(int count);
+	void DestroyProgressDialog();
 	
 private:
 	typedef std::pair<int, double> SliceKeyType;
@@ -72,8 +87,6 @@ private:
 	void DisplayImage(Cmiss_texture_id tex);
 	void UpdateImageInfoPanel(DICOMPtr const& image);
 	void UpdatePatientInfoPanel(DICOMPtr const& image);
-	
-	void SetInfoField(std::string const& fieldName, std::string const& data);
 	void PutLabelOnSelectedSlice(std::string const& label);
 	
 	//Event handlers
@@ -121,6 +134,8 @@ private:
 	TextureTable textureTable_; // unsorted list of all textures
 	
 	static const std::string IMAGE_PREVIEW;
+	
+	boost::scoped_ptr<wxProgressDialog> progressDialogPtr_;
 };
 
 } // end namespace cap

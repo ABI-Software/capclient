@@ -22,8 +22,8 @@ bool HandleEula()
 	return true;
 }
 
-#include "AnnotationWindow.h"
-#include "AnnotationEditor.h"
+//#include "AnnotationWindow.h"
+//#include "AnnotationEditor.h"
 
 int main(int argc,char *argv[])
 {	
@@ -73,8 +73,8 @@ int main(int argc,char *argv[])
 //			cap::AnnotationEditor editor;
 //			cap::AnnotationWindow* anno = new cap::AnnotationWindow(editor);
 //			anno->Show(true);
-//			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
-//			frame->Show(true);
+			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
+			frame->Show(true);
 			Cmiss_context_run_main_loop(context);//app.OnRun()
 		}
 		Cmiss_context_destroy(&context);

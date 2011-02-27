@@ -1377,9 +1377,9 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
 	
-	SlicesWithImages const& slicesWithImages = imageSet_->GetSlicesWithImages();
-	ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
-	frame->Show(true);
+//	SlicesWithImages const& slicesWithImages = imageSet_->GetSlicesWithImages();
+//	ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+//	frame->Show(true);
 	
 	return;
 	//// test

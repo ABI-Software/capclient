@@ -277,6 +277,21 @@ ImageBrowseWindow::~ImageBrowseWindow()
 	//TODO : destroy textures??
 }
 
+void ImageBrowseWindow::CreateProgressDialog(std::string const& title, std::string const& message, int max)
+{
+	progressDialogPtr_.reset(new wxProgressDialog(_(title.c_str()), message.c_str(), max, this));
+}
+
+void ImageBrowseWindow::UpdateProgressDialog(int count)
+{
+	progressDialogPtr_->Update(count);
+}
+
+void ImageBrowseWindow::DestroyProgressDialog()
+{
+	progressDialogPtr_.reset(0);
+}
+
 void ImageBrowseWindow::ReadInDICOMFiles()
 {
 	//	std::string dirname = TEST_DIR;
@@ -289,8 +304,9 @@ void ImageBrowseWindow::ReadInDICOMFiles()
 	std::cout << "num files = " << filenames.size() << '\n';
 	numberOfDICOMFiles_ = filenames.size();
 	
-	wxProgressDialog progressDlg(_("Please wait"), _("Analysing DICOM headers"),
-		numberOfDICOMFiles_, this);
+//	wxProgressDialog progressDlg(_("Please wait"), _("Analysing DICOM headers"),
+//		numberOfDICOMFiles_, this);
+	CreateProgressDialog("Please wait", "Analysing DICOM headers", numberOfDICOMFiles_);
 	int count = 0;
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
@@ -311,9 +327,11 @@ void ImageBrowseWindow::ReadInDICOMFiles()
 		count++;
 		if (!(count % 10))
 		{
-			progressDlg.Update(count);
+//			progressDlg.Update(count);
+			UpdateProgressDialog(count);
 		}
 	}
+	DestroyProgressDialog(); // REVISE interface 
 }
 
 void ImageBrowseWindow::SortDICOMFiles()
@@ -367,12 +385,42 @@ void ImageBrowseWindow::SortDICOMFiles()
 	}
 }
 
+void ImageBrowseWindow::PopulateImageTableRow(int rowNumber,
+		int seriesNumber, std::string const& seriesDescription,
+		std::string const& sequenceName, size_t numImages,
+		long int const& userDataPtr)
+{
+	using namespace std;
+	using namespace boost;
+	long itemIndex = imageTable_->InsertItem(rowNumber, lexical_cast<string>(seriesNumber).c_str());
+	long columnIndex = 1;
+	imageTable_->SetItem(itemIndex, columnIndex++, seriesDescription.c_str()); 
+	imageTable_->SetItem(itemIndex, columnIndex++, sequenceName.c_str());
+//		double triggerTime = image->GetTriggerTime();
+//		std::string seriesTime = triggerTime < 0 ? "" : lexical_cast<string>(image->GetTriggerTime());// fix
+//		imageTable_->SetItem(itemIndex, columnIndex++, seriesTime.c_str());
+	imageTable_->SetItem(itemIndex, columnIndex++, lexical_cast<string>(numImages).c_str());
+	
+	imageTable_->SetItemData(itemIndex, userDataPtr); // Check !! is this safe??!!
+}
+
+void ImageBrowseWindow::SelectFirstRowInImageTable()
+{
+	imageTable_->SetItemState(0 , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
+	imageTable_->SetItemState(0 , wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+}
+
+void ImageBrowseWindow::ClearImageTable()
+{
+	imageTable_->ClearAll();
+}
+
 void ImageBrowseWindow::PopulateImageTable()
 {	
 	SortDICOMFiles();
 	ConstructTextureMap();
 	
-	imageTable_->ClearAll();
+	ClearImageTable();
 	CreateImageTableColumns();
 	
 	int rowNumber = 0;
@@ -383,22 +431,22 @@ void ImageBrowseWindow::PopulateImageTable()
 		
 		std::vector<DICOMPtr>& images = value.second;
 		DICOMPtr image = images[0];
-		long itemIndex = imageTable_->InsertItem(rowNumber, lexical_cast<string>(image->GetSeriesNumber()).c_str());
-		long columnIndex = 1;
-		imageTable_->SetItem(itemIndex, columnIndex++, image->GetSeriesDescription().c_str()); 
-		imageTable_->SetItem(itemIndex, columnIndex++, image->GetSequenceName().c_str());
-//		double triggerTime = image->GetTriggerTime();
-//		std::string seriesTime = triggerTime < 0 ? "" : lexical_cast<string>(image->GetTriggerTime());// fix
-//		imageTable_->SetItem(itemIndex, columnIndex++, seriesTime.c_str());
-		imageTable_->SetItem(itemIndex, columnIndex++, lexical_cast<string>(value.second.size()).c_str());
+		int seriesNumber(image->GetSeriesNumber());
+		std::string const& seriesDescription(image->GetSeriesDescription());
+		std::string const& sequenceName(image->GetSequenceName());
+		size_t numImages = images.size();
+		long int userDataPtr = reinterpret_cast<long int>(&value);
 		
-		imageTable_->SetItemData(itemIndex, reinterpret_cast<long int>(&value)); // Check !! is this safe??!!
+		PopulateImageTableRow(rowNumber,
+				seriesNumber, seriesDescription,
+				sequenceName, numImages,
+				userDataPtr);
+		
 		rowNumber++;
 	}
 	
 	// Set the selection to the first item in the list
-	imageTable_->SetItemState(0 , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
-	imageTable_->SetItemState(0 , wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	SelectFirstRowInImageTable();
 	
 //	imageTable_->SetScrollPos(wxVERTICAL, 0); // This does not work on wxListCtrl!
 	
@@ -454,6 +502,26 @@ void ImageBrowseWindow::ConstructTextureMap()
 	return;
 }
 
+void ImageBrowseWindow::SetAnimationSliderMax(size_t max)
+{
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+	assert(slider);	
+	if (max == 1)
+	{
+		// special case where a slice contains only 1 image
+		slider->Enable(false);
+		slider->SetMin(1);
+		slider->SetMax(2); // gtk requires max > min
+	}
+	else
+	{
+		slider->Enable(true);
+		slider->SetMin(1);
+		slider->SetMax(max);
+		slider->SetValue(1);
+	}
+}
+
 void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 {
 //	std::cout << __func__ << '\n';
@@ -467,22 +535,7 @@ void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	UpdateImageInfoPanel(images[0]); // should rename to Series Info?
 	
 	// Update image preview panel
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	assert(slider);	
-	if (images.size() == 1)
-	{
-		// special case where a slice contains only 1 image
-		slider->Enable(false);
-		slider->SetMin(1);
-		slider->SetMax(2); // gtk requires max > min
-	}
-	else
-	{
-		slider->Enable(true);
-		slider->SetMin(1);
-		slider->SetMax(images.size());
-		slider->SetValue(1);
-	}
+	SetAnimationSliderMax(images.size());
 	
 	// Resize the rectangular cmgui model
 	// according to the new dimensions
@@ -582,7 +635,7 @@ void ImageBrowseWindow::UpdatePatientInfoPanel(DICOMPtr const& image)
 	string const& age = image->GetAge();
 	SetInfoField("GenderAndAge", gender + " " + age);
 	
-	//FIX temporory
+	//FIX temporory this should move to a separate function
 	wxChoice* choice = XRCCTRL(*this, "m_choice1", wxChoice);
 	choice->Clear();
 	choice->Append((id + " " + scanDate).c_str());
