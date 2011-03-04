@@ -54,6 +54,7 @@ public:
 	Scene_object* AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 			Cmiss_material_id material, std::string const& regionName) const;
 
+	void DestroyTexture(Cmiss_texture_id) const;
 private:
 	Cmiss_context_id cmissContext_;
 

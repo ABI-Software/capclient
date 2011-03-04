@@ -325,10 +325,20 @@ public:
 		return;
 	}
 	
-	void OnAnimationSliderEvent(int value)
+	void OnImageTableItemSelected(long int userDataPtr)
 	{
-		int textureIndex = value - 1; // tex index is 0 based while slider value is 1 based
-		
+		SliceMap::value_type* const sliceValuePtr = 
+				reinterpret_cast<SliceMap::value_type* const>(userDataPtr);
+		//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
+		//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
+		//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
+				
+		// Display the images from the selected row.
+		SwitchSliceToDisplay(*sliceValuePtr);
+	}
+	
+	void OnAnimationSliderEvent(int value)
+	{	
 		gui_->DisplayImage((*texturesCurrentlyOnDisplay_)[value-1]);
 		
 		// force redraw while silder is manipulated
@@ -420,19 +430,19 @@ public:
 		gui_->Close();
 	}
 
-//	void ImageBrowseWindow::OnCancelButtonEvent(wxCommandEvent& event)
-//	{
-//		//TODO Cleanup textures - REVISE design
-//		// Should probably use reference counted smart pointer for Cmiss_texture
-//		// Since the ownership is shared between ImageSlice and this (ImageBrowseWindow)
-//		
-//		BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-//		{
-//			Cmiss_texture_id tex = value.second;
-//			DESTROY(Texture)(&tex);
-//		}
+	void OnCancelButtonEvent()
+	{
+		//TODO Cleanup textures - REVISE design
+		// Should probably use reference counted smart pointer for Cmiss_texture
+		// Since the ownership is shared between ImageSlice and this (ImageBrowseWindow)
+		
+		BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+		{
+			Cmiss_texture_id tex = value.second;
+			cmguiManager_.DestroyTexture(tex);
+		}
 //		Close();
-//	}
+	}
 
 	void OnOrderByRadioBox(int event)
 	{
@@ -481,6 +491,19 @@ private:
 	CmguiManager const& cmguiManager_;
 	ImageBrowseWindowClient& client_;
 };
+
+template <typename ImageBrowseWindow, typename CmguiManager>
+ImageBrowser<ImageBrowseWindow, CmguiManager>*
+CreateImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
+{
+	ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = new ImageBrowser<ImageBrowseWindow, CmguiManager>(archiveFilename, manager, client);
+	ImageBrowseWindow* frame = new ImageBrowseWindow(*ib, manager);
+	frame->Show(true);
+	ib->SetImageBrowseWindow(frame);
+	ib->Initialize();
+	
+	return ib;
+}
 
 } //namespace cap
 

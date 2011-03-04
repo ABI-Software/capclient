@@ -12,6 +12,7 @@
 #include "ImageSetBuilder.h"
 #include "ImageSet.h"
 #include "CmguiExtensions.h"
+#include "ImageBrowser.h"
 #include "ImageBrowseWindow.h"
 #include "UserCommentDialog.h"
 #include "CAPHtmlWindow.h"
@@ -910,8 +911,11 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 		return;
 	}
 	
-	ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
-	frame->Show(true);
+//	ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
+//	frame->Show(true);
+	ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = 
+				CreateImageBrowser<ImageBrowseWindow, CmguiManager>(std::string(dirname.c_str()), cmguiManager_, *this);
+		
 }
 
 void MainWindow::LoadImages(SlicesWithImages const& slices)
@@ -1106,8 +1110,22 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 			modeller_->SetDataPoints(dataPoints);
 			// FIXME memory is prematurely released when ok button is pressed from the following window
 			// Suppress this feature for now
-			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
-			frame->Show(true);
+//			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+//			frame->Show(true);
+			
+			//HACK : uncommenting the following will enable models to be constructed from model files with
+			// only the input element defined.
+//			EnterModelLoadedState();
+//			
+//			wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
+//
+//			for (size_t i = 1; i < 5; i++)
+//			{
+//				choice->Append(ModeStrings[i]);
+//			}
+//			choice->SetSelection(CAPModeller::GUIDEPOINT);
+//			RefreshCmguiCanvas();
+			
 			return;
 		}
 		
@@ -1187,8 +1205,8 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 		EnterInitState();
 		capAnnotationFilePtr_.reset(annotationFile);
 		
-		ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
-		frame->Show(true);
+//		ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
+//		frame->Show(true);
 		
 		// Set annotations to the images in the ImageBrowseWindow.
 	}
