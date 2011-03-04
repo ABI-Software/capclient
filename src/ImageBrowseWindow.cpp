@@ -38,69 +38,6 @@ extern "C"
 
 namespace
 {
-
-int FitSceneViewer(Cmiss_scene_viewer_id scene_viewer, double radius)
-{
-	double centre_x, centre_y, centre_z, clip_factor, //radius,
-		size_x, size_y, size_z, width_factor;
-	int return_code;
-
-	if (scene_viewer)
-	{	
-		Scene_get_graphics_range(Scene_viewer_get_scene(scene_viewer),
-			&centre_x,&centre_y,&centre_z,&size_x,&size_y,&size_z);
-//		radius = 0.3*sqrt(size_x*size_x + size_y*size_y + size_z*size_z);
-		
-		/* enlarge radius to keep image within edge of window */
-		/*???RC width_factor should be read in from defaults file */
-		width_factor = 1.05;
-		radius *= width_factor;
-			
-		/*???RC clip_factor should be read in from defaults file: */
-		clip_factor = 10.0;		
-		return_code = Scene_viewer_set_view_simple(scene_viewer, centre_x, centre_y,
-			centre_z, radius, 40, clip_factor*radius);		
-	}
-	else
-	{
-		display_message(ERROR_MESSAGE,
-			"Scene_viewer_view_all.  Invalid argument(s)");
-		return_code=0;
-	}
-
-	return (return_code);
-} 
-
-std::vector<std::string> EnumerateAllFiles(const std::string& dirname)
-{
-	using std::vector;
-	using std::string;
-	
-	wxString wxDirname(dirname.c_str());
-	wxDir dir(wxDirname);
-
-	if ( !dir.IsOpened() )
-	{
-		// deal with the error here - wxDir would already log an error message
-		// explaining the exact reason of the failure
-		return vector<string>();
-	}
-
-	puts("Enumerating files in current directory:");
-
-	vector<string> filenames;
-	wxString filename;
-
-	bool cont = dir.GetFirst(&filename, "", wxDIR_FILES);
-	while ( cont )
-	{
-		printf("%s\n", filename.c_str());
-		filenames.push_back(filename.c_str());
-		cont = dir.GetNext(&filename);
-	}
-	return filenames;
-}
-
 //const char* TEST_DIR = "./temp/XMLZipTest";
 static long const LABEL_COLUMN_INDEX = 4;
 
@@ -117,111 +54,93 @@ static int dummy_input_callback(struct Scene_viewer *scene_viewer,
 	return 0; // returning false means don't call the other input handlers;
 }
 
-ImageBrowseWindow::ImageBrowseWindow(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
-:
-	archiveFilename_(archiveFilename),
-	texturesCurrentlyOnDisplay_(0),
-	cmguiManager_(manager),
-	client_(client),
-	sortingMode_(SERIES_NUMBER)
-{	
-	LoadWindowLayout();
-	CreatePreviewPanel();
-	
-	ReadInDICOMFiles(); // This reads the dicom header and populates dicomFileTable_
-	if (dicomFileTable_.empty())
-	{
-		std::cout << "No valid DICOM files were found here\n";
-	}
-	else
-	{
-		CreateTexturesFromDICOMFiles();
-		PopulateImageTable();
-	}
-	
-	FitWindow();
-}
 
-ImageBrowseWindow::ImageBrowseWindow(SlicesWithImages const& slicesWithImages, CmguiManager const& manager, ImageBrowseWindowClient& client)
-:
-	texturesCurrentlyOnDisplay_(0),
-	cmguiManager_(manager),
-	client_(client),
-	sortingMode_(SERIES_NUMBER)
-{	
-	LoadWindowLayout();
-	CreatePreviewPanel();
-	
-	std::set<int> setOfSeriesNumbers;
-	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
-	{
-		size_t numberOfFrames = sliceInfo.GetDICOMImages().size();
-		assert(numberOfFrames);
-		for (size_t i = 0; i < numberOfFrames; ++i)
-		{
-			// Need to assign unigue id for each image (here we use the file name)
-			// this id is used to map a DICOMFile object to its corresponding Cmiss_texture
-			DICOMPtr const& dicomPtr = sliceInfo.GetDICOMImages().at(i);
-			std::string const& filename = dicomPtr->GetFilename();
-			dicomFileTable_.insert(std::make_pair(filename, dicomPtr));
-			Cmiss_texture_id texture = sliceInfo.GetTextures().at(i);
-			textureTable_.insert(std::make_pair(filename, texture));
-		}
-		
-		// Check if sortingMode_ is SERIES_NUMBER or SERIES_NUMBER_AND_IMAGE_POSITION
-		// by looking at whether images from any two slices share the same series number
-		DICOMPtr const& dicomPtr = sliceInfo.GetDICOMImages().at(0);
-		int seriesNumber = dicomPtr->GetSeriesNumber();
-		if (setOfSeriesNumbers.count(seriesNumber))
-		{
-			sortingMode_ = SERIES_NUMBER_AND_IMAGE_POSITION;
-		}
-		setOfSeriesNumbers.insert(seriesNumber);
-	}
-	
-	PopulateImageTable();
-	// Now populate the Image Table with the correct labels
-	// Since the sliceMap may not be in the same sort order as slicesWithImages,
-	// We need to map the two 
-	// TODO: revise the data structures used so this mapping is not needed?
-	long index = 0;
-	BOOST_FOREACH(SliceMap::value_type const& value, sliceMap_)
-	{
-		// find the matching slice in the SlicesWithImages
-		// Not that this is O(n^2) operation but should be ok as the number of slices are usually small (20~40)
-		std::string const& filename1 = value.second.at(0)->GetSopInstanceUID();
-		BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
-		{
-			std::string const& filename2 = sliceInfo.GetDICOMImages().at(0)->GetSopInstanceUID();
-			if (filename1 == filename2) // matching slices
-			{
-				std::string const& label = sliceInfo.GetLabel();
-				std::string longLabel;
-				if (label.find("LA") == 0)
-				{
-					longLabel = "Long Axis";
-				}
-				else if (label.find("SA") == 0)
-				{
-					longLabel = "Short Axis";
-				}
-				imageTable_->SetItem(index, LABEL_COLUMN_INDEX, longLabel.c_str());
-				index ++;
-			}
-		}
-	}
-	
-	FitWindow();
-}
+//ImageBrowseWindow::ImageBrowseWindow(SlicesWithImages const& slicesWithImages, CmguiManager const& manager, ImageBrowseWindowClient& client)
+//:
+//	texturesCurrentlyOnDisplay_(0),
+//	cmguiManager_(manager),
+//	client_(client),
+//	sortingMode_(SERIES_NUMBER)
+//{	
+//	LoadWindowLayout();
+//	CreatePreviewPanel();
+//	
+//	std::set<int> setOfSeriesNumbers;
+//	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
+//	{
+//		size_t numberOfFrames = sliceInfo.GetDICOMImages().size();
+//		assert(numberOfFrames);
+//		for (size_t i = 0; i < numberOfFrames; ++i)
+//		{
+//			// Need to assign unigue id for each image (here we use the file name)
+//			// this id is used to map a DICOMFile object to its corresponding Cmiss_texture
+//			DICOMPtr const& dicomPtr = sliceInfo.GetDICOMImages().at(i);
+//			std::string const& filename = dicomPtr->GetFilename();
+//			dicomFileTable_.insert(std::make_pair(filename, dicomPtr));
+//			Cmiss_texture_id texture = sliceInfo.GetTextures().at(i);
+//			textureTable_.insert(std::make_pair(filename, texture));
+//		}
+//		
+//		// Check if sortingMode_ is SERIES_NUMBER or SERIES_NUMBER_AND_IMAGE_POSITION
+//		// by looking at whether images from any two slices share the same series number
+//		DICOMPtr const& dicomPtr = sliceInfo.GetDICOMImages().at(0);
+//		int seriesNumber = dicomPtr->GetSeriesNumber();
+//		if (setOfSeriesNumbers.count(seriesNumber))
+//		{
+//			sortingMode_ = SERIES_NUMBER_AND_IMAGE_POSITION;
+//		}
+//		setOfSeriesNumbers.insert(seriesNumber);
+//	}
+//	
+//	PopulateImageTable();
+//	// Now populate the Image Table with the correct labels
+//	// Since the sliceMap may not be in the same sort order as slicesWithImages,
+//	// We need to map the two 
+//	// TODO: revise the data structures used so this mapping is not needed?
+//	long index = 0;
+//	BOOST_FOREACH(SliceMap::value_type const& value, sliceMap_)
+//	{
+//		// find the matching slice in the SlicesWithImages
+//		// Not that this is O(n^2) operation but should be ok as the number of slices are usually small (20~40)
+//		std::string const& filename1 = value.second.at(0)->GetSopInstanceUID();
+//		BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
+//		{
+//			std::string const& filename2 = sliceInfo.GetDICOMImages().at(0)->GetSopInstanceUID();
+//			if (filename1 == filename2) // matching slices
+//			{
+//				std::string const& label = sliceInfo.GetLabel();
+//				std::string longLabel;
+//				if (label.find("LA") == 0)
+//				{
+//					longLabel = "Long Axis";
+//				}
+//				else if (label.find("SA") == 0)
+//				{
+//					longLabel = "Short Axis";
+//				}
+//				imageTable_->SetItem(index, LABEL_COLUMN_INDEX, longLabel.c_str());
+//				index ++;
+//			}
+//		}
+//	}
+//	
+//	FitWindow();
+//}
 
-ImageBrowseWindow::ImageBrowseWindow(DICOMTable const& dicomFileTable, TextureTable const& textureTable, CmguiManager const& manager, ImageBrowseWindowClient& client)
+//ImageBrowseWindow::ImageBrowseWindow(DICOMTable const& dicomFileTable, TextureTable const& textureTable, CmguiManager const& manager, ImageBrowseWindowClient& client)
+//:
+//		dicomFileTable_(dicomFileTable),
+//		textureTable_(textureTable),
+//		cmguiManager_(manager),
+//		client_(client)
+//{	
+//}
+
+ImageBrowseWindow::ImageBrowseWindow(ImageBrowser<ImageBrowseWindow, CmguiManager>& browser, CmguiManager const& manager)
 :
-		dicomFileTable_(dicomFileTable),
-		textureTable_(textureTable),
-		cmguiManager_(manager),
-		client_(client)
-{	
-}
+		browser_(browser),
+		cmguiManager_(manager)
+{}
 
 void ImageBrowseWindow::LoadWindowLayout()
 {
@@ -292,99 +211,6 @@ void ImageBrowseWindow::DestroyProgressDialog()
 	progressDialogPtr_.reset(0);
 }
 
-void ImageBrowseWindow::ReadInDICOMFiles()
-{
-	//	std::string dirname = TEST_DIR;
-	// TODO unzip archive file
-	// for now we assume the archive has already been unzipped
-	// and archiveFilename points to the containing dir
-	std::string const& dirname = archiveFilename_;
-	std::vector<std::string> const& filenames = EnumerateAllFiles(dirname);
-	
-	std::cout << "num files = " << filenames.size() << '\n';
-	numberOfDICOMFiles_ = filenames.size();
-	
-//	wxProgressDialog progressDlg(_("Please wait"), _("Analysing DICOM headers"),
-//		numberOfDICOMFiles_, this);
-	CreateProgressDialog("Please wait", "Analysing DICOM headers", numberOfDICOMFiles_);
-	int count = 0;
-	BOOST_FOREACH(std::string const& filename, filenames)
-	{
-//		std::cout << filename <<'\n';
-		std::string fullpath = dirname + "/" + filename;
-//		std::cout << fullpath <<'\n';
-		try
-		{
-			DICOMPtr dicomFile(new DICOMImage(fullpath));
-			dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
-		}
-		catch (std::exception& e)
-		{
-			// This is not a DICOM file
-			std::cout << "Invalid DICOM file : " << filename << '\n';
-		}
-		
-		count++;
-		if (!(count % 10))
-		{
-//			progressDlg.Update(count);
-			UpdateProgressDialog(count);
-		}
-	}
-	DestroyProgressDialog(); // REVISE interface 
-}
-
-void ImageBrowseWindow::SortDICOMFiles()
-{	
-	sliceMap_.clear();
-	BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
-	{
-		DICOMPtr const &dicomFile = value.second;
-		int seriesNum = dicomFile->GetSeriesNumber();
-//		std::cout << "Series Num = " << seriesNum << '\n';
-		double distanceFromOrigin;
-		if (sortingMode_ == SERIES_NUMBER)
-		{
-			// Don't use the position for sorting : set it to 0 for all images
-			distanceFromOrigin = 0.0;
-		}
-		else if (sortingMode_ == SERIES_NUMBER_AND_IMAGE_POSITION)
-		{
-			// Use the dot product of the position and the normal vector
-			// as the measure of the position
-			Vector3D pos = dicomFile->GetImagePosition() - Point3D(0,0,0);
-			std::pair<Vector3D,Vector3D> oris = dicomFile->GetImageOrientation();
-			Vector3D normal = CrossProduct(oris.first, oris.second);
-			normal.Normalise();
-			distanceFromOrigin = - DotProduct(pos, normal);
-		}
-		
-		SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
-		SliceMap::iterator itr = sliceMap_.find(key);
-		if (itr != sliceMap_.end())
-		{
-			itr->second.push_back(dicomFile);
-		}
-		else
-		{
-			std::vector<DICOMPtr> v(1, dicomFile);
-			sliceMap_.insert(std::make_pair(key, v));
-		}
-	}
-	
-	// Sort the dicom images in a slice/series by the instance Number
-	BOOST_FOREACH(SliceMap::value_type& slice, sliceMap_)
-	{
-		std::vector<DICOMPtr>& images = slice.second;
-		// use stable_sort to preserve the order of images in case the instance number element is missing
-		// (in which case the GetInstanceNumber returns -1)
-		std::stable_sort(images.begin(), images.end(), 
-				boost::bind(std::less<int>(),
-						boost::bind(&DICOMImage::GetInstanceNumber, _1),
-						boost::bind(&DICOMImage::GetInstanceNumber, _2)));
-	}
-}
-
 void ImageBrowseWindow::PopulateImageTableRow(int rowNumber,
 		int seriesNumber, std::string const& seriesDescription,
 		std::string const& sequenceName, size_t numImages,
@@ -415,93 +241,6 @@ void ImageBrowseWindow::ClearImageTable()
 	imageTable_->ClearAll();
 }
 
-void ImageBrowseWindow::PopulateImageTable()
-{	
-	SortDICOMFiles();
-	ConstructTextureMap();
-	
-	ClearImageTable();
-	CreateImageTableColumns();
-	
-	int rowNumber = 0;
-	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
-	{
-		using boost::lexical_cast;
-		using std::string;
-		
-		std::vector<DICOMPtr>& images = value.second;
-		DICOMPtr image = images[0];
-		int seriesNumber(image->GetSeriesNumber());
-		std::string const& seriesDescription(image->GetSeriesDescription());
-		std::string const& sequenceName(image->GetSequenceName());
-		size_t numImages = images.size();
-		long int userDataPtr = reinterpret_cast<long int>(&value);
-		
-		PopulateImageTableRow(rowNumber,
-				seriesNumber, seriesDescription,
-				sequenceName, numImages,
-				userDataPtr);
-		
-		rowNumber++;
-	}
-	
-	// Set the selection to the first item in the list
-	SelectFirstRowInImageTable();
-	
-//	imageTable_->SetScrollPos(wxVERTICAL, 0); // This does not work on wxListCtrl!
-	
-	DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
-	UpdatePatientInfoPanel(firstImage);
-}
-
-void ImageBrowseWindow::CreateTexturesFromDICOMFiles()
-{
-	using namespace std;
-	
-	// load some images and display
-	wxProgressDialog progressDlg(_("Please wait"), _("Loading DICOM images"),
-		numberOfDICOMFiles_, this);
-	
-	int count = 0;
-	BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
-	{	
-		const string& filename = value.first;	
-		Cmiss_texture_id texture_id = cmguiManager_.LoadCmissTexture(filename);
-		textureTable_.insert(make_pair(filename, texture_id));
-		
-		count++;
-		if (!(count % 20))
-		{
-			progressDlg.Update(count);
-		}
-	}
-	return;
-}
-
-void ImageBrowseWindow::ConstructTextureMap()
-{
-	using namespace std;
-	
-	textureMap_.clear();
-	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
-	{	
-		vector<DICOMPtr>& images = value.second;
-		vector<DICOMPtr>::const_iterator itr = images.begin();
-		vector<DICOMPtr>::const_iterator end = images.end();
-		vector<Cmiss_texture_id> textures;
-		
-		for (; itr != end; ++itr)
-		{
-			const string& filename = (*itr)->GetFilename();	
-			Cmiss_texture_id texture_id = textureTable_[filename];
-			textures.push_back(texture_id);
-		}
-		
-		textureMap_.insert(make_pair(value.first, textures));
-	}
-	return;
-}
-
 void ImageBrowseWindow::SetAnimationSliderMax(size_t max)
 {
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
@@ -520,34 +259,6 @@ void ImageBrowseWindow::SetAnimationSliderMax(size_t max)
 		slider->SetMax(max);
 		slider->SetValue(1);
 	}
-}
-
-void ImageBrowseWindow::SwitchSliceToDisplay(SliceMap::value_type const& slice)
-{
-//	std::cout << __func__ << '\n';
-	SliceKeyType const& key = slice.first;
-	std::vector<DICOMPtr> const& images = slice.second;
-	assert(textureMap_.find(key) != textureMap_.end());
-	std::vector<Cmiss_texture_id> const& textures = textureMap_[key];
-	texturesCurrentlyOnDisplay_ = &textures;
-	
-	// Update the gui
-	UpdateImageInfoPanel(images[0]); // should rename to Series Info?
-	
-	// Update image preview panel
-	SetAnimationSliderMax(images.size());
-	
-	// Resize the rectangular cmgui model
-	// according to the new dimensions
-	size_t width = images[0]->GetImageWidth();
-	size_t height = images[0]->GetImageHeight();
-	ResizePreviewImage(width, height);
-	
-	DisplayImage(textures[0]);
-
-	double radius = std::max(width, height) / 2.0;
-	FitSceneViewer(sceneViewer_ ,radius);
-	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
 void ImageBrowseWindow::ResizePreviewImage(int width, int height)
@@ -620,61 +331,51 @@ void ImageBrowseWindow::SetInfoField(std::string const& fieldName, std::string c
 	st->SetLabel(data.c_str());
 }
 
-void ImageBrowseWindow::UpdatePatientInfoPanel(DICOMPtr const& image)
+void ImageBrowseWindow::FitSceneViewer(double radius)
 {
-	using std::string;
-	string const& name = image->GetPatientName();
-	SetInfoField("PatientName", name);
-	string const& id = image->GetPatientID();
-	SetInfoField("PatientID", id);
-	string const& scanDate = image->GetScanDate();
-	SetInfoField("ScanDate", scanDate);
-	string const& dob = image->GetDateOfBirth();
-	SetInfoField("DateOfBirth", dob);
-	string const& gender = image->GetGender();
-	string const& age = image->GetAge();
-	SetInfoField("GenderAndAge", gender + " " + age);
+	double centre_x, centre_y, centre_z, clip_factor, //radius,
+		size_x, size_y, size_z, width_factor;
+	int return_code;
+
+	if (sceneViewer_)
+	{	
+		Scene_get_graphics_range(Scene_viewer_get_scene(sceneViewer_),
+			&centre_x,&centre_y,&centre_z,&size_x,&size_y,&size_z);
+//		radius = 0.3*sqrt(size_x*size_x + size_y*size_y + size_z*size_z);
+		
+		/* enlarge radius to keep image within edge of window */
+		/*???RC width_factor should be read in from defaults file */
+		width_factor = 1.05;
+		radius *= width_factor;
+			
+		/*???RC clip_factor should be read in from defaults file: */
+		clip_factor = 10.0;		
+		return_code = Scene_viewer_set_view_simple(sceneViewer_, centre_x, centre_y,
+			centre_z, radius, 40, clip_factor*radius);		
+	}
+	else
+	{
+		display_message(ERROR_MESSAGE,
+			"Scene_viewer_view_all.  Invalid argument(s)");
+		return_code=0;
+	}
 	
-	//FIX temporory this should move to a separate function
-	wxChoice* choice = XRCCTRL(*this, "m_choice1", wxChoice);
-	choice->Clear();
-	choice->Append((id + " " + scanDate).c_str());
-	choice->SetSelection(0);
+	if (return_code == 0)
+	{
+		throw std::logic_error("Invalid arguments");
+	}
+
+	return;
+}
+
+void ImageBrowseWindow::RefreshPreviewPanel()
+{
+	Cmiss_scene_viewer_redraw_now(sceneViewer_);
 }
 
 void ImageBrowseWindow::OnImageTableItemSelected(wxListEvent& event)
 {	
-	SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(event.GetItem().GetData());
-//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
-//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
-//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
-		
-	// Display the images from the selected row.
-	SwitchSliceToDisplay(*sliceValuePtr);
-}
-
-void ImageBrowseWindow::UpdateImageInfoPanel(DICOMPtr const& dicomPtr)
-{
-	using std::string;
-	using boost::lexical_cast;
-	
-	size_t width = dicomPtr->GetImageWidth();
-	size_t height = dicomPtr->GetImageHeight();
-	string size = lexical_cast<string>(width) + " x " + lexical_cast<string>(height);
-	SetInfoField("ImageSize", size);
-	
-	Point3D position = dicomPtr->GetImagePosition();
-	std::stringstream ss;
-	ss << std::setprecision(5) << position.x << " ";
-	ss << std::setprecision(5) << position.y << " ";
-	ss << std::setprecision(5) << position.z;
-	string const &posStr(ss.str());
-	SetInfoField("ImagePosition", posStr);
-	
-	std::pair<Vector3D,Vector3D> const& orientation = dicomPtr->GetImageOrientation();
-
-	std::cout << "ori 1: " << orientation.first.x << " " << orientation.first.y << " " << orientation.first.z << "\n";
-	std::cout << "ori 2: " << orientation.second.x << " " << orientation.second.y << " " << orientation.second.z << "\n";
+	browser_.OnImageTableItemSelected(event.GetItem().GetData());
 }
 
 void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
@@ -685,12 +386,9 @@ void ImageBrowseWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
 	int value = event.GetInt();
 	int textureIndex = value - 1; // tex index is 0 based while slider value is 1 based
-	
-	DisplayImage((*texturesCurrentlyOnDisplay_)[value-1]);
-//	Time_keeper_request_new_time(timeKeeper_, time);
-	
-	// force redraw while silder is manipulated
-	Cmiss_scene_viewer_redraw_now(sceneViewer_);
+
+////	Time_keeper_request_new_time(timeKeeper_, time);
+	browser_.OnAnimationSliderEvent(textureIndex);
 	return;
 }
 
@@ -760,19 +458,19 @@ void ImageBrowseWindow::PutLabelOnSelectedSlice(std::string const& label)
 void ImageBrowseWindow::OnShortAxisButtonEvent(wxCommandEvent& event)
 {
 //	std::cout << __func__ << '\n';
-	PutLabelOnSelectedSlice("Short Axis");
+	browser_.OnShortAxisButtonEvent();
 }
 
 void ImageBrowseWindow::OnLongAxisButtonEvent(wxCommandEvent& event)
 {
 //	std::cout << __func__ << '\n';
-	PutLabelOnSelectedSlice("Long Axis");
+	browser_.OnLongAxisButtonEvent();
 }
 
 void ImageBrowseWindow::OnNoneButtonEvent(wxCommandEvent& event)
 {
 //	std::cout << __func__ << '\n';
-	PutLabelOnSelectedSlice("");
+	browser_.OnNoneButtonEvent();
 }
 
 std::vector<std::pair<std::string, long int> > ImageBrowseWindow::GetListOfLabelsFromImageTable() const
@@ -802,95 +500,21 @@ void ImageBrowseWindow::CreateMessageBox(std::string const& message, std::string
 
 void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)
 {
-	std::cout << __func__ << '\n';
-	// construct the data structure of type SlicesWithImages to pass to the main window
-	SlicesWithImages slices;
+	browser_.OnOKButtonEvent();
 	
-	std::vector<std::pair<std::string, long int> > labels = GetListOfLabelsFromImageTable();
-	
-	int shortAxisCount = 1;
-	int longAxisCount = 1;
-	
-	typedef std::pair<std::string, long int> LabelPair;
-	BOOST_FOREACH(LabelPair const& labelPair, labels)
-	{
-		SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(labelPair.second);
-		SliceKeyType const& key = sliceValuePtr->first;
-		std::string sliceName;
-		std::string const& label = labelPair.first;
-		if (label == "Short Axis")
-		{
-			sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
-		}
-		else if (label == "Long Axis")
-		{
-			sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
-		}
-		else
-		{
-			throw std::logic_error("Invalid label : " + label);
-		}
-		SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
-		slices.push_back(sliceInfo);
-	}
-	
-	if (longAxisCount >= 10)
-	{
-		std::cout << "TOO MANY LONG AXES\n";
-		CreateMessageBox("Too many long axes slices", "Invalid selection");
-		return;
-	}
-	if (shortAxisCount >= 30)
-	{
-		std::cout << "TOO MANY SHORT AXES\n";
-		CreateMessageBox("Too many short axes slices", "Invalid selection");
-		return;
-	}
-	
-	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
-
-	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-	if (slices.empty())
-	{
-		std::cout << "Empty image set.\n";
-		return;
-	}
-	
-	client_.LoadImagesFromImageBrowseWindow(slices);
 	Close();
 }
 
 void ImageBrowseWindow::OnCancelButtonEvent(wxCommandEvent& event)
 {
-	//TODO Cleanup textures - REVISE design
-	// Should probably use reference counted smart pointer for Cmiss_texture
-	// Since the ownership is shared between ImageSlice and this (ImageBrowseWindow)
-	
-	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-	{
-		Cmiss_texture_id tex = value.second;
-		DESTROY(Texture)(&tex);
-	}
+	browser_.OnCancelButtonEvent();
 	Close();
 }
 
 void ImageBrowseWindow::OnOrderByRadioBox(wxCommandEvent& event)
 {
 //	std::cout << __func__ << " event.GetInt() = " << event.GetInt() << '\n';
-	if (event.GetInt() == 0)
-	{
-		sortingMode_ = SERIES_NUMBER;
-	}
-	else if (event.GetInt() == 1)
-	{
-		sortingMode_ = SERIES_NUMBER_AND_IMAGE_POSITION;
-	}
-	else
-	{
-		throw std::logic_error("Invalid sorting mode");
-	}
-	
-	PopulateImageTable();
+	browser_.OnOrderByRadioBox(event.GetInt());
 }
 
 void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)

@@ -193,4 +193,8 @@ Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_v
 	return scene_object;
 }
 
+void CmguiManager::DestroyTexture(Cmiss_texture_id tex) const
+{
+	DESTROY(Texture)(&tex);
+}
 } // end namespace cap

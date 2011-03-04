@@ -67,8 +67,8 @@ int main(int argc,char *argv[])
 			
 			Cmiss_context_execute_command(context, "gfx"); //HACK until cmgui is fixed
 			
-//			if (!HandleEula())
-//				return 0;
+			if (!HandleEula())
+				return 0;
 			
 //			cap::AnnotationEditor editor;
 //			cap::AnnotationWindow* anno = new cap::AnnotationWindow(editor);
