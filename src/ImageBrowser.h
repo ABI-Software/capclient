@@ -354,13 +354,63 @@ public:
 	//	std::cout << __func__ << '\n';
 		gui_->PutLabelOnSelectedSlice("Short Axis");
 		
-		// TODO update CardiacAnnotation
-		std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
-		BOOST_FOREACH(DICOMPtr const& dicomPtr, dicomPtrs)
-		{
-			std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
-			
-		}
+		// update CardiacAnnotation
+//		std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
+//		BOOST_FOREACH(DICOMPtr const& dicomPtr, dicomPtrs)
+//		{
+//			std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
+//			std::vector<ImageAnnotation>::iterator imageItr =
+//					std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
+//								cardiacAnnotation_.imageAnnotations.end(),
+//								boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
+//			if (imageItr == cardiacAnnotation_.imageAnnotations.end())
+//			{
+//				ImageAnnotation imageAnno;
+//				imageAnno.sopiuid = sopiuid;
+//				cardiacAnnotation_.imageAnnotations.push_back(imageAnno);
+//				imageItr = cardiacAnnotation_.imageAnnotations.end() - 1;
+//			}
+//			else
+//			{
+//				// Remove conflicting labels if present
+//				std::vector<Label>::iterator labelItr =
+//						imageItr->labels.begin();
+//				while (labelItr != imageItr->labels.end())
+//				{
+//					if (labelItr->label == "Long Axis"
+//						|| labelItr->label == "Horizonal Long Axis"
+//						|| labelItr->label == "Vertial Long Axis"
+//						|| labelItr->label == "Cine Loop")
+//					{
+////						std::cout << "Erasing label : " << labelItr->label << '\n';
+//						imageItr->labels.erase(labelItr);
+//					}
+//					else
+//					{
+//						++labelItr;
+//					}
+//				}
+//			}
+////			std::cout << "Done erasing label\n";
+//			Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
+//			imageItr->labels.push_back(cine_loop);
+//			Label short_axis = {"RID:10577", "Slice", "Short Axis"};
+//			imageItr->labels.push_back(short_axis);
+//		}
+		std::vector<std::string> labelsToRemove;
+		labelsToRemove.push_back("Short Axis");
+		labelsToRemove.push_back("Long Axis");
+		labelsToRemove.push_back("Horizonal Long Axis");
+		labelsToRemove.push_back("Vertial Long Axis");
+		labelsToRemove.push_back("Cine Loop");
+		
+		std::vector<Label> labelsToAdd;
+		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
+		Label short_axis = {"RID:10577", "Slice", "Short Axis"};
+		labelsToAdd.push_back(cine_loop);
+		labelsToAdd.push_back(short_axis);
+		
+		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 	}
 
 	void OnLongAxisButtonEvent()
@@ -368,7 +418,19 @@ public:
 	//	std::cout << __func__ << '\n';
 		gui_->PutLabelOnSelectedSlice("Long Axis");
 		
-		// TODO update CardiacAnnotation
+		// update CardiacAnnotation
+		std::vector<std::string> labelsToRemove;
+		labelsToRemove.push_back("Short Axis");
+		labelsToRemove.push_back("Long Axis");
+		labelsToRemove.push_back("Cine Loop");
+		
+		std::vector<Label> labelsToAdd;
+		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
+		Label short_axis = {"RID:10571", "Slice", "Long Axis"};
+		labelsToAdd.push_back(cine_loop);
+		labelsToAdd.push_back(short_axis);
+		
+		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 	}
 
 	void OnNoneButtonEvent()
@@ -376,7 +438,17 @@ public:
 	//	std::cout << __func__ << '\n';
 		gui_->PutLabelOnSelectedSlice("");
 		
-		// TODO update CardiacAnnotation
+		// update CardiacAnnotation
+		std::vector<std::string> labelsToRemove;
+		labelsToRemove.push_back("Short Axis");
+		labelsToRemove.push_back("Long Axis");
+		labelsToRemove.push_back("Horizonal Long Axis");
+		labelsToRemove.push_back("Vertial Long Axis");
+		labelsToRemove.push_back("Cine Loop");
+		
+		std::vector<Label> labelsToAdd;
+		
+		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 	}
 
 	void OnOKButtonEvent()
@@ -595,6 +667,62 @@ private:
 					slicePtrToLabelMap[sliceKeyPtr] = sliceLabel;
 					gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, sliceLabel);
 				}
+			}
+		}
+	}
+	
+	void UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::string> const& labelsToRemove, std::vector<Label> const& labelsToAdd)
+	{
+		std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
+		BOOST_FOREACH(DICOMPtr const& dicomPtr, dicomPtrs)
+		{
+			std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
+			std::vector<ImageAnnotation>::iterator imageItr =
+					std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
+								cardiacAnnotation_.imageAnnotations.end(),
+								boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
+			if (imageItr == cardiacAnnotation_.imageAnnotations.end())
+			{
+				// No annotation for the image exists
+				ImageAnnotation imageAnno;
+				imageAnno.sopiuid = sopiuid;
+				cardiacAnnotation_.imageAnnotations.push_back(imageAnno);
+				imageItr = cardiacAnnotation_.imageAnnotations.end() - 1;
+			}
+			else
+			{
+				// Remove conflicting labels if present
+				std::vector<Label>::iterator labelItr =
+						imageItr->labels.begin();
+				while (labelItr != imageItr->labels.end())
+				{
+					bool erasePerformed = false;
+					BOOST_FOREACH(std::string const& labelToRemove, labelsToRemove)
+					{
+						if (labelItr->label == labelToRemove)
+						{
+//							std::cout << "Erasing label : " << labelItr->label << '\n';
+							imageItr->labels.erase(labelItr);
+							erasePerformed = true;
+						}
+					}
+					if (!erasePerformed)
+					{
+						++labelItr;
+					}
+				}
+			}
+//			std::cout << "Done erasing label\n";
+			
+			BOOST_FOREACH(Label const& label, labelsToAdd)
+			{
+				imageItr->labels.push_back(label);
+			}
+			
+			// Remove ImageAnnotation if the update left it with no labels and no roi's
+			if (imageItr->labels.empty() && imageItr->rOIs.empty())
+			{
+				cardiacAnnotation_.imageAnnotations.erase(imageItr);
 			}
 		}
 	}
