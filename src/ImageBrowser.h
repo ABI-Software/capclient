@@ -93,7 +93,7 @@ public:
 		std::vector<DICOMPtr> const& images = slice.second;
 		assert(textureMap_.find(key) != textureMap_.end());
 		std::vector<Cmiss_texture_id> const& textures = textureMap_[key];
-		texturesCurrentlyOnDisplay_ = &textures;
+		sliceKeyCurrentlyOnDisplay_ = key;
 		
 		// Update the gui
 		UpdateImageInfoPanel(images[0]); // should rename to Series Info?
@@ -107,7 +107,8 @@ public:
 		size_t height = images[0]->GetImageHeight();
 		gui_->ResizePreviewImage(width, height);
 		
-		gui_->DisplayImage(textures[0]);
+		frameNumberCurrentlyOnDisplay_ = 0;
+		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
 
 		double radius = std::max(width, height) / 2.0;
 		gui_->FitSceneViewer(radius);
@@ -336,8 +337,9 @@ public:
 	void OnAnimationSliderEvent(int value)
 	{	
 		std::cout << __func__ << " : value = " << value << '\n';
-		assert(texturesCurrentlyOnDisplay_ != 0);
-		gui_->DisplayImage((*texturesCurrentlyOnDisplay_)[value]);
+		std::vector<Cmiss_texture_id> const& textures = textureMap_[sliceKeyCurrentlyOnDisplay_];
+		frameNumberCurrentlyOnDisplay_ = value;
+		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
 		
 		// force redraw while silder is manipulated
 		gui_->RefreshPreviewPanel();
@@ -522,8 +524,8 @@ private:
 		archiveFilename_(archiveFilename),
 		cmguiManager_(manager),
 		client_(client),
-		texturesCurrentlyOnDisplay_(0),
-		sortingMode_(SERIES_NUMBER)
+		sortingMode_(SERIES_NUMBER),
+		frameNumberCurrentlyOnDisplay_(0)
 	{
 	}
 	
@@ -586,7 +588,8 @@ private:
 	
 	SliceMap sliceMap_;
 	TextureMap textureMap_; // this could be merged with sliceMap_
-	std::vector<Cmiss_texture_id> const* texturesCurrentlyOnDisplay_;
+	SliceKeyType sliceKeyCurrentlyOnDisplay_;
+	int frameNumberCurrentlyOnDisplay_;
 	
 	DICOMTable dicomFileTable_; // unsorted list of all dicom files
 	TextureTable textureTable_; // unsorted list of all textures
