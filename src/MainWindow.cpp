@@ -914,7 +914,7 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 //	ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
 //	frame->Show(true);
 	ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = 
-				CreateImageBrowser<ImageBrowseWindow, CmguiManager>(std::string(dirname.c_str()), cmguiManager_, *this);
+			ImageBrowser<ImageBrowseWindow, CmguiManager>::CreateImageBrowser(std::string(dirname.c_str()), cmguiManager_, *this);
 		
 }
 
@@ -1207,8 +1207,11 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 		
 //		ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
 //		frame->Show(true);
+		ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = 
+				ImageBrowser<ImageBrowseWindow, CmguiManager>::CreateImageBrowser(std::string(dirname.c_str()), cmguiManager_, *this);
 		
 		// Set annotations to the images in the ImageBrowseWindow.
+		ib->SetAnnotation(capAnnotationFilePtr_->GetCardiacAnnotation());
 	}
 }
 

@@ -82,7 +82,13 @@ public:
 	
 	void FitSceneViewer(double radius);
 	void RefreshPreviewPanel();
+	
+	
+	void SetImageTableRowLabel(long int index, std::string const& label);
+	// Sets the label to the row in the image table with the matching user data
+	void SetImageTableRowLabelByUserData(long int userData, std::string const& label);
 
+	void ShowImageAnnotation();
 private:
 	std::string GetCellContentsString( long row_number, int column ) const;
 	void LoadImagePlaneModel();
