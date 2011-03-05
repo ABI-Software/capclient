@@ -556,22 +556,8 @@ void ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
 }
 
 void ImageBrowseWindow::ShowImageAnnotation()
-{
-	long index = imageTable_->GetNextItem(-1,
-							wxLIST_NEXT_ALL,
-							wxLIST_STATE_SELECTED);
-	if (index == -1)
-	{
-		std::cout << "No row selected in Image Table\n";
-		return;
-	}
-	
-	long int userData = imageTable_->GetItemData(index);
-	
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	int frameNumber = slider->GetValue() - 1;
-	
-	browser_.ShowImageAnnotation(userData, frameNumber);
+{	
+	browser_.ShowImageAnnotationCurrentlyOnDisplay();
 }
 
 
