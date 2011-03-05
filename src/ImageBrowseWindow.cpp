@@ -34,6 +34,7 @@ extern "C"
 #include "finite_element/finite_element.h"
 #include "graphics/scene_viewer.h"
 #include "graphics/scene.h"
+#include "three_d_drawing/graphics_buffer.h"
 }
 
 namespace
@@ -51,6 +52,10 @@ std::string const ImageBrowseWindow::IMAGE_PREVIEW = std::string("ImagePreview")
 static int dummy_input_callback(struct Scene_viewer *scene_viewer,
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
+	if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
+	{
+//		static_cast<ImageBrowseWindow*>(viewer_frame_void)->ShowImageAnnotation();
+	}
 	return 0; // returning false means don't call the other input handlers;
 }
 
@@ -384,9 +389,10 @@ void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
 
 void ImageBrowseWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
+	std::cout << __func__ << '\n';
 	int value = event.GetInt();
 	int textureIndex = value - 1; // tex index is 0 based while slider value is 1 based
-
+	std::cout << "textureIndex = " << textureIndex << '\n';
 ////	Time_keeper_request_new_time(timeKeeper_, time);
 	browser_.OnAnimationSliderEvent(textureIndex);
 	return;
@@ -440,8 +446,7 @@ void ImageBrowseWindow::PutLabelOnSelectedSlice(std::string const& label)
 						wxLIST_STATE_SELECTED);
 	if (index != -1)
 	{
-		imageTable_->SetItem(index, LABEL_COLUMN_INDEX, label.c_str());
-//		std::cout <<  "label = " << GetCellContentsString(index, LABEL_COLUMN_INDEX) << '\n';
+		SetImageTableRowLabel(index, label);
 		if (index < imageTable_->GetItemCount() - 1)
 		{
 			imageTable_->SetItemState(index  , 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
@@ -453,6 +458,31 @@ void ImageBrowseWindow::PutLabelOnSelectedSlice(std::string const& label)
 			imageTable_->SetItemState(index , wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
 		}
 	}
+}
+
+void ImageBrowseWindow::SetImageTableRowLabel(long int index, std::string const& label)
+{
+	imageTable_->SetItem(index, LABEL_COLUMN_INDEX, label.c_str());
+//		std::cout <<  "label = " << GetCellContentsString(index, LABEL_COLUMN_INDEX) << '\n';
+}
+
+void ImageBrowseWindow::SetImageTableRowLabelByUserData(long int userDataPtr, std::string const& label)
+{
+	long index = imageTable_->GetItemCount() -1;
+	while (index >= 0)
+	{
+		long ptr = imageTable_->GetItemData(index);
+		if (ptr == userDataPtr)
+		{
+//			std::cout << __func__ << ": found matchig userData, row index = " << index <<'\n';
+			SetImageTableRowLabel(index, label);
+			return;
+		}
+		index--;
+	}
+	
+	throw std::invalid_argument("No such user date in Image Table");
+	return;
 }
 
 void ImageBrowseWindow::OnShortAxisButtonEvent(wxCommandEvent& event)
@@ -517,12 +547,32 @@ void ImageBrowseWindow::OnOrderByRadioBox(wxCommandEvent& event)
 	browser_.OnOrderByRadioBox(event.GetInt());
 }
 
-void ImageBrowseWindow::ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
+void ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
 {
 	// TODO DO clean up!!
 	Destroy();
 //	exit(0);
 }
+
+void ImageBrowseWindow::ShowImageAnnotation()
+{
+	long index = imageTable_->GetNextItem(-1,
+							wxLIST_NEXT_ALL,
+							wxLIST_STATE_SELECTED);
+	if (index == -1)
+	{
+		std::cout << "No row selected in Image Table\n";
+		return;
+	}
+	
+	long int userData = imageTable_->GetItemData(index);
+	
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+	int frameNumber = slider->GetValue() - 1;
+	
+	browser_.ShowImageAnnotation(userData, frameNumber);
+}
+
 
 BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)
 	EVT_LIST_ITEM_SELECTED(XRCID("ImageTable"), ImageBrowseWindow::OnImageTableItemSelected)

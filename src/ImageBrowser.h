@@ -14,6 +14,7 @@
 #include "SliceInfo.h"
 #include "ImageBrowseWindowClient.h"
 #include "CmguiManager.h"
+#include "CAPAnnotationFile.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
@@ -38,20 +39,10 @@ typedef std::map<SliceKeyType, std::vector<Cmiss_texture_id> > TextureMap;
 typedef std::map<std::string, DICOMPtr> DICOMTable;
 typedef std::map<std::string, Cmiss_texture_id> TextureTable;
 
-template <typename ImageBrowseWindow, typename CmguiManager>
+template <typename ImageBrowseWindow , typename CmguiManager>
 class ImageBrowser
 {
 public:
-	
-	ImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
-	:
-		archiveFilename_(archiveFilename),
-		cmguiManager_(manager),
-		client_(client),
-		texturesCurrentlyOnDisplay_(0),
-		sortingMode_(SERIES_NUMBER)
-	{
-	}
 	
 	void SetImageBrowseWindow(ImageBrowseWindow* gui)
 	{
@@ -257,6 +248,11 @@ public:
 		
 		DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
 		UpdatePatientInfoPanel(firstImage);
+		
+		if (!cardiacAnnotation_.imageAnnotations.empty())
+		{
+			UpdateImageTableLabelsAccordingToCardiacAnnotation();
+		}
 	}
 	
 	void ReadInDICOMFiles()
@@ -339,7 +335,9 @@ public:
 	
 	void OnAnimationSliderEvent(int value)
 	{	
-		gui_->DisplayImage((*texturesCurrentlyOnDisplay_)[value-1]);
+		std::cout << __func__ << " : value = " << value << '\n';
+		assert(texturesCurrentlyOnDisplay_ != 0);
+		gui_->DisplayImage((*texturesCurrentlyOnDisplay_)[value]);
 		
 		// force redraw while silder is manipulated
 		gui_->RefreshPreviewPanel();
@@ -463,7 +461,115 @@ public:
 		PopulateImageTable();
 	}
 	
+	void SetAnnotation(CardiacAnnotation const& anno)
+	{
+		cardiacAnnotation_ = anno;
+		PopulateImageTable();
+	}
+	
+	void ShowImageAnnotation(long int sliceID, int frameNumber)
+	{
+		SliceMap::value_type* const sliceValuePtr = 
+				reinterpret_cast<SliceMap::value_type* const>(sliceID);
+		std::string const& sopiuid = 
+				sliceMap_[sliceValuePtr->first].at(frameNumber)->GetSopInstanceUID();
+		
+		std::vector<ImageAnnotation>::const_iterator itr =
+				std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
+						cardiacAnnotation_.imageAnnotations.end(),
+						boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
+		
+		
+		std::cout << "Image Annotation for sop: " << sopiuid << '\n';
+		if (itr == cardiacAnnotation_.imageAnnotations.end())
+		{
+			std::cout << "No annotation\n";
+			return;
+		}
+		
+		BOOST_FOREACH(Label const& label, itr->labels)
+		{
+			std::cout << label.label << "\n";
+		}
+		BOOST_FOREACH(ROI const& roi, itr->rOIs)
+		{
+			std::cout << "ROI:\n";
+			BOOST_FOREACH(Label const& label, roi.labels)
+			{
+				std::cout << label.label << "\n";
+			}
+		}
+	}
+	
+	static
+	ImageBrowser<ImageBrowseWindow, CmguiManager>*
+	CreateImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
+	{
+		ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = new ImageBrowser<ImageBrowseWindow, CmguiManager>(archiveFilename, manager, client);
+		ImageBrowseWindow* frame = new ImageBrowseWindow(*ib, manager);
+		frame->Show(true);
+		ib->SetImageBrowseWindow(frame);
+		ib->Initialize();
+		
+		return ib;
+	}
+	
 private:
+	
+	// Private constructor means this class must be created from the factory method
+	ImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
+	:
+		archiveFilename_(archiveFilename),
+		cmguiManager_(manager),
+		client_(client),
+		texturesCurrentlyOnDisplay_(0),
+		sortingMode_(SERIES_NUMBER)
+	{
+	}
+	
+	void UpdateImageTableLabelsAccordingToCardiacAnnotation()
+	{
+		std::map<std::string, long int> uidToSliceKeyMap;
+		BOOST_FOREACH(SliceMap::value_type const& value, sliceMap_)
+		{
+			BOOST_FOREACH(DICOMPtr const& dicomPtr, value.second)
+			{
+				uidToSliceKeyMap.insert(
+						std::make_pair(dicomPtr->GetSopInstanceUID(),
+						reinterpret_cast<long int>(&value)));
+			}
+		}
+		
+		BOOST_FOREACH(ImageAnnotation const& imageAnno, cardiacAnnotation_.imageAnnotations)
+		{
+			std::string const& sopiuid = imageAnno.sopiuid;
+			std::map<std::string, long int>::const_iterator itr = 
+				uidToSliceKeyMap.find(sopiuid);
+			if (itr == uidToSliceKeyMap.end())
+			{
+				std::cout << "Find find the sopiuid: " << sopiuid << '\n';
+			}
+			long int sliceKeyPtr = itr->second;
+			
+			std::vector<Label>::const_iterator labelItr = 
+					std::find_if(imageAnno.labels.begin(),
+							imageAnno.labels.end(),
+							boost::bind(&Label::label, _1) == "Cine Loop");
+			if (labelItr == imageAnno.labels.end())
+			{
+				continue;
+			}
+			BOOST_FOREACH(Label const& annoLabel, imageAnno.labels)
+			{
+				std::string const& label = annoLabel.label;
+				if (label == "Short Axis" || label == "Long Axis")
+				{
+					std::cout << "uid: " << sopiuid << ", label = " << label << '\n';
+					gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, label);
+				}
+			}
+		}
+	}
 	
 	// Pointer to the gui layer. (wxWidgets)
 	// Note this class does not own the gui_ object 
@@ -490,20 +596,8 @@ private:
 	
 	CmguiManager const& cmguiManager_;
 	ImageBrowseWindowClient& client_;
+	CardiacAnnotation cardiacAnnotation_;
 };
-
-template <typename ImageBrowseWindow, typename CmguiManager>
-ImageBrowser<ImageBrowseWindow, CmguiManager>*
-CreateImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
-{
-	ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = new ImageBrowser<ImageBrowseWindow, CmguiManager>(archiveFilename, manager, client);
-	ImageBrowseWindow* frame = new ImageBrowseWindow(*ib, manager);
-	frame->Show(true);
-	ib->SetImageBrowseWindow(frame);
-	ib->Initialize();
-	
-	return ib;
-}
 
 } //namespace cap
 

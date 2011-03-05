@@ -50,7 +50,8 @@ public:
 	{}
 	
 	void SelectFirstRowInImageTable() {}
-	
+	void SetImageTableRowLabelByUserData(long int, std::string const&)
+	{}
 	void Show(bool) {}
 	
 private:
@@ -65,6 +66,20 @@ public:
 	{}
 };
 
+// Link time test double
+FileSystem::FileSystem(std::string const& path)
+{}
+	
+std::vector<std::string> const& FileSystem::getAllFileNames()
+{
+	return filenames;
+}
+
+
+DICOMImage::DICOMImage(const std::string& filename)
+{
+}
+
 } // namespace cap
 //TEST(ImageBrowser, Create)
 //{
@@ -73,22 +88,22 @@ public:
 //	TestImageBrowseWindowClient client;
 //	FakeCmguiManager cmguiManager;
 //	ImageBrowser<TestImageBrowseWindow, FakeCmguiManager> iBrowser("dirname", cmguiManager, client);
-//	TestImageBrowseWindow gui(iBrowser);
+//	TestImageBrowseWindow gui(iBrowser, cmguiManager);
 //	iBrowser.SetImageBrowseWindow(&gui);
 //	iBrowser.Initialize();
 //	
 //	iBrowser.CreateTexturesFromDICOMFiles();
 //}
 
-//TEST(ImageBrowser, CreateUsingFactory)
-//{
-//	using namespace cap;
-//	
-//	TestImageBrowseWindowClient client;
-//	FakeCmguiManager cmguiManager;
-//	
-//	ImageBrowser<TestImageBrowseWindow, FakeCmguiManager>* ib = 
-//			CreateImageBrowser<TestImageBrowseWindow, FakeCmguiManager>("dirname", cmguiManager, client);
-//	
-//	delete ib;
-//}
+TEST(ImageBrowser, CreateUsingFactory)
+{
+	using namespace cap;
+	
+	TestImageBrowseWindowClient client;
+	FakeCmguiManager cmguiManager;
+	
+	ImageBrowser<TestImageBrowseWindow, FakeCmguiManager>* ib = 
+			ImageBrowser<TestImageBrowseWindow, FakeCmguiManager>::CreateImageBrowser("dirname", cmguiManager, client);
+	
+	delete ib;
+}
