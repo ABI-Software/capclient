@@ -336,7 +336,7 @@ public:
 	
 	void OnAnimationSliderEvent(int value)
 	{	
-		std::cout << __func__ << " : value = " << value << '\n';
+//		std::cout << __func__ << " : value = " << value << '\n';
 		std::vector<Cmiss_texture_id> const& textures = textureMap_[sliceKeyCurrentlyOnDisplay_];
 		frameNumberCurrentlyOnDisplay_ = value;
 		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
@@ -540,6 +540,7 @@ private:
 			}
 		}
 		
+		std::map<long int, std::string> slicePtrToLabelMap;
 		BOOST_FOREACH(ImageAnnotation const& imageAnno, cardiacAnnotation_.imageAnnotations)
 		{
 			std::string const& sopiuid = imageAnno.sopiuid;
@@ -547,7 +548,7 @@ private:
 				uidToSliceKeyMap.find(sopiuid);
 			if (itr == uidToSliceKeyMap.end())
 			{
-				std::cout << "Find find the sopiuid: " << sopiuid << '\n';
+				std::cout << "Can't find the sopiuid: " << sopiuid << '\n';
 			}
 			long int sliceKeyPtr = itr->second;
 			
@@ -561,11 +562,29 @@ private:
 			}
 			BOOST_FOREACH(Label const& annoLabel, imageAnno.labels)
 			{
-				std::string const& label = annoLabel.label;
-				if (label == "Short Axis" || label == "Long Axis")
-				{
-					std::cout << "uid: " << sopiuid << ", label = " << label << '\n';
-					gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, label);
+				std::string const& imageLabel = annoLabel.label;
+				if (imageLabel == "Short Axis" || imageLabel == "Long Axis")
+				{	
+					std::cout << "uid: " << sopiuid << ", label = " << imageLabel << '\n';
+					std::map<long int, std::string>::const_iterator itr = 
+							slicePtrToLabelMap.find(sliceKeyPtr);
+					
+					std::string sliceLabel;
+					if (itr != slicePtrToLabelMap.end() && itr->second != imageLabel)
+					{
+						//This means there is an image with a conflicting label in the
+						//same slice.
+						//This usually means the SortingMode is not properly set.
+						//Changing the SortingMode should get rid of this problem.
+						sliceLabel = "?";
+					}
+					else
+					{
+						sliceLabel = imageLabel;
+					}
+					
+					slicePtrToLabelMap[sliceKeyPtr] = sliceLabel;
+					gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, sliceLabel);
 				}
 			}
 		}
