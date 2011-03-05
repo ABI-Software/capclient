@@ -347,6 +347,8 @@ public:
 		std::vector<Cmiss_texture_id> const& textures = textureMap_[sliceKeyCurrentlyOnDisplay_];
 		frameNumberCurrentlyOnDisplay_ = frameNumber;
 		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
+		
+		ShowImageAnnotationCurrentlyOnDisplay();
 	}
 
 	void OnShortAxisButtonEvent()
@@ -355,48 +357,6 @@ public:
 		gui_->PutLabelOnSelectedSlice("Short Axis");
 		
 		// update CardiacAnnotation
-//		std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
-//		BOOST_FOREACH(DICOMPtr const& dicomPtr, dicomPtrs)
-//		{
-//			std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
-//			std::vector<ImageAnnotation>::iterator imageItr =
-//					std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
-//								cardiacAnnotation_.imageAnnotations.end(),
-//								boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
-//			if (imageItr == cardiacAnnotation_.imageAnnotations.end())
-//			{
-//				ImageAnnotation imageAnno;
-//				imageAnno.sopiuid = sopiuid;
-//				cardiacAnnotation_.imageAnnotations.push_back(imageAnno);
-//				imageItr = cardiacAnnotation_.imageAnnotations.end() - 1;
-//			}
-//			else
-//			{
-//				// Remove conflicting labels if present
-//				std::vector<Label>::iterator labelItr =
-//						imageItr->labels.begin();
-//				while (labelItr != imageItr->labels.end())
-//				{
-//					if (labelItr->label == "Long Axis"
-//						|| labelItr->label == "Horizonal Long Axis"
-//						|| labelItr->label == "Vertial Long Axis"
-//						|| labelItr->label == "Cine Loop")
-//					{
-////						std::cout << "Erasing label : " << labelItr->label << '\n';
-//						imageItr->labels.erase(labelItr);
-//					}
-//					else
-//					{
-//						++labelItr;
-//					}
-//				}
-//			}
-////			std::cout << "Done erasing label\n";
-//			Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
-//			imageItr->labels.push_back(cine_loop);
-//			Label short_axis = {"RID:10577", "Slice", "Short Axis"};
-//			imageItr->labels.push_back(short_axis);
-//		}
 		std::vector<std::string> labelsToRemove;
 		labelsToRemove.push_back("Short Axis");
 		labelsToRemove.push_back("Long Axis");
@@ -552,6 +512,9 @@ public:
 	
 	void ShowImageAnnotationCurrentlyOnDisplay()
 	{
+		gui_->ClearAnnotationTable();
+		gui_->CreateAnnotationTableColumns();
+		
 		std::string const& sopiuid = 
 				sliceMap_[sliceKeyCurrentlyOnDisplay_].at(frameNumberCurrentlyOnDisplay_)->GetSopInstanceUID();
 		
@@ -568,10 +531,13 @@ public:
 			return;
 		}
 		
+		int rowNumber = 0;
 		BOOST_FOREACH(Label const& label, itr->labels)
 		{
 			std::cout << label.label << "\n";
+			gui_->PopulateAnnotationTableRow(rowNumber++, label.label, label.rid, label.scope);
 		}
+		
 		BOOST_FOREACH(ROI const& roi, itr->rOIs)
 		{
 			std::cout << "ROI:\n";
