@@ -469,12 +469,10 @@ public:
 		PopulateImageTable();
 	}
 	
-	void ShowImageAnnotation(long int sliceID, int frameNumber)
+	void ShowImageAnnotationCurrentlyOnDisplay()
 	{
-		SliceMap::value_type* const sliceValuePtr = 
-				reinterpret_cast<SliceMap::value_type* const>(sliceID);
 		std::string const& sopiuid = 
-				sliceMap_[sliceValuePtr->first].at(frameNumber)->GetSopInstanceUID();
+				sliceMap_[sliceKeyCurrentlyOnDisplay_].at(frameNumberCurrentlyOnDisplay_)->GetSopInstanceUID();
 		
 		std::vector<ImageAnnotation>::const_iterator itr =
 				std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
