@@ -88,7 +88,12 @@ public:
 	// Sets the label to the row in the image table with the matching user data
 	void SetImageTableRowLabelByUserData(long int userData, std::string const& label);
 
-	void ShowImageAnnotation();
+//	void ShowImageAnnotation();
+	
+	void ClearAnnotationTable();
+	void CreateAnnotationTableColumns();
+	void PopulateAnnotationTableRow(int rowNumber, std::string const& label, std::string const& rid, std::string const& scope);
+	
 private:
 	std::string GetCellContentsString( long row_number, int column ) const;
 	void LoadImagePlaneModel();
@@ -116,6 +121,7 @@ private:
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	
 	wxListCtrl* imageTable_;
+	wxListCtrl* annotationTable_;
 	
 	static const std::string IMAGE_PREVIEW;
 	

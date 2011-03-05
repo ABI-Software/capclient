@@ -52,10 +52,10 @@ std::string const ImageBrowseWindow::IMAGE_PREVIEW = std::string("ImagePreview")
 static int dummy_input_callback(struct Scene_viewer *scene_viewer,
 		struct Graphics_buffer_input *input, void *viewer_frame_void)
 {
-	if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
-	{
-		static_cast<ImageBrowseWindow*>(viewer_frame_void)->ShowImageAnnotation();
-	}
+//	if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
+//	{
+//		static_cast<ImageBrowseWindow*>(viewer_frame_void)->ShowImageAnnotation();
+//	}
 	return 0; // returning false means don't call the other input handlers;
 }
 
@@ -153,6 +153,7 @@ void ImageBrowseWindow::LoadWindowLayout()
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
 	Show(true); // gtk crashes without this
 	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
+	annotationTable_ = XRCCTRL(*this, "AnnotationTable", wxListCtrl);
 }
 
 void ImageBrowseWindow::CreatePreviewPanel()
@@ -191,6 +192,14 @@ void ImageBrowseWindow::CreateImageTableColumns()
 //	imageTable_->InsertColumn(columnIndex++, _("Series Time"));
 	imageTable_->InsertColumn(columnIndex++, _("Images"), wxLIST_FORMAT_CENTRE, 75);
 	imageTable_->InsertColumn(columnIndex, _("Label"), wxLIST_FORMAT_CENTRE, 85);
+}
+
+void ImageBrowseWindow::CreateAnnotationTableColumns()
+{
+	long columnIndex = 0;
+	annotationTable_->InsertColumn(columnIndex++, _("Label"), wxLIST_FORMAT_CENTRE, 100);
+	annotationTable_->InsertColumn(columnIndex++, _("RID"), wxLIST_FORMAT_CENTRE, 100);
+	annotationTable_->InsertColumn(columnIndex++, _("Scope"), wxLIST_FORMAT_CENTRE, 100);	
 }
 
 ImageBrowseWindow::~ImageBrowseWindow()
@@ -244,6 +253,19 @@ void ImageBrowseWindow::SelectFirstRowInImageTable()
 void ImageBrowseWindow::ClearImageTable()
 {
 	imageTable_->ClearAll();
+}
+
+void ImageBrowseWindow::ClearAnnotationTable()
+{
+	annotationTable_->ClearAll();
+}
+
+void ImageBrowseWindow::PopulateAnnotationTableRow(int rowNumber, std::string const& label, std::string const& rid, std::string const& scope)
+{
+	long itemIndex = annotationTable_->InsertItem(rowNumber, label.c_str());
+	long columnIndex = 1;
+	annotationTable_->SetItem(itemIndex, columnIndex++, rid.c_str()); 
+	annotationTable_->SetItem(itemIndex, columnIndex++, scope.c_str());
 }
 
 void ImageBrowseWindow::SetAnimationSliderMax(size_t max)
@@ -555,10 +577,10 @@ void ImageBrowseWindow::OnCloseImageBrowseWindow(wxCloseEvent& event)
 //	exit(0);
 }
 
-void ImageBrowseWindow::ShowImageAnnotation()
-{	
-	browser_.ShowImageAnnotationCurrentlyOnDisplay();
-}
+//void ImageBrowseWindow::ShowImageAnnotation()
+//{	
+//	browser_.ShowImageAnnotationCurrentlyOnDisplay();
+//}
 
 
 BEGIN_EVENT_TABLE(ImageBrowseWindow, wxFrame)
