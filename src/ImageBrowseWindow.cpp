@@ -54,7 +54,7 @@ static int dummy_input_callback(struct Scene_viewer *scene_viewer,
 {
 	if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
 	{
-//		static_cast<ImageBrowseWindow*>(viewer_frame_void)->ShowImageAnnotation();
+		static_cast<ImageBrowseWindow*>(viewer_frame_void)->ShowImageAnnotation();
 	}
 	return 0; // returning false means don't call the other input handlers;
 }
@@ -256,6 +256,7 @@ void ImageBrowseWindow::SetAnimationSliderMax(size_t max)
 		slider->Enable(false);
 		slider->SetMin(1);
 		slider->SetMax(2); // gtk requires max > min
+		slider->SetValue(1);
 	}
 	else
 	{
@@ -389,10 +390,10 @@ void ImageBrowseWindow::OnPlayToggleButtonPressed(wxCommandEvent& event)
 
 void ImageBrowseWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
-	std::cout << __func__ << '\n';
+//	std::cout << __func__ << '\n';
 	int value = event.GetInt();
 	int textureIndex = value - 1; // tex index is 0 based while slider value is 1 based
-	std::cout << "textureIndex = " << textureIndex << '\n';
+//	std::cout << "textureIndex = " << textureIndex << '\n';
 ////	Time_keeper_request_new_time(timeKeeper_, time);
 	browser_.OnAnimationSliderEvent(textureIndex);
 	return;
