@@ -44,9 +44,211 @@ class ImageBrowser
 {
 public:
 	
-	void SetImageBrowseWindow(ImageBrowseWindow* gui)
+	void OnImageTableItemSelected(long int userDataPtr)
 	{
-		gui_ = gui;
+		SliceMap::value_type* const sliceValuePtr = 
+				reinterpret_cast<SliceMap::value_type* const>(userDataPtr);
+		//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
+		//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
+		//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
+				
+		// Display the images from the selected row.
+		SwitchSliceToDisplay(*sliceValuePtr);
+	}
+	
+	void OnAnimationSliderEvent(int value)
+	{	
+//		std::cout << __func__ << " : value = " << value << '\n';
+		DisplayImageByFrameNumber(value);
+		
+		// force redraw while silder is manipulated
+		gui_->RefreshPreviewPanel();
+		return;
+	}
+
+	void OnShortAxisButtonEvent()
+	{
+	//	std::cout << __func__ << '\n';
+		gui_->PutLabelOnSelectedSlice("Short Axis");
+		
+		// update CardiacAnnotation
+		std::vector<std::string> labelsToRemove;
+		labelsToRemove.push_back("Short Axis");
+		labelsToRemove.push_back("Long Axis");
+		labelsToRemove.push_back("Horizonal Long Axis");
+		labelsToRemove.push_back("Vertial Long Axis");
+		labelsToRemove.push_back("Cine Loop");
+		
+		std::vector<Label> labelsToAdd;
+		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
+		Label short_axis = {"RID:10577", "Slice", "Short Axis"};
+		labelsToAdd.push_back(cine_loop);
+		labelsToAdd.push_back(short_axis);
+		
+		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+	}
+
+	void OnLongAxisButtonEvent()
+	{
+	//	std::cout << __func__ << '\n';
+		gui_->PutLabelOnSelectedSlice("Long Axis");
+		
+		// update CardiacAnnotation
+		std::vector<std::string> labelsToRemove;
+		labelsToRemove.push_back("Short Axis");
+		labelsToRemove.push_back("Long Axis");
+		labelsToRemove.push_back("Cine Loop");
+		
+		std::vector<Label> labelsToAdd;
+		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
+		Label short_axis = {"RID:10571", "Slice", "Long Axis"};
+		labelsToAdd.push_back(cine_loop);
+		labelsToAdd.push_back(short_axis);
+		
+		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+	}
+
+	void OnNoneButtonEvent()
+	{
+	//	std::cout << __func__ << '\n';
+		gui_->PutLabelOnSelectedSlice("");
+		
+		// update CardiacAnnotation
+		std::vector<std::string> labelsToRemove;
+		labelsToRemove.push_back("Short Axis");
+		labelsToRemove.push_back("Long Axis");
+		labelsToRemove.push_back("Horizonal Long Axis");
+		labelsToRemove.push_back("Vertial Long Axis");
+		labelsToRemove.push_back("Cine Loop");
+		
+		std::vector<Label> labelsToAdd;
+		
+		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+	}
+
+	void OnOKButtonEvent()
+	{
+		std::cout << __func__ << '\n';
+		// construct the data structure of type SlicesWithImages to pass to the main window
+		SlicesWithImages slices;
+		
+		std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
+		
+		int shortAxisCount = 1;
+		int longAxisCount = 1;
+		
+		typedef std::pair<std::string, long int> LabelPair;
+		BOOST_FOREACH(LabelPair const& labelPair, labels)
+		{
+			SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(labelPair.second);
+			SliceKeyType const& key = sliceValuePtr->first;
+			std::string sliceName;
+			std::string const& label = labelPair.first;
+			if (label == "Short Axis")
+			{
+				sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
+			}
+			else if (label == "Long Axis")
+			{
+				sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
+			}
+			else
+			{
+				throw std::logic_error("Invalid label : " + label);
+			}
+			SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
+			slices.push_back(sliceInfo);
+		}
+		
+		if (longAxisCount >= 10)
+		{
+			std::cout << "TOO MANY LONG AXES\n";
+			gui_->CreateMessageBox("Too many long axes slices", "Invalid selection");
+			return;
+		}
+		if (shortAxisCount >= 30)
+		{
+			std::cout << "TOO MANY SHORT AXES\n";
+			gui_->CreateMessageBox("Too many short axes slices", "Invalid selection");
+			return;
+		}
+		
+		std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
+
+		std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
+		if (slices.empty())
+		{
+			std::cout << "Empty image set.\n";
+			return;
+		}
+		
+		client_.LoadImagesFromImageBrowseWindow(slices);
+		gui_->Close();
+	}
+
+	void OnCancelButtonEvent()
+	{
+		//TODO Cleanup textures - REVISE design
+		// Should probably use reference counted smart pointer for Cmiss_texture
+		// Since the ownership is shared between ImageSlice and this (ImageBrowseWindow)
+		
+		BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+		{
+			Cmiss_texture_id tex = value.second;
+			cmguiManager_.DestroyTexture(tex);
+		}
+//		Close();
+	}
+
+	void OnOrderByRadioBox(int event)
+	{
+	//	std::cout << __func__ << " event.GetInt() = " << event.GetInt() << '\n';
+		if (event == 0)
+		{
+			sortingMode_ = SERIES_NUMBER;
+		}
+		else if (event == 1)
+		{
+			sortingMode_ = SERIES_NUMBER_AND_IMAGE_POSITION;
+		}
+		else
+		{
+			throw std::logic_error("Invalid sorting mode");
+		}
+		
+		PopulateImageTable();
+	}
+	
+	void SetAnnotation(CardiacAnnotation const& anno)
+	{
+		cardiacAnnotation_ = anno;
+		PopulateImageTable();
+	}
+	
+	static
+	ImageBrowser<ImageBrowseWindow, CmguiManager>*
+	CreateImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
+	{
+		ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = new ImageBrowser<ImageBrowseWindow, CmguiManager>(archiveFilename, manager, client);
+		ImageBrowseWindow* frame = new ImageBrowseWindow(*ib, manager);
+		frame->Show(true);
+		ib->SetImageBrowseWindow(frame);
+		ib->Initialize();
+		
+		return ib;
+	}
+	
+private:
+	
+	// Private constructor means this class must be created from the factory method
+	ImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
+	:
+		archiveFilename_(archiveFilename),
+		cmguiManager_(manager),
+		client_(client),
+		sortingMode_(SERIES_NUMBER),
+		frameNumberCurrentlyOnDisplay_(0)
+	{
 	}
 	
 	void Initialize() // Should be called after the call to SetImageBrowseWindow
@@ -68,6 +270,11 @@ public:
 		}
 		
 		gui_->FitWindow();
+	}
+	
+	void SetImageBrowseWindow(ImageBrowseWindow* gui)
+	{
+		gui_ = gui;
 	}
 	
 	void UpdatePatientInfoPanel(DICOMPtr const& image)
@@ -111,6 +318,15 @@ public:
 		double radius = std::max(width, height) / 2.0;
 		gui_->FitSceneViewer(radius);
 		gui_->RefreshPreviewPanel();
+	}
+	
+	void DisplayImageByFrameNumber(int frameNumber)
+	{
+		std::vector<Cmiss_texture_id> const& textures = textureMap_[sliceKeyCurrentlyOnDisplay_];
+		frameNumberCurrentlyOnDisplay_ = frameNumber;
+		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
+		
+		ShowImageAnnotationCurrentlyOnDisplay();
 	}
 	
 	void UpdateImageInfoPanel(DICOMPtr const& dicomPtr)
@@ -320,196 +536,6 @@ public:
 		return;
 	}
 	
-	void OnImageTableItemSelected(long int userDataPtr)
-	{
-		SliceMap::value_type* const sliceValuePtr = 
-				reinterpret_cast<SliceMap::value_type* const>(userDataPtr);
-		//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
-		//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
-		//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
-				
-		// Display the images from the selected row.
-		SwitchSliceToDisplay(*sliceValuePtr);
-	}
-	
-	void OnAnimationSliderEvent(int value)
-	{	
-//		std::cout << __func__ << " : value = " << value << '\n';
-		DisplayImageByFrameNumber(value);
-		
-		// force redraw while silder is manipulated
-		gui_->RefreshPreviewPanel();
-		return;
-	}
-	
-	void DisplayImageByFrameNumber(int frameNumber)
-	{
-		std::vector<Cmiss_texture_id> const& textures = textureMap_[sliceKeyCurrentlyOnDisplay_];
-		frameNumberCurrentlyOnDisplay_ = frameNumber;
-		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
-		
-		ShowImageAnnotationCurrentlyOnDisplay();
-	}
-
-	void OnShortAxisButtonEvent()
-	{
-	//	std::cout << __func__ << '\n';
-		gui_->PutLabelOnSelectedSlice("Short Axis");
-		
-		// update CardiacAnnotation
-		std::vector<std::string> labelsToRemove;
-		labelsToRemove.push_back("Short Axis");
-		labelsToRemove.push_back("Long Axis");
-		labelsToRemove.push_back("Horizonal Long Axis");
-		labelsToRemove.push_back("Vertial Long Axis");
-		labelsToRemove.push_back("Cine Loop");
-		
-		std::vector<Label> labelsToAdd;
-		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
-		Label short_axis = {"RID:10577", "Slice", "Short Axis"};
-		labelsToAdd.push_back(cine_loop);
-		labelsToAdd.push_back(short_axis);
-		
-		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
-	}
-
-	void OnLongAxisButtonEvent()
-	{
-	//	std::cout << __func__ << '\n';
-		gui_->PutLabelOnSelectedSlice("Long Axis");
-		
-		// update CardiacAnnotation
-		std::vector<std::string> labelsToRemove;
-		labelsToRemove.push_back("Short Axis");
-		labelsToRemove.push_back("Long Axis");
-		labelsToRemove.push_back("Cine Loop");
-		
-		std::vector<Label> labelsToAdd;
-		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
-		Label short_axis = {"RID:10571", "Slice", "Long Axis"};
-		labelsToAdd.push_back(cine_loop);
-		labelsToAdd.push_back(short_axis);
-		
-		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
-	}
-
-	void OnNoneButtonEvent()
-	{
-	//	std::cout << __func__ << '\n';
-		gui_->PutLabelOnSelectedSlice("");
-		
-		// update CardiacAnnotation
-		std::vector<std::string> labelsToRemove;
-		labelsToRemove.push_back("Short Axis");
-		labelsToRemove.push_back("Long Axis");
-		labelsToRemove.push_back("Horizonal Long Axis");
-		labelsToRemove.push_back("Vertial Long Axis");
-		labelsToRemove.push_back("Cine Loop");
-		
-		std::vector<Label> labelsToAdd;
-		
-		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
-	}
-
-	void OnOKButtonEvent()
-	{
-		std::cout << __func__ << '\n';
-		// construct the data structure of type SlicesWithImages to pass to the main window
-		SlicesWithImages slices;
-		
-		std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
-		
-		int shortAxisCount = 1;
-		int longAxisCount = 1;
-		
-		typedef std::pair<std::string, long int> LabelPair;
-		BOOST_FOREACH(LabelPair const& labelPair, labels)
-		{
-			SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(labelPair.second);
-			SliceKeyType const& key = sliceValuePtr->first;
-			std::string sliceName;
-			std::string const& label = labelPair.first;
-			if (label == "Short Axis")
-			{
-				sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
-			}
-			else if (label == "Long Axis")
-			{
-				sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
-			}
-			else
-			{
-				throw std::logic_error("Invalid label : " + label);
-			}
-			SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
-			slices.push_back(sliceInfo);
-		}
-		
-		if (longAxisCount >= 10)
-		{
-			std::cout << "TOO MANY LONG AXES\n";
-			gui_->CreateMessageBox("Too many long axes slices", "Invalid selection");
-			return;
-		}
-		if (shortAxisCount >= 30)
-		{
-			std::cout << "TOO MANY SHORT AXES\n";
-			gui_->CreateMessageBox("Too many short axes slices", "Invalid selection");
-			return;
-		}
-		
-		std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
-
-		std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-		if (slices.empty())
-		{
-			std::cout << "Empty image set.\n";
-			return;
-		}
-		
-		client_.LoadImagesFromImageBrowseWindow(slices);
-		gui_->Close();
-	}
-
-	void OnCancelButtonEvent()
-	{
-		//TODO Cleanup textures - REVISE design
-		// Should probably use reference counted smart pointer for Cmiss_texture
-		// Since the ownership is shared between ImageSlice and this (ImageBrowseWindow)
-		
-		BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-		{
-			Cmiss_texture_id tex = value.second;
-			cmguiManager_.DestroyTexture(tex);
-		}
-//		Close();
-	}
-
-	void OnOrderByRadioBox(int event)
-	{
-	//	std::cout << __func__ << " event.GetInt() = " << event.GetInt() << '\n';
-		if (event == 0)
-		{
-			sortingMode_ = SERIES_NUMBER;
-		}
-		else if (event == 1)
-		{
-			sortingMode_ = SERIES_NUMBER_AND_IMAGE_POSITION;
-		}
-		else
-		{
-			throw std::logic_error("Invalid sorting mode");
-		}
-		
-		PopulateImageTable();
-	}
-	
-	void SetAnnotation(CardiacAnnotation const& anno)
-	{
-		cardiacAnnotation_ = anno;
-		PopulateImageTable();
-	}
-	
 	void ShowImageAnnotationCurrentlyOnDisplay()
 	{
 		gui_->ClearAnnotationTable();
@@ -546,32 +572,6 @@ public:
 				std::cout << label.label << "\n";
 			}
 		}
-	}
-	
-	static
-	ImageBrowser<ImageBrowseWindow, CmguiManager>*
-	CreateImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
-	{
-		ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = new ImageBrowser<ImageBrowseWindow, CmguiManager>(archiveFilename, manager, client);
-		ImageBrowseWindow* frame = new ImageBrowseWindow(*ib, manager);
-		frame->Show(true);
-		ib->SetImageBrowseWindow(frame);
-		ib->Initialize();
-		
-		return ib;
-	}
-	
-private:
-	
-	// Private constructor means this class must be created from the factory method
-	ImageBrowser(std::string const& archiveFilename, CmguiManager const& manager, ImageBrowseWindowClient& client)
-	:
-		archiveFilename_(archiveFilename),
-		cmguiManager_(manager),
-		client_(client),
-		sortingMode_(SERIES_NUMBER),
-		frameNumberCurrentlyOnDisplay_(0)
-	{
 	}
 	
 	void UpdateImageTableLabelsAccordingToCardiacAnnotation()
