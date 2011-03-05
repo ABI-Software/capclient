@@ -92,7 +92,6 @@ public:
 		SliceKeyType const& key = slice.first;
 		std::vector<DICOMPtr> const& images = slice.second;
 		assert(textureMap_.find(key) != textureMap_.end());
-		std::vector<Cmiss_texture_id> const& textures = textureMap_[key];
 		sliceKeyCurrentlyOnDisplay_ = key;
 		
 		// Update the gui
@@ -107,8 +106,7 @@ public:
 		size_t height = images[0]->GetImageHeight();
 		gui_->ResizePreviewImage(width, height);
 		
-		frameNumberCurrentlyOnDisplay_ = 0;
-		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
+		DisplayImageByFrameNumber(0);
 
 		double radius = std::max(width, height) / 2.0;
 		gui_->FitSceneViewer(radius);
@@ -337,13 +335,18 @@ public:
 	void OnAnimationSliderEvent(int value)
 	{	
 //		std::cout << __func__ << " : value = " << value << '\n';
-		std::vector<Cmiss_texture_id> const& textures = textureMap_[sliceKeyCurrentlyOnDisplay_];
-		frameNumberCurrentlyOnDisplay_ = value;
-		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
+		DisplayImageByFrameNumber(value);
 		
 		// force redraw while silder is manipulated
 		gui_->RefreshPreviewPanel();
 		return;
+	}
+	
+	void DisplayImageByFrameNumber(int frameNumber)
+	{
+		std::vector<Cmiss_texture_id> const& textures = textureMap_[sliceKeyCurrentlyOnDisplay_];
+		frameNumberCurrentlyOnDisplay_ = frameNumber;
+		gui_->DisplayImage(textures[frameNumberCurrentlyOnDisplay_]);
 	}
 
 	void OnShortAxisButtonEvent()
@@ -352,6 +355,12 @@ public:
 		gui_->PutLabelOnSelectedSlice("Short Axis");
 		
 		// TODO update CardiacAnnotation
+		std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
+		BOOST_FOREACH(DICOMPtr const& dicomPtr, dicomPtrs)
+		{
+			std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
+			
+		}
 	}
 
 	void OnLongAxisButtonEvent()
@@ -617,7 +626,10 @@ private:
 	CmguiManager const& cmguiManager_;
 	ImageBrowseWindowClient& client_;
 	CardiacAnnotation cardiacAnnotation_;
+	
+	const static std::string aa;
 };
+
 
 } //namespace cap
 
