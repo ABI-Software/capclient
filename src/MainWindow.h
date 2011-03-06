@@ -65,7 +65,7 @@ public:
 	
 	void LoadImagesFromXMLFile(SlicesWithImages const& slices);
 
-	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices);
+	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno);
 	
 private:	
 	//private utility functions
@@ -169,7 +169,7 @@ private:
 
 	MainWindowState mainWindowState_;
 	boost::scoped_ptr<CAPXMLFile> capXMLFilePtr_;
-	boost::scoped_ptr<CAPAnnotationFile> capAnnotationFilePtr_;
+	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_;
 };
 
 } // end namespace cap

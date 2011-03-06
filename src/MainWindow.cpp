@@ -354,7 +354,7 @@ void MainWindow::EnterInitState()
 
 	// Also clean up cmgui objects such as scene, regions, materials ..etc
 	capXMLFilePtr_.reset(0);
-	capAnnotationFilePtr_.reset(0);
+	cardiacAnnotationPtr_.reset(0);
 	if(imageSet_)
 	{
 		delete imageSet_;
@@ -942,16 +942,114 @@ void MainWindow::LoadImagesFromXMLFile(SlicesWithImages const& slices)
 	EnterImagesLoadedState();
 }
 
-void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
-{
+void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
+{	
 	// Reset capXMLFilePtr_
 	if (capXMLFilePtr_)
 	{
 		capXMLFilePtr_.reset(0);
 	}
+//	// Reset the state of the MainWindow
+//	EnterInitState(); // this re-registers the input call back -REVISE
 	
 	LoadImages(slices);
 	InitializeModelTemplate(slices);
+	
+	// Create DataPoints if corresponding annotations exist in the CardiacAnnotation
+	assert(!anno.imageAnnotations.empty());
+	
+	cardiacAnnotationPtr_.reset(new CardiacAnnotation(anno));
+	
+	// The following code should only execute when reading a pre-defined annotation file
+	Cmiss_context_id cmiss_context = cmguiManager_.GetCmissContext();
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
+	bool apexDefined = false;
+	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
+	{
+		BOOST_FOREACH(ROI const& roi, imageAnno.rOIs)
+		{
+			BOOST_FOREACH(Label const& label, roi.labels)
+			{
+				if (label.label == "Apex of Heart")
+				{
+					if (apexDefined)
+					{
+						continue;
+					}
+					// create DataPoint
+					
+					// Find the slice that the image belongs to
+					std::string const& sopiuid = imageAnno.sopiuid;
+					// Find the region for the slice
+					BOOST_FOREACH(SliceInfo const& slice, slices)
+					{
+						if (slice.ContainsDICOMImage(sopiuid))
+						{
+							std::string const& regionName = slice.GetLabel();
+							std::cout << __func__ << " : regionName = " << regionName << '\n';
+							Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
+							
+							DICOMPtr const& dicom = slice.GetDICOMImages().at(0);
+							double delY = dicom->GetPixelSizeX();
+							double delX = dicom->GetPixelSizeY();
+							std::pair<Vector3D,Vector3D> const& ori = dicom->GetImageOrientation();
+							Vector3D const& ori1 = ori.first;
+							Vector3D const& ori2 = ori.second;
+							Point3D pos;
+							if (dicom->IsShifted())
+							{
+								pos = dicom->GetShiftedImagePosition();
+							}
+							else
+							{
+								pos = dicom->GetImagePosition();
+							}
+							
+							//construct transformation matrix
+							gtMatrix m;
+							m[0][0] = ori1.x * delX; m[0][1] = ori2.x * delY; m[0][2] = 0; m[0][3] = pos.x;
+							m[1][0] = ori1.y * delX; m[1][1] = ori2.y * delY; m[1][2] = 0; m[1][3] = pos.y;
+							m[2][0] = ori1.z * delX; m[2][1] = ori2.z * delY; m[2][2] = 1; m[2][3] = pos.z;
+							m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1;
+							
+							Point3D beforeTrans(roi.points.at(0).x, roi.points.at(0).y, 0);
+							Point3D coordPoint3D = m * beforeTrans;
+							double coords[3];
+							coords[0] = coordPoint3D.x;
+							coords[1] = coordPoint3D.y;
+							coords[2] = coordPoint3D.z;
+							
+							double time = 0.0;
+
+							if (!region)
+							{
+								std::cout << __func__ << " : Can't find subregion at path : " << regionName << '\n';
+								throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
+							}
+							Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
+							Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
+											field, (double*) coords, time);
+
+//							Point3D coordPoint3D(coords);
+							assert(modeller_);
+//							AddDataPoint(cmissNode, coordPoint3D, p.type, time);
+							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
+							wxCommandEvent event;
+							OnAcceptButtonPressed(event);
+							Cmiss_region_destroy(&region);
+							apexDefined = true;
+						}
+					}
+					// Convert 2D coords to 3D
+				}
+				else if (label.label == "Base of Heart")
+				{
+					
+				}
+			}
+		}
+	}
+
 	EnterImagesLoadedState();
 }
 
@@ -1176,15 +1274,15 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-		CAPAnnotationFile* annotationFile = new CAPAnnotationFile(filename.c_str());
+		CAPAnnotationFile annotationFile(filename.c_str());
 		std::cout << "Start reading xml file\n";
-		annotationFile->ReadFile();
+		annotationFile.ReadFile();
 		
 		// Create DICOMTable (filename -> DICOMImage map)
 		// Create TextureTable (filename -> Cmiss_texture* map)
 		
 		// check if a valid file 
-		if (annotationFile->GetCardiacAnnotation().imageAnnotations.empty())
+		if (annotationFile.GetCardiacAnnotation().imageAnnotations.empty())
 		{
 			cout << "Invalid Annotation File\n";
 			return;
@@ -1202,8 +1300,8 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 			return;
 		}
 		
-		EnterInitState();
-		capAnnotationFilePtr_.reset(annotationFile);
+//		EnterInitState();
+//		cardiacAnnotationPtr_.reset(new CardiacAnnotation(annotationFile.GetCardiacAnnotation()));
 		
 //		ImageBrowseWindow *frame = new ImageBrowseWindow(std::string(dirname.c_str()), cmguiManager_, *this);
 //		frame->Show(true);
@@ -1211,36 +1309,36 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 				ImageBrowser<ImageBrowseWindow, CmguiManager>::CreateImageBrowser(std::string(dirname.c_str()), cmguiManager_, *this);
 		
 		// Set annotations to the images in the ImageBrowseWindow.
-		ib->SetAnnotation(capAnnotationFilePtr_->GetCardiacAnnotation());
+		ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
 	}
 }
 
-namespace {
-
-void WriteNodesToFile(const std::string& filename, Cmiss_region_id region, Cmiss_region_id root_region)
-{	
-	FE_value time = 0.0;
-	const int write_elements = 0;
-	const int write_nodes = 1;
-	int number_of_field_names = 1;
-	char* field_names[] = {(char*)"coordinates_rect"};
-	int write_data = 0;
-	FE_write_fields_mode write_fields_mode = FE_WRITE_LISTED_FIELDS;
-	FE_write_criterion write_criterion = FE_WRITE_COMPLETE_GROUP;
-	FE_write_recursion write_recursion = FE_WRITE_NON_RECURSIVE;
-	
-	int ret = write_exregion_file_of_name(filename.c_str(),
-			region,  root_region,
-			write_elements , write_nodes , write_data,
-			write_fields_mode, number_of_field_names, field_names, time,
-			write_criterion, write_recursion);
-	if (!ret)
-	{
-		std::cout << __func__ << " - Error writing exnode: " << filename << std::endl;
-	}
-}
-
-}
+//namespace {
+//
+//void WriteNodesToFile(const std::string& filename, Cmiss_region_id region, Cmiss_region_id root_region)
+//{	
+//	FE_value time = 0.0;
+//	const int write_elements = 0;
+//	const int write_nodes = 1;
+//	int number_of_field_names = 1;
+//	char* field_names[] = {(char*)"coordinates_rect"};
+//	int write_data = 0;
+//	FE_write_fields_mode write_fields_mode = FE_WRITE_LISTED_FIELDS;
+//	FE_write_criterion write_criterion = FE_WRITE_COMPLETE_GROUP;
+//	FE_write_recursion write_recursion = FE_WRITE_NON_RECURSIVE;
+//	
+//	int ret = write_exregion_file_of_name(filename.c_str(),
+//			region,  root_region,
+//			write_elements , write_nodes , write_data,
+//			write_fields_mode, number_of_field_names, field_names, time,
+//			write_criterion, write_recursion);
+//	if (!ret)
+//	{
+//		std::cout << __func__ << " - Error writing exnode: " << filename << std::endl;
+//	}
+//}
+//
+//}
 
 void MainWindow::OnSave(wxCommandEvent& event)
 {
@@ -1301,26 +1399,26 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	
 	xmlFile.WriteFile(xmlFilename);
 	
-	// Write contour .exnode files - HACK
-	Cmiss_region* root_region = Cmiss_context_get_default_region(context_);
-	Cmiss_region_id child = Cmiss_region_get_first_child(root_region);
-	while (child)
-	{
-		char* name = Cmiss_region_get_name(child);
-//		cout << name << "\n";
-		std::string regionName(name);
-		free(name);
-		if (regionName.substr(0,8) == "contour_")
-		{
-			std::string filename  = std::string(dirname.c_str()) + "/" + regionName + ".exnode";
-			WriteNodesToFile(filename, child, root_region);
-		}
-		
-		Cmiss_region_id copy = child;
-		child =  Cmiss_region_get_next_sibling(child);
-		Cmiss_region_destroy(&copy);
-	}
-	Cmiss_region_destroy(&root_region);
+//	// Write contour .exnode files - HACK
+//	Cmiss_region* root_region = Cmiss_context_get_default_region(context_);
+//	Cmiss_region_id child = Cmiss_region_get_first_child(root_region);
+//	while (child)
+//	{
+//		char* name = Cmiss_region_get_name(child);
+////		cout << name << "\n";
+//		std::string regionName(name);
+//		free(name);
+//		if (regionName.substr(0,8) == "contour_")
+//		{
+//			std::string filename  = std::string(dirname.c_str()) + "/" + regionName + ".exnode";
+//			WriteNodesToFile(filename, child, root_region);
+//		}
+//		
+//		Cmiss_region_id copy = child;
+//		child =  Cmiss_region_get_next_sibling(child);
+//		Cmiss_region_destroy(&copy);
+//	}
+//	Cmiss_region_destroy(&root_region);
 }
 
 std::string MainWindow::PromptForUserComment()

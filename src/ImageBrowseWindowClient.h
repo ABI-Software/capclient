@@ -13,12 +13,13 @@
 namespace cap
 {
 
+class CardiacAnnotation;
 // pure abstract base class that defines the interface of ImageBrowseWindow's client
 class ImageBrowseWindowClient
 {
 public:
 	virtual ~ImageBrowseWindowClient() {};
-	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices) = 0;
+	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno) = 0;
 };
 
 } // end namespace cap

@@ -156,7 +156,7 @@ public:
 	{
 		input_.images.clear();
 		input_.cardiacAnnotation = CardiacAnnotation();
-		input_.studyContours = StudyContours();
+//		input_.studyContours = StudyContours(); contour does not change
 		output_.exnodes.clear();
 		output_.elemFileName = "";
 	}
