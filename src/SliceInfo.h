@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <boost/tr1/memory.hpp>
+#include <boost/bind.hpp>
 
 extern "C"
 {
@@ -49,6 +50,14 @@ public:
 	std::vector<Cmiss_texture_id> const& GetTextures() const
 	{
 		return textures_;
+	}
+	
+	bool ContainsDICOMImage(std::string const& sopiuid) const
+	{
+		std::vector<DICOMPtr>::const_iterator itr = 
+				std::find_if(dicomImages_.begin(), dicomImages_.end(),
+						boost::bind(&DICOMImage::GetSopInstanceUID,_1) == sopiuid);
+		return itr != dicomImages_.end();
 	}
 	
 private:

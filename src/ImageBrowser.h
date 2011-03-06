@@ -182,7 +182,7 @@ public:
 			return;
 		}
 		
-		client_.LoadImagesFromImageBrowseWindow(slices);
+		client_.LoadImagesFromImageBrowseWindow(slices, cardiacAnnotation_);
 		gui_->Close();
 	}
 

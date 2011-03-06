@@ -62,7 +62,7 @@ class TestImageBrowseWindowClient : public ImageBrowseWindowClient
 {
 public:
 	virtual ~TestImageBrowseWindowClient() {}
-	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices)
+	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
 	{}
 };
 

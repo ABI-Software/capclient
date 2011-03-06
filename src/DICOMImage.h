@@ -200,6 +200,16 @@ public:
 //				boost::bind(&CAPContour::SetVisibility, _1, visibility));
 //	}
 	
+	double GetPixelSizeX() const
+	{
+		return pixelSizeX_;
+	}
+	
+	double GetPixelSizeY() const
+	{
+		return pixelSizeY_;
+	}
+	
 private:
 	void ReadDICOMFile();
 	
