@@ -964,6 +964,7 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices,
 	Cmiss_context_id cmiss_context = cmguiManager_.GetCmissContext();
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
 	bool apexDefined = false;
+	bool baseDefined = false;
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
 	{
 		BOOST_FOREACH(ROI const& roi, imageAnno.rOIs)
@@ -976,17 +977,16 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices,
 					{
 						continue;
 					}
-					// create DataPoint
-					
-					// Find the slice that the image belongs to
+					// create DataPoint		
 					std::string const& sopiuid = imageAnno.sopiuid;
-					// Find the region for the slice
 					BOOST_FOREACH(SliceInfo const& slice, slices)
 					{
+						// Find the slice that the image belongs to
 						if (slice.ContainsDICOMImage(sopiuid))
 						{
 							std::string const& regionName = slice.GetLabel();
 							std::cout << __func__ << " : regionName = " << regionName << '\n';
+							// Find the region for the slice
 							Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
 							
 							DICOMPtr const& dicom = slice.GetDICOMImages().at(0);
@@ -1012,6 +1012,7 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices,
 							m[2][0] = ori1.z * delX; m[2][1] = ori2.z * delY; m[2][2] = 1; m[2][3] = pos.z;
 							m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1;
 							
+							// Convert 2D coords to 3D
 							Point3D beforeTrans(roi.points.at(0).x, roi.points.at(0).y, 0);
 							Point3D coordPoint3D = m * beforeTrans;
 							double coords[3];
@@ -1030,9 +1031,7 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices,
 							Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
 											field, (double*) coords, time);
 
-//							Point3D coordPoint3D(coords);
 							assert(modeller_);
-//							AddDataPoint(cmissNode, coordPoint3D, p.type, time);
 							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
 							wxCommandEvent event;
 							OnAcceptButtonPressed(event);
@@ -1040,11 +1039,75 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices,
 							apexDefined = true;
 						}
 					}
-					// Convert 2D coords to 3D
 				}
 				else if (label.label == "Base of Heart")
 				{
-					
+					if (baseDefined)
+					{
+						continue;
+					}
+					// create DataPoint		
+					std::string const& sopiuid = imageAnno.sopiuid;
+					BOOST_FOREACH(SliceInfo const& slice, slices)
+					{
+						// Find the slice that the image belongs to
+						if (slice.ContainsDICOMImage(sopiuid))
+						{
+							std::string const& regionName = slice.GetLabel();
+							std::cout << __func__ << " : regionName = " << regionName << '\n';
+							// Find the region for the slice
+							Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
+							
+							DICOMPtr const& dicom = slice.GetDICOMImages().at(0);
+							double delY = dicom->GetPixelSizeX();
+							double delX = dicom->GetPixelSizeY();
+							std::pair<Vector3D,Vector3D> const& ori = dicom->GetImageOrientation();
+							Vector3D const& ori1 = ori.first;
+							Vector3D const& ori2 = ori.second;
+							Point3D pos;
+							if (dicom->IsShifted())
+							{
+								pos = dicom->GetShiftedImagePosition();
+							}
+							else
+							{
+								pos = dicom->GetImagePosition();
+							}
+							
+							//construct transformation matrix
+							gtMatrix m;
+							m[0][0] = ori1.x * delX; m[0][1] = ori2.x * delY; m[0][2] = 0; m[0][3] = pos.x;
+							m[1][0] = ori1.y * delX; m[1][1] = ori2.y * delY; m[1][2] = 0; m[1][3] = pos.y;
+							m[2][0] = ori1.z * delX; m[2][1] = ori2.z * delY; m[2][2] = 1; m[2][3] = pos.z;
+							m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1;
+							
+							// Convert 2D coords to 3D
+							Point3D beforeTrans(roi.points.at(0).x, roi.points.at(0).y, 0);
+							Point3D coordPoint3D = m * beforeTrans;
+							double coords[3];
+							coords[0] = coordPoint3D.x;
+							coords[1] = coordPoint3D.y;
+							coords[2] = coordPoint3D.z;
+							
+							double time = 0.0;
+
+							if (!region)
+							{
+								std::cout << __func__ << " : Can't find subregion at path : " << regionName << '\n';
+								throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
+							}
+							Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
+							Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
+											field, (double*) coords, time);
+
+							assert(modeller_);
+							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
+							wxCommandEvent event;
+							OnAcceptButtonPressed(event);
+							Cmiss_region_destroy(&region);
+							baseDefined = true;
+						}
+					}
 				}
 			}
 		}
