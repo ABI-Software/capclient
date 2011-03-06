@@ -1112,7 +1112,8 @@ void MainWindow::LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices,
 			}
 		}
 	}
-
+	Cmiss_region_destroy(&root_region);
+	
 	EnterImagesLoadedState();
 }
 
