@@ -155,7 +155,7 @@ public:
 	void ClearInputAndOutput()
 	{
 		input_.images.clear();
-		input_.cardiacAnnotation = CardiacAnnotation();
+//		input_.cardiacAnnotation = CardiacAnnotation();
 //		input_.studyContours = StudyContours(); contour does not change
 		output_.exnodes.clear();
 		output_.elemFileName = "";
@@ -199,6 +199,11 @@ public:
 	void SetStudyInstanceUID(std::string const& uid)
 	{
 		studyIUid_ = uid;
+	}
+	
+	void SetCardiacAnnotation(CardiacAnnotation const& anno)
+	{
+		input_.cardiacAnnotation = anno;
 	}
 	
 private:
