@@ -1243,6 +1243,7 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
+		cardiacAnnotationPtr_.reset(0);
 //		CAPXMLFile xmlFile(filename.c_str());
 		capXMLFilePtr_.reset(new CAPXMLFile(filename.c_str()));
 		CAPXMLFile& xmlFile(*capXMLFilePtr_);
@@ -1376,33 +1377,6 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 	}
 }
 
-//namespace {
-//
-//void WriteNodesToFile(const std::string& filename, Cmiss_region_id region, Cmiss_region_id root_region)
-//{	
-//	FE_value time = 0.0;
-//	const int write_elements = 0;
-//	const int write_nodes = 1;
-//	int number_of_field_names = 1;
-//	char* field_names[] = {(char*)"coordinates_rect"};
-//	int write_data = 0;
-//	FE_write_fields_mode write_fields_mode = FE_WRITE_LISTED_FIELDS;
-//	FE_write_criterion write_criterion = FE_WRITE_COMPLETE_GROUP;
-//	FE_write_recursion write_recursion = FE_WRITE_NON_RECURSIVE;
-//	
-//	int ret = write_exregion_file_of_name(filename.c_str(),
-//			region,  root_region,
-//			write_elements , write_nodes , write_data,
-//			write_fields_mode, number_of_field_names, field_names, time,
-//			write_criterion, write_recursion);
-//	if (!ret)
-//	{
-//		std::cout << __func__ << " - Error writing exnode: " << filename << std::endl;
-//	}
-//}
-//
-//}
-
 void MainWindow::OnSave(wxCommandEvent& event)
 {
 	wxString defaultPath = wxGetCwd();;
@@ -1460,28 +1434,12 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	std::string xmlFilename = std::string(dirname.c_str()) + "/" + modelName + ".xml";
 	std::cout << "xmlFilename = " << xmlFilename << '\n';
 	
-	xmlFile.WriteFile(xmlFilename);
+	if (cardiacAnnotationPtr_)
+	{
+		xmlFile.SetCardiacAnnotation(*cardiacAnnotationPtr_);
+	}
 	
-//	// Write contour .exnode files - HACK
-//	Cmiss_region* root_region = Cmiss_context_get_default_region(context_);
-//	Cmiss_region_id child = Cmiss_region_get_first_child(root_region);
-//	while (child)
-//	{
-//		char* name = Cmiss_region_get_name(child);
-////		cout << name << "\n";
-//		std::string regionName(name);
-//		free(name);
-//		if (regionName.substr(0,8) == "contour_")
-//		{
-//			std::string filename  = std::string(dirname.c_str()) + "/" + regionName + ".exnode";
-//			WriteNodesToFile(filename, child, root_region);
-//		}
-//		
-//		Cmiss_region_id copy = child;
-//		child =  Cmiss_region_get_next_sibling(child);
-//		Cmiss_region_destroy(&copy);
-//	}
-//	Cmiss_region_destroy(&root_region);
+	xmlFile.WriteFile(xmlFilename);
 }
 
 std::string MainWindow::PromptForUserComment()

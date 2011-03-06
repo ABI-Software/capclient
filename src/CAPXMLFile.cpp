@@ -11,7 +11,6 @@
 #include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
-//#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -138,21 +137,6 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 			ReadPoint(p, child);
 			image.points.push_back(p);
 		}
-//		else if (!xmlStrcmp(child->name, (const xmlChar *)"ContourFile"))
-//		{
-//			CAPXMLFile::ContourFile contourFile;
-//			//read contour file
-//			xmlChar *filename = xmlNodeListGetString(doc, child->xmlChildrenNode, 1);
-//			contourFile.fileName = (char*)filename;
-//			xmlChar* numberStr = xmlGetProp(child, (xmlChar const*)"number");
-//			if (numberStr) // number attribute found
-//			{
-//				contourFile.number = boost::lexical_cast<int>((char*)numberStr);
-//			}
-////			std::cout << "ContourFile = " << filename << '\n';
-//			image.contourFiles.push_back(contourFile);
-//			xmlFree(filename);
-//		}
 		else if (!xmlStrcmp(child->name, (const xmlChar *)"ImagePosition"))
 		{
 			xmlNodePtr valueNode = child->xmlChildrenNode;
@@ -508,14 +492,6 @@ void ConstructPointSubtree(CAPXMLFile::Point const &point, xmlNodePtr imageNode)
 	
 }
 
-//void ConstructContourFileNode(CAPXMLFile::ContourFile const &contourFile, xmlNodePtr imageNode)
-//{
-//	xmlNodePtr contourFileNode = xmlNewChild(imageNode, NULL,
-//			BAD_CAST "ContourFile", BAD_CAST contourFile.fileName.c_str());
-//	std::string number = boost::lexical_cast<std::string>(contourFile.number);
-//	xmlNewProp(contourFileNode, BAD_CAST "number", BAD_CAST number.c_str());
-//}
-
 void ConstructContourPointNode(CAPXMLFile::ContourPoint const& contourPoint, xmlNodePtr contourNode)
 {
 	xmlNodePtr contourPointNode = xmlNewChild(contourNode, NULL, BAD_CAST "ContourPoint", NULL);
@@ -562,6 +538,10 @@ void ConstructImageContoursSubtree(CAPXMLFile::ImageContours const& imageContour
 
 void ContructStudyContoursSubtree(CAPXMLFile::StudyContours const& studyContours, xmlNodePtr node)
 {
+	if (studyContours.listOfImageContours.empty())
+	{
+		return;
+	}
 	xmlNodePtr studyContoursNode = xmlNewChild(node, NULL, BAD_CAST "StudyContours", NULL);
 	xmlNewProp(studyContoursNode, BAD_CAST "studyiuid", BAD_CAST studyContours.studyiuid.c_str());
 	
@@ -769,8 +749,13 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	std::for_each(input_.images.begin(), input_.images.end(),
 			boost::bind(ConstructImageSubtree, _1, inputNode));
 	ContructStudyContoursSubtree(input_.studyContours, inputNode);
-	CAPAnnotationFile annoFile("");
-	annoFile.ConstructCardiacAnnotation(input_.cardiacAnnotation, inputNode);
+	if (!input_.cardiacAnnotation.imageAnnotations.empty())
+	{
+		xmlNodePtr cardiacAnnotationNode = xmlNewChild(inputNode, NULL, BAD_CAST "CardiacAnnotation", NULL);
+		xmlNewProp(cardiacAnnotationNode, BAD_CAST "studyiuid", BAD_CAST input_.cardiacAnnotation.studyiuid.c_str());
+		CAPAnnotationFile annoFile("");
+		annoFile.ConstructCardiacAnnotation(input_.cardiacAnnotation, cardiacAnnotationNode);
+	}
 
 	//CAPXMLOutput
 	xmlNodePtr outputNode = xmlNewChild(root_node, NULL, BAD_CAST "Output", NULL);
@@ -831,19 +816,6 @@ void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& p
 	}
 	itr->points.push_back(point);
 }
-
-//void CAPXMLFile::AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile)
-//{
-//	using boost::bind;
-//	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
-//					( bind(&Image::sopiuid, _1) == imageSopiuid) );
-//	if (itr == input_.images.end())
-//	{
-////		std::cout << __func__ << ": No image with the requested uid : " << imageSopiuid << '\n';
-//		throw std::invalid_argument("No image with the requested uid : " + imageSopiuid);
-//	}
-//	itr->contourFiles.push_back(contourFile);
-//}
 
 void CAPXMLFile::AddExnode(Exnode const& exnode)
 {
