@@ -67,6 +67,10 @@ public:
 
 	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno);
 	
+	void SaveModel(std::string const& dirname, std::string const userComment);
+	
+	void OpenModel(std::string const& filename);
+	
 private:	
 	//private utility functions
 	
