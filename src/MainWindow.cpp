@@ -1326,83 +1326,6 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
 		OpenModel(filename.c_str());
-//		cardiacAnnotationPtr_.reset(0);
-////		CAPXMLFile xmlFile(filename.c_str());
-//		capXMLFilePtr_.reset(new CAPXMLFile(filename.c_str()));
-//		CAPXMLFile& xmlFile(*capXMLFilePtr_);
-//		std::cout << "Start reading xml file\n";
-//		xmlFile.ReadFile();
-//		
-//		CAPXMLFileHandler xmlFileHandler(xmlFile);
-//		SlicesWithImages const& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
-//		if (slicesWithImages.empty())
-//		{
-//			std::cout << "Can't locate image files\n";
-//			return;
-//		}
-//
-//		// TODO clean up first
-//		LoadImagesFromXMLFile(slicesWithImages);
-//
-//		std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints(cmguiManager_);
-//
-//		std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
-//		std::cout << "number of exnodeFilenames = " << exnodeFileNames.size() << '\n';
-//		if (exnodeFileNames.empty())
-//		{
-//			// This means no output element is defined
-//			InitializeModelTemplate(slicesWithImages);
-//			modeller_->SetDataPoints(dataPoints);
-//			// FIXME memory is prematurely released when ok button is pressed from the following window
-//			// Suppress this feature for now
-////			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
-////			frame->Show(true);
-//			
-//			//HACK : uncommenting the following will enable models to be constructed from model files with
-//			// only the input element defined.
-////			EnterModelLoadedState();
-////			
-////			wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-////
-////			for (size_t i = 1; i < 5; i++)
-////			{
-////				choice->Append(ModeStrings[i]);
-////			}
-////			choice->SetSelection(CAPModeller::GUIDEPOINT);
-////			RefreshCmguiCanvas();
-//			
-//			return;
-//		}
-//		
-//		std::string const& exelemFileName = xmlFile.GetExelemFileName();
-//
-//		//HACK FIXME
-//		std::string xmlFilename = filename.c_str();
-//		size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
-//		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
-//		std::cout << "modelFilePath = " << modelFilePath << '\n';
-//
-//		heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
-//		assert(heartModelPtr_);
-//		heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
-//		int numberOfModelFrames = exnodeFileNames.size();
-//		heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
-//		LoadHeartModel(modelFilePath, exnodeFileNames);
-//		gtMatrix m;
-//		xmlFile.GetTransformationMatrix(m);
-//		heartModelPtr_->SetLocalToGlobalTransformation(m);
-//		modeller_->SetDataPoints(dataPoints);
-//		UpdateMII();
-//
-//		//HACK
-//		wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-//
-//		for (size_t i = 1; i < 5; i++)
-//		{
-//			choice->Append(ModeStrings[i]);
-//		}
-//		choice->SetSelection(CAPModeller::GUIDEPOINT);
-//		RefreshCmguiCanvas();
 	}
 }
 
@@ -1528,47 +1451,6 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	}
 
 	SaveModel(dirname.c_str(), userComment);
-	
-//	if (!wxMkdir(dirname.c_str()))
-//	{
-//		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
-//		return;
-//	}
-//	
-//	// Need to write the model files first 
-//	// FIXME : this is brittle code. shoule be less dependent on the order of execution
-//	if (mainWindowState_ == MODEL_LOADED_STATE)
-//	{
-//	    cout << __func__ << " - Model name: " << dirname.c_str() << endl;
-//	    assert(heartModelPtr_);
-//	    heartModelPtr_->WriteToFile(dirname.c_str());
-//	}
-//	
-//	if (!capXMLFilePtr_)
-//	{
-//		capXMLFilePtr_.reset(new CAPXMLFile(dirname.c_str()));
-//	}
-//	CAPXMLFile& xmlFile(*capXMLFilePtr_);
-//	
-//	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
-//	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
-//	CAPXMLFileHandler xmlFileHandler(xmlFile);
-//	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, *heartModelPtr_);
-//	xmlFileHandler.AddProvenanceDetail(userComment);
-//	
-//	std::string dirnameStl(dirname.c_str());
-//	size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
-//	std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);
-//	xmlFile.SetName(modelName);
-//	std::string xmlFilename = std::string(dirname.c_str()) + "/" + modelName + ".xml";
-//	std::cout << "xmlFilename = " << xmlFilename << '\n';
-//	
-//	if (cardiacAnnotationPtr_)
-//	{
-//		xmlFile.SetCardiacAnnotation(*cardiacAnnotationPtr_);
-//	}
-//	
-//	xmlFile.WriteFile(xmlFilename);
 }
 
 std::string MainWindow::PromptForUserComment()
@@ -1653,7 +1535,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	return;
 	//// test
 
-	heartModelPtr_.reset(0);
+//	heartModelPtr_.reset(0);
 //	Cmiss_region_id root = Cmiss_context_get_default_region(context_);
 //	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, "/heart/");
 //	Cmiss_region_id copy = region;
