@@ -339,38 +339,20 @@ public:
 		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 	}
 	
-	void OnAnimationSliderEvent(int value, int min, int max)
+	void OnAnimationSliderEvent(double time)
 	{
 		if (!heartModelPtr_) //FIXME
 		{
 			return;
 		}
 		
-		double time =  (double)(value - min) / (double)(max - min);
-		double prevFrameTime = heartModelPtr_->MapToModelFrameTime(time);
-		if ((time - prevFrameTime) < (0.5)/(heartModelPtr_->GetNumberOfModelFrames()))
-		{
-			time = prevFrameTime;
-		}
-		else
-		{
-			time = prevFrameTime + (double)1/(heartModelPtr_->GetNumberOfModelFrames());
-		}
-
-		// fix for the bug where the client crashes on linux
-		int newFrame = static_cast<int>(time * (max - min));
-		if (newFrame == value)
-		{
-			return;
-		}
-		
-	//	cout << __func__ << ": time = " << time << endl;;
-	//	imageSet_->SetTime(time);
 		time = (time > 0.99) ? 0 : time;
 		
 		Time_keeper_request_new_time(timeKeeper_, time);
 		
-		Refresh3DCanvas(); // forces redraw while silder is manipulated
+		int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
+		gui_->SetTime(time, frameNumber);
+		Refresh3DCanvas(); // forces redraw while silder is being manipulated
 	}
 	
 	void OnAnimationSpeedControlEvent(double speed)
@@ -873,6 +855,8 @@ private:
 		Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 		Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
 		Time_keeper_set_maximum(timeKeeper_, 1);
+		
+		gui_->SetAnimationSliderRange(0, numberOfLogicalFrames);
 
 		mainWindowState_ = IMAGES_LOADED_STATE;
 	}
