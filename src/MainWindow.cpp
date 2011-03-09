@@ -74,7 +74,7 @@ void MainWindow::EnterInitState()
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(false);
 //	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
 
-	objectList_->Clear();
+//	objectList_->Clear();
 
 //	this->Fit();
 //	this->Centre();
@@ -168,11 +168,13 @@ void MainWindow::Terminate(wxCloseEvent& event)
 
 void MainWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, std::vector<bool> const& visibilities)
 {
+	std::cout << __func__ << '\n';
 	objectList_->Clear();
 	
 	size_t index = 0;
 	BOOST_FOREACH(std::string const& sliceName, sliceNames)
 	{
+		std::cout << "Slice name = " << sliceName << '\n';
 		objectList_->Append(sliceName.c_str());
 		bool visible = visibilities.at(index);
 		/* default selection */
