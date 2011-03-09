@@ -1037,7 +1037,7 @@ private:
 		LoadTemplateHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
 //		XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false); FIXME
 //		XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
-		gui_->EnterInitState();
+		gui_->EnterInitState(); // HACK to clear mii and wireframe check boxes
 		heartModelPtr_->SetMIIVisibility(false);
 		heartModelPtr_->SetModelVisibility(false);
 	}
