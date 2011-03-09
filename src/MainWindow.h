@@ -1,115 +1,56 @@
 #ifndef __MAINWINDOW_H__
 #define __MAINWINDOW_H__
 
-extern "C" {
-#include "api/cmiss_context.h"
-}
-
 #include "wx/wxprec.h"
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
     #include "wx/wx.h"
 #endif
 
-#include "CAPModelLVPS4X4.h"
-//#include "CAPModeller.h"
-#include "ImageBrowseWindowClient.h"
-
-#include <boost/scoped_ptr.hpp>
-
-struct Cmiss_node;
+#include "MainApp.h"
 
 namespace cap
 {
 
-class ImageSet;
 class CmguiManager;
-class CAPModeller;
-class CAPXMLFile;
-class CAPAnnotationFile;
 
-class MainWindow : public wxFrame, public ImageBrowseWindowClient
+class MainWindow : public wxFrame
 {
 public:
-	explicit MainWindow(CmguiManager const& cmguiManager);
+	explicit MainWindow(MainApp<MainWindow, CmguiManager>& mainApp);
 	~MainWindow();
 
-//	wxPanel* getPanel() const;
-	
-	Cmiss_scene_viewer_id GetCmissSceneViewer() const
+	wxPanel* Get3DPanel() const
 	{
-		return sceneViewer_;
+		return m_pPanel;
 	}
 	
-	void SetTime(double time);
+	void SetTime(double time, int frameNumber);
 	
-	void RefreshCmguiCanvas();
-	
-	//void AddDataPoint(DataPoint* dataPoint);
+	void PlayCine();
 	
 	void StopCine();
 	
-	void AddDataPoint(Cmiss_node*, const cap::Point3D&);
+	void UpdateModeSelectionUI(int mode);
 	
-	void MoveDataPoint(Cmiss_node*, const cap::Point3D&);
-	
-	void RemoveDataPoint(Cmiss_node* dataPointID);
-	
-	void SmoothAlongTime();
-	
-//	void InitialiseModel();
-	
-	double GetCurrentTime() const;
-	
-	void LoadImages(SlicesWithImages const& slices);
-	
-	void LoadImagesFromXMLFile(SlicesWithImages const& slices);
-
-	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno);
-	
-	void SaveModel(std::string const& dirname, std::string const userComment);
-	
-	void OpenModel(std::string const& filename);
-	
-private:	
-	//private utility functions
-	
-	void SetImageVisibility(bool visibility, int index);
-	
-	void SetImageVisibility(bool visibility, const std::string& name = std::string());
-	
-	void InitialiseVolumeGraph();
-	
-	void InitialiseMII();
-	
-	void UpdateMII();
-	
-	void LoadImages();
-	
-	void LoadTemplateHeartModel(std::string const& dirOnly, std::string const& prefix);
-	
-	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames);
-	
-	void InitializeModelTemplate(SlicesWithImages const& slices);
-	
-	void UpdateStatesAfterLoadingModel();
-	
-	void PopulateObjectList();
-	
-	template <typename Widget>
-	Widget* GetWidgetByName(std::string const& name);
-
 	void EnterInitState();
 
 	void EnterImagesLoadedState();
 
 	void EnterModelLoadedState();
 	
-	std::string PromptForUserComment();
+	void PopulateSliceList(std::vector<std::string> const& sliceNames,  std::vector<bool> const& visibilities);
 	
-	void PlayCine();
-
-	void CreateModeller();
+	bool IsSliceChecked(int i) const
+	{
+		return objectList_->IsChecked(i);
+	}
+	
+private:
+	template <typename Widget>
+	Widget* GetWidgetByName(std::string const& name);
+	
+	std::string PromptForUserComment();
 
 	void ResetModeChoice();
 
@@ -148,32 +89,8 @@ private:
 	
 	wxCheckListBox* objectList_;
 	wxPanel* m_pPanel;
-	
-	CmguiManager const& cmguiManager_;
-	Cmiss_context_id context_;
-	Cmiss_time_keeper* timeKeeper_;
-	Cmiss_time_notifier* timeNotifier_;
-	ImageSet* imageSet_;
-	
-	bool animationIsOn_;
-	bool hideAll_;
-	
-	boost::scoped_ptr<CAPModelLVPS4X4> heartModelPtr_;
-	
-	CAPModeller* modeller_;
-	
-	Cmiss_scene_viewer_id sceneViewer_;
 
-	enum MainWindowState
-	{
-		INIT_STATE,
-		IMAGES_LOADED_STATE,
-		MODEL_LOADED_STATE
-	};
-
-	MainWindowState mainWindowState_;
-	boost::scoped_ptr<CAPXMLFile> capXMLFilePtr_;
-	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_;
+	MainApp<MainWindow, CmguiManager>& mainApp_;
 };
 
 } // end namespace cap

@@ -77,6 +77,32 @@ public:
 	
 	void ChangeMode(ModellingMode mode);
 	
+	ModellingMode GetCurrentMode() const
+	{
+		ModellingMode mode;
+		if (currentModellingMode_ == &modellingModeApex_)
+		{
+			mode = APEX;
+		}
+		else if (currentModellingMode_ == &modellingModeBase_)
+		{
+			mode = BASE;
+		}
+		else if (currentModellingMode_ == &modellingModeRV_)
+		{
+			mode = RV;
+		}
+		else if (currentModellingMode_ == &modellingModeBasePlane_)
+		{
+			mode = BASEPLANE;
+		}
+		else
+		{
+			mode = GUIDEPOINT;
+		}
+		return mode;
+	}
+	
 private:
 	void ChangeMode(CAPModellingMode* newMode);
 	

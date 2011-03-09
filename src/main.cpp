@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "MainApp.h"
 #include "MainWindow.h"
 #include "CAPEulaDialog.h"
 #include "CmguiManager.h"
@@ -70,12 +71,16 @@ int main(int argc,char *argv[])
 			if (!HandleEula())
 				return 0;
 			
-//			cap::AnnotationEditor editor;
-//			cap::AnnotationWindow* anno = new cap::AnnotationWindow(editor);
-//			anno->Show(true);
-			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
-			frame->Show(true);
+//			cap::MainWindow *frame = new cap::MainWindow(cmguiManager);
+//			frame->Show(true);
+			using namespace cap;
+			MainApp<MainWindow, CmguiManager>* app = MainApp<MainWindow, CmguiManager>::CreateMainApp(cmguiManager);
 			Cmiss_context_run_main_loop(context);//app.OnRun()
+			
+//			//TEST
+//			frame->Show(false);
+//			frame->OpenModel("/Users/jchu014/cmiss/api_test2/temp/cap_generated/lots_of_gp.xml");
+//			frame->SaveModel("/Users/jchu014/cmiss/api_test2/temp/batch_mode", "batch mode test");
 		}
 		Cmiss_context_destroy(&context);
 	}

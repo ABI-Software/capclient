@@ -28,10 +28,12 @@
 					<label>Save Model</label>
 					<help></help>
 				</object>
+<!--
 				<object class="wxMenuItem" name="ExportMenuItem">
 					<label>Export Model</label>
 					<help></help>
 				</object>
+-->
 				<object class="separator" />
 				<object class="wxMenuItem" name="QuitMenuItem">
 					<label>Exit\tAlt-X</label>
