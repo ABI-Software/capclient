@@ -25,6 +25,7 @@ MainWindow::MainWindow(MainApp<MainWindow, CmguiManager>& mainApp)
 	
 	// GUI initialization
 	CreateStatusBar(0);
+	UpdateFrameNumber(0);
 
 	// Initialize check box list of scene objects (image slices)
 	objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
@@ -207,26 +208,24 @@ void MainWindow::OnObjectCheckListSelected(wxCommandEvent& event)
 	return;
 }
 
+void MainWindow::SetAnimationSliderRange(int min, int max)
+{
+	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
+	slider->SetMin(min);
+	slider->SetMax(max);
+}
+
 void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
 	int value = slider->GetValue();
-	
 	int min = slider->GetMin();
 	int max = slider->GetMax();
-	double time =  (double)(value - min) / (double)(max - min);
-
-
-//	// fix for the bug where the client crashes on linux
-	int newFrame = static_cast<int>(time * (max - min));
-	if (newFrame == value)
-	{
-		return;
-	}
-
-	slider->SetValue(static_cast<int>(time * (max - min)));
 	
-	mainApp_.OnAnimationSliderEvent(value, min, max);
+	std::cout << __func__ << " : time = " << value << ", min = " << min << ", max = " << max << '\n';
+	double time =  (double)(value - min) / (double)(max - min);
+	
+	mainApp_.OnAnimationSliderEvent(time);
 	
 	return;
 }
@@ -244,6 +243,13 @@ void MainWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	return;
 }
 
+void MainWindow::UpdateFrameNumber(int frameNumber)
+{
+	std::ostringstream frameNumberStringStream;
+	frameNumberStringStream << "Frame Number: " << frameNumber;
+	SetStatusText(wxT(frameNumberStringStream.str().c_str()), 0);
+}
+
 void MainWindow::SetTime(double time, int frameNumber)
 {
 	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
@@ -252,9 +258,7 @@ void MainWindow::SetTime(double time, int frameNumber)
 	//cout << "min = " << min << " ,max = " << max <<endl; 
 	slider->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
 
-	std::ostringstream frameNumberStringStream;
-	frameNumberStringStream << "Frame Number: " << frameNumber;
-	SetStatusText(wxT(frameNumberStringStream.str().c_str()), 0);
+	UpdateFrameNumber(frameNumber);
 	return;
 }
 

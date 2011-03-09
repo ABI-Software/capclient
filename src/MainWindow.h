@@ -46,12 +46,16 @@ public:
 		return objectList_->IsChecked(i);
 	}
 	
+	void SetAnimationSliderRange(int min, int max);
+	
 private:
 	template <typename Widget>
 	Widget* GetWidgetByName(std::string const& name);
 	
 	std::string PromptForUserComment();
 
+	void UpdateFrameNumber(int frameNumber);
+	
 	void ResetModeChoice();
 
 	void UpdateModelVisibilityAccordingToUI();
