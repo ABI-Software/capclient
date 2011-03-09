@@ -8,7 +8,7 @@
 #include "FileSystem.h"
 #include <dirent.h>
 #include <iostream>
-
+#include <sys/stat.h>
 namespace cap
 {
 
@@ -53,6 +53,16 @@ const std::vector<std::string>& FileSystem::getAllFileNames()
 	}
 	
 	return filenames;
+}
+
+void FileSystem::CreateDirectory(std::string const& dirname)
+{
+	std::string fullpath = dir_path + dirname;
+	int ret = mkdir(fullpath.c_str(), 0777);
+	if (ret == -1)
+	{
+		std::cout << __func__ << " : Can't create directory : " << fullpath << '\n';
+	}
 }
 
 } // end namespace cap

@@ -35,6 +35,7 @@ CmguiManager::CmguiManager(Cmiss_context_id context)
 	
 Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel, std::string const& sceneName) const
 {
+	std::cout << __func__ << '\n';
 	Cmiss_scene_viewer_id sceneViewer = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(cmissContext_),
 			panel,
 			CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
@@ -42,6 +43,8 @@ Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel, std::strin
 			/*minimum_colour_buffer_depth*/8,
 			/*minimum_depth_buffer_depth*/8,
 			/*minimum_accumulation_buffer_depth*/8);
+	
+	std::cout << "Done creating scene viewer\n";
 	
 	if (!sceneName.empty())
 	{
