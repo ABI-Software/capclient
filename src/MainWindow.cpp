@@ -362,7 +362,7 @@ void MainWindow::UpdateModeSelectionUI(int newMode)
 	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
 
 	ResetModeChoice();
-	for (size_t i = 1; i < newMode; i++)
+	for (size_t i = 1; i <= newMode; i++)
 	{
 		choice->Append(ModeStrings[i]);
 	}
