@@ -443,6 +443,7 @@ public:
 		if (modeller_->OnAccept())
 		{
 			CAPModeller::ModellingMode mode = modeller_->GetCurrentMode();
+			std::cout << "Current Mode = " << ModeStrings[mode] << '\n'; 
 			gui_->UpdateModeSelectionUI(mode);
 			if (mode == CAPModeller::GUIDEPOINT)
 			{
