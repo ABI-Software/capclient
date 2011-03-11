@@ -371,7 +371,7 @@ public:
 	
 	double GetCurrentTime() const
 	{
-		Cmiss_time_keeper_get_time(timeKeeper_);
+		return Cmiss_time_keeper_get_time(timeKeeper_);
 	}
 	
 	void SetTime(double time)
@@ -679,6 +679,9 @@ public:
 		{
 			// This means no output element is defined
 			InitializeModelTemplate(slicesWithImages);
+			EnterImagesLoadedState();
+			
+			std::cout << "Mode = " << modeller_->GetCurrentMode()<< ", num dataPoints = " << dataPoints.size() << '\n';
 			modeller_->SetDataPoints(dataPoints);
 			// FIXME memory is prematurely released when ok button is pressed from the following window
 			// Suppress this feature for now
@@ -687,9 +690,14 @@ public:
 			
 			//HACK : uncommenting the following will enable models to be constructed from model files with
 			// only the input element defined.
-			EnterModelLoadedState();
 			
-			gui_->UpdateModeSelectionUI(CAPModeller::GUIDEPOINT);
+			CAPModeller::ModellingMode mode = modeller_->GetCurrentMode();
+			gui_->UpdateModeSelectionUI(mode);
+			std::cout << "Mode = " << mode << '\n';
+			if (mode == CAPModeller::GUIDEPOINT)
+			{
+				EnterModelLoadedState();
+			}
 			Refresh3DCanvas();
 			
 			return;

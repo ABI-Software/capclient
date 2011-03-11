@@ -194,7 +194,7 @@ void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 		// FIXME - this does not work in cases where neither data points nor
 		//         model files are defined in the xml file.
 		modellingModeGuidePoints_.InitialiseModelLambdaParams();
-		ChangeMode(GetModellingModeGuidePoints());
+//		ChangeMode(GetModellingModeGuidePoints());
 		return;
 	}
 	
