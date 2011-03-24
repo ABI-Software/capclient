@@ -718,7 +718,7 @@ public:
 		int numberOfModelFrames = exnodeFileNames.size();
 		heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
 		LoadHeartModel(modelFilePath, exnodeFileNames);
-		std::string title = xmlFile.GetFilename() + " " + imageSet_->GetPatientID();
+		std::string title = imageSet_->GetPatientID() + " - " + xmlFile.GetFilename();
 		gui_->SetTitle(title.c_str());
 		gtMatrix m;
 		xmlFile.GetTransformationMatrix(m);

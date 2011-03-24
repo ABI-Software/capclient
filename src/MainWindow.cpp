@@ -73,7 +73,7 @@ void MainWindow::EnterInitState()
 
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(false);
-//	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
 
 //	objectList_->Clear();
 
@@ -105,8 +105,7 @@ void MainWindow::EnterImagesLoadedState()
 
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
-//	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
-//	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
 }
 
 void MainWindow::EnterModelLoadedState()
@@ -129,7 +128,7 @@ void MainWindow::EnterModelLoadedState()
 
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
-//	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);//FIXME
+	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
 
 	GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
 }
@@ -594,6 +593,27 @@ void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 void MainWindow::OnExportModel(wxCommandEvent& event)
 {
 	cout << __func__ << "\n";
+	
+	wxString defaultPath = wxGetCwd();;
+	wxString defaultFilename = "";
+	wxString defaultExtension = "";
+	wxString wildcard = "";
+	int flags = wxSAVE;
+	
+	wxString dirname = wxFileSelector("Export to binary files",
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+	if (dirname.empty())
+	{
+		return;
+	}
+
+	if (!wxMkdir(dirname.c_str()))
+	{
+		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
+		return;
+	}
+	
+	mainApp_.OnExportModel(dirname.c_str());
 	return;
 }
 
@@ -618,7 +638,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(XRCID("OpenModelMenuItem"), MainWindow::OnOpenModel)
 	EVT_MENU(XRCID("OpenAnnotationMenuItem"), MainWindow::OnOpenAnnotation)
 	EVT_MENU(XRCID("SaveMenuItem"), MainWindow::OnSave)
-//	EVT_MENU(XRCID("ExportMenuItem"), MainWindow::OnExportModel)
+	EVT_MENU(XRCID("ExportMenuItem"), MainWindow::OnExportModel)
 	EVT_BUTTON(XRCID("PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)
 END_EVENT_TABLE()
 
