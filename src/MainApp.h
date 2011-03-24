@@ -718,6 +718,8 @@ public:
 		int numberOfModelFrames = exnodeFileNames.size();
 		heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
 		LoadHeartModel(modelFilePath, exnodeFileNames);
+		std::string title = xmlFile.GetFilename() + " " + imageSet_->GetPatientID();
+		gui_->SetTitle(title.c_str());
 		gtMatrix m;
 		xmlFile.GetTransformationMatrix(m);
 		heartModelPtr_->SetLocalToGlobalTransformation(m);
@@ -833,8 +835,6 @@ private:
 		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 		
 		EnterInitState();
-		OpenModel("/Users/jchu014/cmiss/CAPClient_GroundTruth/DET0000101/model_DET0000101_jc.xml");
-		OnExportModel("/Users/jchu014/cmiss/CAPClient_GroundTruth/newnameformat");
 	}
 	
 	void EnterInitState() 
@@ -877,6 +877,8 @@ private:
 		
 		gui_->SetAnimationSliderRange(0, numberOfLogicalFrames);
 
+		gui_->SetTitle(imageSet_->GetPatientID().c_str());
+		
 		mainWindowState_ = IMAGES_LOADED_STATE;
 	}
 	
