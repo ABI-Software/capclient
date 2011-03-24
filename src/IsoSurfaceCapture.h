@@ -19,6 +19,7 @@
 #endif
 
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -141,7 +142,7 @@ public:
 //		Cmiss_context_execute_command(context_, str);
 	}
 	
-	void OnExportModel() const
+	void OnExportModel(std::string const& dirname)
 	{
 		std::cout << __func__ << "\n";
 		
@@ -149,6 +150,10 @@ public:
 		
 		size_t const numberOfFrames = imageSet_->GetNumberOfFrames();
 		std::vector<std::string> const& sliceNames = imageSet_->GetSliceNames();
+		
+		std::stringstream ss;
+		ss << dirname << '/' << "FileNameToSopiuidMapping.txt";
+		std::ofstream mappingFile(ss.str().c_str());
 		
 		BOOST_FOREACH(std::string const& sliceName, sliceNames)
 		{
@@ -193,13 +198,17 @@ public:
 				throw std::logic_error(sliceName + " has no matching entry in SlicesWithImages");
 			}
 			
-			DICOMPtr const& dicomPtr = itr->GetDICOMImages().at(0);
-			int imageWidth = dicomPtr->GetImageWidth();
-			int imageHeight = dicomPtr->GetImageHeight();
-			
 			// Render iso surface and take screen dump for each frame of this slice 
 			for (size_t i = 0; i < numberOfFrames ; i++)
 			{
+				DICOMPtr const& dicomPtr = itr->GetDICOMImages().at(i);
+				int imageWidth = dicomPtr->GetImageWidth();
+				int imageHeight = dicomPtr->GetImageHeight();
+				std::string const& patientId = dicomPtr->GetPatientID();
+				std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
+				panel_->SetSize(imageWidth, imageHeight);
+				Fit();
+							
 				double time = static_cast<double>(i)/static_cast<double>(numberOfFrames);
 				Cmiss_time_keeper_set_time(timeKeeper_, time);
 				RenderIsoSurface(fieldName, isoValue);
@@ -210,11 +219,13 @@ public:
 				int transparency_layers = 0;
 					
 				std::stringstream filenameStream;
-				filenameStream << "binary/";
-				filenameStream << sliceName << "_" << i << ".png" ;
-				
-				Cmiss_scene_viewer_write_image_to_file(sceneViewer_, filenameStream.str().c_str(), force_onscreen_flag,
+//				filenameStream << dirname << "/";
+				filenameStream << patientId << "_" << sliceName << "_ph" << i << ".png" ;
+				std::string filename = filenameStream.str();
+				Cmiss_scene_viewer_write_image_to_file(sceneViewer_, (dirname + "/" + filename).c_str(), force_onscreen_flag,
 					imageWidth, imageHeight, antialias, transparency_layers);
+				
+				mappingFile << filename << " " << sopiuid << '\n';
 			}
 		}
 		

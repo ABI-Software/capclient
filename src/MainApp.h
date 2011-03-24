@@ -25,6 +25,7 @@
 #include "CAPModeller.h"
 #include "CAPXMLFileHandler.h"
 #include "CAPModelLVPS4X4.h"
+#include "IsoSurfaceCapture.h"
 
 #include <iostream>
 #include <vector>
@@ -320,7 +321,7 @@ public:
 			
 		// compute the center of the image plane, eye(camera) position and the up vector
 		Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
-		Point3D eye = planeCenter - (plane.normal * 500); // this seems to determine the near clip plane
+		Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
 		Vector3D up(plane.yside);
 		up.Normalise();
 		
@@ -813,6 +814,14 @@ public:
 		imageSet_->SetShiftedImagePosition();
 	}
 	
+	void OnExportModel(std::string const& dirname)
+	{
+		std::cout << __func__ << "\n";
+		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), context_, timeKeeper_);
+		
+		iso->OnExportModel(dirname);
+	}
+	
 private:
 	
 	void Initialize()
@@ -824,6 +833,8 @@ private:
 		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
 		
 		EnterInitState();
+		OpenModel("/Users/jchu014/cmiss/CAPClient_GroundTruth/DET0000101/model_DET0000101_jc.xml");
+		OnExportModel("/Users/jchu014/cmiss/CAPClient_GroundTruth/newnameformat");
 	}
 	
 	void EnterInitState() 
