@@ -98,7 +98,7 @@ public:
 		}
 				
 		Fit();
-		Show(true);
+		Show(false);
 	}
 	
 	
@@ -229,8 +229,9 @@ public:
 			}
 		}
 		
-	//	Cmiss_scene_viewer_destroy(&sceneViewer_);
-	//	Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
+		Cmiss_scene_viewer_destroy(&sceneViewer_);
+		Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
+		Close();
 	}
 	
 private:
