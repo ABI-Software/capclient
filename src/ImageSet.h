@@ -93,6 +93,12 @@ public:
 		return slicesWithImages_;
 	}
 	
+	std::string const& GetPatientID() const
+	{
+		assert(slicesWithImages_.at(0).GetDICOMImages().at(0));
+		return slicesWithImages_.at(0).GetDICOMImages().at(0)->GetPatientID();;
+	}
+	
 private:
 	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices
 //	std::vector<ImageGroup*> imageGroups;
@@ -109,6 +115,7 @@ private:
 	ImageSlicesMap imageSlicesMap_;
 
 	SlicesWithImages slicesWithImages_;
+	
 };
 
 } // end namespace cap
