@@ -33,7 +33,7 @@ public:
 	}
 
 	Real Length() const {
-		return sqrtf(x * x + y * y + z * z);
+		return sqrt(x * x + y * y + z * z);
 	}
 
 	void Normalise() {
