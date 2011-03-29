@@ -25,6 +25,7 @@
 #include "CAPModeller.h"
 #include "CAPXMLFileHandler.h"
 #include "CAPModelLVPS4X4.h"
+#include "IsoSurfaceCapture.h"
 
 #include <iostream>
 #include <vector>
@@ -320,7 +321,7 @@ public:
 			
 		// compute the center of the image plane, eye(camera) position and the up vector
 		Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
-		Point3D eye = planeCenter - (plane.normal * 500); // this seems to determine the near clip plane
+		Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
 		Vector3D up(plane.yside);
 		up.Normalise();
 		
@@ -717,6 +718,8 @@ public:
 		int numberOfModelFrames = exnodeFileNames.size();
 		heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
 		LoadHeartModel(modelFilePath, exnodeFileNames);
+		std::string title = imageSet_->GetPatientID() + " - " + xmlFile.GetFilename();
+		gui_->SetTitle(title.c_str());
 		gtMatrix m;
 		xmlFile.GetTransformationMatrix(m);
 		heartModelPtr_->SetLocalToGlobalTransformation(m);
@@ -813,6 +816,14 @@ public:
 		imageSet_->SetShiftedImagePosition();
 	}
 	
+	void OnExportModel(std::string const& dirname)
+	{
+		std::cout << __func__ << "\n";
+		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), context_, timeKeeper_);
+		
+		iso->OnExportModel(dirname);
+	}
+	
 private:
 	
 	void Initialize()
@@ -866,6 +877,8 @@ private:
 		
 		gui_->SetAnimationSliderRange(0, numberOfLogicalFrames);
 
+		gui_->SetTitle(imageSet_->GetPatientID().c_str());
+		
 		mainWindowState_ = IMAGES_LOADED_STATE;
 	}
 	
