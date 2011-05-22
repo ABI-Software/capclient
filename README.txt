@@ -44,3 +44,8 @@ make
 
 (You need CMake to build the CAP client)
 
+Notes on building dependencies
+1. GTEST: After building gtest, run make in gtest/make
+2. Cmgui: build cmgui-wx-static-lib as this is the version used by the CAP clientI.
+   itk should be installed in itk/(ARCH_TYPE)
+   The flag to include libgdcm needs to be turned on when building the Cmgui library.
