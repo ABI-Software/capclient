@@ -58,7 +58,11 @@ const std::vector<std::string>& FileSystem::getAllFileNames()
 void FileSystem::CreateDirectory(std::string const& dirname)
 {
 	std::string fullpath = dir_path + dirname;
+#ifdef WIN32 
+	int ret = mkdir(fullpath.c_str());
+#else
 	int ret = mkdir(fullpath.c_str(), 0777);
+#endif
 	if (ret == -1)
 	{
 		std::cout << __func__ << " : Can't create directory : " << fullpath << '\n';
