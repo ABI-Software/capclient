@@ -11,15 +11,6 @@
 #include <limits>
 #include <boost/bind.hpp>
 
-//extern "C" {
-//#include "api/cmiss_region.h"
-//#include "finite_element/finite_element_region.h"
-//#include "graphics/scene.h"
-//#include "graphics/scene_viewer.h"
-//}
-////#include "CmguiExtensions.h"
-//#include "computed_field/computed_field_finite_element.h"
-
 namespace cap
 {
 
