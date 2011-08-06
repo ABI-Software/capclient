@@ -86,6 +86,7 @@ private:
 	void OnSave(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnExportModel(wxCommandEvent& event);
+	void OnExportModelToBinaryVolume(wxCommandEvent& event);
 	
 	void OnPlaneShiftButtonPressed(wxCommandEvent& event);
 	

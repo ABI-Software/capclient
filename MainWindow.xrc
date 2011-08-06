@@ -32,6 +32,10 @@
 					<label>Export Model</label>
 					<help></help>
 				</object>
+				<object class="wxMenuItem" name="ExportToBinaryVolumeMenuItem">
+					<label>Export Model to Binary Volume</label>
+					<help></help>
+				</object>
 				<object class="separator" />
 				<object class="wxMenuItem" name="QuitMenuItem">
 					<label>Exit\tAlt-X</label>

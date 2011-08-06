@@ -7,6 +7,7 @@
 #include "MainWindow.h"
 #include "UserCommentDialog.h"
 #include "CAPHtmlWindow.h"
+#include "CAPBinaryVolumeParameterDialog.h"
 
 #include <boost/foreach.hpp>
 
@@ -74,6 +75,7 @@ void MainWindow::EnterInitState()
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(false);
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
+	GetMenuBar()->FindItem(XRCID("ExportToBinaryVolumeMenuItem"))->Enable(false);
 
 //	objectList_->Clear();
 
@@ -106,6 +108,7 @@ void MainWindow::EnterImagesLoadedState()
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
+	GetMenuBar()->FindItem(XRCID("ExportToBinaryVolumeMenuItem"))->Enable(false);
 }
 
 void MainWindow::EnterModelLoadedState()
@@ -129,6 +132,7 @@ void MainWindow::EnterModelLoadedState()
 	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
 	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
+	GetMenuBar()->FindItem(XRCID("ExportToBinaryVolumeMenuItem"))->Enable(true);
 
 	GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
 }
@@ -617,6 +621,42 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	return;
 }
 
+void MainWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
+{
+	cout << __func__ << "\n";
+	
+	CAPBinaryVolumeParameterDialog  dlg(this);
+	if ( dlg.ShowModal() != wxID_OK )
+	{
+		return;
+	}
+	
+	double apexMargin, baseMargin, spacing;
+	dlg.GetParams(apexMargin, baseMargin, spacing);
+	
+	wxString defaultPath = wxGetCwd();;
+	wxString defaultFilename = "";
+	wxString defaultExtension = "";
+	wxString wildcard = "";
+	int flags = wxSAVE;
+	
+	wxString dirname = wxFileSelector("Export to binary volume",
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+	if (dirname.empty())
+	{
+		return;
+	}
+
+	if (!wxMkdir(dirname.c_str()))
+	{
+		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
+		return;
+	}
+	
+	mainApp_.OnExportModelToBinaryVolume(dirname.c_str(), apexMargin, baseMargin, spacing);
+	return;
+}
+
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(XRCID("PlayButton"),MainWindow::OnTogglePlay) // play button
 	EVT_SLIDER(XRCID("AnimationSlider"),MainWindow::OnAnimationSliderEvent) // animation slider
@@ -639,6 +679,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(XRCID("OpenAnnotationMenuItem"), MainWindow::OnOpenAnnotation)
 	EVT_MENU(XRCID("SaveMenuItem"), MainWindow::OnSave)
 	EVT_MENU(XRCID("ExportMenuItem"), MainWindow::OnExportModel)
+	EVT_MENU(XRCID("ExportToBinaryVolumeMenuItem"), MainWindow::OnExportModelToBinaryVolume)
 	EVT_BUTTON(XRCID("PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)
 END_EVENT_TABLE()
 

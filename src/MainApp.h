@@ -824,6 +824,14 @@ public:
 		iso->OnExportModel(dirname);
 	}
 	
+	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
+	{
+		std::cout << __func__ << "\n";
+		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), context_, timeKeeper_);
+		
+		iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
+	}
+	
 private:
 	
 	void Initialize()

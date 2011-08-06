@@ -142,6 +142,32 @@ public:
 //		Cmiss_context_execute_command(context_, str);
 	}
 	
+	void AdjustViewport(ImagePlane const& plane)
+	{
+		// compute the center of the image plane, eye(camera) position and the up vector
+		Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
+		Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
+		Vector3D up(plane.yside);
+		up.Normalise();
+		
+		// Set the camera so the image plane fills the screen
+		if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
+				sceneViewer_, eye.x, eye.y, eye.z,
+				planeCenter.x, planeCenter.y, planeCenter.z,
+				up.x, up.y, up.z
+				))
+		{
+			//Error;
+		}
+		
+		double image_width = (plane.tlc - plane.trc).Length();
+		double image_height = (plane.tlc - plane.blc).Length();
+		double radius = std::min(image_width, image_height) / 2.0;
+		double clip_factor = 10.0;
+		int return_code = Scene_viewer_set_view_simple(sceneViewer_, planeCenter.x, planeCenter.y, planeCenter.z
+				, radius, 45, clip_factor*radius);	
+	}
+	
 	void OnExportModel(std::string const& dirname)
 	{
 		std::cout << __func__ << "\n";
@@ -157,30 +183,8 @@ public:
 		
 		BOOST_FOREACH(std::string const& sliceName, sliceNames)
 		{
-			const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
-					
-			// compute the center of the image plane, eye(camera) position and the up vector
-			Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
-			Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
-			Vector3D up(plane.yside);
-			up.Normalise();
-			
-			// Set the camera so the image plane fills the screen
-			if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
-					sceneViewer_, eye.x, eye.y, eye.z,
-					planeCenter.x, planeCenter.y, planeCenter.z,
-					up.x, up.y, up.z
-					))
-			{
-				//Error;
-			}
-			
-			double image_width = (plane.tlc - plane.trc).Length();
-			double image_heigt = (plane.tlc - plane.blc).Length();
-			double radius = std::min(image_width, image_heigt) / 2.0;
-			double clip_factor = 10.0;
-			int return_code = Scene_viewer_set_view_simple(sceneViewer_, planeCenter.x, planeCenter.y, planeCenter.z
-					, radius, 45, clip_factor*radius);
+			const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);				
+			AdjustViewport(plane);
 			
 			// Define the dot product field used for generating iso surfaces
 			std::stringstream ss;
@@ -226,6 +230,90 @@ public:
 					imageWidth, imageHeight, antialias, transparency_layers);
 				
 				mappingFile << filename << " " << sopiuid << '\n';
+			}
+		}
+		
+		Cmiss_scene_viewer_destroy(&sceneViewer_);
+		Cmiss_context_execute_command(context_, "gfx destroy scene print_temp");
+		Close();
+	}
+	
+	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
+	{
+		std::cout << __func__ << "\n";
+		
+		double currentTime = Cmiss_time_keeper_get_time(timeKeeper_);
+		
+		size_t const numberOfFrames = imageSet_->GetNumberOfFrames();
+		
+		std::string sliceName("SA1");
+		const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
+		AdjustViewport(plane);
+		
+		std::string infoFilename = dirname;
+		infoFilename += "/Info.txt";
+		std::ofstream infoFile(infoFilename.c_str());
+		//write position of volume to file mappingFile NB need to use orig. pos
+		infoFile << "Position: " << plane.tlc - plane.normal * apexMargin << '\n';
+		double image_width = (plane.tlc - plane.trc).Length();
+		double image_height = (plane.tlc - plane.blc).Length();
+		infoFile << "Width: " << image_width << '\n';
+		infoFile << "Height: " << image_height << '\n';
+		infoFile << "Normal: " << plane.normal << '\n';
+		// Define the dot product field used for generating iso surfaces
+		std::string fieldName("ISO_");
+		fieldName += sliceName;
+			
+		double apexIsoValue = DefineDotProductField(fieldName, plane);
+			
+		SlicesWithImages const& slices = imageSet_->GetSlicesWithImages();
+		SlicesWithImages::const_iterator itr = 
+				std::find_if(slices.begin(), slices.end(),
+							boost::bind(&SliceInfo::GetLabel, _1) == sliceName);
+		if (itr==slices.end())
+		{
+			throw std::logic_error(sliceName + " has no matching entry in SlicesWithImages");
+		}
+		DICOMPtr const& dicomPtr = itr->GetDICOMImages().at(0);
+		int imageWidth = dicomPtr->GetImageWidth();
+		int imageHeight = dicomPtr->GetImageHeight();
+		std::string const& patientId = dicomPtr->GetPatientID();
+		panel_->SetSize(imageWidth, imageHeight);
+		Fit();
+		
+		std::vector<std::string> const& sliceNames = imageSet_->GetSliceNames();
+		std::vector<std::string>::const_reverse_iterator revItr = 
+				std::find_if(sliceNames.rbegin(), sliceNames.rend(), boost::bind(&std::string::substr, _1, 0, 2) == "SA");
+		
+		sliceName = *revItr; // last short axis slide
+		const ImagePlane& planeBase = imageSet_->GetImagePlane(sliceName);
+		double baseIsoValue = apexIsoValue + plane.normal * (planeBase.tlc - plane.tlc);
+		
+		double start = apexIsoValue + apexMargin;
+		double end = baseIsoValue - baseMargin;
+		int counter = 0;
+		
+		std::cout << "start = " << start << ", end = " << end << '\n';
+		for (double d = start; d > end; d -= spacing, counter++)
+		{
+			// Render iso surface and take screen dump for each frame of this slice 
+			for (size_t i = 0; i < numberOfFrames ; i++)
+			{						
+				double time = static_cast<double>(i)/static_cast<double>(numberOfFrames);
+				Cmiss_time_keeper_set_time(timeKeeper_, time);
+				RenderIsoSurface(fieldName, d);
+				Cmiss_scene_viewer_redraw_now(sceneViewer_);
+				
+				int force_onscreen_flag = 0;
+				int antialias = 0;
+				int transparency_layers = 0;
+					
+				std::stringstream filenameStream;
+//				filenameStream << dirname << "/";
+				filenameStream << patientId << "_" << counter << "_ph" << i << ".png" ;
+				std::string filename = filenameStream.str();
+				Cmiss_scene_viewer_write_image_to_file(sceneViewer_, (dirname + "/" + filename).c_str(), force_onscreen_flag,
+					imageWidth, imageHeight, antialias, transparency_layers);
 			}
 		}
 		
