@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cap:Analysis chamber="LV" name="SampleAnalysisUsingXsd" studyiuid="2.16.124.113543.6006.99.03832048922002137666" xmlns:cap="http://www.cardiacatlas.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
+  <cap:Input>
+    <cap:Image frame="0" label="SA1" slice="0" seriesiuid="2.16.124.1" sopiuid="1.2.3.4">
+      <cap:Point surface="" type="apex">
+        <cap:Value variable="x">1.0</cap:Value>
+        <cap:Value variable="y">2.0</cap:Value>
+        <cap:Value variable="z">3.0</cap:Value>
+      </cap:Point>
+      <cap:ContourFile number = "1">cap:ContourFile</cap:ContourFile>
+      <cap:ImagePosition>
+        <cap:x>4.0</cap:x>
+        <cap:y>5.0</cap:y>
+        <cap:z>6.0</cap:z>
+      </cap:ImagePosition>
+      <cap:ImageOrientation>
+        <cap:Xx>7.0</cap:Xx>
+        <cap:Xy>8.0</cap:Xy>
+        <cap:Xz>9.0</cap:Xz>
+        <cap:Yx>10.0</cap:Yx>
+        <cap:Yy>11.0</cap:Yy>
+        <cap:Yz>12.0</cap:Yz>
+      </cap:ImageOrientation>
+    </cap:Image>
+  </cap:Input>
+  <cap:Output focallength="10.0" interval="0.3" transformation_matrix="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16">
+    <cap:Exnode frame="1">cap.exnode</cap:Exnode>
+    <cap:Exelem>cap.exelem</cap:Exelem>
+  </cap:Output>
+  <cap:Documentation>
+    <cap:provenanceDetail date="2010-08-25T16:49:14">
+      <cap:operatingSystem>Max OS X 10.6</cap:operatingSystem>
+      <cap:package>CAP</cap:package>
+      <cap:platform>Mac OS X</cap:platform>
+      <cap:process>Conversion from CIM model</cap:process>
+      <cap:program>CIMModelToCAPModel.py</cap:program>
+      <cap:programParams>none</cap:programParams>
+      <cap:programVersion>1.0</cap:programVersion>
+      <cap:step>1</cap:step>
+      <cap:comment>Converted from CIM model</cap:comment>
+    </cap:provenanceDetail>
+  </cap:Documentation>
+</cap:Analysis>
