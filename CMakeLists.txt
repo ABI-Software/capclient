@@ -161,7 +161,7 @@ IF(WIN32)
   SET(common_LIBS "-lws2_32")
 ENDIF(WIN32)
 IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
-  SET(common_LIBS -lcrypt)
+  SET(common_LIBS -lcrypt -lz)
 ENDIF()
 
 ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} ${SRCS})
