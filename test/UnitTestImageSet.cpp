@@ -6,9 +6,9 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/ImageSet.h"
-#include "../src/ImageSlice.h"
-#include "../src/ImageSliceGraphics.h"
+#include "ImageSet.h"
+#include "ImageSlice.h"
+#include "ImageSliceGraphics.h"
 
 class TestImageSliceGraphics : public cap::ImageSliceGraphics
 {

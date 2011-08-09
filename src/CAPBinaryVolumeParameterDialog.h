@@ -24,7 +24,7 @@ class CAPBinaryVolumeParameterDialog :public wxDialog
 public:
 	CAPBinaryVolumeParameterDialog(wxWindow* parent)
 	:
-		wxDialog(parent, -1, wxString("Binary Volume Parameters"))
+		wxDialog(parent, -1, wxString(wxT("Binary Volume Parameters")))
 	{
 		Centre();
 		wxPanel *panel = new wxPanel(this, -1);
@@ -34,17 +34,17 @@ public:
 		
 		wxGridSizer * grid = new wxGridSizer(2);
 
-		wxStaticText * apexMarginText = new wxStaticText(panel, -1, wxString("Apex Margin"));
+		wxStaticText * apexMarginText = new wxStaticText(panel, -1, wxString(wxT("Apex Margin")));
 		grid->Add(apexMarginText);
-		apexMarginSpinCtrl_ = new wxSpinCtrl(panel, -1, "10", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -50, 50, 10);
+		apexMarginSpinCtrl_ = new wxSpinCtrl(panel, -1, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -50, 50, 10);
 		grid->Add(apexMarginSpinCtrl_);
-		wxStaticText * baseMarginText = new wxStaticText(panel, -1, wxString("Base Margin"));
+		wxStaticText * baseMarginText = new wxStaticText(panel, -1, wxString(wxT("Base Margin")));
 		grid->Add(baseMarginText);
-		baseMarginSpinCtrl_ = new wxSpinCtrl(panel, -1, "10", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -50, 50, 10);
+		baseMarginSpinCtrl_ = new wxSpinCtrl(panel, -1, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -50, 50, 10);
 		grid->Add(baseMarginSpinCtrl_);
-		wxStaticText * spacingText = new wxStaticText(panel, -1, wxString("Spacing"));
+		wxStaticText * spacingText = new wxStaticText(panel, -1, wxString(wxT("Spacing")));
 		grid->Add(spacingText);
-		spacingSpinCtrl_ = new wxSpinCtrl(panel, -1, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 1);
+		spacingSpinCtrl_ = new wxSpinCtrl(panel, -1, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 1);
 		grid->Add(spacingSpinCtrl_);
 		
 		panel->SetSizer(grid);

@@ -16,12 +16,12 @@
 //#include <stdexcept>
 //#include <cstdio>
 #define private public
-#include "../src/CAPAnnotationFile.h"
+#include "CAPAnnotationFile.h"
 #undef private
 
 namespace
 {
-	std::string test_file("../test/SampleAnnotationFile.xml");
+	std::string test_file("SampleAnnotationFile.xml");
 }
 
 TEST(CAPAnnotationFile, ReadXML)

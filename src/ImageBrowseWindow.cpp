@@ -149,7 +149,7 @@ ImageBrowseWindow::ImageBrowseWindow(ImageBrowser<ImageBrowseWindow, CmguiManage
 
 void ImageBrowseWindow::LoadWindowLayout()
 {
-	wxXmlResource::Get()->Load("ImageBrowseWindow.xrc");
+	wxXmlResource::Get()->Load(wxT("ImageBrowseWindow.xrc"));
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("ImageBrowseWindow"));
 	Show(true); // gtk crashes without this
 	imageTable_ = XRCCTRL(*this, "ImageTable", wxListCtrl);
@@ -212,7 +212,7 @@ ImageBrowseWindow::~ImageBrowseWindow()
 
 void ImageBrowseWindow::CreateProgressDialog(std::string const& title, std::string const& message, int max)
 {
-	progressDialogPtr_.reset(new wxProgressDialog(_(title.c_str()), message.c_str(), max, this));
+	progressDialogPtr_.reset(new wxProgressDialog(wxString(title.c_str(),wxConvUTF8), wxString(message.c_str(),wxConvUTF8), max, this));
 }
 
 void ImageBrowseWindow::UpdateProgressDialog(int count)
@@ -232,14 +232,14 @@ void ImageBrowseWindow::PopulateImageTableRow(int rowNumber,
 {
 	using namespace std;
 	using namespace boost;
-	long itemIndex = imageTable_->InsertItem(rowNumber, lexical_cast<string>(seriesNumber).c_str());
+	long itemIndex = imageTable_->InsertItem(rowNumber, wxString::Format(wxT("%i"),seriesNumber));
 	long columnIndex = 1;
-	imageTable_->SetItem(itemIndex, columnIndex++, seriesDescription.c_str()); 
-	imageTable_->SetItem(itemIndex, columnIndex++, sequenceName.c_str());
+	imageTable_->SetItem(itemIndex, columnIndex++, wxString(seriesDescription.c_str(),wxConvUTF8));
+	imageTable_->SetItem(itemIndex, columnIndex++, wxString(sequenceName.c_str(),wxConvUTF8));
 //		double triggerTime = image->GetTriggerTime();
 //		std::string seriesTime = triggerTime < 0 ? "" : lexical_cast<string>(image->GetTriggerTime());// fix
 //		imageTable_->SetItem(itemIndex, columnIndex++, seriesTime.c_str());
-	imageTable_->SetItem(itemIndex, columnIndex++, lexical_cast<string>(numImages).c_str());
+	imageTable_->SetItem(itemIndex, columnIndex++, wxString::Format(wxT("%i"),(int) numImages));
 	
 	imageTable_->SetItemData(itemIndex, userDataPtr); // Check !! is this safe??!!
 }
@@ -262,10 +262,10 @@ void ImageBrowseWindow::ClearAnnotationTable()
 
 void ImageBrowseWindow::PopulateAnnotationTableRow(int rowNumber, std::string const& label, std::string const& rid, std::string const& scope)
 {
-	long itemIndex = annotationTable_->InsertItem(rowNumber, label.c_str());
+	long itemIndex = annotationTable_->InsertItem(rowNumber, wxString(label.c_str(),wxConvUTF8));
 	long columnIndex = 1;
-	annotationTable_->SetItem(itemIndex, columnIndex++, rid.c_str()); 
-	annotationTable_->SetItem(itemIndex, columnIndex++, scope.c_str());
+	annotationTable_->SetItem(itemIndex, columnIndex++, wxString(rid.c_str(),wxConvUTF8));
+	annotationTable_->SetItem(itemIndex, columnIndex++, wxString(scope.c_str(),wxConvUTF8));
 }
 
 void ImageBrowseWindow::SetAnimationSliderMax(size_t max)
@@ -350,13 +350,15 @@ std::string ImageBrowseWindow::GetCellContentsString( long row_number, int colum
 	// Extract the text out that cell
 	cell_contents_string = row_info.m_text; 
 	
-	return cell_contents_string.c_str();
+	return std::string(cell_contents_string.mb_str());
 }
 
 void ImageBrowseWindow::SetInfoField(std::string const& fieldName, std::string const& data)
 {
-	wxStaticText* st = XRCCTRL(*this, fieldName.c_str(), wxStaticText);
-	st->SetLabel(data.c_str());
+	long int id = wxXmlResource::GetXRCID(wxString(fieldName.c_str(),wxConvUTF8));
+	wxStaticText* st = wxStaticCast((*this).FindWindow(id), wxStaticText);
+	//wxStaticText* st = XRCCTRL(*this, wxString(fieldName.c_str(), wxConvUTF8), wxStaticText);
+	st->SetLabel(wxString(data.c_str(),wxConvUTF8));
 }
 
 void ImageBrowseWindow::FitSceneViewer(double radius)
@@ -485,7 +487,7 @@ void ImageBrowseWindow::PutLabelOnSelectedSlice(std::string const& label)
 
 void ImageBrowseWindow::SetImageTableRowLabel(long int index, std::string const& label)
 {
-	imageTable_->SetItem(index, LABEL_COLUMN_INDEX, label.c_str());
+	imageTable_->SetItem(index, LABEL_COLUMN_INDEX, wxString(label.c_str(),wxConvUTF8));
 //		std::cout <<  "label = " << GetCellContentsString(index, LABEL_COLUMN_INDEX) << '\n';
 }
 
@@ -548,7 +550,7 @@ std::vector<std::pair<std::string, long int> > ImageBrowseWindow::GetListOfLabel
 
 void ImageBrowseWindow::CreateMessageBox(std::string const& message, std::string const& caption)
 {
-	wxMessageBox(message.c_str(), caption.c_str(), wxOK, this);
+	wxMessageBox(wxString(message.c_str(),wxConvUTF8), wxString(caption.c_str(),wxConvUTF8), wxOK, this);
 }
 
 void ImageBrowseWindow::OnOKButtonEvent(wxCommandEvent& event)

@@ -9,12 +9,12 @@
 #include <stdexcept>
 #include <cstdio>
 #define private public
-#include "../src/CAPXMLFile.h"
+#include "CAPXMLFile.h"
 #undef private
 
 namespace
 {
-	std::string test_file("../test/SampleAnalysisUsingXsd.xml");
+	std::string test_file("SampleAnalysisUsingXsd.xml");
 }
 TEST(CAPXMLFile, ReadXML)
 {

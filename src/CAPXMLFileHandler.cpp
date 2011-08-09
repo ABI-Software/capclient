@@ -246,13 +246,14 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 			std::cout << "No matching filename in the sopiuid to filename map\n";
 
 			wxString currentWorkingDir = wxGetCwd();
-			wxString defaultPath = currentWorkingDir.Append("/Data");
+			wxString defaultPath = currentWorkingDir.Append(wxT("/Data"));
 
-			const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
+			const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
 			if ( !dirname.empty() )
 			{
 				std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
-				HashTable newMap = GenerateSopiuidToFilenameMap((dirname + "/").c_str());
+				wxString dirfname = dirname + wxT("/");
+				HashTable newMap = GenerateSopiuidToFilenameMap(std::string(dirfname.mb_str()));
 				uidToFilenameMap.insert(newMap.begin(), newMap.end());
 				dicomFileItr = uidToFilenameMap.find(image.sopiuid);
 			}

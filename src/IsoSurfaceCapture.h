@@ -46,7 +46,7 @@ class IsoSurfaceCapture :public wxFrame
 public:
 	IsoSurfaceCapture(ImageSet* imageSet, CAPModelLVPS4X4* heartModelPtr, Cmiss_context_id context, Cmiss_time_keeper_id timeKeeper)
 	:
-		wxFrame(NULL,-1, "Iso", wxPoint(100, 100), wxSize(1000, 1000)),
+		wxFrame(NULL,-1, wxT("Iso"), wxPoint(100, 100), wxSize(1000, 1000)),
 		imageSet_(imageSet),
 		heartModelPtr_(heartModelPtr),
 		context_(context),
