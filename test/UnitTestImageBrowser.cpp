@@ -5,7 +5,7 @@
  *      Author: jchu014
  */
 
-#include "../src/ImageBrowser.h"
+#include "ImageBrowser.h"
 #include <gtest/gtest.h>
 
 class Cmiss_textre;

@@ -2,6 +2,7 @@
 #define __MAINWINDOW_H__
 
 #include "wx/wxprec.h"
+#include "wx/xrc/xmlres.h"
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
     #include "wx/wx.h"
@@ -50,7 +51,11 @@ public:
 	
 private:
 	template <typename Widget>
-	Widget* GetWidgetByName(std::string const& name);
+	Widget* GetWidgetByName(std::string const& _name)
+	{
+		long int id = wxXmlResource::GetXRCID(wxString(_name.c_str(),wxConvUTF8));
+		return wxStaticCast((*this).FindWindow(id), Widget);
+	}
 	
 	std::string PromptForUserComment();
 

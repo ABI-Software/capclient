@@ -26,7 +26,7 @@ public:
 //	:
 //		wxDialog( parent, -1, wxString("test"))
 	{
-		wxXmlResource::Get()->Load("UserCommentDialog.xrc");
+		wxXmlResource::Get()->Load(wxT("UserCommentDialog.xrc"));
 		wxXmlResource::Get()->LoadDialog(this,(wxWindow *)parent, _T("UserCommentDialog"));
 		
 //		Show(true);
@@ -61,8 +61,8 @@ public:
 
 	std::string GetComment() const
 	{
-		wxTextCtrl* textCtrl = XRCCTRL(*this, _("UserComment"), wxTextCtrl);
-		return textCtrl->GetValue().c_str();
+		wxTextCtrl* textCtrl = XRCCTRL(*this, "UserComment", wxTextCtrl);
+		return std::string(textCtrl->GetValue().mb_str());
 	}
 
 	DECLARE_EVENT_TABLE();

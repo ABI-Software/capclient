@@ -21,7 +21,7 @@ MainWindow::MainWindow(MainApp<MainWindow, CmguiManager>& mainApp)
 		mainApp_(mainApp)
 {
 	// Load layout from .xrc file
-	wxXmlResource::Get()->Load("MainWindow.xrc");
+	wxXmlResource::Get()->Load(wxT("MainWindow.xrc"));
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("MainWindow"));
 	
 	// GUI initialization
@@ -32,7 +32,6 @@ MainWindow::MainWindow(MainApp<MainWindow, CmguiManager>& mainApp)
 	objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
 	objectList_->SetSelection(wxNOT_FOUND);
 	objectList_->Clear();
-	
 	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
 	
 	this->Fit();
@@ -44,12 +43,14 @@ MainWindow::~MainWindow()
 	cout << __func__ << endl;
 }
 
+/*
 template <typename Widget>
 Widget* MainWindow::GetWidgetByName(std::string const& name)
 {
 	Widget* widget = XRCCTRL(*this, name.c_str(), Widget);
 	return  widget;
 }
+*/
 
 void MainWindow::EnterInitState()
 {
@@ -140,13 +141,13 @@ void MainWindow::EnterModelLoadedState()
 void MainWindow::PlayCine()
 {
 	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
-	button->SetLabel("stop");
+	button->SetLabel(wxT("stop"));
 }
 
 void MainWindow::StopCine()
 {
 	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
-	button->SetLabel("play");
+	button->SetLabel(wxT("play"));
 	wxCommandEvent event;
 	OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 }
@@ -159,7 +160,7 @@ void MainWindow::OnTogglePlay(wxCommandEvent& event)
 
 void MainWindow::Terminate(wxCloseEvent& event)
 {
-	int answer = wxMessageBox("Quit program?", "Confirm",
+	int answer = wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
 	                            wxYES_NO, this);
 	if (answer == wxYES)
 	{
@@ -179,7 +180,7 @@ void MainWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, s
 	BOOST_FOREACH(std::string const& sliceName, sliceNames)
 	{
 		std::cout << "Slice name = " << sliceName << '\n';
-		objectList_->Append(sliceName.c_str());
+		objectList_->Append(wxString(sliceName.c_str(), wxConvUTF8));
 		bool visible = visibilities.at(index);
 		/* default selection */
 		if ( visible )
@@ -198,7 +199,7 @@ void MainWindow::OnObjectCheckListChecked(wxCommandEvent& event)
 	std::cout << "Check: " << name << std::endl;
 	
 	bool visibility = objectList_->IsChecked(selection);
-	mainApp_.SetImageVisibility(visibility, name.mb_str());
+	mainApp_.SetImageVisibility(visibility, std::string(name.mb_str()));
 	
 	m_pPanel->Refresh();
 	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
@@ -207,7 +208,7 @@ void MainWindow::OnObjectCheckListChecked(wxCommandEvent& event)
 void MainWindow::OnObjectCheckListSelected(wxCommandEvent& event)
 {
 	wxString name = objectList_->GetStringSelection();
-	mainApp_.OnSliceSelected(name.c_str());
+	mainApp_.OnSliceSelected(std::string(name.mb_str()));
 	return;
 }
 
@@ -250,7 +251,7 @@ void MainWindow::UpdateFrameNumber(int frameNumber)
 {
 	std::ostringstream frameNumberStringStream;
 	frameNumberStringStream << "Frame Number: " << frameNumber;
-	SetStatusText(wxT(frameNumberStringStream.str().c_str()), 0);
+	SetStatusText(wxString(frameNumberStringStream.str().c_str(),wxConvUTF8), 0);
 }
 
 void MainWindow::SetTime(double time, int frameNumber)
@@ -268,18 +269,18 @@ void MainWindow::SetTime(double time, int frameNumber)
 void MainWindow::OnToggleHideShowAll(wxCommandEvent& event)
 {
 	wxButton* button = XRCCTRL(*this, "HideShowAll", wxButton);
-	bool hideAll_ = button->GetLabel() == "Hide All" ? true : false;//FIXME
+	bool hideAll_ = button->GetLabel() == wxT("Hide All") ? true : false;
 	if (hideAll_) //means the button says hide all rather than show all
 	{
 		hideAll_ = false;
 		mainApp_.SetImageVisibility(false);
-		button->SetLabel("Show All");
+		button->SetLabel(wxT("Show All"));
 	}
 	else
 	{
 		hideAll_ = true;	
 		mainApp_.SetImageVisibility(true);
-		button->SetLabel("Hide All");
+		button->SetLabel(wxT("Hide All"));
 	}
 	
 	int numberOfSlices = objectList_->GetCount();
@@ -310,7 +311,7 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 				objectList_->Check(i, false);
 			}
 		}
-		button->SetLabel("Show Others");
+		button->SetLabel(wxT("Show Others"));
 	}
 	else
 	{
@@ -324,7 +325,7 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 			objectList_->Check(*itr, true);
 		}
 	
-		button->SetLabel("Hide Others");
+		button->SetLabel(wxT("Hide Others"));
 	}
 
 	this->Refresh(); // work around for the refresh bug
@@ -371,7 +372,7 @@ void MainWindow::UpdateModeSelectionUI(int newMode)
 	ResetModeChoice();
 	for (size_t i = 1; i <= newMode; i++)
 	{
-		choice->Append(ModeStrings[i]);
+		choice->Append(wxString(ModeStrings[i],wxConvUTF8));
 	}
 	choice->SetSelection(newMode);	
 }
@@ -423,7 +424,7 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
 	wxString defaultPath = wxGetCwd();;
 	
-	const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
+	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
 	if ( !dirname.empty() )
 	{
 		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
@@ -433,7 +434,7 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 		return;
 	}
 	
-	mainApp_.OpenImages(dirname.c_str());
+	mainApp_.OpenImages(std::string(dirname.mb_str()));
 }
 
 void MainWindow::ResetModeChoice()
@@ -452,38 +453,38 @@ void MainWindow::ResetModeChoice()
 void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
 	wxString defaultPath = wxGetCwd();
-	wxString defaultFilename = "";
-	wxString defaultExtension = "xml";
-	wxString wildcard = "";
+	wxString defaultFilename = wxT("");
+	wxString defaultExtension = wxT("xml");
+	wxString wildcard = wxT("");
 	int flags = wxOPEN;
 	
-	wxString filename = wxFileSelector("Choose a model file to open",
+	wxString filename = wxFileSelector(wxT("Choose a model file to open"),
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
 	if ( !filename.empty() )
 	{
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-		mainApp_.OpenModel(filename.c_str());
+		mainApp_.OpenModel(std::string(filename.mb_str()));
 	}
 }
 
 void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 {
 	wxString defaultPath = wxGetCwd();
-	wxString defaultFilename = "";
-	wxString defaultExtension = "xml";
-	wxString wildcard = "";
+	wxString defaultFilename = wxT("");
+	wxString defaultExtension = wxT("xml");
+	wxString wildcard = wxT("");
 	int flags = wxOPEN;
 	
-	wxString filename = wxFileSelector("Choose an annotation file to open",
+	wxString filename = wxFileSelector(wxT("Choose an annotation file to open"),
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
 	if ( !filename.empty() )
 	{
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-		const wxString& dirname = wxDirSelector("Choose the folder that contains the images", defaultPath);
+		const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
 		if ( !dirname.empty() )
 		{
 			std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
@@ -495,19 +496,19 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 			return;
 		}
 
-		mainApp_.OpenAnnotation(filename.c_str(), dirname.c_str());
+		mainApp_.OpenAnnotation(std::string(filename.mb_str()), std::string(dirname.mb_str()));
 	}
 }
 
 void MainWindow::OnSave(wxCommandEvent& event)
 {
 	wxString defaultPath = wxGetCwd();;
-	wxString defaultFilename = "";
-	wxString defaultExtension = "";
-	wxString wildcard = "";
+	wxString defaultFilename = wxT("");
+	wxString defaultExtension = wxT("");
+	wxString wildcard = wxT("");
 	int flags = wxSAVE;
 	
-	wxString dirname = wxFileSelector("Save file",
+	wxString dirname = wxFileSelector(wxT("Save file"),
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
 	if (dirname.empty())
 	{
@@ -528,7 +529,7 @@ void MainWindow::OnSave(wxCommandEvent& event)
 		return;
 	}
 	
-	mainApp_.SaveModel(dirname.c_str(), userComment);
+	mainApp_.SaveModel(std::string(dirname.mb_str()), userComment);
 }
 
 std::string MainWindow::PromptForUserComment()
@@ -547,12 +548,12 @@ std::string MainWindow::PromptForUserComment()
 				break;
 			}
 			
-			int answer = wxMessageBox("Please enter user comment", "Empty Comment",
+			int answer = wxMessageBox(wxT("Please enter user comment"), wxT("Empty Comment"),
 											wxOK, this);
 		}
 		else
 		{
-			int answer = wxMessageBox("Cancel Save?", "Confirm",
+			int answer = wxMessageBox(wxT("Cancel Save?"), wxT("Confirm"),
 											wxYES_NO, this);
 			if (answer == wxYES)
 			{
@@ -579,14 +580,14 @@ void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 	if (!isPlaneShiftModeOn)
 	{
 		isPlaneShiftModeOn = true;
-		button->SetLabel("End Shifting");
+		button->SetLabel(wxT("End Shifting"));
 
 		mainApp_.StartPlaneShift();
 	}
 	else
 	{
 		isPlaneShiftModeOn = false;
-		button->SetLabel("Start Shifting");
+		button->SetLabel(wxT("Start Shifting"));
 		
 		mainApp_.FinishPlaneShift();
 	}
@@ -599,12 +600,12 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	cout << __func__ << "\n";
 	
 	wxString defaultPath = wxGetCwd();;
-	wxString defaultFilename = "";
-	wxString defaultExtension = "";
-	wxString wildcard = "";
+	wxString defaultFilename = wxT("");
+	wxString defaultExtension = wxT("");
+	wxString wildcard = wxT("");
 	int flags = wxSAVE;
 	
-	wxString dirname = wxFileSelector("Export to binary files",
+	wxString dirname = wxFileSelector(wxT("Export to binary files"),
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
 	if (dirname.empty())
 	{
@@ -617,7 +618,7 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 		return;
 	}
 	
-	mainApp_.OnExportModel(dirname.c_str());
+	mainApp_.OnExportModel(std::string(dirname.mb_str()));
 	return;
 }
 
@@ -635,12 +636,12 @@ void MainWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 	dlg.GetParams(apexMargin, baseMargin, spacing);
 	
 	wxString defaultPath = wxGetCwd();;
-	wxString defaultFilename = "";
-	wxString defaultExtension = "";
-	wxString wildcard = "";
+	wxString defaultFilename = wxT("");
+	wxString defaultExtension = wxT("");
+	wxString wildcard = wxT("");
 	int flags = wxSAVE;
 	
-	wxString dirname = wxFileSelector("Export to binary volume",
+	wxString dirname = wxFileSelector(wxT("Export to binary volume"),
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
 	if (dirname.empty())
 	{
@@ -653,7 +654,7 @@ void MainWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 		return;
 	}
 	
-	mainApp_.OnExportModelToBinaryVolume(dirname.c_str(), apexMargin, baseMargin, spacing);
+	mainApp_.OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
 	return;
 }
 

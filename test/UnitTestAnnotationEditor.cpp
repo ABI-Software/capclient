@@ -6,15 +6,15 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/AnnotationEditor.h"
-#include "../src/IAnnotationWindow.h"
-#include "../src/CAPAnnotationFile.h"
+#include "AnnotationEditor.h"
+#include "IAnnotationWindow.h"
+#include "CAPAnnotationFile.h"
 
 #include <boost/scoped_ptr.hpp>
 
 namespace
 {
-	std::string test_file("../test/SampleAnnotationFile.xml");
+	std::string test_file("SampleAnnotationFile.xml");
 }
 
 namespace cap

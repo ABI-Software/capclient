@@ -6,8 +6,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/CAPModeller.h"
-#include "../src/CAPModelLVPS4X4.h"
+#include "CAPModeller.h"
+#include "CAPModelLVPS4X4.h"
 
 namespace cap 
 {

@@ -719,7 +719,7 @@ public:
 		heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
 		LoadHeartModel(modelFilePath, exnodeFileNames);
 		std::string title = imageSet_->GetPatientID() + " - " + xmlFile.GetFilename();
-		gui_->SetTitle(title.c_str());
+		gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
 		gtMatrix m;
 		xmlFile.GetTransformationMatrix(m);
 		heartModelPtr_->SetLocalToGlobalTransformation(m);
@@ -885,7 +885,7 @@ private:
 		
 		gui_->SetAnimationSliderRange(0, numberOfLogicalFrames);
 
-		gui_->SetTitle(imageSet_->GetPatientID().c_str());
+		gui_->SetTitle(wxString(imageSet_->GetPatientID().c_str(),wxConvUTF8));
 		
 		mainWindowState_ = IMAGES_LOADED_STATE;
 	}

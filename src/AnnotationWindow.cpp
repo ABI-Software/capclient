@@ -27,7 +27,7 @@ AnnotationWindow::~AnnotationWindow()
 
 void AnnotationWindow::LoadWindowLayout()
 {
-	wxXmlResource::Get()->Load("AnnotationWindow.xrc");
+	wxXmlResource::Get()->Load(wxT("AnnotationWindow.xrc"));
 	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("AnnotationWindow"));
 	Show(true); // gtk crashes without this
 }

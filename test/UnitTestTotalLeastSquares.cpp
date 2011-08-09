@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/CAPTotalLeastSquares.h"
+#include "CAPTotalLeastSquares.h"
 
 TEST(TotalLeastSquares, FitPlaneUsingTLS)
 {
