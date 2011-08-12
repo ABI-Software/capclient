@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 2.8)
+
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
 PROJECT(CAPClient)
+
 ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
 ADD_DEFINITIONS(-DFE_VALUE_IS_DOUBLE)
 
@@ -188,10 +191,10 @@ ENDIF()
 
 # copy XRC files and the Data directory
 SET(XRC_FILES
-    MainWindow.xrc
-    UserCommentDialog.xrc
-    ImageBrowseWindow.xrc
-    UserCommentDialog.xrc 
+    gui/MainWindow.xrc
+    gui/UserCommentDialog.xrc
+    gui/ImageBrowseWindow.xrc
+    gui/UserCommentDialog.xrc 
 )
 FILE(COPY ${XRC_FILES} Data DESTINATION ${PROJECT_BINARY_DIR})
 
