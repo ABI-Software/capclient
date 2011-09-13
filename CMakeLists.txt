@@ -3,211 +3,115 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(CAPClient)
 
-ADD_DEFINITIONS(-DREPORT_GL_ERRORS -DOPENGL_API -DUSE_PARAMETER_ON)
-ADD_DEFINITIONS(-DFE_VALUE_IS_DOUBLE)
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
+INCLUDE(Macros)
 
-# Set the CMISS_ROOT
-SET(CMISS_ROOT "" CACHE PATH "Path to the third party folder")
-IF(NOT EXISTS ${CMISS_ROOT})
-	MESSAGE(FATAL_ERROR "Please define CMISS_ROOT.")
-ELSE()
-	SET(ENV{CMISS_ROOT} ${CMISS_ROOT})
-	MESSAGE(STATUS "CMISS_ROOT = " $ENV{CMISS_ROOT})
-ENDIF()
+DEFINE_ARCHITECTURE_DIR()
+# Try and find CMISS_ROOT variable so we can prime the 
+# finding of the Cmgui libraries.
+IF(CMISS_ROOT)
+	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
+ELSEIF(EXISTS $ENV{CMISS_ROOT})
+	SET(Cmgui_DIR "$ENV{CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
+ENDIF(CMISS_ROOT)
 
-# build type: Debug (default) or Release
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Debug CACHE STRING
-      "Choose the type of build, options are: Debug Release."
-      FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
-MESSAGE(STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
-MESSAGE(STATUS "CMAKE_SYSTEM_NAME is ${CMAKE_SYSTEM_NAME}")
+# Set up some variables that control the build.  The following variables also appear in 
+# a CMake gui application.
+CACHE_VAR_WITH_DEFAULT(CAP_INSTALL_PREFIX "/usr/local/" PATH "Install path prefix, prepended onto install directories.")
+SET(CMAKE_INSTALL_PREFIX ${CAP_INSTALL_PREFIX} CACHE INTERNAL "Internalise CMAKE_INSTALL_PREFIX, manipulate via CAP_INSTALL_PREFIX" FORCE)
 
-IF(CMAKE_BUILD_TYPE STREQUAL Release)
-  MESSAGE(STATUS "Building Release")
-  ADD_DEFINITIONS(-DOPTIMISED) 
-  SET(BUILD_VERSION cmgui-wx)
-  SET(CAP_CLIENT_EXECUTABLE CAPClient)
-ELSE()
-  MESSAGE(STATUS "Building Debug")
-  ADD_DEFINITIONS(-g2 -gdwarf-2)
-  SET(BUILD_VERSION cmgui-wx-debug)
-  SET(CAP_CLIENT_EXECUTABLE CAPClient_debug)
-ENDIF()
+CACHE_VAR_WITH_DEFAULT( CAP_BUILD_TYPE "Debug" STRING "Choose the type of build, options are: Debug, Release, MinSizeRel, RelWithDebugInfo.")
+SET( CMAKE_BUILD_TYPE ${CAP_BUILD_TYPE} CACHE INTERNAL "Internalise CMAKE_BUILD_TYPE, manipulate via CAP_BUILD_TYPE" FORCE)
 
-# ARCHITECTURE
-IF(APPLE)
-  ADD_DEFINITIONS(-DCMGUI -DUNIX -DDARWIN)
-  SET(LIB_ARCH_DIR i386-32-darwin)
-  SET(CMAKE_OSX_ARCHITECTURES i386 CACHE STRINGS "OSX architecture" FORCE)
-  SET(CMAKE_CXX_FLAGS "-arch i386" CACHE STRINGS "OSX CXX flags architecture" FORCE)
-  SET(CMAKE_EXE_LINKER_FLAGS "-arch i386" CACHE STRINGS "OSX linker flags architecture" FORCE)
-ENDIF(APPLE)
-IF(WIN32)
-  ADD_DEFINITIONS(-mno-cygwin -DWIN32 -DLIBXML_STATIC)
-  SET(CMAKE_EXE_LINKER_FLAGS -mno-cygwin)
-  SET(LIB_ARCH_DIR i386-win32)
-ENDIF(WIN32)
-IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
-  ADD_DEFINITIONS(-DUNIX)
-  SET(LIB_ARCH_DIR i686-linux)
-ENDIF()
+OPTION_WITH_DEFAULT(CAP_ENABLE_UNIT_TEST "Enable CAPClient Unit Tests" OFF)
+OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary" ON)
 
-INCLUDE_DIRECTORIES(
-    ${CMISS_ROOT}/cmgui/source
-    ${CMISS_ROOT}/third_party/${LIB_ARCH_DIR}/include/gdcm-2.0
-    ${CMISS_ROOT}/third_party/include/${LIB_ARCH_DIR}/libxml2
-    ${CMISS_ROOT}/gmm-3.1/include
-    ${CMISS_ROOT}/boost
-    ${CMISS_ROOT}/itk/${LIB_ARCH_DIR}/include/InsightToolkit/Utilities/vxl/vcl
-    ${CMISS_ROOT}/itk/${LIB_ARCH_DIR}/include/InsightToolkit/Utilities/vxl/core
-)
+# wxWidgets 2.8.10 can only be built in 32-bit mode on Mac
+# Cmgui uses wxWidgets 2.8.10 so that too is only built in 
+# 32-bit mode.  Therefore force the CAP Client to also be 
+# built in 32-bit mode on Mac.
+IF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+	SET( CMAKE_OSX_ARCHITECTURES i386)
+ENDIF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 
-SET(CAPClient_SRC ${PROJECT_SOURCE_DIR}/src)
-SET(SOURCES 
-  ${CAPClient_SRC}/MainWindow.cpp
-  ${CAPClient_SRC}/main.cpp
-  ${CAPClient_SRC}/FileSystem.cpp
-  ${CAPClient_SRC}/CmguiExtensions.cpp
-  ${CAPClient_SRC}/DICOMImage.cpp
-  ${CAPClient_SRC}/ImageSlice.cpp
-  ${CAPClient_SRC}/ImageSet.cpp
-  ${CAPClient_SRC}/CAPModelLVPS4X4.cpp
-  ${CAPClient_SRC}/CmguiManager.cpp
-  ${CAPClient_SRC}/CAPModeller.cpp
-  ${CAPClient_SRC}/CAPTimeSmoother.cpp
-  ${CAPClient_SRC}/CAPModellingMode.cpp
-  ${CAPClient_SRC}/DataPoint.cpp
-  ${CAPClient_SRC}/CAPHtmlWindow.cpp
-  ${CAPClient_SRC}/CAPXMLFile.cpp
-  ${CAPClient_SRC}/CAPXMLFileHandler.cpp
-  ${CAPClient_SRC}/CAPAnnotationFile.cpp
-  ${CAPClient_SRC}/ImageBrowseWindow.cpp
-  ${CAPClient_SRC}/CAPMaterial.cpp
-  ${CAPClient_SRC}/PlatformInfo.cpp
-  ${CAPClient_SRC}/CAPContour.cpp
-  ${CAPClient_SRC}/CmguiImageSliceGraphics.cpp
-  ${CAPClient_SRC}/AnnotationWindow.cpp
-  ${CAPClient_SRC}/AnnotationEditor.cpp
-  #${CAPClient_SRC}/DataSet.cpp
-)
+SET(CAP_CLIENT_EXECUTABLE capclient)
 
-SET(ITK_BINDIR ${CMISS_ROOT}/itk/${LIB_ARCH_DIR}/lib/InsightToolkit)
-SET(ITK_LIBPATH_PREFIX -L)
-SET(ITK_LIB_PREFIX -l)
-SET(ITK_LIB_SUFFIX)
-SET(ITK_BIN_CONFIG_DIR)
-SET(ITK_LIB 
-  #${ITK_LIBPATH_PREFIX}${ITK_BINDIR}/bin${ITK_BIN_CONFIG_DIR} 
-  ${ITK_LIBPATH_PREFIX}${ITK_BINDIR} 
-  ${ITK_LIB_PREFIX}ITKAlgorithms${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}ITKStatistics${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}ITKBasicFilters${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}ITKCommon${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itkvnl_algo${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itkvnl${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itkv3p_netlib${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itkvcl${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itksys${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}ITKDICOMParser${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itkzlib${ITK_LIB_SUFFIX} 
-  #${ITK_LIB_PREFIX}itkzlib${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itktiff${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itkjpeg12${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}itkjpeg16${ITK_LIB_SUFFIX} 
-  ${ITK_LIB_PREFIX}ITKNrrdIO${ITK_LIB_SUFFIX}
-)
+# Read in the source, header and gui files
+INCLUDE(source_files.cmake)
+INCLUDE(header_files.cmake)
+INCLUDE(xrc_files.cmake)
 
-SET(IMAGEMAGICK_PATH ${CMISS_ROOT}/third_party)
-SET(IMAGEMAGICK_LIB 
-  ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libMagickCore.a 
-  ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libtiff.a 
-  ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libpng.a 
-  ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libjpeg.a 
-  ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libbz2.a 
-  ${IMAGEMAGICK_PATH}/lib/${LIB_ARCH_DIR}/libz.a
-  -L${IMAGEMAGICK_PATH}/${LIB_ARCH_DIR}/lib
-  -lgdcmCWRAPPER
-  -lgdcmMSFF 
-  -lgdcmDSED 
-  -lgdcmzlib 
-  -lgdcmDICT 
-  -lgdcmCommon 
-  -lgdcmIOD 
-  -lgdcmopenjpeg 
-  -lgdcmjpeg8 
-  -lgdcmjpeg16 
-  -lgdcmjpeg12 
-  -lgdcmexpat
-)
+# Find the Cmgui libraries, using a gui the Cmgui_DIR variable
+# can be set if needed.  Alternatively it can be set on the 
+# command line when creating the CMake cache.
+FIND_PACKAGE(Cmgui REQUIRED)
 
-SET(INTERPRETER_PATH ${CMISS_ROOT}/perl_interpreter)
-IF(WIN32)
-  SET(INTERPRETER_LIB ${INTERPRETER_PATH}/lib/${LIB_ARCH_DIR}/libperlinterpreter-includeperl.a)
-ELSE(WIN32)
-  SET(INTERPRETER_LIB ${INTERPRETER_PATH}/lib/${LIB_ARCH_DIR}/libperlinterpreter.a)
-ENDIF(WIN32)
+# Set some extra compiler flags if gcc is detected
+IF( CMAKE_COMPILER_IS_GNUCXX)
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wall")
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wextra -Wall")
+ENDIF( CMAKE_COMPILER_IS_GNUCXX)
 
-SET(XML2_PATH ${CMISS_ROOT}/third_party)
-SET(XML2_LIB
-  ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libxml2.a
-  ${XML2_PATH}/lib/${LIB_ARCH_DIR}/libz.a
-#  -liconv
-)
+# Convert the xrc files into .cpp and .h files in the
+# current build directory tree.
+XRC_TO_CPP("${APP_XRC}" UI_SRCS_AND_HDRS)
 
-SET(CMGUI_LIB ${CMISS_ROOT}/cmgui/lib/${LIB_ARCH_DIR}/${BUILD_VERSION}/libcmgui.a)
+# Create an executable to convert text files into c strings
+# in a header file.
+ADD_EXECUTABLE(txt2include src/utils/txt2include.c)
+GET_TARGET_PROPERTY(TXT2INCLUDE_EXE txt2include LOCATION)
+INCLUDE(txt_files.cmake)
+SET(TXT_HDRS)
+FOREACH(TXT_FILE ${TXT_FILES})
+	GET_FILENAME_COMPONENT(TXT_FILE_NAME ${TXT_FILE} NAME)
+	SET(TXT_FILE_HDR src/${TXT_FILE_NAME}.h)
+	ADD_CUSTOM_COMMAND(OUTPUT ${TXT_FILE_HDR}
+		COMMAND ${TXT2INCLUDE_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/${TXT_FILE} ${TXT_FILE_HDR}
+		DEPENDS txt2include
+		MAIN_DEPENDENCY txt_files.cmake)
+	LIST(APPEND TXT_HDRS ${TXT_FILE_HDR})
+ENDFOREACH(TXT_FILE ${TXT_FILES})
 
-# set 3rd party wxWidgets
-SET(wxWidgets_ROOT_DIR ${CMISS_ROOT}/wxWidgets)
-SET(wxWidgets_LIB_DIR ${CMISS_ROOT}/wxWidgets/lib)
-FIND_PACKAGE(wxWidgets COMPONENTS xrc gl xml adv html core base) 
+# Must set the values defined in CMGUI_DEFINITIONS
+FOREACH(DEF ${CMGUI_DEFINITIONS})
+	ADD_DEFINITIONS(-D${DEF})
+ENDFOREACH(DEF ${CMGUI_DEFINITIONS})
 
-IF(wxWidgets_FOUND)
-  # I need to force the wxWidget configuration & rc to the CMISS_ROOT folder
-  SET(wxWidgets_CONFIG_EXECUTABLE ${CMISS_ROOT}/wxWidgets/bin/wx-config CACHE STRINGS "wxConfig" FORCE)
-  SET(wxWidgets_wxrc_EXECUTABLE ${CMISS_ROOT}/wxWidgets/bin/wxrc CACHE STRINGS "wxConfig" FORCE)
+# Set the include directories, Cmgui does not know that it is dependent on gdcm??? 
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} "/home/hsorby/development/cmiss/third_party/x86_64-linux/include/gdcm-2.0")
 
-  MESSAGE(STATUS "including: " ${wxWidgets_USE_FILE})
-  INCLUDE(${wxWidgets_USE_FILE})
-  MESSAGE(STATUS "wxWidgets found")
-  MESSAGE(STATUS "linking: " ${wxWidgets_LIBRARIES})
-  MESSAGE(STATUS "lib dir: " ${wxWidgets_LIB_DIR})
-  ADD_DEFINITIONS(-DWX_USER_INTERFACE)
-ELSE(wxWidgets_FOUND)
-  # For convenience. When we cannot continue, inform the user
-  MESSAGE(FATAL_ERROR "wxWidgets not found!")
-ENDIF(wxWidgets_FOUND)
+# Set the CAP Client executable with all sources and headers.  Set headers here also so 
+# that some IDEs recognise them and include them in their projects.
+ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} ${APP_SRCS} ${APP_HDRS} ${UI_SRCS_AND_HDRS} ${TXT_HDRS})
 
-IF(APPLE)
-  SET(common_LIBS "-liconv")
-ENDIF(APPLE)
-IF(WIN32)
-  SET(common_LIBS "-lws2_32")
-ENDIF(WIN32)
-IF(CMAKE_SYSTEM_NAME STREQUAL Linux)
-  SET(common_LIBS -lcrypt -lz)
-ENDIF()
-
-# copy XRC files and the Data directory
-SET(XRC_FILES
-    gui/MainWindow.xrc
-    gui/UserCommentDialog.xrc
-    gui/ImageBrowseWindow.xrc
-    gui/UserCommentDialog.xrc 
-)
-FILE(COPY ${XRC_FILES} Data DESTINATION ${PROJECT_BINARY_DIR})
-
-ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} ${SOURCES})
-#SET(wxMathPlot ${CMISS_ROOT}/wxMathPlot/lib/libmathplot.a)
+# Set some target properties, helpful to visually determine properties of a build.
+SET_TARGET_PROPERTIES(${CAP_CLIENT_EXECUTABLE} PROPERTIES DEBUG_POSTFIX "d" MINSIZEREL_POSTFIX "msr" RELWITHDEBUGINFO_POSTFIX "rwdi")
 
 # and for each of your dependant executable/library targets:
-TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIB} ${IMAGEMAGICK_LIB}
-    ${INTERPRETER_LIB} ${XML2_LIB} ${ITK_LIB} ${wxWidgets_LIBRARIES} 
-    ${common_LIBS})
-    
+TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIBRARIES})
+
+# these libraries are not pulled in by cmgui or one of it's dependencies
+# is not reporting that it needs them
+TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
+	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmDICT.a"
+	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmDSED.a"
+	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmCommon.a"
+	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmIOD.a"
+	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmMSFF.a"
+	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmCWRAPPER.a"
+	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmuuid.a")
+	
 # Unit Testing
-OPTION(ENABLE_CAPCLIENT_UNIT_TEST "Enable CAPClient Unit Tests" OFF)
-IF(${ENABLE_CAPCLIENT_UNIT_TEST})
+IF(ENABLE_CAPCLIENT_UNIT_TEST)
     ADD_SUBDIRECTORY(test)
+ENDIF()
+
+IF(CAP_PRINT_SUMMARY)
+	MESSAGE(STATUS "")
+	MESSAGE(STATUS "======== CAP Client Configuration Summary ========")
+	MESSAGE(STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
+	MESSAGE(STATUS "CMAKE_SYSTEM_NAME is ${CMAKE_SYSTEM_NAME}")
+#	MESSAGE(STATUS "CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
+	MESSAGE(STATUS "==================================================")
+	MESSAGE(STATUS "")
 ENDIF()

@@ -56,7 +56,7 @@ public:
 private:
 	void LoadImagePlaneModel();
 	
-	Computed_field* CreateVisibilityField();
+	Cmiss_field_id CreateVisibilityField();
 
 	void InitializeDataPointGraphicalSetting();
 	

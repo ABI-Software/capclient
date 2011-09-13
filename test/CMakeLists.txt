@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
+
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
 PROJECT(CAPClient_UnitTest)
 
 MESSAGE(STATUS "Entering ${PROJECT_NAME}")
@@ -65,3 +67,4 @@ TARGET_LINK_LIBRARIES(UnitTestCAPAnnotationFile ${GTEST_LIB}
     ${XML2_LIB} ${common_LIBS})
     
 TARGET_LINK_LIBRARIES(UnitTestImageBrowser ${GTEST_LIB})
+

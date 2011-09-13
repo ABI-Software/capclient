@@ -13,6 +13,9 @@ namespace cap
 
 class ImageAnnotation;
 
+/**
+ * This class is an interface for the annotation window
+ */
 class IAnnotationWindow
 {
 public:

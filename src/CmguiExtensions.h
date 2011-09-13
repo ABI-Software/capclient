@@ -12,13 +12,14 @@
 //#define FE_VALUE_IS_DOUBLE
 
 extern "C" {
+#include "api/cmiss_region.h"
 #include "api/cmiss_scene_viewer.h"
-#include "time/time_keeper.h"
+#include "api/cmiss_time_keeper.h"
 #include "api/cmiss_element.h"
 }
 
 int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_name, 
-		struct Time_keeper* time_keeper, double time);
+									 Cmiss_time_keeper_id time_keeper, double time);
 
 Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *region, Cmiss_field_id field, double* coords, double time);
 
@@ -47,3 +48,4 @@ int Cmiss_region_modify_g_element(struct Cmiss_region *region,
 	int delete_flag, int position);  // not exposed by cmgui
 
 #endif /* CMGUIEXTENSIONS_H_ */
+

@@ -5,15 +5,12 @@
  *      Author: jchu014
  */
 
-#include "CAPAnnotationFile.h"
-
-//#include <libxml/xmlmemory.h>
-//#include <libxml/parser.h>
-
+#include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
-
 #include <iostream>
+
+#include "CAPAnnotationFile.h"
 
 namespace cap
 {

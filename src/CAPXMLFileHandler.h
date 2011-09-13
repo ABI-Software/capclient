@@ -39,9 +39,9 @@ public:
 	 *  Also generated the instances of DICOMImage, Cmiss_texture,
 	 *  DataPoint (and the Cmiss_node) and the model.
 	 */
-	SlicesWithImages GetSlicesWithImages(CmguiManager const& cmguiManager) const;
+	SlicesWithImages GetSlicesWithImages(CmguiManager *cmguiManager) const;
 
-	std::vector<DataPoint> GetDataPoints(CmguiManager const& cmguiManager) const;
+	std::vector<DataPoint> GetDataPoints(CmguiManager *cmguiManager) const;
 
 	void AddProvenanceDetail(std::string const& comment);
 	

@@ -8,14 +8,14 @@
 #ifndef CAPMODELLVPS4X4_H_
 #define CAPMODELLVPS4X4_H_
 
-#include "SliceInfo.h"
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
 
+#include <api/cmiss_context.h>
+
+#include "SliceInfo.h"
 struct Scene_object;
-struct Context;
-typedef Context* Cmiss_context_id;
 
 namespace cap
 {

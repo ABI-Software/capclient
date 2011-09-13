@@ -8,25 +8,6 @@
 #ifndef MAINAPP_H_
 #define MAINAPP_H_
 
-#include "ImageBrowseWindowClient.h"
-#include "CAPMath.h"
-
-#include "Config.h"
-#include "SliceInfo.h"
-#include "CmguiManager.h"
-#include "DICOMImage.h"
-#include "ImageSetBuilder.h"
-#include "ImageSet.h"
-#include "CmguiExtensions.h"
-#include "ImageBrowser.h"
-#include "ImageBrowseWindow.h"
-#include "CAPXMLFile.h"
-#include "CAPAnnotationFile.h"
-#include "CAPModeller.h"
-#include "CAPXMLFileHandler.h"
-#include "CAPModelLVPS4X4.h"
-#include "IsoSurfaceCapture.h"
-
 #include <iostream>
 #include <vector>
 #include <string>
@@ -37,37 +18,42 @@
 #include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
 
+extern "C"
+{
+#include <api/cmiss_region.h>
+#include <api/cmiss_time_keeper.h>
+#include <api/cmiss_time.h>
+#include <api/cmiss_field_module.h>
+}
+
+#include "IImageBrowserWindow.h"
+#include "CAPMath.h"
+
+#include "Config.h"
+#include "MainWindow.h"
+#include "SliceInfo.h"
+#include "CmguiManager.h"
+#include "DICOMImage.h"
+#include "ImageSetBuilder.h"
+#include "ImageSet.h"
+#include "CmguiExtensions.h"
+#include "ImageBrowser.h"
+#include "ImageBrowserWindow.h"
+#include "CAPXMLFile.h"
+#include "CAPAnnotationFile.h"
+#include "CAPModeller.h"
+#include "CAPXMLFileHandler.h"
+#include "CAPModelLVPS4X4.h"
+#include "IsoSurfaceCapture.h"
+
 //class Cmiss_node;
 class wxPanel;
 		
-extern "C"
-{
-#include "api/cmiss_time_keeper.h"
-#include "api/cmiss_time.h"
-#include "command/cmiss.h"
-#include "graphics/scene.h"	
-#include "graphics/scene_viewer.h"
-#include "three_d_drawing/graphics_buffer.h"
-//#include "general/debug.h"
-#include "finite_element/export_finite_element.h"
-}
-
 namespace cap
 {
-
-namespace
-{
-const char* ModeStrings[] = {
-		"Apex",
-		"Base",
-		"RV Inserts",
-		"Baseplane Points",
-		"Guide Points"
-};//REVISE
-}
-
-template <typename MainWindow, typename CmguiManager>
-class MainApp : ImageBrowseWindowClient
+class MainWindow;
+	
+class MainApp : private IImageBrowserWindow, public wxApp
 {
 	static int input_callback(struct Scene_viewer *scene_viewer, 
 			struct Graphics_buffer_input *input, void *viewer_frame_void)
@@ -80,7 +66,7 @@ class MainApp : ImageBrowseWindowClient
 	//		return 0;
 	//	}
 		
-		if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
+		//if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
 		{
 			return 1;
 		}
@@ -93,20 +79,20 @@ class MainApp : ImageBrowseWindowClient
 		// But Is this the best place put this code?
 		app->StopCine();
 		
-		double x = (double)(input->position_x);
-		double y = (double)(input->position_y);
+		double x = (double)(0.0); // input->position_x);
+		double y = (double)(0.0); // input->position_y);
 		double time = app->GetCurrentTime(); // TODO REVISE
-		if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
+		//if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
 		{
 			// Select node or create one
 			std::cout << "Mouse clicked, time = " << time << '\n';
-			std::cout << "Mouse button number = " << input->button_number << '\n';
+			std::cout << "Mouse button number = " << 0 << "\n"; // input->button_number << '\n';
 			
 			Cmiss_scene_viewer_id scene_viewer = app->GetCmissSceneViewer();
 			Point3D coords;
 			selectedNode = Cmiss_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
 						
-			if (input->button_number == wxMOUSE_BTN_LEFT )
+			//if (input->button_number == wxMOUSE_BTN_LEFT )
 			{	
 				if (!selectedNode) //REVISE
 				{
@@ -116,7 +102,7 @@ class MainApp : ImageBrowseWindowClient
 					}
 				}
 			}
-			else if (input->button_number == wxMOUSE_BTN_RIGHT)
+			//else if (input->button_number == wxMOUSE_BTN_RIGHT)
 			{
 				if (selectedNode)
 				{
@@ -125,7 +111,7 @@ class MainApp : ImageBrowseWindowClient
 				}
 			}
 		}
-		else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
+		//else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
 		{
 			// Move node		
 			if (!selectedNode)
@@ -142,7 +128,7 @@ class MainApp : ImageBrowseWindowClient
 	//		cout << "Move coord = " << coords << endl;
 			app->MoveDataPoint(selectedNode, coords);
 		}
-		else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
+		//else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
 		{
 			std::cout << "Mouse released" << '\n';
 			app->SmoothAlongTime();
@@ -157,7 +143,7 @@ class MainApp : ImageBrowseWindowClient
 	{
 	//	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
 
-		if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
+		//if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
 		{
 			return 1;
 		}
@@ -165,27 +151,27 @@ class MainApp : ImageBrowseWindowClient
 	//	static Cmiss_node_id selectedNode = NULL; // Thread unsafe
 	//	MainWindow* frame = static_cast<MainWindow*>(viewer_frame_void);
 		
-		double x = (double)(input->position_x);
-		double y = (double)(input->position_y);
+		double x = (double)(0.0); // input->position_x);
+		double y = (double)(0.0); // (input->position_y);
 		
 		static double coords[3];
 		static Cmiss_region_id selectedRegion;
-		if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
+		//if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
 		{
 			// Select node or create one
-			std::cout << "Mouse button number = " << input->button_number << '\n';
+			std::cout << "Mouse button number = " << 0 << "\n"; // input->button_number << '\n';
 			
 			MainApp* app = static_cast<MainApp*>(viewer_frame_void);
 			Cmiss_scene_viewer_id scene_viewer = app->GetCmissSceneViewer();
 			selectedRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)coords, (Cmiss_region_id)0);
 			if (selectedRegion)
 			{
-				std::string sliceName = Cmiss_region_get_path(selectedRegion);
+				std::string sliceName = ""; // Cmiss_region_get_path(selectedRegion);
 				std::cout << "selected = " << sliceName << '\n';
 			}
 
 		}
-		else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
+		//else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
 		{
 			double new_coords[3];
 			//Cmiss_region_id selectedRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
@@ -207,16 +193,16 @@ class MainApp : ImageBrowseWindowClient
 				{
 					char nodeName[256];
 					sprintf(nodeName,"%d", nodeNum);
-					if (Cmiss_node* node = Cmiss_region_get_node(selectedRegion, nodeName))
+					//if (Cmiss_node* node = Cmiss_region_get_node(selectedRegion, nodeName))
 					{
-						FE_value x, y, z;
-						FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
+						double_t x, y, z;
+//						FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
 	//					cout << "before = " << x << ", " << y << ", " << z << endl;
 						x += (new_coords[0] - coords[0]);
 						y += (new_coords[1] - coords[1]);
 						z += (new_coords[2] - coords[2]);
 	//					cout << "after = " << x << ", " << y << ", " << z << "\n" << endl ;
-						FE_node_set_position_cartesian(node, 0, x, y, z);
+//						FE_node_set_position_cartesian(node, 0, x, y, z);
 					}
 				}
 				for (int i = 0; i<3; i++)
@@ -225,7 +211,7 @@ class MainApp : ImageBrowseWindowClient
 				}
 			}
 		}
-		else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
+		//else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
 		{
 			std::cout << "Mouse released" << '\n';
 		}
@@ -233,7 +219,7 @@ class MainApp : ImageBrowseWindowClient
 		return 0; // returning false means don't call the other input handlers;
 	}
 
-	static int time_callback(struct Time_object *time, double current_time, void *user_data)
+	static int time_callback(Cmiss_time_notifier_id time, double current_time, void *user_data)
 	{
 		//DEBUG
 		std::cout << "Time_call_back time = " << current_time << '\n';
@@ -247,15 +233,19 @@ class MainApp : ImageBrowseWindowClient
 	}
 	
 public:
-	static
-	MainApp* CreateMainApp(CmguiManager const& manager)
+	
+	/**
+	 * Here we create the main app, the constructor, copy constructor and 
+	 * assignment operator are private.  This enables us to control the creation
+	 * of the MainApp object.
+	 */
+	static MainApp* CreateMainApp()
 	{
-		MainApp<MainWindow, CmguiManager>* mainApp = new MainApp(manager);
-		MainWindow *frame = new MainWindow(*mainApp);
-		mainApp->SetMainWindow(frame);
-		mainApp->Initialize();
-		frame->Show(true);
-		return mainApp;
+		if (instance_ == 0)
+		{
+			instance_ = new MainApp();
+		}
+		return instance_;
 	}
 	
 	~MainApp()
@@ -269,6 +259,11 @@ public:
 		gui_ = win;
 	}
 
+	CmguiManager* GetCmguiManager() const
+	{
+		return cmguiManager_;
+	}
+	
 	Cmiss_scene_viewer_id GetCmissSceneViewer() const
 	{
 		return sceneViewer_;
@@ -347,9 +342,9 @@ public:
 			return;
 		}
 		
-		time = (time > 0.99) ? 0 : time;
+		time = (time > 0.99) ? 0.0 : time;
 		
-		Time_keeper_request_new_time(timeKeeper_, time);
+		//Time_keeper_request_new_time(timeKeeper_, time);
 		
 		int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
 		gui_->SetTime(time, frameNumber);
@@ -358,7 +353,7 @@ public:
 	
 	void OnAnimationSpeedControlEvent(double speed)
 	{
-		Time_keeper_set_speed(timeKeeper_, speed);	
+		//Time_keeper_set_speed(timeKeeper_, speed);	
 		Refresh3DCanvas(); // forces redraw while silder is manipulated
 	}
 	
@@ -366,13 +361,13 @@ public:
 	{
 		if (sceneViewer_) 
 		{
-			Scene_viewer_redraw_now(sceneViewer_);
+			//Scene_viewer_redraw_now(sceneViewer_);
 		}
 	}
 	
 	double GetCurrentTime() const
 	{
-		return Cmiss_time_keeper_get_time(timeKeeper_);
+		return Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 	}
 	
 	void SetTime(double time)
@@ -426,7 +421,7 @@ public:
 		if (modeller_->OnAccept())
 		{
 			CAPModeller::ModellingMode mode = modeller_->GetCurrentMode();
-			std::cout << "Current Mode = " << ModeStrings[mode] << '\n'; 
+			//== std::cout << "Current Mode = " << ModeStrings[mode] << '\n'; 
 			gui_->UpdateModeSelectionUI(mode);
 			if (mode == CAPModeller::GUIDEPOINT)
 			{
@@ -469,7 +464,7 @@ public:
 		EnterImagesLoadedState();
 	}
 	
-	virtual void LoadImagesFromImageBrowseWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
+	virtual void LoadImagesFromImageBrowserWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
 	{
 		// Reset capXMLFilePtr_
 		if (capXMLFilePtr_)
@@ -488,7 +483,7 @@ public:
 		cardiacAnnotationPtr_.reset(new CardiacAnnotation(anno));
 		
 		// The following code should only execute when reading a pre-defined annotation file
-		Cmiss_context_id cmiss_context = cmguiManager_.GetCmissContext();
+		Cmiss_context_id cmiss_context = cmguiManager_->GetCmissContext();
 		Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
 		bool apexDefined = false;
 		bool baseDefined = false;
@@ -554,7 +549,8 @@ public:
 									std::cout << __func__ << " : Can't find subregion at path : " << regionName << '\n';
 									throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
 								}
-								Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
+								Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+								Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
 								Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
 												field, (double*) coords, time);
 
@@ -622,7 +618,8 @@ public:
 									std::cout << __func__ << " : Can't find subregion at path : " << regionName << '\n';
 									throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
 								}
-								Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
+								Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+								Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
 								Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
 												field, (double*) coords, time);
 
@@ -648,8 +645,8 @@ public:
 
 	void OpenImages(std::string const& imageDirname)
 	{
-		ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = 
-					ImageBrowser<ImageBrowseWindow, CmguiManager>::CreateImageBrowser(std::string(imageDirname), cmguiManager_, *this);
+		ib_ = ImageBrowser::CreateImageBrowser(std::string(imageDirname), cmguiManager_, this);
+		ib_->ShowWindow();
 	}
 	
 	void OpenModel(std::string const& filename)
@@ -686,7 +683,7 @@ public:
 			modeller_->SetDataPoints(dataPoints);
 			// FIXME memory is prematurely released when ok button is pressed from the following window
 			// Suppress this feature for now
-	//			ImageBrowseWindow *frame = new ImageBrowseWindow(slicesWithImages, cmguiManager_, *this);
+	//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
 	//			frame->Show(true);
 			
 			//HACK : uncommenting the following will enable models to be constructed from model files with
@@ -712,7 +709,7 @@ public:
 		std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 		std::cout << "modelFilePath = " << modelFilePath << '\n';
 
-		heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
+		heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_->GetCmissContext()));
 		assert(heartModelPtr_);
 		heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
 		int numberOfModelFrames = exnodeFileNames.size();
@@ -753,10 +750,10 @@ public:
 //		EnterInitState();
 //		cardiacAnnotationPtr_.reset(new CardiacAnnotation(annotationFile.GetCardiacAnnotation()));
 		
-		ImageBrowser<ImageBrowseWindow, CmguiManager>* ib = 
-				ImageBrowser<ImageBrowseWindow, CmguiManager>::CreateImageBrowser(imageDirname, cmguiManager_, *this);
+		ImageBrowser* ib = 
+				ImageBrowser::CreateImageBrowser(imageDirname, cmguiManager_, this);
 		
-		// Set annotations to the images in the ImageBrowseWindow.
+		// Set annotations to the images in the ImageBrowserWindow.
 		ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
 	}
 	
@@ -800,18 +797,18 @@ public:
 	
 	void StartPlaneShift()
 	{
-		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
-						input_callback, (void*)this);
-		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
-						input_callback_image_shifting, (void*)this, 1/*add_first*/);
+//		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
+//						input_callback, (void*)this);
+//		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
+//						input_callback_image_shifting, (void*)this, 1/*add_first*/);
 	}
 	
 	void FinishPlaneShift()
 	{
-		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
-						input_callback_image_shifting, (void*)this);
-		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
-						input_callback, (void*)this, 1/*add_first*/);
+//		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
+//						input_callback_image_shifting, (void*)this);
+//		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
+//						input_callback, (void*)this, 1/*add_first*/);
 		
 		imageSet_->SetShiftedImagePosition();
 	}
@@ -819,7 +816,7 @@ public:
 	void OnExportModel(std::string const& dirname)
 	{
 		std::cout << __func__ << "\n";
-		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), context_, timeKeeper_);
+		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), cmguiManager_->GetCmissContext(), timeKeeper_);
 		
 		iso->OnExportModel(dirname);
 	}
@@ -827,30 +824,24 @@ public:
 	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
 	{
 		std::cout << __func__ << "\n";
-		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), context_, timeKeeper_);
+		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), cmguiManager_->GetCmissContext(), timeKeeper_);
 		
 		iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
 	}
 	
 private:
 	
-	void Initialize()
-	{
-		assert(gui_);
-		wxPanel* panel = gui_->Get3DPanel();
-		sceneViewer_ = cmguiManager_.CreateSceneViewer(panel);
-		Cmiss_scene_viewer_view_all(sceneViewer_);
-		Cmiss_scene_viewer_set_perturb_lines(sceneViewer_, 1 );
-		
-		EnterInitState();
-	}
+	/**
+	 * Initialise the window
+	 */
+	void Initialize();
 	
 	void EnterInitState() 
 	{
 		gui_->EnterInitState();
 		
 		// Initialize input callback
-		Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
+		//Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
 
 		// Also clean up cmgui objects such as scene, regions, materials ..etc
 		capXMLFilePtr_.reset(0);
@@ -880,8 +871,10 @@ private:
 		}
 		timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
 		Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
-		Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
-		Time_keeper_set_maximum(timeKeeper_, 1);
+		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MINIMUM_TIME, 0.0);
+		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
+//		Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
+//		Time_keeper_set_maximum(timeKeeper_, 1);
 		
 		gui_->SetAnimationSliderRange(0, numberOfLogicalFrames);
 
@@ -903,10 +896,13 @@ private:
 	
 	void PlayCine()
 	{
-		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
-		Time_keeper_set_play_loop(timeKeeper_);
+		Cmiss_time_keeper_play(timeKeeper_, CMISS_TIME_KEEPER_PLAY_FORWARD);
+		Cmiss_time_keeper_set_repeat_mode(timeKeeper_, CMISS_TIME_KEEPER_REPEAT_MODE_PLAY_LOOP);
+		Cmiss_time_keeper_set_frame_mode(timeKeeper_, CMISS_TIME_KEEPER_FRAME_MODE_PLAY_REAL_TIME);
+//		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
+		//Time_keeper_set_play_loop(timeKeeper_);
 		//Time_keeper_set_play_every_frame(timeKeeper_);
-		Time_keeper_set_play_skip_frames(timeKeeper_);
+		//Time_keeper_set_play_skip_frames(timeKeeper_);
 		this->animationIsOn_ = true;
 		
 		gui_->PlayCine();
@@ -914,7 +910,8 @@ private:
 	
 	void StopCine()
 	{
-		Time_keeper_stop(timeKeeper_);
+		Cmiss_time_keeper_stop(timeKeeper_);
+		//Time_keeper_stop(timeKeeper_);
 		this->animationIsOn_ = false;
 		
 		gui_->StopCine();
@@ -991,11 +988,11 @@ private:
 
 			sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
 						sliceName.c_str() );
-			Cmiss_context_execute_command(context_, str);
+			Cmiss_context_execute_command(cmguiManager_->GetCmissContext(), str);
 
 			sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
 						,sliceName.c_str());
-			Cmiss_context_execute_command(context_, str);
+			Cmiss_context_execute_command(cmguiManager_->GetCmissContext(), str);
 		}
 	}
 	
@@ -1022,7 +1019,7 @@ private:
 			sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
 						sliceName.c_str() ,
 						normalTransformed.x, normalTransformed.y, normalTransformed.z);
-			Cmiss_context_execute_command(context_, str);
+			Cmiss_context_execute_command(cmguiManager_->GetCmissContext(), str);
 			
 			Point3D pointTLCTransformed = mInv * plane.tlc;
 			double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
@@ -1045,7 +1042,7 @@ private:
 														ComparatorForNumFrames());
 		int minNumberOfFrames = itrToMinNumberOfFrames->GetDICOMImages().size();
 		
-		heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_.GetCmissContext()));
+		heartModelPtr_.reset(new CAPModelLVPS4X4("heart", cmguiManager_->GetCmissContext()));
 		assert(heartModelPtr_);
 		heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
 		LoadTemplateHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
@@ -1124,7 +1121,7 @@ private:
 	}
 	
 	// Private Constructor - This class should be instantiated from the static factory method
-	MainApp(CmguiManager const& manager)
+/*	MainApp(CmguiManager *manager)
 	:
 		cmguiManager_(manager),
 		imageSet_(0),
@@ -1137,17 +1134,40 @@ private:
 		capXMLFilePtr_(0),
 		cardiacAnnotationPtr_(0),
 		gui_(0),
-		context_(manager.GetCmissContext()),
-		timeKeeper_(Cmiss_context_get_default_time_keeper(manager.GetCmissContext())),
+		//context_(manager.GetCmissContext()),
+		timeKeeper_(Cmiss_context_get_default_time_keeper(manager->GetCmissContext())),
 		timeNotifier_(0)
 	{}
+	*/
+	MainApp()
+	: gui_(0)
+	, ib_(0)
+	, cmguiManager_(0)
+	, timeKeeper_(0)
+	, timeNotifier_(0)
+	, imageSet_(0)
+	, animationIsOn_(false)
+	, hideAll_(false)
+	, miiIsOn_(false)
+	, wireFrameIsOn_(false)
+	, heartModelPtr_(0)
+	, modeller_(0)
+	, sceneViewer_(0)
+	, mainWindowState_(INIT_STATE)
+	, capXMLFilePtr_(0)
+	, cardiacAnnotationPtr_(0)
+	{
+		cmguiManager_ = CmguiManager::CreateCmguiManager();
+	}
 	
+	static MainApp* instance_;
 	MainWindow* gui_;
-	CmguiManager const& cmguiManager_;
+	ImageBrowser* ib_;
+	CmguiManager* cmguiManager_;
 	
-	Cmiss_context_id context_;
-	Cmiss_time_keeper* timeKeeper_;
-	Cmiss_time_notifier* timeNotifier_;
+	// Cmiss_context_id context_;
+	Cmiss_time_keeper_id timeKeeper_;
+	Cmiss_time_notifier_id timeNotifier_;
 	ImageSet* imageSet_;
 	
 	bool animationIsOn_;
@@ -1171,6 +1191,8 @@ private:
 	MainWindowState mainWindowState_;
 	boost::scoped_ptr<CAPXMLFile> capXMLFilePtr_;
 	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_;
+	
+	//DECLARE_EVENT_TABLE();
 };
 
 } // namespace cap

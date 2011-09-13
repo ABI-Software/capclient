@@ -55,7 +55,7 @@ void DICOMImage::ReadDICOMFile()
 
 	gdcm::Reader r;
 	r.SetFileName( filename_.c_str() );
-	cout << "DICOM filename = " << filename_ << '\n';
+	//cout << "DICOM filename = " << filename_ << '\n';
 	if( !r.Read() )
 	{
 		cout << "Can't read file: " << filename_ << endl;

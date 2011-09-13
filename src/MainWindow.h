@@ -1,29 +1,37 @@
 #ifndef __MAINWINDOW_H__
 #define __MAINWINDOW_H__
 
-#include "wx/wxprec.h"
-#include "wx/xrc/xmlres.h"
+#include <vector>
+
+#include <wx/wxprec.h>
+#include <wx/xrc/xmlres.h>
+#include <wx/notebook.h>
+#include <wx/frame.h>
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
     #include "wx/wx.h"
 #endif
 
-#include "MainApp.h"
+#include "gui/MainWindowUI.h"
+
+//#include "MainApp.h"
 
 namespace cap
 {
 
 class CmguiManager;
+class CAPWindow;
+class MainApp;
 
-class MainWindow : public wxFrame
+class MainWindow : public MainWindowUI
 {
 public:
-	explicit MainWindow(MainApp<MainWindow, CmguiManager>& mainApp);
+	explicit MainWindow(wxWindow* parent, MainApp* mainApp);
 	~MainWindow();
 
 	wxPanel* Get3DPanel() const
 	{
-		return m_pPanel;
+		return panel_Cmgui;
 	}
 	
 	void SetTime(double time, int frameNumber);
@@ -34,29 +42,31 @@ public:
 	
 	void UpdateModeSelectionUI(int mode);
 	
+	/**
+	 * Set the state of the widgets to the initial state.
+	 */
 	void EnterInitState();
 
+	/**
+	 * Set the state of the widgets to the images loaded state.
+	 */
 	void EnterImagesLoadedState();
 
+	/**
+	 * Set the state of the widgets to the model loaded state.
+	 */
 	void EnterModelLoadedState();
 	
 	void PopulateSliceList(std::vector<std::string> const& sliceNames,  std::vector<bool> const& visibilities);
 	
 	bool IsSliceChecked(int i) const
 	{
-		return objectList_->IsChecked(i);
+		return checkListBox_Slice->IsChecked(i);
 	}
 	
 	void SetAnimationSliderRange(int min, int max);
 	
 private:
-	template <typename Widget>
-	Widget* GetWidgetByName(std::string const& _name)
-	{
-		long int id = wxXmlResource::GetXRCID(wxString(_name.c_str(),wxConvUTF8));
-		return wxStaticCast((*this).FindWindow(id), Widget);
-	}
-	
 	std::string PromptForUserComment();
 
 	void UpdateFrameNumber(int frameNumber);
@@ -67,7 +77,9 @@ private:
 
 	void UpdateMIIVisibilityAccordingToUI();
 	
-	//Event handlers
+	/**
+	 * Window widget event handlers.
+	 */
 	void Terminate(wxCloseEvent& event);
 	void OnTogglePlay(wxCommandEvent& event);
 	void OnObjectCheckListChecked(wxCommandEvent& event);
@@ -80,10 +92,13 @@ private:
 	void OnWireframeCheckBox(wxCommandEvent& event);
 	void OnBrightnessSliderEvent(wxCommandEvent& event);
 	void OnContrastSliderEvent(wxCommandEvent& event);
-
 	void OnAcceptButtonPressed(wxCommandEvent& event);
 	void OnModellingModeChanged(wxCommandEvent& event);
+	void OnPlaneShiftButtonPressed(wxCommandEvent& event);
 	
+	/**
+	 * Menu event handlers.
+	 */
 	void OnAbout(wxCommandEvent& event);
 	void OnOpenImages(wxCommandEvent& event);
 	void OnOpenModel(wxCommandEvent& event);
@@ -91,16 +106,19 @@ private:
 	void OnSave(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnExportModel(wxCommandEvent& event);
-	void OnExportModelToBinaryVolume(wxCommandEvent& event);
+	void OnExportModelToBinaryVolume(wxCommandEvent& event);	
 	
-	void OnPlaneShiftButtonPressed(wxCommandEvent& event);
+	/**
+	 * Make the connections for the widgets.
+	 */
+	void MakeConnections();
 	
-	DECLARE_EVENT_TABLE();
+	/**
+	 * On idle events are used by Cmgui to update graphics.
+	 */
+	void OnIdle(wxIdleEvent& event);
 	
-	wxCheckListBox* objectList_;
-	wxPanel* m_pPanel;
-
-	MainApp<MainWindow, CmguiManager>& mainApp_;
+	MainApp* mainApp_; /**< handle to the model class for this window */
 };
 
 } // end namespace cap

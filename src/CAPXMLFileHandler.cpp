@@ -5,17 +5,6 @@
  *      Author: jchu014
  */
 
-#include "CAPXMLFileHandler.h"
-#include "CAPXMLFile.h"
-#include "DICOMImage.h"
-#include "CAPModelLVPS4X4.h"
-#include "DataPoint.h"
-#include "CmguiManager.h"
-#include "CmguiExtensions.h"
-#include "FileSystem.h"
-#include "PlatformInfo.h"
-#include "CAPContour.h"
-
 #include <wx/wx.h>
 #include <wx/dir.h> // FIXME move this out to a separate function/class
 
@@ -34,12 +23,27 @@
 #include <functional>
 #include <time.h>
 
+extern "C"
+{
+#include <api/cmiss_field_module.h>
+}
+
+#include "CAPXMLFileHandler.h"
+#include "CAPXMLFile.h"
+#include "DICOMImage.h"
+#include "CAPModelLVPS4X4.h"
+#include "DataPoint.h"
+#include "CmguiManager.h"
+#include "CmguiExtensions.h"
+#include "FileSystem.h"
+#include "PlatformInfo.h"
+#include "CAPContour.h"
+
 namespace cap
 {
 
 CAPXMLFileHandler::CAPXMLFileHandler(CAPXMLFile& xmlFile)
-:
-	xmlFile_(xmlFile)
+	: xmlFile_(xmlFile)
 {}
 
 void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
@@ -217,7 +221,7 @@ boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::st
 
 } // unnamed namespace
 
-SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmguiManager) const
+SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager *cmguiManager) const
 {
 	SlicesWithImages dicomSlices;
 
@@ -321,14 +325,10 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 		std::string const& label = labelAndImages.first;
 		std::vector<DICOMPtr>& images = labelAndImages.second;
 
-		std::vector<Cmiss_texture_id> textures;
-		BOOST_FOREACH(DICOMPtr const& dicomImage, images)
-		{
-			Cmiss_texture_id texture_id = cmguiManager.LoadCmissTexture(dicomImage->GetFilename());
-			textures.push_back(texture_id);
-		}
-
-		SliceInfo sliceInfo(label, images, textures);
+		std::vector<Cmiss_field_image_id> textures;
+		//Cmiss_field_image_id image_volume = 0;
+		//cmguiManager->CreateCmissImageTexture(image_volume, images);
+		SliceInfo sliceInfo(label, images, textures /** TODO: requires fixing */);
 		dicomSlices.push_back(sliceInfo);
 	}
 
@@ -337,7 +337,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager const& cmgu
 	return dicomSlices;
 }
 
-std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager const& cmguiManager) const
+std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager *cmguiManager) const
 {
 	std::map<std::string, size_t> labelToNumframesMap;
 	CAPXMLFile::Input& input = xmlFile_.GetInput();
@@ -354,8 +354,8 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager const& cmgu
 		}
 	}
 
-	Cmiss_context_id cmiss_context = cmguiManager.GetCmissContext();
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
+	Cmiss_context_id cmiss_context = cmguiManager->GetCmissContext();
+	Cmiss_region_id root_region = 0; // Cmiss_context_get_default_region(cmiss_context);
 	assert(root_region);
 	std::vector<DataPoint> dataPoints;
 	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
@@ -365,7 +365,7 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager const& cmgu
 		Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());
 		BOOST_FOREACH(CAPXMLFile::Point const& p, image.points)
 		{
-			double coords[3];
+			double_t coords[3];
 			coords[0] = (*p.values.find("x")).second.value;
 			coords[1] = (*p.values.find("y")).second.value;
 			coords[2] = (*p.values.find("z")).second.value;
@@ -377,11 +377,12 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager const& cmgu
 				std::cout << __func__ << " : Can't find subregion at path : " << image.label << '\n';
 				continue;
 			}
-			Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
+			Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+			Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
 			Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
 							field, (double*) coords, time);
 
-			Point3D coordPoint3D(coords);
+			Point3D coordPoint3D(static_cast<Real>(coords[0]), static_cast<Real>(coords[1]), static_cast<Real>(coords[2]));
 			dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));
 		}
 		Cmiss_region_destroy(&region);
