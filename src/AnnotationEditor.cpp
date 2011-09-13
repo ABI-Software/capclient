@@ -5,11 +5,12 @@
  *      Author: jchu014
  */
 
+#include <algorithm>
+#include <boost/bind.hpp>
+#include <stdexcept>
 #include "AnnotationEditor.h"
 #include "IAnnotationWindow.h"
 #include "CAPAnnotationFile.h"
-#include <boost/bind.hpp>
-#include <stdexcept>
 
 namespace cap
 {

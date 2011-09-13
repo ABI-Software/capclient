@@ -30,9 +30,6 @@ extern "C"
 {
 //#include "api/cmiss_time_keeper.h"
 //#include "api/cmiss_time.h"
-#include "command/cmiss.h"
-#include "graphics/scene.h"	
-#include "graphics/scene_viewer.h"
 //#include "three_d_drawing/graphics_buffer.h"
 //#include "general/debug.h"
 //#include "finite_element/export_finite_element.h"
@@ -58,18 +55,18 @@ public:
 		mainSizer->Add(panel_, 1, wxEXPAND);
 		
 //		panel_->SetSize(156);
-		sceneViewer_ = Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(context_),
+		sceneViewer_ = 0; // Cmiss_scene_viewer_create_wx(Cmiss_context_get_default_scene_viewer_package(context_),
 				//panel,
-				panel_,
-				CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
-				CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
-				/*minimum_colour_buffer_depth*/8,
-				/*minimum_depth_buffer_depth*/8,
-				/*minimum_accumulation_buffer_depth*/8);
+//				panel_,
+//				CMISS_SCENE_VIEWER_BUFFERING_DOUBLE,
+//				CMISS_SCENE_VIEWER_STEREO_ANY_MODE,
+//				/*minimum_colour_buffer_depth*/8,
+//				/*minimum_depth_buffer_depth*/8,
+//				/*minimum_accumulation_buffer_depth*/8);
 		
 		Cmiss_context_execute_command(context_, "gfx create scene print_temp manual_g_element");
 		Cmiss_scene_viewer_set_scene_by_name(sceneViewer_, "print_temp");
-		struct Scene *scene = Scene_viewer_get_scene(sceneViewer_);
+		struct Scene *scene = 0; // Scene_viewer_get_scene(sceneViewer_);
 		
 		Cmiss_context_execute_command(context_, "gfx draw as heart group heart scene print_temp");
 		// The above doesn't copy the transformation so it has to be done manually
@@ -78,23 +75,23 @@ public:
 //		RenderIsoSurfaces();
 			
 		double centre_x, centre_y, centre_z, size_x, size_y, size_z;
-		if (!Scene_get_graphics_range(scene, &centre_x, &centre_y, &centre_z, &size_x, &size_y, &size_z))
+		//if (!Scene_get_graphics_range(scene, &centre_x, &centre_y, &centre_z, &size_x, &size_y, &size_z))
 		{
 			std::cout << "Error: Scene_get_graphics_range before transformation\n";
 		}
 		std::cout << "range before: " << centre_x  << ", " << centre_y << ", " 
 				<< centre_z << ", " << size_x << ", " << size_y <<", "<<  size_z << std::endl;
 		
-		struct Scene_object * modelSceneObject=Scene_get_Scene_object_by_name(scene, scene_object_name);
+		struct Scene_object * modelSceneObject= 0; // Scene_get_Scene_object_by_name(scene, scene_object_name);
 		if (modelSceneObject)
 		{
 			assert(heartModelPtr_);
 			const gtMatrix& patientToGlobalTransform = heartModelPtr_->GetLocalToGlobalTransformation();
-			Scene_object_set_transformation(modelSceneObject, const_cast<gtMatrix*>(&patientToGlobalTransform));
+			//Scene_object_set_transformation(modelSceneObject, const_cast<gtMatrix*>(&patientToGlobalTransform));
 		}
 		else
 		{
-			display_message(ERROR_MESSAGE,"No object named '%s' in scene",scene_object_name);
+			//display_message(ERROR_MESSAGE,"No object named '%s' in scene",scene_object_name);
 		}
 				
 		Fit();
@@ -164,15 +161,15 @@ public:
 		double image_height = (plane.tlc - plane.blc).Length();
 		double radius = std::min(image_width, image_height) / 2.0;
 		double clip_factor = 10.0;
-		int return_code = Scene_viewer_set_view_simple(sceneViewer_, planeCenter.x, planeCenter.y, planeCenter.z
-				, radius, 45, clip_factor*radius);	
+		int return_code = 0; //Scene_viewer_set_view_simple(sceneViewer_, planeCenter.x, planeCenter.y, planeCenter.z
+//				, radius, 45, clip_factor*radius);	
 	}
 	
 	void OnExportModel(std::string const& dirname)
 	{
 		std::cout << __func__ << "\n";
 		
-		double currentTime = Cmiss_time_keeper_get_time(timeKeeper_);
+		double currentTime = Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 		
 		size_t const numberOfFrames = imageSet_->GetNumberOfFrames();
 		std::vector<std::string> const& sliceNames = imageSet_->GetSliceNames();
@@ -214,7 +211,7 @@ public:
 				Fit();
 							
 				double time = static_cast<double>(i)/static_cast<double>(numberOfFrames);
-				Cmiss_time_keeper_set_time(timeKeeper_, time);
+				Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
 				RenderIsoSurface(fieldName, isoValue);
 				Cmiss_scene_viewer_redraw_now(sceneViewer_);
 				
@@ -242,7 +239,7 @@ public:
 	{
 		std::cout << __func__ << "\n";
 		
-		double currentTime = Cmiss_time_keeper_get_time(timeKeeper_);
+		double currentTime = Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 		
 		size_t const numberOfFrames = imageSet_->GetNumberOfFrames();
 		
@@ -300,7 +297,7 @@ public:
 			for (size_t i = 0; i < numberOfFrames ; i++)
 			{						
 				double time = static_cast<double>(i)/static_cast<double>(numberOfFrames);
-				Cmiss_time_keeper_set_time(timeKeeper_, time);
+				Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
 				RenderIsoSurface(fieldName, d);
 				Cmiss_scene_viewer_redraw_now(sceneViewer_);
 				

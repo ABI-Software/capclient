@@ -5,28 +5,23 @@
  *      Author: jchu014
  */
 
-#include "CmguiImageSliceGraphics.h"
-#include "CAPMaterial.h"
-#include "CmguiManager.h"
-#include "CAPMath.h"
 
 #include <iostream>
+#include <cstdio>
+#include <limits>
 
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 
 extern "C"
 {
-#include "command/cmiss.h"
-#include "graphics/scene_viewer.h"
-#include "api/cmiss_texture.h"
-#include "graphics/material.h"
-#include "graphics/element_group_settings.h"
-#include "graphics/scene.h"
-#include "graphics/glyph.h"
-#include "graphics/colour.h"
-#include "finite_element/finite_element_region.h"
+#include <api/cmiss_region.h>
 }
+
+#include "CmguiImageSliceGraphics.h"
+#include "CAPMaterial.h"
+#include "CmguiManager.h"
+#include "CAPMath.h"
 
 namespace cap
 {
@@ -64,21 +59,20 @@ CmguiImageSliceGraphics::~CmguiImageSliceGraphics()
 	{
 //		Cmiss_texture* temp = tex;
 //		DEACCESS(Texture)(&temp);
-		DESTROY(Texture)(&tex);
+//		DESTROY(Texture)(&tex);
 	}
 }
 	
 void CmguiImageSliceGraphics::SetVisible(bool visibility)
 {
-	GT_visibility_type visible = visibility ? g_VISIBLE : g_INVISIBLE;
-	Scene_object_set_visibility(sceneObject_, visible);
+//	GT_visibility_type visible = visibility ? g_VISIBLE : g_INVISIBLE;
+//	Scene_object_set_visibility(sceneObject_, visible);
 }
 	
 void CmguiImageSliceGraphics::ChangeTexture(size_t index)
 {
-	Cmiss_texture* tex = textures_[index];
-	material_->ChangeTexture(tex);
-	return ;
+	// Cmiss_texture* tex = textures_[index]; Going put texture vector into cmiss_field_image
+	material_->ChangeTexture(0); /**< TODO: correct this with by passing in a proper image field */
 }
 
 void CmguiImageSliceGraphics::SetBrightness(float brightness)
@@ -104,13 +98,13 @@ Point3D CmguiImageSliceGraphics::GetTopLeftCornerPosition()
 		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region << std::endl;
 	}
 
-	Cmiss_node* node;
+	Cmiss_node_id node;
 	Point3D tlc;
-	if (node = Cmiss_region_get_node(region, "3"))
-	{
-		FE_node_get_position_cartesian(node, 0, &(tlc.x), &(tlc.y), &(tlc.z), 0);
-	}
-	else
+	//if (node = Cmiss_region_get_node(region, "3"))
+	//{
+	//	FE_node_get_position_cartesian(node, 0, &(tlc.x), &(tlc.y), &(tlc.z), 0);
+	//}
+	//else
 	{
 		std::cout << "Error:\n";
 		throw std::exception();
@@ -138,9 +132,20 @@ void CmguiImageSliceGraphics::TransformTo(ImagePlane* plane)
 	
 	char nodeName[256]; //FIX
 	sprintf(nodeName,"%d", nodeNum);
-	Cmiss_node* node = Cmiss_region_get_node(region, nodeName);
-	if (node) {
-		FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
+	Cmiss_node_id node = 0; // Cmiss_region_get_node(region, nodeName);
+	//if (node) {
+	//	FE_node_set_position_cartesian(node, 0, plane->blc.x, plane->blc.y, plane->blc.z);
+	//}
+	//else
+	{
+		std::cout << nodeName << std::endl;
+	}
+
+	nodeNum++;
+	sprintf(nodeName,"%d", nodeNum);
+	if (node) // = Cmiss_region_get_node(region, nodeName))
+	{
+		//FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
 	}
 	else
 	{
@@ -149,9 +154,9 @@ void CmguiImageSliceGraphics::TransformTo(ImagePlane* plane)
 
 	nodeNum++;
 	sprintf(nodeName,"%d", nodeNum);
-	if (node = Cmiss_region_get_node(region, nodeName))
+	if (node) // = Cmiss_region_get_node(region, nodeName))
 	{
-		FE_node_set_position_cartesian(node, 0, plane->brc.x, plane->brc.y, plane->brc.z);
+		//FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
 	}
 	else
 	{
@@ -160,20 +165,9 @@ void CmguiImageSliceGraphics::TransformTo(ImagePlane* plane)
 
 	nodeNum++;
 	sprintf(nodeName,"%d", nodeNum);
-	if (node = Cmiss_region_get_node(region, nodeName))
+	if (node) // = Cmiss_region_get_node(region, nodeName))
 	{
-		FE_node_set_position_cartesian(node, 0, plane->tlc.x, plane->tlc.y, plane->tlc.z);
-	}
-	else
-	{
-		std::cout << nodeName << std::endl;
-	}
-
-	nodeNum++;
-	sprintf(nodeName,"%d", nodeNum);
-	if (node = Cmiss_region_get_node(region, nodeName))
-	{
-		FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
+		//FE_node_set_position_cartesian(node, 0, plane->trc.x, plane->trc.y, plane->trc.z);
 	}
 	else
 	{
@@ -185,49 +179,52 @@ void CmguiImageSliceGraphics::TransformTo(ImagePlane* plane)
 }
 	
 void CmguiImageSliceGraphics::LoadImagePlaneModel()
-{		
+{
+	std::cout << "CmguiImageSliceGraphics::LoadImagePlaneModel()" << std::endl;
 	cmguiManager_.ReadRectangularModelFiles(sliceName_);			
 	material_ = cmguiManager_.CreateCAPMaterial(sliceName_);
+	std::cout << "    " << material_ << std::endl;
+	/** TODO: replace AssignMaterialToObject with CreateTextureImageSurface */
 	// Assign material & cache the sceneObject for convenience
 	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_->GetCmissMaterial(), sliceName_);
-	return;
+	//cmguiManager_->CreateTextureImageSurface(0, material_->GetCmissMaterial(), sliceName_);
 }
 	
-Cmiss_field* CmguiImageSliceGraphics::CreateVisibilityField()
+Cmiss_field_id CmguiImageSliceGraphics::CreateVisibilityField()
 {
 	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region* region;
 	region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str());
-	CM_field_type cm_field_type = CM_GENERAL_FIELD;
+	//CM_field_type cm_field_type = CM_GENERAL_FIELD;
 	char* name = (char*)"visibility";
-	Coordinate_system coordinate_system;
-	coordinate_system.type = RECTANGULAR_CARTESIAN;
-	Value_type value_type = FE_VALUE_VALUE;
+	//Coordinate_system coordinate_system;
+	//coordinate_system.type = RECTANGULAR_CARTESIAN;
+	//Value_type value_type = FE_VALUE_VALUE;
 	const int number_of_components = 1;
 	char* component_names[] = {(char*)"visibility"};
 	
-	FE_region_get_FE_field_with_properties(
-		Cmiss_region_get_FE_region(region),
-		name, GENERAL_FE_FIELD,
-		/*indexer_field*/(struct FE_field *)NULL, /*number_of_indexed_values*/0,
-		cm_field_type, &coordinate_system,
-		value_type, number_of_components, component_names,
-		/*number_of_times*/0, /*time_value_type*/UNKNOWN_VALUE,
-		/*external*/(struct FE_field_external_information *)NULL);
+	//FE_region_get_FE_field_with_properties(
+	//	Cmiss_region_get_FE_region(region),
+	//	name, GENERAL_FE_FIELD,
+	//	/*indexer_field*/(struct FE_field *)NULL, /*number_of_indexed_values*/0,
+	//	cm_field_type, &coordinate_system,
+	//	value_type, number_of_components, component_names,
+	//	/*number_of_times*/0, /*time_value_type*/UNKNOWN_VALUE,
+	//	/*external*/(struct FE_field_external_information *)NULL);
 	
-	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
-	Computed_field* field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
+	//manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(region);
+	//Computed_field* field = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
 	
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 
-	return field;
+	return 0;
 }
 
 void CmguiImageSliceGraphics::InitializeDataPointGraphicalSetting()
 {	
-	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_DATA_POINTS);
+/*	GT_element_settings* settings = CREATE(GT_element_settings)(GT_ELEMENT_SETTINGS_DATA_POINTS);
 	Graphical_material* material = create_Graphical_material("DataPoints");//TODO Need to clean up consider using Material_package
 	Graphical_material* materialSelected = create_Graphical_material("DataPointsSelected");
 	
@@ -315,7 +312,7 @@ void CmguiImageSliceGraphics::InitializeDataPointGraphicalSetting()
 		GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(sceneObject_);
 		GT_element_group_add_settings(gt_element_group, settings, 0);
 	}
-	
+	*/
 }
 
 namespace {
@@ -327,15 +324,15 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 {
 //	std::cout << __func__ << " : start = " << startTime << " , end = " << endTime << '\n';
 	
-	struct FE_node_field_creator *node_field_creator;
+	struct FE_node_field_creator *node_field_creator = 0;
 	
-	if (node_field_creator = CREATE(FE_node_field_creator)(
-		/*number_of_components*/1))
+	if (node_field_creator) // = CREATE(FE_node_field_creator)(
+//		/*number_of_components*/1))
 	{
 		struct FE_time_sequence *fe_time_sequence;
-		FE_value times[5];
+		double_t times[5];
 		double values[5];
-		int numberOfTimes;
+		int numberOfTimes = 0;
 		double newFieldValue = visibility ? 1.0f : 0.0f;
 		
 		//Handle edge cases
@@ -380,23 +377,23 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 			numberOfTimes = 4;
 		}
 		
-		if (!(fe_time_sequence = FE_region_get_FE_time_sequence_matching_series(
-								fe_region, numberOfTimes, times)))
+		if (!(fe_time_sequence)) // = FE_region_get_FE_time_sequence_matching_series(
+//								fe_region, numberOfTimes, times)))
 		{
 			//Error
 			std::cout << "Error: " << __func__ << " can't get time_sequence" << std::endl;
 		}
 		
-		if (define_FE_field_at_node(node,fe_field,
-			/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
-			node_field_creator))
+		if (0) //define_FE_field_at_node(node,fe_field,
+//			/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
+//			node_field_creator))
 		{
 			int number_of_values;
 			for (int i = 0; i < numberOfTimes; ++i)
 			{									 													
-				Cmiss_field_set_values_at_node( visibilityField, node, times[i] , 1 , &(values[i]));
+//				Cmiss_field_set_values_at_node( visibilityField, node, times[i] , 1 , &(values[i]));
 			}
-			DESTROY(FE_node_field_creator)(&node_field_creator);
+//			DESTROY(FE_node_field_creator)(&node_field_creator);
 			return node;
 		}
 		else
@@ -406,7 +403,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 	}
 }
 
-#include "computed_field/computed_field_finite_element.h"
+//#include "computed_field/computed_field_finite_element.h"
 
 void SetValidPeriod(std::vector<Cmiss_node*> nodes, double startTime, double endTime)
 {
@@ -419,10 +416,10 @@ void SetValidPeriod(std::vector<Cmiss_node*> nodes, double startTime, double end
 	
 	Cmiss_node_id node = nodes.at(0);
 		
-	FE_region* fe_region = FE_node_get_FE_region(node);
+//	FE_region* fe_region = FE_node_get_FE_region(node);
 	
-	Cmiss_region* cmiss_region;
-	FE_region_get_Cmiss_region(fe_region, &cmiss_region);
+//	Cmiss_region* cmiss_region;
+//	FE_region_get_Cmiss_region(fe_region, &cmiss_region);
 		
 //	fe_region = FE_region_get_data_FE_region(fe_region);
 //	if (!fe_region)
@@ -430,16 +427,16 @@ void SetValidPeriod(std::vector<Cmiss_node*> nodes, double startTime, double end
 //		std::cout << "fe_region is null" << std::endl;
 //	}
 	
-	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(cmiss_region);
-	Computed_field* visibilityField = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
+//	manager_Computed_field* cfm = Cmiss_region_get_Computed_field_manager(cmiss_region);
+//	Computed_field* visibilityField = FIND_BY_IDENTIFIER_IN_MANAGER(Computed_field, name)("visibility",cfm);
 	
-	if (!visibilityField)
-	{
-		display_message(ERROR_MESSAGE,
-			"Cmiss_node_set_visibility_field.  Can't find visibility field");
-	}
+//	if (!visibilityField)
+//	{
+//		display_message(ERROR_MESSAGE,
+//			"Cmiss_node_set_visibility_field.  Can't find visibility field");
+//	}
 	
-	struct FE_field *fe_field;
+/*	struct FE_field *fe_field;
 	struct LIST(FE_field) *fe_field_list;
 	if (visibilityField && (fe_field_list=
 						Computed_field_get_defining_FE_field_list(visibilityField)))
@@ -454,98 +451,98 @@ void SetValidPeriod(std::vector<Cmiss_node*> nodes, double startTime, double end
 					boost::bind(Cmiss_node_set_visibility_field_private, _1, fe_region, visibilityField,
 							fe_field, startTime, endTime, true));
 		}
-	}
+	}*/
 }
 
 Cmiss_node_id Cmiss_create_node_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, double* coords, double time)
 {	
-	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
+//	FE_region* fe_region = Cmiss_region_get_FE_region(cmiss_region);
 //	fe_region = FE_region_get_data_FE_region(fe_region);
 	
-	if (!fe_region)
-	{
-		std::cout << "fe_region is null" << std::endl;
-	}
+//	if (!fe_region)
+//	{
+//		std::cout << "fe_region is null" << std::endl;
+//	}
 	
-	int node_identifier = FE_region_get_next_FE_node_identifier(fe_region, /*start*/1);
-	std::cout << "node id = " << node_identifier << std::endl;
+//	int node_identifier = FE_region_get_next_FE_node_identifier(fe_region, /*start*/1);
+//	std::cout << "node id = " << node_identifier << std::endl;
 	
-	if (Cmiss_node_id node = /*ACCESS(FE_node)*/(CREATE(FE_node)(node_identifier, fe_region, (struct FE_node *)NULL)))
-	{
-		if (/*ACCESS(FE_node)*/(FE_region_merge_FE_node(fe_region, node)))
-		{
-			int return_code;
-			struct FE_field *fe_field;
-			struct FE_node_field_creator *node_field_creator;
-			struct LIST(FE_field) *fe_field_list;
+//	if (Cmiss_node_id node = /*ACCESS(FE_node)*/(CREATE(FE_node)(node_identifier, fe_region, (struct FE_node *)NULL)))
+//	{
+//		if (/*ACCESS(FE_node)*/(FE_region_merge_FE_node(fe_region, node)))
+//		{
+//			int return_code;
+//			struct FE_field *fe_field;
+//			struct FE_node_field_creator *node_field_creator;
+//			struct LIST(FE_field) *fe_field_list;
 
-			if (field && node)
-			{
-				if (field && (fe_field_list=
-					Computed_field_get_defining_FE_field_list(field)))
-				{
-					if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
-						(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
-						(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
-						fe_field_list)) && (3 >= get_FE_field_number_of_components(
-						fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
-					{
-						if (node_field_creator = CREATE(FE_node_field_creator)(
-							/*number_of_components*/3))
-						{
-							if (define_FE_field_at_node(node,fe_field,
-								(struct FE_time_sequence *)NULL,
-								node_field_creator))
-							{
+//			if (field && node)
+//			{
+//				if (field && (fe_field_list=
+//					Computed_field_get_defining_FE_field_list(field)))
+//				{
+//					if ((1==NUMBER_IN_LIST(FE_field)(fe_field_list))&&
+//						(fe_field=FIRST_OBJECT_IN_LIST_THAT(FE_field)(
+//						(LIST_CONDITIONAL_FUNCTION(FE_field) *)NULL,(void *)NULL,
+//						fe_field_list)) && (3 >= get_FE_field_number_of_components(
+//						fe_field)) && (FE_VALUE_VALUE == get_FE_field_value_type(fe_field)))
+//					{
+//						if (node_field_creator = CREATE(FE_node_field_creator)(
+//							/*number_of_components*/3))
+//						{
+//							if (define_FE_field_at_node(node,fe_field,
+//								(struct FE_time_sequence *)NULL,
+//								node_field_creator))
+//							{
 //								std::cout << "Field has been defined at data_point" << std::endl;
-								if (Cmiss_field_set_values_at_node( field, node, time , 3 , coords))
-								{							
-									return node;
-								}
-							}
-							else
-							{
-								display_message(ERROR_MESSAGE,
-									"Cmiss_create_data_point_at_coord.  Failed");
-								return_code=0;
-							}
-							DESTROY(FE_node_field_creator)(&node_field_creator);
-						}
-						else
-						{
-							display_message(ERROR_MESSAGE,
-								"Cmiss_create_data_point_at_coord.  Unable to make creator.");
-							return_code=0;
-						}
-					}
-					else
-					{
-						display_message(ERROR_MESSAGE,
-							"Cmiss_create_data_point_at_coord.  Invalid field");
-						return_code=0;
-					}
-					DESTROY(LIST(FE_field))(&fe_field_list);
-				}
-				else
-				{
-					display_message(ERROR_MESSAGE,
-						"Cmiss_create_data_point_at_coord.  No field to define");
-					return_code=0;
-				}
-			}
-		}
-		else
-		{
-			std::cout << "ERROR: Cant merge node to region" << std::endl; 
-			DEACCESS(Cmiss_node)(&node);
-		}
-	}
+//								if (Cmiss_field_set_values_at_node( field, node, time , 3 , coords))
+//								{							
+//									return node;
+//								}
+//							}
+//							else
+//							{
+//								display_message(ERROR_MESSAGE,
+//									"Cmiss_create_data_point_at_coord.  Failed");
+//								return_code=0;
+//							}
+//							DESTROY(FE_node_field_creator)(&node_field_creator);
+//						}
+//						else
+//						{
+//							display_message(ERROR_MESSAGE,
+//								"Cmiss_create_data_point_at_coord.  Unable to make creator.");
+//							return_code=0;
+//						}
+//					}
+//					else
+//					{
+//						display_message(ERROR_MESSAGE,
+//							"Cmiss_create_data_point_at_coord.  Invalid field");
+//						return_code=0;
+//					}
+//					DESTROY(LIST(FE_field))(&fe_field_list);
+//				}
+//				else
+//				{
+//					display_message(ERROR_MESSAGE,
+//						"Cmiss_create_data_point_at_coord.  No field to define");
+//					return_code=0;
+//				}
+//			}
+//		}
+//		else
+//		{
+//			std::cout << "ERROR: Cant merge node to region" << std::endl; 
+//			DEACCESS(Cmiss_node)(&node);
+//		}
+//	}
 	
 	std::cout << "ERROR: Can't Create node" << std::endl; 
 	return 0;
 }
 
-} // unnamed namespace
+} // anonymouos namespace
 
 void CmguiImageSliceGraphics::CreateContour(size_t contourNum,
 		std::vector<Point3D> const& coords,
@@ -562,7 +559,7 @@ void CmguiImageSliceGraphics::CreateContour(size_t contourNum,
 	}
 	
 	// Get Coordinate field.
-	Cmiss_field_id field = Cmiss_region_find_field_by_name(region, "coordinates_rect");
+	Cmiss_field_id field = 0; //Cmiss_region_find_field_by_name(region, "coordinates_rect");
 	if (!field)
 	{
 		std::cout << "Cmiss_field is not defined in the region : coordinates_rect" << "\n";
@@ -580,10 +577,11 @@ void CmguiImageSliceGraphics::CreateContour(size_t contourNum,
 //		std::cout << "b4 = " << coord << ", after = " << afterTransform << '\n';
 		
 		// Create a cmiss node for each coordinate point in coords
+		double temp_x = static_cast<double>(afterTransform.x);
 		Cmiss_node_id node = Cmiss_create_node_point_at_coord(
 				region,
 				field, 
-				&afterTransform.x,
+				&temp_x,
 				validTimeRange.first);
 		
 		nodes.push_back(node);

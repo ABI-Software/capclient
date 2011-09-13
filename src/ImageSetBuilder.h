@@ -28,7 +28,7 @@ class ImageSet;
 class ImageSetBuilder
 {
 public:
-	ImageSetBuilder(SlicesWithImages const& slices, CmguiManager const& cmguiManager)
+	ImageSetBuilder(SlicesWithImages const& slices, CmguiManager *cmguiManager)
 	:
 		slices_(slices),
 		cmguiManager_(cmguiManager)
@@ -50,7 +50,7 @@ public:
 			// of the image slice.
 			// The cmgui region which contains the image plane, data points and contour nodes
 			// is created by CmguiImageSliceGraphics.
-			CmguiImageSliceGraphics* graphics = new CmguiImageSliceGraphics(cmguiManager_, name, itr->GetTextures());
+			CmguiImageSliceGraphics* graphics = 0; // new CmguiImageSliceGraphics(cmguiManager_, name, itr->GetTextures());
 			
 			// Create the cmgui nodes which represent contour lines on the images.
 			size_t numberOfFrames = itr->GetDICOMImages().size();
@@ -80,7 +80,7 @@ public:
 	
 private:
 	SlicesWithImages const& slices_;
-	CmguiManager const& cmguiManager_;
+	CmguiManager *cmguiManager_;
 };
 
 

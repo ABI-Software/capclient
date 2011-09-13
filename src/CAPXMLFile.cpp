@@ -761,7 +761,7 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	xmlNodePtr outputNode = xmlNewChild(root_node, NULL, BAD_CAST "Output", NULL);
 //	std::string focalLength = boost::lexical_cast<std::string>(output_.focalLength);
 	char buf[256];
-	sprintf((char*)buf, "%"FE_VALUE_STRING"", output_.focalLength);
+	sprintf((char*)buf, "%lf", output_.focalLength);
 	std::string focalLength(buf);
 	xmlNewProp(outputNode, BAD_CAST "focallength", BAD_CAST focalLength.c_str());
 	std::string interval = boost::lexical_cast<std::string>(output_.interval);

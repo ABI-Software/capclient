@@ -1,41 +1,71 @@
-#include "wx/xrc/xmlres.h"
+
+#include <iostream>
+#include <sstream>
+
+#include <wx/xrc/xmlres.h>
 #include <wx/dir.h>
 
 //#include "wx/splitter.h"
 #include <wx/aboutdlg.h>
+#include <wx/menu.h>
+#include <wx/menuitem.h>
+#include <wx/button.h>
+
+#include <boost/foreach.hpp>
+
+extern "C"
+{
+	#include <api/cmiss_context.h>
+}
 
 #include "MainWindow.h"
+#include "capwindow.h"
+#include "MainApp.h"
 #include "UserCommentDialog.h"
 #include "CAPHtmlWindow.h"
 #include "CAPBinaryVolumeParameterDialog.h"
 
-#include <boost/foreach.hpp>
+#include "images/capicon.xpm"
 
 using namespace std;
 
 namespace cap 
 {
-		
-MainWindow::MainWindow(MainApp<MainWindow, CmguiManager>& mainApp)
-:
-		mainApp_(mainApp)
+
+namespace
 {
-	// Load layout from .xrc file
-	wxXmlResource::Get()->Load(wxT("MainWindow.xrc"));
-	wxXmlResource::Get()->LoadFrame(this,(wxWindow *)NULL, _T("MainWindow"));
+	const char* ModeStrings[] = {
+		"Apex",
+		"Base",
+		"RV Inserts",
+		"Baseplane Points",
+		"Guide Points"
+	};//REVISE
+	}
+
+MainWindow::MainWindow(wxWindow* parent, MainApp* mainApp)
+	: MainWindowUI(parent)
+	, mainApp_(mainApp)
+{
+	SetIcon(wxIcon(capicon_xpm));
 	
 	// GUI initialization
-	CreateStatusBar(0);
-	UpdateFrameNumber(0);
+	//CreateStatusBar(0);
+	//UpdateFrameNumber(0);
 
 	// Initialize check box list of scene objects (image slices)
-	objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
-	objectList_->SetSelection(wxNOT_FOUND);
-	objectList_->Clear();
-	m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
+	//objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
+	//objectList_->SetSelection(wxNOT_FOUND);
+	//objectList_->Clear();
+	//m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
+	
+	checkListBox_Slice->SetSelection(wxNOT_FOUND);
+	checkListBox_Slice->Clear();
 	
 	this->Fit();
 	this->Centre();
+	MakeConnections();
+	EnterInitState();
 }
 
 MainWindow::~MainWindow()
@@ -43,14 +73,48 @@ MainWindow::~MainWindow()
 	cout << __func__ << endl;
 }
 
-/*
-template <typename Widget>
-Widget* MainWindow::GetWidgetByName(std::string const& name)
+void MainWindow::MakeConnections()
 {
-	Widget* widget = XRCCTRL(*this, name.c_str(), Widget);
-	return  widget;
+	cout << "MainWindow::" << __func__ << endl;
+	// Menus
+	Connect(XRCID("menuItem_About"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnAbout));
+	Connect(XRCID("menuItem_Quit"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnQuit));
+	Connect(XRCID("menuItem_OpenImages"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnOpenImages));
+	Connect(XRCID("menuItem_OpenModel"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnOpenModel));
+	Connect(XRCID("menuItem_OpenAnnotation"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnOpenAnnotation));
+	Connect(XRCID("menuItem_Save"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnSave));
+	Connect(XRCID("menuItem_Export"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnExportModel));
+	Connect(XRCID("menuItem_ExportToBinaryVolume"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnExportModelToBinaryVolume));
+	
+	// Buttons
+	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainWindow::OnTogglePlay));
+	
+	Connect(wxEVT_IDLE, wxIdleEventHandler(MainWindow::OnIdle), 0, this);
+	//Connect(wxEVT_QUIT, 
 }
-*/
+// BEGIN_EVENT_TABLE(MainWindow, MainWindowUI)
+// 	EVT_BUTTON(XRCID("button_PlayButton"),MainWindow::OnTogglePlay) // play button
+// 	EVT_SLIDER(XRCID("slider_Animation"),MainWindow::OnAnimationSliderEvent) // animation slider
+// 	EVT_SLIDER(XRCID("slider_AnimationSpeed"),MainWindow::OnAnimationSpeedControlEvent)
+// 	EVT_CHECKLISTBOX(XRCID("checkListBox_Slice"), MainWindow::OnObjectCheckListChecked)
+// 	EVT_BUTTON(XRCID("button_HideShowAll"),MainWindow::OnToggleHideShowAll) // hide all button
+// 	EVT_BUTTON(XRCID("button_HideShowOthers"),MainWindow::OnToggleHideShowOthers) // hide others button
+// 	EVT_CHECKBOX(XRCID("checkBox_MII"),MainWindow::OnMIICheckBox)
+// 	EVT_CHECKBOX(XRCID("checkBox_Wireframe"),MainWindow::OnWireframeCheckBox)
+// 	EVT_LISTBOX(XRCID("checkListBox_Slice"), MainWindow::OnObjectCheckListSelected)
+// 	EVT_SLIDER(XRCID("slider_BrightnessSlider"),MainWindow::OnBrightnessSliderEvent)
+// 	EVT_SLIDER(XRCID("slider_ContrastSlider"),MainWindow::OnContrastSliderEvent)
+// 	EVT_BUTTON(XRCID("button_AcceptButton"),MainWindow::OnAcceptButtonPressed)
+// 	EVT_CHOICE(XRCID("choice_Mode"),MainWindow::OnModellingModeChanged)
+// 	EVT_CLOSE(MainWindow::Terminate)
+// 	EVT_MENU(XRCID("menuItem_OpenImagesMenuItem"), MainWindow::OnOpenImages)
+// 	EVT_MENU(XRCID("menuItem_OpenModelMenuItem"), MainWindow::OnOpenModel)
+// 	EVT_MENU(XRCID("menuItem_OpenAnnotationMenuItem"), MainWindow::OnOpenAnnotation)
+// 	EVT_MENU(XRCID("menuItem_SaveMenuItem"), MainWindow::OnSave)
+// 	EVT_MENU(XRCID("menuItem_ExportMenuItem"), MainWindow::OnExportModel)
+// 	EVT_MENU(XRCID("menuItem_ExportToBinaryVolumeMenuItem"), MainWindow::OnExportModelToBinaryVolume)
+// 	EVT_BUTTON(XRCID("button_PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)
+// END_EVENT_TABLE()
 
 void MainWindow::EnterInitState()
 {
@@ -58,33 +122,34 @@ void MainWindow::EnterInitState()
 	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
 	
 	// Put the gui in the init state
-	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(false);
-	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(false);
-	GetWidgetByName<wxButton>("PlayButton")->Enable(false);
-	GetWidgetByName<wxButton>("HideShowAll")->Enable(false);
-	GetWidgetByName<wxButton>("HideShowOthers")->Enable(false);
-	GetWidgetByName<wxCheckBox>("MII")->Enable(false);
-	GetWidgetByName<wxCheckBox>("MII")->SetValue(false);
-	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(false);
-	GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(false);
-	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(false);
-	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(false);
-	GetWidgetByName<wxChoice>("ModeChoice")->Enable(false);
-	GetWidgetByName<wxButton>("AcceptButton")->Enable(false);
-	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(false);
+	slider_Animation->Enable(false);
+	slider_AnimationSpeed->Enable(false);
+	button_Play->Enable(false);
+	button_HideShowAll->Enable(false);
+	button_HideShowOthers->Enable(false);
+	checkBox_MII->Enable(false);
+	checkBox_MII->SetValue(false);
+	checkBox_Wireframe->Enable(false);
+	checkBox_Wireframe->SetValue(false);
+	slider_Contrast->Enable(false);
+	slider_Brightness->Enable(false);
+	choice_Mode->Enable(false);
+	button_Accept->Enable(false);
+	button_PlaneShift->Enable(false);
 
-	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(false);
-	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
-	GetMenuBar()->FindItem(XRCID("ExportToBinaryVolumeMenuItem"))->Enable(false);
+	//wxMenu *fileMenu = menuBar_Main->GetMenu(0);
+	menuItem_OpenModel->Enable(true);
+	menuItem_Save->Enable(false);
+	menuItem_Export->Enable(false);
+	menuItem_ExportToBinaryVolume->Enable(false);
 
 //	objectList_->Clear();
 
 //	this->Fit();
 //	this->Centre();
 	// HACK to make the cmgui scene viewer fit the enclosing wxPanel
-	this->Maximize(true); 
-	this->Maximize(false);
+	//this->Maximize(true); 
+	//this->Maximize(false);
 }
 
 void MainWindow::EnterImagesLoadedState()
@@ -92,24 +157,24 @@ void MainWindow::EnterImagesLoadedState()
 	// TODO also set the state of the ui to the init state
 	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
 	
-	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
-	GetWidgetByName<wxSlider>("AnimationSlider")->SetValue(0);
-	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
-	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
-	GetWidgetByName<wxButton>("HideShowAll")->Enable(true);
-	GetWidgetByName<wxButton>("HideShowOthers")->Enable(true);
-	GetWidgetByName<wxCheckBox>("MII")->Enable(false);
-	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(false);
-	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(true);
-	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(true);
-	GetWidgetByName<wxChoice>("ModeChoice")->Enable(true);
-	GetWidgetByName<wxButton>("AcceptButton")->Enable(true);
-	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(true);
+	slider_Animation->Enable(true);
+	slider_Animation->SetValue(0);
+	slider_AnimationSpeed->Enable(true);
+	button_Play->Enable(true);
+	button_HideShowAll->Enable(true);
+	button_HideShowOthers->Enable(true);
+	checkBox_MII->Enable(false);
+	checkBox_Wireframe->Enable(false);
+	slider_Brightness->Enable(true);
+	slider_Contrast->Enable(true);
+	choice_Mode->Enable(true);
+	button_Accept->Enable(true);
+	button_PlaneShift->Enable(true);
 
-	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(false);
-	GetMenuBar()->FindItem(XRCID("ExportToBinaryVolumeMenuItem"))->Enable(false);
+	menuItem_OpenModel->Enable(true);
+	menuItem_Save->Enable(true);
+	menuItem_Export->Enable(false);
+	menuItem_ExportToBinaryVolume->Enable(false);
 }
 
 void MainWindow::EnterModelLoadedState()
@@ -117,51 +182,60 @@ void MainWindow::EnterModelLoadedState()
 	// TODO also set the state of the ui to the init state
 	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
 	
-	GetWidgetByName<wxSlider>("AnimationSlider")->Enable(true);
-	GetWidgetByName<wxSlider>("AnimationSpeedControl")->Enable(true);
-	GetWidgetByName<wxButton>("PlayButton")->Enable(true);
-	GetWidgetByName<wxButton>("HideShowAll")->Enable(true);
-	GetWidgetByName<wxButton>("HideShowOthers")->Enable(true);
-	GetWidgetByName<wxCheckBox>("MII")->Enable(true);
-	GetWidgetByName<wxCheckBox>("Wireframe")->Enable(true);
-	GetWidgetByName<wxSlider>("BrightnessSlider")->Enable(true);
-	GetWidgetByName<wxSlider>("ContrastSlider")->Enable(true);
-	GetWidgetByName<wxChoice>("ModeChoice")->Enable(true);
-	GetWidgetByName<wxButton>("AcceptButton")->Enable(true);
-	GetWidgetByName<wxButton>("PlaneShiftButton")->Enable(true);
+	slider_Animation->Enable(true);
+	slider_AnimationSpeed->Enable(true);
+	button_Play->Enable(true);
+	button_HideShowAll->Enable(true);
+	button_HideShowOthers->Enable(true);
+	checkBox_MII->Enable(true);
+	checkBox_Wireframe->Enable(true);
+	checkBox_Wireframe->SetValue(true);
+	slider_Brightness->Enable(true);
+	slider_Contrast->Enable(true);
+	choice_Mode->Enable(true);
+	button_Accept->Enable(true);
+	button_PlaneShift->Enable(true);
 
-	GetMenuBar()->FindItem(XRCID("OpenModelMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("SaveMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("ExportMenuItem"))->Enable(true);
-	GetMenuBar()->FindItem(XRCID("ExportToBinaryVolumeMenuItem"))->Enable(true);
+	menuItem_OpenModel->Enable(true);
+	menuItem_Save->Enable(true);
+	menuItem_Export->Enable(true);
+	menuItem_ExportToBinaryVolume->Enable(true);
 
-	GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
+	//GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
 }
+
+void MainWindow::OnIdle(wxIdleEvent& event)
+{
+	if (Cmiss_context_process_idle_event(mainApp_->GetCmguiManager()->GetCmissContext()))
+	{
+		event.RequestMore();
+	}
+}
+
 
 void MainWindow::PlayCine()
 {
-	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
-	button->SetLabel(wxT("stop"));
+	button_Play->SetLabel(wxT("stop"));
 }
 
 void MainWindow::StopCine()
 {
-	wxButton* button = XRCCTRL(*this, "PlayButton", wxButton);
-	button->SetLabel(wxT("play"));
+	button_Play->SetLabel(wxT("play"));
 	wxCommandEvent event;
 	OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 }
 
 void MainWindow::OnTogglePlay(wxCommandEvent& event)
 {	
-	mainApp_.OnTogglePlay();
+	// mainApp_->OnTogglePlay();
 	return;
 }
 
 void MainWindow::Terminate(wxCloseEvent& event)
 {
-	int answer = wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
-	                            wxYES_NO, this);
+	cout << "MainWindow::" << __func__ << endl;
+	int answer = wxYES; //wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
+	                    //        wxYES_NO, this);
 	if (answer == wxYES)
 	{
 //		Destroy();
@@ -174,20 +248,20 @@ void MainWindow::Terminate(wxCloseEvent& event)
 void MainWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, std::vector<bool> const& visibilities)
 {
 	std::cout << __func__ << '\n';
-	objectList_->Clear();
+	checkListBox_Slice->Clear();
 	
 	size_t index = 0;
 	BOOST_FOREACH(std::string const& sliceName, sliceNames)
 	{
 		std::cout << "Slice name = " << sliceName << '\n';
-		objectList_->Append(wxString(sliceName.c_str(), wxConvUTF8));
+		checkListBox_Slice->Append(wxString(sliceName.c_str(), wxConvUTF8));
 		bool visible = visibilities.at(index);
 		/* default selection */
 		if ( visible )
 		{
-			objectList_->Check((objectList_->GetCount()-1),1);
+			checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1),1);
 		}
-		objectList_->SetSelection(wxNOT_FOUND);
+		checkListBox_Slice->SetSelection(wxNOT_FOUND);
 		index ++;
 	}
 }
@@ -195,55 +269,52 @@ void MainWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, s
 void MainWindow::OnObjectCheckListChecked(wxCommandEvent& event)
 {
 	int selection = event.GetInt();
-	wxString name = objectList_->GetString(selection);
+	wxString name = checkListBox_Slice->GetString(selection);
 	std::cout << "Check: " << name << std::endl;
 	
-	bool visibility = objectList_->IsChecked(selection);
-	mainApp_.SetImageVisibility(visibility, std::string(name.mb_str()));
+	bool visibility = checkListBox_Slice->IsChecked(selection);
+	// mainApp_->SetImageVisibility(visibility, std::string(name.mb_str()));
 	
-	m_pPanel->Refresh();
+	panel_Cmgui->Refresh();
 	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
 }
 
 void MainWindow::OnObjectCheckListSelected(wxCommandEvent& event)
 {
-	wxString name = objectList_->GetStringSelection();
-	mainApp_.OnSliceSelected(std::string(name.mb_str()));
+	wxString name = checkListBox_Slice->GetStringSelection();
+	// mainApp_->OnSliceSelected(std::string(name.mb_str()));
 	return;
 }
 
 void MainWindow::SetAnimationSliderRange(int min, int max)
 {
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	slider->SetMin(min);
-	slider->SetMax(max);
+	slider_Animation->SetMin(min);
+	slider_Animation->SetMax(max);
 }
 
 void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	int value = slider->GetValue();
-	int min = slider->GetMin();
-	int max = slider->GetMax();
+	int value = slider_Animation->GetValue();
+	int min = slider_Animation->GetMin();
+	int max = slider_Animation->GetMax();
 	
 	std::cout << __func__ << " : time = " << value << ", min = " << min << ", max = " << max << '\n';
 	double time =  (double)(value - min) / (double)(max - min);
 	
-	mainApp_.OnAnimationSliderEvent(time);
+	// mainApp_->OnAnimationSliderEvent(time);
 	
 	return;
 }
 
 void MainWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 {
-	wxSlider* slider = XRCCTRL(*this, "AnimationSpeedControl", wxSlider);
-	int value = slider->GetValue();
-	int min = slider->GetMin();
-	int max = slider->GetMax();
+	int value = slider_AnimationSpeed->GetValue();
+	int min = slider_AnimationSpeed->GetMin();
+	int max = slider_AnimationSpeed->GetMax();
 	
 	double speed = (double)(value - min) / (double)(max - min) * 2.0;
 	
-	mainApp_.OnAnimationSpeedControlEvent(speed);
+	// mainApp_->OnAnimationSpeedControlEvent(speed);
 	return;
 }
 
@@ -256,11 +327,10 @@ void MainWindow::UpdateFrameNumber(int frameNumber)
 
 void MainWindow::SetTime(double time, int frameNumber)
 {
-	wxSlider* slider = XRCCTRL(*this, "AnimationSlider", wxSlider);
-	int min = slider->GetMin();
-	int max = slider->GetMax();
+	int min = slider_AnimationSpeed->GetMin();
+	int max = slider_AnimationSpeed->GetMax();
 	//cout << "min = " << min << " ,max = " << max <<endl; 
-	slider->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
+	slider_AnimationSpeed->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
 
 	UpdateFrameNumber(frameNumber);
 	return;
@@ -268,32 +338,30 @@ void MainWindow::SetTime(double time, int frameNumber)
 
 void MainWindow::OnToggleHideShowAll(wxCommandEvent& event)
 {
-	wxButton* button = XRCCTRL(*this, "HideShowAll", wxButton);
-	bool hideAll_ = button->GetLabel() == wxT("Hide All") ? true : false;
+	bool hideAll_ = button_HideShowAll->GetLabel() == wxT("Hide All") ? true : false;
 	if (hideAll_) //means the button says hide all rather than show all
 	{
 		hideAll_ = false;
-		mainApp_.SetImageVisibility(false);
-		button->SetLabel(wxT("Show All"));
+		// mainApp_->SetImageVisibility(false);
+		button_HideShowAll->SetLabel(wxT("Show All"));
 	}
 	else
 	{
 		hideAll_ = true;	
-		mainApp_.SetImageVisibility(true);
-		button->SetLabel(wxT("Hide All"));
+		// mainApp_->SetImageVisibility(true);
+		button_HideShowAll->SetLabel(wxT("Hide All"));
 	}
 	
-	int numberOfSlices = objectList_->GetCount();
+	int numberOfSlices = checkListBox_Slice->GetCount();
 	for (int i=0;i<numberOfSlices;i++)
 	{
-		objectList_->Check(i, hideAll_);
+		checkListBox_Slice->Check(i, hideAll_);
 	}
 	this->Refresh(); // work around for the refresh bug
 }
 
 void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 {
-	wxButton* button = XRCCTRL(*this, "HideShowOthers", wxButton);
 	static bool showOthers = true;
 	
 	static std::vector<int> indicesOfOthers;
@@ -302,16 +370,16 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 		showOthers = false;
 		// remember which ones were visible
 		indicesOfOthers.clear();
-		for (int i=0;i<objectList_->GetCount();i++)
+		for (int i=0;i<checkListBox_Slice->GetCount();i++)
 		{
-			if (objectList_->IsChecked(i) && objectList_->GetSelection() != i)
+			if (checkListBox_Slice->IsChecked(i) && checkListBox_Slice->GetSelection() != i)
 			{
 				indicesOfOthers.push_back(i);
-				mainApp_.SetImageVisibility(false, i);
-				objectList_->Check(i, false);
+				// mainApp_->SetImageVisibility(false, i);
+				checkListBox_Slice->Check(i, false);
 			}
 		}
-		button->SetLabel(wxT("Show Others"));
+		button_HideShowOthers->SetLabel(wxT("Show Others"));
 	}
 	else
 	{
@@ -321,11 +389,11 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 		std::vector<int>::const_iterator end = indicesOfOthers.end();
 		for (; itr!=end ; ++itr)
 		{
-			mainApp_.SetImageVisibility(true, *itr);
-			objectList_->Check(*itr, true);
+			// mainApp_->SetImageVisibility(true, *itr);
+			checkListBox_Slice->Check(*itr, true);
 		}
 	
-		button->SetLabel(wxT("Hide Others"));
+		button_HideShowOthers->SetLabel(wxT("Hide Others"));
 	}
 
 	this->Refresh(); // work around for the refresh bug
@@ -333,67 +401,63 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 
 void MainWindow::OnMIICheckBox(wxCommandEvent& event)
 {
-	mainApp_.OnMIICheckBox(event.IsChecked());
+	// mainApp_->OnMIICheckBox(event.IsChecked());
 }
 
 void MainWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
-	mainApp_.OnWireframeCheckBox(event.IsChecked());
+	// mainApp_->OnWireframeCheckBox(event.IsChecked());
 }
 
 void MainWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 {
 //	cout << "MainWindow::OnBrightnessSliderEvent" << endl;
-	wxSlider* slider = XRCCTRL(*this, "BrightnessSlider", wxSlider);
-	int value = slider->GetValue();
-	int min = slider->GetMin();
-	int max = slider->GetMax();
+	int value = slider_Brightness->GetValue();
+	int min = slider_Brightness->GetMin();
+	int max = slider_Brightness->GetMax();
 	
 	float brightness = (float)(value - min) / (float)(max - min);
-	mainApp_.SetImageBrightness(brightness);
+	// mainApp_->SetImageBrightness(brightness);
 }
 
 void MainWindow::OnContrastSliderEvent(wxCommandEvent& event)
 {
 //	cout << "MainWindow::OnContrastSliderEvent" << endl;
-	wxSlider* slider = XRCCTRL(*this, "ContrastSlider", wxSlider);
-	int value = slider->GetValue();
-	int min = slider->GetMin();
-	int max = slider->GetMax();
+	int value = slider_Contrast->GetValue();
+	int min = slider_Contrast->GetMin();
+	int max = slider_Contrast->GetMax();
 	
 	float contrast = (float)(value - min) / (float)(max - min);
-	mainApp_.SetImageContrast(contrast);
+	// mainApp_->SetImageContrast(contrast);
 }
 
 void MainWindow::UpdateModeSelectionUI(int newMode)
 {
-	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-
 	ResetModeChoice();
 	for (size_t i = 1; i <= newMode; i++)
 	{
-		choice->Append(wxString(ModeStrings[i],wxConvUTF8));
+		choice_Mode->Append(wxString(ModeStrings[i],wxConvUTF8));
 	}
-	choice->SetSelection(newMode);	
+	choice_Mode->SetSelection(newMode);	
 }
 
 void MainWindow::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
-	mainApp_.ProcessDataPointsEnteredForCurrentMode();
+	// mainApp_->ProcessDataPointsEnteredForCurrentMode();
 }
 
 void MainWindow::OnModellingModeChanged(wxCommandEvent& event)
 {
-	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-	std::cout << "MODE = " << choice->GetStringSelection() << endl;
+	std::cout << "MODE = " << choice_Mode->GetStringSelection() << endl;
 
-	int selectionIndex = choice->GetSelection();
-	mainApp_.ChangeModellingMode(selectionIndex);
+	int selectionIndex = choice_Mode->GetSelection();
+	// mainApp_->ChangeModellingMode(selectionIndex);
 }
 
 void MainWindow::OnAbout(wxCommandEvent& event)
 {
+	std::cout << "MainWindow::" << __func__ << std::endl;
 	wxBoxSizer *topsizer;
 	wxHtmlWindow *html;
 	wxDialog dlg(this, wxID_ANY, wxString(_("About CAP Client")));
@@ -422,36 +486,36 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 
 void MainWindow::OnOpenImages(wxCommandEvent& event)
 {
+	cout << "MainWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();;
 	
 	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
 	if ( !dirname.empty() )
 	{
 		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
+		mainApp_->OpenImages(std::string(dirname.mb_str()));
 	}
 	else
 	{
 		return;
 	}
-	
-	mainApp_.OpenImages(std::string(dirname.mb_str()));
 }
 
 void MainWindow::ResetModeChoice()
 {
 	// Resets the mode choice UI widget to Apex mode
-	wxChoice* choice = XRCCTRL(*this, "ModeChoice", wxChoice);
-	int numberOfItems = choice->GetCount();
+	int numberOfItems = choice_Mode->GetCount();
 	for (int i = numberOfItems-1; i > 0; i--)
 	{
 		// Remove all items except Apex
-		choice->Delete(i);
+		choice_Mode->Delete(i);
 	}
-	choice->SetSelection(0);
+	choice_Mode->SetSelection(0);
 }
 
 void MainWindow::OnOpenModel(wxCommandEvent& event)
 {
+	cout << "MainWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("xml");
@@ -465,12 +529,13 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 	    // work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
-		mainApp_.OpenModel(std::string(filename.mb_str()));
+		mainApp_->OpenModel(std::string(filename.mb_str()));
 	}
 }
 
 void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 {
+	cout << "MainWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("xml");
@@ -496,12 +561,13 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 			return;
 		}
 
-		mainApp_.OpenAnnotation(std::string(filename.mb_str()), std::string(dirname.mb_str()));
+		// mainApp_->OpenAnnotation(std::string(filename.mb_str()), std::string(dirname.mb_str()));
 	}
 }
 
 void MainWindow::OnSave(wxCommandEvent& event)
 {
+	cout << "MainWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("");
@@ -529,7 +595,7 @@ void MainWindow::OnSave(wxCommandEvent& event)
 		return;
 	}
 	
-	mainApp_.SaveModel(std::string(dirname.mb_str()), userComment);
+	// mainApp_->SaveModel(std::string(dirname.mb_str()), userComment);
 }
 
 std::string MainWindow::PromptForUserComment()
@@ -567,29 +633,27 @@ std::string MainWindow::PromptForUserComment()
 
 void MainWindow::OnQuit(wxCommandEvent& event)
 {
-	Close();
+	std::cout << "MainWindow::" << __func__ << std::endl;
+	wxExit();
 }
 
 void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 {
 	static bool isPlaneShiftModeOn = false;
 	
-	wxButton* button = XRCCTRL(*this, "PlaneShiftButton", wxButton);
-	assert(button);
-	
 	if (!isPlaneShiftModeOn)
 	{
 		isPlaneShiftModeOn = true;
-		button->SetLabel(wxT("End Shifting"));
+		button_PlaneShift->SetLabel(wxT("End Shifting"));
 
-		mainApp_.StartPlaneShift();
+		// mainApp_->StartPlaneShift();
 	}
 	else
 	{
 		isPlaneShiftModeOn = false;
-		button->SetLabel(wxT("Start Shifting"));
+		button_PlaneShift->SetLabel(wxT("Start Shifting"));
 		
-		mainApp_.FinishPlaneShift();
+		// mainApp_->FinishPlaneShift();
 	}
 	
 	return;
@@ -597,7 +661,7 @@ void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 
 void MainWindow::OnExportModel(wxCommandEvent& event)
 {
-	cout << __func__ << "\n";
+	cout << "MainWindow::" << __func__ << endl;
 	
 	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = wxT("");
@@ -618,12 +682,13 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 		return;
 	}
 	
-	mainApp_.OnExportModel(std::string(dirname.mb_str()));
+	//mainApp_->OnExportModel(std::string(dirname.mb_str()));
 	return;
 }
 
 void MainWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 {
+	cout << "MainWindow::" << __func__ << endl;
 	cout << __func__ << "\n";
 	
 	CAPBinaryVolumeParameterDialog  dlg(this);
@@ -654,34 +719,8 @@ void MainWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 		return;
 	}
 	
-	mainApp_.OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
+	//mainApp_->OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
 	return;
 }
-
-BEGIN_EVENT_TABLE(MainWindow, wxFrame)
-	EVT_BUTTON(XRCID("PlayButton"),MainWindow::OnTogglePlay) // play button
-	EVT_SLIDER(XRCID("AnimationSlider"),MainWindow::OnAnimationSliderEvent) // animation slider
-	EVT_SLIDER(XRCID("AnimationSpeedControl"),MainWindow::OnAnimationSpeedControlEvent)
-	EVT_CHECKLISTBOX(XRCID("SliceList"), MainWindow::OnObjectCheckListChecked)
-	EVT_BUTTON(XRCID("HideShowAll"),MainWindow::OnToggleHideShowAll) // hide all button
-	EVT_BUTTON(XRCID("HideShowOthers"),MainWindow::OnToggleHideShowOthers) // hide others button
-	EVT_CHECKBOX(XRCID("MII"),MainWindow::OnMIICheckBox)
-	EVT_CHECKBOX(XRCID("Wireframe"),MainWindow::OnWireframeCheckBox)
-	EVT_LISTBOX(XRCID("SliceList"), MainWindow::OnObjectCheckListSelected)
-	EVT_SLIDER(XRCID("BrightnessSlider"),MainWindow::OnBrightnessSliderEvent)
-	EVT_SLIDER(XRCID("ContrastSlider"),MainWindow::OnContrastSliderEvent)
-	EVT_BUTTON(XRCID("AcceptButton"),MainWindow::OnAcceptButtonPressed)
-	EVT_CHOICE(XRCID("ModeChoice"),MainWindow::OnModellingModeChanged)
-	EVT_CLOSE(MainWindow::Terminate)
-	EVT_MENU(XRCID("QuitMenuItem"),  MainWindow::OnQuit)
-	EVT_MENU(XRCID("AboutMenuItem"), MainWindow::OnAbout)
-	EVT_MENU(XRCID("OpenImagesMenuItem"), MainWindow::OnOpenImages)
-	EVT_MENU(XRCID("OpenModelMenuItem"), MainWindow::OnOpenModel)
-	EVT_MENU(XRCID("OpenAnnotationMenuItem"), MainWindow::OnOpenAnnotation)
-	EVT_MENU(XRCID("SaveMenuItem"), MainWindow::OnSave)
-	EVT_MENU(XRCID("ExportMenuItem"), MainWindow::OnExportModel)
-	EVT_MENU(XRCID("ExportToBinaryVolumeMenuItem"), MainWindow::OnExportModelToBinaryVolume)
-	EVT_BUTTON(XRCID("PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)
-END_EVENT_TABLE()
 
 } // end namespace cap

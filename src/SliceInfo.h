@@ -8,20 +8,18 @@
 #ifndef SLICEINFO_H_
 #define SLICEINFO_H_
 
-#include "DICOMImage.h"
-
 #include <string>
 #include <vector>
 #include <boost/tr1/memory.hpp>
 #include <boost/bind.hpp>
 
+#include <api/cmiss_graphics_material.h>
+
+#include "DICOMImage.h"
+
 extern "C"
 {
-#include "general/value.h"
 }
-
-class Cmiss_texture;
-typedef Cmiss_texture* Cmiss_texture_id;
 
 namespace cap
 {
@@ -29,12 +27,12 @@ namespace cap
 class SliceInfo
 {
 public:
-	SliceInfo(std::string const& label, std::vector<DICOMPtr> const& dicomImages, std::vector<Cmiss_texture_id> const& textures)
+	SliceInfo(std::string const& label, std::vector<DICOMPtr> const& dicomImages, std::vector< Cmiss_field_image_id > textures)
 	:
 		label_(label),
 		dicomImages_(dicomImages),
 		textures_(textures)
-	{		
+	{
 	}
 	
 	std::string const& GetLabel() const
@@ -47,7 +45,7 @@ public:
 		return dicomImages_;
 	}
 	
-	std::vector<Cmiss_texture_id> const& GetTextures() const
+	std::vector<Cmiss_field_image_id> GetTextures() const
 	{
 		return textures_;
 	}
@@ -63,7 +61,7 @@ public:
 private:
 	std::string label_;
 	std::vector<DICOMPtr> dicomImages_;
-	std::vector<Cmiss_texture_id> textures_;
+	std::vector<Cmiss_field_image_id> textures_;
 };
 
 typedef std::vector<SliceInfo> SlicesWithImages;

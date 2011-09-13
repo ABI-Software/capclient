@@ -27,11 +27,11 @@ class CAPEulaDialog : public wxDialog
 public:
 	CAPEulaDialog()
 	:
-		wxDialog( 0, wxID_ANY, wxString(_("End User License Agreement")))
+		wxDialog( 0, wxID_ANY, wxString(_("End User License Agreement")), wxDefaultPosition, wxDefaultSize, -1)
 	{		
 		wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
 		
-		wxHtmlWindow* html = new CAPHtmlWindow(this, wxID_ANY, wxDefaultPosition, wxSize(600, 400));
+		wxHtmlWindow* html = new CAPHtmlWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800, 600));
 		html->SetBorders(0);
 		html->LoadPage(wxT("Data/HTML/AboutCAPClient.html"));
 		
@@ -51,7 +51,7 @@ public:
 		topsizer->Fit(this);
 	}
 
-	void OnAcceptButtonEvent(wxCommandEvent& event)
+	void OnAcceptButtonEvent(wxCommandEvent& WXUNUSED(event))
 	{
 		if ( IsModal() )
 		{

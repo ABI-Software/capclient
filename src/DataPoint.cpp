@@ -5,42 +5,38 @@
  *      Author: jchu014
  */
 
+#include <limits>
+
 #include "DataPoint.h"
 
 extern "C" {
-#include "finite_element/finite_element.h"
-#include "finite_element/finite_element_region.h"
 }
 #include "CmguiExtensions.h"
-
-#include <limits>
 
 namespace cap
 {
 
 DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, double time, double weight)
-:
-	cmissNode_(ACCESS(Cmiss_node)(node)),
-	coordinate_(coord),
-	time_(time),
-	weight_(weight),
-	surfaceType_(UNDEFINED_SURFACE_TYPE),
-	dataPointType_(dataPointType),
-	startTime_(time),
-	endTime_(time)
+	: cmissNode_(0) // ACCESS(Cmiss_node)(node)),
+	, coordinate_(coord)
+	, time_(time)
+	, weight_(weight)
+	, surfaceType_(UNDEFINED_SURFACE_TYPE)
+	, dataPointType_(dataPointType)
+	, startTime_(time)
+	, endTime_(time)
 {
 };
 	
 DataPoint::DataPoint(const DataPoint& other)
-:
-	cmissNode_(ACCESS(Cmiss_node)(other.cmissNode_)),
-	coordinate_(other.coordinate_),
-	time_(other.time_),
-	weight_(other.weight_),
-	surfaceType_(other.surfaceType_),
-	dataPointType_(other.dataPointType_),
-	startTime_(other.startTime_),
-	endTime_(other.endTime_)
+	: cmissNode_(0) // ACCESS(Cmiss_node)(other.cmissNode_)),
+	, coordinate_(other.coordinate_)
+	, time_(other.time_)
+	, weight_(other.weight_)
+	, surfaceType_(other.surfaceType_)
+	, dataPointType_(other.dataPointType_)
+	, startTime_(other.startTime_)
+	, endTime_(other.endTime_)
 {
 };
 		
@@ -54,15 +50,15 @@ DataPoint::~DataPoint()
 
 void DataPoint::DecrementCmissNodeObjectCount()
 {
-	if (2 == FE_node_get_access_count(cmissNode_)) // means this is the last reference to the cmiss node
+//	if (2 == FE_node_get_access_count(cmissNode_)) // means this is the last reference to the cmiss node
 	{
 //		std::cout << "Cmiss_node use_count = 2\n";
-		FE_region* fe_region = FE_node_get_FE_region(cmissNode_); //REVISE
-		fe_region = FE_region_get_data_FE_region(fe_region);
-		FE_region_remove_FE_node(fe_region, cmissNode_); // access = 1; 
+//		FE_region* fe_region = FE_node_get_FE_region(cmissNode_); //REVISE
+//		fe_region = FE_region_get_data_FE_region(fe_region);
+//		FE_region_remove_FE_node(fe_region, cmissNode_); // access = 1; 
 	}
 //	std::cout << __LINE__ << " : " << FE_node_get_access_count(cmissNode_) << '\n';
-	Cmiss_node_destroy(&cmissNode_);
+//	Cmiss_node_destroy(&cmissNode_);
 //	std::cout << __LINE__ << " : " << FE_node_get_access_count(cmissNode_) << '\n';
 }
 
@@ -126,15 +122,15 @@ void DataPoint::SetSurfaceType(SurfaceType type)
 
 std::string DataPoint::GetSliceName() const
 {
-	FE_region* fe_region = FE_node_get_FE_region(cmissNode_);
-	Cmiss_region* cmiss_region;
-	FE_region_get_Cmiss_region(fe_region, &cmiss_region);
+//	FE_region* fe_region = FE_node_get_FE_region(cmissNode_);
+//	Cmiss_region* cmiss_region;
+//	FE_region_get_Cmiss_region(fe_region, &cmiss_region);
 	
-	char* name_c = Cmiss_region_get_name(cmiss_region);
-	std::string name(name_c);
-	free(name_c);
+//	char* name_c = Cmiss_region_get_name(cmiss_region);
+//	std::string name(name_c);
+//	free(name_c);
 	
-	return name;
+	return std::string("empty");
 }
 
 // assignment operator
@@ -142,7 +138,7 @@ DataPoint& DataPoint::operator=(const DataPoint& rhs)
 {
 	DecrementCmissNodeObjectCount();
 
-	cmissNode_ = ACCESS(Cmiss_node)(rhs.cmissNode_);
+	cmissNode_ = 0; // ACCESS(Cmiss_node)(rhs.cmissNode_);
 	coordinate_ = rhs.coordinate_;
 	time_ = rhs.time_;
 	weight_ = rhs.weight_;
