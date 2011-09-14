@@ -1,5 +1,5 @@
 /*
- * CmguiManager.cpp
+ * CmguiPanel.cpp
  *
  *  Created on: Feb 19, 2009
  *      Author: jchu014
@@ -30,33 +30,64 @@ extern "C" {
 #include <api/cmiss_field_finite_element.h>
 }
 
-#include "CmguiManager.h"
+#include "cmguipanel.h"
 #include "CmguiExtensions.h"
 #include "CAPMaterial.h"
 
 namespace cap
 {
-
-CmguiManager* CmguiManager::instance_ = 0;
-	
-	
-CmguiManager::CmguiManager(const std::string& name, wxPanel* panel)
+CmguiPanel::CmguiPanel(const std::string& name, wxPanel* panel)
 	: cmissContext_(0)
+	, cmissSceneViewer_(0)
 {
-	cmissContext_ = Cmiss_context_create("CAPClient");
+	assert(panel);
+	cmissContext_ = Cmiss_context_create(name.c_str());
 	int result = Cmiss_context_enable_user_interface(cmissContext_, 0, 0, static_cast<void*>(wxTheApp));
+	cmissSceneViewer_ = CreateSceneViewer(name, panel);
 	assert(result == 1);
 }
 	
-CmguiManager::~CmguiManager()
+CmguiPanel::~CmguiPanel()
 {
-	std::cout << "CmguiManager::~CmguiManager()" << std::endl;
+	std::cout << "CmguiPanel::~CmguiPanel()" << std::endl;
 	Cmiss_context_destroy(&cmissContext_);
 }
 
-Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel, std::string const& sceneName) const
+void CmguiPanel::RedrawNow() const
 {
-	std::cout << "CmguiManager::" << __func__ << std::endl;
+	Cmiss_scene_viewer_redraw_now(cmissSceneViewer_);
+}
+
+void CmguiPanel::SetViewingVolume(double radius)
+{
+	const double view_angle = 40.0, width_factor = 1.05, clip_factor = 10.0;
+	double eye_distance, near_plane, far_plane;
+	
+	assert(cmissSceneViewer_);
+	radius *= width_factor;
+	eye_distance = sqrt(2.0)*radius/tan(view_angle*3.141592/360.0);
+	
+	far_plane = eye_distance+clip_factor*radius;
+	near_plane = eye_distance-clip_factor*radius;
+	if (clip_factor*radius >= eye_distance)
+		near_plane = 0.01*eye_distance;
+	
+	Cmiss_scene_viewer_set_viewing_volume(cmissSceneViewer_, -radius, radius, -radius, radius, near_plane, far_plane);
+}
+
+void CmguiPanel::SetTumbleRate(double speed)
+{
+	Cmiss_scene_viewer_set_tumble_rate(cmissSceneViewer_, speed);
+}
+
+void CmguiPanel::ViewAll() const
+{
+	Cmiss_scene_viewer_view_all(cmissSceneViewer_);
+}
+
+Cmiss_scene_viewer_id CmguiPanel::CreateSceneViewer(const std::string& sceneName, wxPanel* panel) const
+{
+	std::cout << "CmguiPanel::" << __func__ << std::endl;
 	Cmiss_scene_viewer_package_id package = Cmiss_context_get_default_scene_viewer_package(cmissContext_);
 	Cmiss_scene_viewer_id sceneViewer = Cmiss_scene_viewer_create_wx(package, panel, CMISS_SCENE_VIEWER_BUFFERING_DOUBLE, CMISS_SCENE_VIEWER_STEREO_ANY_MODE, 8, 8, 8);
 	assert(sceneViewer);
@@ -92,26 +123,9 @@ Cmiss_scene_viewer_id CmguiManager::CreateSceneViewer(wxPanel* panel, std::strin
 	return sceneViewer;
 }
 
-void* CmguiManager::LoadCmissTexture(std::string const& filename) const
+void CmguiPanel::CreateCmissImageTexture(Cmiss_field_image_id field_image, const DICOMPtr& dicom_image) const
 {
-	Cmiss_region_id region = Cmiss_context_get_default_region(cmissContext_);
-	Cmiss_field_module_id field_module =  Cmiss_region_get_field_module(region);
-
-	Cmiss_field_id field = Cmiss_field_module_create_image(field_module, NULL, NULL);
-	Cmiss_field_image_id image_field = Cmiss_field_cast_image(field);
-	
-	/* Read image data from a file */
-	Cmiss_field_image_read_file(image_field, filename.c_str());
-//	Cmiss_texture_id texture_id = Cmiss_field_image_get_texture(image_field);
-//	Cmiss_texture_set_filter_mode(texture_id, CMISS_TEXTURE_FILTER_LINEAR);
-	
-	Cmiss_region_destroy(&region);
-	return 0;
-}
-
-void CmguiManager::CreateCmissImageTexture(Cmiss_field_image_id field_image, const DICOMPtr& dicom_image) const
-{
-	//std::cout << "CmguiManager::" << __func__ << std::endl;
+	//std::cout << "CmguiPanel::" << __func__ << std::endl;
 	Cmiss_stream_information_id stream_information =
 		Cmiss_field_image_create_stream_information(field_image);
 	Cmiss_stream_information_image_id image_stream_information =
@@ -131,14 +145,14 @@ void CmguiManager::CreateCmissImageTexture(Cmiss_field_image_id field_image, con
 	Cmiss_stream_information_destroy(&stream_information);
 }
 
-std::tr1::shared_ptr<CAPMaterial> CmguiManager::CreateCAPMaterial(std::string const& materialName) const
+std::tr1::shared_ptr<CAPMaterial> CmguiPanel::CreateCAPMaterial(std::string const& materialName) const
 {
 	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
 	// boost::make_pair is faster than shared_ptr<CAPMaterial>(new )
 	return boost::make_shared<CAPMaterial>(materialName, gModule);
 }
 
-Cmiss_field_module_id CmguiManager::GetFieldModuleForRegion(const std::string& regionName)
+Cmiss_field_module_id CmguiPanel::GetFieldModuleForRegion(const std::string& regionName)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, regionName.c_str());
@@ -149,9 +163,9 @@ Cmiss_field_module_id CmguiManager::GetFieldModuleForRegion(const std::string& r
 	return field_module;
 }
 
-void CmguiManager::ReadRectangularModelFiles(std::string const& modelName, std::string const& sceneName) const
+void CmguiPanel::ReadRectangularModelFiles(std::string const& modelName, std::string const& sceneName) const
 {
-	std::cout << "CmguiManager::" << __func__ << ": " << sceneName << std::endl;
+	std::cout << "CmguiPanel::" << __func__ << ": " << sceneName << std::endl;
 	Cmiss_region_id region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(region);
 	Cmiss_stream_information_region_id region_stream_information = Cmiss_stream_information_cast_region(stream_information);
@@ -201,7 +215,7 @@ void CmguiManager::ReadRectangularModelFiles(std::string const& modelName, std::
 //		{
 //			int ret = Scene_remove_Scene_object(scene, scene_object);//cmgui only allows this for manual mode
 			// For now just make the scene object invisible in the default scene.
-			// TODO: use a non-default scene for the MainWindow or set the default scene to use the manual mode
+			// TODO: use a non-default scene for the CAPClientWindow or set the default scene to use the manual mode
 //			int ret = Scene_object_set_visibility(scene_object, g_INVISIBLE);
 //			assert(ret);
 //		}
@@ -215,7 +229,7 @@ void CmguiManager::ReadRectangularModelFiles(std::string const& modelName, std::
 	Cmiss_region_destroy(&region);
 }
 
-void CmguiManager::CreateTextureImageSurface(std::string const& regionName,
+void CmguiPanel::CreateTextureImageSurface(std::string const& regionName,
 	Cmiss_graphics_material_id material) const
 {
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
@@ -253,7 +267,7 @@ void CmguiManager::CreateTextureImageSurface(std::string const& regionName,
 	Cmiss_region_destroy(&root_region);
 }
 
-void CmguiManager::CreatePlaneElement(const std::string& regionName)
+void CmguiPanel::CreatePlaneElement(const std::string& regionName)
 {
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
@@ -318,9 +332,9 @@ void CmguiManager::CreatePlaneElement(const std::string& regionName)
 	Cmiss_region_destroy(&region);
 }
 
-void CmguiManager::ResizePlaneElement(const std::string& regionName, int width, int height)
+void CmguiPanel::ResizePlaneElement(const std::string& regionName, int width, int height)
 {
-	//std::cout << "CmguiManager::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
+	//std::cout << "CmguiPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
@@ -349,12 +363,12 @@ void CmguiManager::ResizePlaneElement(const std::string& regionName, int width, 
 	Cmiss_region_destroy(&root_region);
 }
 
-Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
+void CmguiPanel::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 		Cmiss_graphics_material_id material, std::string const& regionName) const
 {
 	//using namespace std;
 	
-	std::cout << "CmguiManager::AssignMaterialToObject" << std::endl;
+	std::cout << "CmguiPanel::AssignMaterialToObject" << std::endl;
 	//Cmiss_scene_id scene = 0;
 	//if (scene_viewer)
 	//{
@@ -380,7 +394,7 @@ Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_v
 	{
 		//error
 		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region << std::endl;
-		return 0;
+		return;
 	}
 	// Create a texture coordinate field
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
@@ -434,16 +448,15 @@ Scene_object* CmguiManager::AssignMaterialToObject(Cmiss_scene_viewer_id scene_v
 		//}
 	}
 	
-	std::cout << "Leaving: CmguiManager::AssignMaterialToObject" << std::endl;
-	Scene_object* scene_object = 0; // Scene_get_scene_object_with_Cmiss_region(scene, region);
+	std::cout << "Leaving: CmguiPanel::AssignMaterialToObject" << std::endl;
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 
 	// return sceneObject for convenience REVISE!!
-	return scene_object;
+	return;
 }
 
-std::string CmguiManager::GetNextNameInSeries(Cmiss_field_module_id field_module, std::string name)
+std::string CmguiPanel::GetNextNameInSeries(Cmiss_field_module_id field_module, std::string name)
 {
 	int i = 0;
 	std::string field_name;
@@ -462,7 +475,7 @@ std::string CmguiManager::GetNextNameInSeries(Cmiss_field_module_id field_module
 	return field_name;
 }
 
-//void CmguiManager::DestroyTexture(Cmiss_texture_id tex) const
+//void CmguiPanel::DestroyTexture(Cmiss_texture_id tex) const
 //{
 //	DESTROY(Texture)(&tex);
 //}

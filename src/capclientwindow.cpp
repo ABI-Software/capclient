@@ -18,9 +18,9 @@ extern "C"
 	#include <api/cmiss_context.h>
 }
 
-#include "MainWindow.h"
-#include "capwindow.h"
-#include "MainApp.h"
+#include "capclient.h"
+#include "capclientapp.h"
+#include "capclientwindow.h"
 #include "UserCommentDialog.h"
 #include "CAPHtmlWindow.h"
 #include "CAPBinaryVolumeParameterDialog.h"
@@ -43,9 +43,10 @@ namespace
 	};//REVISE
 	}
 
-MainWindow::MainWindow(wxWindow* parent, MainApp* mainApp)
-	: MainWindowUI(parent)
+CAPClientWindow::CAPClientWindow(wxWindow* parent, CAPClient* mainApp)
+	: CAPClientWindowUI(parent)
 	, mainApp_(mainApp)
+	, cmguiPanel_(new CmguiPanel("CAPClient", panel_Cmgui))
 {
 	SetIcon(wxIcon(capicon_xpm));
 	
@@ -68,55 +69,56 @@ MainWindow::MainWindow(wxWindow* parent, MainApp* mainApp)
 	EnterInitState();
 }
 
-MainWindow::~MainWindow()
+CAPClientWindow::~CAPClientWindow()
 {
 	cout << __func__ << endl;
+	delete cmguiPanel_;
 }
 
-void MainWindow::MakeConnections()
+void CAPClientWindow::MakeConnections()
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	// Menus
-	Connect(XRCID("menuItem_About"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnAbout));
-	Connect(XRCID("menuItem_Quit"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnQuit));
-	Connect(XRCID("menuItem_OpenImages"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnOpenImages));
-	Connect(XRCID("menuItem_OpenModel"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnOpenModel));
-	Connect(XRCID("menuItem_OpenAnnotation"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnOpenAnnotation));
-	Connect(XRCID("menuItem_Save"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnSave));
-	Connect(XRCID("menuItem_Export"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnExportModel));
-	Connect(XRCID("menuItem_ExportToBinaryVolume"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainWindow::OnExportModelToBinaryVolume));
+	Connect(XRCID("menuItem_About"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnAbout));
+	Connect(XRCID("menuItem_Quit"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnQuit));
+	Connect(XRCID("menuItem_OpenImages"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImages));
+	Connect(XRCID("menuItem_OpenModel"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenModel));
+	Connect(XRCID("menuItem_OpenAnnotation"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenAnnotation));
+	Connect(XRCID("menuItem_Save"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
+	Connect(XRCID("menuItem_Export"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
+	Connect(XRCID("menuItem_ExportToBinaryVolume"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
 	
 	// Buttons
-	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainWindow::OnTogglePlay));
+	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
 	
-	Connect(wxEVT_IDLE, wxIdleEventHandler(MainWindow::OnIdle), 0, this);
+	Connect(wxEVT_IDLE, wxIdleEventHandler(CAPClientWindow::OnIdle), 0, this);
 	//Connect(wxEVT_QUIT, 
 }
-// BEGIN_EVENT_TABLE(MainWindow, MainWindowUI)
-// 	EVT_BUTTON(XRCID("button_PlayButton"),MainWindow::OnTogglePlay) // play button
-// 	EVT_SLIDER(XRCID("slider_Animation"),MainWindow::OnAnimationSliderEvent) // animation slider
-// 	EVT_SLIDER(XRCID("slider_AnimationSpeed"),MainWindow::OnAnimationSpeedControlEvent)
-// 	EVT_CHECKLISTBOX(XRCID("checkListBox_Slice"), MainWindow::OnObjectCheckListChecked)
-// 	EVT_BUTTON(XRCID("button_HideShowAll"),MainWindow::OnToggleHideShowAll) // hide all button
-// 	EVT_BUTTON(XRCID("button_HideShowOthers"),MainWindow::OnToggleHideShowOthers) // hide others button
-// 	EVT_CHECKBOX(XRCID("checkBox_MII"),MainWindow::OnMIICheckBox)
-// 	EVT_CHECKBOX(XRCID("checkBox_Wireframe"),MainWindow::OnWireframeCheckBox)
-// 	EVT_LISTBOX(XRCID("checkListBox_Slice"), MainWindow::OnObjectCheckListSelected)
-// 	EVT_SLIDER(XRCID("slider_BrightnessSlider"),MainWindow::OnBrightnessSliderEvent)
-// 	EVT_SLIDER(XRCID("slider_ContrastSlider"),MainWindow::OnContrastSliderEvent)
-// 	EVT_BUTTON(XRCID("button_AcceptButton"),MainWindow::OnAcceptButtonPressed)
-// 	EVT_CHOICE(XRCID("choice_Mode"),MainWindow::OnModellingModeChanged)
-// 	EVT_CLOSE(MainWindow::Terminate)
-// 	EVT_MENU(XRCID("menuItem_OpenImagesMenuItem"), MainWindow::OnOpenImages)
-// 	EVT_MENU(XRCID("menuItem_OpenModelMenuItem"), MainWindow::OnOpenModel)
-// 	EVT_MENU(XRCID("menuItem_OpenAnnotationMenuItem"), MainWindow::OnOpenAnnotation)
-// 	EVT_MENU(XRCID("menuItem_SaveMenuItem"), MainWindow::OnSave)
-// 	EVT_MENU(XRCID("menuItem_ExportMenuItem"), MainWindow::OnExportModel)
-// 	EVT_MENU(XRCID("menuItem_ExportToBinaryVolumeMenuItem"), MainWindow::OnExportModelToBinaryVolume)
-// 	EVT_BUTTON(XRCID("button_PlaneShiftButton"), MainWindow::OnPlaneShiftButtonPressed)
+// BEGIN_EVENT_TABLE(CAPClientWindow, CAPClientWindowUI)
+// 	EVT_BUTTON(XRCID("button_PlayButton"),CAPClientWindow::OnTogglePlay) // play button
+// 	EVT_SLIDER(XRCID("slider_Animation"),CAPClientWindow::OnAnimationSliderEvent) // animation slider
+// 	EVT_SLIDER(XRCID("slider_AnimationSpeed"),CAPClientWindow::OnAnimationSpeedControlEvent)
+// 	EVT_CHECKLISTBOX(XRCID("checkListBox_Slice"), CAPClientWindow::OnObjectCheckListChecked)
+// 	EVT_BUTTON(XRCID("button_HideShowAll"),CAPClientWindow::OnToggleHideShowAll) // hide all button
+// 	EVT_BUTTON(XRCID("button_HideShowOthers"),CAPClientWindow::OnToggleHideShowOthers) // hide others button
+// 	EVT_CHECKBOX(XRCID("checkBox_MII"),CAPClientWindow::OnMIICheckBox)
+// 	EVT_CHECKBOX(XRCID("checkBox_Wireframe"),CAPClientWindow::OnWireframeCheckBox)
+// 	EVT_LISTBOX(XRCID("checkListBox_Slice"), CAPClientWindow::OnObjectCheckListSelected)
+// 	EVT_SLIDER(XRCID("slider_BrightnessSlider"),CAPClientWindow::OnBrightnessSliderEvent)
+// 	EVT_SLIDER(XRCID("slider_ContrastSlider"),CAPClientWindow::OnContrastSliderEvent)
+// 	EVT_BUTTON(XRCID("button_AcceptButton"),CAPClientWindow::OnAcceptButtonPressed)
+// 	EVT_CHOICE(XRCID("choice_Mode"),CAPClientWindow::OnModellingModeChanged)
+// 	EVT_CLOSE(CAPClientWindow::Terminate)
+// 	EVT_MENU(XRCID("menuItem_OpenImagesMenuItem"), CAPClientWindow::OnOpenImages)
+// 	EVT_MENU(XRCID("menuItem_OpenModelMenuItem"), CAPClientWindow::OnOpenModel)
+// 	EVT_MENU(XRCID("menuItem_OpenAnnotationMenuItem"), CAPClientWindow::OnOpenAnnotation)
+// 	EVT_MENU(XRCID("menuItem_SaveMenuItem"), CAPClientWindow::OnSave)
+// 	EVT_MENU(XRCID("menuItem_ExportMenuItem"), CAPClientWindow::OnExportModel)
+// 	EVT_MENU(XRCID("menuItem_ExportToBinaryVolumeMenuItem"), CAPClientWindow::OnExportModelToBinaryVolume)
+// 	EVT_BUTTON(XRCID("button_PlaneShiftButton"), CAPClientWindow::OnPlaneShiftButtonPressed)
 // END_EVENT_TABLE()
 
-void MainWindow::EnterInitState()
+void CAPClientWindow::EnterInitState()
 {
 	// TODO also set the state of the ui to the init state
 	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
@@ -152,7 +154,7 @@ void MainWindow::EnterInitState()
 	//this->Maximize(false);
 }
 
-void MainWindow::EnterImagesLoadedState()
+void CAPClientWindow::EnterImagesLoadedState()
 {
 	// TODO also set the state of the ui to the init state
 	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
@@ -177,7 +179,7 @@ void MainWindow::EnterImagesLoadedState()
 	menuItem_ExportToBinaryVolume->Enable(false);
 }
 
-void MainWindow::EnterModelLoadedState()
+void CAPClientWindow::EnterModelLoadedState()
 {
 	// TODO also set the state of the ui to the init state
 	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
@@ -204,36 +206,70 @@ void MainWindow::EnterModelLoadedState()
 	//GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
 }
 
-void MainWindow::OnIdle(wxIdleEvent& event)
+void CAPClientWindow::OnIdle(wxIdleEvent& event)
 {
-	if (Cmiss_context_process_idle_event(mainApp_->GetCmguiManager()->GetCmissContext()))
+	if (Cmiss_context_process_idle_event(cmguiPanel_->GetCmissContext()))
 	{
 		event.RequestMore();
 	}
 }
 
+double CAPClientWindow::GetCurrentTime() const
+{
+	return Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
+}
 
-void MainWindow::PlayCine()
+Cmiss_scene_viewer_id CAPClientWindow::GetCmissSceneViewer() const
+{
+	return cmguiPanel_->GetCmissSceneViewer();
+}
+
+Cmiss_context_id CAPClientWindow::GetCmissContext() const
+{
+	return cmguiPanel_->GetCmissContext();
+}
+
+void CAPClientWindow::AddDataPoint(Cmiss_node* dataPointID, Point3D const& position)
+{
+	mainApp_->AddDataPoint(dataPointID, position, GetCurrentTime());
+}
+
+void CAPClientWindow::MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition)
+{
+	mainApp_->MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
+}
+
+void CAPClientWindow::RemoveDataPoint(Cmiss_node* dataPointID)
+{
+	mainApp_->RemoveDataPoint(dataPointID, GetCurrentTime());
+}
+
+void CAPClientWindow::SmoothAlongTime()
+{
+	mainApp_->SmoothAlongTime();
+}
+
+void CAPClientWindow::PlayCine()
 {
 	button_Play->SetLabel(wxT("stop"));
 }
 
-void MainWindow::StopCine()
+void CAPClientWindow::StopCine()
 {
 	button_Play->SetLabel(wxT("play"));
 	wxCommandEvent event;
 	OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 }
 
-void MainWindow::OnTogglePlay(wxCommandEvent& event)
+void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 {	
 	// mainApp_->OnTogglePlay();
 	return;
 }
 
-void MainWindow::Terminate(wxCloseEvent& event)
+void CAPClientWindow::Terminate(wxCloseEvent& event)
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	int answer = wxYES; //wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
 	                    //        wxYES_NO, this);
 	if (answer == wxYES)
@@ -245,7 +281,7 @@ void MainWindow::Terminate(wxCloseEvent& event)
 	}
 }
 
-void MainWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, std::vector<bool> const& visibilities)
+void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, std::vector<bool> const& visibilities)
 {
 	std::cout << __func__ << '\n';
 	checkListBox_Slice->Clear();
@@ -266,7 +302,7 @@ void MainWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, s
 	}
 }
 
-void MainWindow::OnObjectCheckListChecked(wxCommandEvent& event)
+void CAPClientWindow::OnObjectCheckListChecked(wxCommandEvent& event)
 {
 	int selection = event.GetInt();
 	wxString name = checkListBox_Slice->GetString(selection);
@@ -279,20 +315,20 @@ void MainWindow::OnObjectCheckListChecked(wxCommandEvent& event)
 	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
 }
 
-void MainWindow::OnObjectCheckListSelected(wxCommandEvent& event)
+void CAPClientWindow::OnObjectCheckListSelected(wxCommandEvent& event)
 {
 	wxString name = checkListBox_Slice->GetStringSelection();
 	// mainApp_->OnSliceSelected(std::string(name.mb_str()));
 	return;
 }
 
-void MainWindow::SetAnimationSliderRange(int min, int max)
+void CAPClientWindow::SetAnimationSliderRange(int min, int max)
 {
 	slider_Animation->SetMin(min);
 	slider_Animation->SetMax(max);
 }
 
-void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
+void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
 	int value = slider_Animation->GetValue();
 	int min = slider_Animation->GetMin();
@@ -306,7 +342,7 @@ void MainWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	return;
 }
 
-void MainWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
+void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 {
 	int value = slider_AnimationSpeed->GetValue();
 	int min = slider_AnimationSpeed->GetMin();
@@ -318,25 +354,22 @@ void MainWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	return;
 }
 
-void MainWindow::UpdateFrameNumber(int frameNumber)
+void CAPClientWindow::UpdateFrameNumber(int frameNumber)
 {
 	std::ostringstream frameNumberStringStream;
 	frameNumberStringStream << "Frame Number: " << frameNumber;
 	SetStatusText(wxString(frameNumberStringStream.str().c_str(),wxConvUTF8), 0);
 }
 
-void MainWindow::SetTime(double time, int frameNumber)
+void CAPClientWindow::SetTime(double time)
 {
 	int min = slider_AnimationSpeed->GetMin();
 	int max = slider_AnimationSpeed->GetMax();
 	//cout << "min = " << min << " ,max = " << max <<endl; 
 	slider_AnimationSpeed->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
-
-	UpdateFrameNumber(frameNumber);
-	return;
 }
 
-void MainWindow::OnToggleHideShowAll(wxCommandEvent& event)
+void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 {
 	bool hideAll_ = button_HideShowAll->GetLabel() == wxT("Hide All") ? true : false;
 	if (hideAll_) //means the button says hide all rather than show all
@@ -360,7 +393,7 @@ void MainWindow::OnToggleHideShowAll(wxCommandEvent& event)
 	this->Refresh(); // work around for the refresh bug
 }
 
-void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
+void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 {
 	static bool showOthers = true;
 	
@@ -399,19 +432,19 @@ void MainWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 	this->Refresh(); // work around for the refresh bug
 }
 
-void MainWindow::OnMIICheckBox(wxCommandEvent& event)
+void CAPClientWindow::OnMIICheckBox(wxCommandEvent& event)
 {
 	// mainApp_->OnMIICheckBox(event.IsChecked());
 }
 
-void MainWindow::OnWireframeCheckBox(wxCommandEvent& event)
+void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
 	// mainApp_->OnWireframeCheckBox(event.IsChecked());
 }
 
-void MainWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
+void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 {
-//	cout << "MainWindow::OnBrightnessSliderEvent" << endl;
+//	cout << "CAPClientWindow::OnBrightnessSliderEvent" << endl;
 	int value = slider_Brightness->GetValue();
 	int min = slider_Brightness->GetMin();
 	int max = slider_Brightness->GetMax();
@@ -420,9 +453,9 @@ void MainWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 	// mainApp_->SetImageBrightness(brightness);
 }
 
-void MainWindow::OnContrastSliderEvent(wxCommandEvent& event)
+void CAPClientWindow::OnContrastSliderEvent(wxCommandEvent& event)
 {
-//	cout << "MainWindow::OnContrastSliderEvent" << endl;
+//	cout << "CAPClientWindow::OnContrastSliderEvent" << endl;
 	int value = slider_Contrast->GetValue();
 	int min = slider_Contrast->GetMin();
 	int max = slider_Contrast->GetMax();
@@ -431,7 +464,7 @@ void MainWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	// mainApp_->SetImageContrast(contrast);
 }
 
-void MainWindow::UpdateModeSelectionUI(int newMode)
+void CAPClientWindow::UpdateModeSelectionUI(int newMode)
 {
 	ResetModeChoice();
 	for (size_t i = 1; i <= newMode; i++)
@@ -441,13 +474,13 @@ void MainWindow::UpdateModeSelectionUI(int newMode)
 	choice_Mode->SetSelection(newMode);	
 }
 
-void MainWindow::OnAcceptButtonPressed(wxCommandEvent& event)
+void CAPClientWindow::OnAcceptButtonPressed(wxCommandEvent& event)
 {
 	std::cout << "Accept" << std::endl;
 	// mainApp_->ProcessDataPointsEnteredForCurrentMode();
 }
 
-void MainWindow::OnModellingModeChanged(wxCommandEvent& event)
+void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 {
 	std::cout << "MODE = " << choice_Mode->GetStringSelection() << endl;
 
@@ -455,9 +488,9 @@ void MainWindow::OnModellingModeChanged(wxCommandEvent& event)
 	// mainApp_->ChangeModellingMode(selectionIndex);
 }
 
-void MainWindow::OnAbout(wxCommandEvent& event)
+void CAPClientWindow::OnAbout(wxCommandEvent& event)
 {
-	std::cout << "MainWindow::" << __func__ << std::endl;
+	std::cout << "CAPClientWindow::" << __func__ << std::endl;
 	wxBoxSizer *topsizer;
 	wxHtmlWindow *html;
 	wxDialog dlg(this, wxID_ANY, wxString(_("About CAP Client")));
@@ -484,9 +517,9 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
-void MainWindow::OnOpenImages(wxCommandEvent& event)
+void CAPClientWindow::OnOpenImages(wxCommandEvent& event)
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();;
 	
 	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
@@ -501,7 +534,7 @@ void MainWindow::OnOpenImages(wxCommandEvent& event)
 	}
 }
 
-void MainWindow::ResetModeChoice()
+void CAPClientWindow::ResetModeChoice()
 {
 	// Resets the mode choice UI widget to Apex mode
 	int numberOfItems = choice_Mode->GetCount();
@@ -513,9 +546,9 @@ void MainWindow::ResetModeChoice()
 	choice_Mode->SetSelection(0);
 }
 
-void MainWindow::OnOpenModel(wxCommandEvent& event)
+void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("xml");
@@ -533,9 +566,9 @@ void MainWindow::OnOpenModel(wxCommandEvent& event)
 	}
 }
 
-void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
+void CAPClientWindow::OnOpenAnnotation(wxCommandEvent& event)
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("xml");
@@ -565,9 +598,9 @@ void MainWindow::OnOpenAnnotation(wxCommandEvent& event)
 	}
 }
 
-void MainWindow::OnSave(wxCommandEvent& event)
+void CAPClientWindow::OnSave(wxCommandEvent& event)
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("");
@@ -598,7 +631,7 @@ void MainWindow::OnSave(wxCommandEvent& event)
 	// mainApp_->SaveModel(std::string(dirname.mb_str()), userComment);
 }
 
-std::string MainWindow::PromptForUserComment()
+std::string CAPClientWindow::PromptForUserComment()
 {
 	UserCommentDialog dialog(this);
 	dialog.Center();
@@ -631,13 +664,13 @@ std::string MainWindow::PromptForUserComment()
 	return comment;
 }
 
-void MainWindow::OnQuit(wxCommandEvent& event)
+void CAPClientWindow::OnQuit(wxCommandEvent& event)
 {
-	std::cout << "MainWindow::" << __func__ << std::endl;
+	std::cout << "CAPClientWindow::" << __func__ << std::endl;
 	wxExit();
 }
 
-void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
+void CAPClientWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 {
 	static bool isPlaneShiftModeOn = false;
 	
@@ -659,9 +692,9 @@ void MainWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 	return;
 }
 
-void MainWindow::OnExportModel(wxCommandEvent& event)
+void CAPClientWindow::OnExportModel(wxCommandEvent& event)
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	
 	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = wxT("");
@@ -686,9 +719,9 @@ void MainWindow::OnExportModel(wxCommandEvent& event)
 	return;
 }
 
-void MainWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
+void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 {
-	cout << "MainWindow::" << __func__ << endl;
+	cout << "CAPClientWindow::" << __func__ << endl;
 	cout << __func__ << "\n";
 	
 	CAPBinaryVolumeParameterDialog  dlg(this);

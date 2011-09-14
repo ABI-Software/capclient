@@ -17,7 +17,7 @@ namespace cap
 class CAPXMLFile;
 class DataPoint;
 class CAPModelLVPS4X4;
-class CmguiManager;
+class CmguiPanel;
 
 class CAPXMLFileHandler
 {
@@ -39,9 +39,9 @@ public:
 	 *  Also generated the instances of DICOMImage, Cmiss_texture,
 	 *  DataPoint (and the Cmiss_node) and the model.
 	 */
-	SlicesWithImages GetSlicesWithImages(CmguiManager *cmguiManager) const;
+	SlicesWithImages GetSlicesWithImages(CmguiPanel *cmguiManager) const;
 
-	std::vector<DataPoint> GetDataPoints(CmguiManager *cmguiManager) const;
+	std::vector<DataPoint> GetDataPoints(CmguiPanel *cmguiManager) const;
 
 	void AddProvenanceDetail(std::string const& comment);
 	

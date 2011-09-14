@@ -1,12 +1,12 @@
 /*
- * CmguiManager.h
+ * cmguipanel.h
  *
  *  Created on: Feb 19, 2009
  *      Author: jchu014
  */
 
-#ifndef CMGUIMANAGER_H_
-#define CMGUIMANAGER_H_
+#ifndef CMGUIPANEL_H_
+#define CMGUIPANEL_H_
 
 /** A singleton class to ease the interaction with the Cmgui API
  * 
@@ -17,44 +17,63 @@
 #include <boost/tr1/memory.hpp>
 
 extern "C" {
-#include "api/cmiss_scene_viewer.h"
-#include "api/cmiss_graphics_material.h"
-#include "api/cmiss_context.h"
+#include <api/cmiss_scene_viewer.h>
+#include <api/cmiss_graphics_material.h>
+#include <api/cmiss_context.h>
+#include <api/cmiss_field_module.h>
 }
 
 #include "DICOMImage.h"
 
 class wxPanel;
-struct Scene_object;	
+//struct Scene_object;	
 
 namespace cap
 {
 
 class CAPMaterial;
 
-class CmguiManager
+/**
+ * This class is an interface to wrap a wxPanel into a Cmgui scene.
+ */
+class CmguiPanel
 {
 public:
-	static CmguiManager* CreateCmguiManager()
-	{
-		if (instance_ == 0)
-		{
-			instance_ = new CmguiManager();
-		}
-		
-		return instance_;
-	}
+	/**
+	 * Explicit constructor that initialises a cmgui scene with
+	 * the givn name on the given panel.
+	 * 
+	 * \param name the name to give to the context and scene.
+	 * \param panel the panel to display the scene on.
+	 */
+	explicit CmguiPanel(const std::string& name, wxPanel* panel);
 	
-	~CmguiManager();
+	/**
+	 * Destructor
+	 */
+	~CmguiPanel();
 	
+	/**
+	 * Get the cmiss context for this panel.  May try to stop using
+	 * this and keep this private.
+	 * 
+	 * \returns the cmiss context for this panel.
+	 */
 	Cmiss_context_id GetCmissContext() const
 	{
 		return cmissContext_;
 	}
 	
-	Cmiss_scene_viewer_id CreateSceneViewer(wxPanel* panel, std::string const& sceneName = "") const;
-	
-	void* LoadCmissTexture(std::string const& filename) const;
+	/**
+	 * Get the cmiss scene viewer for this panel.  May try to stop using
+	 * this and keep this private.
+	 * 
+	 * \returns the cmiss scene viewer for this panel.
+	 */
+	Cmiss_scene_viewer_id GetCmissSceneViewer() const
+	{
+		return cmissSceneViewer_;
+	}
 	
 	/**
 	 * Create a texture from list of images.  The dicoms listed in the images vector are 
@@ -102,8 +121,11 @@ public:
 	 */
 	Cmiss_field_module_id GetFieldModuleForRegion(const std::string& regionName);
 	
-	// TODO move the following method out to a more suitable class
-	Scene_object* AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
+	/**
+	 * This is deprecated.
+	 * TODO move the following method out to a more suitable class
+	 */
+	void AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 			Cmiss_graphics_material_id material, std::string const& regionName) const;
 
 	/**
@@ -133,15 +155,39 @@ public:
 	 */
 	void ResizePlaneElement(const std::string& regionName, int width, int height);
 	
-	//void DestroyTexture(Cmiss_texture_id) const;
-	void DestroyImageStack() const;
-private:
-	explicit CmguiManager();
+	/**
+	 * Redraw the scene now
+	 */
+	void RedrawNow() const;
 	
-	static CmguiManager* instance_;
-	Cmiss_context_id cmissContext_;
+	/**
+	 * Set the viewing volume to using the given radius.
+	 */
+	void SetViewingVolume(double radius);
+	
+	/**
+	 * Set tumble rate of the scene to the given speed
+	 * 
+	 * \param speed the tumble rate
+	 */
+	void SetTumbleRate(double speed);
+	
+	/**
+	 * Adjust the viewing volume so that everything in the scene can
+	 * be viewed
+	 */
+	void ViewAll() const;
+
+private:
+	/**
+	 * Create the scene
+	 */
+	Cmiss_scene_viewer_id CreateSceneViewer(const std::string& sceneName, wxPanel* panel) const;
+	
+	Cmiss_context_id cmissContext_; /**< the context for this panel */
+	Cmiss_scene_viewer_id cmissSceneViewer_; /**< the scene viewer for this panel */
 
 };
 
 } // end namespace cap
-#endif /* CMGUIMANAGER_H_ */
+#endif /* CMGUIPANEL_H_ */

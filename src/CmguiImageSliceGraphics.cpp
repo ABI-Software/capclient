@@ -20,14 +20,14 @@ extern "C"
 
 #include "CmguiImageSliceGraphics.h"
 #include "CAPMaterial.h"
-#include "CmguiManager.h"
+#include "cmguipanel.h"
 #include "CAPMath.h"
 
 namespace cap
 {
 	
 CmguiImageSliceGraphics::CmguiImageSliceGraphics(
-		CmguiManager const& cmguiManager,
+		CmguiPanel const& cmguiManager,
 		std::string const& sliceName,
 		std::vector<Cmiss_texture*> const& textures)
 :
@@ -186,7 +186,7 @@ void CmguiImageSliceGraphics::LoadImagePlaneModel()
 	std::cout << "    " << material_ << std::endl;
 	/** TODO: replace AssignMaterialToObject with CreateTextureImageSurface */
 	// Assign material & cache the sceneObject for convenience
-	sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_->GetCmissMaterial(), sliceName_);
+	//sceneObject_ = cmguiManager_.AssignMaterialToObject(0, material_->GetCmissMaterial(), sliceName_);
 	//cmguiManager_->CreateTextureImageSurface(0, material_->GetCmissMaterial(), sliceName_);
 }
 	

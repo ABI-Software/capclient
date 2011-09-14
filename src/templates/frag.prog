@@ -1,0 +1,13 @@
+uniform sampler2D texture0;
+uniform float contrast_raw;
+uniform float brightness_raw;
+void main()
+{
+	vec3 texColour = vec3(texture2D(texture0, vec2(gl_TexCoord[0])));
+	//texColour *= 5.0;
+
+	float contrast = 1.0/(1.0 - 1.5 * (contrast_raw - 0.5));
+	float brightness = 1.0 - brightness_raw;
+	vec3 colour =  contrast * (texColour - brightness) + 0.5;
+	gl_FragColor = vec4(colour, 1);
+}

@@ -1,5 +1,5 @@
 /*
- * ImageBrowser.h
+ * imagebrowser.h
  *
  *  Created on: Feb 26, 2011
  *      Author: jchu014
@@ -28,9 +28,9 @@ extern "C"
 #include "DICOMImage.h"
 #include "FileSystem.h"
 #include "SliceInfo.h"
-#include "IImageBrowserWindow.h"
-#include "ImageBrowserWindow.h"
-#include "CmguiManager.h"
+#include "iimagebrowserwindow.h"
+#include "imagebrowserwindow.h"
+#include "cmguipanel.h"
 #include "CAPAnnotationFile.h"
 
 namespace cap
@@ -197,7 +197,6 @@ public:
 		{
 			Cmiss_field_image_id tex = value.second;
 			Cmiss_field_image_destroy(&tex);
-			//cmguiManager_.DestroyTexture(tex);
 		}
 //		Close();
 	}
@@ -235,16 +234,15 @@ public:
 	 * Factory function for creating an image browser.
 	 * 
 	 * \param archiveFilename a string with the directory where the user wants images read from.
-	 * \param manager a pointer to a cmgui manager from facilitating interactions with the cmgui libraries.
 	 * \param client an interface pointer to the main application that allows limited access.
 	 */
-	static ImageBrowser* CreateImageBrowser(std::string const& archiveFilename, CmguiManager *manager, IImageBrowserWindow *client)
+	static ImageBrowser* CreateImageBrowser(std::string const& archiveFilename, IImageBrowserWindow *client)
 	{
 		if (instance_ == 0)
 		{
 			wxXmlInit_ImageBrowserWindowUI();
 			instance_ = new ImageBrowser(archiveFilename, client);
-			ImageBrowserWindow* frame = new ImageBrowserWindow(instance_, manager);
+			ImageBrowserWindow* frame = new ImageBrowserWindow(instance_);
 			frame->Show(true);
 			instance_->SetImageBrowserWindow(frame);
 			instance_->Initialize();
@@ -502,7 +500,6 @@ private:
 	
 	SortingMode sortingMode_;
 	
-	CmguiManager *cmguiManager_;
 	IImageBrowserWindow *client_;
 	
 	SliceMap sliceMap_;

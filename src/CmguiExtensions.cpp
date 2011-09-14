@@ -21,7 +21,7 @@ extern "C" {
 }
 
 #include "CmguiExtensions.h"
-#include "CmguiManager.h"
+#include "cmguipanel.h"
 
 int Cmiss_region_read_file_with_time(struct Cmiss_region *region, char *file_name, Cmiss_time_keeper_id time_keeper, double time)
 /*******************************************************************************

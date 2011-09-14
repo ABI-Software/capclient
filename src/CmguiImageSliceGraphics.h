@@ -24,13 +24,13 @@ namespace cap
 {
 
 class CAPMaterial;
-class CmguiManager;
+class CmguiPanel;
 
 class CmguiImageSliceGraphics : public ImageSliceGraphics
 {
 public:
 	
-	CmguiImageSliceGraphics(CmguiManager const& cmguiManager,
+	CmguiImageSliceGraphics(CmguiPanel const& cmguiManager,
 			std::string const& sliceName,
 			std::vector<Cmiss_texture*> const& textures);
 	
@@ -62,7 +62,7 @@ private:
 	
 	std::string sliceName_;
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
-	CmguiManager const& cmguiManager_;
+	CmguiPanel const& cmguiManager_;
 	std::tr1::shared_ptr<CAPMaterial> material_;
 	std::vector<Cmiss_texture*> textures_;
 };

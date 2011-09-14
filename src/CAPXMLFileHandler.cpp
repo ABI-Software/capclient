@@ -33,7 +33,7 @@ extern "C"
 #include "DICOMImage.h"
 #include "CAPModelLVPS4X4.h"
 #include "DataPoint.h"
-#include "CmguiManager.h"
+#include "cmguipanel.h"
 #include "CmguiExtensions.h"
 #include "FileSystem.h"
 #include "PlatformInfo.h"
@@ -221,7 +221,7 @@ boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::st
 
 } // unnamed namespace
 
-SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager *cmguiManager) const
+SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiPanel *cmguiManager) const
 {
 	SlicesWithImages dicomSlices;
 
@@ -337,7 +337,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiManager *cmguiManag
 	return dicomSlices;
 }
 
-std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiManager *cmguiManager) const
+std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiPanel *cmguiManager) const
 {
 	std::map<std::string, size_t> labelToNumframesMap;
 	CAPXMLFile::Input& input = xmlFile_.GetInput();
