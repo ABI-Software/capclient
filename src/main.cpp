@@ -1,10 +1,10 @@
 
 
 // #include "Config.h"
-// #include "MainApp.h"
-// #include "MainWindow.h"
+// #include "capclient.h"
+// #include "capclient.h"
 // //#include "CAPEulaDialog.h"
-// #include "CmguiManager.h"
+// #include "cmguipanel.h"
 // 
 // #if defined (DARWIN)
 // #include <ApplicationServices/ApplicationServices.h>
@@ -63,10 +63,10 @@
 // 	Cmiss_context_id context = Cmiss_context_create("CAPClient");
 // 	if (context != 0)
 // 	{
-// 		cap::CmguiManager *manager = new cap::CmguiManager(context);
+// 		cap::CmguiPanel *manager = new cap::CmguiPanel(context);
 // 		//using namespace cap;
 // 		cap::CAPWindow *app = new cap::CAPWindow();
-// 		//MainApp* app = MainApp::getMainApp();
+// 		//CAPClient* app = CAPClient::getCAPClient();
 // 		wxApp::SetInstance(app);
 // 		wxEntryStart(argc, argv);
 // 		

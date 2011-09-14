@@ -80,5 +80,10 @@ void CAPMaterial::ChangeTexture(Cmiss_field_image_id mat)
 	Cmiss_graphics_material_set_image_field(material_, 1, mat);
 }
 
+Cmiss_graphics_material_id CAPMaterial::GetCmissMaterial() const
+{
+	Cmiss_graphics_material_access(material_);
+	return material_;
+}
 
 } //end namespace cap

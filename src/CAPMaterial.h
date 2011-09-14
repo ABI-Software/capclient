@@ -11,7 +11,8 @@
 #include <boost/noncopyable.hpp>
 #include <string>
 
-extern "C" {
+extern "C" 
+{
 #include <api/cmiss_graphics_module.h>
 #include <api/cmiss_graphics_material.h>
 }
@@ -78,11 +79,7 @@ public:
 	 * \returns an accessed reference to the cmiss material, this will
 	 * need to be destroyed by the receiver.
 	 */
-	Cmiss_graphics_material_id GetCmissMaterial() const
-	{
-		Cmiss_graphics_material_access(material_);
-		return material_;
-	}
+	Cmiss_graphics_material_id GetCmissMaterial() const;
 	
 private:
 	Cmiss_graphics_material_id material_; /**< Cmiss graphics material */

@@ -19,7 +19,7 @@
 namespace cap
 {
 
-class CmguiManager;
+class CmguiPanel;
 class ImageSet;
 
 // This is the class responsible for creating the image set
@@ -28,7 +28,7 @@ class ImageSet;
 class ImageSetBuilder
 {
 public:
-	ImageSetBuilder(SlicesWithImages const& slices, CmguiManager *cmguiManager)
+	ImageSetBuilder(SlicesWithImages const& slices, CmguiPanel *cmguiManager)
 	:
 		slices_(slices),
 		cmguiManager_(cmguiManager)
@@ -80,7 +80,7 @@ public:
 	
 private:
 	SlicesWithImages const& slices_;
-	CmguiManager *cmguiManager_;
+	CmguiPanel *cmguiManager_;
 };
 
 

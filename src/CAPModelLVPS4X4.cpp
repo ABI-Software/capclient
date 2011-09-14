@@ -19,7 +19,7 @@ extern "C" {
 }
 
 #include "CAPModelLVPS4X4.h"
-#include "CmguiManager.h"
+#include "cmguipanel.h"
 #include "CmguiExtensions.h"
 #include "CAPMath.h"
 

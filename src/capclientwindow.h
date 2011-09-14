@@ -12,29 +12,28 @@
     #include "wx/wx.h"
 #endif
 
-#include "gui/MainWindowUI.h"
+#include "gui/CAPClientWindowUI.h"
 
-//#include "MainApp.h"
+#include "cmguipanel.h"
+#include "CAPMath.h"
+#include "CmguiExtensions.h"
 
 namespace cap
 {
 
-class CmguiManager;
 class CAPWindow;
-class MainApp;
+class CAPClient;
 
-class MainWindow : public MainWindowUI
+class CAPClientWindow : public CAPClientWindowUI
 {
 public:
-	explicit MainWindow(wxWindow* parent, MainApp* mainApp);
-	~MainWindow();
+	explicit CAPClientWindow(wxWindow* parent, CAPClient* mainApp);
+	~CAPClientWindow();
 
 	wxPanel* Get3DPanel() const
 	{
 		return panel_Cmgui;
 	}
-	
-	void SetTime(double time, int frameNumber);
 	
 	void PlayCine();
 	
@@ -65,12 +64,36 @@ public:
 	}
 	
 	void SetAnimationSliderRange(int min, int max);
+
+	/**
+	 * Get the current time from the time keeper.
+	 * 
+	 * \returns the current time.
+	 */
+	double GetCurrentTime() const;
+	
+	/**
+	 * Get the scene viewer.
+	 * 
+	 * \returns the scene viewer.
+	 */
+	Cmiss_scene_viewer_id GetCmissSceneViewer() const;
+	
+	Cmiss_context_id GetCmissContext() const;
+	
+	
+	void UpdateFrameNumber(int frameNumber);
+	
+	void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position);
+	void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition);
+	void RemoveDataPoint(Cmiss_node* dataPointID);
+	void SmoothAlongTime();
+	void SetTime(double time);
+	void RedrawNow() const { cmguiPanel_->RedrawNow(); }
 	
 private:
 	std::string PromptForUserComment();
 
-	void UpdateFrameNumber(int frameNumber);
-	
 	void ResetModeChoice();
 
 	void UpdateModelVisibilityAccordingToUI();
@@ -118,7 +141,10 @@ private:
 	 */
 	void OnIdle(wxIdleEvent& event);
 	
-	MainApp* mainApp_; /**< handle to the model class for this window */
+	CAPClient* mainApp_; /**< handle to the model class for this window */
+	CmguiPanel* cmguiPanel_; /**< handle to a cmgui panel class */
+	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
+	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */
 };
 
 } // end namespace cap

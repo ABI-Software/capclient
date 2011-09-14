@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<resource>
-	<object class="wxFrame" name="ImageBrowseWindow">
+<resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
+	<object class="wxFrame" name="ImageBrowserWindowUI">
 		<style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
-		<title>Image Browse Window</title>
+		<title>Image Browser Window</title>
 		<object class="wxBoxSizer">
 			<orient>wxVERTICAL</orient>
 			<object class="sizeritem">
@@ -36,7 +36,7 @@
 													<option>1</option>
 													<flag>wxEXPAND</flag>
 													<border>5</border>
-													<object class="wxChoice" name="m_choice1">
+													<object class="wxChoice" name="choice_caseList">
 														<selection>0</selection>
 														<content>
 															<item>Case1 2010/01/01</item>
@@ -50,7 +50,7 @@
 											<option>1</option>
 											<flag>wxEXPAND|wxLEFT|wxALIGN_CENTER_VERTICAL</flag>
 											<border>5</border>
-											<object class="wxRadioBox" name="OrderByRadioBox">
+											<object class="wxRadioBox" name="radioBox_orderBy">
 												<style>wxRA_SPECIFY_COLS</style>
 												<label>Order By</label>
 												<selection>0</selection>
@@ -74,7 +74,7 @@
 											<option>1</option>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
 											<border>5</border>
-											<object class="wxListCtrl" name="ImageTable">
+											<object class="wxListCtrl" name="listCtrl_imageTable">
 												<style>wxLC_REPORT|wxLC_SINGLE_SEL</style>
 											</object>
 										</object>
@@ -93,12 +93,12 @@
 								<orient>wxVERTICAL</orient>
 								<object class="sizeritem">
 									<option>0</option>
-									<flag>wxEXPAND | wxALL</flag>
+									<flag>wxEXPAND|wxALL</flag>
 									<border>5</border>
 									<object class="wxNotebook" name="m_notebook1">
 										<object class="notebookpage">
 											<label>Info</label>
-											<selected>0</selected>
+											<selected>1</selected>
 											<object class="wxPanel" name="m_panel5">
 												<style>wxTAB_TRAVERSAL</style>
 												<object class="wxBoxSizer">
@@ -132,7 +132,7 @@
 																		<option>0</option>
 																		<flag>wxALL</flag>
 																		<border>5</border>
-																		<object class="wxStaticText" name="PatientName">
+																		<object class="wxStaticText" name="staticText_patientName">
 																			<label>N/A</label>
 																			<wrap>-1</wrap>
 																		</object>
@@ -150,7 +150,7 @@
 																		<option>0</option>
 																		<flag>wxALL</flag>
 																		<border>5</border>
-																		<object class="wxStaticText" name="PatientID">
+																		<object class="wxStaticText" name="staticText_patientID">
 																			<label>N/A</label>
 																			<wrap>-1</wrap>
 																		</object>
@@ -168,7 +168,7 @@
 																		<option>0</option>
 																		<flag>wxALL</flag>
 																		<border>5</border>
-																		<object class="wxStaticText" name="ScanDate">
+																		<object class="wxStaticText" name="staticText_scanDate">
 																			<label>N/A</label>
 																			<wrap>-1</wrap>
 																		</object>
@@ -186,7 +186,7 @@
 																		<option>0</option>
 																		<flag>wxALL</flag>
 																		<border>5</border>
-																		<object class="wxStaticText" name="DateOfBirth">
+																		<object class="wxStaticText" name="staticText_dateOfBirth">
 																			<label>N/A</label>
 																			<wrap>-1</wrap>
 																		</object>
@@ -204,7 +204,7 @@
 																		<option>0</option>
 																		<flag>wxALL</flag>
 																		<border>5</border>
-																		<object class="wxStaticText" name="GenderAndAge">
+																		<object class="wxStaticText" name="staticText_genderAndAge">
 																			<label>N/A N/A</label>
 																			<wrap>-1</wrap>
 																		</object>
@@ -242,7 +242,7 @@
 																		<option>0</option>
 																		<flag>wxALL</flag>
 																		<border>5</border>
-																		<object class="wxStaticText" name="ImageSize">
+																		<object class="wxStaticText" name="staticText_imageSize">
 																			<label>N/A</label>
 																			<wrap>-1</wrap>
 																		</object>
@@ -260,7 +260,7 @@
 																		<option>0</option>
 																		<flag>wxALL</flag>
 																		<border>5</border>
-																		<object class="wxStaticText" name="ImagePosition">
+																		<object class="wxStaticText" name="staticText_imagePosition">
 																			<label>N/A</label>
 																			<wrap>-1</wrap>
 																		</object>
@@ -283,7 +283,7 @@
 														<option>1</option>
 														<flag>wxALIGN_CENTER_HORIZONTAL|wxALL|wxEXPAND</flag>
 														<border>5</border>
-														<object class="wxListCtrl" name="AnnotationTable">
+														<object class="wxListCtrl" name="listCtrl_annotationTable">
 															<style>wxLC_REPORT|wxLC_SINGLE_SEL</style>
 														</object>
 													</object>
@@ -309,7 +309,7 @@
 													<option>1</option>
 													<flag>wxRIGHT</flag>
 													<border>5</border>
-													<object class="wxButton" name="ShortAxisButton">
+													<object class="wxButton" name="button_shortAxis">
 														<label>Short Axis</label>
 														<default>0</default>
 													</object>
@@ -318,7 +318,7 @@
 													<option>1</option>
 													<flag>wxRIGHT</flag>
 													<border>5</border>
-													<object class="wxButton" name="LongAxisButton">
+													<object class="wxButton" name="button_longAxis">
 														<label>Long Axis</label>
 														<default>0</default>
 													</object>
@@ -327,7 +327,7 @@
 													<option>1</option>
 													<flag>wxRIGHT</flag>
 													<border>5</border>
-													<object class="wxButton" name="NoneButton">
+													<object class="wxButton" name="button_none">
 														<label>None</label>
 														<default>0</default>
 													</object>
@@ -353,7 +353,7 @@
 													<option>1</option>
 													<flag>wxALL</flag>
 													<border>5</border>
-													<object class="wxSlider" name="BrightnessSlider">
+													<object class="wxSlider" name="slider_brightness">
 														<style>wxSL_HORIZONTAL</style>
 														<value>50</value>
 														<min>0</min>
@@ -364,7 +364,7 @@
 													<option>1</option>
 													<flag>wxALL</flag>
 													<border>5</border>
-													<object class="wxSlider" name="ContrastSlider">
+													<object class="wxSlider" name="slider_contrast">
 														<style>wxSL_HORIZONTAL</style>
 														<value>50</value>
 														<min>0</min>
@@ -377,7 +377,7 @@
 											<option>1</option>
 											<flag>wxEXPAND|wxALL</flag>
 											<border>5</border>
-											<object class="wxPanel" name="CmguiPanel">
+											<object class="wxPanel" name="panel_cmgui">
 												<style>wxTAB_TRAVERSAL</style>
 												<size>-1,280</size>
 											</object>
@@ -386,7 +386,7 @@
 											<option>0</option>
 											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
-											<object class="wxSlider" name="AnimationSlider">
+											<object class="wxSlider" name="slider_previewSelection">
 												<style>wxSL_HORIZONTAL|wxSL_LABELS</style>
 												<value>1</value>
 												<min>1</min>
