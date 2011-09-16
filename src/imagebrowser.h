@@ -442,6 +442,9 @@ private:
 		}
 	}
 	
+	/**
+	 * Update the annotation for the image currently on display
+	 */
 	void UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::string> const& labelsToRemove, std::vector<Label> const& labelsToAdd)
 	{
 		std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
