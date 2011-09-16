@@ -67,6 +67,10 @@ public:
 	 */ 
 	void ChangePreviewImage(int frameNumber);
 
+	/**
+	 * Update the annotation for the image currently on display
+	 * to show "Short Axis"
+	 */
 	void OnShortAxisButtonEvent()
 	{
 	//	std::cout << __func__ << '\n';
