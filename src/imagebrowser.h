@@ -379,6 +379,9 @@ private:
 	 */
 	size_t GetSliceMapImageCount() const;
 	
+	/**
+	 * Update the image table labels according to cardiac annotation.
+	 */
 	void UpdateImageTableLabelsAccordingToCardiacAnnotation()
 	{
 		std::map<std::string, long int> uidToSliceKeyMap;
