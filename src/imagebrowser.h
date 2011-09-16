@@ -103,7 +103,6 @@ public:
 	*/
 	void OnLongAxisButtonEvent()
 	{
-	//	std::cout << __func__ << '\n';
 		gui_->PutLabelOnSelectedSlice("Long Axis");
 		
 		// update CardiacAnnotation
