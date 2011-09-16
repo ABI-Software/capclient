@@ -204,6 +204,10 @@ public:
 		gui_->Close();
 	}
 
+	/**
+	 * On cancel button clean up any accessed Cmgui handles and 
+	 * close the dialog.
+	 */
 	void OnCancelButtonClicked()
 	{
 		//TODO Cleanup textures - REVISE design
