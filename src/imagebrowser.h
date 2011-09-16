@@ -93,6 +93,10 @@ public:
 		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 	}
 
+	/**
+	* Update the annotation for the image currently on display
+	* to show "Long Axis"
+	*/
 	void OnLongAxisButtonEvent()
 	{
 	//	std::cout << __func__ << '\n';
@@ -123,7 +127,7 @@ public:
 		labelsToRemove.push_back("Short Axis");
 		labelsToRemove.push_back("Long Axis");
 		labelsToRemove.push_back("Horizonal Long Axis");
-		labelsToRemove.push_back("Vertial Long Axis");
+		labelsToRemove.push_back("Vertical Long Axis");
 		labelsToRemove.push_back("Cine Loop");
 		
 		std::vector<Label> labelsToAdd;
