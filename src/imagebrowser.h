@@ -529,7 +529,7 @@ private:
 	IImageBrowserWindow *client_;
 	
 	SliceMap sliceMap_;
-	TextureMap textureMap_; // this could be merged with sliceMap_
+	TextureMap textureMap_;
 	
 	SliceKeyType sliceKeyCurrentlyOnDisplay_;
 	int frameNumberCurrentlyOnDisplay_;
