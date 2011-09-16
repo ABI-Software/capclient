@@ -37,7 +37,6 @@ namespace cap
 {
 
 typedef std::pair<int, double> SliceKeyType;
-//	typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
 typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap;
 typedef std::map<SliceKeyType, std::vector<Cmiss_field_image_id> > TextureMap;
 typedef std::map<std::string, DICOMPtr> DICOMTable;
