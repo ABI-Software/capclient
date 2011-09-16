@@ -43,6 +43,9 @@ typedef std::map<SliceKeyType, std::vector<Cmiss_field_image_id> > TextureMap;
 typedef std::map<std::string, DICOMPtr> DICOMTable;
 typedef std::map<std::string, Cmiss_field_image_id> TextureTable;
 
+/**
+ * The ImageBrowser class is the data class paired with ImageBrowserWindow.
+ */
 class ImageBrowser
 {
 public:
