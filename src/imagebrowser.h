@@ -78,7 +78,6 @@ public:
 	 */
 	void OnShortAxisButtonEvent()
 	{
-	//	std::cout << __func__ << '\n';
 		gui_->PutLabelOnSelectedSlice("Short Axis");
 		
 		// update CardiacAnnotation
