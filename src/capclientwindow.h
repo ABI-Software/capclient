@@ -30,11 +30,6 @@ public:
 	explicit CAPClientWindow(wxWindow* parent, CAPClient* mainApp);
 	~CAPClientWindow();
 
-	wxPanel* Get3DPanel() const
-	{
-		return panel_Cmgui;
-	}
-	
 	void PlayCine();
 	
 	void StopCine();
