@@ -220,7 +220,6 @@ public:
 			Cmiss_field_image_id tex = value.second;
 			Cmiss_field_image_destroy(&tex);
 		}
-//		Close();
 	}
 
 	/**
