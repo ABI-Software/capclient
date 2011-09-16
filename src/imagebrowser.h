@@ -49,6 +49,9 @@ class ImageBrowser
 {
 public:
 	
+	/**
+	 * On image table item selected.
+	 */
 	void OnImageTableItemSelected(long int userDataPtr)
 	{
 		SliceMap::value_type* const sliceValuePtr = 
