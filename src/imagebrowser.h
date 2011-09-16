@@ -489,7 +489,6 @@ private:
 					}
 				}
 			}
-//			std::cout << "Done erasing label\n";
 			
 			BOOST_FOREACH(Label const& label, labelsToAdd)
 			{
