@@ -139,6 +139,11 @@ public:
 		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 	}
 
+	/**
+	 * On OK button clicked get all the slices marked with 
+	 * either "Short Axis" or "Long Axis" *but not more than
+	 * 10 of each???) and return them to CAPClient.
+	 */
 	void OnOKButtonClicked()
 	{
 		std::cout << __func__ << '\n';
