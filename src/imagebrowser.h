@@ -148,7 +148,6 @@ public:
 	 */
 	void OnOKButtonClicked()
 	{
-		std::cout << __func__ << '\n';
 		// construct the data structure of type SlicesWithImages to pass to the main window
 		SlicesWithImages slices;
 		
