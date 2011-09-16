@@ -59,7 +59,7 @@ public:
 		//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
 		//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
 		//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
-				
+
 		// Display the images from the selected row.
 		SwitchSliceToDisplay(*sliceValuePtr);
 	}
