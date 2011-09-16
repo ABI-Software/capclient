@@ -126,7 +126,6 @@ public:
 	*/
 	void OnNoneButtonEvent()
 	{
-	//	std::cout << __func__ << '\n';
 		gui_->PutLabelOnSelectedSlice("");
 		
 		// update CardiacAnnotation
