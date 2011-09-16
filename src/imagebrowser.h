@@ -69,7 +69,7 @@ public:
 
 	/**
 	 * Update the annotation for the image currently on display
-	 * to show "Short Axis"
+	 * to show "Short Axis".
 	 */
 	void OnShortAxisButtonEvent()
 	{
@@ -95,7 +95,7 @@ public:
 
 	/**
 	* Update the annotation for the image currently on display
-	* to show "Long Axis"
+	* to show "Long Axis".
 	*/
 	void OnLongAxisButtonEvent()
 	{
@@ -117,6 +117,10 @@ public:
 		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 	}
 
+	/**
+	* Update the annotation for the image currently on display
+	* to show nothing.
+	*/
 	void OnNoneButtonEvent()
 	{
 	//	std::cout << __func__ << '\n';
