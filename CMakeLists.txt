@@ -15,10 +15,11 @@ DEFINE_ARCHITECTURE_DIR()
 # finding of the Cmgui libraries.
 IF(CMISS_ROOT)
 	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
+	SET(GDCM_DIR "${CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
 ELSEIF(EXISTS $ENV{CMISS_ROOT})
 	SET(Cmgui_DIR "$ENV{CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
+	SET(GDCM_DIR "$ENV{CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
 ENDIF(CMISS_ROOT)
-
 # Set up some variables that control the build.  The following variables also appear in 
 # a CMake gui application.
 CACHE_VAR_WITH_DEFAULT(CAP_INSTALL_PREFIX "/usr/local/" PATH "Install path prefix, prepended onto install directories.")
@@ -49,6 +50,9 @@ INCLUDE(xrc_files.cmake)
 # can be set if needed.  Alternatively it can be set on the 
 # command line when creating the CMake cache.
 FIND_PACKAGE(Cmgui REQUIRED)
+FIND_PACKAGE(GDCM REQUIRED)
+#INCLUDE(${GDCM_USE_FILE}) # don't use this it is bad.
+SET(GDCM_INCLUDE_DIRS "${GDCM_INSTALL_PREFIX}/include/gdcm-2.0")
 
 # Set some extra compiler flags if gcc is detected
 IF( CMAKE_COMPILER_IS_GNUCXX)
@@ -83,7 +87,7 @@ FOREACH(DEF ${CMGUI_DEFINITIONS})
 ENDFOREACH(DEF ${CMGUI_DEFINITIONS})
 
 # Set the include directories, Cmgui does not know that it is dependent on gdcm??? 
-INCLUDE_DIRECTORIES("/home/hsorby/work/cardiacatlas/gmm-4.1/include" ${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} "/home/hsorby/development/cmiss/third_party/x86_64-linux/include/gdcm-2.0")
+INCLUDE_DIRECTORIES("/home/hsorby/work/cardiacatlas/gmm-4.1/include" ${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
 
 # Set the CAP Client executable with all sources and headers.  Set headers here also so 
 # that some IDEs recognise them and include them in their projects.
@@ -98,13 +102,13 @@ TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIBRARIES})
 # these libraries are not pulled in by cmgui or one of it's dependencies
 # is not reporting that it needs them
 TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
-	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmDICT.a"
-	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmDSED.a"
-	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmCommon.a"
-	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmIOD.a"
-	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmMSFF.a"
-	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmCWRAPPER.a"
-	"/home/hsorby/development/cmiss/third_party/x86_64-linux/lib/libgdcmuuid.a")
+	"${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a"
+	"${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a"
+	"${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a"
+	"${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a"
+	"${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a"
+	"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a"
+	"${GDCM_INSTALL_PREFIX}/lib/libgdcmuuid.a")
 	
 # Unit Testing
 IF(ENABLE_CAPCLIENT_UNIT_TEST)
