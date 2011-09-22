@@ -8,10 +8,8 @@
 #ifndef CMGUIEXTENSIONS_H_
 #define CMGUIEXTENSIONS_H_
 
-//class wxPanel;
-//#define FE_VALUE_IS_DOUBLE
-
-extern "C" {
+extern "C" 
+{
 #include "api/cmiss_region.h"
 #include "api/cmiss_scene_viewer.h"
 #include "api/cmiss_time_keeper.h"

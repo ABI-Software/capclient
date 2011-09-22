@@ -35,12 +35,15 @@ extern "C"
 
 namespace cap
 {
-
+/**
+ * Slice key is described by the position in the stack and the dot product of the normal
+ * and the position to determine a manner in differentiating slices in different planes.
+ */
 typedef std::pair<int, double> SliceKeyType;
-typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap;
-typedef std::map<SliceKeyType, std::vector<Cmiss_field_image_id> > TextureMap;
-typedef std::map<std::string, DICOMPtr> DICOMTable;
-typedef std::map<std::string, Cmiss_field_image_id> TextureTable;
+typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap; /**< A map of dicom images using image position as a key. */
+typedef std::map<SliceKeyType, std::vector<Cmiss_field_image_id> > TextureMap; /** A map of textures using image position as a key. */
+typedef std::map<std::string, DICOMPtr> DICOMTable; /** A map of dicom images using the dicom image name as a key. */
+typedef std::map<std::string, Cmiss_field_image_id> TextureTable; /** A map of textures using the texture name as a key. */
 
 /**
  * The ImageBrowser class is the data class paired with ImageBrowserWindow.
@@ -52,17 +55,7 @@ public:
 	/**
 	 * On image table item selected.
 	 */
-	void OnImageTableItemSelected(long int userDataPtr)
-	{
-		SliceMap::value_type* const sliceValuePtr = 
-				reinterpret_cast<SliceMap::value_type* const>(userDataPtr);
-		//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
-		//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
-		//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
-
-		// Display the images from the selected row.
-		SwitchSliceToDisplay(*sliceValuePtr);
-	}
+	void OnImageTableItemSelected(long int userDataPtr);
 	
 	/**
 	 * Inform the model that the preview image has changed.
@@ -76,151 +69,32 @@ public:
 	 * Update the annotation for the image currently on display
 	 * to show "Short Axis".
 	 */
-	void OnShortAxisButtonEvent()
-	{
-		gui_->PutLabelOnSelectedSlice("Short Axis");
-		
-		// update CardiacAnnotation
-		std::vector<std::string> labelsToRemove;
-		labelsToRemove.push_back("Short Axis");
-		labelsToRemove.push_back("Long Axis");
-		labelsToRemove.push_back("Horizonal Long Axis");
-		labelsToRemove.push_back("Vertial Long Axis");
-		labelsToRemove.push_back("Cine Loop");
-		
-		std::vector<Label> labelsToAdd;
-		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
-		Label short_axis = {"RID:10577", "Slice", "Short Axis"};
-		labelsToAdd.push_back(cine_loop);
-		labelsToAdd.push_back(short_axis);
-		
-		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
-	}
+	void OnShortAxisButtonEvent();
 
 	/**
 	* Update the annotation for the image currently on display
 	* to show "Long Axis".
 	*/
-	void OnLongAxisButtonEvent()
-	{
-		gui_->PutLabelOnSelectedSlice("Long Axis");
-		
-		// update CardiacAnnotation
-		std::vector<std::string> labelsToRemove;
-		labelsToRemove.push_back("Short Axis");
-		labelsToRemove.push_back("Long Axis");
-		labelsToRemove.push_back("Cine Loop");
-		
-		std::vector<Label> labelsToAdd;
-		Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
-		Label short_axis = {"RID:10571", "Slice", "Long Axis"};
-		labelsToAdd.push_back(cine_loop);
-		labelsToAdd.push_back(short_axis);
-		
-		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
-	}
+	void OnLongAxisButtonEvent();
 
 	/**
 	* Update the annotation for the image currently on display
 	* to show nothing.
 	*/
-	void OnNoneButtonEvent()
-	{
-		gui_->PutLabelOnSelectedSlice("");
-		
-		// update CardiacAnnotation
-		std::vector<std::string> labelsToRemove;
-		labelsToRemove.push_back("Short Axis");
-		labelsToRemove.push_back("Long Axis");
-		labelsToRemove.push_back("Horizonal Long Axis");
-		labelsToRemove.push_back("Vertical Long Axis");
-		labelsToRemove.push_back("Cine Loop");
-		
-		std::vector<Label> labelsToAdd;
-		
-		UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
-	}
+	void OnNoneButtonEvent();
 
 	/**
 	 * On OK button clicked get all the slices marked with 
-	 * either "Short Axis" or "Long Axis" *but not more than
-	 * 10 of each???) and return them to CAPClient.
+	 * either "Short Axis" or "Long Axis" (but not more than
+	 * 10 long axis and 30 short axis???) and return them to CAPClient.
 	 */
-	void OnOKButtonClicked()
-	{
-		// construct the data structure of type SlicesWithImages to pass to the main window
-		SlicesWithImages slices;
-		
-		std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
-		
-		int shortAxisCount = 1;
-		int longAxisCount = 1;
-		
-		typedef std::pair<std::string, long int> LabelPair;
-		BOOST_FOREACH(LabelPair const& labelPair, labels)
-		{
-			SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(labelPair.second);
-			SliceKeyType const& key = sliceValuePtr->first;
-			std::string sliceName;
-			std::string const& label = labelPair.first;
-			if (label == "Short Axis")
-			{
-				sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
-			}
-			else if (label == "Long Axis")
-			{
-				sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
-			}
-			else
-			{
-				throw std::logic_error("Invalid label : " + label);
-			}
-			SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
-			slices.push_back(sliceInfo);
-		}
-		
-		if (longAxisCount >= 10)
-		{
-			std::cout << "TOO MANY LONG AXES\n";
-			gui_->CreateMessageBox("Too many long axes slices", "Invalid selection");
-			return;
-		}
-		if (shortAxisCount >= 30)
-		{
-			std::cout << "TOO MANY SHORT AXES\n";
-			gui_->CreateMessageBox("Too many short axes slices", "Invalid selection");
-			return;
-		}
-		
-		std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
-
-		std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-		if (slices.empty())
-		{
-			std::cout << "Empty image set.\n";
-			return;
-		}
-		
-		client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
-		gui_->Close();
-	}
+	void OnOKButtonClicked();
 
 	/**
 	 * On cancel button clean up any accessed Cmgui handles and 
 	 * close the dialog.
 	 */
-	void OnCancelButtonClicked()
-	{
-		//TODO Cleanup textures - REVISE design
-		// Should probably use reference counted smart pointer for Cmiss_texture
-		// Since the ownership is shared between ImageSlice and this (ImageBrowserWindow)
-		
-		BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-		{
-			Cmiss_field_image_id tex = value.second;
-			Cmiss_field_image_destroy(&tex);
-		}
-	}
+	void OnCancelButtonClicked();
 
 	/**
 	 * Sort the image table by current mode as set in 
@@ -243,7 +117,7 @@ public:
 	}
 	
 	/**
-	 * Pass through functioin to allow downstream to control the visibility of the 
+	 * Pass through function to allow upstream to control the visibility of the 
 	 * window.
 	 */
 	void ShowWindow() const
@@ -382,126 +256,15 @@ private:
 	/**
 	 * Update the image table labels according to cardiac annotation.
 	 */
-	void UpdateImageTableLabelsAccordingToCardiacAnnotation()
-	{
-		std::map<std::string, long int> uidToSliceKeyMap;
-		BOOST_FOREACH(SliceMap::value_type const& value, sliceMap_)
-		{
-			BOOST_FOREACH(DICOMPtr const& dicomPtr, value.second)
-			{
-				uidToSliceKeyMap.insert(
-						std::make_pair(dicomPtr->GetSopInstanceUID(),
-						reinterpret_cast<long int>(&value)));
-			}
-		}
-		
-		std::map<long int, std::string> slicePtrToLabelMap;
-		BOOST_FOREACH(ImageAnnotation const& imageAnno, cardiacAnnotation_.imageAnnotations)
-		{
-			std::string const& sopiuid = imageAnno.sopiuid;
-			std::map<std::string, long int>::const_iterator itr = 
-				uidToSliceKeyMap.find(sopiuid);
-			if (itr == uidToSliceKeyMap.end())
-			{
-				std::cout << "Can't find the sopiuid: " << sopiuid << '\n';
-			}
-			long int sliceKeyPtr = itr->second;
-			
-			std::vector<Label>::const_iterator labelItr = 
-					std::find_if(imageAnno.labels.begin(),
-							imageAnno.labels.end(),
-							boost::bind(&Label::label, _1) == "Cine Loop");
-			if (labelItr == imageAnno.labels.end())
-			{
-				continue;
-			}
-			BOOST_FOREACH(Label const& annoLabel, imageAnno.labels)
-			{
-				std::string const& imageLabel = annoLabel.label;
-				if (imageLabel == "Short Axis" || imageLabel == "Long Axis")
-				{	
-					std::cout << "uid: " << sopiuid << ", label = " << imageLabel << '\n';
-					std::map<long int, std::string>::const_iterator itr = 
-							slicePtrToLabelMap.find(sliceKeyPtr);
-					
-					std::string sliceLabel;
-					if (itr != slicePtrToLabelMap.end() && itr->second != imageLabel)
-					{
-						//This means there is an image with a conflicting label in the
-						//same slice.
-						//This usually means the SortingMode is not properly set.
-						//Changing the SortingMode should get rid of this problem.
-						sliceLabel = "?";
-					}
-					else
-					{
-						sliceLabel = imageLabel;
-					}
-					
-					slicePtrToLabelMap[sliceKeyPtr] = sliceLabel;
-					gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, sliceLabel);
-				}
-			}
-		}
-	}
+	void UpdateImageTableLabelsAccordingToCardiacAnnotation();
 	
 	/**
-	 * Update the annotation for the image currently on display
+	 * Update the annotation for the image currently on display.
+	 * 
+	 * \param labelsToRemove the vector of labels to remove from the annotation.
+	 * \param labelsToAdd the vector of labels to add to the annotation.
 	 */
-	void UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::string> const& labelsToRemove, std::vector<Label> const& labelsToAdd)
-	{
-		std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
-		BOOST_FOREACH(DICOMPtr const& dicomPtr, dicomPtrs)
-		{
-			std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
-			std::vector<ImageAnnotation>::iterator imageItr =
-					std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
-								cardiacAnnotation_.imageAnnotations.end(),
-								boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
-			if (imageItr == cardiacAnnotation_.imageAnnotations.end())
-			{
-				// No annotation for the image exists
-				ImageAnnotation imageAnno;
-				imageAnno.sopiuid = sopiuid;
-				cardiacAnnotation_.imageAnnotations.push_back(imageAnno);
-				imageItr = cardiacAnnotation_.imageAnnotations.end() - 1;
-			}
-			else
-			{
-				// Remove conflicting labels if present
-				std::vector<Label>::iterator labelItr =
-						imageItr->labels.begin();
-				while (labelItr != imageItr->labels.end())
-				{
-					bool erasePerformed = false;
-					BOOST_FOREACH(std::string const& labelToRemove, labelsToRemove)
-					{
-						if (labelItr->label == labelToRemove)
-						{
-//							std::cout << "Erasing label : " << labelItr->label << '\n';
-							imageItr->labels.erase(labelItr);
-							erasePerformed = true;
-						}
-					}
-					if (!erasePerformed)
-					{
-						++labelItr;
-					}
-				}
-			}
-			
-			BOOST_FOREACH(Label const& label, labelsToAdd)
-			{
-				imageItr->labels.push_back(label);
-			}
-			
-			// Remove ImageAnnotation if the update left it with no labels and no roi's
-			if (imageItr->labels.empty() && imageItr->rOIs.empty())
-			{
-				cardiacAnnotation_.imageAnnotations.erase(imageItr);
-			}
-		}
-	}
+	void UpdateAnnotationOnImageCurrentlyOnDisplay(const std::vector<std::string>& labelsToRemove, const std::vector<Label>& labelsToAdd);
 	
 	/**
 	 * Sorting mode enumeration
@@ -524,22 +287,22 @@ private:
 	 */
 	ImageBrowserWindow* gui_; 
 	
-	SortingMode sortingMode_;
+	SortingMode sortingMode_; /**< class state variable to track the current sorting mode. */
 	
-	IImageBrowserWindow *client_;
+	IImageBrowserWindow *client_; /**< Pointer to CAPClient using an inteface class to restrict access. */
 	
-	SliceMap sliceMap_;
-	TextureMap textureMap_;
+	SliceMap sliceMap_; /**< A map of dicom images using image position for a key. */
+	TextureMap textureMap_; /**< A map of textures using image position for a key. */
 	
-	SliceKeyType sliceKeyCurrentlyOnDisplay_;
-	int frameNumberCurrentlyOnDisplay_;
+	SliceKeyType sliceKeyCurrentlyOnDisplay_; /**< class state variable to track image currently on display. */
+	int frameNumberCurrentlyOnDisplay_; /**< class state variable to track frame currently on display. */
 	
-	DICOMTable dicomFileTable_; /**< unsorted list of all dicom files */
-	TextureTable textureTable_; /**< unsorted list of all textures */
+	DICOMTable dicomFileTable_; /**< unsorted list of all dicom files. */
+	TextureTable textureTable_; /**< unsorted list of all textures. */
 	
-	std::string archiveFilename_;
+	std::string archiveFilename_; /**< The image archive file name, or a name for a directory of images. */
 	
-	CardiacAnnotation cardiacAnnotation_;
+	CardiacAnnotation cardiacAnnotation_; /**< Annotation of something TODO: more... */
 };
 
 } //namespace cap

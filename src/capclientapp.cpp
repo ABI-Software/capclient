@@ -7,9 +7,26 @@
 #include "capclientwindow.h"
 #include "CAPEulaDialog.h"
 
+/**
+ * \mainpage CAP Client
+ * CAP Client provides a visualization tool to browse cardiac MR images and 3D CAP models. Main features include:
+ * 
+ *   - 3D visualization of cardiac MR images
+ *   - Cardiac surface model rendering
+ *   - Animation of 3D heart beating
+ * 
+ * CAP Client is an application being developed at the Auckland Bioengeineering Institute (ABI) as part of the 
+ * Cardiac Atlas Project (CAP).  The client side software is responsible for visualising, model fitting
+ * and analyzing the cardiac magnetic resonance (CMR) data that reside in the CAP database.
+ */ 
+
+
 namespace cap
 {
 
+/**
+ * Show the End User License Agreement page
+ */
 bool HandleEula()
 {
 	CAPEulaDialog eulaDialog;	
@@ -26,6 +43,9 @@ bool CAPApp::OnInit()
 	std::cout << "CAPApp::" << __func__ << std::endl;
 	wxXmlResource::Get()->InitAllHandlers();
 	
+	/**
+	 * TODO: reinstate the end user license agreement.
+	 */
 	//if (!HandleEula())
 	//	return false;
 	

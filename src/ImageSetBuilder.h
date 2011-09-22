@@ -22,16 +22,15 @@ namespace cap
 class CmguiPanel;
 class ImageSet;
 
-// This is the class responsible for creating the image set
-// along with the image slices that the image set owns.
-
+/**
+ * This is the class responsible for creating the image set
+ * along with the image slices that the image set owns.
+ */
 class ImageSetBuilder
 {
 public:
-	ImageSetBuilder(SlicesWithImages const& slices, CmguiPanel *cmguiManager)
-	:
-		slices_(slices),
-		cmguiManager_(cmguiManager)
+	ImageSetBuilder(const SlicesWithImages& slices)
+		: slices_(slices)
 	{
 	}
 	
@@ -44,7 +43,7 @@ public:
 		SlicesWithImages::const_iterator end = slices_.end();
 		for (;itr != end; ++itr)
 		{
-			std::string const& name(itr->GetLabel());
+			const std::string& name(itr->GetLabel());
 			
 			// Create the cmgui specific component that handles the graphical representation
 			// of the image slice.
@@ -79,8 +78,7 @@ public:
 	}
 	
 private:
-	SlicesWithImages const& slices_;
-	CmguiPanel *cmguiManager_;
+	const SlicesWithImages& slices_;
 };
 
 

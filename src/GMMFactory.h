@@ -88,7 +88,7 @@ public:
 		return (*impl_)[index];
 	}
 	
-private:	
+private:
 	std::vector<double> *impl_;
 };
 
@@ -232,7 +232,6 @@ void mult(const GMMGSmoothAMatrix &m, const std::vector<double> &x, std::vector<
 	gmm::mult(*m.S,x,y,y);
 	
 //	cout << " mult1 exit" <<endl;
-
 }
 
 void mult(const GMMGSmoothAMatrix &m, const VectorRef &ref, const std::vector<double> &v, std::vector<double>& y) 
@@ -249,54 +248,59 @@ void mult(const GMMGSmoothAMatrix &m, const VectorRef &ref, const std::vector<do
 	
 	gmm::mult(*m.S,x,y,y);
 	gmm::add(v,y,y);
-
 }
 
+/**
+ * Where is this template specialisation used??  It is incompatable with gmm-4.1
+ * Commenting out for now TODO: revisit this commented out code.
+ */
+// template<>
+// struct linalg_traits<GMMGSmoothAMatrix> 
+// {
+// 	static const int shift = 0;
+// 	typedef GMMGSmoothAMatrix this_type;
+// 	typedef this_type::IND_TYPE IND_TYPE;
+// 	typedef linalg_const is_reference;
+// 	typedef abstract_matrix linalg_type;
+// 	typedef double value_type;
+// 	typedef double origin_type;
+// 	typedef double reference;
+// 	typedef abstract_sparse storage_type;
+// 	typedef abstract_null_type sub_row_type;
+// 	typedef abstract_null_type const_sub_row_type;
+// 	typedef abstract_null_type row_iterator;
+// 	typedef abstract_null_type const_row_iterator;
+// 	typedef abstract_null_type sub_col_type;
+// 	typedef cs_vector_ref<const double *, const IND_TYPE *, 0> const_sub_col_type;
+// 	typedef sparse_compressed_iterator<const double *, const IND_TYPE *,const IND_TYPE *, 0> const_col_iterator;
+// 	typedef abstract_null_type col_iterator;
+// 	typedef col_major sub_orientation;
+// 	typedef linalg_true index_sorted;
+// 	static size_type nrows(const this_type &m) { return m.nrows(); }
+// 	static size_type ncols(const this_type &m) { return m.ncols(); }
+// 	static const_col_iterator col_begin(const this_type &m)
+// 	{ 
+// 		return const_col_iterator(m.S->pr, m.S->ir, m.S->jc, m.S->nr, m.S->pr);
+// 		
+// 	}
+// 	
+// 	static const_col_iterator col_end(const this_type &m)
+// 	{ 
+// 		return const_col_iterator(m.S->pr, m.S->ir, m.S->jc + m.S->nc, m.S->nr, m.S->pr);
+// 	}
+// 	
+// 	static const_sub_col_type col(const const_col_iterator &it)
+// 	{
+// 		return const_sub_col_type(it.pr + *(it.jc) - shift,
+// 				it.ir + *(it.jc) - shift,
+// 				*(it.jc + 1) - *(it.jc), it.n);
+// 	}
+// 	static const origin_type* origin(const this_type &m) { return m.S->pr; }
+// 	static void do_clear(this_type &m) { m.do_clear(); }
+// 	static value_type access(const const_col_iterator &itcol, size_type j) { return col(itcol)[j]; }
+// };
 
-  template<>
-  struct linalg_traits<GMMGSmoothAMatrix> {
-	  static const int shift = 0;
-    typedef GMMGSmoothAMatrix this_type;
-    typedef this_type::IND_TYPE IND_TYPE;
-    typedef linalg_const is_reference;
-    typedef abstract_matrix linalg_type;
-    typedef double value_type;
-    typedef double origin_type;
-    typedef double reference;
-    typedef abstract_sparse storage_type;
-    typedef abstract_null_type sub_row_type;
-    typedef abstract_null_type const_sub_row_type;
-    typedef abstract_null_type row_iterator;
-    typedef abstract_null_type const_row_iterator;
-    typedef abstract_null_type sub_col_type;
-    typedef cs_vector_ref<const double *, const IND_TYPE *, 0>
-    const_sub_col_type;
-    typedef sparse_compressed_iterator<const double *, const IND_TYPE *,
-				       const IND_TYPE *, 0>
-    const_col_iterator;
-    typedef abstract_null_type col_iterator;
-    typedef col_major sub_orientation;
-    typedef linalg_true index_sorted;
-    static size_type nrows(const this_type &m) { return m.nrows(); }
-    static size_type ncols(const this_type &m) { return m.ncols(); }
-    static const_col_iterator col_begin(const this_type &m)
-    { 
-    	return const_col_iterator(m.S->pr, m.S->ir, m.S->jc, m.S->nr, m.S->pr); }
-    static const_col_iterator col_end(const this_type &m)
-    { 
-    	return const_col_iterator(m.S->pr, m.S->ir, m.S->jc + m.S->nc, m.S->nr, m.S->pr);
-	}
-    static const_sub_col_type col(const const_col_iterator &it) {
-      return const_sub_col_type(it.pr + *(it.jc) - shift,
-				it.ir + *(it.jc) - shift,
-				*(it.jc + 1) - *(it.jc), it.n);
-    }
-    static const origin_type* origin(const this_type &m) { return m.S->pr; }
-    static void do_clear(this_type &m) { m.do_clear(); }
-    static value_type access(const const_col_iterator &itcol, size_type j)
-    { return col(itcol)[j]; }
-  };
-};  // end namespace gmm
+}  // end namespace gmm
 
 namespace cap
 {

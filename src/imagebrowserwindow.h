@@ -27,7 +27,7 @@ extern "C"
 #include <api/cmiss_scene_viewer.h>
 }
 
-#include "gui/ImageBrowserWindowUI.h"
+#include "ui/ImageBrowserWindowUI.h"
 #include "SliceInfo.h"
 #include "cmguipanel.h"
 
@@ -59,7 +59,7 @@ public:
 	ImageBrowserWindow(ImageBrowser *browser);
 	
 	/**
-	 * Destructor
+	 * Destructor destroys any cmiss handles.
 	 */
 	virtual ~ImageBrowserWindow();
 	
@@ -178,13 +178,14 @@ private:
 	void OnCaseSelected(wxCommandEvent& event);
 	
 	ImageBrowser *browser_; /**< the data for this window. */
-	CmguiPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is */
+	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
+	CmguiPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
 	
 	std::tr1::shared_ptr<CAPMaterial> capmaterial_;
 	
-	static const std::string IMAGE_PREVIEW;
+	static const std::string IMAGE_PREVIEW; /**< Image preview string. */
 	
-	boost::scoped_ptr<wxProgressDialog> progressDialogPtr_;
+	boost::scoped_ptr<wxProgressDialog> progressDialogPtr_; /**< Progess dialog pointer. */
 	
 };
 

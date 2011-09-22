@@ -8,14 +8,14 @@
 #ifndef DICOMIMAGE_H_
 #define DICOMIMAGE_H_
 
-#include "CAPMath.h"
-#include "CAPContour.h"
-
 #include <string>
 #include <vector>
 #include <boost/tr1/memory.hpp>
 #include <boost/utility.hpp>
 #include <boost/bind.hpp>
+
+#include "CAPMath.h"
+#include "CAPContour.h"
 
 //struct Cmiss_texture;
 

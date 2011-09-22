@@ -20,6 +20,7 @@
 #include <boost/lexical_cast.hpp>
 //#include <boost/lambda/lambda.hpp>
 #include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
 
 #include "images/capicon.xpm"
 
@@ -32,6 +33,7 @@ extern "C"
 
 #include "imagebrowserwindow.h"
 
+#include "cmgui/utilities.h"
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
 #include "CAPMaterial.h"
@@ -50,8 +52,12 @@ std::string const ImageBrowserWindow::IMAGE_PREVIEW = std::string("ImagePreview"
 
 ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	: browser_(browser)
-	, cmguiPanel_(new CmguiPanel(IMAGE_PREVIEW, panel_cmgui))
+	, cmissContext_(Cmiss_context_create(IMAGE_PREVIEW.c_str()))
+	, cmguiPanel_(0)
 {
+	Cmiss_context_enable_user_interface(cmissContext_, 0, 0, static_cast<void*>(wxTheApp));
+	cmguiPanel_ = new CmguiPanel(cmissContext_, IMAGE_PREVIEW, panel_cmgui);
+	
 	SetIcon(wxIcon(capicon_xpm));
 	Fit();
 	// This stops the window from getting too long in height 
@@ -187,7 +193,7 @@ void ImageBrowserWindow::SetAnimationSliderMax(size_t max)
 
 void ImageBrowserWindow::ResizePreviewImage(int width, int height)
 {
-	cmguiPanel_->ResizePlaneElement(IMAGE_PREVIEW, width, height);
+	ResizePlaneElement(cmissContext_, IMAGE_PREVIEW, width, height);
 }
 
 void ImageBrowserWindow::ChangePreviewImage(Cmiss_field_image_id image)
@@ -198,9 +204,12 @@ void ImageBrowserWindow::ChangePreviewImage(Cmiss_field_image_id image)
 
 void ImageBrowserWindow::CreatePreviewScene()
 {
-	capmaterial_ = cmguiPanel_->CreateCAPMaterial(IMAGE_PREVIEW);
-	cmguiPanel_->CreatePlaneElement(IMAGE_PREVIEW);
-	cmguiPanel_->CreateTextureImageSurface(IMAGE_PREVIEW, capmaterial_->GetCmissMaterial());
+	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
+	// boost::make_pair is faster than shared_ptr<CAPMaterial>(new )
+	capmaterial_ = boost::make_shared<CAPMaterial>(IMAGE_PREVIEW, gModule);
+	
+	CreatePlaneElement(cmissContext_, IMAGE_PREVIEW);
+	CreateTextureImageSurface(cmissContext_, IMAGE_PREVIEW, capmaterial_->GetCmissMaterial());
 	cmguiPanel_->SetTumbleRate(0.0);
 	cmguiPanel_->ViewAll();
 }
@@ -212,14 +221,14 @@ Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(DICOMPtr dicom)
 	 * too slow then passing in the field image name would help.
 	 */
 	
-	Cmiss_field_module_id field_module = cmguiPanel_->GetFieldModuleForRegion(IMAGE_PREVIEW);
-	std::string name = cmguiPanel_->GetNextNameInSeries(field_module, "tex_");
+	Cmiss_field_module_id field_module = GetFieldModuleForRegion(cmissContext_, IMAGE_PREVIEW);
+	std::string name = "tex_" + dicom->GetFilename(); //-- GetNextNameInSeries(field_module, "tex_");
 	
 	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
 	Cmiss_field_set_name(temp_field, name.c_str());
 	Cmiss_field_image_id image_field = Cmiss_field_cast_image(temp_field);
 	Cmiss_field_destroy(&temp_field);
-	cmguiPanel_->CreateCmissImageTexture(image_field, dicom);
+	CreateCmissImageTexture(image_field, dicom);
 	Cmiss_field_module_destroy(&field_module);
 	
 	return image_field;

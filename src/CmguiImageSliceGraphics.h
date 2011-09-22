@@ -8,15 +8,14 @@
 #ifndef CMGUIIMAGESLICEGRAPHICS_H_
 #define CMGUIIMAGESLICEGRAPHICS_H_
 
-#include "ImageSliceGraphics.h"
-#include "CAPMath.h"
-
 #include <string>
 #include <vector>
 
 #include <boost/tr1/memory.hpp>
 
-class Computed_field;
+#include "ImageSliceGraphics.h"
+#include "CAPMath.h"
+
 class Scene_object;
 class Cmiss_texture;
 
@@ -26,13 +25,18 @@ namespace cap
 class CAPMaterial;
 class CmguiPanel;
 
+/**
+ * What does the Cmgui image slice graphics class do for me?
+ * Create the cmgui specific component that handles the graphical representation
+ * of the image slice.
+ */
 class CmguiImageSliceGraphics : public ImageSliceGraphics
 {
 public:
 	
-	CmguiImageSliceGraphics(CmguiPanel const& cmguiManager,
-			std::string const& sliceName,
-			std::vector<Cmiss_texture*> const& textures);
+	CmguiImageSliceGraphics(const CmguiPanel& cmguiManager,
+			const std::string& sliceName,
+			const std::vector<Cmiss_texture*>& textures);
 	
 	~CmguiImageSliceGraphics();
 	

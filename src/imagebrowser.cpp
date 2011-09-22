@@ -362,4 +362,263 @@ void ImageBrowser::OnOrderByRadioBox(int event)
 	PopulateImageTable();
 }
 
+void ImageBrowser::OnCancelButtonClicked()
+{
+	//TODO Cleanup textures - REVISE design
+	// Should probably use reference counted smart pointer for Cmiss_texture
+	// Since the ownership is shared between ImageSlice and this (ImageBrowserWindow)
+	
+	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	{
+		Cmiss_field_image_id tex = value.second;
+		Cmiss_field_image_destroy(&tex);
+	}
+}
+
+void ImageBrowser::OnOKButtonClicked()
+{
+	// construct the data structure of type SlicesWithImages to pass to the main window
+	SlicesWithImages slices;
+	
+	std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
+	
+	int shortAxisCount = 1;
+	int longAxisCount = 1;
+	
+	typedef std::pair<std::string, long int> LabelPair;
+	BOOST_FOREACH(LabelPair const& labelPair, labels)
+	{
+		SliceMap::value_type* const sliceValuePtr = reinterpret_cast<SliceMap::value_type* const>(labelPair.second);
+		SliceKeyType const& key = sliceValuePtr->first;
+		std::string sliceName;
+		std::string const& label = labelPair.first;
+		if (label == "Short Axis")
+		{
+			sliceName = "SA" + boost::lexical_cast<std::string>(shortAxisCount++);
+		}
+		else if (label == "Long Axis")
+		{
+			sliceName = "LA" + boost::lexical_cast<std::string>(longAxisCount++);
+		}
+		else
+		{
+			throw std::logic_error("Invalid label : " + label);
+		}
+		SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
+		slices.push_back(sliceInfo);
+	}
+	
+	if (longAxisCount >= 10)
+	{
+		std::cout << "TOO MANY LONG AXES\n";
+		gui_->CreateMessageBox("Too many long axes slices", "Invalid selection");
+		return;
+	}
+	if (shortAxisCount >= 30)
+	{
+		std::cout << "TOO MANY SHORT AXES\n";
+		gui_->CreateMessageBox("Too many short axes slices", "Invalid selection");
+		return;
+	}
+	
+	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
+	
+	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
+		if (slices.empty())
+		{
+			std::cout << "Empty image set.\n";
+			return;
+		}
+		
+		client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
+		gui_->Close();
+}
+
+void ImageBrowser::OnNoneButtonEvent()
+{
+	gui_->PutLabelOnSelectedSlice("");
+	
+	// update CardiacAnnotation
+	std::vector<std::string> labelsToRemove;
+	labelsToRemove.push_back("Short Axis");
+	labelsToRemove.push_back("Long Axis");
+	labelsToRemove.push_back("Horizonal Long Axis");
+	labelsToRemove.push_back("Vertical Long Axis");
+	labelsToRemove.push_back("Cine Loop");
+	
+	std::vector<Label> labelsToAdd;
+	
+	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+}
+
+void ImageBrowser::OnLongAxisButtonEvent()
+{
+	gui_->PutLabelOnSelectedSlice("Long Axis");
+	
+	// update CardiacAnnotation
+	std::vector<std::string> labelsToRemove;
+	labelsToRemove.push_back("Short Axis");
+	labelsToRemove.push_back("Long Axis");
+	labelsToRemove.push_back("Cine Loop");
+	
+	std::vector<Label> labelsToAdd;
+	Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
+	Label short_axis = {"RID:10571", "Slice", "Long Axis"};
+	labelsToAdd.push_back(cine_loop);
+	labelsToAdd.push_back(short_axis);
+	
+	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+}
+
+void ImageBrowser::OnShortAxisButtonEvent()
+{
+	gui_->PutLabelOnSelectedSlice("Short Axis");
+	
+	// update CardiacAnnotation
+	std::vector<std::string> labelsToRemove;
+	labelsToRemove.push_back("Short Axis");
+	labelsToRemove.push_back("Long Axis");
+	labelsToRemove.push_back("Horizonal Long Axis");
+	labelsToRemove.push_back("Vertial Long Axis");
+	labelsToRemove.push_back("Cine Loop");
+	
+	std::vector<Label> labelsToAdd;
+	Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
+	Label short_axis = {"RID:10577", "Slice", "Short Axis"};
+	labelsToAdd.push_back(cine_loop);
+	labelsToAdd.push_back(short_axis);
+	
+	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+}
+
+void ImageBrowser::OnImageTableItemSelected(long int userDataPtr)
+{
+	SliceMap::value_type* const sliceValuePtr = 
+	reinterpret_cast<SliceMap::value_type* const>(userDataPtr);
+	//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
+	//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
+	//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
+	
+	// Display the images from the selected row.
+	SwitchSliceToDisplay(*sliceValuePtr);
+}
+
+void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
+{
+	std::map<std::string, long int> uidToSliceKeyMap;
+	BOOST_FOREACH(SliceMap::value_type const& value, sliceMap_)
+	{
+		BOOST_FOREACH(DICOMPtr const& dicomPtr, value.second)
+		{
+			uidToSliceKeyMap.insert(
+				std::make_pair(dicomPtr->GetSopInstanceUID(),
+							   reinterpret_cast<long int>(&value)));
+		}
+	}
+	
+	std::map<long int, std::string> slicePtrToLabelMap;
+	BOOST_FOREACH(ImageAnnotation const& imageAnno, cardiacAnnotation_.imageAnnotations)
+	{
+		std::string const& sopiuid = imageAnno.sopiuid;
+		std::map<std::string, long int>::const_iterator itr = 
+		uidToSliceKeyMap.find(sopiuid);
+		if (itr == uidToSliceKeyMap.end())
+		{
+			std::cout << "Can't find the sopiuid: " << sopiuid << '\n';
+		}
+		long int sliceKeyPtr = itr->second;
+		
+		std::vector<Label>::const_iterator labelItr = 
+		std::find_if(imageAnno.labels.begin(),
+					 imageAnno.labels.end(),
+					 boost::bind(&Label::label, _1) == "Cine Loop");
+		if (labelItr == imageAnno.labels.end())
+		{
+			continue;
+		}
+		BOOST_FOREACH(Label const& annoLabel, imageAnno.labels)
+		{
+			std::string const& imageLabel = annoLabel.label;
+			if (imageLabel == "Short Axis" || imageLabel == "Long Axis")
+			{	
+				std::cout << "uid: " << sopiuid << ", label = " << imageLabel << '\n';
+			std::map<long int, std::string>::const_iterator itr = 
+			slicePtrToLabelMap.find(sliceKeyPtr);
+			
+			std::string sliceLabel;
+			if (itr != slicePtrToLabelMap.end() && itr->second != imageLabel)
+			{
+				//This means there is an image with a conflicting label in the
+				//same slice.
+				//This usually means the SortingMode is not properly set.
+				//Changing the SortingMode should get rid of this problem.
+				sliceLabel = "?";
+			}
+			else
+			{
+				sliceLabel = imageLabel;
+			}
+			
+			slicePtrToLabelMap[sliceKeyPtr] = sliceLabel;
+			gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, sliceLabel);
+			}
+		}
+	}
+}
+
+void ImageBrowser::UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::string> const& labelsToRemove, std::vector<Label> const& labelsToAdd)
+{
+	std::vector<DICOMPtr> const& dicomPtrs = sliceMap_[sliceKeyCurrentlyOnDisplay_];
+	BOOST_FOREACH(DICOMPtr const& dicomPtr, dicomPtrs)
+	{
+		std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
+		std::vector<ImageAnnotation>::iterator imageItr =
+		std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
+					 cardiacAnnotation_.imageAnnotations.end(),
+					 boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
+		if (imageItr == cardiacAnnotation_.imageAnnotations.end())
+		{
+			// No annotation for the image exists
+			ImageAnnotation imageAnno;
+			imageAnno.sopiuid = sopiuid;
+			cardiacAnnotation_.imageAnnotations.push_back(imageAnno);
+			imageItr = cardiacAnnotation_.imageAnnotations.end() - 1;
+		}
+		else
+		{
+			// Remove conflicting labels if present
+			std::vector<Label>::iterator labelItr =
+			imageItr->labels.begin();
+			while (labelItr != imageItr->labels.end())
+			{
+				bool erasePerformed = false;
+				BOOST_FOREACH(std::string const& labelToRemove, labelsToRemove)
+				{
+					if (labelItr->label == labelToRemove)
+					{
+						//							std::cout << "Erasing label : " << labelItr->label << '\n';
+						imageItr->labels.erase(labelItr);
+						erasePerformed = true;
+					}
+				}
+				if (!erasePerformed)
+				{
+					++labelItr;
+				}
+			}
+		}
+		
+		BOOST_FOREACH(Label const& label, labelsToAdd)
+		{
+			imageItr->labels.push_back(label);
+		}
+		
+		// Remove ImageAnnotation if the update left it with no labels and no roi's
+		if (imageItr->labels.empty() && imageItr->rOIs.empty())
+		{
+			cardiacAnnotation_.imageAnnotations.erase(imageItr);
+		}
+	}
+}
+
 }

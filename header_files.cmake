@@ -1,4 +1,5 @@
 SET( APP_HDRS
+src/cmgui/utilities.h
 src/AnnotationEditor.h
 src/AnnotationWindow.h
 src/Archiver.h
