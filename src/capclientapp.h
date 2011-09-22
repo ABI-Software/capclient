@@ -7,7 +7,7 @@ namespace cap
 {
 
 /**
- * wxWidgets main application class holds the main frame.
+ * CAPAPP is the wxWidgets main application class and holds the main frame.
  */
 class CAPApp : public wxApp
 {

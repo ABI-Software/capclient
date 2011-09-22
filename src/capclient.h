@@ -51,7 +51,12 @@ class wxPanel;
 namespace cap
 {
 class CAPClientWindow;
-	
+
+/**
+ * \brief CAPCLient is the main data class for the application.
+ * The gui(view) class for CAPClient is CAPClientWindow.  This class is follows 
+ * the singleton pattern so that we can only have one CAPCLient.
+ */
 class CAPClient : private IImageBrowserWindow, public wxApp
 {
 public:
@@ -212,11 +217,12 @@ public:
 	
 	void SetMIIVisibility(bool visibility, int sliceNum) {}
 
-	void OpenImages(std::string const& imageDirname)
-	{
-		ib_ = ImageBrowser::CreateImageBrowser(std::string(imageDirname), this);
-		ib_->ShowWindow();
-	}
+	/**
+	 * Using the ImageBrowser class open some images from the given directory namespace.
+	 * 
+	 * \param imageDirname the directory name to open images from.
+	 */
+	void OpenImages(const std::string& imageDirname);
 	
 	void OpenModel(std::string const& filename);
 	

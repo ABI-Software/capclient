@@ -12,6 +12,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
 
 extern "C"
 {
@@ -27,13 +28,12 @@ namespace cap
 {
 	
 CmguiImageSliceGraphics::CmguiImageSliceGraphics(
-		CmguiPanel const& cmguiManager,
-		std::string const& sliceName,
-		std::vector<Cmiss_texture*> const& textures)
-:
-	cmguiManager_(cmguiManager),
-	sliceName_(sliceName),
-	textures_(textures)
+		const CmguiPanel& cmguiManager,
+		const std::string& sliceName,
+		const std::vector<Cmiss_texture*>& textures)
+	: cmguiManager_(cmguiManager)
+	, sliceName_(sliceName)
+	, textures_(textures)
 {
 	this->LoadImagePlaneModel();
 //		this->TransformImagePlane();
@@ -43,7 +43,7 @@ CmguiImageSliceGraphics::CmguiImageSliceGraphics(
 	
 CmguiImageSliceGraphics::~CmguiImageSliceGraphics()
 {
-	Cmiss_region_id root = Cmiss_context_get_default_region(cmguiManager_.GetCmissContext());
+	Cmiss_region_id root = 0; //-- TODO: fix this  Cmiss_context_get_default_region(cmguiManager_.GetCmissContext());
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, sliceName_.c_str());
 	if(!region)
 	{
@@ -87,7 +87,7 @@ void CmguiImageSliceGraphics::SetContrast(float contrast)
 	
 Point3D CmguiImageSliceGraphics::GetTopLeftCornerPosition()
 {
-	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
+	Cmiss_context_id cmissContext_ = 0; //-- TODO: fix this  cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 
 	//Got to find the child region first!!
@@ -120,7 +120,7 @@ void CmguiImageSliceGraphics::TransformTo(ImagePlane* plane)
 {
 	int nodeNum = 1;
 
-	Cmiss_context_id cmissContext = cmguiManager_.GetCmissContext();
+	Cmiss_context_id cmissContext =  0; //-- TODO: fix this cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext);
 	//Got to find the child region first!!
 	Cmiss_region* region;
@@ -181,8 +181,9 @@ void CmguiImageSliceGraphics::TransformTo(ImagePlane* plane)
 void CmguiImageSliceGraphics::LoadImagePlaneModel()
 {
 	std::cout << "CmguiImageSliceGraphics::LoadImagePlaneModel()" << std::endl;
-	cmguiManager_.ReadRectangularModelFiles(sliceName_);			
-	material_ = cmguiManager_.CreateCAPMaterial(sliceName_);
+	//-- TODO: fix me cmguiManager_.ReadRectangularModelFiles(sliceName_);
+	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(0 /* TODO: fix me cmissContext_ */);
+	material_ = boost::make_shared<CAPMaterial>(sliceName_, gModule);
 	std::cout << "    " << material_ << std::endl;
 	/** TODO: replace AssignMaterialToObject with CreateTextureImageSurface */
 	// Assign material & cache the sceneObject for convenience
@@ -192,7 +193,7 @@ void CmguiImageSliceGraphics::LoadImagePlaneModel()
 	
 Cmiss_field_id CmguiImageSliceGraphics::CreateVisibilityField()
 {
-	Cmiss_context_id cmissContext_ = cmguiManager_.GetCmissContext();
+	Cmiss_context_id cmissContext_ =  0; //-- TODO: fix this cmguiManager_.GetCmissContext();
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region* region;
 	region = Cmiss_region_find_subregion_at_path(root_region, sliceName_.c_str());
@@ -550,7 +551,7 @@ void CmguiImageSliceGraphics::CreateContour(size_t contourNum,
 		gtMatrix const& transform)
 {
 	std::cout << __func__ << " : contour num = " << contourNum << '\n';
-	Cmiss_region_id root = Cmiss_context_get_default_region(cmguiManager_.GetCmissContext());
+	Cmiss_region_id root = 0; //-- TODO: fix this Cmiss_context_get_default_region(cmguiManager_.GetCmissContext());
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root, sliceName_.c_str());
 	if(!region)
 	{

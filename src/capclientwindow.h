@@ -12,7 +12,7 @@
     #include "wx/wx.h"
 #endif
 
-#include "gui/CAPClientWindowUI.h"
+#include "ui/CAPClientWindowUI.h"
 
 #include "cmguipanel.h"
 #include "CAPMath.h"
@@ -21,13 +21,35 @@
 namespace cap
 {
 
-class CAPWindow;
 class CAPClient;
 
+/**
+ * \brief CAPClientWindow is the gui(view) for the CAPClient class.
+ * This class has a handle to a cmiss_context fromwhich it can create
+ * scenes to view the data.
+ * 
+ * This class inherits from CAPClientWindowUI which is a generated class
+ * generated from CAPClientWindowUI.xrc.  We use public inheritance here
+ * so that we can directly access the widgets defined in the CAPClientWindowUI.
+ * CAPClientWindowUI.xrc can be edited directly or it can be generated in turn 
+ * using an application like wxformbuilder (wxformbuilder.org) 
+ * [which, in this case, was used to generate this file].
+ */
 class CAPClientWindow : public CAPClientWindowUI
 {
 public:
+	/**
+	 * Constructor takes a wxWindow pointer to assign a parent and 
+	 * a pointer to the CAPClient data class.
+	 * 
+	 * \param parent parent wxWidgets window.
+	 * \param mainApp pointer to CAPClient data class.
+	 */
 	explicit CAPClientWindow(wxWindow* parent, CAPClient* mainApp);
+	
+	/**
+	 * Destructor destroys handles received from the Cmgui libraries.
+	 */
 	~CAPClientWindow();
 
 	void PlayCine();
@@ -137,6 +159,7 @@ private:
 	void OnIdle(wxIdleEvent& event);
 	
 	CAPClient* mainApp_; /**< handle to the model class for this window */
+	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	CmguiPanel* cmguiPanel_; /**< handle to a cmgui panel class */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
 	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */

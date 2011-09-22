@@ -29,7 +29,9 @@ namespace cap
  * image visible.
  * 
  * With a graphics material vertex and fragment program shaders can be set to get
- * fast renditions of changes to values like brightness and contrast.
+ * fast renditions of changes to values like brightness and contrast.  It is faster
+ * to just create one material and change the materials texture(field_image) than to
+ * create a number of materials with their own texture(field_image).
  */
 class CAPMaterial : boost::noncopyable
 {

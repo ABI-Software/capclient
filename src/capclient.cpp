@@ -9,6 +9,10 @@ namespace cap
 
 CAPClient* CAPClient::instance_ = 0;
 
+/**
+ * TODO: remove Cmiss_scene_viewer_set_lookat_parameters_non_skew and put
+ * it into gui class
+ */
 void CAPClient::OnSliceSelected(std::string const& sliceName)
 {
 	//called from OnObjectCheckListSelected
@@ -57,7 +61,7 @@ void CAPClient::OnAnimationSliderEvent(double time)
 	Refresh3DCanvas(); // forces redraw while silder is being manipulated
 }
 
-void CAPClient::LoadImages(SlicesWithImages const& slices) // name misleading?
+void CAPClient::LoadImages(const SlicesWithImages& slices) // name misleading?
 {
 	assert(!slices.empty());
 	
@@ -67,8 +71,8 @@ void CAPClient::LoadImages(SlicesWithImages const& slices) // name misleading?
 		delete imageSet_;
 	}
 	
-	//--ImageSetBuilder builder(slices, cmguiManager_);
-	//--imageSet_ = builder.build();
+	ImageSetBuilder builder(slices);
+	imageSet_ = builder.build();
 	imageSet_->SetVisible(true);//FIXME
 	
 	this->PopulateSliceList(); // fill in slice check box list
@@ -356,6 +360,12 @@ void CAPClient::OpenAnnotation(std::string const& filename, std::string const& i
 	
 	// Set annotations to the images in the ImageBrowserWindow.
 	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
+}
+
+void CAPClient::OpenImages(const std::string& imageDirname)
+{
+	ib_ = ImageBrowser::CreateImageBrowser(imageDirname, this);
+	ib_->ShowWindow();
 }
 
 void CAPClient::SaveModel(std::string const& dirname, std::string const& userComment)

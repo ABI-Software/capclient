@@ -1,4 +1,5 @@
 SET( APP_SRCS
+src/cmgui/utilities.cpp
 src/AnnotationEditor.cpp
 src/AnnotationWindow.cpp
 src/capclientapp.cpp

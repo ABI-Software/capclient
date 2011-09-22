@@ -32,23 +32,23 @@ int input_callback(struct Scene_viewer *scene_viewer,
 		}
 		
 		static Cmiss_node_id selectedNode = 0; // Thread unsafe
-		CAPClientWindow* app = static_cast<CAPClientWindow*>(viewer_frame_void);
+		CAPClientWindow* gui = static_cast<CAPClientWindow*>(viewer_frame_void);
 		
 		// We have to stop the animation when the user clicks on the 3D panel.
 		// Since dragging a point while cine is playing can cause a problem
 		// But Is this the best place put this code?
-		app->StopCine();
+		gui->StopCine();
 		
 		double x = (double)(0.0); // input->position_x);
 		double y = (double)(0.0); // input->position_y);
-		double time = app->GetCurrentTime(); // TODO REVISE
+		double time = gui->GetCurrentTime(); // TODO REVISE
 		//if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
 		{
 			// Select node or create one
 			std::cout << "Mouse clicked, time = " << time << '\n';
 			std::cout << "Mouse button number = " << 0 << "\n"; // input->button_number << '\n';
 			
-			Cmiss_scene_viewer_id scene_viewer = app->GetCmissSceneViewer();
+			Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
 			Point3D coords;
 			selectedNode = Cmiss_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
 			
@@ -59,7 +59,7 @@ int input_callback(struct Scene_viewer *scene_viewer,
 					selectedNode = Cmiss_create_or_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
 					if (selectedNode != 0) 
 					{
-						app->AddDataPoint(selectedNode, coords);
+						gui->AddDataPoint(selectedNode, coords);
 					}
 				}
 			}
@@ -67,7 +67,7 @@ int input_callback(struct Scene_viewer *scene_viewer,
 			{
 				if (selectedNode)
 				{
-					app->RemoveDataPoint(selectedNode);
+					gui->RemoveDataPoint(selectedNode);
 					selectedNode = 0;
 				}
 			}
@@ -83,16 +83,16 @@ int input_callback(struct Scene_viewer *scene_viewer,
 			}
 			Point3D coords;
 			//		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
-			Cmiss_scene_viewer_id scene_viewer = app->GetCmissSceneViewer();
+			Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
 			Cmiss_move_node_to_screen_coords(scene_viewer, selectedNode, x, y, time, coords);
 			
 			//		cout << "Move coord = " << coords << endl;
-			app->MoveDataPoint(selectedNode, coords);
+			gui->MoveDataPoint(selectedNode, coords);
 		}
 		//else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
 		{
 			std::cout << "Mouse released" << '\n';
-			app->SmoothAlongTime();
+			gui->SmoothAlongTime();
 			selectedNode = NULL;
 		}
 		
@@ -122,8 +122,8 @@ int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 		// Select node or create one
 		std::cout << "Mouse button number = " << 0 << "\n"; // input->button_number << '\n';
 		
-		CAPClientWindow* app = static_cast<CAPClientWindow*>(viewer_frame_void);
-		Cmiss_scene_viewer_id scene_viewer = app->GetCmissSceneViewer();
+		CAPClientWindow* gui = static_cast<CAPClientWindow*>(viewer_frame_void);
+		Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
 		selectedRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)coords, (Cmiss_region_id)0);
 		if (selectedRegion)
 		{
@@ -138,8 +138,8 @@ int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 		//Cmiss_region_id selectedRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
 		if (selectedRegion)
 		{
-			CAPClientWindow* app = static_cast<CAPClientWindow*>(viewer_frame_void);
-			Cmiss_scene_viewer_id scene_viewer = app->GetCmissSceneViewer();
+			CAPClientWindow* gui = static_cast<CAPClientWindow*>(viewer_frame_void);
+			Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
 			Cmiss_region_id tempRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)new_coords, selectedRegion);
 			if (!tempRegion)
 			{
@@ -185,10 +185,10 @@ int time_callback(Cmiss_time_notifier_id time, double current_time, void *user_d
 	//DEBUG
 	std::cout << "Time_call_back time = " << current_time << '\n';
 	
-	CAPClientWindow* app = static_cast<CAPClientWindow*>(user_data);
-	app->SetTime(current_time);
+	CAPClientWindow* gui = static_cast<CAPClientWindow*>(user_data);
+	gui->SetTime(current_time);
 	
-	app->RedrawNow(); // this forces refresh even when UI is being manipulated by user
+	gui->RedrawNow(); // this forces refresh even when UI is being manipulated by user
 	
 	return 0;
 }

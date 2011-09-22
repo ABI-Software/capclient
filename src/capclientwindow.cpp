@@ -46,8 +46,11 @@ namespace
 CAPClientWindow::CAPClientWindow(wxWindow* parent, CAPClient* mainApp)
 	: CAPClientWindowUI(parent)
 	, mainApp_(mainApp)
-	, cmguiPanel_(new CmguiPanel("CAPClient", panel_Cmgui))
+	, cmissContext_(Cmiss_context_create("CAPClient"))
+	, cmguiPanel_(0)
 {
+	int result = Cmiss_context_enable_user_interface(cmissContext_, 0, 0, static_cast<void*>(wxTheApp));
+	cmguiPanel_ = new CmguiPanel(cmissContext_, "CAPClient", panel_Cmgui);
 	SetIcon(wxIcon(capicon_xpm));
 	
 	// GUI initialization
@@ -208,7 +211,7 @@ void CAPClientWindow::EnterModelLoadedState()
 
 void CAPClientWindow::OnIdle(wxIdleEvent& event)
 {
-	if (Cmiss_context_process_idle_event(cmguiPanel_->GetCmissContext()))
+	if (Cmiss_context_process_idle_event(cmissContext_))
 	{
 		event.RequestMore();
 	}
@@ -226,7 +229,7 @@ Cmiss_scene_viewer_id CAPClientWindow::GetCmissSceneViewer() const
 
 Cmiss_context_id CAPClientWindow::GetCmissContext() const
 {
-	return cmguiPanel_->GetCmissContext();
+	return cmissContext_;
 }
 
 void CAPClientWindow::AddDataPoint(Cmiss_node* dataPointID, Point3D const& position)

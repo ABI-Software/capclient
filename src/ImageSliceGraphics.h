@@ -16,6 +16,9 @@ namespace cap
 class ImagePlane;
 class Point3D;
 
+/**
+ * Pure abstract class that is an interface for image slice graphics.
+ */
 class ImageSliceGraphics
 {
 public:

@@ -24,14 +24,17 @@ extern "C"
 namespace cap
 {
 
+/**
+ * Contains information to fully describe the slice; a label, a vector of dicom images and
+ * a vector of textures.
+ */
 class SliceInfo
 {
 public:
 	SliceInfo(std::string const& label, std::vector<DICOMPtr> const& dicomImages, std::vector< Cmiss_field_image_id > textures)
-	:
-		label_(label),
-		dicomImages_(dicomImages),
-		textures_(textures)
+		: label_(label)
+		, dicomImages_(dicomImages)
+		, textures_(textures)
 	{
 	}
 	
@@ -64,8 +67,12 @@ private:
 	std::vector<Cmiss_field_image_id> textures_;
 };
 
-typedef std::vector<SliceInfo> SlicesWithImages;
+typedef std::vector<SliceInfo> SlicesWithImages; /**< A std::vector of SliceInfo */
 
+/**
+ * Slice info sort order overrides the operator() so that 
+ * short axis slices come first.
+ */
 struct SliceInfoSortOrder
 // for sorting SliceInfo's
 {
@@ -88,6 +95,9 @@ struct SliceInfoSortOrder
 	}
 };
 
+/**
+ * Enum describing the external surfaces of the heart.
+ */
 enum SurfaceType
 {
 	EPICARDIUM,
@@ -96,6 +106,9 @@ enum SurfaceType
 	MAX_SURFACE_TYPE
 };
 
+/**
+ * Enum describing points on the heart.
+ */
 enum DataPointType
 {
 	APEX,
