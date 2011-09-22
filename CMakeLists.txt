@@ -3,6 +3,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(CAPClient)
 
+SET(CAPCLIENT_VERSION_MAJOR 2)
+SET(CAPCLIENT_VERSION_MINOR 0)
+SET(CAPCLIENT_VERSION_PATCH 0)
+
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 INCLUDE(Macros)
 
@@ -66,6 +70,7 @@ FOREACH(TXT_FILE ${TXT_FILES})
 	GET_FILENAME_COMPONENT(TXT_FILE_NAME ${TXT_FILE} NAME)
 	SET(TXT_FILE_HDR src/${TXT_FILE_NAME}.h)
 	ADD_CUSTOM_COMMAND(OUTPUT ${TXT_FILE_HDR}
+		COMMAND cmake -E make_directory src
 		COMMAND ${TXT2INCLUDE_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/${TXT_FILE} ${TXT_FILE_HDR}
 		DEPENDS txt2include
 		MAIN_DEPENDENCY txt_files.cmake)
@@ -78,7 +83,7 @@ FOREACH(DEF ${CMGUI_DEFINITIONS})
 ENDFOREACH(DEF ${CMGUI_DEFINITIONS})
 
 # Set the include directories, Cmgui does not know that it is dependent on gdcm??? 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} "/home/hsorby/development/cmiss/third_party/x86_64-linux/include/gdcm-2.0")
+INCLUDE_DIRECTORIES("/home/hsorby/work/cardiacatlas/gmm-4.1/include" ${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} "/home/hsorby/development/cmiss/third_party/x86_64-linux/include/gdcm-2.0")
 
 # Set the CAP Client executable with all sources and headers.  Set headers here also so 
 # that some IDEs recognise them and include them in their projects.
