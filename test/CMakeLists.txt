@@ -40,7 +40,12 @@ SET(UNIT_TEST_ANNOTATION_SRC
 
 SET(UNIT_TEST_IMAGE_BROWSER_SRC
 	UnitTestImageBrowser.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/cmguipanel.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/imagebrowser.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/imagebrowserwindow.cpp
 	${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/cmgui/utilities.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/CAPMaterial.cpp
 )
 
 # copy XML files
@@ -55,8 +60,8 @@ ADD_TEST(UnitTestCAPModeller UnitTestCAPModeller)
 ADD_EXECUTABLE(UnitTestCAPAnnotationFile ${UNIT_TEST_ANNOTATION_SRC})
 ADD_TEST(UnitTestCAPAnnotationFile UnitTestCAPAnnotationFile)
 
-#ADD_EXECUTABLE(UnitTestImageBrowser ${UNIT_TEST_IMAGE_BROWSER_SRC})
-#ADD_TEST(UnitTesetImageBrowser UnitTestImageBrowser)
+ADD_EXECUTABLE(UnitTestImageBrowser ${UNIT_TEST_IMAGE_BROWSER_SRC})
+ADD_TEST(UnitTesetImageBrowser UnitTestImageBrowser)
 
 TARGET_LINK_LIBRARIES(UnitTest ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
     
@@ -64,5 +69,5 @@ TARGET_LINK_LIBRARIES(UnitTestCAPModeller ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRAR
 
 TARGET_LINK_LIBRARIES(UnitTestCAPAnnotationFile ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
     
-#TARGET_LINK_LIBRARIES(UnitTestImageBrowser ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+TARGET_LINK_LIBRARIES(UnitTestImageBrowser ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
 
