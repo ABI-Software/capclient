@@ -75,6 +75,9 @@ public:
 		return instance_;
 	}
 	
+	/**
+	 * Destructor deletes imageSet_ and modeller_
+	 */
 	~CAPClient()
 	{
 		delete imageSet_;
