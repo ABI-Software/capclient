@@ -135,7 +135,7 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_element_template_define_field_simple_nodal(element_template, coordinates_field,
 													 /*component_number*/-1, cubic_basis, element_node_count, cube_local_node_indexes);
 	Cmiss_element_basis_destroy(&cubic_basis);
-	int result = Cmiss_element_template_finalise(element_template);
+	Cmiss_element_template_finalise(element_template);
 	//std::cout << "Cmiss_element : " << result << std::endl;
 	
 	/* create element */
