@@ -5,10 +5,16 @@
  *      Author: jchu014
  */
 
-#include "imagebrowser.h"
+#include <wx/wxprec.h>
+#include <wx/notebook.h>
+// For compilers that don't support precompilation, include "wx/wx.h";
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
+
 #include <gtest/gtest.h>
 
-class Cmiss_textre;
+#include "imagebrowser.h"
 
 namespace cap
 {
@@ -27,8 +33,7 @@ class TestImageBrowseWindow
 public:
 	TestImageBrowseWindow(ImageBrowser<TestImageBrowseWindow, FakeCmguiManager>& browser,
 			FakeCmguiManager const& manager)
-	:
-		browser_(browser)
+		: browser_(browser)
 	{}
 	
 	void CreateProgressDialog(std::string const& title, std::string const& msg, int max) {}
@@ -58,7 +63,7 @@ private:
 	ImageBrowser<TestImageBrowseWindow, FakeCmguiManager>& browser_;
 };
 
-class TestImageBrowseWindowClient : public ImageBrowseWindowClient
+class TestImageBrowseWindowClient : public IImageBrowseWindow
 {
 public:
 	virtual ~TestImageBrowseWindowClient() {}
@@ -102,8 +107,8 @@ TEST(ImageBrowser, CreateUsingFactory)
 	TestImageBrowseWindowClient client;
 	FakeCmguiManager cmguiManager;
 	
-	ImageBrowser<TestImageBrowseWindow, FakeCmguiManager>* ib = 
-			ImageBrowser<TestImageBrowseWindow, FakeCmguiManager>::CreateImageBrowser("dirname", cmguiManager, client);
+	ImageBrowser* ib = 
+			ImageBrowser::CreateImageBrowser("dirname", client);
 	
 	delete ib;
 }
