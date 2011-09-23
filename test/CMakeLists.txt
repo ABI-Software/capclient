@@ -3,41 +3,44 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(CAPClient_UnitTest)
 
-MESSAGE(STATUS "Entering ${PROJECT_NAME}")
-
 # Unit Testing
 ENABLE_TESTING()
 
+# Find gtest
+FIND_PACKAGE(GTest REQUIRED)
+
 INCLUDE_DIRECTORIES(
-    ${CMISS_ROOT}/gtest/include 
-    ${CAPClient_SRC}
+	${GTEST_INCLUDE_DIRS}
+#	${CAPCLIENT_SOURCE_DIR}/src
+#	${CAPCLIENT_BINARY_DIR}/src
 )
 
 SET(UNIT_TEST_SRC
-  UnitTestCAPMath.cpp
-  UnitTestTotalLeastSquares.cpp
-  UnitTestCAPXMLFile.cpp
-  ${CAPClient_SRC}/CAPXMLFile.cpp
-  UnitTestImageSet.cpp
-  ${CAPClient_SRC}/CAPAnnotationFile.cpp
+	UnitTestCAPMath.cpp
+	UnitTestTotalLeastSquares.cpp
+	UnitTestCAPXMLFile.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/CAPXMLFile.cpp
+	UnitTestImageSet.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/CAPAnnotationFile.cpp
 )
 
 SET(UNIT_TEST_MODELLER_SRC
-  UnitTestCAPModeller.cpp
-  ${CAPClient_SRC}/CAPModellingMode.cpp
-  ${CAPClient_SRC}/CAPModeller.cpp
-  ${CAPClient_SRC}/CAPTimeSmoother.cpp
+	UnitTestCAPModeller.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/CAPModellingMode.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/CAPModeller.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/CAPTimeSmoother.cpp
 )
 
 SET(UNIT_TEST_ANNOTATION_SRC
-  UnitTestCAPAnnotationFile.cpp
-  ${CAPClient_SRC}/CAPAnnotationFile.cpp
-  UnitTestAnnotationEditor.cpp
-  ${CAPClient_SRC}/AnnotationEditor.cpp
+	UnitTestCAPAnnotationFile.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/CAPAnnotationFile.cpp
+	UnitTestAnnotationEditor.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/AnnotationEditor.cpp
 )
 
 SET(UNIT_TEST_IMAGE_BROWSER_SRC
-  UnitTestImageBrowser.cpp
+	UnitTestImageBrowser.cpp
+	${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
 )
 
 # copy XML files
@@ -52,19 +55,14 @@ ADD_TEST(UnitTestCAPModeller UnitTestCAPModeller)
 ADD_EXECUTABLE(UnitTestCAPAnnotationFile ${UNIT_TEST_ANNOTATION_SRC})
 ADD_TEST(UnitTestCAPAnnotationFile UnitTestCAPAnnotationFile)
 
-ADD_EXECUTABLE(UnitTestImageBrowser ${UNIT_TEST_IMAGE_BROWSER_SRC})
-ADD_TEST(UnitTesetImageBrowser UnitTestImageBrowser)
+#ADD_EXECUTABLE(UnitTestImageBrowser ${UNIT_TEST_IMAGE_BROWSER_SRC})
+#ADD_TEST(UnitTesetImageBrowser UnitTestImageBrowser)
 
-SET(GTEST_LIB ${CMISS_ROOT}/gtest/make/gtest_main.a)
-
-TARGET_LINK_LIBRARIES(UnitTest ${GTEST_LIB} 
-    ${XML2_LIB} ${ITK_LIB} ${common_LIBS})
+TARGET_LINK_LIBRARIES(UnitTest ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
     
-TARGET_LINK_LIBRARIES(UnitTestCAPModeller ${GTEST_LIB}
-    ${ITK_LIB})
+TARGET_LINK_LIBRARIES(UnitTestCAPModeller ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
 
-TARGET_LINK_LIBRARIES(UnitTestCAPAnnotationFile ${GTEST_LIB}
-    ${XML2_LIB} ${common_LIBS})
+TARGET_LINK_LIBRARIES(UnitTestCAPAnnotationFile ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
     
-TARGET_LINK_LIBRARIES(UnitTestImageBrowser ${GTEST_LIB})
+#TARGET_LINK_LIBRARIES(UnitTestImageBrowser ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
 

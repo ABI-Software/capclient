@@ -59,7 +59,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& plane, int frameNu
 {}
 
 // DataPoint
-DataPoint::DataPoint(FE_node*, cap::Point3D const&, cap::DataPointType, double, double)
+DataPoint::DataPoint(Cmiss_node*, cap::Point3D const&, cap::DataPointType, double, double)
 {
 }
 
