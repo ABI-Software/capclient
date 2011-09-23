@@ -84,6 +84,10 @@ public:
 		delete modeller_;
 	}
 	
+	/**
+	 * I would like to make this function private and replace it with a public
+	 * function that returns the wxFrame.
+	 */
 	void SetCAPClientWindow(CAPClientWindow* win)
 	{
 		gui_ = win;
