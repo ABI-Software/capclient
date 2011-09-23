@@ -93,6 +93,10 @@ public:
 		gui_ = win;
 	}
 
+	/**
+	 * On toggle play clicked if the animation is on stop it and if
+	 * the animation is off start it.
+	 */
 	void OnTogglePlay()
 	{
 		if (animationIsOn_)
