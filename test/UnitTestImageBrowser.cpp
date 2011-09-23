@@ -58,7 +58,6 @@ TEST(ImageBrowser, CreateUsingFactory)
 	wxTheApp->OnInit();
 	
 	// you can create top level-windows here or in OnInit()
-	//...
 	// do your testing here
 	ImageBrowser* ib = ImageBrowser::CreateImageBrowser("dirname", &client);
 	
