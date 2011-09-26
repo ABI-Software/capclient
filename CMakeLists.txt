@@ -23,13 +23,14 @@ ENDIF(CMISS_ROOT)
 # Set up some variables that control the build.  The following variables also appear in 
 # a CMake gui application.
 CACHE_VAR_WITH_DEFAULT(CAP_INSTALL_PREFIX "/usr/local/" PATH "Install path prefix, prepended onto install directories.")
-SET(CMAKE_INSTALL_PREFIX ${CAP_INSTALL_PREFIX} CACHE INTERNAL "Internalise CMAKE_INSTALL_PREFIX, manipulate via CAP_INSTALL_PREFIX" FORCE)
+SET(CMAKE_INSTALL_PREFIX ${CAP_INSTALL_PREFIX} CACHE INTERNAL "Internalise CMAKE_INSTALL_PREFIX, manipulate via CAP_INSTALL_PREFIX." FORCE)
 
 CACHE_VAR_WITH_DEFAULT( CAP_BUILD_TYPE "Debug" STRING "Choose the type of build, options are: Debug, Release, MinSizeRel, RelWithDebugInfo.")
-SET( CMAKE_BUILD_TYPE ${CAP_BUILD_TYPE} CACHE INTERNAL "Internalise CMAKE_BUILD_TYPE, manipulate via CAP_BUILD_TYPE" FORCE)
+SET( CMAKE_BUILD_TYPE ${CAP_BUILD_TYPE} CACHE INTERNAL "Internalise CMAKE_BUILD_TYPE, manipulate via CAP_BUILD_TYPE." FORCE)
 
-OPTION_WITH_DEFAULT(CAP_ENABLE_UNIT_TEST "Enable CAPClient Unit Tests" OFF)
-OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary" ON)
+OPTION_WITH_DEFAULT(CAP_ENABLE_UNIT_TESTS "Enable CAPClient Unit Tests." OFF)
+OPTION_WITH_DEFAULT(CAP_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests." OFF)
+OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary." ON)
 
 # wxWidgets 2.8.10 can only be built in 32-bit mode on Mac
 # Cmgui uses wxWidgets 2.8.10 so that too is only built in 
@@ -111,7 +112,7 @@ TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
 	"${GDCM_INSTALL_PREFIX}/lib/libgdcmuuid.a")
 	
 # Unit Testing
-IF(CAP_ENABLE_UNIT_TEST)
+IF(CAP_ENABLE_UNIT_TESTS)
 	SET(CAPCLIENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 	SET(CAPCLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 	ADD_SUBDIRECTORY(test)
