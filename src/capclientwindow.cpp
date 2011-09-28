@@ -15,7 +15,8 @@
 
 extern "C"
 {
-	#include <api/cmiss_context.h>
+#include <api/cmiss_context.h>
+#include <api/cmiss_field.h>
 }
 
 #include "capclient.h"
@@ -24,6 +25,8 @@ extern "C"
 #include "UserCommentDialog.h"
 #include "CAPHtmlWindow.h"
 #include "CAPBinaryVolumeParameterDialog.h"
+#include "cmgui/utilities.h"
+#include "CAPMaterial.h"
 
 #include "images/capicon.xpm"
 
@@ -282,6 +285,47 @@ void CAPClientWindow::Terminate(wxCloseEvent& event)
 //		Cmiss_context_execute_command(context_, "QUIT");
 		wxExit();
 	}
+}
+
+std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const LabelledSlice& labelledSlice)
+{
+	Cmiss_field_module_id field_module = GetFieldModuleForRegion(cmissContext_, labelledSlice.GetLabel());
+	
+	std::vector<Cmiss_field_image_id> field_images;
+	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDicomImages())
+	{
+		std::string name = "tex_" + FileSystem::GetFileNameWOE(dicom->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
+		
+		Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
+		Cmiss_field_set_name(temp_field, name.c_str());
+		Cmiss_field_image_id image_field = Cmiss_field_cast_image(temp_field);
+		Cmiss_field_destroy(&temp_field);
+		CreateCmissImageTexture(image_field, dicom);
+		field_images.push_back(image_field);
+	}
+	Cmiss_field_module_destroy(&field_module);
+	
+	return field_images;
+}
+
+void CAPClientWindow::CreateScene(const std::string& regionName)
+{
+	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
+	// boost::make_pair is faster than shared_ptr<CAPMaterial>(new )
+	//capmaterial_ = boost::make_shared<CAPMaterial>(labelledSlice.GetLabel(), gModule);
+	capMaterialMap_.insert(std::make_pair(regionName, boost::make_shared<CAPMaterial>(regionName, gModule)));
+	
+	CreatePlaneElement(cmissContext_, regionName);
+	CreateTextureImageSurface(cmissContext_, regionName, capMaterialMap_[regionName]->GetCmissMaterial());
+	//cmguiPanel_->SetTumbleRate(0.0);
+	cmguiPanel_->ViewAll();
+}
+
+void CAPClientWindow::ChangeTexture(const std::string& name, Cmiss_field_image_id fieldImage)
+{
+	std::map<std::string, std::tr1::shared_ptr<CAPMaterial> >::const_iterator it = capMaterialMap_.find(name);
+	if (it != capMaterialMap_.end())
+		(*it).second->ChangeTexture(fieldImage);
 }
 
 void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, std::vector<bool> const& visibilities)

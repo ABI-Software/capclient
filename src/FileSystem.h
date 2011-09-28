@@ -22,6 +22,31 @@ public:
 	const std::vector<std::string>& getAllFileNames();
 	
 	void CreateDirectory(std::string const& dirname);
+
+	/**
+	 * Given a string name this function will return the
+	 * filename for the current platform.  The filename 
+	 * includes the extension and starts from the last system 
+	 * directory marker.
+	 * 
+	 * \param name a string to get the file name from.
+	 * \returns a string starting from the last system directory marker.
+	 */
+	static std::string GetFileName(const std::string& name);
+	
+	/**
+	 * Given a string name this function will return the
+	 * filename without extension for the current platform.
+	 * The file name without extension starts from the last
+	 * directory marker to the last extension marker.
+	 * 
+	 * \param name a string to get the file name without
+	 * extension from.
+	 * \returns a string starting from the last system 
+	 * directory marker to the last extension marker.
+	 */
+	static std::string GetFileNameWOE(const std::string& name);
+	
 private:
 	std::string dir_path;
 	std::vector<std::string> filenames;

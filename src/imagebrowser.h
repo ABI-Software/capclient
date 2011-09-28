@@ -28,7 +28,7 @@ extern "C"
 #include "DICOMImage.h"
 #include "FileSystem.h"
 #include "SliceInfo.h"
-#include "iimagebrowserwindow.h"
+#include "iimagebrowser.h"
 #include "imagebrowserwindow.h"
 #include "cmguipanel.h"
 #include "CAPAnnotationFile.h"
@@ -131,7 +131,7 @@ public:
 	 * \param archiveFilename a string with the directory where the user wants images read from.
 	 * \param client an interface pointer to the main application that allows limited access.
 	 */
-	static ImageBrowser* CreateImageBrowser(std::string const& archiveFilename, IImageBrowserWindow *client)
+	static ImageBrowser* CreateImageBrowser(std::string const& archiveFilename, IImageBrowser *client)
 	{
 		if (instance_ == 0)
 		{
@@ -160,7 +160,7 @@ private:
 	 * \param manager a pointer to a cmgui manager from facilitating interactions with the cmgui libraries.
 	 * \param client an interface pointer to the main application that allows limited access.
 	 */
-	ImageBrowser(std::string const& archiveFilename, IImageBrowserWindow *client);
+	ImageBrowser(std::string const& archiveFilename, IImageBrowser *client);
 	
 	/**
 	 * Initialize the browser data and preview window.  Requires a valid ImageBrowserWindow
@@ -289,7 +289,7 @@ private:
 	
 	SortingMode sortingMode_; /**< class state variable to track the current sorting mode. */
 	
-	IImageBrowserWindow *client_; /**< Pointer to CAPClient using an inteface class to restrict access. */
+	IImageBrowser *client_; /**< Pointer to CAPClient using an inteface class to restrict access. */
 	
 	SliceMap sliceMap_; /**< A map of dicom images using image position for a key. */
 	TextureMap textureMap_; /**< A map of textures using image position for a key. */

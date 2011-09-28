@@ -34,9 +34,14 @@ extern "C" {
 
 namespace cap
 {
+
 CmguiPanel::CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, wxPanel* panel)
 	: cmissSceneViewer_(CreateSceneViewer(cmissContext, name, panel))
 {
+	Cmiss_scene_viewer_set_interactive_tool_by_name(cmissSceneViewer_, "transform_tool");
+	Cmiss_interactive_tool_id iTool = Cmiss_scene_viewer_get_current_interactive_tool(cmissSceneViewer_);
+	Cmiss_interactive_tool_execute_command(iTool, "no_free_spin");
+	Cmiss_interactive_tool_destroy(&iTool);
 }
 	
 CmguiPanel::~CmguiPanel()

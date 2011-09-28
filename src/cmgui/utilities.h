@@ -7,12 +7,13 @@
  */
 
 /**
- * Create a texture from list of images.  The dicoms listed in the images vector are 
- * read in to the existing field_image.  That is the field_image has already been created 
- * but it does not yet have any images read into it.
+ * Create a texture from list of images.  The dicom given is 
+ * read in to the existing field_image.  That is the field_image 
+ * has already been created but it does not yet have an image 
+ * read into it.
  * 
  * \param field_image the listed dicoms in images will be read into this field.
- * \param images the vector of dicom images to read into the image field.
+ * \param dicom_image the dicom image to read into the image field.
  */
 void CreateCmissImageTexture(Cmiss_field_image_id field_image,const cap::DICOMPtr& dicom_image);
 
@@ -62,7 +63,8 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 /**
  * Resize a plane element (square finite elemet type) defined in the given region with
  * coordinates "coordinates". This will resize the element only it is assumned that the
- * element has been created already.
+ * element has been created already.  This also assumes that the plane to be resized is
+ * in the xy-plane, where x is for height and y is for width.
  * 
  * \param cmissContext the context to use.
  * \param regionName the name of the region to resize the square element in.

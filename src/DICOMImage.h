@@ -183,7 +183,7 @@ public:
 		shiftedOrientation2_ = v2;
 	}
 
-	//FIXME
+	//-- FIXME What needs fixing here??
 	std::vector<ContourPtr>& GetContours()
 	{
 		return contours_;
@@ -245,7 +245,7 @@ private:
 	
 	ImagePlane* plane_;
 //	Cmiss_texture* texture_;
-	std::vector<ContourPtr> contours_; //FIXME
+	std::vector<ContourPtr> contours_; //FIXME fix what???
 	
 	bool isShifted_;
 	bool isRotated_;

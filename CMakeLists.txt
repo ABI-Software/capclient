@@ -43,9 +43,99 @@ ENDIF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 SET(CAP_CLIENT_EXECUTABLE capclient)
 
 # Read in the source, header and gui files
-INCLUDE(source_files.cmake)
-INCLUDE(header_files.cmake)
-INCLUDE(xrc_files.cmake)
+#INCLUDE(source_files.cmake)
+SET( APP_SRCS
+	src/cmgui/utilities.cpp
+	src/AnnotationEditor.cpp
+	src/AnnotationWindow.cpp
+	src/capclientapp.cpp
+	src/CAPAnnotationFile.cpp
+	src/CAPContour.cpp
+	src/CAPHtmlWindow.cpp
+	src/CAPMaterial.cpp
+	src/CAPModelLVPS4X4.cpp
+	src/CAPModeller.cpp
+	src/CAPModellingMode.cpp
+	src/CAPTimeSmoother.cpp
+	src/CAPXMLFile.cpp
+	src/CAPXMLFileHandler.cpp
+	src/cmguicallbacks.cpp
+	src/CmguiExtensions.cpp
+	src/CmguiImageSliceGraphics.cpp
+	src/cmguipanel.cpp
+	src/DICOMImage.cpp
+	src/DataPoint.cpp
+	src/FileSystem.cpp
+	src/imagebrowser.cpp
+	src/imagebrowserwindow.cpp
+	src/ImageSet.cpp
+	src/ImageSlice.cpp
+	src/labelledslice.cpp
+	src/labelledtexture.cpp
+	src/capclientwindow.cpp
+	src/PlatformInfo.cpp
+	src/capclient.cpp
+	)
+
+#INCLUDE(header_files.cmake)
+SET( APP_HDRS
+	src/abstractlabelled.h
+	src/cmgui/utilities.h
+	src/AnnotationEditor.h
+	src/AnnotationWindow.h
+	src/Archiver.h
+	src/CAPAnnotationFile.h
+	src/CAPBasis.h
+	src/CAPBinaryVolumeParameterDialog.h
+	src/CAPContour.h
+	src/CAPEulaDialog.h
+	src/CAPHtmlWindow.h
+	src/CAPMaterial.h
+	src/CAPMath.h
+	src/CAPModelLVPS4X4.h
+	src/CAPModeller.h
+	src/CAPModellingMode.h
+	src/CAPTimeSmoother.h
+	src/CAPTotalLeastSquares.h
+	src/CAPXMLFile.h
+	src/CAPXMLFileHandler.h
+	src/cmguicallbacks.h
+	src/CmguiExtensions.h
+	src/CmguiImageSliceGraphics.h
+	src/cmguipanel.h
+	src/Config.h
+	src/DICOMImage.h
+	src/DataPoint.h
+	src/FileSystem.h
+	src/GMMFactory.h
+	src/IAnnotationWindow.h
+	src/imagebrowserwindow.h
+	src/iimagebrowser.h
+	src/imagebrowser.h
+	src/ImageSet.h
+	src/ImageSetBuilder.h
+	src/ImageSlice.h
+	src/ImageSliceGraphics.h
+	src/IsoSurfaceCapture.h
+	src/labelledslice.h
+	src/labelledtexture.h
+	src/capclient.h
+	src/capclientwindow.h
+	src/PlatformInfo.h
+	src/SliceInfo.h
+	src/SolverLibraryFactory.h
+	src/UserCommentDialog.h
+	src/VNLFactory.h
+	src/VolumeGraph.h
+	src/capclientapp.h
+	)
+#INCLUDE(xrc_files.cmake)
+SET( APP_XRC
+	src/ui/AnnotationWindowUI.xrc
+	src/ui/ImageBrowserWindowUI.xrc
+	src/ui/UserCommentDialogUI.xrc
+	src/ui/CAPClientWindowUI.xrc
+	)
 
 # Find the Cmgui libraries, using a gui the Cmgui_DIR variable
 # can be set if needed.  Alternatively it can be set on the 
@@ -69,7 +159,11 @@ XRC_TO_CPP("${APP_XRC}" UI_SRCS_AND_HDRS)
 # in a header file.
 ADD_EXECUTABLE(txt2include src/utils/txt2include.c)
 GET_TARGET_PROPERTY(TXT2INCLUDE_EXE txt2include LOCATION)
-INCLUDE(txt_files.cmake)
+#INCLUDE(txt_files.cmake)
+SET(TXT_FILES
+	src/templates/vert.prog
+	src/templates/frag.prog
+	)
 SET(TXT_HDRS)
 FOREACH(TXT_FILE ${TXT_FILES})
 	GET_FILENAME_COMPONENT(TXT_FILE_NAME ${TXT_FILE} NAME)

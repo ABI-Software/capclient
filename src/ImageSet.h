@@ -30,32 +30,45 @@ class CmguiPanel;
 
 typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
 
+/**
+ * 
+ */
 class ImageSet // The whole lot : ImageManager??
 {
 public:
 	
-	/** Constructs an image set from a data structure of type SlicesWithImages 
-	 * @param vector of slice names
+	/** 
+	 * Constructs an image set from a data structure of type SlicesWithImages.
+	 * 
+	 * \param slices slices with images to be used as textures.
+	 * \param imageSliceNames vector of slice names.
+	 * \param map an image slice map using a key of image name.
 	 */
 	
 	ImageSet(SlicesWithImages const& slices, 
 			std::vector<std::string> const& imageSliceNames,
 			ImageSlicesMap const& map);
 	
-	/** Sets time for the whole image set
-	 * @param time in a cardiac cycle in second
+	/** 
+	 * Sets time for the whole image set.
+	 * 
+	 * \param time in a cardiac cycle in seconds.
 	 */ 
 	void SetTime(double time);
 	
-	/** Sets the visibility for a slice.
-	 * @paran visible visibility 
-	 * @param sliceName name of the slice e.g LA1, SA2, ... default = all
+	/** 
+	 * Sets the visibility for a slice.
+	 * 
+	 * \param visible visibility 
+	 * \param sliceName name of the slice e.g LA1, SA2, ... default = all
 	 */
 	void SetVisible(bool visible, const std::string& sliceName = std::string() ); 
 	
-	/** Sets the visibility for a slice.
-	 * @paran visible visibility default 
-	 * @param index index of the slice
+	/** 
+	 * Sets the visibility for a slice.
+	 * 
+	 * \param visible visibility default 
+	 * \param index index of the slice
 	 */
 	void SetVisible(bool visible, int index ); 
 	
@@ -65,8 +78,10 @@ public:
 	
 	void SetContrast(float contrast);
 	
-	/** Get the position and orientation of the image slice by name
-	 * @param name
+	/** 
+	 * Get the position and orientation of the image slice by name.
+	 * 
+	 * \param name
 	 */
 	const ImagePlane& GetImagePlane(const std::string& sliceName) const;
 	
@@ -80,9 +95,9 @@ public:
 		return imageSliceNames_;
 	}
 	
-	/** Get the number of logical frames. 
-	 * Currently this is just the smallest number of frames of all slices
-	 * 
+	/** 
+	 * Get the number of logical frames. 
+	 * Currently this is just the smallest number of frames of all slices.
 	 */
 	int GetNumberOfFrames() const;
 	
@@ -100,7 +115,7 @@ public:
 	}
 	
 private:
-	std::vector<std::string> imageSliceNames_; //so we can access the slices by indices
+	std::vector<std::string> imageSliceNames_; /**< so we can access the slices by indices */
 //	std::vector<ImageGroup*> imageGroups;
 //
 //	//or

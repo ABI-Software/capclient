@@ -12,14 +12,16 @@ extern "C"
 #include <api/cmiss_field_image.h>
 }
 
+#include "labelledslice.h"
 #include "imagebrowser.h"
+#include "labelledtexture.h"
 
 namespace cap
 {
 
 ImageBrowser* ImageBrowser::instance_ = 0;
 
-ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowserWindow *client)
+ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowser *client)
 	: gui_(0)
 	, sortingMode_(SERIES_NUMBER)
 	, client_(client)
@@ -379,6 +381,8 @@ void ImageBrowser::OnOKButtonClicked()
 {
 	// construct the data structure of type SlicesWithImages to pass to the main window
 	SlicesWithImages slices;
+	std::vector<LabelledSlice> labelledSlices;
+	std::vector<LabelledTexture> labelledTextures;
 	
 	std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
 	
@@ -405,6 +409,10 @@ void ImageBrowser::OnOKButtonClicked()
 			throw std::logic_error("Invalid label : " + label);
 		}
 		SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
+		LabelledSlice labelledSlice(sliceName, sliceMap_[key]);
+		LabelledTexture labelledTexture(sliceName, textureMap_[key]);
+		labelledSlices.push_back(labelledSlice);
+		labelledTextures.push_back(labelledTexture);
 		slices.push_back(sliceInfo);
 	}
 	
@@ -422,16 +430,19 @@ void ImageBrowser::OnOKButtonClicked()
 	}
 	
 	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
+	std::sort(labelledSlices.begin(), labelledSlices.end(), LabelledSortOrder());
+	std::sort(labelledTextures.begin(), labelledTextures.end(), LabelledSortOrder());
 	
 	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-		if (slices.empty())
-		{
-			std::cout << "Empty image set.\n";
-			return;
-		}
-		
-		client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
-		gui_->Close();
+	if (slices.empty())
+	{
+		std::cout << "Empty image set.\n";
+		return;
+	}
+	
+	//--client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
+	client_->LoadLabelledImagesFromImageBrowser(labelledSlices, labelledTextures, cardiacAnnotation_);
+	gui_->Close();
 }
 
 void ImageBrowser::OnNoneButtonEvent()
