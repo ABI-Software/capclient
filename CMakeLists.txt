@@ -12,7 +12,8 @@ INCLUDE(Macros)
 
 DEFINE_ARCHITECTURE_DIR()
 # Try and find CMISS_ROOT variable so we can prime the 
-# finding of the Cmgui libraries.
+# finding of the Cmgui and GDCM libraries.  Otherwise
+# they can be set directly or entered when using a gui tool.
 IF(CMISS_ROOT)
 	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
 	SET(GDCM_DIR "${CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
@@ -144,6 +145,13 @@ FIND_PACKAGE(Cmgui REQUIRED)
 FIND_PACKAGE(GDCM REQUIRED)
 #INCLUDE(${GDCM_USE_FILE}) # don't use this it is bad.
 SET(GDCM_INCLUDE_DIRS "${GDCM_INSTALL_PREFIX}/include/gdcm-2.0")
+# CAP Client needs the gmm header files if they are not on the
+# system include path it needs to be set independently.
+FIND_FILE(CAP_GMM_INCLUDE_DIR gmm/gmm.h)
+IF(NOT CAP_GMM_INCLUDE_DIR)
+	MESSAGE(FATAL_ERROR "Could not find required header 'gmm/gmm.h'.")
+ENDIF()
+SET(GMM_INCLUDE_DIRS "${CAP_GMM_INCLUDE_DIR}")
 
 # Set some extra compiler flags if gcc is detected
 IF( CMAKE_COMPILER_IS_GNUCXX)
@@ -182,7 +190,7 @@ FOREACH(DEF ${CMGUI_DEFINITIONS})
 ENDFOREACH(DEF ${CMGUI_DEFINITIONS})
 
 # Set the include directories, Cmgui does not know that it is dependent on gdcm??? 
-INCLUDE_DIRECTORIES("/home/hsorby/work/cardiacatlas/gmm-4.1/include" ${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS} ${GMM_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
 
 # Set the CAP Client executable with all sources and headers.  Set headers here also so 
 # that some IDEs recognise them and include them in their projects.
