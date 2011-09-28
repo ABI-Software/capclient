@@ -122,6 +122,7 @@ public:
 	 */
 	void ShowWindow() const
 	{
+		std::cout << gui_ << std::endl;
 		gui_->Show(true);
 	}
 	
@@ -133,17 +134,18 @@ public:
 	 */
 	static ImageBrowser* CreateImageBrowser(std::string const& archiveFilename, IImageBrowser *client)
 	{
-		if (instance_ == 0)
+		if (!wxXmlInitialised_)
 		{
+			wxXmlInitialised_ = true;
 			wxXmlInit_ImageBrowserWindowUI();
-			instance_ = new ImageBrowser(archiveFilename, client);
-			ImageBrowserWindow* frame = new ImageBrowserWindow(instance_);
-			frame->Show(true);
-			instance_->SetImageBrowserWindow(frame);
-			instance_->Initialize();
 		}
+		ImageBrowser* imageBrowser = new ImageBrowser(archiveFilename, client);
+		ImageBrowserWindow* frame = new ImageBrowserWindow(imageBrowser);
+		frame->Show(true);
+		imageBrowser->SetImageBrowserWindow(frame);
+		imageBrowser->Initialize();
 		
-		return instance_;
+		return imageBrowser;
 	}
 	
 	/**
@@ -276,9 +278,10 @@ private:
 	};
 	
 	/**
-	 * Static instance of this pointer for the singleton pattern
+	 * Static variable to be set when wxXmlInit_ImageBrowserWindowUI
+	 * is called for the first time so that we don't call it again.
 	 */
-	static ImageBrowser* instance_;
+	static bool wxXmlInitialised_;
 	
 	/**
 	 * Pointer to the gui(view) layer. (wxWidgets)

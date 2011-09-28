@@ -111,6 +111,7 @@ void ImageBrowserWindow::CreateAnnotationTableColumns()
 
 ImageBrowserWindow::~ImageBrowserWindow()
 {
+	std::cout << "ImageBrowserWindow::~ImageBrowserWindow()" << std::endl;
 	//Cmiss_context_execute_command(cmguiPanel_->GetCmissContext(),
 	//		("gfx destroy scene " + IMAGE_PREVIEW).c_str());
 	//TODO : destroy textures??
