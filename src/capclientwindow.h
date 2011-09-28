@@ -168,8 +168,8 @@ private:
 	 */
 	void Terminate(wxCloseEvent& event);
 	void OnTogglePlay(wxCommandEvent& event);
-	void OnObjectCheckListChecked(wxCommandEvent& event);
-	void OnObjectCheckListSelected(wxCommandEvent& event);
+	void OnObjectCheckListChecked(wxListEvent& event);
+	void OnObjectCheckListSelected(wxListEvent& event);
 	void OnToggleHideShowAll(wxCommandEvent& event);
 	void OnToggleHideShowOthers(wxCommandEvent& event);
 	void OnAnimationSliderEvent(wxCommandEvent& event);

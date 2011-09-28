@@ -119,6 +119,13 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSli
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
 	{
 		std::cout << "anno: " << imageAnno.sopiuid << std::endl;
+		BOOST_FOREACH(ROI const& roi, imageAnno.rOIs)
+		{
+			BOOST_FOREACH(Label const& label, roi.labels)
+			{
+				std::cout << label.label << std::endl;
+			}
+		}
 	}
 	EnterImagesLoadedState();
 }
@@ -399,17 +406,21 @@ void CAPClient::OpenAnnotation(std::string const& filename, std::string const& i
 	//		EnterInitState();
 	//		cardiacAnnotationPtr_.reset(new CardiacAnnotation(annotationFile.GetCardiacAnnotation()));
 	
-	ImageBrowser* ib = 
-	ImageBrowser::CreateImageBrowser(imageDirname, this);
+	if (ib_)
+		delete ib_;
+	ib_ = ImageBrowser::CreateImageBrowser(imageDirname, this);
 	
 	// Set annotations to the images in the ImageBrowserWindow.
-	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
+	ib_->SetAnnotation(annotationFile.GetCardiacAnnotation());
 }
 
 void CAPClient::OpenImages(const std::string& imageDirname)
 {
+	if (ib_)
+		delete ib_;
 	ib_ = ImageBrowser::CreateImageBrowser(imageDirname, this);
-	ib_->ShowWindow();
+	std::cout << "CAPClient::OpenImages show window" << std::endl;
+	//ib_->ShowWindow();
 }
 
 void CAPClient::SaveModel(std::string const& dirname, std::string const& userComment)
@@ -457,7 +468,7 @@ void CAPClient::EnterImagesLoadedState()
 	StopCine();
 	
 	// Initialize timer for animation
-	size_t numberOfLogicalFrames = imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
+	size_t numberOfLogicalFrames = 8;//--imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
 	if (timeNotifier_)
 	{
 		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
@@ -472,7 +483,7 @@ void CAPClient::EnterImagesLoadedState()
 	
 	gui_->SetAnimationSliderRange(0, numberOfLogicalFrames);
 	
-	gui_->SetTitle(wxString(imageSet_->GetPatientID().c_str(),wxConvUTF8));
+	//--gui_->SetTitle(wxString(imageSet_->GetPatientID().c_str(),wxConvUTF8));
 	
 	mainWindowState_ = IMAGES_LOADED_STATE;
 }

@@ -82,6 +82,8 @@ public:
 	{
 		delete imageSet_;
 		delete modeller_;
+		if (ib_)
+			delete ib_;
 	}
 	
 	/**
