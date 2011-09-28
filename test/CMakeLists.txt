@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES(
 #	${CAPCLIENT_BINARY_DIR}/src
 )
 
-SET(UNIT_TEST_SRC
+SET(UnitTest_SRC
 	UnitTestCAPMath.cpp
 	UnitTestTotalLeastSquares.cpp
 	UnitTestCAPXMLFile.cpp
@@ -24,21 +24,26 @@ SET(UNIT_TEST_SRC
 	${CAPCLIENT_SOURCE_DIR}/src/CAPAnnotationFile.cpp
 )
 
-SET(UNIT_TEST_MODELLER_SRC
+SET(UnitTestCAPModeller_SRC
 	UnitTestCAPModeller.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/CAPModellingMode.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/CAPModeller.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/CAPTimeSmoother.cpp
 )
 
-SET(UNIT_TEST_ANNOTATION_SRC
+SET(UnitTestCAPAnnotationFile_SRC
 	UnitTestCAPAnnotationFile.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/CAPAnnotationFile.cpp
 	UnitTestAnnotationEditor.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/AnnotationEditor.cpp
 )
 
-SET(UNIT_TEST_IMAGE_BROWSER_SRC
+SET(UnitTestFileSystem_SRC
+	UnitTestFileSystem.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/FileSystem.cpp
+)
+
+SET(GuiTestImageBrowser_SRC
 	UnitTestImageBrowser.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/cmguipanel.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/imagebrowser.cpp
@@ -46,27 +51,29 @@ SET(UNIT_TEST_IMAGE_BROWSER_SRC
 	${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/cmgui/utilities.cpp
 	${CAPCLIENT_SOURCE_DIR}/src/CAPMaterial.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/labelledslice.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/labelledtexture.cpp
+	${CAPCLIENT_SOURCE_DIR}/src/FileSystem.cpp
 )
 
 # copy XML files
 FILE(COPY SampleAnalysisUsingXsd.xml SampleAnnotationFile.xml DESTINATION ${PROJECT_BINARY_DIR})
 
-ADD_EXECUTABLE(UnitTest ${UNIT_TEST_SRC})
-ADD_TEST(UnitTest UnitTest)
-TARGET_LINK_LIBRARIES(UnitTest ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+SET(UNIT_TESTS UnitTest UnitTestCAPModeller UnitTestCAPAnnotationFile UnitTestFileSystem)
+SET(GUI_TESTS GuiTestImageBrowser)
 
-ADD_EXECUTABLE(UnitTestCAPModeller ${UNIT_TEST_MODELLER_SRC})
-ADD_TEST(UnitTestCAPModeller UnitTestCAPModeller)
-TARGET_LINK_LIBRARIES(UnitTestCAPModeller ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
-
-ADD_EXECUTABLE(UnitTestCAPAnnotationFile ${UNIT_TEST_ANNOTATION_SRC})
-ADD_TEST(UnitTestCAPAnnotationFile UnitTestCAPAnnotationFile)
-TARGET_LINK_LIBRARIES(UnitTestCAPAnnotationFile ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+FOREACH( TEST ${UNIT_TESTS} )
+	ADD_EXECUTABLE(${TEST} ${${TEST}_SRC})
+	ADD_TEST(${TEST} ${TEST})
+	TARGET_LINK_LIBRARIES(${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+ENDFOREACH()
 
 IF(CAP_ENABLE_GUI_UNIT_TESTS)
-	ADD_EXECUTABLE(UnitTestImageBrowser ${UNIT_TEST_IMAGE_BROWSER_SRC})
-	ADD_TEST(UnitTesetImageBrowser UnitTestImageBrowser)
-	TARGET_LINK_LIBRARIES(UnitTestImageBrowser ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+	FOREACH( TEST ${GUI_TESTS} )
+		ADD_EXECUTABLE(${TEST} ${${TEST}_SRC})
+		ADD_TEST(${TEST} ${TEST})
+		TARGET_LINK_LIBRARIES(${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+	ENDFOREACH()
 ENDIF()
 
 
