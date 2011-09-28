@@ -19,7 +19,7 @@ extern "C"
 namespace cap
 {
 
-ImageBrowser* ImageBrowser::instance_ = 0;
+bool ImageBrowser::wxXmlInitialised_ = false;
 
 ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowser *client)
 	: gui_(0)
@@ -442,7 +442,7 @@ void ImageBrowser::OnOKButtonClicked()
 	
 	//--client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
 	client_->LoadLabelledImagesFromImageBrowser(labelledSlices, labelledTextures, cardiacAnnotation_);
-	gui_->Close();
+	gui_->Hide();
 }
 
 void ImageBrowser::OnNoneButtonEvent()
