@@ -10,27 +10,19 @@
 #include <wx/xrc/xmlres.h>
 
 #include "imagebrowser.h"
-#include "iimagebrowserwindow.h"
+#include "iimagebrowser.h"
 
 namespace cap
 {
 
-class FakeCAPClient : public IImageBrowserWindow
+class FakeCAPClient : public IImageBrowser
 {
 public:
 	virtual ~FakeCAPClient() {}
 	virtual void LoadImagesFromImageBrowserWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
 	{}
+	void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno){}
 };
-
-// Link time test double
-FileSystem::FileSystem(std::string const& path)
-{}
-
-std::vector<std::string> const& FileSystem::getAllFileNames()
-{
-	return filenames;
-}
 
 DICOMImage::DICOMImage(const std::string& filename)
 {
