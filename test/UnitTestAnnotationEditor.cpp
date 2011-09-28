@@ -78,7 +78,7 @@ TEST_F(AnnotationEditorTest, GetCardiacAnnotation)
 	std::string sopiuid("2.16.124.113543.6006.99.07104390983379737982");
 	EXPECT_EQ(anno.imageAnnotations.at(0).sopiuid, sopiuid);
 	
-	for (int i = 0; i<numImageAnnotations; ++i)
+	for (size_t i = 0; i<numImageAnnotations; ++i)
 	{
 		EXPECT_EQ(anno.imageAnnotations[i].sopiuid, anno_org.imageAnnotations[i].sopiuid);
 	}
