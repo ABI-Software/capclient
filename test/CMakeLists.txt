@@ -6,12 +6,42 @@ PROJECT(CAPClient_UnitTest)
 # Unit Testing
 ENABLE_TESTING()
 
+# Check to see if CAPCLIENT_ROOT_DIR is defined.  If not
+# then this file is not being read as a subdirectory of
+# ${CAPCLIENT_ROOT_DIR}/CMakeLists.txt and we need to
+# find and set up all the dependencies for ourselves.
+IF(NOT CAPCLIENT_ROOT_DIR)
+	# Making the assumption here that the test directory is not 
+	# going to be separated from the  rest of the CAP Client 
+	# files.
+	SET(CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
+ENDIF()
+
+SET(CMAKE_MODULE_PATH "${CAPCLIENT_ROOT_DIR}/cmake/")
+INCLUDE(Macros)
+
+DEFINE_ARCHITECTURE_DIR()
+# Try and find CMISS_ROOT variable so we can prime the 
+# finding of the Cmgui libraries.
+IF(CMISS_ROOT)
+	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
+	SET(GDCM_DIR "${CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
+ELSEIF(EXISTS $ENV{CMISS_ROOT})
+	SET(Cmgui_DIR "$ENV{CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
+	SET(GDCM_DIR "$ENV{CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
+ENDIF(CMISS_ROOT)
+
 # Find gtest
 FIND_PACKAGE(GTest REQUIRED)
+FIND_PACKAGE(Cmgui REQUIRED)
+FIND_PACKAGE(GDCM REQUIRED)
+
 
 INCLUDE_DIRECTORIES(
 	${GTEST_INCLUDE_DIRS}
-#	${CAPCLIENT_SOURCE_DIR}/src
+	${CAPCLIENT_ROOT_DIR}/src
+	${CMGUI_INCLUDE_DIRS}
+	${GDCM_INCLUDE_DIRS}
 #	${CAPCLIENT_BINARY_DIR}/src
 )
 
@@ -19,41 +49,41 @@ SET(UnitTest_SRC
 	UnitTestCAPMath.cpp
 	UnitTestTotalLeastSquares.cpp
 	UnitTestCAPXMLFile.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/CAPXMLFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFile.cpp
 	UnitTestImageSet.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/CAPAnnotationFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
 
 SET(UnitTestCAPModeller_SRC
 	UnitTestCAPModeller.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/CAPModellingMode.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/CAPModeller.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/CAPTimeSmoother.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPModellingMode.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPModeller.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPTimeSmoother.cpp
 )
 
 SET(UnitTestCAPAnnotationFile_SRC
 	UnitTestCAPAnnotationFile.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/CAPAnnotationFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 	UnitTestAnnotationEditor.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/AnnotationEditor.cpp
+	${CAPCLIENT_ROOT_DIR}/src/AnnotationEditor.cpp
 )
 
 SET(UnitTestFileSystem_SRC
 	UnitTestFileSystem.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/FileSystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
 )
 
 SET(GuiTestImageBrowser_SRC
 	UnitTestImageBrowser.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/cmguipanel.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/imagebrowser.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/imagebrowserwindow.cpp
+	${CAPCLIENT_ROOT_DIR}/src/cmguipanel.cpp
+	${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
+	${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
 	${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/cmgui/utilities.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/CAPMaterial.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/labelledslice.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/labelledtexture.cpp
-	${CAPCLIENT_SOURCE_DIR}/src/FileSystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/cmgui/utilities.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPMaterial.cpp
+	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
+	${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
+	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
 )
 
 # copy XML files
