@@ -78,6 +78,51 @@ void CAPClient::LoadImages(const SlicesWithImages& slices) // name misleading?
 	this->PopulateSliceList(); // fill in slice check box list
 }
 
+void CAPClient::PopulateSliceList()
+{	
+	const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
+	std::vector<bool> visibilities;
+	BOOST_FOREACH(std::string const& sliceName, sliceNames)
+	{
+		if (imageSet_->IsVisible(sliceName))
+		{
+			visibilities.push_back(true);
+		}
+		else
+		{
+			visibilities.push_back(false);
+		}
+	}
+	gui_->PopulateSliceList(sliceNames, visibilities);
+}
+
+void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno)
+{
+	// Reset capXMLFilePtr_
+	if (capXMLFilePtr_)
+	{
+		capXMLFilePtr_.reset(0);
+	}
+	std::vector<LabelledSlice>::const_iterator it;
+	std::vector<std::string> sliceNames;
+	std::vector<bool> visibilities;
+	for (it = labelledSlices.begin(); it != labelledSlices.end(); it++)
+	{
+		gui_->CreateScene((*it).GetLabel());
+		std::vector<Cmiss_field_image_id> fieldImages = gui_->CreateFieldImages(*it);
+		gui_->ChangeTexture((*it).GetLabel(), fieldImages.at(0));
+		sliceNames.push_back((*it).GetLabel());
+		visibilities.push_back(true);
+		//-- TODO: contours
+	}
+	gui_->PopulateSliceList(sliceNames, visibilities);
+	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
+	{
+		std::cout << "anno: " << imageAnno.sopiuid << std::endl;
+	}
+	EnterImagesLoadedState();
+}
+
 void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno)
 {
 	// Reset capXMLFilePtr_
@@ -161,12 +206,11 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							if (!region)
 							{
 								std::cout << __func__ << " : Can't find subregion at path : " << regionName << '\n';
-							throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
+								throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
 							}
 							Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 							Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
-							Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
-																					field, (double*) coords, time);
+							Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
 							
 							assert(modeller_);
 							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);

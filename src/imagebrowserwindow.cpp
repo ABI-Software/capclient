@@ -29,6 +29,7 @@ extern "C"
 #include <api/cmiss_graphics_module.h>
 #include <api/cmiss_scene.h>
 #include <api/cmiss_field.h>
+#include <api/cmiss_field_module.h>
 }
 
 #include "imagebrowserwindow.h"
@@ -216,13 +217,8 @@ void ImageBrowserWindow::CreatePreviewScene()
 
 Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(DICOMPtr dicom)
 {
-	/**
-	 * If this implementation of searching for an available name is
-	 * too slow then passing in the field image name would help.
-	 */
-	
 	Cmiss_field_module_id field_module = GetFieldModuleForRegion(cmissContext_, IMAGE_PREVIEW);
-	std::string name = "tex_" + dicom->GetFilename(); //-- GetNextNameInSeries(field_module, "tex_");
+	std::string name = "tex_" + FileSystem::GetFileNameWOE(dicom->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
 	
 	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
 	Cmiss_field_set_name(temp_field, name.c_str());

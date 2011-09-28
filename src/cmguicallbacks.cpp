@@ -1,16 +1,22 @@
 
 
-#include "cmguicallbacks.h"
-
 extern "C"
 {
 	#include <api/cmiss_region.h>
 	#include <api/cmiss_time_keeper.h>
 	#include <api/cmiss_time.h>
 	#include <api/cmiss_field_module.h>
+	#include <api/cmiss_field_image.h>
 }
 
+#include "DICOMImage.h"
+#include "abstractlabelled.h"
+#include "labelledslice.h"
+#include "labelledtexture.h"
+
 #include "capclient.h"
+
+#include "cmguicallbacks.h"
 
 namespace cap
 {

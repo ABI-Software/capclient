@@ -26,7 +26,7 @@ extern "C"
 #include <api/cmiss_field_module.h>
 }
 
-#include "iimagebrowserwindow.h"
+#include "iimagebrowser.h"
 #include "CAPMath.h"
 
 #include "Config.h"
@@ -57,7 +57,7 @@ class CAPClientWindow;
  * The gui(view) class for CAPClient is CAPClientWindow.  This class is follows 
  * the singleton pattern so that we can only have one CAPCLient.
  */
-class CAPClient : private IImageBrowserWindow, public wxApp
+class CAPClient : private IImageBrowser, public wxApp
 {
 public:
 	
@@ -224,6 +224,13 @@ public:
 	
 	virtual void LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno);
 	
+	/**
+	 * Implement pure virtual function from IImageBrowser interface 
+	 * so that labelledSlices, labelledTextures and cardiac annotations 
+	 * can be passed to this class.
+	 */
+	void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno);
+	
 	void SetModelVisibility(bool visibility) {}
 	
 	void SetMIIVisibility(bool visibility, int sliceNum) {}
@@ -376,23 +383,28 @@ private:
 		delete this;
 	}
 	
-	void PopulateSliceList()
-	{	
-		const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
-		std::vector<bool> visibilities;
-		BOOST_FOREACH(std::string const& sliceName, sliceNames)
-		{
-			if (imageSet_->IsVisible(sliceName))
-			{
-				visibilities.push_back(true);
-			}
-			else
-			{
-				visibilities.push_back(false);
-			}
-		}
-		gui_->PopulateSliceList(sliceNames, visibilities);
-	}
+// 	void PopulateSliceList()
+// 	{	
+// 		const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
+// 		std::vector<bool> visibilities;
+// 		BOOST_FOREACH(std::string const& sliceName, sliceNames)
+// 		{
+// 			if (imageSet_->IsVisible(sliceName))
+// 			{
+// 				visibilities.push_back(true);
+// 			}
+// 			else
+// 			{
+// 				visibilities.push_back(false);
+// 			}
+// 		}
+// 		gui_->PopulateSliceList(sliceNames, visibilities);
+// 	}
+	
+	/**
+	 * Popluate the slice list in the gui.
+	 */
+	void PopulateSliceList();
 	
 	void InitializeMII();
 	

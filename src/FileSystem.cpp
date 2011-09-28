@@ -69,4 +69,39 @@ void FileSystem::CreateDirectory(std::string const& dirname)
 	}
 }
 
+std::string FileSystem::GetFileName(const std::string& name)
+{
+	
+	#ifdef WIN32 
+	char directory_marker = '\\';
+	#else
+	char directory_marker = '/';
+	#endif
+	
+	if (name.find_last_of(directory_marker) != std::string::npos)
+		return name.substr(name.find_last_of(directory_marker) + 1);
+	
+	return name;
+}
+
+std::string FileSystem::GetFileNameWOE(const std::string& name)
+{
+	
+	#ifdef WIN32 
+	char directory_marker = '\\';
+	#else
+	char directory_marker = '/';
+	#endif
+	char extension_marker = '.';
+	
+	std::string filename = name;
+	if (name.find_last_of(directory_marker) != std::string::npos)
+		filename = name.substr(name.find_last_of(directory_marker) + 1);
+	
+	if (filename.find_last_of(extension_marker) != std::string::npos)
+		return filename.erase(filename.find_last_of(extension_marker));
+	
+	return filename;
+}
+
 } // end namespace cap

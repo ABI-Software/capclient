@@ -3,6 +3,14 @@
 
 #include "capclientapp.h"
 
+extern "C"
+{
+#include <api/cmiss_field_image.h>
+}
+#include "DICOMImage.h"
+#include "abstractlabelled.h"
+#include "labelledslice.h"
+#include "labelledtexture.h"
 #include "capclient.h"
 #include "capclientwindow.h"
 #include "CAPEulaDialog.h"
