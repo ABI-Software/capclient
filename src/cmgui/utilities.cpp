@@ -106,7 +106,6 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 	Cmiss_node_template_id node_template1 = Cmiss_nodeset_create_node_template(nodeset);
 	Cmiss_node_template_define_field(node_template1, coordinates_field);
-	Cmiss_node_template_finalise(node_template1);
 	double node_coordinates[element_node_count][3] =
 	{
 		{ 0, 0, 0 },
@@ -135,7 +134,6 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_element_template_define_field_simple_nodal(element_template, coordinates_field,
 													 /*component_number*/-1, cubic_basis, element_node_count, cube_local_node_indexes);
 	Cmiss_element_basis_destroy(&cubic_basis);
-	Cmiss_element_template_finalise(element_template);
 	//std::cout << "Cmiss_element : " << result << std::endl;
 	
 	/* create element */
