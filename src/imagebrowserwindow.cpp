@@ -37,7 +37,7 @@ extern "C"
 #include "cmgui/utilities.h"
 #include "CmguiExtensions.h"
 #include "DICOMImage.h"
-#include "CAPMaterial.h"
+#include "material.h"
 #include "imagebrowser.h"
 
 namespace
@@ -200,18 +200,18 @@ void ImageBrowserWindow::ResizePreviewImage(int width, int height)
 
 void ImageBrowserWindow::ChangePreviewImage(Cmiss_field_image_id image)
 {
-	assert(capmaterial_);
-	capmaterial_->ChangeTexture(image);
+	assert(material_);
+	material_->ChangeTexture(image);
 }
 
 void ImageBrowserWindow::CreatePreviewScene()
 {
 	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
-	// boost::make_pair is faster than shared_ptr<CAPMaterial>(new )
-	capmaterial_ = boost::make_shared<CAPMaterial>(IMAGE_PREVIEW, gModule);
+	// boost::make_pair is faster than shared_ptr<Material>(new )
+	material_ = boost::make_shared<Material>(IMAGE_PREVIEW, gModule);
 	
 	CreatePlaneElement(cmissContext_, IMAGE_PREVIEW);
-	CreateTextureImageSurface(cmissContext_, IMAGE_PREVIEW, capmaterial_->GetCmissMaterial());
+	CreateTextureImageSurface(cmissContext_, IMAGE_PREVIEW, material_->GetCmissMaterial());
 	cmguiPanel_->SetTumbleRate(0.0);
 	cmguiPanel_->ViewAll();
 }
@@ -303,7 +303,7 @@ void ImageBrowserWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 	int max = slider_contrast->GetMax();
 
 	float brightness = (float)(value - min) / (float)(max - min);
-	capmaterial_->SetBrightness(brightness);
+	material_->SetBrightness(brightness);
 	
 	RefreshPreviewPanel();
 }
@@ -315,8 +315,8 @@ void ImageBrowserWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	int max = slider_contrast->GetMax();
 	
 	float contrast = (float)(value - min) / (float)(max - min);
-	assert(capmaterial_);
-	capmaterial_->SetContrast(contrast);
+	assert(material_);
+	material_->SetContrast(contrast);
 	
 	RefreshPreviewPanel();
 }

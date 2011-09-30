@@ -1,5 +1,5 @@
 /*
- * CAPMaterial.cpp
+ * Material.cpp
  *
  *  Created on: Jun 24, 2010
  *      Author: jchu014
@@ -11,7 +11,7 @@
 #include <cassert>
 #include <iomanip>
 
-#include "CAPMaterial.h"
+#include "material.h"
 
 extern "C"
 {
@@ -26,10 +26,10 @@ extern "C"
 namespace cap
 {
 
-CAPMaterial::CAPMaterial(const std::string& materialName, Cmiss_graphics_module_id graphics_module)
+Material::Material(const std::string& materialName, Cmiss_graphics_module_id graphics_module)
 	: material_(0)
 {
-	//std::cout << "CAPMaterial::CAPMaterial" << std::endl;
+	//std::cout << "Material::Material" << std::endl;
 	material_ = Cmiss_graphics_module_create_material(graphics_module);
 	Cmiss_graphics_material_set_name(material_, materialName.c_str());
 	Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 1);
@@ -49,14 +49,14 @@ CAPMaterial::CAPMaterial(const std::string& materialName, Cmiss_graphics_module_
 	delete[] fragment_program_string;
 }
 
-CAPMaterial::~CAPMaterial()
+Material::~Material()
 {
 	std::cout << __func__ << std::endl;
 	Cmiss_graphics_material_destroy(&material_);
 	// TODO need to find out how to destroy material and texture properly
 }
 
-void CAPMaterial::SetBrightness(float brightness)
+void Material::SetBrightness(float brightness)
 {
 	assert(brightness >= 0 && brightness <=1);
 	
@@ -65,7 +65,7 @@ void CAPMaterial::SetBrightness(float brightness)
 	Cmiss_graphics_material_execute_command(material_, ss.str().c_str());
 }
 
-void CAPMaterial::SetContrast(float contrast)
+void Material::SetContrast(float contrast)
 {
 	assert(contrast >= 0 && contrast <=1);
 
@@ -74,13 +74,13 @@ void CAPMaterial::SetContrast(float contrast)
 	Cmiss_graphics_material_execute_command(material_, ss.str().c_str());
 }
 
-void CAPMaterial::ChangeTexture(Cmiss_field_image_id mat)
+void Material::ChangeTexture(Cmiss_field_image_id mat)
 {
 	assert(material_);
 	Cmiss_graphics_material_set_image_field(material_, 1, mat);
 }
 
-Cmiss_graphics_material_id CAPMaterial::GetCmissMaterial() const
+Cmiss_graphics_material_id Material::GetCmissMaterial() const
 {
 	Cmiss_graphics_material_access(material_);
 	return material_;

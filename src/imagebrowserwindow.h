@@ -40,7 +40,7 @@ namespace cap
 
 class DICOMImage;
 class CmguiPanel;
-class CAPMaterial;
+class Material;
 class ImageBrowser;
 
 /**
@@ -108,7 +108,7 @@ public:
 	
 	/**
 	 * Change the current image in the preview panel to the supplied image.  This
-	 * image will be set into the CAPMaterial to be used as a texture.
+	 * image will be set into the Material to be used as a texture.
 	 * 
 	 * \param image the field image to view in the preview panel.
 	 */
@@ -181,7 +181,7 @@ private:
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	CmguiPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
 	
-	std::tr1::shared_ptr<CAPMaterial> capmaterial_;
+	std::tr1::shared_ptr<Material> material_;
 	
 	static const std::string IMAGE_PREVIEW; /**< Image preview string. */
 	

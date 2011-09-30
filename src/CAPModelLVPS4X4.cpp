@@ -120,8 +120,8 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& model_dir_path, const
 
 	std::string dir_path = model_dir_path + "/";
 	
-	Cmiss_region_id region = 0; // Cmiss_context_get_default_region(pImpl_->cmissContext);
-	Cmiss_time_keeper_id time_keeper = 0; // Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);
+	Cmiss_region_id region = 0; //-- Cmiss_context_get_default_region(pImpl_->cmissContext);
+	Cmiss_time_keeper_id time_keeper = 0; //-- Cmiss_context_get_default_time_keeper(pImpl_->cmissContext);
 	
 	for (int i = 0; i < numberOfModelFrames_; i++)
 	{		

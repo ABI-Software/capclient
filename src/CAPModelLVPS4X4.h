@@ -24,6 +24,9 @@ class Point3D;
 class Vector3D;
 class Plane;
 
+/**
+ * Left ventricular prolate spheriod 4x4 model.
+ */
 class CAPModelLVPS4X4
 {
 	

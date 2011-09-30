@@ -31,8 +31,6 @@ class wxPanel;
 namespace cap
 {
 
-class CAPMaterial;
-
 /**
  * \brief This class is an interface to wrap a wxPanel into a Cmgui scene.
  * This class contains a cmiss_scene_viewer handle so that it can control 
@@ -67,6 +65,14 @@ public:
 		return cmissSceneViewer_;
 	}
 
+	/**
+	 * Set the interactive tool spin on if true, otherwise turn free spin off.
+	 * 
+	 * \param on if true turn free spin on, otherwise turn free spin off.
+	 * The default is on [true].
+	 */
+	void SetFreeSpin(bool on = true);
+	
 	/**
 	 * Force a redraw of the scene now, used when manipulating widgets that change the
 	 * scene and the effect should be seen immediately.

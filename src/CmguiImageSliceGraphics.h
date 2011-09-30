@@ -22,7 +22,7 @@ class Cmiss_texture;
 namespace cap
 {
 
-class CAPMaterial;
+class Material;
 class CmguiPanel;
 
 /**
@@ -67,7 +67,7 @@ private:
 	std::string sliceName_;
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiPanel const& cmguiManager_;
-	std::tr1::shared_ptr<CAPMaterial> material_;
+	std::tr1::shared_ptr<Material> material_;
 	std::vector<Cmiss_texture*> textures_;
 };
 

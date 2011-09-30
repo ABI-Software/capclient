@@ -46,7 +46,7 @@ int CAPClient::GetFrameNumberForTime(double time)
 
 void CAPClient::OnAnimationSliderEvent(double time)
 {
-	if (!heartModelPtr_) //FIXME
+	if (!heartModelPtr_) //FIXME fix what??
 	{
 		return;
 	}
@@ -103,22 +103,28 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSli
 	{
 		capXMLFilePtr_.reset(0);
 	}
+	
+	// read (or reread) in dicoms to create image textures (again) for this context.
 	std::vector<LabelledSlice>::const_iterator it;
 	std::vector<std::string> sliceNames;
 	std::vector<bool> visibilities;
 	for (it = labelledSlices.begin(); it != labelledSlices.end(); it++)
 	{
-		gui_->CreateScene((*it).GetLabel());
-		std::vector<Cmiss_field_image_id> fieldImages = gui_->CreateFieldImages(*it);
-		gui_->ChangeTexture((*it).GetLabel(), fieldImages.at(0));
+		// I want the gui to deal with this labelled slice.  The gui needs to create a scene create field images
+		// create a texture for displaying fieldn images and position the surface in the scene to the correct place.
+		gui_->CreateTextureSlice(*it);
 		sliceNames.push_back((*it).GetLabel());
 		visibilities.push_back(true);
 		//-- TODO: contours
 	}
+	
+	// nothing happens when I click on the list.
 	gui_->PopulateSliceList(sliceNames, visibilities);
+	
+	// Set some special nodes?
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
 	{
-		std::cout << "anno: " << imageAnno.sopiuid << std::endl;
+		//std::cout << "anno: " << imageAnno.sopiuid << std::endl;
 		BOOST_FOREACH(ROI const& roi, imageAnno.rOIs)
 		{
 			BOOST_FOREACH(Label const& label, roi.labels)
@@ -544,7 +550,7 @@ void CAPClient::UpdateMII()
 void CAPClient::InitializeModelTemplate(SlicesWithImages const& slices)
 {
 	SlicesWithImages::const_iterator 
-	itrToMinNumberOfFrames = std::min_element(slices.begin(), slices.end(),
+		itrToMinNumberOfFrames = std::min_element(slices.begin(), slices.end(),
 											  ComparatorForNumFrames());
 	int minNumberOfFrames = itrToMinNumberOfFrames->GetDICOMImages().size();
 	
