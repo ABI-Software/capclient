@@ -102,7 +102,7 @@ SET(GuiTestImageBrowser_SRC
 	${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
 	${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
 	${CAPCLIENT_ROOT_DIR}/src/cmgui/utilities.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPMaterial.cpp
+	${CAPCLIENT_ROOT_DIR}/src/material.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
 	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp

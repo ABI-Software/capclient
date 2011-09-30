@@ -1,5 +1,5 @@
 /*
- * CAPMaterial.h
+ * Material.h
  *
  *  Created on: Jun 23, 2010
  *      Author: jchu014
@@ -33,7 +33,7 @@ namespace cap
  * to just create one material and change the materials texture(field_image) than to
  * create a number of materials with their own texture(field_image).
  */
-class CAPMaterial : boost::noncopyable
+class Material : boost::noncopyable
 {
 public:
 	/**
@@ -45,12 +45,12 @@ public:
 	 * \param materialName a string holding the name of the material.
 	 * \param graphics_module the graphics module to create the material in.
 	 */
-	CAPMaterial(const std::string& materialName, Cmiss_graphics_module_id graphics_module);
+	Material(const std::string& materialName, Cmiss_graphics_module_id graphics_module);
 	
 	/**
 	 * Destructor, destroy references to cmiss ids.
 	 */
-	~CAPMaterial();
+	~Material();
 	
 	/**
 	 * Set the brightness.  The value of the brightness must be between 

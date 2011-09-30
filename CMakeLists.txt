@@ -53,7 +53,7 @@ SET( APP_SRCS
 	src/CAPAnnotationFile.cpp
 	src/CAPContour.cpp
 	src/CAPHtmlWindow.cpp
-	src/CAPMaterial.cpp
+	src/material.cpp
 	src/CAPModelLVPS4X4.cpp
 	src/CAPModeller.cpp
 	src/CAPModellingMode.cpp
@@ -91,7 +91,7 @@ SET( APP_HDRS
 	src/CAPContour.h
 	src/CAPEulaDialog.h
 	src/CAPHtmlWindow.h
-	src/CAPMaterial.h
+	src/material.h
 	src/CAPMath.h
 	src/CAPModelLVPS4X4.h
 	src/CAPModeller.h

@@ -20,7 +20,7 @@ extern "C"
 }
 
 #include "CmguiImageSliceGraphics.h"
-#include "CAPMaterial.h"
+#include "material.h"
 #include "cmguipanel.h"
 #include "CAPMath.h"
 
@@ -183,7 +183,7 @@ void CmguiImageSliceGraphics::LoadImagePlaneModel()
 	std::cout << "CmguiImageSliceGraphics::LoadImagePlaneModel()" << std::endl;
 	//-- TODO: fix me cmguiManager_.ReadRectangularModelFiles(sliceName_);
 	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(0 /* TODO: fix me cmissContext_ */);
-	material_ = boost::make_shared<CAPMaterial>(sliceName_, gModule);
+	material_ = boost::make_shared<Material>(sliceName_, gModule);
 	std::cout << "    " << material_ << std::endl;
 	/** TODO: replace AssignMaterialToObject with CreateTextureImageSurface */
 	// Assign material & cache the sceneObject for convenience

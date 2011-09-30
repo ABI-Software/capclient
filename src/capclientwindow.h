@@ -18,15 +18,17 @@
 #include "ui/CAPClientWindowUI.h"
 
 #include "cmguipanel.h"
+#include "material.h"
 #include "CAPMath.h"
 #include "CmguiExtensions.h"
+
 
 namespace cap
 {
 
-class CAPClient;
+class CAPClient; // Forward declare this so we can pass a pointer to the class later on.
 
-typedef std::map< std::string, std::tr1::shared_ptr<CAPMaterial> > CAPMaterialMap;
+typedef std::map< std::string, std::tr1::shared_ptr<Material> > MaterialMap;
 
 /**
  * \brief CAPClientWindow is the gui(view) for the CAPClient class.
@@ -56,47 +58,18 @@ public:
 	 * Destructor destroys handles received from the Cmgui libraries.
 	 */
 	~CAPClientWindow();
-
-	/**
-	 * Create a field image for each dicom image in the slice
-	 * in the region determined from the label of the labelled slice.
-	 * Each slice will need a material and surface created to display
-	 * the texture, which is what the field image is, on.
-	 * 
-	 * \param labelledSlices a vector of LabelledSlice, which is a label
-	 * and a vector of dicom image pointers.
-	 */
-	void CreateSomething(const std::vector<LabelledSlice>& labelledSlices);
 	
 	/**
-	 * Create a vector of field images from the dicom images in the labelled slice in
-	 * the region determined from the label of the labelled slice.  This function will
-	 * load the dicom images listed in the slice from disk.
+	 * Create a texture slice.  To create a textrue slice we need to create a scene
+	 * that has a surface, the label of the labelled slice determines the region name.
+	 * We also need to create a material and a set of field images from the dicom images 
+	 * contained in the labelled slice.  The surface then uses the material to display 
+	 * one of the field images.  The position of the surface in the scene needs to be set 
+	 * to the orientation as specified in the dicom images header.
 	 * 
 	 * \param labelledSlice the labelled slice to create the field images from.
-	 * \returns a vector of accessed Cmiss_field_image_id.
 	 */
-	std::vector<Cmiss_field_image_id> CreateFieldImages(const LabelledSlice& labelledSlice);
-	
-	/**
-	 * Create a scene for an image slice in the given region name.  A scene 
-	 * consists of a surface and a material.  The material is used by the 
-	 * surface to display a field image from an image slice.  This function 
-	 * will add the material to the capmaterial map which uses the 
-	 * region name for a key.
-	 * 
-	 * \param regionName the region name to create the scene in.
-	 */
-	void CreateScene(const std::string& regionName);
-	
-	/**
-	 * Set the field image as the texture for the material identified from
-	 * the given name.
-	 * 
-	 * \param name the name of the material to set the field image to.
-	 * \param fieldImage the field image to use as a texture.
-	 */
-	void ChangeTexture(const std::string& name, Cmiss_field_image_id fieldImage);
+	void CreateTextureSlice(const LabelledSlice& labelledSlice);
 	
 	void PlayCine();
 	
@@ -155,6 +128,36 @@ public:
 	void RedrawNow() const { cmguiPanel_->RedrawNow(); }
 	
 private:
+	/**
+	 * Set the field image as the texture for the material identified from
+	 * the given name.
+	 * 
+	 * \param name the name of the material to set the field image to.
+	 * \param fieldImage the field image to use as a texture.
+	 */
+	void ChangeTexture(const std::string& name, Cmiss_field_image_id fieldImage);
+	
+	/**
+	 * Create a vector of field images from the dicom images in the labelled slice in
+	 * the region determined from the label of the labelled slice.  This function will
+	 * load the dicom images listed in the slice from disk.
+	 * 
+	 * \param labelledSlice the labelled slice to create the field images from.
+	 * \returns a vector of accessed Cmiss_field_image_id.
+	 */
+	std::vector<Cmiss_field_image_id> CreateFieldImages(const LabelledSlice& labelledSlice);
+	
+	/**
+	 * Create a scene for an image slice in the given region name.  A scene 
+	 * consists of a surface and a material.  The material is used by the 
+	 * surface to display a field image from an image slice.  This function 
+	 * will add the material to the Material map which uses the 
+	 * region name for a key.
+	 * 
+	 * \param regionName the region name to create the scene in.
+	 */
+	void CreateScene(const std::string& regionName);
+	
 	std::string PromptForUserComment();
 
 	void ResetModeChoice();
@@ -207,7 +210,8 @@ private:
 	CAPClient* mainApp_; /**< handle to the model class for this window */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	CmguiPanel* cmguiPanel_; /**< handle to a cmgui panel class */
-	CAPMaterialMap capMaterialMap_; /**< A map of cap materials for veiwing textures. */ 
+	MaterialMap materialMap_; /**< A map of materials for veiwing textures. */ 
+	std::vector<Cmiss_field_image_id> fieldImages_; /**< A vector of field images. */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
 	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */
 };
