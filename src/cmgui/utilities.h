@@ -12,10 +12,10 @@
  * has already been created but it does not yet have an image 
  * read into it.
  * 
- * \param field_image the listed dicoms in images will be read into this field.
+ * \param field_module the field module to create the image field in.
  * \param dicom_image the dicom image to read into the image field.
  */
-void CreateCmissImageTexture(Cmiss_field_image_id field_image,const cap::DICOMPtr& dicom_image);
+Cmiss_field_image_id CreateCmissImageTexture(Cmiss_field_module_id field_module,const cap::DICOMPtr& dicom_image);
 
 /**
  * Get the field module for the given region.  The receiver of the field

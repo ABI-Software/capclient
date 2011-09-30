@@ -14,20 +14,25 @@ extern "C"
 #include <api/cmiss_field_finite_element.h>
 #include <api/cmiss_node.h>
 #include <api/cmiss_element.h>
+#include <api/cmiss_field_module.h>
 }
 
 #include "DICOMImage.h"
+#include "FileSystem.h"
 
 #include "utilities.h"
 
 
-void CreateCmissImageTexture(Cmiss_field_image_id field_image, const cap::DICOMPtr& dicom_image)
+Cmiss_field_image_id CreateCmissImageTexture(Cmiss_field_module_id field_module, const cap::DICOMPtr& dicom_image)
 {
 	//std::cout << "CmguiPanel::" << __func__ << std::endl;
-	Cmiss_stream_information_id stream_information =
-	Cmiss_field_image_create_stream_information(field_image);
-	Cmiss_stream_information_image_id image_stream_information =
-	Cmiss_stream_information_cast_image(stream_information);
+	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
+	std::string name = "tex_" + cap::FileSystem::GetFileNameWOE(dicom_image->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
+	Cmiss_field_set_name(temp_field, name.c_str());
+	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
+	Cmiss_field_destroy(&temp_field);
+	Cmiss_stream_information_id stream_information = Cmiss_field_image_create_stream_information(field_image);
+	Cmiss_stream_information_image_id image_stream_information = Cmiss_stream_information_cast_image(stream_information);
 	
 	/* Read image data from a file */
 	Cmiss_stream_resource_id stream = Cmiss_stream_information_create_resource_file(stream_information, dicom_image->GetFilename().c_str());
@@ -41,6 +46,8 @@ void CreateCmissImageTexture(Cmiss_field_image_id field_image, const cap::DICOMP
 	Cmiss_stream_resource_destroy(&stream);
 	Cmiss_stream_information_image_destroy(&image_stream_information);
 	Cmiss_stream_information_destroy(&stream_information);
+	
+	return field_image;
 }
 
 Cmiss_field_module_id GetFieldModuleForRegion(Cmiss_context_id cmissContext, const std::string& regionName)
