@@ -317,13 +317,7 @@ std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const Label
 	std::vector<Cmiss_field_image_id> field_images;
 	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDicomImages())
 	{
-		std::string name = "tex_" + FileSystem::GetFileNameWOE(dicom->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
-		
-		Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
-		Cmiss_field_set_name(temp_field, name.c_str());
-		Cmiss_field_image_id image_field = Cmiss_field_cast_image(temp_field);
-		Cmiss_field_destroy(&temp_field);
-		CreateCmissImageTexture(image_field, dicom);
+		Cmiss_field_image_id image_field = CreateCmissImageTexture(field_module, dicom);
 		field_images.push_back(image_field);
 	}
 	Cmiss_field_module_destroy(&field_module);

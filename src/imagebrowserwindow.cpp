@@ -219,13 +219,7 @@ void ImageBrowserWindow::CreatePreviewScene()
 Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(DICOMPtr dicom)
 {
 	Cmiss_field_module_id field_module = GetFieldModuleForRegion(cmissContext_, IMAGE_PREVIEW);
-	std::string name = "tex_" + FileSystem::GetFileNameWOE(dicom->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
-	
-	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
-	Cmiss_field_set_name(temp_field, name.c_str());
-	Cmiss_field_image_id image_field = Cmiss_field_cast_image(temp_field);
-	Cmiss_field_destroy(&temp_field);
-	CreateCmissImageTexture(image_field, dicom);
+	Cmiss_field_image_id image_field = CreateCmissImageTexture(field_module, dicom);
 	Cmiss_field_module_destroy(&field_module);
 	
 	return image_field;
