@@ -7,7 +7,7 @@ Dependencies
 
 2. Google C++ Testing Framework (http://code.google.com/p/googletest/)
 
-3. gmm++ (http://home.gna.org/getfem/gmm_intro.html)
+3. gmm++-3.1 (http://home.gna.org/getfem/gmm_intro.html)
 
 4. boost (http://www.boost.org)
 
