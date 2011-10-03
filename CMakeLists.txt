@@ -44,40 +44,6 @@ ENDIF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 SET(CAP_CLIENT_EXECUTABLE capclient)
 
 # Read in the source, header and gui files
-#INCLUDE(source_files.cmake)
-SET( APP_SRCS
-	src/cmgui/utilities.cpp
-	src/AnnotationEditor.cpp
-	src/AnnotationWindow.cpp
-	src/capclientapp.cpp
-	src/CAPAnnotationFile.cpp
-	src/CAPContour.cpp
-	src/CAPHtmlWindow.cpp
-	src/material.cpp
-	src/CAPModelLVPS4X4.cpp
-	src/CAPModeller.cpp
-	src/CAPModellingMode.cpp
-	src/CAPTimeSmoother.cpp
-	src/CAPXMLFile.cpp
-	src/CAPXMLFileHandler.cpp
-	src/cmguicallbacks.cpp
-	src/CmguiExtensions.cpp
-	src/CmguiImageSliceGraphics.cpp
-	src/cmguipanel.cpp
-	src/DICOMImage.cpp
-	src/DataPoint.cpp
-	src/FileSystem.cpp
-	src/imagebrowser.cpp
-	src/imagebrowserwindow.cpp
-	src/ImageSet.cpp
-	src/ImageSlice.cpp
-	src/labelledslice.cpp
-	src/labelledtexture.cpp
-	src/capclientwindow.cpp
-	src/PlatformInfo.cpp
-	src/capclient.cpp
-	)
-
 #INCLUDE(header_files.cmake)
 SET( APP_HDRS
 	src/abstractlabelled.h
@@ -129,7 +95,44 @@ SET( APP_HDRS
 	src/VNLFactory.h
 	src/VolumeGraph.h
 	src/capclientapp.h
+	src/textureslice.h
 	)
+
+#INCLUDE(source_files.cmake)
+SET( APP_SRCS
+	src/cmgui/utilities.cpp
+	src/AnnotationEditor.cpp
+	src/AnnotationWindow.cpp
+	src/capclientapp.cpp
+	src/CAPAnnotationFile.cpp
+	src/CAPContour.cpp
+	src/CAPHtmlWindow.cpp
+	src/material.cpp
+	src/CAPModelLVPS4X4.cpp
+	src/CAPModeller.cpp
+	src/CAPModellingMode.cpp
+	src/CAPTimeSmoother.cpp
+	src/CAPXMLFile.cpp
+	src/CAPXMLFileHandler.cpp
+	src/cmguicallbacks.cpp
+	src/CmguiExtensions.cpp
+	src/CmguiImageSliceGraphics.cpp
+	src/cmguipanel.cpp
+	src/DICOMImage.cpp
+	src/DataPoint.cpp
+	src/FileSystem.cpp
+	src/imagebrowser.cpp
+	src/imagebrowserwindow.cpp
+	src/ImageSet.cpp
+	src/ImageSlice.cpp
+	src/labelledslice.cpp
+	src/labelledtexture.cpp
+	src/capclientwindow.cpp
+	src/PlatformInfo.cpp
+	src/capclient.cpp
+	src/textureslice.cpp
+	)
+
 #INCLUDE(xrc_files.cmake)
 SET( APP_XRC
 	src/ui/AnnotationWindowUI.xrc
