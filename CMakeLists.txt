@@ -154,7 +154,7 @@ IF(NOT CAP_BOOST_INCLUDE_DIR)
 	MESSAGE(FATAL_ERROR "Could not find required header 'boost/shd_ptr.h'.")
 ENDIF()
 # CAP Client needs the gmm header files if they are not on the
-# system include path it needs to be set independently
+# system include path it needs to be set independently.
 FIND_PATH(CAP_GMM_INCLUDE_DIR gmm/gmm.h)
 IF(NOT CAP_GMM_INCLUDE_DIR)
 	MESSAGE(FATAL_ERROR "Could not find required header 'gmm/gmm.h'.")
