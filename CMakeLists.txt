@@ -147,8 +147,9 @@ SET( APP_XRC
 FIND_PACKAGE(Cmgui REQUIRED)
 FIND_PACKAGE(GDCM REQUIRED)
 #INCLUDE(${GDCM_USE_FILE}) # don't use this it is bad.
-#Need to find boost headers too?
 SET(GDCM_INCLUDE_DIRS "${GDCM_INSTALL_PREFIX}/include/gdcm-2.0")
+#Need to find boost headers too?
+FIND_PATH(CAP_BOOST_INCLUDE_DIR boost/shd_ptr.h)
 # CAP Client needs the gmm header files if they are not on the
 # system include path it needs to be set independently.
 FIND_PATH(CAP_GMM_INCLUDE_DIR gmm/gmm.h)
