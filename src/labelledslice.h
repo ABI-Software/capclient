@@ -17,6 +17,7 @@ public:
 	virtual ~LabelledSlice();
 	virtual LabelledSlice& operator=(const LabelledSlice& other);
 	virtual bool operator==(const LabelledSlice& other) const;
+	
 	const std::vector<DICOMPtr>& GetDicomImages() const { return dicomImages_; }
 	
 private:

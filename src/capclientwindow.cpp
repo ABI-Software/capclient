@@ -305,9 +305,18 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	CreateTextureImageSurface(cmissContext_, regionName, material->GetCmissMaterial());
 	std::vector<Cmiss_field_image_id> fieldImages = CreateFieldImages(labelledSlice);
 	
-	// textureSliceMap_.insert(regionName, TextureSlice(material, fieldImages));
-	// where do I resize and reposition the texture surface?
+	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDicomImages())
+	{
+		ImagePlane* plane = dicom->GetImagePlaneFromDICOMHeaderInfo();
+		std::cout << "tlc: " << plane->tlc << std::endl;
+		std::cout << "trc: " << plane->trc << std::endl;
+		std::cout << "brc: " << plane->brc << std::endl;
+		std::cout << "blc: " << plane->blc << std::endl;
+		RepositionPlaneElement(cmissContext_, regionName, plane->tlc.ToArray(), plane->trc.ToArray(), plane->brc.ToArray(), plane->blc.ToArray());
+	}
+	textureSliceMap_.insert(std::make_pair(regionName, boost::make_shared<TextureSlice>(material, fieldImages)));
 	ChangeTexture(regionName, fieldImages.at(0));
+	cmguiPanel_->ViewAll();
 }
 
 std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const LabelledSlice& labelledSlice)
@@ -328,13 +337,13 @@ std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const Label
 void CAPClientWindow::CreateScene(const std::string& regionName)
 {
 	CreatePlaneElement(cmissContext_, regionName);
-	CreateTextureImageSurface(cmissContext_, regionName, materialMap_[regionName]->GetCmissMaterial());
+	CreateTextureImageSurface(cmissContext_, regionName, textureSliceMap_[regionName]->GetCmissMaterial());
 }
 
 void CAPClientWindow::ChangeTexture(const std::string& name, Cmiss_field_image_id fieldImage)
 {
-	std::map<std::string, std::tr1::shared_ptr<Material> >::const_iterator it = materialMap_.find(name);
-	if (it != materialMap_.end())
+	std::map<std::string, boost::shared_ptr<TextureSlice> >::const_iterator it = textureSliceMap_.find(name);
+	if (it != textureSliceMap_.end())
 		(*it).second->ChangeTexture(fieldImage);
 }
 

@@ -73,5 +73,18 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
  */
 void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, int width, int height);
 
-
+/**
+ * Reposition a plane element in 3D rectangular cartesion space (square finite elemet type) 
+ * defined in the given region with coordinates "coordinates". This will reposition the 
+ * element only it is assumned that the element has already been created.  The corners
+ * or the new plane are expected to be arrays of Reals with a length of three.
+ * 
+ * \param cmissContext the context to use.
+ * \param regionName the name of the region to resize the square element in.
+ * \param tlc the top left corner of the new plane.
+ * \param trc the top right corner of the new plane.
+ * \param brc the bottom right corner of the new plane.
+ * \param blc the bottom left corner of the new plane.
+ */
+ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, Real *tlc, Real *trc, Real *brc, Real *blc);
 #endif /* UTILITIES_H */
