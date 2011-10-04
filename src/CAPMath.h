@@ -11,6 +11,11 @@
 #include <iostream>
 #include <cmath>
 
+extern "C"
+{
+#include <configure/cmgui_configure.h>
+}
+
 typedef float gtMatrix[4][4];
 #ifdef FE_VALUE_IS_DOUBLE
 typedef double Real;
@@ -117,6 +122,22 @@ public:
 //	Point3D(const Point3D& other)
 //	:x(other.x), y(other.y), z(other.z)
 //	{};
+	
+	/**
+	 * Convert the point to an array.  The array returned
+	 * must be deleted by the receiver.
+	 * 
+	 * \returns a pointer to an array of 3 Reals.
+	 */
+	Real* ToArray()
+	{
+		Real *array = new Real[3];
+		array[0] = x;
+		array[1] = y;
+		array[2] = z;
+		
+		return array;
+	}
 	
 	// Can only add vectors to points
 	Point3D operator+(const Vector3D& rhs) const

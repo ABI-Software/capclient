@@ -18,6 +18,7 @@ extern "C"
 #include <api/cmiss_graphics_module.h>
 #include <api/cmiss_graphics_material.h>
 #include <api/cmiss_rendition.h>
+#include <api/cmiss_core.h>
 }
 
 #include "vert.prog.h"
@@ -51,7 +52,9 @@ Material::Material(const std::string& materialName, Cmiss_graphics_module_id gra
 
 Material::~Material()
 {
-	std::cout << __func__ << std::endl;
+	char *name = Cmiss_graphics_material_get_name(material_);
+	std::cout << __func__ << ": " << std::string(name) << std::endl;
+	Cmiss_deallocate(name);
 	Cmiss_graphics_material_destroy(&material_);
 	// TODO need to find out how to destroy material and texture properly
 }

@@ -21,6 +21,7 @@
 #include "material.h"
 #include "CAPMath.h"
 #include "CmguiExtensions.h"
+#include "textureslice.h"
 
 
 namespace cap
@@ -28,7 +29,7 @@ namespace cap
 
 class CAPClient; // Forward declare this so we can pass a pointer to the class later on.
 
-typedef std::map< std::string, std::tr1::shared_ptr<Material> > MaterialMap;
+typedef std::map< std::string, boost::shared_ptr<TextureSlice> > TextureSliceMap;
 
 /**
  * \brief CAPClientWindow is the gui(view) for the CAPClient class.
@@ -210,7 +211,7 @@ private:
 	CAPClient* mainApp_; /**< handle to the model class for this window */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	CmguiPanel* cmguiPanel_; /**< handle to a cmgui panel class */
-	MaterialMap materialMap_; /**< A map of materials for veiwing textures. */ 
+	TextureSliceMap textureSliceMap_; /**< A map of texture slices. */ 
 	std::vector<Cmiss_field_image_id> fieldImages_; /**< A vector of field images. */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
 	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */
