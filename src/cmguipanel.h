@@ -17,6 +17,7 @@
 #include <boost/tr1/memory.hpp>
 
 extern "C" {
+#include <configure/cmgui_configure.h>
 #include <api/cmiss_scene_viewer.h>
 #include <api/cmiss_graphics_material.h>
 #include <api/cmiss_context.h>

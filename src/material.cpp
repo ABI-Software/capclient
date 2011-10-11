@@ -10,8 +10,9 @@
 #include <iostream>
 #include <cassert>
 #include <iomanip>
-
-#include "material.h"
+#ifdef _MSC_VER
+# define snprintf _snprintf
+#endif
 
 extern "C"
 {
@@ -21,6 +22,8 @@ extern "C"
 #include <api/cmiss_core.h>
 }
 
+#include "Config.h"
+#include "material.h"
 #include "vert.prog.h"
 #include "frag.prog.h"
 

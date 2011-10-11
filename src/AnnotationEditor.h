@@ -15,9 +15,9 @@ namespace cap
 {
 
 class IAnnotationWindow;
-class CardiacAnnotation;
-class Label;
-class ImageAnnotation;
+struct CardiacAnnotation;
+struct Label;
+struct ImageAnnotation;
 
 class AnnotationEditor
 {

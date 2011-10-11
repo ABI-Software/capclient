@@ -13,23 +13,24 @@
 class TestImageSliceGraphics : public cap::ImageSliceGraphics
 {
 	virtual void SetVisible(bool visibility)
-	{	
+	{
 	}
 	
 	virtual void ChangeTexture(size_t index)
-	{	
+	{
 	}
 	
 	virtual void SetBrightness(float brightness)
-	{	
+	{
 	}
 	
 	virtual void SetContrast(float contrast)
-	{	
+	{
 	}
 	
 	virtual cap::Point3D GetTopLeftCornerPosition()
-	{		
+	{
+		return cap::Point3D();
 	}
 	
 	virtual void TransformTo(cap::ImagePlane* plane)

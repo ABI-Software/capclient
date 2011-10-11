@@ -42,6 +42,8 @@ int CAPClient::GetFrameNumberForTime(double time)
 {
 	assert(heartModelPtr_);
 	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
+
+	return frameNumber;
 }
 
 void CAPClient::OnAnimationSliderEvent(double time)
@@ -111,7 +113,7 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSli
 	for (it = labelledSlices.begin(); it != labelledSlices.end(); it++)
 	{
 		// I want the gui to deal with this labelled slice.  The gui needs to create a scene create field images
-		// create a texture for displaying fieldn images and position the surface in the scene to the correct place.
+		// create a texture for displaying field images and position the surface in the scene to the correct place.
 		gui_->CreateTextureSlice(*it);
 		sliceNames.push_back((*it).GetLabel());
 		visibilities.push_back(true);

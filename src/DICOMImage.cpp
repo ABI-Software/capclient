@@ -398,4 +398,15 @@ ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
 	return plane_;
 }
 
+double DICOMImage::GetImageWidthMm()
+{
+	return width_*pixelSizeX_;
+}
+
+double DICOMImage::GetImageHeightMm()
+{
+	return height_*pixelSizeY_;
+}
+
 } // end namespace cap
+

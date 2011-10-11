@@ -13,7 +13,7 @@
 namespace cap
 {
 
-class CAPTimeSmootherImpl;
+struct CAPTimeSmootherImpl;
 
 class CAPTimeSmoother
 {

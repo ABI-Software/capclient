@@ -12,7 +12,8 @@
 
 #include <wx/app.h>
 
-extern "C" {
+extern "C"
+{
 #include <configure/cmgui_configure.h>
 #include <api/cmiss_field_image.h>
 #include <api/cmiss_scene_viewer.h>
@@ -28,6 +29,7 @@ extern "C" {
 #include <api/cmiss_field_finite_element.h>
 }
 
+#include "Config.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
 

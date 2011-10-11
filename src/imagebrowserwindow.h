@@ -101,10 +101,10 @@ public:
 	 * Resize the texture frame in the preview panel to the supplied
 	 * width and height.
 	 * 
-	 * \param width the width in pixels to set the texture frame to.
-	 * \param height the height in pixels to set the texture frame to.
+	 * \param width the width to set the texture frame to.
+	 * \param height the height to set the texture frame to.
 	 */
-	void ResizePreviewImage(int width, int height);
+	void ResizePreviewImage(double width, double height);
 	
 	/**
 	 * Change the current image in the preview panel to the supplied image.  This
@@ -181,7 +181,7 @@ private:
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	CmguiPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
 	
-	std::tr1::shared_ptr<Material> material_;
+	boost::shared_ptr<Material> material_;
 	
 	static const std::string IMAGE_PREVIEW; /**< Image preview string. */
 	

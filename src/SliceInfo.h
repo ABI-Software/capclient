@@ -15,6 +15,7 @@
 
 #include <api/cmiss_graphics_material.h>
 
+#include "Config.h"
 #include "DICOMImage.h"
 
 extern "C"

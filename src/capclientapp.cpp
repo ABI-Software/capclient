@@ -7,6 +7,8 @@ extern "C"
 {
 #include <api/cmiss_field_image.h>
 }
+
+#include "Config.h"
 #include "DICOMImage.h"
 #include "abstractlabelled.h"
 #include "labelledslice.h"
@@ -63,7 +65,7 @@ bool CAPApp::OnInit()
 	assert(mainApp);
 	// We cannot initialise this from inside the CAPClientWindow constructor unfortunately.
 	wxXmlInit_CAPClientWindowUI(); 
-	CAPClientWindow *frame = new CAPClientWindow(dynamic_cast<wxWindow *>(this), mainApp);
+	CAPClientWindow *frame = new CAPClientWindow(mainApp);
 	mainApp->SetCAPClientWindow(frame);
 	SetTopWindow(frame);
 	frame->Show(true);

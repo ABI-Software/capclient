@@ -8,6 +8,10 @@
 #include <math.h>
 #include <iostream>
 
+#ifdef _MSC_VER
+# define WINDOWS_LEAN_AND_MEAN
+# include <windows.h>
+#endif
 #include <GL/gl.h>
 
 extern "C" {
@@ -224,6 +228,7 @@ Cmiss_node_id Cmiss_node_set_visibility_field(Cmiss_node_id node, double startTi
 		}
 	}
 */
+	return 0;
 }
 
 Cmiss_node_id Cmiss_create_data_point_at_coord(struct Cmiss_region *cmiss_region, Cmiss_field_id field, double* coords, double time)
@@ -320,7 +325,7 @@ struct Viewer_frame_element_constraint_function_data
 	struct Computed_field *coordinate_field;
 }; 
 
-static int Viewer_frame_element_constraint_function(double_t *point,
+static int Viewer_frame_element_constraint_function(double *point,
 	void *void_data)
 /*******************************************************************************
 LAST MODIFIED : 14 February 2008
@@ -329,7 +334,7 @@ DESCRIPTION : need to find the point of intersection between picking ray and obj
 ==============================================================================*/
 {
 	int return_code = 0;
-	struct Viewer_frame_element_constraint_function_data *data;
+	//struct Viewer_frame_element_constraint_function_data *data;
 
 // 	if (point && (data = (struct Viewer_frame_element_constraint_function_data *)void_data))
 // 	{
@@ -468,7 +473,7 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_
 	
 //	std::cout << viewport_height <<"," <<centre_y<< std::endl;
 	
-	GLdouble modelview_matrix[16], window_projection_matrix[16];
+	//GLdouble modelview_matrix[16], window_projection_matrix[16];
 
 	//Scene_viewer_get_modelview_matrix(scene_viewer, modelview_matrix);
 	//Scene_viewer_get_window_projection_matrix(scene_viewer, window_projection_matrix);
@@ -482,20 +487,20 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_
 	//				viewport_left,viewport_bottom,viewport_width,viewport_height,
 	//				centre_x,centre_y,size_x,size_y);
 	
-	FE_element* nearest_element;
-	struct FE_node *picked_node;
+	//FE_element* nearest_element;
+	//struct FE_node *picked_node;
 	//struct LIST(Scene_picked_object) *scene_picked_object_list;
-	struct Scene_picked_object *scene_picked_object, *scene_picked_object2;
-	struct GT_element_group *gt_element_group, *gt_element_group_element;
-	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
+	//struct Scene_picked_object *scene_picked_object, *scene_picked_object2;
+	//struct GT_element_group *gt_element_group, *gt_element_group_element;
+	//struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
 	
 	//struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
 	//struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(scene_viewer);
 	
 	//if (scene_picked_object_list=
 	//	Scene_pick_objects(scene,interaction_volume,graphics_buffer))
-	{
-		nearest_element = (struct FE_element *)NULL;
+	//{
+	//	nearest_element = (struct FE_element *)NULL;
 
 	//	picked_node=Scene_picked_object_list_get_nearest_node(
 	//										scene_picked_object_list,1 /* use_data */,
@@ -518,7 +523,7 @@ Cmiss_node_id Cmiss_create_or_select_node_from_screen_coords(Cmiss_scene_viewer_
 	//		}
 	//	}	
 	//	DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
-	}
+	//}
 	
 	/* Find the intersection of the element and the interaction volume */
 /*	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
@@ -588,7 +593,7 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_v
 	
 //	std::cout << viewport_height <<"," <<centre_y<< std::endl;
 	
-	GLdouble modelview_matrix[16], window_projection_matrix[16];
+	//GLdouble modelview_matrix[16], window_projection_matrix[16];
 
 /*	Scene_viewer_get_modelview_matrix(scene_viewer, modelview_matrix);
 	Scene_viewer_get_window_projection_matrix(scene_viewer, window_projection_matrix);*/
@@ -602,20 +607,20 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_v
 					viewport_left,viewport_bottom,viewport_width,viewport_height,
 					centre_x,centre_y,size_x,size_y);*/
 	
-	FE_element* nearest_element;
+	//FE_element* nearest_element;
 	Cmiss_node_id picked_node = 0;
 // 	struct LIST(Scene_picked_object) *scene_picked_object_list;
-	struct Scene_picked_object *scene_picked_object, *scene_picked_object2;
-	struct GT_element_group *gt_element_group, *gt_element_group_element;
-	struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
+	//struct Scene_picked_object *scene_picked_object, *scene_picked_object2;
+	//struct GT_element_group *gt_element_group, *gt_element_group_element;
+	//struct GT_element_settings *gt_element_settings, *gt_element_settings_element;
 	
 // 	struct Scene* scene = Scene_viewer_get_scene(scene_viewer);
 // 	struct Graphics_buffer* graphics_buffer = Scene_viewer_get_graphics_buffer(scene_viewer);
 	
 /*	if (scene_picked_object_list=
 		Scene_pick_objects(scene,interaction_volume,graphics_buffer))*/
-	{
-		nearest_element = (struct FE_element *)NULL;
+	//{
+	//	nearest_element = (struct FE_element *)NULL;
 
 //		picked_node=Scene_picked_object_list_get_nearest_node(
 //											scene_picked_object_list,1 /* use_data */,
@@ -638,10 +643,10 @@ Cmiss_node_id Cmiss_select_node_from_screen_coords(Cmiss_scene_viewer_id scene_v
 //			}
 //		}	
 //		DESTROY(LIST(Scene_picked_object))(&(scene_picked_object_list));
-	}
+	//}
 	
 	/* Find the intersection of the element and the interaction volume */
-	Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
+	//Computed_field* nearest_element_coordinate_field = (struct Computed_field *)NULL;
 	
 	return picked_node; // Cmiss_node = FE_node;
 }
@@ -681,7 +686,7 @@ Cmiss_region_id Cmiss_get_slice_region(Cmiss_scene_viewer_id scene_viewer, doubl
 	
 //	std::cout << viewport_height <<"," <<centre_y<< std::endl;
 	
-	GLdouble modelview_matrix[16], window_projection_matrix[16];
+	//GLdouble modelview_matrix[16], window_projection_matrix[16];
 
 //	Scene_viewer_get_modelview_matrix(scene_viewer, modelview_matrix);
 //	Scene_viewer_get_window_projection_matrix(scene_viewer, window_projection_matrix);

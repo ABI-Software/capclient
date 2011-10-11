@@ -8,10 +8,6 @@
 #ifndef ISOSURFACECAPTURE_H_
 #define ISOSURFACECAPTURE_H_
 
-#include "ImageSet.h"
-#include "CAPModelLVPS4X4.h"
-#include "SliceInfo.h"
-
 #include "wx/wxprec.h"
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
@@ -34,6 +30,11 @@ extern "C"
 //#include "general/debug.h"
 //#include "finite_element/export_finite_element.h"
 }
+
+#include "Config.h"
+#include "ImageSet.h"
+#include "CAPModelLVPS4X4.h"
+#include "SliceInfo.h"
 
 namespace cap
 {
@@ -82,7 +83,7 @@ public:
 		std::cout << "range before: " << centre_x  << ", " << centre_y << ", " 
 				<< centre_z << ", " << size_x << ", " << size_y <<", "<<  size_z << std::endl;
 		
-		struct Scene_object * modelSceneObject= 0; // Scene_get_Scene_object_by_name(scene, scene_object_name);
+		struct Scene_object *modelSceneObject= 0; // Scene_get_Scene_object_by_name(scene, scene_object_name);
 		if (modelSceneObject)
 		{
 			assert(heartModelPtr_);
@@ -203,8 +204,8 @@ public:
 			for (size_t i = 0; i < numberOfFrames ; i++)
 			{
 				DICOMPtr const& dicomPtr = itr->GetDICOMImages().at(i);
-				int imageWidth = dicomPtr->GetImageWidth();
-				int imageHeight = dicomPtr->GetImageHeight();
+				int imageWidth = dicomPtr->GetImageWidthPx();
+				int imageHeight = dicomPtr->GetImageHeightPx();
 				std::string const& patientId = dicomPtr->GetPatientID();
 				std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
 				panel_->SetSize(imageWidth, imageHeight);
@@ -272,8 +273,8 @@ public:
 			throw std::logic_error(sliceName + " has no matching entry in SlicesWithImages");
 		}
 		DICOMPtr const& dicomPtr = itr->GetDICOMImages().at(0);
-		int imageWidth = dicomPtr->GetImageWidth();
-		int imageHeight = dicomPtr->GetImageHeight();
+		int imageWidth = dicomPtr->GetImageWidthPx();
+		int imageHeight = dicomPtr->GetImageHeightPx();
 		std::string const& patientId = dicomPtr->GetPatientID();
 		panel_->SetSize(imageWidth, imageHeight);
 		Fit();

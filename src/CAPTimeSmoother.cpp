@@ -121,7 +121,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 //	p[0] *= 10; //more weight for frame 0
 	
 	std::vector<double> dataLambda = dataPoints;
-	for (int i = 0; i < dataLambda.size(); i++)
+	for (unsigned int i = 0; i < dataLambda.size(); i++)
 	{
 		if (framesWithDataPoints[i])
 		{

@@ -11,7 +11,7 @@
 namespace cap
 {
 
-class ImageAnnotation;
+struct ImageAnnotation;
 
 /**
  * This class is an interface for the annotation window

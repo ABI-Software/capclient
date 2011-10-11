@@ -118,7 +118,7 @@ public:
 		{
 			const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
 
-			int i = find(sliceNames.begin(),sliceNames.end(), sliceName) - sliceNames.begin();
+			unsigned int i = find(sliceNames.begin(),sliceNames.end(), sliceName) - sliceNames.begin();
 			assert(i < sliceNames.size());
 			SetImageVisibility(visibility, i);
 		}

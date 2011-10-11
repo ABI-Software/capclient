@@ -83,7 +83,6 @@ SET(CAPAnnotationFile_SRC
 	UnitTestCAPAnnotationFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
-
 SET(AnnotationEditor_SRC
 	UnitTestAnnotationEditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/AnnotationEditor.cpp
@@ -107,6 +106,17 @@ SET(GuiTestImageBrowser_SRC
 	${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
 	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
 )
+
+IF(MSVC)
+	SET(CAPAnnotationFile_SRC
+		${CAPAnnotationFile_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+	)
+	SET(FileSystem_SRC
+		${FileSystem_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+	)
+ENDIF()
 
 # copy XML files
 FILE(COPY SampleAnalysisUsingXsd.xml SampleAnnotationFile.xml DESTINATION ${PROJECT_BINARY_DIR})

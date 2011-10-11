@@ -15,7 +15,7 @@
 namespace cap
 {
 
-class CardiacAnnotation;
+struct CardiacAnnotation;
 /**
  * pure abstract base class that defines the interface of ImageBrowser's client.
  */

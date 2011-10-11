@@ -12,7 +12,11 @@
 #include <vector>
 #include <boost/scoped_ptr.hpp>
 
+extern "C"
+{
+#include <configure/cmgui_configure.h>
 #include <api/cmiss_context.h>
+}
 
 #include "SliceInfo.h"
 struct Scene_object;
@@ -22,7 +26,7 @@ namespace cap
 
 class Point3D;
 class Vector3D;
-class Plane;
+struct Plane;
 
 /**
  * Left ventricular prolate spheriod 4x4 model.

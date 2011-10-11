@@ -16,7 +16,7 @@
 #include "ImageSliceGraphics.h"
 #include "CAPMath.h"
 
-class Scene_object;
+struct Scene_object;
 class Cmiss_texture;
 
 namespace cap
@@ -67,7 +67,7 @@ private:
 	std::string sliceName_;
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
 	CmguiPanel const& cmguiManager_;
-	std::tr1::shared_ptr<Material> material_;
+	boost::shared_ptr<Material> material_;
 	std::vector<Cmiss_texture*> textures_;
 };
 

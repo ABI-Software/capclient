@@ -9,6 +9,13 @@
 #include <dirent.h>
 #include <iostream>
 #include <sys/stat.h>
+#ifdef _MSC_VER
+#include <direct.h>
+# define mkdir _mkdir
+#endif
+
+#include "Config.h"
+
 namespace cap
 {
 

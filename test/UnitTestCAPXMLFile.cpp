@@ -111,3 +111,4 @@ TEST(CAPXMLFile, AddImage)
 	
 	EXPECT_THROW(xmlFile.AddPointToImage("222", CAPXMLFile::Point()), std::invalid_argument);
 }
+

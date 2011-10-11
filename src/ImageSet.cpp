@@ -90,7 +90,7 @@ void ImageSet::SetVisible(bool visible, const std::string& sliceName)
 	}
 }
 
-void ImageSet::SetVisible(bool visible, int index)
+void ImageSet::SetVisible(bool visible, unsigned int index)
 {
 	if (imageSlicesMap_.size() <= index || index < 0)
 	{
@@ -136,7 +136,7 @@ const ImagePlane& ImageSet::GetImagePlane(const std::string& sliceName) const
 int ImageSet::GetNumberOfFrames() const
 {
 	ImageSlicesMap::const_iterator itr = imageSlicesMap_.begin();
-	int numberOfFrames = itr->second->GetNumberOfFrames();
+	unsigned int numberOfFrames = itr->second->GetNumberOfFrames();
 	++itr;
 	for(;itr!=imageSlicesMap_.end();++itr)
 	{

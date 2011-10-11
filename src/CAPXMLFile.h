@@ -56,8 +56,8 @@ public:
 		int frame;
 		int slice;
 		std::string label;//LA1, SA2 etc
-		std::tr1::shared_ptr<Point3D> imagePosition;
-		std::tr1::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
+		boost::shared_ptr<Point3D> imagePosition;
+		boost::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
 	};
 
 	struct Exnode

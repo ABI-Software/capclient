@@ -7,7 +7,6 @@
 
 #ifndef CAPTOTALLEASTSQUARES_H_
 #define CAPTOTALLEASTSQUARES_H_
-#include "CAPMath.h"
 
 #include <vnl/vnl_matrix.h>
 #include <vnl/vnl_sparse_matrix.h>
@@ -15,6 +14,9 @@
 #include <vnl/vnl_sparse_matrix_linear_system.h>
 #include <vnl/algo/vnl_lsqr.h>
 #include <vnl/vnl_linear_system.h>
+
+#include "Config.h"
+#include "CAPMath.h"
 
 namespace cap
 {

@@ -9,6 +9,7 @@
 #include <wx/wxprec.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/notebook.h>
+#include <wx/listctrl.h>
 #include <wx/frame.h>
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
@@ -53,7 +54,7 @@ public:
 	 * \param parent parent wxWidgets window.
 	 * \param mainApp pointer to CAPClient data class.
 	 */
-	explicit CAPClientWindow(wxWindow* parent, CAPClient* mainApp);
+	explicit CAPClientWindow(CAPClient* mainApp);
 	
 	/**
 	 * Destructor destroys handles received from the Cmgui libraries.
@@ -76,7 +77,7 @@ public:
 	
 	void StopCine();
 	
-	void UpdateModeSelectionUI(int mode);
+	void UpdateModeSelectionUI(size_t mode);
 	
 	/**
 	 * Set the state of the widgets to the initial state.

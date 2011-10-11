@@ -26,6 +26,7 @@
 
 extern "C"
 {
+#include <configure/cmgui_configure.h>
 #include <api/cmiss_graphics_module.h>
 #include <api/cmiss_scene.h>
 #include <api/cmiss_field.h>
@@ -56,7 +57,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	, cmissContext_(Cmiss_context_create(IMAGE_PREVIEW.c_str()))
 	, cmguiPanel_(0)
 {
-	Cmiss_context_enable_user_interface(cmissContext_, 0, 0, static_cast<void*>(wxTheApp));
+	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	cmguiPanel_ = new CmguiPanel(cmissContext_, IMAGE_PREVIEW, panel_cmgui);
 	
 	SetIcon(wxIcon(capicon_xpm));
@@ -193,7 +194,7 @@ void ImageBrowserWindow::SetAnimationSliderMax(size_t max)
 	}
 }
 
-void ImageBrowserWindow::ResizePreviewImage(int width, int height)
+void ImageBrowserWindow::ResizePreviewImage(double width, double height)
 {
 	ResizePlaneElement(cmissContext_, IMAGE_PREVIEW, width, height);
 }
