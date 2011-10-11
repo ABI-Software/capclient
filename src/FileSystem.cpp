@@ -5,7 +5,6 @@
  *      Author: jchu014
  */
 
-#include "FileSystem.h"
 #include <dirent.h>
 #include <iostream>
 #include <sys/stat.h>
@@ -15,6 +14,7 @@
 #endif
 
 #include "Config.h"
+#include "FileSystem.h"
 
 namespace cap
 {
@@ -62,18 +62,16 @@ const std::vector<std::string>& FileSystem::getAllFileNames()
 	return filenames;
 }
 
-void FileSystem::CreateDirectory(std::string const& dirname)
+bool FileSystem::CreateDirectory(const std::string& dirname)
 {
-	std::string fullpath = dir_path + dirname;
+	std::string fullpath = dir_path + "/" + dirname;
 #ifdef WIN32 
 	int ret = mkdir(fullpath.c_str());
 #else
 	int ret = mkdir(fullpath.c_str(), 0777);
 #endif
-	if (ret == -1)
-	{
-		std::cout << __func__ << " : Can't create directory : " << fullpath << '\n';
-	}
+
+	return (ret == 0);
 }
 
 std::string FileSystem::GetFileName(const std::string& name)
