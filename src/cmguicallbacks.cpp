@@ -162,7 +162,7 @@ int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 				sprintf(nodeName,"%d", nodeNum);
 				//if (Cmiss_node* node = Cmiss_region_get_node(selectedRegion, nodeName))
 				{
-					double_t x, y, z;
+					double x, y, z;
 					//						FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
 					//					cout << "before = " << x << ", " << y << ", " << z << endl;
 					x += (new_coords[0] - coords[0]);

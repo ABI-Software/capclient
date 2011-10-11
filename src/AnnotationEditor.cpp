@@ -5,6 +5,7 @@
  *      Author: jchu014
  */
 
+#include <functional>
 #include <algorithm>
 #include <boost/bind.hpp>
 #include <stdexcept>

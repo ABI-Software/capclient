@@ -1,5 +1,6 @@
 
 #include <wx/wxprec.h>
+#include <wx/listctrl.h>
 #ifndef WX_PRECOMP
 # include <wx/wx.h>
 #endif
@@ -313,8 +314,8 @@ void ImageBrowser::UpdateSeriesInfoPanel(DICOMPtr const& dicomPtr)
 	using std::string;
 	using boost::lexical_cast;
 	
-	size_t width = dicomPtr->GetImageWidth();
-	size_t height = dicomPtr->GetImageHeight();
+	size_t width = dicomPtr->GetImageWidthPx();
+	size_t height = dicomPtr->GetImageHeightPx();
 	string size = lexical_cast<string>(width) + " x " + lexical_cast<string>(height);
 	gui_->SetInfoField("ImageSize", size);
 	
@@ -334,8 +335,8 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	std::vector<DICOMPtr> dicomImages = sliceMap_[sliceKeyCurrentlyOnDisplay_];
 	std::vector<Cmiss_field_image_id> images = textureMap_[sliceKeyCurrentlyOnDisplay_];
 	gui_->ChangePreviewImage(images.at(frameNumber));
-	size_t width = dicomImages.at(frameNumber)->GetImageWidth();
-	size_t height = dicomImages.at(frameNumber)->GetImageHeight();
+	double width = dicomImages.at(frameNumber)->GetImageWidthMm();
+	double height = dicomImages.at(frameNumber)->GetImageHeightMm();
 	gui_->ResizePreviewImage(width, height); // Resize the preview element 
 	
 	ChangeImageAnnotation(frameNumber);

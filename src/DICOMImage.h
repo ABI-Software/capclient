@@ -104,12 +104,22 @@ public:
 		return seriesNumber_;
 	}
 	
-	size_t GetImageWidth() const
+	size_t GetImageWidthPx() const
 	{
 		return width_;
 	}
 	
-	size_t GetImageHeight() const
+	/**
+	 * Get the image width in millimeters.
+	 */
+	double GetImageWidthMm(void);
+
+	/**
+	 * Get the image height in millimeters.
+	 */
+	double GetImageHeightMm(void);
+
+	size_t GetImageHeightPx() const
 	{
 		return height_;
 	}
@@ -228,8 +238,9 @@ private:
 	std::string sequenceName_;
 	double triggerTime_;
 	int seriesNumber_;
-	Point3D position3D_;
-	Vector3D orientation1_, orientation2_;
+	Point3D position3D_; /**< image position, location in mm from the origin of the RCS */
+	Vector3D orientation1_; /**< values from the row (X) direction cosine */
+	Vector3D orientation2_; /**< values from the column (Y) direction cosine */
 	
 	Point3D shiftedPosition_;
 	Vector3D shiftedOrientation1_, shiftedOrientation2_;
@@ -253,7 +264,7 @@ private:
 
 //class DICOMImage;
 
-typedef std::tr1::shared_ptr<DICOMImage> DICOMPtr;
+typedef boost::shared_ptr<DICOMImage> DICOMPtr;
 
 } // end namespace cap
 #endif /* DICOMIMAGE_H_ */

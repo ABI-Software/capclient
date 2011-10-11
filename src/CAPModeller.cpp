@@ -13,6 +13,8 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
+#include "Config.h"
+
 namespace cap
 {
 

@@ -12,7 +12,7 @@ INCLUDE(Macros)
 
 DEFINE_ARCHITECTURE_DIR()
 # Try and find CMISS_ROOT variable so we can prime the 
-# finding of the Cmgui and GDCM libraries.  Otherwise
+# finding of the Zinc and GDCM libraries.  Otherwise
 # they can be set directly or entered when using a gui tool.
 IF(CMISS_ROOT)
 	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
@@ -34,7 +34,7 @@ OPTION_WITH_DEFAULT(CAP_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests."
 OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary." ON)
 
 # wxWidgets 2.8.10 can only be built in 32-bit mode on Mac
-# Cmgui uses wxWidgets 2.8.10 so that too is only built in 
+# Zinc uses wxWidgets 2.8.10 so that too is only built in 
 # 32-bit mode.  Therefore force the CAP Client to also be 
 # built in 32-bit mode on Mac.
 IF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
@@ -133,6 +133,11 @@ SET( APP_SRCS
 	src/textureslice.cpp
 	)
 
+IF(MSVC)
+	SET( APP_SRCS ${APP_SRCS} src/win32/dirent.c)
+	SET( APP_HDRS ${APP_HDRS} src/win32/dirent.h)
+ENDIF()
+
 #INCLUDE(xrc_files.cmake)
 SET( APP_XRC
 	src/ui/AnnotationWindowUI.xrc
@@ -141,24 +146,44 @@ SET( APP_XRC
 	src/ui/CAPClientWindowUI.xrc
 	)
 
-# Find the Cmgui libraries, using a gui the Cmgui_DIR variable
+SET(MISSING_DEPENDENCY)
+# Find the Zinc libraries, using a gui the Zinc_DIR variable
 # can be set if needed.  Alternatively it can be set on the 
 # command line when creating the CMake cache.
-FIND_PACKAGE(Cmgui REQUIRED)
-FIND_PACKAGE(GDCM REQUIRED)
+FIND_PACKAGE(Cmgui)
+IF(NOT CMGUI_FOUND)
+	LIST(APPEND MISSING_DEPENDENCY 0)
+	LIST(LENGTH MISSING_DEPENDENCY COUNT)
+	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find cmgui-config.cmake.")
+ENDIF()
+FIND_PACKAGE(GDCM)
+IF(NOT GDCM_FOUND)
+	LIST(APPEND MISSING_DEPENDENCY 0)
+	LIST(LENGTH MISSING_DEPENDENCY COUNT)
+	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find GDCMConfig.cmake.")
+ENDIF()
 #INCLUDE(${GDCM_USE_FILE}) # don't use this it is bad.
 SET(GDCM_INCLUDE_DIRS "${GDCM_INSTALL_PREFIX}/include/gdcm-2.0")
 #Need to find boost headers too?
-FIND_PATH(CAP_BOOST_INCLUDE_DIR boost/shd_ptr.h)
-IF(NOT CAP_BOOST_INCLUDE_DIR)
-	MESSAGE(FATAL_ERROR "Could not find required header 'boost/shd_ptr.h'.")
+FIND_PATH(CAP_BOOST_INCLUDE_DIR boost/shared_ptr.hpp)
+IF(NOT EXISTS ${CAP_BOOST_INCLUDE_DIR}/boost/shared_ptr.hpp)
+	LIST(APPEND MISSING_DEPENDENCY 0)
+	LIST(LENGTH MISSING_DEPENDENCY COUNT)
+	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find boost/shared_ptr.hpp.")
 ENDIF()
 # CAP Client needs the gmm header files if they are not on the
 # system include path it needs to be set independently.
 FIND_PATH(CAP_GMM_INCLUDE_DIR gmm/gmm.h)
-IF(NOT CAP_GMM_INCLUDE_DIR)
-	MESSAGE(FATAL_ERROR "Could not find required header 'gmm/gmm.h'.")
+IF(NOT EXISTS ${CAP_GMM_INCLUDE_DIR}/gmm/gmm.h)
+	LIST(APPEND MISSING_DEPENDENCY 0)
+	LIST(LENGTH MISSING_DEPENDENCY COUNT)
+	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find gmm/gmm.h.")
 ENDIF()
+LIST(LENGTH MISSING_DEPENDENCY COUNT)
+IF(${COUNT} GREATER 0)
+	MESSAGE(FATAL_ERROR "\n${COUNT} configuration errors found:${CAP_ERROR_MESSAGE}")
+ENDIF()
+SET(BOOST_INCLUDE_DIRS "${CAP_BOOST_INCLUDE_DIR}")
 SET(GMM_INCLUDE_DIRS "${CAP_GMM_INCLUDE_DIR}")
 
 # Set some extra compiler flags if gcc is detected
@@ -190,19 +215,27 @@ FOREACH(TXT_FILE ${TXT_FILES})
 		DEPENDS txt2include
 		MAIN_DEPENDENCY ${TXT_FILES})
 	LIST(APPEND TXT_HDRS ${TXT_FILE_HDR})
-ENDFOREACH(TXT_FILE ${TXT_FILES})
+ENDFOREACH()
 
-# Must set the values defined in CMGUI_DEFINITIONS
-FOREACH(DEF ${CMGUI_DEFINITIONS})
+IF(WIN32)
+	# The _SCL_SECURE_NO_DEPRECATE define is required for gmm/gmm.h version 4.1.
+	# The _CRT_SECURE_NO_WARNINGS define is required to stop visual studio from being annoying.
+	SET(PLATFORM_DEFS _SCL_SECURE_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
+ENDIF()
+
+# Must set the values defined in ZINC_DEFINITIONS
+FOREACH(DEF ${CMGUI_DEFINITIONS} ${PLATFORM_DEFS})
 	ADD_DEFINITIONS(-D${DEF})
-ENDFOREACH(DEF ${CMGUI_DEFINITIONS})
+ENDFOREACH()
 
-# Set the include directories, Cmgui does not know that it is dependent on gdcm??? 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS} ${GMM_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
-
+# Set the include directories, Zinc does not know that it is dependent on gdcm??? 
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS} ${GMM_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
+IF(MSVC)
+	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/win32)
+ENDIF()
 # Set the CAP Client executable with all sources and headers.  Set headers here also so 
 # that some IDEs recognise them and include them in their projects.
-ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} ${APP_SRCS} ${APP_HDRS} ${UI_SRCS_AND_HDRS} ${TXT_HDRS})
+ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} WIN32 ${APP_SRCS} ${APP_HDRS} ${UI_SRCS_AND_HDRS} ${TXT_HDRS})
 
 # Set some target properties, helpful to visually determine properties of a build.
 SET_TARGET_PROPERTIES(${CAP_CLIENT_EXECUTABLE} PROPERTIES DEBUG_POSTFIX "d" MINSIZEREL_POSTFIX "msr" RELWITHDEBUGINFO_POSTFIX "rwdi")
@@ -210,16 +243,16 @@ SET_TARGET_PROPERTIES(${CAP_CLIENT_EXECUTABLE} PROPERTIES DEBUG_POSTFIX "d" MINS
 # and for each of your dependant executable/library targets:
 TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIBRARIES})
 
-# these libraries are not pulled in by cmgui or one of it's dependencies
+# these libraries are not pulled in by Zinc or one of it's dependencies
 # is not reporting that it needs them
 TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
-	"${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a"
-	"${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a"
-	"${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a"
-	"${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a"
-	"${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a"
-	"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a"
-	"${GDCM_INSTALL_PREFIX}/lib/libgdcmuuid.a")
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib")
+#	"${GDCM_INSTALL_PREFIX}/lib/gdcmuuid.lib")
 	
 # Unit Testing
 IF(CAP_ENABLE_UNIT_TESTS)

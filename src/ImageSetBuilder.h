@@ -13,6 +13,7 @@
 #include "ImageSlice.h"
 #include "CmguiImageSliceGraphics.h"
 
+#include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
 
@@ -58,7 +59,7 @@ public:
 			{
 				BOOST_FOREACH(ContourPtr const& contour, dicom->GetContours())
 				{
-					std::cout << "Creating contour:: Frame numbr = " << frame << '\n';
+					std::cout << "Creating contour:: Frame number = " << frame << '\n';
 					double startTime = (double)frame / (double) numberOfFrames;
 					double duration = (double)1.0 / numberOfFrames;
 					double endTime = startTime + duration;

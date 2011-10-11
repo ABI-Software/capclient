@@ -8,14 +8,17 @@
 #ifndef CAPBASIS_H_
 #define CAPBASIS_H_
 
-#include <math.h>
+#include <cmath>
+#ifndef M_PI
+# define M_PI	3.14159265358979323846
+#endif
 
 namespace cap
 {
 
 
 class CAPFourierBasis
-{   
+{
 public:
 	void Evaluate(double bf[], const double xi[]) const
 	{

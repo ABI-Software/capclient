@@ -26,8 +26,9 @@ extern "C" {
 namespace cap
 {
 
-struct CAPModelLVPS4X4::HeartModelImpl
+class CAPModelLVPS4X4::HeartModelImpl
 {
+public:
 	HeartModelImpl()
 	:
 		region(0),
@@ -104,7 +105,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 		modelFilenames.push_back(filenameStream.str());
 	}
 	
-	ReadModelFromFiles(dir_path, modelFilenames);
+	return ReadModelFromFiles(dir_path, modelFilenames);
 }
 
 int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& model_dir_path, const std::vector<std::string>& modelFilenames)
@@ -236,7 +237,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	
 	for (int i = 0; i < numberOfModelFrames_ ; i++)
 	{
-		double_t time = static_cast<double>(i)/numberOfModelFrames_;
+		double time = static_cast<double>(i)/numberOfModelFrames_;
 		const int write_elements = 0;
 		const int write_nodes = 1;
 		//string exnodeFilenamePrefix(dirname);
@@ -265,7 +266,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	// write exelem
 	const int write_elements = 1;
 	const int write_nodes = 0;
-	const double_t time = 0.0;
+	const double time = 0.0;
 	string exelemFilename(dirname);
 	exelemFilename.append("/GlobalHermiteParam.exelem");
 	int ret = 0;
@@ -371,23 +372,23 @@ void CAPModelLVPS4X4::UpdateMII(int index, double iso_value)
 		assert(settings);
 	}
 	
-	struct Computed_field *iso_scalar_field;
-	double *current_iso_values, decimation_threshold, *iso_values,
-			first_iso_value, last_iso_value;
-	int number_of_iso_values = 0;
-	//GT_element_settings_get_iso_surface_parameters(settings, &iso_scalar_field,
-	//		&number_of_iso_values, &iso_values,
-	//		&first_iso_value, &last_iso_value, 
-	//		&decimation_threshold);
-	*iso_values = iso_value;
-	//GT_element_settings_set_iso_surface_parameters(settings, iso_scalar_field,
-	//	number_of_iso_values, iso_values,
-	//	first_iso_value, last_iso_value,
-	//	decimation_threshold);
+	//--struct Computed_field *iso_scalar_field = 0;
+	//--double *current_iso_values, decimation_threshold, *iso_values,
+	//--		first_iso_value, last_iso_value;
+	//--int number_of_iso_values = 0;
+	//--GT_element_settings_get_iso_surface_parameters(settings, &iso_scalar_field,
+	//--		&number_of_iso_values, &iso_values,
+	//--		&first_iso_value, &last_iso_value, 
+	//--		&decimation_threshold);
+	//--*iso_values = iso_value;
+	//--GT_element_settings_set_iso_surface_parameters(settings, iso_scalar_field,
+	//--	number_of_iso_values, iso_values,
+	//--	first_iso_value, last_iso_value,
+	//--	decimation_threshold);
 
-	//DEALLOCATE(iso_values);
+	//--DEALLOCATE(iso_values);
 	
-	//GT_element_group_modify(gt_element_group, gt_element_group);
+	//--GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
 void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
@@ -434,7 +435,7 @@ Vector3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Vector3D& global) c
 
 Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
 {
-	double_t lambda = 0.0, mu = 0.0, theta = 0.0;
+	double lambda = 0.0, mu = 0.0, theta = 0.0;
 		
 	// cartesian_to_prolate_spheroidal(rc.x, rc.y, rc.z, focalLength_, &lambda, &mu, &theta,0);
 	//cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
@@ -450,10 +451,10 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, double t
 //	cout << "Local coord = " << coordLocal << endl;
 	
 	//2. Transform to Prolate Spheroidal
-	double_t lambda, mu, theta;
+	//--double lambda, mu, theta;
 	
-	// cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, focalLength_, 
-	//		&lambda,&mu, &theta,0);
+	//-- cartesian_to_prolate_spheroidal(coordLocal.x,coordLocal.y,coordLocal.z, focalLength_, 
+	//--		&lambda,&mu, &theta,0);
 //	cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
 	
 	//3. Project on to model surface and obtain the material coordinates
@@ -462,7 +463,8 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, double t
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(cmiss_region);
 	Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "heart_rc_coord");//FIX
 	
-	double_t point[3], xi[3];
+	double point[3], xi[3];
+	xi[0] = 0.0; xi[1] = 0.0; xi[2] = 0.0;
 //	point[0] = lambda, point[1] = mu, point[2] = theta;
 	point[0] = coordLocal.x, point[1] = coordLocal.y, point[2] = coordLocal.z;
 	// FE_element* element = 0;
@@ -490,13 +492,13 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, double t
 //		}
 #ifndef NDEBUG
 		cout << "Data Point : " << point[0] << ", " << point[1] << ", " << point[2] << endl;
-		cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
+		//--cout << "PS xi : " << xi[0] << ", " << xi[1] << ", " << xi[2] << endl;
 		
-		double_t values[3], derivatives[9];
-		//Computed_field_evaluate_in_element(field, element, xi,
-		//							/*time*/0, (struct FE_element *)NULL, values, derivatives);
-		cout << "Projected : " << values[0] << ", " << values[1] << ", " << values[2] << endl;
-		cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
+		//--double values[3], derivatives[9];
+		//--Computed_field_evaluate_in_element(field, element, xi,
+		//--							/*time*/0, (struct FE_element *)NULL, values, derivatives);
+		//--cout << "Projected : " << values[0] << ", " << values[1] << ", " << values[2] << endl;
+		//--cout << "elem : " << Cmiss_element_get_identifier(element)<< endl;
 #endif
 	}
 	else
@@ -545,7 +547,7 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<double>& lambdaParams, double 
 			}
 		}
 		
-		struct FE_field *fe_field;
+		//--struct FE_field *fe_field;
 		//Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 		for (int value_number = 0; value_number < 4; ++value_number)
 		{
@@ -576,8 +578,10 @@ const std::vector<double> CAPModelLVPS4X4::GetLambda(int frame) const
 	std::vector<double> lambdas;
 	for (int i=0; i < 134; i++)
 	{
-		//TODO we need to get Bezier coefficients. Cmgui only has Hermite.
+		//--TODO: we need to get Bezier coefficients. Cmgui only has Hermite.
 	}
+
+	return lambdas;
 }
 
 void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
@@ -589,7 +593,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 	
 	//Epi
 	
-	double_t mu[4];
+	double mu[4];
 	for (int i=0;i<4;i++)
 	{
 		Cmiss_region_id fe_region = 0;
@@ -610,11 +614,11 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		//{
 			//Error
 		//}
-		double_t lambda = values[0];
-		double_t theta = values[2];
+		//--double lambda = values[0];
+		//--double theta = values[2];
 		mu[i] = values[1] = 0.0;
 		
-		double_t x, y, z;
+		double x = 0.0, y = 0.0, z = 0.0;
 		//if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (FE_value*)0))
 		//{
 			//Error
@@ -677,14 +681,14 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 	    
 //		std::cout << std::endl ;
 		
-		struct FE_field *fe_field;
+		//--struct FE_field *fe_field;
 		//Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 		
 		//const FE_nodal_value_type type = FE_NODAL_VALUE;
 		const int version = 0;
 		const int component_number = 1; //MU
 		
-		double_t value = mu[i];
+		double value = mu[i];
 		//set_FE_nodal_FE_value_value(node,
 		//		fe_field, component_number,
 		//		version,
@@ -698,7 +702,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		for (int i=0;i<4;i++)
 		{
 			//modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
-			double_t value = mu[i]/4.0 * (4.0- (double)j);
+			double value = mu[i]/4.0 * (4.0- (double)j);
 			
 			Cmiss_region_id fe_region = 0;
 			struct FE_node *node = 0;
@@ -711,7 +715,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 					cout << "Error: no such node: " << i << endl;
 				}
 			}
-			struct FE_field *fe_field;
+			//--struct FE_field *fe_field;
 			// Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 			
 			//const FE_nodal_value_type type = FE_NODAL_VALUE;
@@ -744,16 +748,16 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 			}
 		}
 
-		double_t values[3];
+		//--double values[3];
 		//if (!Cmiss_field_evaluate_at_node(pImpl_->field, node,time,numberOfComponents , values))
 		//{
 			//Error
 		//}
-		double_t lambda = values[0];
-		double_t theta = values[2];
-		mu[i] = values[1] = 0.0;
+		//--double lambda = values[0];
+		//--double theta = values[2];
+		//--mu[i] = values[1] = 0.0;
 
-		double_t x, y, z;
+		double x = 0.0, y = 0.0, z = 0.0;
 		//if (!prolate_spheroidal_to_cartesian(lambda, mu[i], theta, focalLength_, &x, &y, &z, (FE_value*)0))
 		//{
 			//Error
@@ -798,14 +802,14 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 
 //		std::cout << std::endl ;
 
-		struct FE_field *fe_field;
+		//--struct FE_field *fe_field;
 		//Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 
 		//const FE_nodal_value_type type = FE_NODAL_VALUE;
 		const int version = 0;
 		const int component_number = 1; //MU
 
-		double_t value = mu[i];
+		double value = mu[i];
 		//set_FE_nodal_FE_value_value(node,
 		//		fe_field, component_number,
 		//		version,
@@ -819,7 +823,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 		for (int i=0;i<4;i++)
 		{
 			//modelParams[1](j*4+i) = mu[i]/4.0 * (4.0- (double)j);
-			double_t value = mu[i]/4.0 * (4.0- (double)j);
+			double value = mu[i]/4.0 * (4.0- (double)j);
 
 			Cmiss_region_id fe_region = 0;
 			struct FE_node *node = 0;
@@ -832,7 +836,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 					cout << "Error: no such node: " << i << endl;
 				}
 			}
-			struct FE_field *fe_field;
+			//--struct FE_field *fe_field;
 			//Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 
 			//const FE_nodal_value_type type = FE_NODAL_VALUE;
@@ -854,7 +858,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 void CAPModelLVPS4X4::SetTheta(int frame)
 {
 	double time = (double)frame / GetNumberOfModelFrames();
-	const double_t thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
+	const double thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
 	
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{	
@@ -871,14 +875,14 @@ void CAPModelLVPS4X4::SetTheta(int frame)
 			}
 		}
 		
-		struct FE_field *fe_field;
+		//--struct FE_field *fe_field;
 		//Computed_field_get_type_finite_element(pImpl_->field,&fe_field);
 
 		//const FE_nodal_value_type type = FE_NODAL_VALUE;
 		const int version = 0;
 		const int component_number = 2; //THETA
 		
-		double_t value = thetas[(i-1)%4];
+		double value = thetas[(i-1)%4];
 		//set_FE_nodal_FE_value_value(node,
 		//	 fe_field, component_number,
 		//	 version,
@@ -958,9 +962,10 @@ double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, double time) const
 			for (int j=0;j<ny;j++)
 			{
 				//calculate lamda mu and theta at this point
-				double_t values[3], xi[3];
-				xi[0] = (double_t) i/(nx-1);
-				xi[1] = (double_t) j/(ny-1);
+				//--double values[3], xi[3];
+				double xi[3];
+				xi[0] = (double) i/(nx-1);
+				xi[1] = (double) j/(ny-1);
 				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
 				//if (!Computed_field_evaluate_in_element(field, element, xi,
 				//	time, (struct FE_element *)NULL, values, (FE_value*)0 /*derivatives*/))
@@ -1043,7 +1048,7 @@ void CAPModelLVPS4X4::SetFocalLengh(double focalLength)
 	// The fe_field keeps a copy of the coordinate_system info
 	// This has to be updated too since Cmgui uses this copy when merging regions 
 	// read in from files
-	struct FE_field *fe_field;
+	//--struct FE_field *fe_field;
 	//struct LIST(FE_field) *fe_field_list  = Computed_field_get_defining_FE_field_list(pImpl_->field);
 	void *fe_field_list = 0;
 	if (fe_field_list)

@@ -5,14 +5,17 @@
 #include <ctype.h>      /* for isalnum() */
 #if defined(MSDOS) || defined(WIN32) || defined(OS2)
 # include <io.h>        /* for setmode() */
+# include <fcntl.h>     /* for O_BINARY e.t.c. */
 #endif
 
 #if defined(MSDOS) || defined(WIN32) || defined(OS2)
 # define BIN_READ(yes)  ((yes) ? "rb" : "rt")
 # define BIN_WRITE(yes) ((yes) ? "wb" : "wt")
 # define BIN_CREAT(yes) ((yes) ? (O_CREAT|O_BINARY) : O_CREAT)
-# define BIN_ASSIGN(fp, yes) setmode(fileno(fp), (yes) ? O_BINARY : O_TEXT)
-# define PATH_SEP '\\'
+# define BIN_ASSIGN(fp, yes) _setmode(_fileno(fp), (yes) ? O_BINARY : O_TEXT)
+// CMake is changing the path separator before invoking this application.
+# define PATH_SEP '/'
+//# define PATH_SEP '\\'
 #else
 # define BIN_READ(dummy)  "r"
 # define BIN_WRITE(dummy) "w"
@@ -28,7 +31,7 @@ int main(int argc, char* argv[])
 	FILE *fpi = 0, *fpo = 0;
 	int c, e, p = 0, cols = 64, len;
 	long length = -1;
-	char *pname, *pp, *fn;
+	char *pname, *pp;//, *fn;
 	unsigned int revert = 1;
 
 	if (argc > 3)

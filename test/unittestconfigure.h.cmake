@@ -1,0 +1,8 @@
+
+
+#ifndef _UNITTEST_CONFIGURE_H
+#define _UNITTEST_CONFIGURE_H
+
+#cmakedefine FILESYSTEM_TESTDIR "@FILESYSTEM_TESTDIR@"
+
+#endif

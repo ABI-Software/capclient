@@ -19,6 +19,7 @@ extern "C"
 #include <api/cmiss_region.h>
 }
 
+#include "Config.h"
 #include "CmguiImageSliceGraphics.h"
 #include "material.h"
 #include "cmguipanel.h"
@@ -98,13 +99,13 @@ Point3D CmguiImageSliceGraphics::GetTopLeftCornerPosition()
 		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region << std::endl;
 	}
 
-	Cmiss_node_id node;
+	//--Cmiss_node_id node;
 	Point3D tlc;
-	//if (node = Cmiss_region_get_node(region, "3"))
-	//{
-	//	FE_node_get_position_cartesian(node, 0, &(tlc.x), &(tlc.y), &(tlc.z), 0);
-	//}
-	//else
+	//--if (node = Cmiss_region_get_node(region, "3"))
+	//--{
+	//--	FE_node_get_position_cartesian(node, 0, &(tlc.x), &(tlc.y), &(tlc.z), 0);
+	//--}
+	//--else
 	{
 		std::cout << "Error:\n";
 		throw std::exception();
@@ -330,8 +331,8 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 	if (node_field_creator) // = CREATE(FE_node_field_creator)(
 //		/*number_of_components*/1))
 	{
-		struct FE_time_sequence *fe_time_sequence;
-		double_t times[5];
+		struct FE_time_sequence *fe_time_sequence = 0;
+		double times[5];
 		double values[5];
 		int numberOfTimes = 0;
 		double newFieldValue = visibility ? 1.0f : 0.0f;
@@ -389,12 +390,12 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 //			/*(struct FE_time_sequence *)NULL*/ fe_time_sequence,
 //			node_field_creator))
 		{
-			int number_of_values;
+			//--int number_of_values;
 			for (int i = 0; i < numberOfTimes; ++i)
 			{									 													
-//				Cmiss_field_set_values_at_node( visibilityField, node, times[i] , 1 , &(values[i]));
+//--				Cmiss_field_set_values_at_node( visibilityField, node, times[i] , 1 , &(values[i]));
 			}
-//			DESTROY(FE_node_field_creator)(&node_field_creator);
+//--			DESTROY(FE_node_field_creator)(&node_field_creator);
 			return node;
 		}
 		else
@@ -402,6 +403,8 @@ Cmiss_node_id Cmiss_node_set_visibility_field_private(Cmiss_node_id node,
 			std::cout << "Error define_FE_field_at_node\n";
 		}
 	}
+
+	return node;
 }
 
 //#include "computed_field/computed_field_finite_element.h"

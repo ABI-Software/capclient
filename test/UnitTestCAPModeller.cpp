@@ -114,7 +114,14 @@ void DataPoint::SetVisible(bool)
 {}
 
 DataPoint& DataPoint::operator=(DataPoint const& rhs)
-{}
+{
+	if (this == &rhs)
+		return *this;
+
+	//Do assignment here
+
+	return *this;
+}
 
 } // namespace cap
 

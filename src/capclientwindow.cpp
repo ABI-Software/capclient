@@ -15,10 +15,12 @@
 
 extern "C"
 {
+#include <configure/cmgui_configure.h>
 #include <api/cmiss_context.h>
 #include <api/cmiss_field.h>
 }
 
+#include "Config.h"
 #include "capclient.h"
 #include "capclientapp.h"
 #include "capclientwindow.h"
@@ -46,13 +48,14 @@ namespace
 	};//REVISE
 	}
 
-CAPClientWindow::CAPClientWindow(wxWindow* parent, CAPClient* mainApp)
-	: CAPClientWindowUI(parent)
+CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
+	: CAPClientWindowUI()
 	, mainApp_(mainApp)
 	, cmissContext_(Cmiss_context_create("CAPClient"))
 	, cmguiPanel_(0)
 {
-	int result = Cmiss_context_enable_user_interface(cmissContext_, 0, 0, static_cast<void*>(wxTheApp));
+	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
+
 	cmguiPanel_ = new CmguiPanel(cmissContext_, "CAPClient", panel_Cmgui);
 	SetIcon(wxIcon(capicon_xpm));
 	
@@ -312,7 +315,7 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 		std::cout << "trc: " << plane->trc << std::endl;
 		std::cout << "brc: " << plane->brc << std::endl;
 		std::cout << "blc: " << plane->blc << std::endl;
-		RepositionPlaneElement(cmissContext_, regionName, plane->tlc.ToArray(), plane->trc.ToArray(), plane->brc.ToArray(), plane->blc.ToArray());
+		RepositionPlaneElement(cmissContext_, regionName, plane);
 	}
 	textureSliceMap_.insert(std::make_pair(regionName, boost::make_shared<TextureSlice>(material, fieldImages)));
 	ChangeTexture(regionName, fieldImages.at(0));
@@ -469,7 +472,7 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 		showOthers = false;
 		// remember which ones were visible
 		indicesOfOthers.clear();
-		for (int i=0;i<checkListBox_Slice->GetCount();i++)
+		for (unsigned int i=0;i<checkListBox_Slice->GetCount();i++)
 		{
 			if (checkListBox_Slice->IsChecked(i) && checkListBox_Slice->GetSelection() != i)
 			{
@@ -530,7 +533,7 @@ void CAPClientWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	// mainApp_->SetImageContrast(contrast);
 }
 
-void CAPClientWindow::UpdateModeSelectionUI(int newMode)
+void CAPClientWindow::UpdateModeSelectionUI(size_t newMode)
 {
 	ResetModeChoice();
 	for (size_t i = 1; i <= newMode; i++)

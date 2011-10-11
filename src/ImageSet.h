@@ -28,7 +28,7 @@ class ImagePlane;
 class ImageSlice;
 class CmguiPanel;
 
-typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
+typedef std::map<std::string, boost::shared_ptr<ImageSlice> > ImageSlicesMap;
 
 /**
  * 
@@ -70,7 +70,7 @@ public:
 	 * \param visible visibility default 
 	 * \param index index of the slice
 	 */
-	void SetVisible(bool visible, int index ); 
+	void SetVisible(bool visible, unsigned int index ); 
 	
 	bool IsVisible(const std::string& sliceName) const;
 	
@@ -126,7 +126,6 @@ private:
 	//std::vector<ImageSlice*> imageSlices_;
 	
 	//or
-//	typedef std::map<std::string, std::tr1::shared_ptr<ImageSlice> > ImageSlicesMap;
 	ImageSlicesMap imageSlicesMap_;
 
 	SlicesWithImages slicesWithImages_;

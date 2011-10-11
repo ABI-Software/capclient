@@ -5,9 +5,6 @@
  *      Author: jchu014
  */
 
-#include "CAPModellingMode.h"
-#include "CAPModeller.h"
-#include "CAPTotalLeastSquares.h"
 #include <iostream>
 #include <algorithm>
 #include <assert.h>
@@ -15,16 +12,19 @@
 
 // CAPModellingModeGuidePoints
 
+#include <boost/bind.hpp>
+#include <boost/foreach.hpp>
+
+#include "Config.h"
+#include "CAPModellingMode.h"
+#include "CAPModeller.h"
+#include "CAPTotalLeastSquares.h"
 #include "SolverLibraryFactory.h"
 #include "GMMFactory.h"
 #include "VNLFactory.h"
 #include "CAPMath.h"
 #include "CAPModelLVPS4X4.h"
-
 #include "CAPBasis.h"
-
-#include "boost/bind.hpp"
-#include "boost/foreach.hpp"
 
 namespace
 {
@@ -793,21 +793,21 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	
 	// Transform heart model using the newly computed axes
 	gtMatrix transform;
-	transform[0][0]=xAxis.x;
-	transform[0][1]=xAxis.y;
-	transform[0][2]=xAxis.z;
+	transform[0][0]=static_cast<float>(xAxis.x);
+	transform[0][1]=static_cast<float>(xAxis.y);
+	transform[0][2]=static_cast<float>(xAxis.z);
 	transform[0][3]=0; //NB this is the first column not row
-	transform[1][0]=yAxis.x;
-	transform[1][1]=yAxis.y;
-	transform[1][2]=yAxis.z;
+	transform[1][0]=static_cast<float>(yAxis.x);
+	transform[1][1]=static_cast<float>(yAxis.y);
+	transform[1][2]=static_cast<float>(yAxis.z);
 	transform[1][3]=0;
-	transform[2][0]=zAxis.x;
-	transform[2][1]=zAxis.y;
-	transform[2][2]=zAxis.z;
+	transform[2][0]=static_cast<float>(zAxis.x);
+	transform[2][1]=static_cast<float>(zAxis.y);
+	transform[2][2]=static_cast<float>(zAxis.z);
 	transform[2][3]=0;
-	transform[3][0]=origin.x;
-	transform[3][1]=origin.y;
-	transform[3][2]=origin.z;
+	transform[3][0]=static_cast<float>(origin.x);
+	transform[3][1]=static_cast<float>(origin.y);
+	transform[3][2]=static_cast<float>(origin.z);
 	transform[3][3]=1;
 	
 	heartModel_.SetLocalToGlobalTransformation(transform);

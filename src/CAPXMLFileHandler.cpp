@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <functional>
 #include <time.h>
+#include <float.h>
 
 extern "C"
 {
@@ -212,7 +213,7 @@ boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::st
 		}
 		catch (std::exception& e)
 		{
-			std::cout << __func__ << ": Invalid DICOM file - " << filename << '\n';
+			std::cout << __func__ << ": Invalid DICOM file - " << filename << ", " << e.what() << std::endl;
 		}
 	}
 
@@ -365,7 +366,7 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiPanel *cmguiManager
 		Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, image.label.c_str());
 		BOOST_FOREACH(CAPXMLFile::Point const& p, image.points)
 		{
-			double_t coords[3];
+			double coords[3];
 			coords[0] = (*p.values.find("x")).second.value;
 			coords[1] = (*p.values.find("y")).second.value;
 			coords[2] = (*p.values.find("z")).second.value;

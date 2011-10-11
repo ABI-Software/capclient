@@ -12,7 +12,7 @@
 //#include <boost/ptr_container/ptr_vector.hpp>
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
 
-class Cmiss_node; //REVISE
+struct Cmiss_node; //REVISE
 
 namespace cap
 {

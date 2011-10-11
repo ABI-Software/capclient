@@ -9,7 +9,15 @@
 #define CAPMATH_H_
 
 #include <iostream>
+#include <string>
+
 #include <cmath>
+#ifndef M_PI
+# define M_PI	3.14159265358979323846
+#endif
+#ifndef M_PI_2
+# define M_PI_2	1.57079632679489661923
+#endif
 
 extern "C"
 {
@@ -26,15 +34,68 @@ typedef float Real;
 namespace cap
 {
 
-class Vector3D
+class Type3D
 {
+protected:
+	Type3D() : x(0), y(0), z(0) {}
+	Type3D(Real x_, Real y_, Real z_) : x(x_), y(y_), z(z_) {}
+
 public:
-	Vector3D() :
-		x(0), y(0), z(0) {
+	/**
+	 * Returns true if the 3D type's scalar components are all greater
+	 * than the ones of the 3D type it is compared against.
+	 */
+	inline bool operator <(const Type3D& rhs) const
+	{
+		if (x < rhs.x && y < rhs.y && z < rhs.z)
+			return true;
+		return false;
 	}
 
-	Vector3D(Real x_, Real y_, Real z_) :
-		x(x_), y(y_), z(z_) {
+	/**
+	 * Returns true if the 3D type's scalar components are all less
+	 * than the ones of the 3D type it is compared against.
+	 */
+	inline bool operator>(const Type3D& rhs) const
+	{
+		if (x > rhs.x && y > rhs.y && z > rhs.z)
+			return true;
+		return false;
+	}
+
+	/**
+	 * Returns true if the 3D type's scalar components are all equal
+	 * to the ones of the 3D type it is compared against.
+	 */
+	inline bool operator ==(const Type3D& rhs) const
+	{
+		if (x == rhs.x && y == rhs.y && z == rhs.z)
+			return true;
+		return false;
+	}
+
+	friend std::ostream& operator<<(std::ostream &_os, const Type3D &val);
+
+	Real x, y, z;
+};
+
+inline std::ostream& operator<<(std::ostream &os, const Type3D &val)
+{
+	os << "( " << val.x << ", " << val.y << ", " << val.z << ") ";
+	return os;
+};
+
+class Vector3D : public Type3D
+{
+public:
+	Vector3D()
+		: Type3D()
+	{
+	}
+
+	Vector3D(Real x_, Real y_, Real z_)
+		: Type3D(x_, y_, z_)
+	{
 	}
 
 	Real Length() const {
@@ -70,58 +131,16 @@ public:
 	inline Real operator *(const Vector3D& rhs) const {
 		return x * rhs.x + y * rhs.y + z * rhs.z;
 	}
-
-	/** Returns true if the vector's scalar components are all greater
-	 that the ones of the vector it is compared against.
-	 */
-	inline bool operator <(const Vector3D& rhs) const {
-		if (x < rhs.x && y < rhs.y && z < rhs.z)
-			return true;
-		return false;
-	}
-
-	/** Returns true if the vector's scalar components are all smaller
-	 that the ones of the vector it is compared against.
-	 */
-	inline bool operator>(const Vector3D& rhs) const {
-		if (x > rhs.x && y > rhs.y && z > rhs.z)
-			return true;
-		return false;
-	}
-
-	inline bool operator ==(const Vector3D& rhs) const {
-		if (x == rhs.x && y == rhs.y && z == rhs.z)
-			return true;
-		return false;
-	}
-
-	Real x, y, z;
 };
 
-inline std::ostream& operator<<(std::ostream &os, const Vector3D &val)
-{
-	os << "( " << val.x << ", " << val.y << ", " << val.z << ") ";
-	return os;
-};
-
-class Point3D
+class Point3D : public Type3D
 {
 public:
-	Real x,y,z;
-	Point3D(Real x_, Real y_, Real z_)
-	: x(x_),y(y_),z(z_)
-	{};
-	Point3D()
-	: x(0),y(0),z(0)
-	{};
+	Point3D() : Type3D() {};
+	Point3D(Real x_, Real y_, Real z_) : Type3D(x_, y_, z_) {};
+
 	explicit Point3D(Real p[]) //for compatibility with Cmgui
-	: x(p[0]),y(p[1]),z(p[2])
-	{};
-	
-	//default cpoy ctor will do
-//	Point3D(const Point3D& other)
-//	:x(other.x), y(other.y), z(other.z)
-//	{};
+		: Type3D(p[0], p[1], p[2]) {};
 	
 	/**
 	 * Convert the point to an array.  The array returned
@@ -160,29 +179,7 @@ public:
 	{
 			return Point3D(x/divider, y/divider, z/divider);
 	}
-	
-	//default assignment will do
-//	Point3D& operator=(const Point3D& rhs) 
-//	{
-//		if (this != &rhs)
-//		{
-//			x = rhs.x;
-//			y = rhs.y;
-//			z = rhs.z;
-//		}
-//		return *this;
-//	}
-	
-	friend std::ostream& operator<<(std::ostream &_os, const Point3D &val);
 };
-
-template <class Type3D>
-bool operator==(Type3D const& a, Type3D const& b)
-{
-	if (a.x == b.x && a.y == b.y && a.z == b.z)
-		return true;
-	return false;
-}
 
 inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes translation
 {
@@ -201,12 +198,6 @@ inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes transl
 //{
 //	return Point3D(scalar*rhs.x, scalar*rhs.y, scalar*rhs.z);
 //}
-
-inline std::ostream& operator<<(std::ostream &os, const Point3D &val)
-{
-	os << "( " << val.x << ", " << val.y << ", " << val.z << ") ";
-	return os;
-};
 
 inline std::istream& operator>>(std::istream& in, Point3D &val)
 {
@@ -330,8 +321,8 @@ inline void transposeMatrix(gtMatrix m)
 //	ans.z = to.z - from.z;
 //}
 
-template <typename T>
-inline double DotProduct(const T& a, const T& b)
+//--template <typename T>
+inline double DotProduct(const Type3D& a, const Type3D& b)
 {
 	return a.x*b.x + a.y*b.y + a.z*b.z;
 }
@@ -344,10 +335,10 @@ inline double DotProduct(const T& a, const T& b)
 //	(ans).z = (vec1).x*(vec2).y - (vec1).y*(vec2).x;
 //}
 
-template <typename V>
-inline V CrossProduct(const V& vec1, const V& vec2)
+//--template <typename V>
+inline Vector3D CrossProduct(const Type3D& vec1, const Type3D& vec2)
 {
-	return V((vec1).y*(vec2).z - (vec1).z*(vec2).y,
+	return Vector3D((vec1).y*(vec2).z - (vec1).z*(vec2).y,
 				    (vec1).z*(vec2).x - (vec1).x*(vec2).z,
 				    (vec1).x*(vec2).y - (vec1).y*(vec2).x);
 }

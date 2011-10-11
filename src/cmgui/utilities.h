@@ -1,10 +1,11 @@
 
-
 #ifndef UTILITIES_H
 #define UTILITIES_H
 /**
  * This file contains prototypes for utilites for the Cmgui library.
  */
+
+#include "CAPMath.h"
 
 /**
  * Create a texture from list of images.  The dicom given is 
@@ -71,7 +72,7 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
  * \param width the width to set the element to.
  * \param height the height to set the element to.
  */
-void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, int width, int height);
+void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, double width, double height);
 
 /**
  * Reposition a plane element in 3D rectangular cartesion space (square finite elemet type) 
@@ -81,10 +82,7 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
  * 
  * \param cmissContext the context to use.
  * \param regionName the name of the region to resize the square element in.
- * \param tlc the top left corner of the new plane.
- * \param trc the top right corner of the new plane.
- * \param brc the bottom right corner of the new plane.
- * \param blc the bottom left corner of the new plane.
+ * \param plane the plane describing the orientation of the image.
  */
- void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, Real *tlc, Real *trc, Real *brc, Real *blc);
+ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane);
 #endif /* UTILITIES_H */
