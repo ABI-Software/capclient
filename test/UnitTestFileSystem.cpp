@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
+#include "unittestconfigure.h"
 #include "FileSystem.h"
 
+
 #ifdef _MSC_VER
+# define rmdir _rmdir
 	char testString1[] = "\\home\\dummies\\are\\us";
 	char testString2[] = "\\home\\dummies\\are\\ferry.txt";
 	char testString3[] = "ferry.txt";
@@ -47,11 +50,32 @@ TEST(FileSystemTest, GetFileNameWOE)
 
 TEST(FileSystemTest, GetAllFileNames)
 {
-	cap::FileSystem fs(".");
+	cap::FileSystem fs(FILESYSTEM_TESTDIR);
 	std::vector<std::string> names = fs.getAllFileNames();
 
 	std::vector<std::string>::const_iterator it = names.begin();
-	for (;it != names.end(); it++)
-		std::cout << *it << std::endl;
+	ASSERT_EQ(std::string("file1.txt"), names.at(0));
+	ASSERT_EQ(std::string("file2.txt"), names.at(1));
+	ASSERT_EQ(std::string("file3.txt"), names.at(2));
+	ASSERT_EQ(std::string("subdir"), names.at(3));
+}
+
+TEST(FileSystemTest, CreateDirectory)
+{
+	cap::FileSystem fs(FILESYSTEM_TESTDIR);
+	bool res = fs.CreateDirectory("created/programmatically");
+	EXPECT_EQ(false, res);
+	res = fs.CreateDirectory("created magic");
+	EXPECT_EQ(true, res);
+	res = fs.CreateDirectory("mine");
+	EXPECT_EQ(true, res);
+
+	// remove created directories
+	std::string base1(FILESYSTEM_TESTDIR);
+	int ret = rmdir(base1.append("/created magic").c_str());
+	EXPECT_EQ(0, ret);
+	std::string base2(FILESYSTEM_TESTDIR);
+	ret = rmdir(base2.append("/mine").c_str());
+	EXPECT_EQ(0, ret);
 }
 

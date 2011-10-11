@@ -21,7 +21,7 @@ public:
 	
 	const std::vector<std::string>& getAllFileNames();
 	
-	void CreateDirectory(std::string const& dirname);
+	bool CreateDirectory(const std::string& dirname);
 
 	/**
 	 * Given a string name this function will return the
