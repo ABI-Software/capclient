@@ -69,6 +69,7 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 	// CAPXMLInput
 	int slice = 0;
 	
+	typedef std::pair<Vector3D, Vector3D> Orientation;
 	xmlFile_.ClearInputAndOutput();
 	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
 	{
@@ -84,19 +85,23 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 			image.label = label;
 			image.frame = frame++;
 			image.slice = slice;
+			image.imageOrientation = boost::shared_ptr<Orientation>();
+			image.imagePosition = boost::shared_ptr<Point3D>();;
+			image.points = std::vector<CAPXMLFile::Point>();
 			// if the images have been shifted for mis-registraion correction,
 			// put the new position and orientation in each image element
 			// TODO : This is really a per-slice attribute rather than per image.
 			//        Need to change the xml file schema accordingly ??
+			
 			if (dicomFile->IsShifted())
 			{
-				Point3D const& pos = dicomFile->GetShiftedImagePosition();
+				Point3D const& pos = dicomFile->GetImagePosition();
 				image.imagePosition = boost::make_shared<Point3D>(pos);
 			}
+
 			if (dicomFile->IsRotated())
 			{
-				typedef std::pair<Vector3D, Vector3D> Orientation;
-				Orientation ori = dicomFile->GetShiftedImageOrientation();
+				Orientation ori = dicomFile->GetImageOrientation();
 				image.imageOrientation = boost::make_shared<Orientation>(ori);
 			}
 			
@@ -275,7 +280,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiPanel *cmguiManager
 		if (image.imagePosition)
 		{
 			Point3D const& pos = *image.imagePosition;
-			dicomImage->SetShiftedImagePosition(pos);
+			dicomImage->SetImagePosition(pos);
 		}
 		
 		//TODO handle cases where image label is not present

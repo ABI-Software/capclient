@@ -46,9 +46,10 @@ IF(NOT CAPTEST_GMM_INCLUDE_DIR)
 	MESSAGE(FATAL_ERROR "Could not find required header 'gmm/gmm.h'.")
 ENDIF()
 SET(GMM_INCLUDE_DIRS "${CAPTEST_GMM_INCLUDE_DIR}")
-
+SET(GDCM_INCLUDE_DIRS "${GDCM_INSTALL_PREFIX}/include/gdcm-2.0")
 
 SET(FILESYSTEM_TESTDIR "${CMAKE_CURRENT_SOURCE_DIR}/testdir")
+SET(DICOMIMAGE_IMAGEDIR "${CMAKE_CURRENT_SOURCE_DIR}/imagedir")
 CONFIGURE_FILE(unittestconfigure.h.cmake unittestconfigure.h)
 
 INCLUDE_DIRECTORIES(
@@ -61,20 +62,26 @@ INCLUDE_DIRECTORIES(
 #	${CAPCLIENT_BINARY_DIR}/src
 )
 
+SET(UNIT_TESTS)
+SET(GUI_TESTS)
+
 SET(Math_SRC
 	UnitTestCAPMath.cpp
 	UnitTestTotalLeastSquares.cpp
 )
+LIST(APPEND UNIT_TESTS Math)
 
 SET(Xml_SRC
 	UnitTestCAPXMLFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
+LIST(APPEND UNIT_TESTS Xml)
 
 SET(ImageSet_SRC
 	UnitTestImageSet.cpp
 )
+LIST(APPEND UNIT_TESTS ImageSet)
 
 SET(CAPModeller_SRC
 	UnitTestCAPModeller.cpp
@@ -82,20 +89,31 @@ SET(CAPModeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/CAPModeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPTimeSmoother.cpp
 )
+LIST(APPEND UNIT_TESTS CAPModeller)
 
 SET(CAPAnnotationFile_SRC
 	UnitTestCAPAnnotationFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
+LIST(APPEND UNIT_TESTS CAPAnnotationFile)
+
 SET(AnnotationEditor_SRC
 	UnitTestAnnotationEditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/AnnotationEditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
+LIST(APPEND UNIT_TESTS AnnotationEditor)
 
 SET(FileSystem_SRC
 	UnitTestFileSystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
+)
+LIST(APPEND UNIT_TESTS FileSystem)
+
+LIST(APPEND UNIT_TESTS DICOMImage)
+Set(DICOMImage_SRC
+	UnitTestDICOMImage.cpp
+	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
 )
 
 SET(GuiTestImageBrowser_SRC
@@ -110,6 +128,7 @@ SET(GuiTestImageBrowser_SRC
 	${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
 	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
 )
+LIST(APPEND GUI_TESTS GuiTestImageBrowser)
 
 IF(MSVC)
 	SET(CAPAnnotationFile_SRC
@@ -125,13 +144,13 @@ ENDIF()
 # copy XML files
 FILE(COPY SampleAnalysisUsingXsd.xml SampleAnnotationFile.xml DESTINATION ${PROJECT_BINARY_DIR})
 
-SET(UNIT_TESTS Math Xml ImageSet CAPModeller CAPAnnotationFile AnnotationEditor FileSystem)
-SET(GUI_TESTS GuiTestImageBrowser)
-
 FOREACH( TEST ${UNIT_TESTS} )
 	ADD_EXECUTABLE(UnitTest${TEST} ${${TEST}_SRC})
 	ADD_TEST(UnitTest${TEST} UnitTest${TEST})
-	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES} 
+		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib"
+		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
+)
 ENDFOREACH()
 
 IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)

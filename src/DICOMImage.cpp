@@ -36,7 +36,6 @@ DICOMImage::DICOMImage(const string& filename)
 	  isRotated_(false)
 {
 	ReadDICOMFile();
-	ComputeImagePlane();
 }
 
 void DICOMImage::ReadDICOMFile()
@@ -377,7 +376,7 @@ void DICOMImage::ComputeImagePlane()
 	plane_->blc = plane_->tlc + fieldOfViewY * orientation2_;
 
 	plane_->xside = plane_->trc - plane_->tlc;
-	plane_->yside = plane_->tlc - plane_->blc;
+	plane_->yside = plane_->blc - plane_->tlc;
 	plane_->normal.CrossProduct(plane_->xside, plane_->yside);
 	plane_->normal.Normalise();
 
@@ -393,8 +392,11 @@ void DICOMImage::ComputeImagePlane()
 	plane_->d = DotProduct((plane_->tlc - Point3D(0,0,0)) ,plane_->normal);
 }
 
-ImagePlane* DICOMImage::GetImagePlaneFromDICOMHeaderInfo() const
-{	
+ImagePlane* DICOMImage::GetImagePlane()
+{
+	if (!plane_)
+		ComputeImagePlane();
+
 	return plane_;
 }
 

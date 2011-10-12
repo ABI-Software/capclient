@@ -34,6 +34,9 @@ typedef float Real;
 namespace cap
 {
 
+/**
+ * Type3D. 
+ */
 class Type3D
 {
 protected:
@@ -85,6 +88,9 @@ inline std::ostream& operator<<(std::ostream &os, const Type3D &val)
 	return os;
 };
 
+/**
+ * Vector3D. 
+ */
 class Vector3D : public Type3D
 {
 public:
@@ -133,6 +139,9 @@ public:
 	}
 };
 
+/**
+ * Point3D. 
+ */
 class Point3D : public Type3D
 {
 public:
@@ -158,7 +167,13 @@ public:
 		return array;
 	}
 	
-	// Can only add vectors to points
+	/**
+	 * Addition operator.
+	 *
+	 * @param	rhs	The right hand side.
+	 *
+	 * @return	The result of the operation.
+	 */
 	Point3D operator+(const Vector3D& rhs) const
 	{
 		return Point3D(x+rhs.x, y+rhs.y, z+rhs.z);
