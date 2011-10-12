@@ -1,5 +1,6 @@
 #ifndef ABSTRACTLABELLED_H
 #define ABSTRACTLABELLED_H
+
 #include "CAPAnnotationFile.h"
 
 namespace cap

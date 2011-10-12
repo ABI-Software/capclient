@@ -191,15 +191,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							std::pair<Vector3D,Vector3D> const& ori = dicom->GetImageOrientation();
 							Vector3D const& ori1 = ori.first;
 							Vector3D const& ori2 = ori.second;
-							Point3D pos;
-							if (dicom->IsShifted())
-							{
-								pos = dicom->GetShiftedImagePosition();
-							}
-							else
-							{
-								pos = dicom->GetImagePosition();
-							}
+							Point3D pos = dicom->GetImagePosition();
 							
 							//construct transformation matrix
 							gtMatrix m;
@@ -259,15 +251,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							std::pair<Vector3D,Vector3D> const& ori = dicom->GetImageOrientation();
 							Vector3D const& ori1 = ori.first;
 							Vector3D const& ori2 = ori.second;
-							Point3D pos;
-							if (dicom->IsShifted())
-							{
-								pos = dicom->GetShiftedImagePosition();
-							}
-							else
-							{
-								pos = dicom->GetImagePosition();
-							}
+							Point3D pos = dicom->GetImagePosition();
 							
 							//construct transformation matrix
 							gtMatrix m;

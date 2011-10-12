@@ -585,7 +585,7 @@ void ImageBrowser::UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::st
 	{
 		std::string const& sopiuid = dicomPtr->GetSopInstanceUID();
 		std::vector<ImageAnnotation>::iterator imageItr =
-		std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
+			std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
 					 cardiacAnnotation_.imageAnnotations.end(),
 					 boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
 		if (imageItr == cardiacAnnotation_.imageAnnotations.end())
@@ -599,8 +599,7 @@ void ImageBrowser::UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::st
 		else
 		{
 			// Remove conflicting labels if present
-			std::vector<Label>::iterator labelItr =
-			imageItr->labels.begin();
+			std::vector<Label>::iterator labelItr = imageItr->labels.begin();
 			while (labelItr != imageItr->labels.end())
 			{
 				bool erasePerformed = false;
@@ -608,7 +607,7 @@ void ImageBrowser::UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::st
 				{
 					if (labelItr->label == labelToRemove)
 					{
-						//							std::cout << "Erasing label : " << labelItr->label << '\n';
+						// std::cout << "Erasing label : " << labelItr->label << '\n';
 						imageItr->labels.erase(labelItr);
 						erasePerformed = true;
 					}

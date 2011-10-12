@@ -310,7 +310,7 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	
 	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDicomImages())
 	{
-		ImagePlane* plane = dicom->GetImagePlaneFromDICOMHeaderInfo();
+		ImagePlane* plane = dicom->GetImagePlane();
 		std::cout << "tlc: " << plane->tlc << std::endl;
 		std::cout << "trc: " << plane->trc << std::endl;
 		std::cout << "brc: " << plane->brc << std::endl;

@@ -105,7 +105,7 @@ void ImageSlice::TransformImagePlane()
 	
 	assert(!images_.empty());
 	DICOMImage& dicomImage = *images_[0]; //just use the first image in the slice
-	ImagePlane* plane = dicomImage.GetImagePlaneFromDICOMHeaderInfo();
+	ImagePlane* plane = dicomImage.GetImagePlane();
 	if (!plane)
 	{
 		cout << "ERROR !! plane is null"<<endl;
