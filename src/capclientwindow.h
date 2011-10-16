@@ -16,6 +16,11 @@
     #include "wx/wx.h"
 #endif
 
+extern "C"
+{
+#include <api/cmiss_field_image.h>
+}
+
 #include "ui/CAPClientWindowUI.h"
 
 #include "cmguipanel.h"
@@ -30,6 +35,9 @@ namespace cap
 
 class CAPClient; // Forward declare this so we can pass a pointer to the class later on.
 
+/**
+ * Defines an alias representing the texture slice map.
+ */
 typedef std::map< std::string, boost::shared_ptr<TextureSlice> > TextureSliceMap;
 
 /**
@@ -116,8 +124,20 @@ public:
 	 * \returns the scene viewer.
 	 */
 	Cmiss_scene_viewer_id GetCmissSceneViewer() const;
-	
-	Cmiss_context_id GetCmissContext() const;
+
+	/**
+	 * Gets the cmiss context.
+	 *
+	 * @return	The cmiss context.
+	 */
+	Cmiss_context_id GetCmissContext() const { return cmissContext_; }
+
+	/**
+	 * Gets the time keeper.
+	 *
+	 * @return	The time keeper.
+	 */
+	Cmiss_time_keeper_id GetTimeKeeper() const { return timeKeeper_; }
 	
 	
 	void UpdateFrameNumber(int frameNumber);

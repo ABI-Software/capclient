@@ -1,8 +1,7 @@
 
 
 #include "capclient.h"
-
-#include "cmguicallbacks.h"
+#include "utils/debug.h"
 
 namespace cap
 {
@@ -46,6 +45,18 @@ int CAPClient::GetFrameNumberForTime(double time)
 	return frameNumber;
 }
 
+const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
+{
+	std::vector<LabelledSlice>::const_iterator cit = labelledSlices_.begin();
+	for (;cit != labelledSlices_.end(); cit++)
+	{
+		if (cit->GetLabel() == label)
+			return *(cit->GetDicomImages().at(0)->GetImagePlane());
+	}
+
+	throw std::exception();
+}
+
 void CAPClient::OnAnimationSliderEvent(double time)
 {
 	if (!heartModelPtr_) //FIXME fix what??
@@ -55,12 +66,8 @@ void CAPClient::OnAnimationSliderEvent(double time)
 		
 	time = (time > 0.99) ? 0.0 : time;
 	
-	//Time_keeper_request_new_time(timeKeeper_, time);
 		
 	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
-	gui_->SetTime(time);
-	gui_->UpdateFrameNumber(frameNumber);
-	Refresh3DCanvas(); // forces redraw while silder is being manipulated
 }
 
 void CAPClient::LoadImages(const SlicesWithImages& slices) // name misleading?
@@ -106,6 +113,7 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSli
 		capXMLFilePtr_.reset(0);
 	}
 	
+	labelledSlices_ = labelledSlices;
 	// read (or reread) in dicoms to create image textures (again) for this context.
 	std::vector<LabelledSlice>::const_iterator it;
 	std::vector<std::string> sliceNames;
@@ -456,27 +464,6 @@ void CAPClient::SaveModel(std::string const& dirname, std::string const& userCom
 void CAPClient::EnterImagesLoadedState()
 {
 	gui_->EnterImagesLoadedState();
-	
-	StopCine();
-	
-	// Initialize timer for animation
-	size_t numberOfLogicalFrames = 8;//--imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
-	if (timeNotifier_)
-	{
-		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
-		Cmiss_time_notifier_destroy(&timeNotifier_);
-	}
-	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
-	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
-	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MINIMUM_TIME, 0.0);
-	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
-	//		Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
-	//		Time_keeper_set_maximum(timeKeeper_, 1);
-	
-	gui_->SetAnimationSliderRange(0, numberOfLogicalFrames);
-	
-	//--gui_->SetTitle(wxString(imageSet_->GetPatientID().c_str(),wxConvUTF8));
-	
 	mainWindowState_ = IMAGES_LOADED_STATE;
 }
 
@@ -549,6 +536,21 @@ void CAPClient::InitializeModelTemplate(SlicesWithImages const& slices)
 	gui_->EnterInitState(); // HACK to clear mii and wireframe check boxes
 	heartModelPtr_->SetMIIVisibility(false);
 	heartModelPtr_->SetModelVisibility(false);
+}
+
+unsigned int CAPClient::GetNumberOfFrames() const
+{
+	std::vector<LabelledSlice>::const_iterator cit = labelledSlices_.begin();
+	unsigned int minFrames = cit->GetDicomImages().size();
+	dbg("frame count: " + toString(minFrames));
+	for (;cit != labelledSlices_.end(); cit++)
+	{
+		dbg("frame count: " + toString(cit->GetDicomImages().size()));
+		if (cit->GetDicomImages().size() < minFrames)
+			minFrames = cit->GetDicomImages().size();
+	}
+
+	return minFrames;
 }
 
 } // namespace cap

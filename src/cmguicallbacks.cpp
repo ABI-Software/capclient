@@ -15,6 +15,7 @@ extern "C"
 #include "labelledtexture.h"
 
 #include "capclient.h"
+#include "utils/debug.h"
 
 #include "cmguicallbacks.h"
 
@@ -189,12 +190,12 @@ int input_callback_image_shifting(struct Scene_viewer *scene_viewer,
 int time_callback(Cmiss_time_notifier_id time, double current_time, void *user_data)
 {
 	//DEBUG
-	std::cout << "Time_call_back time = " << current_time << '\n';
+	dbg("Time_call_back time = " + toString(current_time));
 	
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(user_data);
 	gui->SetTime(current_time);
 	
-	gui->RedrawNow(); // this forces refresh even when UI is being manipulated by user
+	//gui->RedrawNow(); // this forces refresh even when UI is being manipulated by user
 	
 	return 0;
 }

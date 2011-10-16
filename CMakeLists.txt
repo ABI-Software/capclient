@@ -71,6 +71,7 @@ SET( APP_HDRS
 	src/CmguiImageSliceGraphics.h
 	src/cmguipanel.h
 	src/Config.h
+	src/utils/debug.h
 	src/DICOMImage.h
 	src/DataPoint.h
 	src/FileSystem.h
@@ -134,7 +135,7 @@ SET( APP_SRCS
 	)
 
 IF(MSVC)
-	SET( APP_SRCS ${APP_SRCS} src/win32/dirent.c)
+	SET( APP_SRCS ${APP_SRCS} src/win32/dirent.c src/win32/capclient.rc)
 	SET( APP_HDRS ${APP_HDRS} src/win32/dirent.h)
 ENDIF()
 
@@ -246,14 +247,21 @@ TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIBRARIES})
 # these libraries are not pulled in by Zinc or one of it's dependencies
 # is not reporting that it needs them
 TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
+	optimized
 	"${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib"
 	"${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib"
 	"${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib"
 	"${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib"
 	"${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
-	"${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib")
-#	"${GDCM_INSTALL_PREFIX}/lib/gdcmuuid.lib")
-	
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib"
+	debug
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib"
+	"${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib")
+
 # Unit Testing
 IF(CAP_ENABLE_UNIT_TESTS)
 	SET(CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")

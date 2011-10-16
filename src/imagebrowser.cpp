@@ -605,10 +605,11 @@ void ImageBrowser::UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::st
 				bool erasePerformed = false;
 				BOOST_FOREACH(std::string const& labelToRemove, labelsToRemove)
 				{
-					if (labelItr->label == labelToRemove)
+					if (labelItr != imageItr->labels.end() && labelItr->label == labelToRemove)
 					{
-						// std::cout << "Erasing label : " << labelItr->label << '\n';
-						imageItr->labels.erase(labelItr);
+						 // Does this invalidate the iterator? yes but it returns an iterator 
+						 // to the next item.  But the next item could be the end so check for that.
+						labelItr = imageItr->labels.erase(labelItr);
 						erasePerformed = true;
 					}
 				}

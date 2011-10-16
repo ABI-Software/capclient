@@ -65,6 +65,26 @@ void CmguiPanel::SetFreeSpin(bool on)
 	Cmiss_interactive_tool_destroy(&iTool);
 }
 
+void CmguiPanel::SetViewingPlane(const ImagePlane& plane)
+{
+	// compute the center of the image plane, eye(camera) position and the up vector
+	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
+	Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
+	Vector3D up(plane.yside);
+	up.Normalise();
+	
+	//Hack :: perturb direction vector a little
+	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
+	
+	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
+		cmissSceneViewer_, eye.x, eye.y, eye.z,
+		planeCenter.x, planeCenter.y, planeCenter.z,
+		up.x, up.y, up.z))
+	{
+		//Error;
+	}
+}
+
 void CmguiPanel::SetViewingVolume(double radius)
 {
 	const double view_angle = 40.0, width_factor = 1.05, clip_factor = 10.0;

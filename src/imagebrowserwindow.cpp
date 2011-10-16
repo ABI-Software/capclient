@@ -60,7 +60,8 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	cmguiPanel_ = new CmguiPanel(cmissContext_, IMAGE_PREVIEW, panel_cmgui);
 	
-	SetIcon(wxIcon(capicon_xpm));
+	SetIcon(wxICON(capicon));
+
 	Fit();
 	// This stops the window from getting too long in height 
 	// when there are many items in the Image Table
@@ -68,7 +69,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	Centre();
 	// Work around for bug ID: 3053989
 	// see https://sourceforge.net/tracker/?func=detail&aid=3053989&group_id=237340&atid=1103258 for more info
-	#ifdef WIN32	
+	#ifdef WIN32
 	this->Maximize(true);
 	#endif
 	MakeConnections();
@@ -113,6 +114,8 @@ void ImageBrowserWindow::CreateAnnotationTableColumns()
 ImageBrowserWindow::~ImageBrowserWindow()
 {
 	std::cout << "ImageBrowserWindow::~ImageBrowserWindow()" << std::endl;
+	delete cmguiPanel_;
+	Cmiss_context_destroy(&cmissContext_);
 	//Cmiss_context_execute_command(cmguiPanel_->GetCmissContext(),
 	//		("gfx destroy scene " + IMAGE_PREVIEW).c_str());
 	//TODO : destroy textures??

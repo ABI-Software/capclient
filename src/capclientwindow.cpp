@@ -20,6 +20,7 @@ extern "C"
 #include <api/cmiss_field.h>
 }
 
+#include "utils/debug.h"
 #include "Config.h"
 #include "capclient.h"
 #include "capclientapp.h"
@@ -29,6 +30,8 @@ extern "C"
 #include "CAPBinaryVolumeParameterDialog.h"
 #include "cmgui/utilities.h"
 #include "material.h"
+#include "cmguicallbacks.h"
+
 
 #include "images/capicon.xpm"
 
@@ -39,25 +42,31 @@ namespace cap
 
 namespace
 {
-	const char* ModeStrings[] = {
+	const char* ModeStrings[] = 
+	{
 		"Apex",
 		"Base",
 		"RV Inserts",
 		"Baseplane Points",
 		"Guide Points"
 	};//REVISE
-	}
+}
 
 CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	: CAPClientWindowUI()
 	, mainApp_(mainApp)
 	, cmissContext_(Cmiss_context_create("CAPClient"))
 	, cmguiPanel_(0)
+	, timeKeeper_(0)
+	, timeNotifier_(0)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
+	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
+	Cmiss_time_keeper_set_repeat_mode(timeKeeper_, CMISS_TIME_KEEPER_REPEAT_MODE_PLAY_LOOP);
+	Cmiss_time_keeper_set_frame_mode(timeKeeper_, CMISS_TIME_KEEPER_FRAME_MODE_PLAY_REAL_TIME);
 
 	cmguiPanel_ = new CmguiPanel(cmissContext_, "CAPClient", panel_Cmgui);
-	SetIcon(wxIcon(capicon_xpm));
+	SetIcon(wxICON(capicon));
 	
 	// GUI initialization
 	//CreateStatusBar(0);
@@ -80,8 +89,12 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 
 CAPClientWindow::~CAPClientWindow()
 {
-	cout << __func__ << endl;
+	dbg(__func__);
 	delete cmguiPanel_;
+
+	Cmiss_context_destroy(&cmissContext_);
+	Cmiss_time_keeper_destroy(&timeKeeper_);
+	Cmiss_time_notifier_destroy(&timeNotifier_);
 }
 
 void CAPClientWindow::MakeConnections()
@@ -194,6 +207,26 @@ void CAPClientWindow::EnterImagesLoadedState()
 	menuItem_Save->Enable(true);
 	menuItem_Export->Enable(false);
 	menuItem_ExportToBinaryVolume->Enable(false);
+
+	StopCine();
+	// Initialize timer for animation
+	size_t numberOfLogicalFrames = mainApp_->GetNumberOfFrames();//-- TODO: set this properly!!! imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
+	if (timeNotifier_)
+	{
+		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
+		Cmiss_time_notifier_destroy(&timeNotifier_);
+	}
+	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
+	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
+	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MINIMUM_TIME, 0.0);
+	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
+	//		Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
+	//		Time_keeper_set_maximum(timeKeeper_, 1);
+	
+	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
+	
+	//--gui_->SetTitle(wxString(imageSet_->GetPatientID().c_str(),wxConvUTF8));
+
 }
 
 void CAPClientWindow::EnterModelLoadedState()
@@ -241,11 +274,6 @@ Cmiss_scene_viewer_id CAPClientWindow::GetCmissSceneViewer() const
 	return cmguiPanel_->GetCmissSceneViewer();
 }
 
-Cmiss_context_id CAPClientWindow::GetCmissContext() const
-{
-	return cmissContext_;
-}
-
 void CAPClientWindow::AddDataPoint(Cmiss_node* dataPointID, Point3D const& position)
 {
 	mainApp_->AddDataPoint(dataPointID, position, GetCurrentTime());
@@ -268,20 +296,34 @@ void CAPClientWindow::SmoothAlongTime()
 
 void CAPClientWindow::PlayCine()
 {
+	Cmiss_time_keeper_play(timeKeeper_, CMISS_TIME_KEEPER_PLAY_FORWARD);
 	button_Play->SetLabel(wxT("stop"));
 }
 
 void CAPClientWindow::StopCine()
 {
+	Cmiss_time_keeper_stop(timeKeeper_);
 	button_Play->SetLabel(wxT("play"));
-	wxCommandEvent event;
-	OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
+	//wxCommandEvent event;
+	//OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 }
 
 void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 {
-	cout << "CAPClientWindow::" << __func__ << endl;
-	// mainApp_->OnTogglePlay();
+	dbg("CAPClientWindow::OnTogglePlay");
+	//--mainApp_->OnTogglePlay();
+
+	if (button_Play->GetLabel() == wxT("play"))
+	{
+		// start stuff
+		PlayCine();
+	}
+	else
+	{
+
+		// stop stuff
+		StopCine();
+	}
 }
 
 void CAPClientWindow::Terminate(wxCloseEvent& event)
@@ -311,10 +353,6 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDicomImages())
 	{
 		ImagePlane* plane = dicom->GetImagePlane();
-		std::cout << "tlc: " << plane->tlc << std::endl;
-		std::cout << "trc: " << plane->trc << std::endl;
-		std::cout << "brc: " << plane->brc << std::endl;
-		std::cout << "blc: " << plane->blc << std::endl;
 		RepositionPlaneElement(cmissContext_, regionName, plane);
 	}
 	textureSliceMap_.insert(std::make_pair(regionName, boost::make_shared<TextureSlice>(material, fieldImages)));
@@ -345,7 +383,7 @@ void CAPClientWindow::CreateScene(const std::string& regionName)
 
 void CAPClientWindow::ChangeTexture(const std::string& name, Cmiss_field_image_id fieldImage)
 {
-	std::map<std::string, boost::shared_ptr<TextureSlice> >::const_iterator it = textureSliceMap_.find(name);
+	TextureSliceMap::const_iterator it = textureSliceMap_.find(name);
 	if (it != textureSliceMap_.end())
 		(*it).second->ChangeTexture(fieldImage);
 }
@@ -373,23 +411,28 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 
 void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 {
-	std::cout << "CAPClientWindow::OnObjectCheckListChecked" << std::endl;
 	int selection = event.GetInt();
 	wxString name = checkListBox_Slice->GetString(selection);
-	std::cout << "Check: " << name << std::endl;
-	
 	bool visibility = checkListBox_Slice->IsChecked(selection);
-	// mainApp_->SetImageVisibility(visibility, std::string(name.mb_str()));
-	
-	panel_Cmgui->Refresh();
-	this->Refresh();//test to see if this helps with the problem where 3d canvas doesnt update
+
+	TextureSliceMap::const_iterator cit = textureSliceMap_.find(std::string(name.c_str()));
+	if (cit != textureSliceMap_.end())
+	{
+		SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+	}
 }
 
 void CAPClientWindow::OnObjectCheckListSelected(wxListEvent& event)
 {
-	std::cout << "CAPClientWindow::OnObjectCheckListSelected" << std::endl;
-	wxString name = checkListBox_Slice->GetStringSelection();
-	// mainApp_->OnSliceSelected(std::string(name.mb_str()));
+	dbg("CAPClientWindow::OnObjectCheckListSelected");
+	int selection = event.GetInt();
+	wxString name = checkListBox_Slice->GetString(selection);
+	//called from OnObjectCheckListSelected
+	
+	const ImagePlane& plane = mainApp_->GetImagePlane(name.c_str());
+	
+	cmguiPanel_->SetViewingPlane(plane);
+	//gui_->RedrawNow();
 }
 
 void CAPClientWindow::SetAnimationSliderRange(int min, int max)
@@ -404,10 +447,21 @@ void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	int min = slider_Animation->GetMin();
 	int max = slider_Animation->GetMax();
 	
-	std::cout << __func__ << " : time = " << value << ", min = " << min << ", max = " << max << '\n';
+	//dbg( std::string(__func__) + " : time = " + toString(value) + ", min = " + toString(min) + ", max = " + toString(max) );
 	double time =  (double)(value - min) / (double)(max - min);
 	
+	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
+	for (; cit != textureSliceMap_.end(); cit++)
+	{
+		cit->second->ChangeTextureNearestTo(time);
+	}
+	//--Time_keeper_request_new_time(timeKeeper_, time);
 	// mainApp_->OnAnimationSliderEvent(time);
+	//--gui_->SetTime(time);
+	//-- need this for next 	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
+
+	//--gui_->UpdateFrameNumber(frameNumber);
+	//--Refresh3DCanvas(); // forces redraw while silder is being manipulated
 }
 
 void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
@@ -419,6 +473,7 @@ void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	
 	double speed = (double)(value - min) / (double)(max - min) * 2.0;
 	
+		//Time_keeper_set_speed(timeKeeper_, speed);
 	// mainApp_->OnAnimationSpeedControlEvent(speed);
 	return;
 }
@@ -432,10 +487,12 @@ void CAPClientWindow::UpdateFrameNumber(int frameNumber)
 
 void CAPClientWindow::SetTime(double time)
 {
-	int min = slider_AnimationSpeed->GetMin();
-	int max = slider_AnimationSpeed->GetMax();
+	int min = slider_Animation->GetMin();
+	int max = slider_Animation->GetMax();
 	//cout << "min = " << min << " ,max = " << max <<endl; 
-	slider_AnimationSpeed->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min);
+	slider_Animation->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min + 0.5);
+	wxCommandEvent event;
+	OnAnimationSliderEvent(event); // Setting the slider value doesn't trigger a slider event so we do it here for it.
 }
 
 void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
@@ -465,6 +522,9 @@ void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 {
 	static bool showOthers = true;
+
+	if (button_HideShowOthers->GetLabel() == wxT("Show Others"))
+		dbg(button_HideShowOthers->GetLabel().c_str());
 	
 	static std::vector<int> indicesOfOthers;
 	if (showOthers) //means the button says hide all rather than show all
@@ -477,7 +537,7 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 			if (checkListBox_Slice->IsChecked(i) && checkListBox_Slice->GetSelection() != i)
 			{
 				indicesOfOthers.push_back(i);
-				// mainApp_->SetImageVisibility(false, i);
+				//mainApp_->SetImageVisibility(false, i);
 				checkListBox_Slice->Check(i, false);
 			}
 		}
@@ -503,34 +563,38 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 
 void CAPClientWindow::OnMIICheckBox(wxCommandEvent& event)
 {
-	// mainApp_->OnMIICheckBox(event.IsChecked());
+	dbg(__func__);
+	//mainApp_->OnMIICheckBox(event.IsChecked());
 }
 
 void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
-	// mainApp_->OnWireframeCheckBox(event.IsChecked());
+	dbg(__func__);
+	//mainApp_->OnWireframeCheckBox(event.IsChecked());
 }
 
 void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 {
-	//cout << "CAPClientWindow::OnBrightnessSliderEvent" << endl;
 	int value = slider_Brightness->GetValue();
 	int min = slider_Brightness->GetMin();
 	int max = slider_Brightness->GetMax();
 	
 	float brightness = (float)(value - min) / (float)(max - min);
-	// mainApp_->SetImageBrightness(brightness);
+	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
+	for (;cit != textureSliceMap_.end(); cit++)
+		cit->second->SetBrightness(brightness);
 }
 
 void CAPClientWindow::OnContrastSliderEvent(wxCommandEvent& event)
 {
-	//cout << "CAPClientWindow::OnContrastSliderEvent" << endl;
 	int value = slider_Contrast->GetValue();
 	int min = slider_Contrast->GetMin();
 	int max = slider_Contrast->GetMax();
 	
 	float contrast = (float)(value - min) / (float)(max - min);
-	// mainApp_->SetImageContrast(contrast);
+	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
+	for (;cit != textureSliceMap_.end(); cit++)
+		cit->second->SetContrast(contrast);
 }
 
 void CAPClientWindow::UpdateModeSelectionUI(size_t newMode)

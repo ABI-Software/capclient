@@ -40,8 +40,8 @@ Cmiss_field_image_id CreateCmissImageTexture(Cmiss_field_module_id field_module,
 	//Cmiss_field_image_set_filter_mode(field_image,	CMISS_FIELD_IMAGE_FILTER_LINEAR);
 	Cmiss_field_image_read(field_image, stream_information);
 	
-	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, dicom_image->GetImageWidthMm());
-	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, dicom_image->GetImageHeightMm());
+	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
+	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
 	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_DEPTH_PIXELS, 1);
 	
 	Cmiss_stream_resource_destroy(&stream);
@@ -82,13 +82,12 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 	Cmiss_graphics_material_id sel_material = Cmiss_graphics_module_create_material(graphics_module);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
 	Cmiss_graphic_id surface = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-	//	Cmiss_graphics_mat
-	//Cmiss_graphic_set_coordinate_system(surface, CMISS_GRAPHICS_COORDINATE_SYSTEM_LOCAL);
-	Cmiss_graphic_set_coordinate_field(surface, coordinates);	
+
+	Cmiss_graphic_set_coordinate_field(surface, coordinates);
 	Cmiss_graphic_set_material(surface, material);
 	Cmiss_graphic_set_selected_material(surface, sel_material);
-	Cmiss_graphic_set_texture_coordinate_field(surface, coordinates);
-
+	Cmiss_graphic_set_texture_coordinate_field(surface, xi);
+	
 	//Cmiss_graphic_destroy(&surface);
 	Cmiss_field_destroy(&coordinates);
 	Cmiss_field_destroy(&xi);
@@ -212,18 +211,11 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 	//OutputDebugString(buffer);
 	double node_coordinates[element_node_count][3] =
 	{
-		{ 0, 0, 0 },
-		{ width, 0, 0 },
-		{ 0, height, 0 },
-		{ width, height, 0 }
+		{plane->blc.x, plane->blc.y, plane->blc.z},
+		{plane->brc.x, plane->brc.y, plane->brc.z},
+		{plane->tlc.x, plane->tlc.y, plane->tlc.z},
+		{plane->trc.x, plane->trc.y, plane->trc.z}
 	};
-	//double node_coordinates[element_node_count][3] =
-	//{
-	//	{plane->tlc.x, plane->tlc.y, plane->tlc.z},
-	//	{plane->blc.x, plane->blc.y, plane->blc.z},
-	//	{plane->trc.x, plane->trc.y, plane->trc.z},
-	//	{plane->brc.x, plane->brc.y, plane->brc.z}
-	//};
 	for (int i = 0; i < element_node_count; i++)
 	{
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
@@ -285,3 +277,18 @@ std::string GetNextNameInSeries(Cmiss_field_module_id field_module, std::string 
 	
 	return field_name;
 }
+
+void SetVisibilityForRegion(Cmiss_context_id cmissContext, const std::string& regionName, bool visibility)
+{
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
+	assert(region);
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
+	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
+	if (visibility)
+		Cmiss_rendition_set_visibility_flag(rendition, 1);
+	else
+		Cmiss_rendition_set_visibility_flag(rendition, 0);
+}
+
+

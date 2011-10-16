@@ -84,5 +84,15 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
  * \param regionName the name of the region to resize the square element in.
  * \param plane the plane describing the orientation of the image.
  */
- void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane);
+void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane);
+
+/**
+ * Sets the visibility of the rendition for the given region.
+ *
+ * @param	cmissContext	the context to use.
+ * @param	regionName  	Name of the region.
+ * @param	visibility  	if true make rendition visible, else make rendition invisible.
+ */
+void SetVisibilityForRegion(Cmiss_context_id cmissContext, const std::string& regionName, bool visibility);
+
 #endif /* UTILITIES_H */
