@@ -86,6 +86,13 @@ public:
 	 * This is useful for viewing 2D planes or surfaces.
 	 */
 	void SetViewingVolume(double radius);
+
+	/**
+	 * Sets the viewing volume to centre on the given viewing plane.
+	 *
+	 * @param	plane	The plane to centre the view on.
+	 */
+	void SetViewingPlane(const ImagePlane& plane);
 	
 	/**
 	 * Set tumble rate of the scene to the given speed.  Set the tumble rate to zero

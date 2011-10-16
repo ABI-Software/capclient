@@ -95,23 +95,6 @@ public:
 		gui_ = win;
 	}
 
-	/**
-	 * On toggle play clicked if the animation is on stop it and if
-	 * the animation is off start it.
-	 */
-	void OnTogglePlay()
-	{
-		if (animationIsOn_)
-		{
-			StopCine();
-		}
-		else
-		{
-			PlayCine();
-		}
-		return;
-	}
-	
 	void SetImageVisibility(bool visibility, std::string const& sliceName = "")
 	{
 		if (sliceName.length()) //REVISE
@@ -141,11 +124,9 @@ public:
 	void OnSliceSelected(std::string const& sliceName);
 	
 	void OnAnimationSliderEvent(double time);
-	
+
 	void OnAnimationSpeedControlEvent(double speed)
 	{
-		//Time_keeper_set_speed(timeKeeper_, speed);	
-		Refresh3DCanvas(); // forces redraw while silder is manipulated
 	}
 	
 	void Refresh3DCanvas()
@@ -178,8 +159,16 @@ public:
 		assert(heartModelPtr_);
 		heartModelPtr_->SetModelVisibility(checked);
 	}
-	
+
+	/**
+	 * Gets a frame number for the given time.
+	 *
+	 * @param	time	The time.
+	 *
+	 * @return	The frame number for given time.
+	 */
 	int GetFrameNumberForTime(double time);
+
 	void SetImageBrightness(double brightness)
 	{
 		imageSet_->SetBrightness(brightness);
@@ -271,7 +260,7 @@ public:
 	void OnExportModel(std::string const& dirname)
 	{
 		std::cout << __func__ << "\n";
-		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), timeKeeper_);
+		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
 		
 		iso->OnExportModel(dirname);
 	}
@@ -279,7 +268,7 @@ public:
 	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
 	{
 		std::cout << __func__ << "\n";
-		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), timeKeeper_);
+		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
 		
 		iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
 	}
@@ -295,7 +284,27 @@ public:
 		modeller_->MoveDataPoint(dataPointID, newPosition, time);
 		Refresh3DCanvas(); // need to force refreshing
 	}
-	
+
+	/**
+	 * Gets the image plane for the image stack with the given label.
+	 * Throws an exception if the label is not found, but this should not
+	 * happen because the possible input values are dervied from this list
+	 * initially.
+	 *
+	 * @param	label	The label of the image stack.
+	 *
+	 * @return	The image plane.
+	 */
+	const ImagePlane& GetImagePlane(const std::string& label);
+
+	/**
+	 * Gets the minimum number of frames.  This is the slice with the
+	 * minimum number of images.
+	 *
+	 * @return	The number of frames.
+	 */
+	unsigned int GetNumberOfFrames() const;
+
 	void RemoveDataPoint(Cmiss_node* dataPointID, double time) 
 	{
 		modeller_->RemoveDataPoint(dataPointID, time);
@@ -349,34 +358,10 @@ private:
 	{
 		gui_->EnterModelLoadedState();
 		
-		StopCine();
 		assert(heartModelPtr_);
 		heartModelPtr_->SetModelVisibility(true);
 		
 		mainWindowState_ = MODEL_LOADED_STATE;
-	}
-	
-	void PlayCine()
-	{
-		Cmiss_time_keeper_play(timeKeeper_, CMISS_TIME_KEEPER_PLAY_FORWARD);
-		Cmiss_time_keeper_set_repeat_mode(timeKeeper_, CMISS_TIME_KEEPER_REPEAT_MODE_PLAY_LOOP);
-		Cmiss_time_keeper_set_frame_mode(timeKeeper_, CMISS_TIME_KEEPER_FRAME_MODE_PLAY_REAL_TIME);
-//		Time_keeper_play(timeKeeper_,TIME_KEEPER_PLAY_FORWARD);
-		//Time_keeper_set_play_loop(timeKeeper_);
-		//Time_keeper_set_play_every_frame(timeKeeper_);
-		//Time_keeper_set_play_skip_frames(timeKeeper_);
-		this->animationIsOn_ = true;
-		
-		gui_->PlayCine();
-	}
-	
-	void StopCine()
-	{
-		Cmiss_time_keeper_stop(timeKeeper_);
-		//Time_keeper_stop(timeKeeper_);
-		this->animationIsOn_ = false;
-		
-		gui_->StopCine();
 	}
 	
 	void Terminate()
@@ -490,31 +475,11 @@ private:
 	}
 	
 	// Private Constructor - This class should be instantiated from the static factory method
-/*	CAPClient(CmguiPanel *manager)
-	:
-		cmguiManager_(manager),
-		imageSet_(0),
-		animationIsOn_(false),
-		hideAll_(false),
-		miiIsOn_(false),
-		wireFrameIsOn_(false),
-		heartModelPtr_(0),
-		modeller_(0),
-		capXMLFilePtr_(0),
-		cardiacAnnotationPtr_(0),
-		gui_(0),
-		//context_(manager.GetCmissContext()),
-		timeKeeper_(Cmiss_context_get_default_time_keeper(manager->GetCmissContext())),
-		timeNotifier_(0)
-	{}
-	*/
 	CAPClient()
 	: gui_(0)
 	, ib_(0)
-	, timeKeeper_(0)
-	, timeNotifier_(0)
 	, imageSet_(0)
-	, animationIsOn_(false)
+	, labelledSlices_(std::vector<LabelledSlice>())
 	, hideAll_(false)
 	, miiIsOn_(false)
 	, wireFrameIsOn_(false)
@@ -530,12 +495,9 @@ private:
 	CAPClientWindow* gui_;
 	ImageBrowser* ib_;
 	
-	// Cmiss_context_id context_;
-	Cmiss_time_keeper_id timeKeeper_;
-	Cmiss_time_notifier_id timeNotifier_;
 	ImageSet* imageSet_;
+	std::vector<LabelledSlice> labelledSlices_;
 	
-	bool animationIsOn_;
 	bool hideAll_;
 	bool miiIsOn_;
 	bool wireFrameIsOn_;
