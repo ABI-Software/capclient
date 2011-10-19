@@ -47,17 +47,17 @@ CAPXMLFileHandler::CAPXMLFileHandler(CAPXMLFile& xmlFile)
 	: xmlFile_(xmlFile)
 {}
 
-void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithImages,
-									std::vector<DataPoint> const& dataPoints,
-									CAPModelLVPS4X4 const& heartModel)
+void CAPXMLFileHandler::ConstructCAPXMLFile(const LabelledSlices& labelledSlices,
+									const std::vector<DataPoint>& dataPoints,
+									const CAPModelLVPS4X4& heartModel)
 {
-	if (slicesWithImages.empty())
+	if (labelledSlices.empty())
 	{
 		std::cout << __func__ << ": No dicom files to construct CAPXMLFile from\n";
 		return;
 	}
 	
-	std::string studyIUid = slicesWithImages[0].GetDICOMImages()[0]->GetStudyInstanceUID();
+	std::string studyIUid = labelledSlices[0].GetDICOMImages()[0]->GetStudyInstanceUID();
 	xmlFile_.SetStudyInstanceUID(studyIUid);
 	std::string const& filename = xmlFile_.GetFilename();
 	size_t positionOfLastSlash = filename.find_last_of("/\\");
@@ -71,10 +71,10 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 	
 	typedef std::pair<Vector3D, Vector3D> Orientation;
 	xmlFile_.ClearInputAndOutput();
-	BOOST_FOREACH(SliceInfo const& sliceInfo, slicesWithImages)
+	BOOST_FOREACH(const LabelledSlice& labelledSlice, labelledSlices)
 	{
-		std::string const& label = sliceInfo.GetLabel();
-		std::vector<DICOMPtr> const& dicomFiles = sliceInfo.GetDICOMImages();
+		std::string const& label = labelledSlice.GetLabel();
+		std::vector<DICOMPtr> const& dicomFiles = labelledSlice.GetDICOMImages();
 		
 		int frame = 0;
 		BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
@@ -138,11 +138,11 @@ void CAPXMLFileHandler::ContructCAPXMLFile(SlicesWithImages const& slicesWithIma
 		double time = dataPoint.GetTime();
 		// time is normalized between 0 and 1, so we can find the frame number from it.
 		
-		SlicesWithImages::const_iterator itr = std::find_if(slicesWithImages.begin(), slicesWithImages.end(), 
+		LabelledSlices::const_iterator itr = std::find_if(labelledSlices.begin(), labelledSlices.end(), 
 															boost::bind(std::equal_to<std::string>(),
-																		boost::bind(&SliceInfo::GetLabel, _1),
+																		boost::bind(&LabelledSlice::GetLabel, _1),
 																		sliceName));
-		assert(itr != slicesWithImages.end());
+		assert(itr != labelledSlices.end());
 		
 		std::vector<DICOMPtr> const& dicomFilesWithMatchingSliceName = itr->GetDICOMImages();
 		size_t numFrames = dicomFilesWithMatchingSliceName.size();
@@ -198,8 +198,7 @@ namespace
 boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::string const& path)
 {
 	boost::unordered_map<std::string, DICOMPtr> hashTable;
-	FileSystem fileSystem(path);
-	std::vector<std::string> const& filenames = fileSystem.getAllFileNames();
+	std::vector<std::string> const& filenames = FileSystem::GetAllFileNames(path);
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
 		// Skip files that are known not to be dicom files

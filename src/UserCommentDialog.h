@@ -16,64 +16,134 @@
 
 #include <string>
 
+#include "ui/UserCommentDialogUI.h"
+#include "utils/debug.h"
+
 namespace cap
 {
-
-class UserCommentDialog : public wxDialog
+/**
+ * Dialog for setting the user comment.  This class should only return wxID_OK if
+ * the text ctrl string is not empty.
+ */
+class UserCommentDialog : public UserCommentDialogUI
 {
 public:
-	UserCommentDialog(wxWindow* parent)
-//	:
-//		wxDialog( parent, -1, wxString("test"))
-	{
-		wxXmlResource::Get()->Load(wxT("UserCommentDialog.xrc"));
-		wxXmlResource::Get()->LoadDialog(this,(wxWindow *)parent, _T("UserCommentDialog"));
-		
-//		Show(true);
-//		Centre();
 
+	/**
+	 * Constructor.
+	 *
+	 * @param [in,out]	parent	If non-null, the parent.
+	 */
+	UserCommentDialog(wxWindow* parent)
+		: UserCommentDialogUI(parent)
+	{
+		button_ok->Enable(false);
+		Center();
+		MakeConnections();
 	}
-	
+
+	/**
+	 * Destructor.
+	 */
 	~UserCommentDialog()
 	{
 	}
 
-//	void OnClose(wxCloseEvent& event)
-//	{
-////		Destroy();
-//	};
-	void OnOKButtonEvent(wxCommandEvent& event)
+	/**
+	 * Sets the directory for the directory control.
+	 *
+	 * @param	dirname	Pathname of the directory.
+	 */
+	void SetDirectory(const std::string& dirname)
 	{
-		if ( IsModal() )
-		{
-			EndModal(wxID_OK); // If modal
-		}
-		else
-		{
-			SetReturnCode(wxID_OK);
-			this->Show(false); // If modeless
-		}
-	};
-//	void OnCancelButtonEvent(wxCommandEvent& event)
-//	{
-//		Close();
-//	};
-
-	std::string GetComment() const
-	{
-		wxTextCtrl* textCtrl = XRCCTRL(*this, "UserComment", wxTextCtrl);
-		return std::string(textCtrl->GetValue().mb_str());
+		textCtrl_directory->SetValue(dirname);
 	}
 
-	DECLARE_EVENT_TABLE();
+	/**
+	 * Gets the directory from the directory control.
+	 *
+	 * @return	The directory.
+	 */
+	std::string GetDirectory() const
+	{
+		return std::string(textCtrl_directory->GetValue().c_str());
+	}
+
+	/**
+	 * Gets the comment, the comment is non-empty if the OK button 
+	 * has been used to exit the dialog.
+	 *
+	 * @return	The comment.
+	 */
+	std::string GetComment() const
+	{
+		return std::string(text_userComment->GetValue().mb_str());
+		//wxTextCtrl* textCtrl = XRCCTRL(*this, "UserComment", wxTextCtrl);
+		//return std::string(textCtrl->GetValue().mb_str());
+	}
+
+private:
+
+	/**
+	 * Executes the ok clicked action.
+	 *
+	 * @param [in,out]	event	The event.
+	 */
+	void OnOKClicked(wxCommandEvent& event)
+	{
+		EndModal(wxID_OK);
+	}
+
+	/**
+	 * Executes the cancel clicked action.
+	 *
+	 * @param [in,out]	event	The event.
+	 */
+	void OnCancelClicked(wxCommandEvent& event)
+	{
+		EndModal(wxID_CANCEL);
+	}
+
+	/**
+	 * Executes the directory chooser clicked action.  Raises a directory
+	 * dialog to select a dialog.  If OK is returned from the dialog then
+	 * the directory text widget will be updated with the new value.
+	 *
+	 * @param [in,out]	event	The event.
+	 */
+	void OnDirectoryChooserClicked(wxCommandEvent& event)
+	{
+		wxDirDialog dirDlg(NULL, "Choose output directory", textCtrl_directory->GetValue(),
+			wxDD_DEFAULT_STYLE);
+		if (dirDlg.ShowModal() != wxID_OK)
+		{
+			return; // Cancelled save
+		}
+		textCtrl_directory->SetValue(dirDlg.GetPath());
+	}
+
+	/**
+	 * Executes the text updated action.
+	 *
+	 * @param [in,out]	event	The event.
+	 */
+	void OnTextUpdated(wxCommandEvent& event)
+	{
+		button_ok->Enable(!event.GetString().IsEmpty());
+	}
+
+	/**
+	 * Make the connections between the widgets and this class.
+	 */
+	void MakeConnections()
+	{
+		Connect(button_directoryChooser->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(UserCommentDialog::OnDirectoryChooserClicked));
+		Connect(button_ok->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(UserCommentDialog::OnOKClicked));
+		Connect(button_cancel->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(UserCommentDialog::OnCancelClicked));
+		Connect(text_userComment->GetId(), wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(UserCommentDialog::OnTextUpdated));
+	}
 	
 };
-
-BEGIN_EVENT_TABLE(UserCommentDialog, wxDialog)
-	EVT_BUTTON(XRCID("wxID_OK"), UserCommentDialog::OnOKButtonEvent)
-//	EVT_BUTTON(XRCID("wxID_CANCEL"), UserCommentDialog::OnCancelButtonEvent)
-//	EVT_CLOSE(UserCommentDialog::OnClose)
-END_EVENT_TABLE()
 
 } // namespace cap
 

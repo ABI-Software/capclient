@@ -17,11 +17,25 @@ namespace cap
 class FileSystem
 {
 public:
-	explicit FileSystem(const std::string& path);
-	
-	const std::vector<std::string>& getAllFileNames();
-	
-	bool CreateDirectory(const std::string& dirname);
+	explicit FileSystem();
+
+	/**
+	 * Gets all the names of the files in the given directory.
+	 *
+	 * @param	dirname	Pathname of the directory.
+	 *
+	 * @return	all file names.
+	 */
+	static const std::vector<std::string> GetAllFileNames(const std::string& dirname);
+
+	/**
+	 * Creates a directory.
+	 *
+	 * @param	dirname	Pathname of the directory.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
+	static bool MakeDirectory(const std::string& dirname);
 
 	/**
 	 * Given a string name this function will return the
@@ -46,10 +60,6 @@ public:
 	 * directory marker to the last extension marker.
 	 */
 	static std::string GetFileNameWOE(const std::string& name);
-	
-private:
-	std::string dir_path;
-	std::vector<std::string> filenames;
 };
 
 } // end namespace cap

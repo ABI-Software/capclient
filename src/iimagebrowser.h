@@ -24,7 +24,7 @@ class IImageBrowser
 public:
 	virtual ~IImageBrowser() {};
 	virtual void LoadImagesFromImageBrowserWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno) = 0;
-	virtual void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno) = 0;
+	virtual void LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno) = 0;
 };
 
 } // end namespace cap

@@ -125,10 +125,6 @@ public:
 	
 	void OnAnimationSliderEvent(double time);
 
-	void OnAnimationSpeedControlEvent(double speed)
-	{
-	}
-	
 	void Refresh3DCanvas()
 	{
 		//if (sceneViewer_) 
@@ -303,7 +299,7 @@ public:
 	 *
 	 * @return	The number of frames.
 	 */
-	unsigned int GetNumberOfFrames() const;
+	unsigned int GetMinimumNumberOfFrames() const;
 
 	void RemoveDataPoint(Cmiss_node* dataPointID, double time) 
 	{
@@ -479,7 +475,7 @@ private:
 	: gui_(0)
 	, ib_(0)
 	, imageSet_(0)
-	, labelledSlices_(std::vector<LabelledSlice>())
+	, labelledSlices_(LabelledSlices())
 	, hideAll_(false)
 	, miiIsOn_(false)
 	, wireFrameIsOn_(false)
@@ -496,7 +492,7 @@ private:
 	ImageBrowser* ib_;
 	
 	ImageSet* imageSet_;
-	std::vector<LabelledSlice> labelledSlices_;
+	LabelledSlices labelledSlices_;
 	
 	bool hideAll_;
 	bool miiIsOn_;

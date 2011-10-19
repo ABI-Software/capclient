@@ -64,7 +64,7 @@ bool CAPApp::OnInit()
 	
 	assert(mainApp);
 	// We cannot initialise this from inside the CAPClientWindow constructor unfortunately.
-	wxXmlInit_CAPClientWindowUI(); 
+	wxXmlInit_CAPClientWindowUI();
 	CAPClientWindow *frame = new CAPClientWindow(mainApp);
 	mainApp->SetCAPClientWindow(frame);
 	SetTopWindow(frame);

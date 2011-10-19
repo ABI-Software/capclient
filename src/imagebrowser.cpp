@@ -97,9 +97,7 @@ void ImageBrowser::ReadInDICOMFiles()
 	// for now we assume the archive has already been unzipped
 	// and archiveFilename points to the containing dir
 	std::string const& dirname = archiveFilename_;
-	
-	FileSystem fs(dirname);
-	std::vector<std::string> const& filenames = fs.getAllFileNames();
+	std::vector<std::string> const& filenames = FileSystem::GetAllFileNames(dirname);
 	
 	gui_->CreateProgressDialog("Please wait", "Analysing DICOM headers", filenames.size());
 	int count = 0;
@@ -382,7 +380,7 @@ void ImageBrowser::OnOKButtonClicked()
 {
 	// construct the data structure of type SlicesWithImages to pass to the main window
 	SlicesWithImages slices;
-	std::vector<LabelledSlice> labelledSlices;
+	LabelledSlices labelledSlices;
 	std::vector<LabelledTexture> labelledTextures;
 	
 	std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();

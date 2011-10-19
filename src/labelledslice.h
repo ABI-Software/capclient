@@ -8,6 +8,12 @@
 
 namespace cap
 {
+class LabelledSlice;
+/**
+ * Defines an alias representing the vector< labelled slice>
+ */
+typedef std::vector<LabelledSlice> LabelledSlices ;
+
 /**
  * Labelled slice. 
  */
@@ -58,7 +64,7 @@ public:
 	 *
 	 * @return	The dicom images.
 	 */
-	const std::vector<DICOMPtr>& GetDicomImages() const { return dicomImages_; }
+	const std::vector<DICOMPtr>& GetDICOMImages() const { return dicomImages_; }
 	
 private:
 	std::vector<DICOMPtr> dicomImages_; /**< The dicom images */

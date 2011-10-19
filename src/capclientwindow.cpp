@@ -59,6 +59,8 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, cmguiPanel_(0)
 	, timeKeeper_(0)
 	, timeNotifier_(0)
+	, previousSaveLocation_("")
+	, initialised_xmlUserCommentDialog_(false)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
@@ -210,7 +212,7 @@ void CAPClientWindow::EnterImagesLoadedState()
 
 	StopCine();
 	// Initialize timer for animation
-	size_t numberOfLogicalFrames = mainApp_->GetNumberOfFrames();//-- TODO: set this properly!!! imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
+	size_t numberOfLogicalFrames = mainApp_->GetMinimumNumberOfFrames();//-- TODO: set this properly!!! imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
 	if (timeNotifier_)
 	{
 		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
@@ -350,7 +352,7 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	CreateTextureImageSurface(cmissContext_, regionName, material->GetCmissMaterial());
 	std::vector<Cmiss_field_image_id> fieldImages = CreateFieldImages(labelledSlice);
 	
-	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDicomImages())
+	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDICOMImages())
 	{
 		ImagePlane* plane = dicom->GetImagePlane();
 		RepositionPlaneElement(cmissContext_, regionName, plane);
@@ -365,7 +367,7 @@ std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const Label
 	Cmiss_field_module_id field_module = GetFieldModuleForRegion(cmissContext_, labelledSlice.GetLabel());
 	
 	std::vector<Cmiss_field_image_id> field_images;
-	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDicomImages())
+	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDICOMImages())
 	{
 		Cmiss_field_image_id image_field = CreateCmissImageTexture(field_module, dicom);
 		field_images.push_back(image_field);
@@ -473,9 +475,7 @@ void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	
 	double speed = (double)(value - min) / (double)(max - min) * 2.0;
 	
-		//Time_keeper_set_speed(timeKeeper_, speed);
-	// mainApp_->OnAnimationSpeedControlEvent(speed);
-	return;
+	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_SPEED, speed);
 }
 
 void CAPClientWindow::UpdateFrameNumber(int frameNumber)
@@ -497,74 +497,57 @@ void CAPClientWindow::SetTime(double time)
 
 void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 {
-	bool hideAll_ = button_HideShowAll->GetLabel() == wxT("Hide All") ? true : false;
-	if (hideAll_) //means the button says hide all rather than show all
+	bool visibility;
+	if (button_HideShowAll->GetLabel() == wxT("Hide All"))
 	{
-		hideAll_ = false;
-		// mainApp_->SetImageVisibility(false);
+		visibility = false;
 		button_HideShowAll->SetLabel(wxT("Show All"));
 	}
 	else
 	{
-		hideAll_ = true;	
-		// mainApp_->SetImageVisibility(true);
+		visibility = true;
 		button_HideShowAll->SetLabel(wxT("Hide All"));
 	}
-	
-	int numberOfSlices = checkListBox_Slice->GetCount();
-	for (int i=0;i<numberOfSlices;i++)
+
+	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
+	for (unsigned int i = 0; cit != textureSliceMap_.end(); cit++, i++)
 	{
-		checkListBox_Slice->Check(i, hideAll_);
+		checkListBox_Slice->Check(i, visibility);
+		SetVisibilityForRegion(cmissContext_, cit->first, visibility);
 	}
-	this->Refresh(); // work around for the refresh bug
 }
 
 void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 {
-	static bool showOthers = true;
-
-	if (button_HideShowOthers->GetLabel() == wxT("Show Others"))
-		dbg(button_HideShowOthers->GetLabel().c_str());
+	bool visibility; // Of the non-selected items, if any.
 	
-	static std::vector<int> indicesOfOthers;
-	if (showOthers) //means the button says hide all rather than show all
+	if (button_HideShowOthers->GetLabel() == wxT("Hide Others"))
 	{
-		showOthers = false;
-		// remember which ones were visible
-		indicesOfOthers.clear();
-		for (unsigned int i=0;i<checkListBox_Slice->GetCount();i++)
-		{
-			if (checkListBox_Slice->IsChecked(i) && checkListBox_Slice->GetSelection() != i)
-			{
-				indicesOfOthers.push_back(i);
-				//mainApp_->SetImageVisibility(false, i);
-				checkListBox_Slice->Check(i, false);
-			}
-		}
+		visibility = false;
 		button_HideShowOthers->SetLabel(wxT("Show Others"));
 	}
 	else
 	{
-		showOthers = true;	
-
-		std::vector<int>::iterator itr = indicesOfOthers.begin();
-		std::vector<int>::const_iterator end = indicesOfOthers.end();
-		for (; itr!=end ; ++itr)
-		{
-			// mainApp_->SetImageVisibility(true, *itr);
-			checkListBox_Slice->Check(*itr, true);
-		}
-	
+		visibility = true;
 		button_HideShowOthers->SetLabel(wxT("Hide Others"));
 	}
 
-	this->Refresh(); // work around for the refresh bug
+	int currentSelection = checkListBox_Slice->GetSelection();
+	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
+	for (unsigned int i = 0; cit != textureSliceMap_.end(); cit++, i++)
+	{
+		if (currentSelection != i)
+		{
+			checkListBox_Slice->Check(i, visibility);
+			SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+		}
+	}
 }
 
 void CAPClientWindow::OnMIICheckBox(wxCommandEvent& event)
 {
 	dbg(__func__);
-	//mainApp_->OnMIICheckBox(event.IsChecked());
+	mainApp_->OnMIICheckBox(event.IsChecked());
 }
 
 void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
@@ -661,10 +644,6 @@ void CAPClientWindow::OnOpenImages(wxCommandEvent& event)
 		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
 		mainApp_->OpenImages(std::string(dirname.mb_str()));
 	}
-	else
-	{
-		return;
-	}
 }
 
 void CAPClientWindow::ResetModeChoice()
@@ -692,7 +671,7 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
 			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
 	if ( !filename.empty() )
 	{
-	    // work with the file
+		// work with the file
 		cout << __func__ << " - File name: " << filename.c_str() << endl;
 
 		mainApp_->OpenModel(std::string(filename.mb_str()));
@@ -733,35 +712,28 @@ void CAPClientWindow::OnOpenAnnotation(wxCommandEvent& event)
 
 void CAPClientWindow::OnSave(wxCommandEvent& event)
 {
-	//cout << "CAPClientWindow::" << __func__ << endl;
-	wxString defaultPath = wxGetCwd();;
-	wxString defaultFilename = wxT("");
-	wxString defaultExtension = wxT("");
-	wxString wildcard = wxT("");
-	int flags = wxSAVE;
+	if (previousSaveLocation_.length() == 0)
+		previousSaveLocation_ = wxGetCwd();
 	
-	wxString dirname = wxFileSelector(wxT("Save file"),
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if (dirname.empty())
-	{
-		return;
-	}
 	
-	std::string const& userComment = PromptForUserComment();
-	std::cout << "User comment = " << userComment << "\n";
-	if (userComment.empty())
+	if (!initialised_xmlUserCommentDialog_)
 	{
-		// save has been canceled 
-		return;
+		initialised_xmlUserCommentDialog_ = true;
+		wxXmlInit_UserCommentDialogUI();
 	}
-
-	if (!wxMkdir(dirname.c_str()))
+	UserCommentDialog userCommentDlg(this);
+	userCommentDlg.SetDirectory(previousSaveLocation_);
+	userCommentDlg.Center();
+	if (userCommentDlg.ShowModal() != wxID_OK)
 	{
-		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
-		return;
+		return; // Cancelled save
 	}
+	previousSaveLocation_ = userCommentDlg.GetDirectory();
+	std::string userComment = userCommentDlg.GetComment();
+	dbg("User comment = " + userComment);
+	dbg("Directory = " + previousSaveLocation_);
 	
-	// mainApp_->SaveModel(std::string(dirname.mb_str()), userComment);
+	mainApp_->SaveModel(previousSaveLocation_, userComment);
 }
 
 std::string CAPClientWindow::PromptForUserComment()
