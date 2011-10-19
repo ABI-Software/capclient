@@ -21,29 +21,25 @@ namespace cap
 
 using namespace std;
 
-FileSystem::FileSystem(const string& path)
-: dir_path(path)
+FileSystem::FileSystem()
 {
 }
 
-const std::vector<std::string>& FileSystem::getAllFileNames()
+const std::vector<std::string> FileSystem::GetAllFileNames(const std::string& dirname)
 {
 	// It is better to construct the list here rather than in the constructor 
 	// since the contents of the dir can change at any time between the constructor and here
 	// (by other processes)
 	
 	//should we use boost FileSystem?
-	if (!filenames.empty())
-	{
-		filenames.clear();
-	}
+	std::vector<std::string> filenames;
 	
 	DIR *dir;
 	struct dirent *ent;
-	dir = opendir(dir_path.c_str());
+	dir = opendir(dirname.c_str());
 	if (!dir)
 	{
-		cout << "Error: can't open the directory: " << dir_path << endl;
+		cout << "Error: can't open the directory: " << dirname << endl; //-- TODO: Add logging output window
 	}
 	else
 	{
@@ -62,13 +58,12 @@ const std::vector<std::string>& FileSystem::getAllFileNames()
 	return filenames;
 }
 
-bool FileSystem::CreateDirectory(const std::string& dirname)
+bool FileSystem::MakeDirectory(const std::string& dirname)
 {
-	std::string fullpath = dir_path + "/" + dirname;
 #ifdef WIN32 
-	int ret = mkdir(fullpath.c_str());
+	int ret = mkdir(dirname.c_str());
 #else
-	int ret = mkdir(fullpath.c_str(), 0777);
+	int ret = mkdir(dirname.c_str(), 0777);
 #endif
 
 	return (ret == 0);

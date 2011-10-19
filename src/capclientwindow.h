@@ -236,6 +236,9 @@ private:
 	std::vector<Cmiss_field_image_id> fieldImages_; /**< A vector of field images. */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
 	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */
+
+	std::string previousSaveLocation_; /**< The previous save location */
+	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
 };
 
 } // end namespace cap

@@ -127,7 +127,7 @@ public:
 		std::vector<ProvenanceDetail> provenanceDetails;
 	};
 	
-	explicit CAPXMLFile(std::string const & filename);
+	explicit CAPXMLFile(const std::string& filename);
 	~CAPXMLFile();// need this so compiler wont generate dtor
 	
 	void ReadFile();

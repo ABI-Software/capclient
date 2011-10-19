@@ -47,11 +47,11 @@ int CAPClient::GetFrameNumberForTime(double time)
 
 const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
 {
-	std::vector<LabelledSlice>::const_iterator cit = labelledSlices_.begin();
+	LabelledSlices::const_iterator cit = labelledSlices_.begin();
 	for (;cit != labelledSlices_.end(); cit++)
 	{
 		if (cit->GetLabel() == label)
-			return *(cit->GetDicomImages().at(0)->GetImagePlane());
+			return *(cit->GetDICOMImages().at(0)->GetImagePlane());
 	}
 
 	throw std::exception();
@@ -105,7 +105,7 @@ void CAPClient::PopulateSliceList()
 	gui_->PopulateSliceList(sliceNames, visibilities);
 }
 
-void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno)
+void CAPClient::LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno)
 {
 	// Reset capXMLFilePtr_
 	if (capXMLFilePtr_)
@@ -115,7 +115,7 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSli
 	
 	labelledSlices_ = labelledSlices;
 	// read (or reread) in dicoms to create image textures (again) for this context.
-	std::vector<LabelledSlice>::const_iterator it;
+	LabelledSlices::const_iterator it;
 	std::vector<std::string> sliceNames;
 	std::vector<bool> visibilities;
 	for (it = labelledSlices.begin(); it != labelledSlices.end(); it++)
@@ -131,6 +131,8 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSli
 	// nothing happens when I click on the list.
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
+	InitializeModelTemplate(labelledSlices);
+
 	// Set some special nodes?
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
 	{
@@ -440,18 +442,19 @@ void CAPClient::SaveModel(std::string const& dirname, std::string const& userCom
 	}
 	CAPXMLFile& xmlFile(*capXMLFilePtr_);
 	
-	SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
+	//SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
-	xmlFileHandler.ContructCAPXMLFile(slicesAndImages, dataPoints, *heartModelPtr_);
+	xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
 	xmlFileHandler.AddProvenanceDetail(userComment);
 	
-	std::string dirnameStl(dirname.c_str());
-	size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
-	std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);
+	std::string modelName = FileSystem::GetFileNameWOE(dirname);
+	//std::string dirnameStl(dirname.c_str());
+	//size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
+	//std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);
 	xmlFile.SetName(modelName);
-	std::string xmlFilename = std::string(dirname.c_str()) + "/" + modelName + ".xml";
-	std::cout << "xmlFilename = " << xmlFilename << '\n';
+	std::string xmlFilename = dirname + "/" + modelName + ".xml";
+	dbg("xmlFilename = " + xmlFilename);
 	
 	if (cardiacAnnotationPtr_)
 	{
@@ -520,12 +523,12 @@ void CAPClient::UpdateMII()
 	}
 }
 
-void CAPClient::InitializeModelTemplate(SlicesWithImages const& slices)
+void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
 {
-	SlicesWithImages::const_iterator 
+	LabelledSlices::const_iterator 
 		itrToMinNumberOfFrames = std::min_element(slices.begin(), slices.end(),
 											  ComparatorForNumFrames());
-	int minNumberOfFrames = itrToMinNumberOfFrames->GetDICOMImages().size();
+	int minNumberOfFrames = GetMinimumNumberOfFrames();//itrToMinNumberOfFrames->GetDICOMImages().size();
 	
 	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", gui_->GetCmissContext()));
 	assert(heartModelPtr_);
@@ -538,16 +541,16 @@ void CAPClient::InitializeModelTemplate(SlicesWithImages const& slices)
 	heartModelPtr_->SetModelVisibility(false);
 }
 
-unsigned int CAPClient::GetNumberOfFrames() const
+unsigned int CAPClient::GetMinimumNumberOfFrames() const
 {
-	std::vector<LabelledSlice>::const_iterator cit = labelledSlices_.begin();
-	unsigned int minFrames = cit->GetDicomImages().size();
+	LabelledSlices::const_iterator cit = labelledSlices_.begin();
+	unsigned int minFrames = cit->GetDICOMImages().size();
 	dbg("frame count: " + toString(minFrames));
 	for (;cit != labelledSlices_.end(); cit++)
 	{
-		dbg("frame count: " + toString(cit->GetDicomImages().size()));
-		if (cit->GetDicomImages().size() < minFrames)
-			minFrames = cit->GetDicomImages().size();
+		dbg("frame count: " + toString(cit->GetDICOMImages().size()));
+		if (cit->GetDICOMImages().size() < minFrames)
+			minFrames = cit->GetDICOMImages().size();
 	}
 
 	return minFrames;

@@ -9,6 +9,7 @@
 #define CAPXMLFILEHANDLER_H_
 
 #include "SliceInfo.h"
+#include "labelledslice.h"
 #include <string>
 
 namespace cap
@@ -28,7 +29,7 @@ public:
 	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
 	 *  so an libxml2 tree can be generated and written to a file
 	 */
-	void ContructCAPXMLFile(SlicesWithImages const& dicomFiles, 
+	void ConstructCAPXMLFile(const LabelledSlices& labelledSlices, 
 							std::vector<DataPoint> const& dataPoints,
 							CAPModelLVPS4X4 const& model);
 	

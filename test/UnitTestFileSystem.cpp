@@ -51,8 +51,7 @@ TEST(FileSystemTest, GetFileNameWOE)
 
 TEST(FileSystemTest, GetAllFileNames)
 {
-	cap::FileSystem fs(FILESYSTEM_TESTDIR);
-	std::vector<std::string> names = fs.getAllFileNames();
+	std::vector<std::string> names = cap::FileSystem::GetAllFileNames(FILESYSTEM_TESTDIR);
 
 	std::vector<std::string>::const_iterator it = names.begin();
 	ASSERT_EQ(std::string("file1.txt"), names.at(0));
@@ -61,14 +60,13 @@ TEST(FileSystemTest, GetAllFileNames)
 	ASSERT_EQ(std::string("subdir"), names.at(3));
 }
 
-TEST(FileSystemTest, CreateDirectory)
+TEST(FileSystemTest, MakeDirectory)
 {
-	cap::FileSystem fs(FILESYSTEM_TESTDIR);
-	bool res = fs.CreateDirectory("created/programmatically");
+	bool res = cap::FileSystem::MakeDirectory(std::string(FILESYSTEM_TESTDIR) + "/created/programmatically");
 	EXPECT_EQ(false, res);
-	res = fs.CreateDirectory("created magic");
+	res = cap::FileSystem::MakeDirectory(std::string(FILESYSTEM_TESTDIR) + "/created magic");
 	EXPECT_EQ(true, res);
-	res = fs.CreateDirectory("mine");
+	res = cap::FileSystem::MakeDirectory(std::string(FILESYSTEM_TESTDIR) + "/mine");
 	EXPECT_EQ(true, res);
 
 	// remove created directories
