@@ -38,6 +38,33 @@ public:
 	static bool MakeDirectory(const std::string& dirname);
 
 	/**
+	 * Removes the file described by filename from the system.
+	 *
+	 * @param	filename	Filename of the file.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
+	static bool DeleteFile(const std::string& filename);
+
+	/**
+	 * Removes the directory described by dirname.
+	 *
+	 * @param	dirname	Directory name of the directory.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
+	static bool DeleteDirectory(const std::string& dirname);
+
+	/**
+	 * Creates a temporary empty file and returns the filename in the returned string.
+	 *
+	 * @param	directory	Pathname of the directory to create file in, "" by default.
+	 *
+	 * @return	The name of the empty file.
+	 */
+	static std::string CreateTemporaryEmptyFile(const std::string& directory = "");
+
+	/**
 	 * Given a string name this function will return the
 	 * filename for the current platform.  The filename 
 	 * includes the extension and starts from the last system 

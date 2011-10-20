@@ -159,7 +159,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 	//	EnterInitState(); // this re-registers the input call back -REVISE
 	
 	LoadImages(slices);
-	InitializeModelTemplate(slices);
+	//InitializeModelTemplate(slices);
 	
 	// Create DataPoints if corresponding annotations exist in the CardiacAnnotation
 	assert(!anno.imageAnnotations.empty());
@@ -334,7 +334,7 @@ void CAPClient::OpenModel(std::string const& filename)
 	if (exnodeFileNames.empty())
 	{
 		// This means no output element is defined
-		InitializeModelTemplate(slicesWithImages);
+		//--InitializeModelTemplate(slicesWithImages);
 		EnterImagesLoadedState();
 		
 		std::cout << "Mode = " << modeller_->GetCurrentMode()<< ", num dataPoints = " << dataPoints.size() << '\n';

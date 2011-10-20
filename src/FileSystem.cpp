@@ -10,8 +10,13 @@
 #include <sys/stat.h>
 #ifdef _MSC_VER
 #include <direct.h>
-# define mkdir _mkdir
+#include <io.h>
+extern "C"
+{
+#include "win32/linuxutils.h"
+}
 #endif
+#define MKS_TEMPLATE_NAME "CAPXXXXXX"
 
 #include "Config.h"
 #include "FileSystem.h"
@@ -60,8 +65,8 @@ const std::vector<std::string> FileSystem::GetAllFileNames(const std::string& di
 
 bool FileSystem::MakeDirectory(const std::string& dirname)
 {
-#ifdef WIN32 
-	int ret = mkdir(dirname.c_str());
+#ifdef _MSC_VER 
+	int ret = _mkdir(dirname.c_str());
 #else
 	int ret = mkdir(dirname.c_str(), 0777);
 #endif
@@ -69,14 +74,44 @@ bool FileSystem::MakeDirectory(const std::string& dirname)
 	return (ret == 0);
 }
 
+bool FileSystem::DeleteFile(const std::string& filename)
+{
+	return remove(filename.c_str()) == 0;
+}
+
+bool FileSystem::DeleteDirectory(const std::string& dirname)
+{
+	return remove(dirname.c_str()) == 0;
+}
+
+std::string FileSystem::CreateTemporaryEmptyFile(const std::string& directory)
+{
+	int fd;
+	int tmplSize  = strlen( (const char *) MKS_TEMPLATE_NAME );
+	char *tmpl = (char *) malloc ((size_t) ((sizeof(char)) * (tmplSize + 1)));
+	strncpy(tmpl, (const char *) MKS_TEMPLATE_NAME, tmplSize);
+	tmpl[tmplSize] = '\0';
+	if ((fd = mkstemp(tmpl)) < 0 ) {
+		throw std::exception("Could not create temporary file!");
+	} else {
+		_close(fd);
+		//FILE* tmpFile = _fdopen(fd, "w");
+		//fclose(tmpFile);
+	}
+	std::string filename(tmpl);
+	free(tmpl);
+
+	return filename;
+}
+
 std::string FileSystem::GetFileName(const std::string& name)
 {
 	
-	#ifdef WIN32 
+#ifdef _MSC_VER 
 	char directory_marker = '\\';
-	#else
+#else
 	char directory_marker = '/';
-	#endif
+#endif
 	
 	if (name.find_last_of(directory_marker) != std::string::npos)
 		return name.substr(name.find_last_of(directory_marker) + 1);
@@ -87,11 +122,11 @@ std::string FileSystem::GetFileName(const std::string& name)
 std::string FileSystem::GetFileNameWOE(const std::string& name)
 {
 	
-	#ifdef WIN32 
+#ifdef _MSC_VER 
 	char directory_marker = '\\';
-	#else
+#else
 	char directory_marker = '/';
-	#endif
+#endif
 	char extension_marker = '.';
 	
 	std::string filename = name;

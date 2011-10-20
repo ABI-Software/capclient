@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 
 #include "imagebrowser.h"
@@ -26,6 +27,16 @@ public:
 
 DICOMImage::DICOMImage(const std::string& filename)
 {
+}
+
+double DICOMImage::GetImageWidthMm()
+{
+	return 0.0;
+}
+
+double DICOMImage::GetImageHeightMm()
+{
+	return 0.0;
 }
 
 class TestApp : public wxApp

@@ -138,6 +138,12 @@ IF(MSVC)
 	SET(FileSystem_SRC
 		${FileSystem_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+	)
+	
+	SET(CAPModeller_SRC
+		${CAPModeller_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 	)
 ENDIF()
 

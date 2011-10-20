@@ -135,8 +135,8 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_element_template_id element_template = Cmiss_mesh_create_element_template(mesh);
 	Cmiss_element_template_set_shape_type(element_template, CMISS_ELEMENT_SHAPE_SQUARE);
 	Cmiss_element_template_set_number_of_nodes(element_template, element_node_count);
-	Cmiss_element_basis_id cubic_basis = Cmiss_mesh_create_element_basis(
-		mesh, CMISS_BASIS_FUNCTION_LINEAR_LAGRANGE);
+	Cmiss_element_basis_id cubic_basis = Cmiss_field_module_create_element_basis(field_module, 2
+		, CMISS_BASIS_FUNCTION_LINEAR_LAGRANGE);
 	const int cube_local_node_indexes[element_node_count] = { 1, 2, 3, 4};
 	Cmiss_element_template_define_field_simple_nodal(element_template, coordinates_field,
 													 /*component_number*/-1, cubic_basis, element_node_count, cube_local_node_indexes);
