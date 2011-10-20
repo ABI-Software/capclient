@@ -9,7 +9,12 @@
 #include "CAPBasis.h"
 #include "gmm/gmm.h" // TODO use wrapper
 
+#include "Config.h"
+#include "utils/debug.h"
 #include "CAPTimeSmoother.h"
+
+#include "time_varying_prior.dat.h"
+#include "GlobalSmoothTVMatrix.dat.h"
 
 namespace cap
 {
@@ -33,16 +38,39 @@ CAPTimeSmoother::CAPTimeSmoother()
 	pImpl(new CAPTimeSmootherImpl)
 {
 	//read in S
-	Harwell_Boeing_load(Sfile, pImpl->S);
+	char *tmpl;
+	int tmplSize;
+	int fd;
+
+	tmplSize  = strlen( (const char *) MKS_TEMPLATE_NAME );
+	tmpl = (char *) malloc ((size_t) ((sizeof(char)) * (tmplSize + 1)));
+	strncpy(tmpl, (const char *) MKS_TEMPLATE_NAME, tmplSize);
+	tmpl[tmplSize] = '\0';
+	if ((fd = mkstemp(tmpl)) < 0 ) {
+		throw std::exception("Could not create temporary file!");
+	} else {
+		FILE* tmpFile = _fdopen(fd, "w");
+		for (unsigned int i = 0; i < GlobalSmoothTVMatrix_dat_len; i++)
+			fputc((int)GlobalSmoothTVMatrix_dat[i], tmpFile);
+		fclose(tmpFile);
+		//close(fd);
+	}
+	Harwell_Boeing_load(tmpl, pImpl->S);
+	free(tmpl);
 	
 	std::ifstream in(priorFile);
+	//std::istream in();
 	
 	for (int row = 0; row < 11; row++)
 	{
+		dbgn("yes");
+		std::cout << "yes ";
 		for (int col = 0;col < 134;col++)
 		{
 			in >> pImpl->Priors(row,col);
+			std::cout << toString(pImpl->Priors(row, col)) + ", ";
 		}
+		dbg("");
 		for (int col = 0;col < 80 ;col ++)
 		{
 			double temp;
@@ -51,7 +79,7 @@ CAPTimeSmoother::CAPTimeSmoother()
 	}
 	
 	//Debug
-	std::cout << pImpl->Priors << std::endl;
+	dbg(toString(pImpl->Priors));
 }
 
 CAPTimeSmoother::~CAPTimeSmoother()

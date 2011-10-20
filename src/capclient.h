@@ -395,13 +395,13 @@ private:
 	
 	struct ComparatorForNumFrames
 	{
-		bool operator() (SliceInfo const& a, SliceInfo const& b)
+		bool operator() (const LabelledSlice& a, const LabelledSlice& b)
 		{
 			return (a.GetDICOMImages().size() < b.GetDICOMImages().size());
 		}
 	};
 
-	void InitializeModelTemplate(SlicesWithImages const& slices);
+	void InitializeModelTemplate(const LabelledSlices& slices);
 	
 	void CreateModeller()
 	{

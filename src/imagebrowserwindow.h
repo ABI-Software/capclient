@@ -16,6 +16,7 @@
 
 #include <wx/wxprec.h>
 #include <wx/notebook.h>
+#include <wx/listctrl.h>
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
