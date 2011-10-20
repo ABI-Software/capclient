@@ -8,13 +8,19 @@
 #include <dirent.h>
 #include <iostream>
 #include <sys/stat.h>
+#include <sys/types.h>
+//#include <unistd.h>
 #ifdef _MSC_VER
-#include <direct.h>
-#include <io.h>
+# include <direct.h>
+# include <io.h>
 extern "C"
 {
-#include "win32/linuxutils.h"
+# include "win32/linuxutils.h"
 }
+# define rmdir _rmdir
+# define DIR_SEPERATOR '/'
+#else
+# define DIR_SEPERATOR '/'
 #endif
 #define MKS_TEMPLATE_NAME "CAPXXXXXX"
 
@@ -74,29 +80,61 @@ bool FileSystem::MakeDirectory(const std::string& dirname)
 	return (ret == 0);
 }
 
-bool FileSystem::DeleteFile(const std::string& filename)
+bool FileSystem::RemoveFile(const std::string& filename)
 {
 	return remove(filename.c_str()) == 0;
 }
 
 bool FileSystem::DeleteDirectory(const std::string& dirname)
 {
-	return remove(dirname.c_str()) == 0;
+	return rmdir(dirname.c_str()) == 0;
+}
+
+bool FileSystem::FileExists(const std::string& filename)
+{
+	struct stat statBuf;
+
+	if( stat( filename.c_str(), &statBuf ) < 0 ) 
+		return false;
+
+	return ((_S_IFREG & statBuf.st_mode) > 0);
+}
+
+bool FileSystem::DirectoryExists(const std::string& dirname)
+{
+	struct stat statBuf;
+
+	if( stat( dirname.c_str(), &statBuf ) < 0 )
+		return false;
+
+	return ((_S_IFDIR & statBuf.st_mode) > 0);
 }
 
 std::string FileSystem::CreateTemporaryEmptyFile(const std::string& directory)
 {
-	int fd;
+	int fd, totalSize = 0;
+	char dirSep = '/';
 	int tmplSize  = strlen( (const char *) MKS_TEMPLATE_NAME );
-	char *tmpl = (char *) malloc ((size_t) ((sizeof(char)) * (tmplSize + 1)));
-	strncpy(tmpl, (const char *) MKS_TEMPLATE_NAME, tmplSize);
-	tmpl[tmplSize] = '\0';
+	totalSize += tmplSize;
+	int dirSize = strlen(directory.c_str());
+	if (dirSize > 0)
+		totalSize += dirSize +1;
+	char *tmpl = (char *) malloc ((size_t) ((sizeof(char)) * (totalSize + 1)));
+	tmpl[totalSize] = '\0';
+	if (dirSize == 0)
+	{
+		strncpy(tmpl, (const char *) MKS_TEMPLATE_NAME, tmplSize);
+	}
+	else
+	{
+		strncpy(tmpl, (const char *) directory.c_str(), dirSize);
+		strncpy(tmpl + dirSize, (const char *) &dirSep, 1);
+		strncpy(tmpl + dirSize + 1, (const char *) MKS_TEMPLATE_NAME, tmplSize);
+	}
 	if ((fd = mkstemp(tmpl)) < 0 ) {
 		throw std::exception("Could not create temporary file!");
 	} else {
 		_close(fd);
-		//FILE* tmpFile = _fdopen(fd, "w");
-		//fclose(tmpFile);
 	}
 	std::string filename(tmpl);
 	free(tmpl);
@@ -104,34 +142,57 @@ std::string FileSystem::CreateTemporaryEmptyFile(const std::string& directory)
 	return filename;
 }
 
+bool FileSystem::WriteCharBufferToFile(const std::string& filename, 
+		unsigned char data[], unsigned int len)
+{
+	FILE *f = fopen(filename.c_str(), "wb");
+	for (unsigned int i = 0; i < len; i++)
+		fputc(data[i], f);
+
+	return fclose(f) == 0;
+}
+
+std::string FileSystem::WriteCharBufferToString(unsigned char data[], unsigned int len)
+{
+	std::string out;
+	for (unsigned int i = 0; i < len; i++)
+		out += data[i];
+
+	return out;
+}
+
 std::string FileSystem::GetFileName(const std::string& name)
 {
+	std::string temp = name;
+	size_t found;
+	found = temp.find_first_of('\\');
+	while (found!=std::string::npos)
+	{
+		temp[found]='/';
+		found = temp.find_first_of('\\', found+1);
+	}
 	
-#ifdef _MSC_VER 
-	char directory_marker = '\\';
-#else
-	char directory_marker = '/';
-#endif
-	
-	if (name.find_last_of(directory_marker) != std::string::npos)
-		return name.substr(name.find_last_of(directory_marker) + 1);
+	if (temp.find_last_of(DIR_SEPERATOR) != std::string::npos)
+		return temp.substr(temp.find_last_of(DIR_SEPERATOR) + 1);
 	
 	return name;
 }
 
 std::string FileSystem::GetFileNameWOE(const std::string& name)
 {
-	
-#ifdef _MSC_VER 
-	char directory_marker = '\\';
-#else
-	char directory_marker = '/';
-#endif
 	char extension_marker = '.';
 	
 	std::string filename = name;
-	if (name.find_last_of(directory_marker) != std::string::npos)
-		filename = name.substr(name.find_last_of(directory_marker) + 1);
+	size_t found;
+	found = filename.find_first_of('\\');
+	while (found!=std::string::npos)
+	{
+		filename[found]='/';
+		found = filename.find_first_of('\\', found+1);
+	}
+	
+	if (filename.find_last_of(DIR_SEPERATOR) != std::string::npos)
+		filename = filename.substr(filename.find_last_of(DIR_SEPERATOR) + 1);
 	
 	if (filename.find_last_of(extension_marker) != std::string::npos)
 		return filename.erase(filename.find_last_of(extension_marker));

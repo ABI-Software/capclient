@@ -16,6 +16,9 @@
 #include <boost/foreach.hpp>
 
 #include "Config.h"
+#include "GlobalSmoothPerFrameMatrix.dat.h"
+#include "GlobalMapBezierToHermite.dat.h"
+#include "prior.dat.h"
 #include "CAPModellingMode.h"
 #include "CAPModeller.h"
 #include "CAPTotalLeastSquares.h"
@@ -25,12 +28,14 @@
 #include "CAPMath.h"
 #include "CAPModelLVPS4X4.h"
 #include "CAPBasis.h"
+#include "filesystem.h"
+#include "utils/debug.h"
 
 namespace
 {
-const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
-const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
-const static char* priorFile = "Data/templates/prior.dat";
+//const static char* Sfile = "Data/templates/GlobalSmoothPerFrameMatrix.dat";
+//const static char* Gfile = "Data/templates/GlobalMapBezierToHermite.dat";
+//const static char* priorFile = "Data/templates/prior.dat";
 }
 
 namespace cap
@@ -314,24 +319,32 @@ CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartM
 {
 	SolverLibraryFactory& factory = *solverFactory_;
 	
-	std::cout << "Solver Library = " << factory.GetName() << std::endl;
+	dbg("Solver Library = " + factory.GetName());
 
 	// Read in S (smoothness matrix)
-	S_ = factory.CreateSparseMatrixFromFile(Sfile);
+	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
+	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalSmoothPerFrameMatrix_dat, GlobalSmoothPerFrameMatrix_dat_len);
+	S_ = factory.CreateSparseMatrixFromFile(tmpFileName);
+	FileSystem::RemoveFile(tmpFileName);
 	// Read in G (global to local parameter map)
-	G_ = factory.CreateSparseMatrixFromFile(Gfile);
+	tmpFileName = FileSystem::CreateTemporaryEmptyFile();
+	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalMapBezierToHermite_dat, GlobalMapBezierToHermite_dat_len);
+	G_ = factory.CreateSparseMatrixFromFile(tmpFileName);
+	FileSystem::RemoveFile(tmpFileName);
 
-	std::cout << "Done reading S & G matrices\n";
+	dbg("Done reading S & G matrices");
 	
 	// initialize preconditioner and GSMoothAMatrix
 	
 	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
 	
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
-	std::cout << "Done creating GSmoothAMatrix\n";
+	dbg("Done creating GSmoothAMatrix");
 	
-	prior_ = factory.CreateVectorFromFile(priorFile);
-	return;
+	tmpFileName = FileSystem::CreateTemporaryEmptyFile();
+	FileSystem::WriteCharBufferToFile(tmpFileName, prior_dat, prior_dat_len);
+	prior_ = factory.CreateVectorFromFile(tmpFileName);
+	FileSystem::RemoveFile(tmpFileName);
 }
 
 CAPModellingModeGuidePoints::~CAPModellingModeGuidePoints()

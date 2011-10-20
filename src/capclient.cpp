@@ -453,7 +453,7 @@ void CAPClient::SaveModel(std::string const& dirname, std::string const& userCom
 	//size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
 	//std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);
 	xmlFile.SetName(modelName);
-	std::string xmlFilename = dirname + "/" + modelName + ".xml";
+	std::string xmlFilename = dirname + '/' + modelName + ".xml";
 	dbg("xmlFilename = " + xmlFilename);
 	
 	if (cardiacAnnotationPtr_)
@@ -473,23 +473,25 @@ void CAPClient::EnterImagesLoadedState()
 void CAPClient::InitializeMII()
 {
 	// This method only makes sense when both the images and the model have been already loaded.
-	const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
-	std::vector<std::string>::const_iterator itr = sliceNames.begin();
-	for (;itr != sliceNames.end();++itr)
+	//--const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
+	LabelledSlices::const_iterator itr = labelledSlices_.begin();
+	for (;itr != labelledSlices_.end();++itr)
 	{
-		std::string const& sliceName = *itr;
-		char str[256];
+		const std::string& sliceName = itr->GetLabel();
+		//char str[256];
 		
 		// Initialize the MII-related field and iso_scalar to some dummy values
 		// This is done to set the graphical attributes that are needed for the MII rendering
 		
-		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
-				sliceName.c_str() );
-		Cmiss_context_execute_command(gui_->GetCmissContext(), str);
+		std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";";
+		//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
+		//		sliceName.c_str() );
+		Cmiss_context_execute_command(gui_->GetCmissContext(), command.c_str());
 		
-		sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
-		,sliceName.c_str());
-		Cmiss_context_execute_command(gui_->GetCmissContext(), str);
+		command = "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_" + sliceName + " iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;";
+		//sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
+		//,sliceName.c_str());
+		Cmiss_context_execute_command(gui_->GetCmissContext(), command.c_str());
 	}
 }
 

@@ -207,6 +207,9 @@ SET(TXT_FILES
 	src/templates/frag.prog
 	src/templates/GlobalSmoothTVMatrix.dat
 	src/templates/time_varying_prior.dat
+	src/templates/GlobalSmoothPerFrameMatrix.dat
+	src/templates/GlobalMapBezierToHermite.dat
+	src/templates/prior.dat
 	)
 SET(TXT_HDRS)
 FOREACH(TXT_FILE ${TXT_FILES})

@@ -6,12 +6,16 @@
  */
 
 //#include "SolverLibraryFactory.h"
+#include <iostream>
+#include <sstream>
+
 #include "CAPBasis.h"
 #include "gmm/gmm.h" // TODO use wrapper
 
 #include "Config.h"
 #include "utils/debug.h"
 #include "CAPTimeSmoother.h"
+#include "filesystem.h"
 
 #include "time_varying_prior.dat.h"
 #include "GlobalSmoothTVMatrix.dat.h"
@@ -19,8 +23,8 @@
 namespace cap
 {
 
-const static char* Sfile = "Data/templates/GlobalSmoothTVMatrix.dat";
-const static char* priorFile = "Data/templates/time_varying_prior.dat";
+//const static char* Sfile = "Data/templates/GlobalSmoothTVMatrix.dat";
+//const static char* priorFile = "Data/templates/time_varying_prior.dat";
 
 struct CAPTimeSmootherImpl
 {
@@ -38,48 +42,30 @@ CAPTimeSmoother::CAPTimeSmoother()
 	pImpl(new CAPTimeSmootherImpl)
 {
 	//read in S
-	char *tmpl;
-	int tmplSize;
-	int fd;
+	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
+	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalSmoothTVMatrix_dat, GlobalSmoothTVMatrix_dat_len);
+	Harwell_Boeing_load(tmpFileName, pImpl->S);
+	FileSystem::RemoveFile(tmpFileName);
 
-	tmplSize  = strlen( (const char *) MKS_TEMPLATE_NAME );
-	tmpl = (char *) malloc ((size_t) ((sizeof(char)) * (tmplSize + 1)));
-	strncpy(tmpl, (const char *) MKS_TEMPLATE_NAME, tmplSize);
-	tmpl[tmplSize] = '\0';
-	if ((fd = mkstemp(tmpl)) < 0 ) {
-		throw std::exception("Could not create temporary file!");
-	} else {
-		FILE* tmpFile = _fdopen(fd, "w");
-		for (unsigned int i = 0; i < GlobalSmoothTVMatrix_dat_len; i++)
-			fputc((int)GlobalSmoothTVMatrix_dat[i], tmpFile);
-		fclose(tmpFile);
-		//close(fd);
-	}
-	Harwell_Boeing_load(tmpl, pImpl->S);
-	free(tmpl);
-	
-	std::ifstream in(priorFile);
-	//std::istream in();
-	
+	std::string prior = FileSystem::WriteCharBufferToString(time_varying_prior_dat, time_varying_prior_dat_len);
+	std::stringstream ss(std::stringstream::in | std::stringstream::out);
+	ss << prior;
+
 	for (int row = 0; row < 11; row++)
 	{
-		dbgn("yes");
-		std::cout << "yes ";
 		for (int col = 0;col < 134;col++)
 		{
-			in >> pImpl->Priors(row,col);
-			std::cout << toString(pImpl->Priors(row, col)) + ", ";
+			ss >> pImpl->Priors(row,col);
 		}
-		dbg("");
 		for (int col = 0;col < 80 ;col ++)
 		{
 			double temp;
-			in >> temp; // mu and theta?
+			ss >> temp; // mu and theta?
 		}
 	}
 	
 	//Debug
-	dbg(toString(pImpl->Priors));
+	//dbg(toString(pImpl->Priors));
 }
 
 CAPTimeSmoother::~CAPTimeSmoother()
