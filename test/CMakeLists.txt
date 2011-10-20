@@ -88,6 +88,7 @@ SET(CAPModeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/CAPModellingMode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPModeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPTimeSmoother.cpp
+	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
 )
 LIST(APPEND UNIT_TESTS CAPModeller)
 
@@ -143,6 +144,7 @@ IF(MSVC)
 	
 	SET(CAPModeller_SRC
 		${CAPModeller_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 	)
 ENDIF()

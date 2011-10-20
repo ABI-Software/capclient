@@ -32,7 +32,7 @@ void PerformZipTest()
 
 void PerformUnzipTest()
 {
-    using boost::scoped_ptr;
+	using boost::scoped_ptr;
 	scoped_ptr<wxZipEntry> entry;
 
 //	wxFFileInputStream in(_T("test.zip"));

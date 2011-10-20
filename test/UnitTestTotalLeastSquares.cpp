@@ -19,9 +19,9 @@ TEST(TotalLeastSquares, FitPlaneUsingTLS)
 	Plane p = FitPlaneUsingTLS(v);
 //	std::cout << p.normal << ", " << p.position << "\n";
 
-	EXPECT_FLOAT_EQ(p.position.x, 0.0lf);
-	EXPECT_FLOAT_EQ(p.position.y, 0.0lf);
-	EXPECT_FLOAT_EQ(p.position.z, 0.0lf);
+	EXPECT_FLOAT_EQ(double(p.position.x), 0.0);
+	EXPECT_FLOAT_EQ(p.position.y, 0.0f);
+	EXPECT_FLOAT_EQ(p.position.z, 0.0f);
 	EXPECT_NEAR(p.normal.x, 0.0, 0.0000001);
 	EXPECT_NEAR(p.normal.y, 0.0, 0.0000001);
 	EXPECT_NEAR(p.normal.z, 1.0, 0.0000001);

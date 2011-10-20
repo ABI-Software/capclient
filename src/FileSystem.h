@@ -44,7 +44,47 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool DeleteFile(const std::string& filename);
+	static bool RemoveFile(const std::string& filename);
+
+	/**
+	 * Queries if a given file exists.
+	 *
+	 * @param	filename	Filename of the file.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
+	static bool FileExists(const std::string& filename);
+
+	/**
+	 * Queries if a given directory exists.
+	 *
+	 * @param	dirname	Name of the directory.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
+	static bool DirectoryExists(const std::string& dirname);
+
+	/**
+	 * Writes a character buffer to file.
+	 *
+	 * @param	filename	Filename of the file.
+	 * @param	data		The data.
+	 * @param	len			The length.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
+	static bool WriteCharBufferToFile(const std::string& filename, 
+		unsigned char data[], unsigned int len);
+
+	/**
+	 * Writes a character buffer to string.
+	 *
+	 * @param	data	The data.
+	 * @param	len 	The length.
+	 *
+	 * @return	A std::string containing the char buffer.
+	 */
+	static std::string WriteCharBufferToString(unsigned char data[], unsigned int len);
 
 	/**
 	 * Removes the directory described by dirname.
