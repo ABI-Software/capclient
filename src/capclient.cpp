@@ -131,7 +131,9 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelle
 	// nothing happens when I click on the list.
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
+	assert(!anno.imageAnnotations.empty());
 	InitializeModelTemplate(labelledSlices);
+	cardiacAnnotationPtr_.reset(new CardiacAnnotation(anno));
 
 	// Set some special nodes?
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
@@ -141,7 +143,7 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelle
 		{
 			BOOST_FOREACH(Label const& label, roi.labels)
 			{
-				std::cout << label.label << std::endl;
+				dbg(label.label);
 			}
 		}
 	}
@@ -310,17 +312,18 @@ void CAPClient::OpenModel(std::string const& filename)
 {
 	cardiacAnnotationPtr_.reset(0);
 	//		CAPXMLFile xmlFile(filename.c_str());
-	capXMLFilePtr_.reset(new CAPXMLFile(filename.c_str()));
+	capXMLFilePtr_.reset(new CAPXMLFile(filename));
 	CAPXMLFile& xmlFile(*capXMLFilePtr_);
-	std::cout << "Start reading xml file\n";
+	dbg("Start reading xml file");
 	xmlFile.ReadFile();
 	
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
-	//--const SlicesWithImages& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
+	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices();
+	//const SlicesWithImages& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
 	SlicesWithImages slicesWithImages;
 	if (slicesWithImages.empty())
 	{
-		std::cout << "Can't locate image files\n";
+		dbg("Can't locate image files");
 		return;
 	}
 	
@@ -330,14 +333,14 @@ void CAPClient::OpenModel(std::string const& filename)
 	std::vector<DataPoint> dataPoints; //-- = xmlFileHandler.GetDataPoints(cmguiManager_);
 	
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
-	std::cout << "number of exnodeFilenames = " << exnodeFileNames.size() << '\n';
+	dbg("number of exnodeFilenames = " + toString(exnodeFileNames.size()));
 	if (exnodeFileNames.empty())
 	{
 		// This means no output element is defined
 		//--InitializeModelTemplate(slicesWithImages);
 		EnterImagesLoadedState();
 		
-		std::cout << "Mode = " << modeller_->GetCurrentMode()<< ", num dataPoints = " << dataPoints.size() << '\n';
+		dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(dataPoints.size()));
 		modeller_->SetDataPoints(dataPoints);
 		// FIXME memory is prematurely released when ok button is pressed from the following window
 		// Suppress this feature for now
@@ -349,12 +352,12 @@ void CAPClient::OpenModel(std::string const& filename)
 		
 		CAPModeller::ModellingMode mode = modeller_->GetCurrentMode();
 		gui_->UpdateModeSelectionUI(mode);
-		std::cout << "Mode = " << mode << '\n';
+		dbg( "Mode = " + toString(mode));
 		if (mode == CAPModeller::GUIDEPOINT)
 		{
 			EnterModelLoadedState();
 		}
-		Refresh3DCanvas();
+		//Refresh3DCanvas();
 		
 		return;
 	}
@@ -365,7 +368,7 @@ void CAPClient::OpenModel(std::string const& filename)
 	std::string xmlFilename = filename.c_str();
 	size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
 	std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
-	std::cout << "modelFilePath = " << modelFilePath << '\n';
+	dbg("modelFilePath = " + modelFilePath);
 	
 	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", gui_->GetCmissContext()));
 	assert(heartModelPtr_);
@@ -382,17 +385,17 @@ void CAPClient::OpenModel(std::string const& filename)
 	UpdateMII();
 	
 	gui_->UpdateModeSelectionUI(CAPModeller::GUIDEPOINT);
-	Refresh3DCanvas();
+	//Refresh3DCanvas();
 }
 
-void CAPClient::OpenAnnotation(std::string const& filename, std::string const& imageDirname)
+void CAPClient::OpenAnnotation(const std::string& filename, const std::string& imageDirname)
 {
 	// work with the file
-	std::cout << __func__ << " - File name: " << filename.c_str() << '\n';
-	std::cout << __func__ << " - Dir name: " << imageDirname << '\n';
+	dbg(std::string(__func__) + " - File name: " + filename);
+	dbg(std::string(__func__) + " - Dir name: " + imageDirname);
 	
-	CAPAnnotationFile annotationFile(filename.c_str());
-	std::cout << "Start reading xml file\n";
+	CAPAnnotationFile annotationFile(filename);
+	dbg("Start reading xml file");
 	annotationFile.ReadFile();
 	
 	// Create DICOMTable (filename -> DICOMImage map)
@@ -401,7 +404,7 @@ void CAPClient::OpenAnnotation(std::string const& filename, std::string const& i
 	// check if a valid file 
 	if (annotationFile.GetCardiacAnnotation().imageAnnotations.empty())
 	{
-		std::cout << "Invalid Annotation File\n";
+		dbg("Invalid Annotation File");
 		return;
 	}
 	
