@@ -699,7 +699,6 @@ void CAPXMLFile::ReadFile()
 			xmlFree(intervalStr);
 
 			xmlChar* transStr = xmlGetProp(cur, (xmlChar const*)"transformation_matrix");
-//			std::cout << "transStr = " << transStr << '\n';
 			output_.transformationMatrix = (char*)transStr;
 			xmlFree(transStr);
 
