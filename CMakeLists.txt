@@ -197,6 +197,10 @@ ENDIF( CMAKE_COMPILER_IS_GNUCXX)
 # current build directory tree.
 XRC_TO_CPP("${APP_XRC}" UI_SRCS_AND_HDRS)
 
+SET(CAPCLIENT_VERSION_STRING ${CAPCLIENT_VERSION_MAJOR}.${CAPCLIENT_VERSION_MINOR}.${CAPCLIENT_VERSION_PATCH})
+# Configure capclientconfig header file.
+CONFIGURE_FILE(src/capclientconfig.h.cmake src/capclientconfig.h)
+
 # Create an executable to convert text files into c strings
 # in a header file.
 ADD_EXECUTABLE(txt2include src/utils/txt2include.c)
