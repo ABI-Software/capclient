@@ -179,6 +179,11 @@ private:
 	 * \param regionName the region name to create the scene in.
 	 */
 	void CreateScene(const std::string& regionName);
+
+	/**
+	 * Creates the CAPClient icon in the cmgui context.
+	 */
+	void CreateCAPIconInContext() const;
 	
 	std::string PromptForUserComment();
 
