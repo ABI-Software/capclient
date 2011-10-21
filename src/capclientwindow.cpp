@@ -70,6 +70,15 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	cmguiPanel_ = new CmguiPanel(cmissContext_, "CAPClient", panel_Cmgui);
 	SetIcon(wxICON(capicon));
 	
+	// Load in a funky picture
+	Cmiss_context_execute_command(cmissContext_, "gfx read wave as heart src/heart_model.obj");
+	Cmiss_region_id region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region_id icon_region = Cmiss_region_create_child(region, "cap_icon");
+	Cmiss_context_execute_command(cmissContext_, "gfx mod g_element \"cap_icon\" point LOCAL glyph heart general size \"0.05*0.05*0.05\" material red");
+	cmguiPanel_->LookHere();
+	//Cmiss_context_execute_command(cmissContext_, "gfx modify window 1 view parallel eye_point 105.824 164.155 5.39987 interest_point 11.3427 -2.31351 -10.3133 up_vector -0.0184453 0.104329 -0.994372 view_angle 12.9646 near_clipping_plane 1.92056 far_clipping_plane 686.342 relative_viewport ndc_placement -1 1 2 2 viewport_coordinates 0 0 1 1;");
+	Cmiss_region_destroy(&icon_region);
+	Cmiss_region_destroy(&region);
 	// GUI initialization
 	//CreateStatusBar(0);
 	//UpdateFrameNumber(0);
@@ -158,7 +167,7 @@ void CAPClientWindow::EnterInitState()
 	// Put the gui in the init state
 	slider_Animation->Enable(false);
 	slider_AnimationSpeed->Enable(false);
-	button_Play->Enable(false);
+	button_Play->Enable(true);
 	button_HideShowAll->Enable(false);
 	button_HideShowOthers->Enable(false);
 	checkBox_MII->Enable(false);
@@ -318,6 +327,7 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 	if (button_Play->GetLabel() == wxT("play"))
 	{
 		// start stuff
+		cmguiPanel_->LookingHere();
 		PlayCine();
 	}
 	else

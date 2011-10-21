@@ -30,6 +30,7 @@ extern "C"
 }
 
 #include "Config.h"
+#include "utils/debug.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
 
@@ -40,12 +41,48 @@ CmguiPanel::CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, w
 	: cmissSceneViewer_(CreateSceneViewer(cmissContext, name, panel))
 {
 	SetFreeSpin(false);
+	//Cmiss_scene_viewer_set_lookat_parameters_non_skew(
+	//	cmissSceneViewer_, 105.824, 164.155, 5.39987,
+	//	11.3427, -2.31351, -10.3133,
+	//	-0.0184453, 0.104329, -0.994372 );
+	//Cmiss_scene_viewer_set_near_and_far_plane(cmissSceneViewer_, 1.92056, 686.342);
+	//Cmiss_scene_viewer_set_view_angle(cmissSceneViewer_, 12.9646);
+	//Cmiss_scene_viewer_set_viewport_mode(cmissSceneViewer_, CMISS_SCENE_VIEWER_VIEWPORT_RELATIVE);
+
 }
 	
 CmguiPanel::~CmguiPanel()
 {
 	std::cout << "CmguiPanel::~CmguiPanel()" << std::endl;
 	Cmiss_scene_viewer_destroy(&cmissSceneViewer_);
+}
+
+void CmguiPanel::LookHere() const
+{
+	Cmiss_scene_viewer_set_lookat_parameters_non_skew(
+		cmissSceneViewer_, 105.824, 164.155, 5.39987,
+		11.3427, -2.31351, -10.3133,
+		-0.0184453, 0.104329, -0.994372 );
+	//Cmiss_scene_viewer_set_near_and_far_plane(cmissSceneViewer_, 1.92056, 686.342);
+	Cmiss_scene_viewer_set_view_angle(cmissSceneViewer_, 0.220906);
+	Cmiss_scene_viewer_set_viewport_mode(cmissSceneViewer_, CMISS_SCENE_VIEWER_VIEWPORT_RELATIVE);
+	Cmiss_scene_viewer_set_viewing_volume(cmissSceneViewer_, -15.0613, 15.0613, -15.0613, 15.0613, 1.92056, 686.342);
+}
+
+void CmguiPanel::LookingHere() const
+{
+	double dof, fd, eyex, eyey, eyez, lx, ly, lz, upx, upy, upz, va, left, right, bottom, top, np, fp;
+	Cmiss_scene_viewer_get_depth_of_field(cmissSceneViewer_, &dof, &fd);
+	Cmiss_scene_viewer_get_lookat_parameters(cmissSceneViewer_, &eyex, &eyey, &eyez, &lx, &ly, &lz, &upx, &upy, &upz);
+	Cmiss_scene_viewer_get_view_angle(cmissSceneViewer_, &va);
+	Cmiss_scene_viewer_get_viewing_volume(cmissSceneViewer_, &left, &right, &bottom, &top, &np, &fp);
+
+	dbg("dof : " + toString(dof) + ", " + toString(fd));
+	dbg("eye : " + toString(eyex) + ", " + toString(eyey) + ", " + toString(eyez));
+	dbg("loo : " + toString(lx) + ", " + toString(ly) + ", " + toString(lz));
+	dbg("up  : " + toString(upx) + ", " + toString(upy) + ", " + toString(upz));
+	dbg("va  : " + toString(va));
+	dbg("vvo : " + toString(left) + ", " + toString(right) + ", " + toString(bottom)+ ", " + toString(top) + ", " + toString(np) + ", " + toString(fp));
 }
 
 void CmguiPanel::RedrawNow() const

@@ -42,6 +42,13 @@ public:
 	 */
 	SlicesWithImages GetSlicesWithImages(CmguiPanel *cmguiManager) const;
 
+	/**
+	 * Gets the labelled slices that are define in the CAPXMLFile.
+	 *
+	 * @return	The labelled slices.
+	 */
+	LabelledSlices GetLabelledSlices() const;
+
 	std::vector<DataPoint> GetDataPoints(CmguiPanel *cmguiManager) const;
 
 	void AddProvenanceDetail(std::string const& comment);

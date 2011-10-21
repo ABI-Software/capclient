@@ -55,6 +55,9 @@ public:
 	 */
 	~CmguiPanel();
 	
+	void LookHere() const;
+	void LookingHere() const;
+
 	/**
 	 * Get the cmiss scene viewer for this panel.  Have to make this public so 
 	 * that the callbacks can get a handle to it.

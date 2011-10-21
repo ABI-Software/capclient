@@ -15,6 +15,7 @@ namespace cap
 #define __func__ __FUNCTION__
 #endif
 static const char* CAP_DATA_DIR = "Data/";
+#define CAPCLIENT_VERSION_STRING "2.0.0"
 
 } // end namespace cap
 
