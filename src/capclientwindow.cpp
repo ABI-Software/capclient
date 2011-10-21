@@ -21,7 +21,7 @@ extern "C"
 }
 
 #include "utils/debug.h"
-#include "Config.h"
+#include "capclientconfig.h"
 #include "capclient.h"
 #include "capclientapp.h"
 #include "capclientwindow.h"

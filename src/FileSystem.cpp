@@ -24,7 +24,7 @@ extern "C"
 #endif
 #define MKS_TEMPLATE_NAME "CAPXXXXXX"
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "FileSystem.h"
 
 namespace cap

@@ -15,7 +15,7 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "GlobalSmoothPerFrameMatrix.dat.h"
 #include "GlobalMapBezierToHermite.dat.h"
 #include "prior.dat.h"

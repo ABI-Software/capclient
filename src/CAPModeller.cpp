@@ -13,7 +13,7 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
-#include "Config.h"
+#include "capclientconfig.h"
 
 namespace cap
 {

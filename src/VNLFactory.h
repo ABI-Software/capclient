@@ -16,7 +16,7 @@
 #include <vnl/vnl_sparse_matrix.h>
 #include <vnl/algo/vnl_conjugate_gradient.h>
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "SolverLibraryFactory.h"
 
 namespace cap

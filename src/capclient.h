@@ -29,7 +29,7 @@ extern "C"
 #include "iimagebrowser.h"
 #include "CAPMath.h"
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "capclientwindow.h"
 #include "SliceInfo.h"
 #include "DICOMImage.h"

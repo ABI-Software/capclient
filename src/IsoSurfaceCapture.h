@@ -31,7 +31,7 @@ extern "C"
 //#include "finite_element/export_finite_element.h"
 }
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "ImageSet.h"
 #include "CAPModelLVPS4X4.h"
 #include "SliceInfo.h"

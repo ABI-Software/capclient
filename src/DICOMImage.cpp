@@ -4,7 +4,7 @@
  *  Created on: Feb 17, 2009
  *      Author: jchu014
  */
-#include "Config.h"
+#include "capclientconfig.h"
 
 #include "DICOMImage.h"
 
