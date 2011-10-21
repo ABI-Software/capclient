@@ -625,8 +625,7 @@ void ConstructProvenanceDetailNode(CAPXMLFile::ProvenanceDetail const& provenanc
 } // end unnamed namespace
 
 CAPXMLFile::CAPXMLFile(std::string const & filename)
-:
-	filename_(filename)
+	: filename_(filename)
 {
 	output_.focalLength = 0.0;
 	output_.interval = 0.0;
