@@ -241,6 +241,7 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
 		dbg(image.label);
+		dbg(toString(image.imagePosition->x));
 	}
 
 	return mySlices;
