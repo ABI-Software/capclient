@@ -684,7 +684,6 @@ void CAPXMLFile::ReadFile()
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Output"))
 		{
-//			std::cout << i++ << ", "<< cur->name <<'\n';
 			using boost::lexical_cast;
 
 			xmlChar* focalLengthStr = xmlGetProp(cur, (xmlChar const*)"focallength");
