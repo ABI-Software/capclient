@@ -30,6 +30,7 @@ extern "C"
 }
 
 #include "Config.h"
+#include "utils/debug.h"
 #include "CAPXMLFileHandler.h"
 #include "CAPXMLFile.h"
 #include "DICOMImage.h"
@@ -236,6 +237,11 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 	size_t positionOfLastSlash = filename.find_last_of("/\\");
 	std::string pathToXMLFile = filename.substr(0, positionOfLastSlash+1);
 
+	CAPXMLFile::Input& input = xmlFile_.GetInput();
+	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
+	{
+		dbg(image.label);
+	}
 
 	return mySlices;
 }
