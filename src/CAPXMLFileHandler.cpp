@@ -242,6 +242,8 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 	{
 		dbg(image.label);
 		dbg(toString(image.imagePosition->x));
+		dbg(toString(image.imagePosition->y));
+		dbg(toString(image.imagePosition->z));
 	}
 
 	return mySlices;
