@@ -19,7 +19,7 @@ extern "C"
 #include <api/cmiss_region.h>
 }
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "CmguiImageSliceGraphics.h"
 #include "material.h"
 #include "cmguipanel.h"

@@ -29,7 +29,7 @@ extern "C"
 #include <api/cmiss_field_module.h>
 }
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "utils/debug.h"
 #include "CAPXMLFileHandler.h"
 #include "CAPXMLFile.h"

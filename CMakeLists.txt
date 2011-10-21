@@ -70,7 +70,7 @@ SET( APP_HDRS
 	src/CmguiExtensions.h
 	src/CmguiImageSliceGraphics.h
 	src/cmguipanel.h
-	src/Config.h
+	src/capclientconfig.h
 	src/utils/debug.h
 	src/DICOMImage.h
 	src/DataPoint.h

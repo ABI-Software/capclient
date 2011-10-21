@@ -12,7 +12,7 @@
 #include "CAPBasis.h"
 #include "gmm/gmm.h" // TODO use wrapper
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "utils/debug.h"
 #include "CAPTimeSmoother.h"
 #include "filesystem.h"

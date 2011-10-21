@@ -15,7 +15,7 @@
 #include <vnl/algo/vnl_lsqr.h>
 #include <vnl/vnl_linear_system.h>
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "CAPMath.h"
 
 namespace cap

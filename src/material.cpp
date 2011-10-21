@@ -22,7 +22,7 @@ extern "C"
 #include <api/cmiss_core.h>
 }
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "material.h"
 #include "vert.prog.h"
 #include "frag.prog.h"

@@ -8,7 +8,7 @@ extern "C"
 #include <api/cmiss_field_image.h>
 }
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "DICOMImage.h"
 #include "abstractlabelled.h"
 #include "labelledslice.h"

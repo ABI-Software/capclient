@@ -29,7 +29,7 @@ extern "C"
 #include <api/cmiss_field_finite_element.h>
 }
 
-#include "Config.h"
+#include "capclientconfig.h"
 #include "utils/debug.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
