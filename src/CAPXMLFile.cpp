@@ -710,8 +710,6 @@ void CAPXMLFile::ReadFile()
 		}
 		cur = cur->next;
 	}
-
-	std::cout << "EXIT:" << __func__ << std::endl;
 }
 
 
