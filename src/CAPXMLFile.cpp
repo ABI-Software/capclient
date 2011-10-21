@@ -707,7 +707,6 @@ void CAPXMLFile::ReadFile()
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Documentation"))
 		{
-//			std::cout << i++ << ", "<< cur->name <<'\n';
 			ReadDocumentation(documentation_, cur);
 		}
 		cur = cur->next;
