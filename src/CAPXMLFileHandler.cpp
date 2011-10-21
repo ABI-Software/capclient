@@ -233,7 +233,8 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 	const std::string& filename = xmlFile_.GetFilename();
 	// Search for the dicom files in the same dir as the xml dir first.
 	// TODO: put last location of dicom image into XMLFile
-	
+	size_t positionOfLastSlash = filename.find_last_of("/\\");
+	std::string pathToXMLFile = filename.substr(0, positionOfLastSlash+1);
 
 
 	return mySlices;

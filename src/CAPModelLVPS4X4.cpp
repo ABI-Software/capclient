@@ -93,7 +93,7 @@ using namespace std;
 
 int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::string& prefix)
 {
-	stringstream pathStream;	
+	stringstream pathStream;
 	pathStream << prefix << path;// << modelName << "_";// << 
 	string dir_path = pathStream.str();
 	
