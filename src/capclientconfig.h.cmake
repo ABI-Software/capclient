@@ -15,7 +15,7 @@ namespace cap
 #define __func__ __FUNCTION__
 #endif
 static const char* CAP_DATA_DIR = "Data/";
-#define CAPCLIENT_VERSION_STRING "2.0.0"
+#cmakedefine CAPCLIENT_VERSION_STRING "@CAPCLIENT_VERSION_STRING@"
 
 } // end namespace cap
 
