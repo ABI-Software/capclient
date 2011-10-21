@@ -596,8 +596,6 @@ void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 	std::for_each(image.points.begin(), image.points.end(), 
 			boost::bind(ConstructPointSubtree, _1, imageNode));
 	
-//	std::for_each(image.contourFiles.begin(), image.contourFiles.end(),
-//			boost::bind(ConstructContourFileNode, _1, imageNode));
 }
 
 void ConstructExnodeNode(CAPXMLFile::Exnode const &exnode, xmlNodePtr output)
@@ -651,7 +649,6 @@ void CAPXMLFile::ReadFile()
 		return; 
 	} 
 	
-//	std::cout << "Root node name = " << cur->name << "\n";
 	if (xmlStrcmp(cur->name, (const xmlChar *) "Analysis")) { 
 		std::cerr << "document of the wrong type, root node\n";
 		xmlFreeDoc(doc); 
