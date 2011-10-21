@@ -1,0 +1,1274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cap:CardiacAnnotation studyiuid="2.16.124.113543.6006.99.07122495250520304011" xmlns:cap="http://www.cardiacatlas.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org CardiacAnnotation.xsd">
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104390983379737982">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104397954404187696">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104457587972016782">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104540450793704297">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104587597557223126">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104589344766033449">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104664745338497073">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07104672283237411206">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105059490113028435">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105097848881269896">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105198043019794285">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105233667697282458">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105304100580203168">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105364008186523088">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105551576245841058">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07105989850978403599">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106004606917240198">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106042156303949377">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106051459686822338">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106096199910572143">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106122077577993629">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106230485960081931">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106254416194728051">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106270075121561656">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106290435286814444">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106334923712358417">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106407385839822918">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106475365983185034">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106491286498747591">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106524038472798381">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106550327072766733">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106580250140132957">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106714234167197513">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106755447077547550">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106785203242941266">
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106786457267911671">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106797608355894767">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106814088018398206">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106894709554795622">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106946471090670748">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106946965945351209">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07106976571518357240">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107003197602865661">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107026251718784011">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107103482455397595">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107201437142847959">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107254374662574075">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107293489122942101">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107310086343514469">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107375840649944933">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107494055624865941">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107560278142173757">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107661112679906660">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107775025982189631">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107783042292307727">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107787688380090432">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107833924788652847">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107847667568213360">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107871504714278206">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107894885667509693">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07107896208704654996">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108004586362560067">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108013109269477661">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108132433276639891">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108347424677568348">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108363748509597820">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108369284196179111">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108426025933290543">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108477031396238413">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108698579689678485">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108816448024728967">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108880918056986294">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07108938459361601231">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109013827325021458">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109016399747566796">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109163907347552147">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109174730887324021">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109293970586540573">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109323541900276956">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109382245711639188">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109438507806153601">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109449517943480353">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109453417544256182">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109478493420922853">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109500726103528018">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109569473418831086">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109665991432549956">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109821314402660833">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07109980699716250068">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110108711950100376">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110128627104378419">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110140499842103979">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110187200873361342">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110203630051577626">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110217156480002456">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110277276243594924">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110460319493955372">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110499981096142597">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110538372967616370">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110613330357382950">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110613583570065875">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110813921917484711">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110823211961979546">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110904623763037675">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07110907297028062467">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111035489658784175">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111039697170960126">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111201928764506902">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111305293429915069">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111358229176373188">
+<cap:Label rid="SNOMEDID:G-A18A" scope="Instance">Vertical Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111378623190808330">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111699247966351882">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111731114783014232">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111734997000065738">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111749490801545106">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111750524619184345">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111751033024545540">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111755824344134004">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111764850744670079">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111779175973653365">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111812904739404833">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111857427952072731">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111886082652264134">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111926187939714225">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111936796456410635">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111940208893867089">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111966609921867834">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07111973959047216328">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112020207999718747">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112026842517783762">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112068544048034413">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112070336702858340">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112098349196270550">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112199728294629898">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112205289678830573">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112207126921597923">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112338185226373763">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112504276602420138">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112573290264485512">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112593789885641651">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112702264042553112">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112714061491554889">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112761959951916971">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112762808893071170">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112789483451437070">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07112797243640328326">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07113140604521962509">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07113529010141303781">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117378590985468158">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117446114776241064">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117452081948401563">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117463207373793045">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117489077140877699">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117523073001674725">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117708202879521067">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07117906773751009866">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118033176481573918">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118047759050044472">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118180394474865486">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118203313759594554">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118294604853858350">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118314691894374960">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118322664430194671">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118333999196641330">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118389379666301405">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118449721965218310">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118506415710003821">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118507711513026545">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118535940628533393">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118590578888896458">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118633312634237736">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118706171626505709">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118722619279196751">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118746753128186667">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118757547953112315">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118761113294765057">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118814752213016634">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07118965905572502539">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119023983297412965">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119025397201368753">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119075732897356198">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119269343063997063">
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119273036502828457">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119337708345971986">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119340692125491409">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119352728886940641">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119473702409504245">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119787359212359918">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32004" scope="Slice">Apex of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>125.04440497335702</cap:x>
+<cap:y>117.31438721136767</cap:y>
+</cap:Point>
+</cap:ROI>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119937186125501904">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07119998725881189916">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120012481736712576">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120037807108832701">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120041319344894633">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120158404347864330">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120171868090403851">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120181213273001097">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120217344443075178">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120228271236932568">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120234796309051631">
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120240352718748258">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120371066992466517">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120640249480588774">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120687104931670273">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120740057831711832">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120772904820968710">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120794454700869345">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120870750974645617">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120907251063900677">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07120940426470691674">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121033093337513641">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121135452197650816">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121223702051599714">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121589598938000208">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121602242378652778">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121618489903745876">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121650031047243656">
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="RID:1389" scope="Instance">Right Ventricle</cap:Label>
+<cap:Point number="">
+<cap:x>135.5026642984014</cap:x>
+<cap:y>96.8525754884547</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:ROI>
+<cap:Label rid="RID:1392" scope="Instance">Left Ventricle</cap:Label>
+<cap:Point number="">
+<cap:x>154.145648312611</cap:x>
+<cap:y>115.04085257548846</cap:y>
+</cap:Point>
+</cap:ROI>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121669433764564135">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121698807111879922">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121733042812054159">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121745194409210219">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121829413139686150">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121875812031065544">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07121894817722775825">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122278546717010566">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="SNOMEDID:G-A18B" scope="Slice">Horizontal Long Axis</cap:Label>
+<cap:Label rid="RID:10571" scope="Instance">Long Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122385967029589616">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122435440048533227">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122495219974811314">
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122547398157180536">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122634291155214695">
+<cap:Label rid="RID:5854" scope="Instance">Transverse</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122659315925618607">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122779316992700943">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07122967949352057051">
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+<cap:ROI>
+<cap:Label rid="SNOMEDID:T-32003" scope="Slice">Base of Heart</cap:Label>
+<cap:Point number="">
+<cap:x>123.22557726465364</cap:x>
+<cap:y>118.22380106571936</cap:y>
+</cap:Point>
+</cap:ROI>
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07123226967358760280">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+<cap:ImageAnnotation sopiuid="2.16.124.113543.6006.99.07123258562813433718">
+<cap:Label rid="RID:10741" scope="Series">Fast Gradient Echo</cap:Label>
+<cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+<cap:Label rid="RID:10577" scope="Instance">Short Axis</cap:Label>
+</cap:ImageAnnotation>
+</cap:CardiacAnnotation>

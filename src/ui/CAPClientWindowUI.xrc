@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
+	<object class="wxFrame" name="CAPClientWindowUI">
+		<style>wxDEFAULT_FRAME_STYLE</style>
+		<size>1054,754</size>
+		<title>CAP Client</title>
+		<object class="wxMenuBar" name="menuBar_Main">
+			<label>where am i</label>
+			<object class="wxMenu" name="menu_File">
+				<label>_File</label>
+				<object class="wxMenuItem" name="menuItem_OpenImages">
+					<label>Open _Images</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="menuItem_OpenModel">
+					<label>Open _Model</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="menuItem_OpenAnnotation">
+					<label>Open _Annotation</label>
+					<help></help>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="menuItem_Save">
+					<label>_Save Model</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="menuItem_Export">
+					<label>E_xport Model</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="menuItem_ExportToBinaryVolume">
+					<label>E_xport Model to Binary Volume</label>
+					<help></help>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="menuItem_Quit">
+					<label>_Quit\tCtrl-Q</label>
+					<help></help>
+				</object>
+			</object>
+			<object class="wxMenu" name="menu_View">
+				<label>_View</label>
+				<object class="wxMenuItem" name="menuItem_ImageBrowseWindow">
+					<label>Open Image Browse Window</label>
+					<help></help>
+				</object>
+			</object>
+			<object class="wxMenu" name="menu_Help">
+				<label>_Help</label>
+				<object class="wxMenuItem" name="menuItem_About">
+					<label>About...</label>
+					<help></help>
+				</object>
+			</object>
+		</object>
+		<object class="wxStatusBar" name="statusBar_Main">
+			<style>wxST_SIZEGRIP</style>
+			<fields>1</fields>
+		</object>
+		<object class="wxBoxSizer">
+			<orient>wxHORIZONTAL</orient>
+			<object class="sizeritem">
+				<option>1</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxPanel" name="window_1_pane_1">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag></flag>
+							<border>0</border>
+							<object class="wxPanel" name="panel_Cmgui">
+								<style>wxTAB_TRAVERSAL</style>
+								<size>750,-1</size>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxEXPAND</flag>
+							<border>0</border>
+							<object class="wxBoxSizer">
+								<orient>wxHORIZONTAL</orient>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALIGN_CENTER_VERTICAL</flag>
+									<border>0</border>
+									<object class="wxButton" name="button_Play">
+										<label>Play</label>
+										<default>0</default>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
+									<border>0</border>
+									<object class="wxSlider" name="slider_Animation">
+										<style>wxSL_HORIZONTAL</style>
+										<value>0</value>
+										<min>0</min>
+										<max>112</max>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+			<object class="sizeritem">
+				<option>0</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxPanel" name="window_1_pane_2">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>0</border>
+							<object class="wxPanel" name="panel_1">
+								<style>wxTAB_TRAVERSAL</style>
+								<object class="wxStaticBoxSizer">
+									<orient>wxVERTICAL</orient>
+									<label>Slice list</label>
+									<object class="sizeritem">
+										<option>1</option>
+										<flag>wxEXPAND</flag>
+										<border>0</border>
+										<object class="wxCheckListBox" name="checkListBox_Slice">
+											<content />
+										</object>
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>0</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="spacer">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<size>10,20</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<object class="wxButton" name="button_HideShowAll">
+													<label>Hide All</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="spacer">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<size>20,20</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<object class="wxButton" name="button_HideShowOthers">
+													<label>Hide Others</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="spacer">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<size>20,20</size>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>0</border>
+							<object class="wxNotebook" name="notebook_ViewerModeller">
+								<size>-1,350</size>
+								<object class="notebookpage">
+									<label>Viewer</label>
+									<selected>0</selected>
+									<object class="wxPanel" name="notebook_1_pane_1">
+										<style>wxTAB_TRAVERSAL</style>
+										<object class="wxBoxSizer">
+											<orient>wxVERTICAL</orient>
+											<object class="sizeritem">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<object class="wxStaticBoxSizer">
+													<orient>wxVERTICAL</orient>
+													<label>Model display</label>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxEXPAND</flag>
+														<border>0</border>
+														<object class="wxCheckBox" name="checkBox_Wireframe">
+															<label>Wireframe</label>
+															<checked>0</checked>
+														</object>
+													</object>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxEXPAND</flag>
+														<border>0</border>
+														<object class="wxCheckBox" name="checkBox_MII">
+															<label>Model Image Intersection</label>
+															<checked>0</checked>
+														</object>
+													</object>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<object class="wxStaticBoxSizer">
+													<orient>wxVERTICAL</orient>
+													<label>Brightness and Contrast</label>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxEXPAND</flag>
+														<border>0</border>
+														<object class="wxSlider" name="slider_Brightness">
+															<style>wxSL_HORIZONTAL</style>
+															<value>50</value>
+															<min>0</min>
+															<max>100</max>
+														</object>
+													</object>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxEXPAND</flag>
+														<border>0</border>
+														<object class="wxSlider" name="slider_Contrast">
+															<style>wxSL_HORIZONTAL</style>
+															<value>50</value>
+															<min>0</min>
+															<max>100</max>
+														</object>
+													</object>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<object class="wxStaticBoxSizer">
+													<orient>wxVERTICAL</orient>
+													<label>Animation speed</label>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxEXPAND</flag>
+														<border>0</border>
+														<object class="wxSlider" name="slider_AnimationSpeed">
+															<style>wxSL_HORIZONTAL</style>
+															<value>50</value>
+															<min>0</min>
+															<max>100</max>
+														</object>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="notebookpage">
+									<label>Modeller</label>
+									<selected>0</selected>
+									<object class="wxPanel" name="notebook_1_pane_2">
+										<style>wxTAB_TRAVERSAL</style>
+										<object class="wxBoxSizer">
+											<orient>wxVERTICAL</orient>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<object class="wxStaticBoxSizer">
+													<orient>wxHORIZONTAL</orient>
+													<label>Modelling Mode</label>
+													<object class="sizeritem">
+														<option>1</option>
+														<flag>wxEXPAND</flag>
+														<border>0</border>
+														<object class="wxBoxSizer">
+															<orient>wxHORIZONTAL</orient>
+															<object class="sizeritem">
+																<option>1</option>
+																<flag>wxEXPAND</flag>
+																<border>0</border>
+																<object class="wxChoice" name="choice_Mode">
+																	<selection>0</selection>
+																	<content>
+																		<item>Apex</item>
+																	</content>
+																</object>
+															</object>
+															<object class="sizeritem">
+																<option>0</option>
+																<flag>wxRIGHT|wxEXPAND</flag>
+																<border>0</border>
+																<object class="wxButton" name="button_Accept">
+																	<label>Accept</label>
+																	<default>0</default>
+																</object>
+															</object>
+														</object>
+													</object>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>0</border>
+												<object class="wxStaticBoxSizer">
+													<orient>wxHORIZONTAL</orient>
+													<label>Plane Shifting</label>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxEXPAND</flag>
+														<border>0</border>
+														<object class="wxButton" name="button_PlaneShift">
+															<label>Start Shifting</label>
+															<default>0</default>
+														</object>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+</resource>
