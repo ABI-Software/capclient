@@ -162,7 +162,7 @@ FOREACH( TEST ${UNIT_TESTS} )
 			debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib")
 	ELSE()
 		TARGET_LINK_LIBRARIES(UnitTest${TEST}
-			"${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a")
+			"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a")
 	ENDIF()
 ENDFOREACH()
 
