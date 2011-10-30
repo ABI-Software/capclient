@@ -38,7 +38,7 @@ extern "C"
 #include "DataPoint.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "PlatformInfo.h"
 #include "CAPContour.h"
 

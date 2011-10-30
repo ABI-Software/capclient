@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 #include "unittestconfigure.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "GlobalSmoothTVMatrix.dat.h"
 
 char testString1[] = "/home/dummies/are/us";
