@@ -65,6 +65,13 @@ public:
 	 * @return	The dicom images.
 	 */
 	const std::vector<DICOMPtr>& GetDICOMImages() const { return dicomImages_; }
+
+	/**
+	 * Appends a dicomImage.
+	 *
+	 * @param	dicomImage	The DICOMPtr to append.
+	 */
+	void append(DICOMPtr dicomImage) { dicomImages_.push_back(dicomImage); }
 	
 private:
 	std::vector<DICOMPtr> dicomImages_; /**< The dicom images */

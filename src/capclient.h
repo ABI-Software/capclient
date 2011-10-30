@@ -216,8 +216,15 @@ public:
 	 * so that labelledSlices, labelledTextures and cardiac annotations 
 	 * can be passed to this class.
 	 */
-	void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno);
-	
+	void LoadLabelledImages(const std::vector<LabelledSlice>& labelledSlices);
+
+	/**
+	 * Loads cardiac annotations.
+	 *
+	 * @param	anno	The cardiac annotations to load.
+	 */
+	void LoadCardiacAnnotations(const CardiacAnnotation& anno);
+
 	void SetModelVisibility(bool visibility) {}
 	
 	void SetMIIVisibility(bool visibility, int sliceNum) {}

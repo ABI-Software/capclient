@@ -230,26 +230,104 @@ boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::st
 
 LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 {
-	LabelledSlices mySlices;
+	LabelledSlices labelledSlices;
 	const std::string& filename = xmlFile_.GetFilename();
 	// Search for the dicom files in the same dir as the xml dir first.
 	// TODO: put last location of dicom image into XMLFile
 	size_t positionOfLastSlash = filename.find_last_of("/\\");
 	std::string pathToXMLFile = filename.substr(0, positionOfLastSlash+1);
 
+	typedef boost::unordered_map<std::string, DICOMPtr> HashTable;
+	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToXMLFile);
+
+	typedef std::map<std::string, LabelledSlice > LabelledSliceMap;
+	LabelledSliceMap labelledSliceMap;
+
 	CAPXMLFile::Input& input = xmlFile_.GetInput();
 	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
+		HashTable::const_iterator dicomFileItr = uidToFilenameMap.find(image.sopiuid);
+		while (dicomFileItr == uidToFilenameMap.end())
+		{
+			//Can't locate the file. Ask the user to locate the dicom file.
+			dbg("No matching filename in the sopiuid to filename map");
+
+			wxString currentWorkingDir = wxGetCwd();
+			wxString defaultPath = currentWorkingDir.Append(wxT("/Data"));
+
+			const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
+			if ( !dirname.empty() )
+			{
+				std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
+				wxString dirfname = dirname + wxT("/");
+				HashTable newMap = GenerateSopiuidToFilenameMap(std::string(dirfname.mb_str()));
+				uidToFilenameMap.insert(newMap.begin(), newMap.end());
+				dicomFileItr = uidToFilenameMap.find(image.sopiuid);
+			}
+			else
+			{
+				// User cancelled the operation. return empty set
+				dbg("User cancelled returning empty set.");
+				labelledSlices.clear();
+				return labelledSlices;
+			}
+		}
 		dbg(image.label);
+		DICOMPtr dicomImage = dicomFileItr->second;
 		if (image.imagePosition)
 		{
-			dbg(toString(image.imagePosition->x));
-			dbg(toString(image.imagePosition->y));
-			dbg(toString(image.imagePosition->z));
+			Point3D const& pos = *image.imagePosition;
+			dicomImage->SetImagePosition(pos);
 		}
+
+		// Create Contour objects
+		CAPXMLFile::StudyContours const& studyContours = input.studyContours;
+		std::vector<CAPXMLFile::ImageContours>::const_iterator imageContours_itr =
+				std::find_if(studyContours.listOfImageContours.begin(),
+							studyContours.listOfImageContours.end(),
+							boost::bind(std::equal_to<std::string>(),
+									boost::bind(&CAPXMLFile::ImageContours::sopiuid, _1),
+									image.sopiuid));
+		if (imageContours_itr != studyContours.listOfImageContours.end())
+		{
+			CAPXMLFile::ImageContours const& imageContours = *imageContours_itr;
+			BOOST_FOREACH(CAPXMLFile::Contour const& contour, imageContours.contours)
+			{
+				std::vector<Point3D> points;
+				points.reserve(contour.contourPoints.size());
+				BOOST_FOREACH(CAPXMLFile::ContourPoint const& contourPoint, contour.contourPoints)
+				{
+					points.push_back(Point3D(contourPoint.x, contourPoint.y, 0));
+				}
+				ContourPtr capContour = boost::make_shared<CAPContour>(contour.number, contour.transformationMatrix, points);
+				dicomImage->AddContour(capContour);
+			}
+		}
+
+		LabelledSliceMap::iterator it = labelledSliceMap.find(image.label);
+		if (it == labelledSliceMap.end())
+		{
+			std::vector<DICOMPtr> dicoms;
+			dicoms.push_back(dicomImage);
+			LabelledSlice newSlice = LabelledSlice(image.label, dicoms);
+			labelledSliceMap.insert(std::make_pair(image.label, newSlice));
+		}
+		else
+		{
+			it->second.append(dicomImage);
+		}
+
 	}
 
-	return mySlices;
+	LabelledSliceMap::const_iterator cit = labelledSliceMap.begin();
+	for (;cit != labelledSliceMap.end(); cit++)
+	{
+		labelledSlices.push_back(cit->second);
+	}
+
+	std::sort(labelledSlices.begin(), labelledSlices.end(), LabelledSortOrder());
+
+	return labelledSlices;
 }
 
 SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiPanel *cmguiManager) const
