@@ -33,6 +33,7 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "filesystem.h"
+#include "utils/debug.h"
 
 namespace cap
 {
@@ -63,10 +64,9 @@ const std::vector<std::string> FileSystem::GetAllFileNames(const std::string& di
 	{
 		while ((ent = readdir(dir)) != 0) {
 			string filename(ent->d_name);
-			if (filename[0] != '.') //takes care of ".", ".." and all other files that start with a . (e.g .DS_Store)
+			if (filename[0] != '.' && IsFile(dirname + "/" + filename)) //takes care of ".", ".." and all other files that start with a . (e.g .DS_Store)
 			{
-//				cout << "Filename - " << ent->d_name <<endl;
-				filenames.push_back(ent->d_name);
+				filenames.push_back(filename);
 			}
 		}
 		
@@ -97,7 +97,7 @@ bool FileSystem::DeleteDirectory(const std::string& dirname)
 	return rmdir(dirname.c_str()) == 0;
 }
 
-bool FileSystem::FileExists(const std::string& filename)
+bool FileSystem::IsFile(const std::string& filename)
 {
 	struct stat statBuf;
 
@@ -107,7 +107,7 @@ bool FileSystem::FileExists(const std::string& filename)
 	return ((S_IFREG & statBuf.st_mode) > 0);
 }
 
-bool FileSystem::DirectoryExists(const std::string& dirname)
+bool FileSystem::IsDirectory(const std::string& dirname)
 {
 	struct stat statBuf;
 
