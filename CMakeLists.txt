@@ -74,7 +74,7 @@ SET( APP_HDRS
 	src/utils/debug.h
 	src/DICOMImage.h
 	src/DataPoint.h
-	src/FileSystem.h
+	src/filesystem.h
 	src/GMMFactory.h
 	src/IAnnotationWindow.h
 	src/imagebrowserwindow.h
@@ -121,7 +121,7 @@ SET( APP_SRCS
 	src/cmguipanel.cpp
 	src/DICOMImage.cpp
 	src/DataPoint.cpp
-	src/FileSystem.cpp
+	src/filesystem.cpp
 	src/imagebrowser.cpp
 	src/imagebrowserwindow.cpp
 	src/ImageSet.cpp
