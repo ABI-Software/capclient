@@ -155,10 +155,15 @@ FILE(COPY SampleAnalysisUsingXsd.xml SampleAnnotationFile.xml DESTINATION ${PROJ
 FOREACH( TEST ${UNIT_TESTS} )
 	ADD_EXECUTABLE(UnitTest${TEST} ${${TEST}_SRC})
 	ADD_TEST(UnitTest${TEST} UnitTest${TEST})
-	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES} 
-		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib"
-		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib" "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
-)
+	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+	IF(MSVC)
+		TARGET_LINK_LIBRARIES(UnitTest${TEST}
+			optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
+			debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib")
+	ELSE()
+		TARGET_LINK_LIBRARIES(UnitTest${TEST}
+			"${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a")
+	ENDIF()
 ENDFOREACH()
 
 IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
