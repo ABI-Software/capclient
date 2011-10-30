@@ -1,5 +1,6 @@
 
 #include <gtest/gtest.h>
+#include <algorithm>
 #include "unittestconfigure.h"
 #include "filesystem.h"
 #include "GlobalSmoothTVMatrix.dat.h"
@@ -55,6 +56,7 @@ TEST(FileSystemTest, GetAllFileNames)
 {
 	std::vector<std::string> names = cap::FileSystem::GetAllFileNames(FILESYSTEM_TESTDIR);
 
+	std::sort(names.begin(), names.end());
 	EXPECT_EQ(3, names.size());
 	EXPECT_EQ(std::string("file1.txt"), names.at(0));
 	EXPECT_EQ(std::string("file2.txt"), names.at(1));
