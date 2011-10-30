@@ -104,7 +104,7 @@ bool FileSystem::FileExists(const std::string& filename)
 	if( stat( filename.c_str(), &statBuf ) < 0 ) 
 		return false;
 
-	return ((_S_IFREG & statBuf.st_mode) > 0);
+	return ((S_IFREG & statBuf.st_mode) > 0);
 }
 
 bool FileSystem::DirectoryExists(const std::string& dirname)
@@ -114,7 +114,7 @@ bool FileSystem::DirectoryExists(const std::string& dirname)
 	if( stat( dirname.c_str(), &statBuf ) < 0 )
 		return false;
 
-	return ((_S_IFDIR & statBuf.st_mode) > 0);
+	return ((S_IFDIR & statBuf.st_mode) > 0);
 }
 
 std::string FileSystem::CreateTemporaryEmptyFile(const std::string& directory)
@@ -141,7 +141,7 @@ std::string FileSystem::CreateTemporaryEmptyFile(const std::string& directory)
 	if ((fd = mkstemp(tmpl)) < 0 ) {
 		throw std::exception();//"Could not create temporary file!");
 	} else {
-		_close(fd);
+		close(fd);
 	}
 	std::string filename(tmpl);
 	free(tmpl);
