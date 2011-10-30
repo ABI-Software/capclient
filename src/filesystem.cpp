@@ -5,6 +5,9 @@
  *      Author: jchu014
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <dirent.h>
 #include <iostream>
 #include <sys/stat.h>
@@ -18,8 +21,12 @@ extern "C"
 # include "win32/linuxutils.h"
 }
 # define rmdir _rmdir
+# define close _close
+# define S_IFREG _S_IFREG
+# define S_IFDIR _S_IFDIR
 # define DIR_SEPERATOR '/'
 #else
+# include <unistd.h>
 # define DIR_SEPERATOR '/'
 #endif
 #define MKS_TEMPLATE_NAME "CAPXXXXXX"
@@ -132,7 +139,7 @@ std::string FileSystem::CreateTemporaryEmptyFile(const std::string& directory)
 		strncpy(tmpl + dirSize + 1, (const char *) MKS_TEMPLATE_NAME, tmplSize);
 	}
 	if ((fd = mkstemp(tmpl)) < 0 ) {
-		throw std::exception("Could not create temporary file!");
+		throw std::exception();//"Could not create temporary file!");
 	} else {
 		_close(fd);
 	}
