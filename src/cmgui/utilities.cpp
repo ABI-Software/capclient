@@ -19,7 +19,7 @@ extern "C"
 }
 
 #include "DICOMImage.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 
 #include "utilities.h"
 
