@@ -18,7 +18,7 @@ TextureSlice::~TextureSlice()
 
 void TextureSlice::ChangeTexture(unsigned int index)
 {
-	if (index >= 0 && index < fieldImages_.size())
+	if (index < fieldImages_.size())
 	{
 		material_->ChangeTexture(fieldImages_.at(index));
 	}
