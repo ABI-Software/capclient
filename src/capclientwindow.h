@@ -80,7 +80,13 @@ public:
 	 * \param labelledSlice the labelled slice to create the field images from.
 	 */
 	void CreateTextureSlice(const LabelledSlice& labelledSlice);
-	
+
+	/**
+	 * Clears the texture slices.  This requires the deletion of the fields and
+	 * regions that the texture slices is created in.
+	 */
+	void ClearTextureSlices();
+
 	void PlayCine();
 	
 	void StopCine();

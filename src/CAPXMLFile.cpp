@@ -113,7 +113,7 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	image.slice = lexical_cast<int>(slice);
 	xmlFree(slice);
 	
-	//sopiuid		
+	//sopiuid
 	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
 //	std::cout << "sopiuid = " << sopiuid << '\n';
 	image.sopiuid = (char*)sopiuid;

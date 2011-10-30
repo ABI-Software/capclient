@@ -381,7 +381,7 @@ void ImageBrowser::OnOKButtonClicked()
 	// construct the data structure of type SlicesWithImages to pass to the main window
 	SlicesWithImages slices;
 	LabelledSlices labelledSlices;
-	std::vector<LabelledTexture> labelledTextures;
+	//std::vector<LabelledTexture> labelledTextures;
 	
 	std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
 	
@@ -409,9 +409,9 @@ void ImageBrowser::OnOKButtonClicked()
 		}
 		SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
 		LabelledSlice labelledSlice(sliceName, sliceMap_[key]);
-		LabelledTexture labelledTexture(sliceName, textureMap_[key]);
+		//LabelledTexture labelledTexture(sliceName, textureMap_[key]);
 		labelledSlices.push_back(labelledSlice);
-		labelledTextures.push_back(labelledTexture);
+		//labelledTextures.push_back(labelledTexture);
 		slices.push_back(sliceInfo);
 	}
 	
@@ -430,7 +430,7 @@ void ImageBrowser::OnOKButtonClicked()
 	
 	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
 	std::sort(labelledSlices.begin(), labelledSlices.end(), LabelledSortOrder());
-	std::sort(labelledTextures.begin(), labelledTextures.end(), LabelledSortOrder());
+	//std::sort(labelledTextures.begin(), labelledTextures.end(), LabelledSortOrder());
 	
 	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
 	if (slices.empty())
@@ -440,7 +440,8 @@ void ImageBrowser::OnOKButtonClicked()
 	}
 	
 	//--client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
-	client_->LoadLabelledImagesFromImageBrowser(labelledSlices, labelledTextures, cardiacAnnotation_);
+	client_->LoadLabelledImages(labelledSlices);
+	client_->LoadCardiacAnnotations(cardiacAnnotation_);
 	gui_->Hide();
 }
 

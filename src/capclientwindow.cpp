@@ -355,6 +355,11 @@ void CAPClientWindow::Terminate(wxCloseEvent& event)
 	}
 }
 
+void CAPClientWindow::ClearTextureSlices()
+{
+	dbg("=== Danger texture removal not implemented ===");
+}
+
 void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 {
 	std::string regionName = labelledSlice.GetLabel();

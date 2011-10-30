@@ -105,7 +105,7 @@ void CAPClient::PopulateSliceList()
 	gui_->PopulateSliceList(sliceNames, visibilities);
 }
 
-void CAPClient::LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno)
+void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 {
 	// Reset capXMLFilePtr_
 	if (capXMLFilePtr_)
@@ -113,6 +113,7 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelle
 		capXMLFilePtr_.reset(0);
 	}
 	
+	gui_->ClearTextureSlices();
 	labelledSlices_ = labelledSlices;
 	// read (or reread) in dicoms to create image textures (again) for this context.
 	LabelledSlices::const_iterator it;
@@ -131,8 +132,13 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelle
 	// nothing happens when I click on the list.
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
-	assert(!anno.imageAnnotations.empty());
 	InitializeModelTemplate(labelledSlices);
+	EnterImagesLoadedState();
+}
+
+void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
+{
+	assert(!anno.imageAnnotations.empty());
 	cardiacAnnotationPtr_.reset(new CardiacAnnotation(anno));
 
 	// Set some special nodes?
@@ -147,7 +153,6 @@ void CAPClient::LoadLabelledImagesFromImageBrowser(const LabelledSlices& labelle
 			}
 		}
 	}
-	EnterImagesLoadedState();
 }
 
 void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno)
@@ -321,7 +326,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices();
 	//const SlicesWithImages& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
 	SlicesWithImages slicesWithImages;
-	if (slicesWithImages.empty())
+	if (labelledSlices.empty())
 	{
 		dbg("Can't locate image files");
 		return;
