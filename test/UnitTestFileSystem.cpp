@@ -55,11 +55,9 @@ TEST(FileSystemTest, GetAllFileNames)
 {
 	std::vector<std::string> names = cap::FileSystem::GetAllFileNames(FILESYSTEM_TESTDIR);
 
-	std::vector<std::string>::const_iterator it = names.begin();
 	EXPECT_EQ(std::string("file1.txt"), names.at(0));
 	EXPECT_EQ(std::string("file2.txt"), names.at(1));
 	EXPECT_EQ(std::string("file3.txt"), names.at(2));
-	EXPECT_EQ(std::string("subdir"), names.at(3));
 }
 
 TEST(FileSystemTest, MakeDirectory)
@@ -84,7 +82,7 @@ TEST(FileSystemTest, TempFile1)
 {
 	using namespace cap;
 	std::string filename = FileSystem::CreateTemporaryEmptyFile();
-	bool exists = FileSystem::FileExists(filename);
+	bool exists = FileSystem::IsFile(filename);
 	ASSERT_EQ(true, exists) << "filename doesn't exist : '" << filename << "'";
 	bool res = FileSystem::RemoveFile(filename);
 	EXPECT_EQ(true, res);
@@ -94,7 +92,7 @@ TEST(FileSystemTest, TempFile2)
 {
 	using namespace cap;
 	std::string filename = FileSystem::CreateTemporaryEmptyFile(std::string(FILESYSTEM_TESTDIR));
-	bool exists = FileSystem::FileExists(filename);
+	bool exists = FileSystem::IsFile(filename);
 	ASSERT_EQ(true, exists) << "filename doesn't exist : '" << filename << "'";
 	std::string justfilename = FileSystem::GetFileName(filename);
 	std::string abslocation = std::string(FILESYSTEM_TESTDIR) + '/' + justfilename;

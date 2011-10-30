@@ -53,7 +53,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool FileExists(const std::string& filename);
+	static bool IsFile(const std::string& filename);
 
 	/**
 	 * Queries if a given directory exists.
@@ -62,7 +62,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool DirectoryExists(const std::string& dirname);
+	static bool IsDirectory(const std::string& dirname);
 
 	/**
 	 * Writes a character buffer to file.
