@@ -88,7 +88,7 @@ SET(CAPModeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/CAPModellingMode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPModeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPTimeSmoother.cpp
-	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
 )
 LIST(APPEND UNIT_TESTS CAPModeller)
 
@@ -107,7 +107,7 @@ LIST(APPEND UNIT_TESTS AnnotationEditor)
 
 SET(FileSystem_SRC
 	UnitTestFileSystem.cpp
-	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
 )
 LIST(APPEND UNIT_TESTS FileSystem)
 
@@ -127,7 +127,7 @@ SET(GuiTestImageBrowser_SRC
 	${CAPCLIENT_ROOT_DIR}/src/material.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
-	${CAPCLIENT_ROOT_DIR}/src/FileSystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
 )
 LIST(APPEND GUI_TESTS GuiTestImageBrowser)
 
