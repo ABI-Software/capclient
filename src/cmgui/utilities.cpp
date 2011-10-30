@@ -206,9 +206,6 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 	double width = sqrt(DotProduct(plane->xside, plane->xside));
 	double height = sqrt(DotProduct(plane->yside, plane->yside));
-	char buffer[256];
-	sprintf(buffer, "%.4fx%.4f", width, height);
-	//OutputDebugString(buffer);
 	double node_coordinates[element_node_count][3] =
 	{
 		{plane->blc.x, plane->blc.y, plane->blc.z},
