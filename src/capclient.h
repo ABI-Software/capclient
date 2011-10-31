@@ -343,7 +343,6 @@ private:
 		//Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
 
 		// Also clean up cmgui objects such as scene, regions, materials ..etc
-		capXMLFilePtr_.reset(0);
 		cardiacAnnotationPtr_.reset(0);
 		if(imageSet_)
 		{
@@ -489,26 +488,28 @@ private:
 	, heartModelPtr_(0)
 	, modeller_(0)
 	, mainWindowState_(INIT_STATE)
-	, capXMLFilePtr_(0)
 	, cardiacAnnotationPtr_(0)
 	{
 	}
 	
-	static CAPClient* instance_;
-	CAPClientWindow* gui_;
-	ImageBrowser* ib_;
+	static CAPClient* instance_;	/**< The instance */
+	CAPClientWindow* gui_;  /**< The graphical user interface */
+	ImageBrowser* ib_;  /**< The ib */
 	
-	ImageSet* imageSet_;
-	LabelledSlices labelledSlices_;
+	ImageSet* imageSet_;	/**< Set the image belongs to */
+	LabelledSlices labelledSlices_; /**< The labelled slices */
 	
-	bool hideAll_;
-	bool miiIsOn_;
-	bool wireFrameIsOn_;
+	bool hideAll_;  /**< true to hide, false to show all */
+	bool miiIsOn_;  /**< true if mii is on */
+	bool wireFrameIsOn_;	/**< true if wire frame is on */
 	
-	boost::scoped_ptr<CAPModelLVPS4X4> heartModelPtr_;
+	boost::scoped_ptr<CAPModelLVPS4X4> heartModelPtr_;  /**< The heart model pointer */
 	
-	CAPModeller* modeller_;
-	
+	CAPModeller* modeller_; /**< The modeller */
+
+	/**
+	 * Values that represent CAPClientWindowState. 
+	 */
 	enum CAPClientWindowState
 	{
 		INIT_STATE,
@@ -516,11 +517,9 @@ private:
 		MODEL_LOADED_STATE
 	};
 
-	CAPClientWindowState mainWindowState_;
-	boost::scoped_ptr<CAPXMLFile> capXMLFilePtr_;
-	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_;
+	CAPClientWindowState mainWindowState_;  /**< State of the main window */
+	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_; /**< The cardiac annotation pointer */
 	
-	//DECLARE_EVENT_TABLE();
 };
 
 } // namespace cap

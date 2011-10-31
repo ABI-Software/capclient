@@ -458,7 +458,7 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints() const
 		}
 		else
 		{
-			itr->second ++;
+			itr->second++;
 		}
 	}
 
