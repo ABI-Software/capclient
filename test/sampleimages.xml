@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cap:Analysis xmlns:cap="http://www.cardiacatlas.org" chamber="LV" name="output" studyiuid="1.3.12.2.1107.5.2.6.22043.4.0.6860603417842558" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
+<cap:Analysis xmlns:cap="http://www.cardiacatlas.org" chamber="LV" name="SampleImages" studyiuid="1.3.12.2.1107.5.2.6.22043.4.0.6860603417842558" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
   <cap:Input>
     <cap:Image frame="0" label="LA1" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="0" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868450016981521"/>
     <cap:Image frame="1" label="LA1" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="0" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868451942571250"/>

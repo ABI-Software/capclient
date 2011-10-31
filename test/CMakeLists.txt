@@ -52,6 +52,7 @@ SET(FILESYSTEM_TESTDIR "${CMAKE_CURRENT_SOURCE_DIR}/testdir")
 SET(DICOMIMAGE_IMAGEDIR "${CMAKE_CURRENT_SOURCE_DIR}/imagedir")
 SET(SAMPLEANALYSISXML_FILE "${CMAKE_CURRENT_SOURCE_DIR}/SampleAnalysisUsingXsd.xml")
 SET(SAMPLEANNOTATION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/SampleAnnotationFile.xml")
+SET(SAMPLEIMAGES_FILE "${CMAKE_CURRENT_SOURCE_DIR}/sampleimages.xml")
 CONFIGURE_FILE(unittestconfigure.h.cmake unittestconfigure.h)
 
 INCLUDE_DIRECTORIES(
@@ -75,7 +76,15 @@ LIST(APPEND UNIT_TESTS Math)
 
 SET(Xml_SRC
 	UnitTestCAPXMLFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
+	${CAPCLIENT_ROOT_DIR}/src/PlatformInfo.cpp
+	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/DataPoint.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
+	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CmguiExtensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFileHandler.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
 LIST(APPEND UNIT_TESTS Xml)
@@ -146,6 +155,12 @@ IF(MSVC)
 	
 	SET(CAPModeller_SRC
 		${CAPModeller_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+	)
+	
+	SET(Xml_SRC
+		${Xml_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 	)

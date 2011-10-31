@@ -12,6 +12,8 @@
 #define private public
 #include "CAPXMLFile.h"
 #undef private
+#include "CAPXMLFileHandler.h"
+#include "DataPoint.h"
 
 namespace
 {
@@ -115,4 +117,32 @@ TEST(CAPXMLFile, AddImage)
 	
 	EXPECT_THROW(xmlFile.AddPointToImage("222", CAPXMLFile::Point()), std::invalid_argument);
 }
+
+TEST(CAPXMLFileHandler, GetDataPoints)
+{
+	using namespace cap;
+
+	CAPXMLFile xmlFile(SAMPLEIMAGES_FILE);
+	xmlFile.ReadFile();
+	ASSERT_EQ("SampleImages", xmlFile.name_);
+
+	CAPXMLFileHandler fh(xmlFile);
+	std::vector<DataPoint> pts = fh.GetDataPoints();
+	EXPECT_EQ(0, pts.size());
+}
+
+// This test should be moved to a gui test.
+//TEST(CAPXMLFileHandler, GetLabelledSlices)
+//{
+//	using namespace cap;
+//
+//	CAPXMLFile xmlFile(SAMPLEIMAGES_FILE);
+//	xmlFile.ReadFile();
+//	ASSERT_EQ("SampleImages", xmlFile.name_);
+//
+//	CAPXMLFileHandler fh(xmlFile);
+//	LabelledSlices ls = fh.GetLabelledSlices();
+//	EXPECT_EQ(3, ls.size());
+//}
+
 
