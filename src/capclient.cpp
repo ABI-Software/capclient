@@ -324,18 +324,22 @@ void CAPClient::OpenModel(const std::string& filename)
 	
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
 	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices();
-	//const SlicesWithImages& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
-	SlicesWithImages slicesWithImages;
+	//--const SlicesWithImages& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
+	//--SlicesWithImages slicesWithImages;
 	if (labelledSlices.empty())
 	{
 		dbg("Can't locate image files");
 		return;
 	}
 	
+	LoadLabelledImages(labelledSlices);
+	//TODO: Load cardiac annotations
+	// LoadCardiacAnnotations(cardiacAnnotations);
+
 	// TODO clean up first
-	LoadImagesFromXMLFile(slicesWithImages);
+	//--LoadImagesFromXMLFile(slicesWithImages);
 	
-	std::vector<DataPoint> dataPoints; //-- = xmlFileHandler.GetDataPoints(cmguiManager_);
+	std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints();
 	
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	dbg("number of exnodeFilenames = " + toString(exnodeFileNames.size()));

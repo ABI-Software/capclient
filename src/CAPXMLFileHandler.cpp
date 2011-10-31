@@ -426,7 +426,6 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiPanel *cmguiManager
 				dicomImage->AddContour(capContour);
 			}
 		}
-		
 	}
 
 	BOOST_FOREACH(DICOMImageMapWithSliceNameAsKey::value_type& labelAndImages, dicomMap)
@@ -446,7 +445,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiPanel *cmguiManager
 	return dicomSlices;
 }
 
-std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiPanel *cmguiManager) const
+std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints() const
 {
 	std::map<std::string, size_t> labelToNumframesMap;
 	CAPXMLFile::Input& input = xmlFile_.GetInput();
@@ -488,11 +487,11 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints(CmguiPanel *cmguiManager
 			}
 			Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 			Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
-			Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
-							field, (double*) coords, time);
+			Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
 
 			Point3D coordPoint3D(static_cast<Real>(coords[0]), static_cast<Real>(coords[1]), static_cast<Real>(coords[2]));
-			dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));
+			//--dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));
+			dataPoints.push_back(DataPoint(0, coordPoint3D, p.type, time));
 		}
 		Cmiss_region_destroy(&region);
 	}

@@ -20,10 +20,20 @@ class DataPoint;
 class CAPModelLVPS4X4;
 class CmguiPanel;
 
+/**
+ * Capxml file handler. 
+ */
 class CAPXMLFileHandler
 {
 public:
+
+	/**
+	 * Constructor.
+	 *
+	 * @param [in,out]	xmlFile	The xml file.
+	 */
 	CAPXMLFileHandler(CAPXMLFile& xmlFile);
+
 	/**
 	 *  Populate member fields of CAPXMLFile from infomation obtained from
 	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
@@ -49,12 +59,22 @@ public:
 	 */
 	LabelledSlices GetLabelledSlices() const;
 
-	std::vector<DataPoint> GetDataPoints(CmguiPanel *cmguiManager) const;
+	/**
+	 * Gets the data points.
+	 *
+	 * @return	The data points.
+	 */
+	std::vector<DataPoint> GetDataPoints() const;
 
+	/**
+	 * Adds a provenance detail. 
+	 *
+	 * @param	comment	The comment.
+	 */
 	void AddProvenanceDetail(std::string const& comment);
 	
 private:
-	CAPXMLFile& xmlFile_;
+	CAPXMLFile& xmlFile_;   /**< The xml file */
 };
 
 } // namespace cap
