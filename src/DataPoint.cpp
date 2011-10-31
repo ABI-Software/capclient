@@ -17,7 +17,7 @@ namespace cap
 {
 
 DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataPointType, double time, double weight)
-	: cmissNode_(0) // ACCESS(Cmiss_node)(node)),
+	: cmissNode_(Cmiss_node_access(node))
 	, coordinate_(coord)
 	, time_(time)
 	, weight_(weight)
@@ -29,7 +29,7 @@ DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, DataPointType dataP
 };
 	
 DataPoint::DataPoint(const DataPoint& other)
-	: cmissNode_(0) // ACCESS(Cmiss_node)(other.cmissNode_)),
+	: cmissNode_(Cmiss_node_access(other.cmissNode_))
 	, coordinate_(other.coordinate_)
 	, time_(other.time_)
 	, weight_(other.weight_)
@@ -44,8 +44,7 @@ DataPoint::~DataPoint()
 {
 //	std::cout << __func__ << ": Node id = " << Cmiss_node_get_identifier(cmissNode_) <<
 //			": use count = " << FE_node_get_access_count(cmissNode_) << '\n';
-
-	DecrementCmissNodeObjectCount();
+	Cmiss_node_destroy(&cmissNode_);
 }
 
 void DataPoint::DecrementCmissNodeObjectCount()
@@ -136,9 +135,7 @@ std::string DataPoint::GetSliceName() const
 // assignment operator
 DataPoint& DataPoint::operator=(const DataPoint& rhs)
 {
-	DecrementCmissNodeObjectCount();
-
-	cmissNode_ = 0; // ACCESS(Cmiss_node)(rhs.cmissNode_);
+	cmissNode_ = Cmiss_node_access(rhs.cmissNode_);
 	coordinate_ = rhs.coordinate_;
 	time_ = rhs.time_;
 	weight_ = rhs.weight_;
