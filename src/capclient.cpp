@@ -28,19 +28,6 @@ const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
 	throw std::exception();
 }
 
-void CAPClient::OnAnimationSliderEvent(double time)
-{
-	if (!heartModelPtr_) //FIXME fix what??
-	{
-		return;
-	}
-		
-	time = (time > 0.99) ? 0.0 : time;
-	
-		
-	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
-}
-
 void CAPClient::LoadImages(const SlicesWithImages& slices) // name misleading?
 {
 	assert(!slices.empty());
