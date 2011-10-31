@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cap:Analysis xmlns:cap="http://www.cardiacatlas.org" chamber="LV" name="output" studyiuid="1.3.12.2.1107.5.2.6.22043.4.0.6860603417842558" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cardiacatlas.org Analysis.xsd ">
+  <cap:Input>
+    <cap:Image frame="0" label="LA1" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="0" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868450016981521"/>
+    <cap:Image frame="1" label="LA1" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="0" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868451942571250"/>
+    <cap:Image frame="2" label="LA1" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="0" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868453734041742"/>
+    <cap:Image frame="3" label="LA1" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="0" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868455523334937"/>
+    <cap:Image frame="4" label="LA1" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="0" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868457393123114"/>
+    <cap:Image frame="0" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.686845911491386"/>
+    <cap:Image frame="1" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868460923122952"/>
+    <cap:Image frame="2" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868462723383274"/>
+    <cap:Image frame="3" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868464523334561"/>
+    <cap:Image frame="4" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868466427419240"/>
+    <cap:Image frame="5" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868468113442951"/>
+    <cap:Image frame="6" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868468916462888"/>
+    <cap:Image frame="7" label="LA2" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="1" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868471315703829"/>
+    <cap:Image frame="0" label="LA3" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="2" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868473516654228"/>
+    <cap:Image frame="1" label="LA3" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="2" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868475383849362"/>
+    <cap:Image frame="2" label="LA3" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="2" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868477111005065"/>
+    <cap:Image frame="3" label="LA3" seriesiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041" slice="2" sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868478941391379"/>
+    <cap:CardiacAnnotation studyiuid="">
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.686845911491386">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868460923122952">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868462723383274">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868464523334561">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868466427419240">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868468113442951">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868468916462888">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868471315703829">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868450016981521">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868451942571250">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868453734041742">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868455523334937">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+      <cap:ImageAnnotation sopiuid="1.3.12.2.1107.5.2.6.22043.4.0.6868457393123114">
+        <cap:Label rid="RID:10928" scope="Series">Cine Loop</cap:Label>
+        <cap:Label rid="RID:10571" scope="Slice">Long Axis</cap:Label>
+      </cap:ImageAnnotation>
+    </cap:CardiacAnnotation>
+  </cap:Input>
+  <cap:Output focallength="1.000000" interval="0.25" transformation_matrix="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1">
+    <cap:Exelem>GlobalHermiteParam.exelem</cap:Exelem>
+  </cap:Output>
+  <cap:Documentation>
+    <cap:provenanceDetail date="2011-10-21T13:56:10">
+      <cap:step>1</cap:step>
+      <cap:platform>Windows</cap:platform>
+      <cap:operatingSystem>Windows 7 Enterprise</cap:operatingSystem>
+      <cap:package>CAP</cap:package>
+      <cap:program>CAP Client</cap:program>
+      <cap:programVersion>0.4</cap:programVersion>
+      <cap:programParams>none</cap:programParams>
+      <cap:process>Generated by CAP Client</cap:process>
+      <cap:comment>success</cap:comment>
+    </cap:provenanceDetail>
+  </cap:Documentation>
+</cap:Analysis>
