@@ -5,6 +5,7 @@
  *      Author: jchu014
  */
 
+#include <boost/foreach.hpp>
 #include <gtest/gtest.h>
 #include <stdexcept>
 #include <cstdio>
@@ -116,6 +117,34 @@ TEST(CAPXMLFile, AddImage)
 	EXPECT_EQ(GUIDEPOINT, xmlFile.input_.images[0].points[0].type);
 	
 	EXPECT_THROW(xmlFile.AddPointToImage("222", CAPXMLFile::Point()), std::invalid_argument);
+}
+
+TEST(CAPXMLFile, GetInput)
+{
+	using namespace cap;
+	
+	CAPXMLFile xmlFile(SAMPLEIMAGES_FILE);
+
+	xmlFile.ReadFile();
+	ASSERT_EQ("SampleImages", xmlFile.name_);
+	EXPECT_EQ( "LV", xmlFile.chamber_);
+	EXPECT_EQ(1.0, xmlFile.output_.focalLength);
+	EXPECT_EQ(0.25, xmlFile.output_.interval);
+	EXPECT_EQ("1.3.12.2.1107.5.2.6.22043.4.0.6860603417842558", xmlFile.studyIUid_);
+	
+	CAPXMLFile::Input& input = xmlFile.GetInput();
+	EXPECT_EQ(17, input.images.size());
+	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
+	{
+		std::cout << image.label << std::endl;
+	}
+
+	CAPXMLFile::Input& inputAgain = xmlFile.GetInput();
+	EXPECT_EQ(17, inputAgain.images.size());
+	BOOST_FOREACH(CAPXMLFile::Image const& image, inputAgain.images)
+	{
+		std::cout << image.label << std::endl;
+	}
 }
 
 TEST(CAPXMLFileHandler, GetDataPoints)

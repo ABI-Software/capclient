@@ -107,12 +107,6 @@ void CAPClient::PopulateSliceList()
 
 void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 {
-	// Reset capXMLFilePtr_
-	if (capXMLFilePtr_)
-	{
-		capXMLFilePtr_.reset(0);
-	}
-	
 	gui_->ClearTextureSlices();
 	labelledSlices_ = labelledSlices;
 	// read (or reread) in dicoms to create image textures (again) for this context.
@@ -157,11 +151,6 @@ void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
 
 void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno)
 {
-	// Reset capXMLFilePtr_
-	if (capXMLFilePtr_)
-	{
-		capXMLFilePtr_.reset(0);
-	}
 	//	// Reset the state of the CAPClientWindow
 	//	EnterInitState(); // this re-registers the input call back -REVISE
 	
@@ -317,8 +306,7 @@ void CAPClient::OpenModel(const std::string& filename)
 {
 	cardiacAnnotationPtr_.reset(0);
 	//		CAPXMLFile xmlFile(filename.c_str());
-	capXMLFilePtr_.reset(new CAPXMLFile(filename));
-	CAPXMLFile& xmlFile(*capXMLFilePtr_);
+	CAPXMLFile xmlFile(filename);
 	dbg("Start reading xml file");
 	xmlFile.ReadFile();
 	
@@ -331,6 +319,7 @@ void CAPClient::OpenModel(const std::string& filename)
 		dbg("Can't locate image files");
 		return;
 	}
+	std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints();
 	
 	LoadLabelledImages(labelledSlices);
 	//TODO: Load cardiac annotations
@@ -339,7 +328,6 @@ void CAPClient::OpenModel(const std::string& filename)
 	// TODO clean up first
 	//--LoadImagesFromXMLFile(slicesWithImages);
 	
-	std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints();
 	
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	dbg("number of exnodeFilenames = " + toString(exnodeFileNames.size()));
@@ -437,7 +425,7 @@ void CAPClient::OpenImages(const std::string& imageDirname)
 	//ib_->ShowWindow();
 }
 
-void CAPClient::SaveModel(std::string const& dirname, std::string const& userComment)
+void CAPClient::SaveModel(const std::string& dirname, const std::string& userComment)
 {
 	// Need to write the model files first 
 	// FIXME : this is brittle code. shoule be less dependent on the order of execution
@@ -448,11 +436,7 @@ void CAPClient::SaveModel(std::string const& dirname, std::string const& userCom
 		heartModelPtr_->WriteToFile(dirname.c_str());
 	}
 	
-	if (!capXMLFilePtr_)
-	{
-		capXMLFilePtr_.reset(new CAPXMLFile(dirname.c_str()));
-	}
-	CAPXMLFile& xmlFile(*capXMLFilePtr_);
+	CAPXMLFile xmlFile(dirname);
 	
 	//SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
