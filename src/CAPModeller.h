@@ -17,7 +17,7 @@ struct Cmiss_node; //REVISE
 namespace cap
 {
 
-class CAPModelLVPS4X4;
+class HeartModel;
 //class SparseMatrix;
 //class Vector;
 //class Preconditioner;
@@ -35,7 +35,7 @@ public:
 		GUIDEPOINT
 	};
 	
-	explicit CAPModeller(CAPModelLVPS4X4& heartModel);
+	explicit CAPModeller(HeartModel& heartModel);
 	~CAPModeller(){}
 	
 	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);

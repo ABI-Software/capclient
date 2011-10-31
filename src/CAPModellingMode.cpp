@@ -26,7 +26,7 @@
 #include "GMMFactory.h"
 #include "VNLFactory.h"
 #include "CAPMath.h"
-#include "CAPModelLVPS4X4.h"
+#include "HeartModel.h"
 #include "CAPBasis.h"
 #include "filesystem.h"
 #include "utils/debug.h"
@@ -309,7 +309,7 @@ const std::vector<DataPoint>& CAPModellingModeBasePlane::GetBasePlanePoints() co
 
 // CAPModellingModeGuidePoints
 
-CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartModel)
+CAPModellingModeGuidePoints::CAPModellingModeGuidePoints(HeartModel& heartModel)
 : 
 	heartModel_(heartModel),
 	solverFactory_(new GMMFactory),

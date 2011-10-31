@@ -1,5 +1,5 @@
 /*
- * CAPModelLVPS4X4.h
+ * HeartModel.h
  *
  *  Created on: Feb 17, 2009
  *      Author: jchu014
@@ -31,7 +31,7 @@ struct Plane;
 /**
  * Left ventricular prolate spheriod 4x4 model.
  */
-class CAPModelLVPS4X4
+class HeartModel
 {
 	
 public:
@@ -50,8 +50,8 @@ public:
 //		EPICARDIUM
 //	};
 	
-	CAPModelLVPS4X4(const std::string& name, Cmiss_context_id context);
-	~CAPModelLVPS4X4();
+	HeartModel(const std::string& name, Cmiss_context_id context);
+	~HeartModel();
 	
 	typedef std::vector<double> parameters;
 	int ReadModelFromFiles(const std::string& modelDirectory, const std::string& directoryPrefix);
@@ -160,8 +160,8 @@ private:
 	boost::scoped_ptr<HeartModelImpl> pImpl_; // use PIMPL to hide Cmgui related implementation details (region, scene object , etc)
 	
 	// Non copyable
-	CAPModelLVPS4X4(const CAPModelLVPS4X4& rhs);
-	CAPModelLVPS4X4& operator=(const CAPModelLVPS4X4& rhs);
+	HeartModel(const HeartModel& rhs);
+	HeartModel& operator=(const HeartModel& rhs);
 };
 
 } // end namespace cap

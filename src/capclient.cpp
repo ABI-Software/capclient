@@ -367,7 +367,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 	dbg("modelFilePath = " + modelFilePath);
 	
-	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", gui_->GetCmissContext()));
+	heartModelPtr_.reset(new HeartModel("heart", gui_->GetCmissContext()));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
 	int numberOfModelFrames = exnodeFileNames.size();
@@ -529,7 +529,7 @@ void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
 											  ComparatorForNumFrames());
 	int minNumberOfFrames = GetMinimumNumberOfFrames();//itrToMinNumberOfFrames->GetDICOMImages().size();
 	
-	heartModelPtr_.reset(new CAPModelLVPS4X4("heart", gui_->GetCmissContext()));
+	heartModelPtr_.reset(new HeartModel("heart", gui_->GetCmissContext()));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
 	LoadTemplateHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
