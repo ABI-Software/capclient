@@ -30,10 +30,9 @@ class CAPModelLVPS4X4::HeartModelImpl
 {
 public:
 	HeartModelImpl()
-	:
-		region(0),
-		field(0),
-		cmissContext(0)
+		: region(0)
+		, field(0)
+		, cmissContext(0)
 	{}
 	
 	Cmiss_context_id cmissContext;
@@ -43,10 +42,9 @@ public:
 };
 
 CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName, Cmiss_context_id context)
-:
-	modelName_(modelName),
-	focalLength_(42.0), // FIX magic number
-	pImpl_(new CAPModelLVPS4X4::HeartModelImpl)
+	: modelName_(modelName)
+	, focalLength_(42.0) // FIX magic number
+	, pImpl_(new CAPModelLVPS4X4::HeartModelImpl)
 {
 	// initialize patientToGlobalTransform_ to identity matrix
 	for (int i = 0; i < 4 ;++i)
