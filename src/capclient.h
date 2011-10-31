@@ -121,8 +121,6 @@ public:
 		imageSet_->SetVisible(visibility, index);
 	}
 	
-	void OnSliceSelected(std::string const& sliceName);
-	
 	void OnAnimationSliderEvent(double time);
 
 	void Refresh3DCanvas()

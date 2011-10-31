@@ -8,35 +8,6 @@ namespace cap
 
 CAPClient* CAPClient::instance_ = 0;
 
-/**
- * TODO: remove Cmiss_scene_viewer_set_lookat_parameters_non_skew and put
- * it into gui class
- */
-void CAPClient::OnSliceSelected(std::string const& sliceName)
-{
-	//called from OnObjectCheckListSelected
-	
-	const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
-	
-	// compute the center of the image plane, eye(camera) position and the up vector
-	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
-	Point3D eye = planeCenter + (plane.normal * 500); // this seems to determine the near clip plane
-	Vector3D up(plane.yside);
-	up.Normalise();
-	
-	//Hack :: perturb direction vector a little
-	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
-	
-	if (!Cmiss_scene_viewer_set_lookat_parameters_non_skew(
-		gui_->GetCmissSceneViewer(), eye.x, eye.y, eye.z,
-		planeCenter.x, planeCenter.y, planeCenter.z,
-		up.x, up.y, up.z))
-	{
-		//Error;
-	}
-	gui_->RedrawNow();
-}
-
 int CAPClient::GetFrameNumberForTime(double time)
 {
 	assert(heartModelPtr_);
