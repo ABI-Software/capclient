@@ -464,7 +464,7 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints() const
 
 	Cmiss_context_id cmiss_context = 0; //-- TODO: fix this cmguiManager->GetCmissContext();
 	Cmiss_region_id root_region = 0; //-- TODO: fix this Cmiss_context_get_default_region(cmiss_context);
-	assert(root_region);
+	//--assert(root_region);
 	std::vector<DataPoint> dataPoints;
 	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
 	{
