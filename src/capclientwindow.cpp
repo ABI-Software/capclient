@@ -126,29 +126,6 @@ void CAPClientWindow::MakeConnections()
 	Connect(wxEVT_IDLE, wxIdleEventHandler(CAPClientWindow::OnIdle), 0, this);
 	//Connect(wxEVT_QUIT, 
 }
-// BEGIN_EVENT_TABLE(CAPClientWindow, CAPClientWindowUI)
-// 	EVT_BUTTON(XRCID("button_PlayButton"),CAPClientWindow::OnTogglePlay) // play button
-// 	EVT_SLIDER(XRCID("slider_Animation"),CAPClientWindow::OnAnimationSliderEvent) // animation slider
-// 	EVT_SLIDER(XRCID("slider_AnimationSpeed"),CAPClientWindow::OnAnimationSpeedControlEvent)
-// 	EVT_CHECKLISTBOX(XRCID("checkListBox_Slice"), CAPClientWindow::OnObjectCheckListChecked)
-// 	EVT_BUTTON(XRCID("button_HideShowAll"),CAPClientWindow::OnToggleHideShowAll) // hide all button
-// 	EVT_BUTTON(XRCID("button_HideShowOthers"),CAPClientWindow::OnToggleHideShowOthers) // hide others button
-// 	EVT_CHECKBOX(XRCID("checkBox_MII"),CAPClientWindow::OnMIICheckBox)
-// 	EVT_CHECKBOX(XRCID("checkBox_Wireframe"),CAPClientWindow::OnWireframeCheckBox)
-// 	EVT_LISTBOX(XRCID("checkListBox_Slice"), CAPClientWindow::OnObjectCheckListSelected)
-// 	EVT_SLIDER(XRCID("slider_BrightnessSlider"),CAPClientWindow::OnBrightnessSliderEvent)
-// 	EVT_SLIDER(XRCID("slider_ContrastSlider"),CAPClientWindow::OnContrastSliderEvent)
-// 	EVT_BUTTON(XRCID("button_AcceptButton"),CAPClientWindow::OnAcceptButtonPressed)
-// 	EVT_CHOICE(XRCID("choice_Mode"),CAPClientWindow::OnModellingModeChanged)
-// 	EVT_CLOSE(CAPClientWindow::Terminate)
-// 	EVT_MENU(XRCID("menuItem_OpenImagesMenuItem"), CAPClientWindow::OnOpenImages)
-// 	EVT_MENU(XRCID("menuItem_OpenModelMenuItem"), CAPClientWindow::OnOpenModel)
-// 	EVT_MENU(XRCID("menuItem_OpenAnnotationMenuItem"), CAPClientWindow::OnOpenAnnotation)
-// 	EVT_MENU(XRCID("menuItem_SaveMenuItem"), CAPClientWindow::OnSave)
-// 	EVT_MENU(XRCID("menuItem_ExportMenuItem"), CAPClientWindow::OnExportModel)
-// 	EVT_MENU(XRCID("menuItem_ExportToBinaryVolumeMenuItem"), CAPClientWindow::OnExportModelToBinaryVolume)
-// 	EVT_BUTTON(XRCID("button_PlaneShiftButton"), CAPClientWindow::OnPlaneShiftButtonPressed)
-// END_EVENT_TABLE()
 
 void CAPClientWindow::EnterInitState()
 {
