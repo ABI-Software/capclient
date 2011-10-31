@@ -18,7 +18,7 @@
 namespace cap
 {
 
-CAPModeller::CAPModeller(CAPModelLVPS4X4& heartModel)
+CAPModeller::CAPModeller(HeartModel& heartModel)
 :
 	modellingModeApex_(),
 	modellingModeBase_(),

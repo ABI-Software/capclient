@@ -1,5 +1,5 @@
 /*
- * CAPModelLVPS4X4.cpp
+ * HeartModel.cpp
  *
  *  Created on: Feb 17, 2009
  *      Author: jchu014
@@ -18,7 +18,7 @@ extern "C" {
 #include <api/cmiss_rendition.h>
 }
 
-#include "CAPModelLVPS4X4.h"
+#include "HeartModel.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
 #include "CAPMath.h"
@@ -26,7 +26,7 @@ extern "C" {
 namespace cap
 {
 
-class CAPModelLVPS4X4::HeartModelImpl
+class HeartModel::HeartModelImpl
 {
 public:
 	HeartModelImpl()
@@ -41,10 +41,10 @@ public:
 	Cmiss_field_id field;
 };
 
-CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName, Cmiss_context_id context)
+HeartModel::HeartModel(const std::string& modelName, Cmiss_context_id context)
 	: modelName_(modelName)
 	, focalLength_(42.0) // FIX magic number
-	, pImpl_(new CAPModelLVPS4X4::HeartModelImpl)
+	, pImpl_(new HeartModel::HeartModelImpl)
 {
 	// initialize patientToGlobalTransform_ to identity matrix
 	for (int i = 0; i < 4 ;++i)
@@ -65,7 +65,7 @@ CAPModelLVPS4X4::CAPModelLVPS4X4(const std::string& modelName, Cmiss_context_id 
 	pImpl_->cmissContext = context;
 }
 
-CAPModelLVPS4X4::~CAPModelLVPS4X4()
+HeartModel::~HeartModel()
 {
 	// FIXME check the access_count of field and region
 	// we need to make sure they are 0
@@ -89,7 +89,7 @@ CAPModelLVPS4X4::~CAPModelLVPS4X4()
 
 using namespace std;
 
-int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::string& prefix)
+int HeartModel::ReadModelFromFiles(const std::string& path, const std::string& prefix)
 {
 	stringstream pathStream;
 	pathStream << prefix << path;// << modelName << "_";// << 
@@ -106,7 +106,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& path, const std::stri
 	return ReadModelFromFiles(dir_path, modelFilenames);
 }
 
-int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& model_dir_path, const std::vector<std::string>& modelFilenames)
+int HeartModel::ReadModelFromFiles(const std::string& model_dir_path, const std::vector<std::string>& modelFilenames)
 {	
 //	if (pImpl_->region) //REVISE 1. too procedural 2. remove prefix
 //	{
@@ -205,7 +205,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& model_dir_path, const
 	// "gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	);
 	//This clears the timer frequency
 	
-	SetRenderMode(CAPModelLVPS4X4::WIREFRAME); // Since it was cleared, this sets up frequency 
+	SetRenderMode(HeartModel::WIREFRAME); // Since it was cleared, this sets up frequency 
 															// but incorrectly at default freq = 10 hz
 	
 	// Set the timer frequency : NB this has to be done after setting disc & creating surfaces level See above 
@@ -221,7 +221,7 @@ int CAPModelLVPS4X4::ReadModelFromFiles(const std::string& model_dir_path, const
 	return 0;
 }
 
-void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
+void HeartModel::WriteToFile(const std::string& dirname)
 {
 	exnodeModelFileNames_.clear();// FIXME have this method return list of filenames and remove GetFilenames
 	
@@ -281,7 +281,7 @@ void CAPModelLVPS4X4::WriteToFile(const std::string& dirname)
 	Cmiss_region_destroy(&root_region);
 }
 
-void CAPModelLVPS4X4::SetLocalToGlobalTransformation(const gtMatrix& transform)
+void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 {
 	for (int i = 0; i<4; i++)
 	{
@@ -294,9 +294,9 @@ void CAPModelLVPS4X4::SetLocalToGlobalTransformation(const gtMatrix& transform)
 	//Scene_object_set_transformation(modelSceneObject_, &patientToGlobalTransform_);
 }
 
-void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
+void HeartModel::SetRenderMode(RenderMode mode)
 {
-	if (mode == CAPModelLVPS4X4::WIREFRAME)
+	if (mode == HeartModel::WIREFRAME)
 	{
 		Cmiss_context_id context = pImpl_->cmissContext;
 		
@@ -312,7 +312,7 @@ void CAPModelLVPS4X4::SetRenderMode(RenderMode mode)
 	}
 }
 
-void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
+void HeartModel::SetMIIVisibility(bool visibility)
 {
 	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
 	
@@ -324,7 +324,7 @@ void CAPModelLVPS4X4::SetMIIVisibility(bool visibility)
 	}
 }
 
-void CAPModelLVPS4X4::SetMIIVisibility(bool visibility, int index)
+void HeartModel::SetMIIVisibility(bool visibility, int index)
 {
 	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
 	
@@ -353,7 +353,7 @@ void CAPModelLVPS4X4::SetMIIVisibility(bool visibility, int index)
 	//GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
-void CAPModelLVPS4X4::UpdateMII(int index, double iso_value)
+void HeartModel::UpdateMII(int index, double iso_value)
 {
 	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
 		
@@ -389,7 +389,7 @@ void CAPModelLVPS4X4::UpdateMII(int index, double iso_value)
 	//--GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
-void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
+void HeartModel::SetModelVisibility(bool visibility)
 {
 
 	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
@@ -411,7 +411,7 @@ void CAPModelLVPS4X4::SetModelVisibility(bool visibility)
 	// GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
-Point3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Point3D& global) const
+Point3D HeartModel::TransformToLocalCoordinateRC(const Point3D& global) const
 {
 	// FIX inefficient to compute mInv every time
 	gtMatrix mInv;
@@ -421,7 +421,7 @@ Point3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Point3D& global) con
 	return mInv * global; // hopefully RVO will kick in
 }
 
-Vector3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Vector3D& global) const
+Vector3D HeartModel::TransformToLocalCoordinateRC(const Vector3D& global) const
 {
 	// FIX inefficient to compute mInv every time
 	gtMatrix mInv;
@@ -431,7 +431,7 @@ Vector3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Vector3D& global) c
 	return mInv * global; // Vector transformation - doesn't include translation
 }
 
-Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
+Point3D HeartModel::TransformToProlateSheroidal(const Point3D& rc) const
 {
 	double lambda = 0.0, mu = 0.0, theta = 0.0;
 		
@@ -441,7 +441,7 @@ Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
 	return Point3D(lambda, mu, theta);
 }
 
-int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, double time) const
+int HeartModel::ComputeXi(const Point3D& coord, Point3D& xi_coord, double time) const
 {
 	//1. Transform to model coordinate 	
 	const Point3D& coordLocal = TransformToLocalCoordinateRC(coord);
@@ -517,7 +517,7 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& coord, Point3D& xi_coord, double t
 	return -1;
 }
 
-void CAPModelLVPS4X4::SetLambda(const std::vector<double>& lambdaParams, double time)
+void HeartModel::SetLambda(const std::vector<double>& lambdaParams, double time)
 {
 //	std::cout << __func__ << ": time = " << time << std::endl;
 	
@@ -566,12 +566,12 @@ void CAPModelLVPS4X4::SetLambda(const std::vector<double>& lambdaParams, double 
 	}
 }
 
-void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<double>& lambdaParams, int frameNumber)
+void HeartModel::SetLambdaForFrame(const std::vector<double>& lambdaParams, int frameNumber)
 {
 	SetLambda(lambdaParams, static_cast<double>(frameNumber)/numberOfModelFrames_);
 }
 
-const std::vector<double> CAPModelLVPS4X4::GetLambda(int frame) const
+const std::vector<double> HeartModel::GetLambda(int frame) const
 {
 	std::vector<double> lambdas;
 	for (int i=0; i < 134; i++)
@@ -582,7 +582,7 @@ const std::vector<double> CAPModelLVPS4X4::GetLambda(int frame) const
 	return lambdas;
 }
 
-void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
+void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
 {
 	double time = static_cast<double>(frameNumber)/numberOfModelFrames_;
 	const Vector3D& normal = TransformToLocalCoordinateRC(basePlane.normal);
@@ -853,7 +853,7 @@ void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& basePlane, int fra
 	return;
 }
 	
-void CAPModelLVPS4X4::SetTheta(int frame)
+void HeartModel::SetTheta(int frame)
 {
 	double time = (double)frame / GetNumberOfModelFrames();
 	const double thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
@@ -890,13 +890,13 @@ void CAPModelLVPS4X4::SetTheta(int frame)
 	}
 }
 
-double CAPModelLVPS4X4::MapToModelFrameTime(double time) const
+double HeartModel::MapToModelFrameTime(double time) const
 {
 	int indexPrevFrame = MapToModelFrameNumber(time);
 	return (double) indexPrevFrame/numberOfModelFrames_;
 }
 
-int CAPModelLVPS4X4::MapToModelFrameNumber(double time) const
+int HeartModel::MapToModelFrameNumber(double time) const
 {
 	//edge cases
 	if (time < 0)
@@ -919,7 +919,7 @@ int CAPModelLVPS4X4::MapToModelFrameNumber(double time) const
 	return std::min(frame, numberOfModelFrames_);
 }
 
-double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, double time) const
+double HeartModel::ComputeVolume(SurfaceType surface, double time) const
 {
 	const int numElements = 16;
 	const int nx = 7, ny = 7;
@@ -1032,7 +1032,7 @@ double CAPModelLVPS4X4::ComputeVolume(SurfaceType surface, double time) const
 	// (6*1000), 6 times volume of tetrahedron & for ml
 }
 
-void CAPModelLVPS4X4::SetFocalLengh(double focalLength)
+void HeartModel::SetFocalLengh(double focalLength)
 {
 	if (!pImpl_->field)
 	{

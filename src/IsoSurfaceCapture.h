@@ -33,7 +33,7 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "ImageSet.h"
-#include "CAPModelLVPS4X4.h"
+#include "HeartModel.h"
 #include "SliceInfo.h"
 
 namespace cap
@@ -42,7 +42,7 @@ namespace cap
 class IsoSurfaceCapture :public wxFrame
 {
 public:
-	IsoSurfaceCapture(ImageSet* imageSet, CAPModelLVPS4X4* heartModelPtr, Cmiss_context_id context, Cmiss_time_keeper_id timeKeeper)
+	IsoSurfaceCapture(ImageSet* imageSet, HeartModel* heartModelPtr, Cmiss_context_id context, Cmiss_time_keeper_id timeKeeper)
 	:
 		wxFrame(NULL,-1, wxT("Iso"), wxPoint(100, 100), wxSize(1000, 1000)),
 		imageSet_(imageSet),
@@ -105,7 +105,7 @@ public:
 		char str[256];
 		
 		assert(heartModelPtr_);
-		const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();//CAPModelLVPS4X4::
+		const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();//HeartModel::
 
 		gtMatrix mInv;
 		inverseMatrix(m, mInv);
@@ -322,7 +322,7 @@ public:
 	
 private:
 	ImageSet* imageSet_;
-	CAPModelLVPS4X4* heartModelPtr_;
+	HeartModel* heartModelPtr_;
 	Cmiss_context_id context_;
 	wxPanel* panel_;
 	Cmiss_scene_viewer_id sceneViewer_;

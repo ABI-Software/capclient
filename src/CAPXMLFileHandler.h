@@ -17,7 +17,7 @@ namespace cap
 
 class CAPXMLFile;
 class DataPoint;
-class CAPModelLVPS4X4;
+class HeartModel;
 class CmguiPanel;
 
 /**
@@ -36,17 +36,17 @@ public:
 
 	/**
 	 *  Populate member fields of CAPXMLFile from infomation obtained from
-	 *  SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4
+	 *  SlicesWithImages, vector<DataPoint> and HeartModel
 	 *  so an libxml2 tree can be generated and written to a file
 	 */
 	void ConstructCAPXMLFile(const LabelledSlices& labelledSlices, 
 							std::vector<DataPoint> const& dataPoints,
-							CAPModelLVPS4X4 const& model);
+							HeartModel const& model);
 	
 	/**
 	 *  Translate the infomation stored in CAPXMLFile into the form to be
 	 *  consumed by the client
-	 *  (i.e SlicesWithImages, vector<DataPoint> and CAPModelLVPS4X4)
+	 *  (i.e SlicesWithImages, vector<DataPoint> and HeartModel)
 	 *  Also generated the instances of DICOMImage, Cmiss_texture,
 	 *  DataPoint (and the Cmiss_node) and the model.
 	 */

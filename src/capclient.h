@@ -42,7 +42,7 @@ extern "C"
 #include "CAPAnnotationFile.h"
 #include "CAPModeller.h"
 #include "CAPXMLFileHandler.h"
-#include "CAPModelLVPS4X4.h"
+#include "HeartModel.h"
 #include "IsoSurfaceCapture.h"
 
 //class Cmiss_node;
@@ -503,7 +503,7 @@ private:
 	bool miiIsOn_;  /**< true if mii is on */
 	bool wireFrameIsOn_;	/**< true if wire frame is on */
 	
-	boost::scoped_ptr<CAPModelLVPS4X4> heartModelPtr_;  /**< The heart model pointer */
+	boost::scoped_ptr<HeartModel> heartModelPtr_;  /**< The heart model pointer */
 	
 	CAPModeller* modeller_; /**< The modeller */
 

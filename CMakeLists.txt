@@ -59,7 +59,7 @@ SET( APP_HDRS
 	src/CAPHtmlWindow.h
 	src/material.h
 	src/CAPMath.h
-	src/CAPModelLVPS4X4.h
+	src/HeartModel.h
 	src/CAPModeller.h
 	src/CAPModellingMode.h
 	src/CAPTimeSmoother.h
@@ -109,7 +109,7 @@ SET( APP_SRCS
 	src/CAPContour.cpp
 	src/CAPHtmlWindow.cpp
 	src/material.cpp
-	src/CAPModelLVPS4X4.cpp
+	src/HeartModel.cpp
 	src/CAPModeller.cpp
 	src/CAPModellingMode.cpp
 	src/CAPTimeSmoother.cpp

@@ -34,7 +34,7 @@ extern "C"
 #include "CAPXMLFileHandler.h"
 #include "CAPXMLFile.h"
 #include "DICOMImage.h"
-#include "CAPModelLVPS4X4.h"
+#include "HeartModel.h"
 #include "DataPoint.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
@@ -51,7 +51,7 @@ CAPXMLFileHandler::CAPXMLFileHandler(CAPXMLFile& xmlFile)
 
 void CAPXMLFileHandler::ConstructCAPXMLFile(const LabelledSlices& labelledSlices,
 									const std::vector<DataPoint>& dataPoints,
-									const CAPModelLVPS4X4& heartModel)
+									const HeartModel& heartModel)
 {
 	if (labelledSlices.empty())
 	{

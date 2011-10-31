@@ -32,10 +32,10 @@ namespace cap
 
 class VentricularVolume : public mpFX
 {
-	CAPModelLVPS4X4& heartModel_;
+	HeartModel& heartModel_;
 	std::vector<float> volumes_;
 public:
-	VentricularVolume(CAPModelLVPS4X4& heartModel, const std::vector<float>& volumes) 
+	VentricularVolume(HeartModel& heartModel, const std::vector<float>& volumes) 
 	:
 		mpFX( wxT("epi")),
 		heartModel_(heartModel),
@@ -72,7 +72,7 @@ public:
 class MyFrame: public wxFrame
 {
 public:
-    MyFrame(CAPModelLVPS4X4& heartModel, const std::vector<float>& volumes);
+    MyFrame(HeartModel& heartModel, const std::vector<float>& volumes);
 
     void OnAbout( wxCommandEvent &event );
     void OnQuit( wxCommandEvent &event );
@@ -130,7 +130,7 @@ BEGIN_EVENT_TABLE(MyFrame,wxFrame)
   EVT_MENU(ID_TOGGLE_INFO, MyFrame::OnToggleInfoLayer)
 END_EVENT_TABLE()
 
-MyFrame::MyFrame(CAPModelLVPS4X4& heartModel, const std::vector<float>& volumes)
+MyFrame::MyFrame(HeartModel& heartModel, const std::vector<float>& volumes)
        : wxFrame( (wxFrame *)NULL, -1, wxT("Volume graph"), wxDefaultPosition, wxSize(500, 500))
 {
     wxMenu *file_menu = new wxMenu();

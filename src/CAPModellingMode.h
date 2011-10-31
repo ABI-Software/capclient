@@ -76,12 +76,12 @@ private:
 	std::vector<DataPoint> base_; // holds at most 1 item
 };
 
-class CAPModelLVPS4X4;
+class HeartModel;
 
 class CAPModellingModeRV : public CAPModellingMode
 {
 public:
-	CAPModellingModeRV(CAPModelLVPS4X4& heartModel)
+	CAPModellingModeRV(HeartModel& heartModel)
 	:heartModel_(heartModel)
 	{}
 	
@@ -98,13 +98,13 @@ public:
 private:
 	std::map<Cmiss_node*, DataPoint> rvInserts_; // holds n pairs of DataPoints ( n >= 1 )
 	
-	CAPModelLVPS4X4& heartModel_;
+	HeartModel& heartModel_;
 };
 
 class CAPModellingModeBasePlane : public CAPModellingMode
 {
 public:
-	CAPModellingModeBasePlane(CAPModelLVPS4X4& heartModel)
+	CAPModellingModeBasePlane(HeartModel& heartModel)
 	:heartModel_(heartModel)
 	{}
 	
@@ -121,7 +121,7 @@ public:
 private:
 	std::vector<DataPoint> basePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
 	
-	CAPModelLVPS4X4& heartModel_;
+	HeartModel& heartModel_;
 };
 
 } // end namespace cap
@@ -142,7 +142,7 @@ class CAPModellingModeGuidePoints : public CAPModellingMode
 public:
 	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 	
-	CAPModellingModeGuidePoints(CAPModelLVPS4X4& heartModel);
+	CAPModellingModeGuidePoints(HeartModel& heartModel);
 	~CAPModellingModeGuidePoints();
 	
 	CAPModellingMode* OnAccept(CAPModeller& modeller);
@@ -176,7 +176,7 @@ private:
 	
 	std::vector<double> ConvertToHermite(const Vector&) const;
 	
-	CAPModelLVPS4X4& heartModel_;
+	HeartModel& heartModel_;
 	
 	std::vector<DataPoints> vectorOfDataPoints_;
 	

@@ -7,22 +7,22 @@
 
 #include <gtest/gtest.h>
 #include "CAPModeller.h"
-#include "CAPModelLVPS4X4.h"
+#include "HeartModel.h"
 
 namespace cap 
 {
-// Fake implementation of CAPModelLVPS4X4
-double CAPModelLVPS4X4::MapToModelFrameTime(double time) const
+// Fake implementation of HeartModel
+double HeartModel::MapToModelFrameTime(double time) const
 {
 	return 0.0;
 }
 
-int CAPModelLVPS4X4::MapToModelFrameNumber(double time) const
+int HeartModel::MapToModelFrameNumber(double time) const
 {
 	return 0;
 }
 
-int CAPModelLVPS4X4::ComputeXi(const Point3D& dataPoint, Point3D& xi, double time) const
+int HeartModel::ComputeXi(const Point3D& dataPoint, Point3D& xi, double time) const
 {
 	xi.x = 0.5;
 	xi.y = 0.5;
@@ -30,32 +30,32 @@ int CAPModelLVPS4X4::ComputeXi(const Point3D& dataPoint, Point3D& xi, double tim
 	return 0;
 }
 
-Point3D CAPModelLVPS4X4::TransformToLocalCoordinateRC(const Point3D& g) const
+Point3D HeartModel::TransformToLocalCoordinateRC(const Point3D& g) const
 {
 	return Point3D(0,0,0);
 }
 
-Point3D CAPModelLVPS4X4::TransformToProlateSheroidal(const Point3D& rc) const
+Point3D HeartModel::TransformToProlateSheroidal(const Point3D& rc) const
 {
 	return Point3D(0,0,0);
 }
 
-void CAPModelLVPS4X4::SetLambdaForFrame(const std::vector<double>& hermiteLambdaParams, int frameNumber)
+void HeartModel::SetLambdaForFrame(const std::vector<double>& hermiteLambdaParams, int frameNumber)
 {}
 
-void CAPModelLVPS4X4::SetLambda(const std::vector<double>& lambdaParams, double time)
+void HeartModel::SetLambda(const std::vector<double>& lambdaParams, double time)
 {}
 
-void CAPModelLVPS4X4::SetLocalToGlobalTransformation(const gtMatrix& transform)
+void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 {}
 
-void CAPModelLVPS4X4::SetFocalLengh(double focalLength)
+void HeartModel::SetFocalLengh(double focalLength)
 {}
 
-void CAPModelLVPS4X4::SetTheta(int frameNumber)
+void HeartModel::SetTheta(int frameNumber)
 {}
 
-void CAPModelLVPS4X4::SetMuFromBasePlaneForFrame(const Plane& plane, int frameNumber)
+void HeartModel::SetMuFromBasePlaneForFrame(const Plane& plane, int frameNumber)
 {}
 
 // DataPoint
