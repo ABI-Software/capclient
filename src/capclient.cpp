@@ -373,7 +373,8 @@ void CAPClient::OpenModel(const std::string& filename)
 	int numberOfModelFrames = exnodeFileNames.size();
 	heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
 	LoadHeartModel(modelFilePath, exnodeFileNames);
-	std::string title = imageSet_->GetPatientID() + " - " + xmlFile.GetFilename();
+	//labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID();
+	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
 	gtMatrix m;
 	xmlFile.GetTransformationMatrix(m);
@@ -493,14 +494,14 @@ void CAPClient::InitializeMII()
 
 void CAPClient::UpdateMII()
 {
-	const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
-	std::vector<std::string>::const_iterator itr = sliceNames.begin();
-	for (int index = 0;itr != sliceNames.end();++itr, ++index)
+	LabelledSlices::const_iterator cit = labelledSlices_.begin();
+	for (int index = 0;cit != labelledSlices_.end();cit++, index++)
 	{
-		const std::string& sliceName = *itr;
+		const std::string& sliceName = cit->GetLabel();
 		char str[256];
 		
-		const ImagePlane& plane = imageSet_->GetImagePlane(sliceName);
+		
+		const ImagePlane& plane = *(cit->GetDICOMImages().at(0)->GetImagePlane());
 		assert(heartModelPtr_);
 		const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();
 		
