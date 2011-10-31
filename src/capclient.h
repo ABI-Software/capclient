@@ -121,8 +121,6 @@ public:
 		imageSet_->SetVisible(visibility, index);
 	}
 	
-	void OnAnimationSliderEvent(double time);
-
 	void OnMIICheckBox(bool checked)
 	{
 		miiIsOn_ = checked;
