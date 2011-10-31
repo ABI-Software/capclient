@@ -123,10 +123,6 @@ public:
 	
 	void OnAnimationSliderEvent(double time);
 
-	void OnToggleHideShowAll() {}//????
-	
-	void OnToggleHideShowOthers() {}//?????
-	
 	void OnMIICheckBox(bool checked)
 	{
 		miiIsOn_ = checked;
