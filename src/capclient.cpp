@@ -325,7 +325,6 @@ void CAPClient::OpenModel(const std::string& filename)
 		{
 			EnterModelLoadedState();
 		}
-		//Refresh3DCanvas();
 		
 		return;
 	}
@@ -354,7 +353,6 @@ void CAPClient::OpenModel(const std::string& filename)
 	UpdateMII();
 	
 	gui_->UpdateModeSelectionUI(CAPModeller::GUIDEPOINT);
-	//Refresh3DCanvas();
 }
 
 void CAPClient::OpenAnnotation(const std::string& filename, const std::string& imageDirname)

@@ -123,14 +123,6 @@ public:
 	
 	void OnAnimationSliderEvent(double time);
 
-	void Refresh3DCanvas()
-	{
-		//if (sceneViewer_) 
-		//{
-			//Scene_viewer_redraw_now(sceneViewer_);
-		//}
-	}
-	
 	void OnToggleHideShowAll() {}//????
 	
 	void OnToggleHideShowOthers() {}//?????
@@ -166,13 +158,11 @@ public:
 	void SetImageBrightness(double brightness)
 	{
 		imageSet_->SetBrightness(brightness);
-		Refresh3DCanvas();
 	}
 	
 	void SetImageContrast(double contrast)
 	{
 		imageSet_->SetContrast(contrast);
-		Refresh3DCanvas();
 	}
 	
 	void ProcessDataPointsEnteredForCurrentMode()
@@ -188,15 +178,12 @@ public:
 				EnterModelLoadedState();
 			}
 		}
-		
-		Refresh3DCanvas();
 	}
 	
 	void ChangeModellingMode(int mode)
 	{
 		modeller_->ChangeMode((CAPModeller::ModellingMode) mode);//FIX type unsafe
 		gui_->UpdateModeSelectionUI(mode);
-		Refresh3DCanvas();
 	}
 	
 	void LoadImages(SlicesWithImages const& slices);
@@ -277,13 +264,11 @@ public:
 	void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position, double time)
 	{
 		modeller_->AddDataPoint(dataPointID, position, time);
-		Refresh3DCanvas(); // need to force refreshing
 	}
 	
 	void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition, double time)
 	{
 		modeller_->MoveDataPoint(dataPointID, newPosition, time);
-		Refresh3DCanvas(); // need to force refreshing
 	}
 
 	/**
@@ -309,7 +294,6 @@ public:
 	void RemoveDataPoint(Cmiss_node* dataPointID, double time) 
 	{
 		modeller_->RemoveDataPoint(dataPointID, time);
-		Refresh3DCanvas();
 	}
 	
 	void SmoothAlongTime()
@@ -319,7 +303,6 @@ public:
 			return;//FIXME
 		}
 		modeller_->SmoothAlongTime();
-		Refresh3DCanvas();
 		
 		assert(heartModelPtr_);
 		std::cout << "ED Volume(EPI) = " << heartModelPtr_->ComputeVolume(EPICARDIUM, 0) << '\n';
