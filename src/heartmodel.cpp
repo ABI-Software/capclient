@@ -41,7 +41,7 @@ public:
 	Cmiss_field_id field;
 };
 
-HeartModel::HeartModel(const std::string& modelName, Cmiss_context_id context)
+HeartModel::HeartModel(const std::string& modelName)
 	: modelName_(modelName)
 	, focalLength_(42.0) // FIX magic number
 	, pImpl_(new HeartModel::HeartModelImpl)
@@ -61,8 +61,6 @@ HeartModel::HeartModel(const std::string& modelName, Cmiss_context_id context)
 			}
 		}
 	}
-	
-	pImpl_->cmissContext = context;
 }
 
 HeartModel::~HeartModel()
