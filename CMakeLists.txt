@@ -92,6 +92,7 @@ SET( APP_HDRS
 	src/PlatformInfo.h
 	src/SliceInfo.h
 	src/SolverLibraryFactory.h
+	src/standardheartdefinitions.h
 	src/UserCommentDialog.h
 	src/VNLFactory.h
 	src/VolumeGraph.h

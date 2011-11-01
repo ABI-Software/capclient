@@ -1,0 +1,11 @@
+
+#ifndef _STANDARDHEARTDEFINITIONS_H
+#define _STANDARDHEARTDEFINITIONS_H
+
+namespace cap
+{
+
+}
+
+#endif /* _STANDARDHEARTDEFINITIONS_H */
+
