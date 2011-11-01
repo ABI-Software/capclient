@@ -171,7 +171,7 @@ public:
 	 *
 	 * @return	.
 	 */
-	Point3D TransformToProlateSheroidal(const Point3D& rc) const;
+	Point3D TransformToProlateSpheroidal(const Point3D& rc) const;
 
 	/**
 	 * Transform to local coordinate rectanglar cartesian.
