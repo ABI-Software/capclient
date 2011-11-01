@@ -85,7 +85,7 @@ public:
 	 */
 	const ImagePlane& GetImagePlane(const std::string& sliceName) const;
 	
-	int GetNumberOfSlices() const
+	unsigned int GetNumberOfSlices() const
 	{
 		return imageSlicesMap_.size();
 	}
