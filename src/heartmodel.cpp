@@ -18,7 +18,7 @@ extern "C" {
 #include <api/cmiss_rendition.h>
 }
 
-#include "HeartModel.h"
+#include "heartmodel.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
 #include "CAPMath.h"

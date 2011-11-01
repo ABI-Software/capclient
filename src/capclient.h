@@ -42,7 +42,7 @@ extern "C"
 #include "CAPAnnotationFile.h"
 #include "CAPModeller.h"
 #include "CAPXMLFileHandler.h"
-#include "HeartModel.h"
+#include "heartmodel.h"
 #include "IsoSurfaceCapture.h"
 
 //class Cmiss_node;

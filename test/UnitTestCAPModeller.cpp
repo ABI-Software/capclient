@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 #include "CAPModeller.h"
-#include "HeartModel.h"
+#include "heartmodel.h"
 
 namespace cap 
 {
