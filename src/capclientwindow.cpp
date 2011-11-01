@@ -359,7 +359,7 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 
 std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const LabelledSlice& labelledSlice)
 {
-	Cmiss_field_module_id field_module = GetFieldModuleForRegion(cmissContext_, labelledSlice.GetLabel());
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, labelledSlice.GetLabel());
 	
 	std::vector<Cmiss_field_image_id> field_images;
 	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDICOMImages())

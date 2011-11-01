@@ -26,7 +26,7 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
  * \param regionName the region name to get the field module from.
  * \returns an accessed field module for the region or 0 on failure.
  */
-Cmiss_field_module_id GetFieldModuleForRegion(Cmiss_context_id cmissContext, const std::string& regionName);
+Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id cmissContext, const std::string& regionName);
 
 
 /**

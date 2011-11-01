@@ -51,7 +51,7 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 	return field_image;
 }
 
-Cmiss_field_module_id GetFieldModuleForRegion(Cmiss_context_id cmissContext, const std::string& regionName)
+Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id cmissContext, const std::string& regionName)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, regionName.c_str());
