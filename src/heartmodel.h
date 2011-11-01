@@ -18,7 +18,11 @@ extern "C"
 #include <api/cmiss_context.h>
 }
 
-#include "SliceInfo.h"
+#include "capclientconfig.h"
+#include "standardheartdefinitions.h"
+#include "CAPMath.h"
+
+//#include "SliceInfo.h"
 struct Scene_object;
 
 namespace cap
@@ -287,7 +291,15 @@ public:
 	{
 		numberOfModelFrames_ = numberOfFrames;
 	}
-	
+
+	/**
+	 * Calculates the volume.
+	 *
+	 * @param	surface	The surface.
+	 * @param	time   	The time.
+	 *
+	 * @return	The calculated volume.
+	 */
 	double ComputeVolume(SurfaceType surface, double time) const;
 
 	/**
