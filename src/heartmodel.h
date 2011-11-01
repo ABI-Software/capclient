@@ -48,21 +48,15 @@ public:
 		WIREFRAME,
 		SOLID
 	};
-	
-//	enum SurfaceType
-//	{
-//		UNDEFINED,
-//		ENDOCARDIUM,
-//		EPICARDIUM
-//	};
 
 	/**
 	 * Constructor.
 	 *
-	 * @param	name   	The name.
-	 * @param	context	The context.
+	 * @param	name	The model name.
+	 *
+	 * ### param	context	The context.
 	 */
-	HeartModel(const std::string& name, Cmiss_context_id context);
+	explicit HeartModel(const std::string& name);
 
 	/**
 	 * Destructor.
