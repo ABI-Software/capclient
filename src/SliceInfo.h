@@ -16,6 +16,7 @@
 #include <api/cmiss_graphics_material.h>
 
 #include "capclientconfig.h"
+#include "standardheartdefinitions.h"
 #include "DICOMImage.h"
 
 extern "C"
@@ -94,31 +95,6 @@ struct SliceInfoSortOrder
 
 		return std::make_pair(x.length(), x) < std::make_pair(y.length(), y);
 	}
-};
-
-/**
- * Enum describing the external surfaces of the heart.
- */
-enum SurfaceType
-{
-	EPICARDIUM,
-	ENDOCARDIUM,
-	UNDEFINED_SURFACE_TYPE,
-	MAX_SURFACE_TYPE
-};
-
-/**
- * Enum describing points on the heart.
- */
-enum DataPointType
-{
-	APEX,
-	BASE,
-	RV,
-	BASEPLANE,
-	GUIDEPOINT,
-	UNDEFINED_DATA_POINT_TYPE,
-	MAX_PATA_POINT_TYPE
 };
 
 } // end namespace cap
