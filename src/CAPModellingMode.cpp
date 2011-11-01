@@ -26,7 +26,7 @@
 #include "GMMFactory.h"
 #include "VNLFactory.h"
 #include "CAPMath.h"
-#include "HeartModel.h"
+#include "heartmodel.h"
 #include "CAPBasis.h"
 #include "filesystem.h"
 #include "utils/debug.h"
