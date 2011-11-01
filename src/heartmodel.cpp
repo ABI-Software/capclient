@@ -393,7 +393,7 @@ Vector3D HeartModel::TransformToLocalCoordinateRC(const Vector3D& global) const
 	return mInv * global; // Vector transformation - doesn't include translation
 }
 
-Point3D HeartModel::TransformToProlateSheroidal(const Point3D& rc) const
+Point3D HeartModel::TransformToProlateSpheroidal(const Point3D& rc) const
 {
 	double lambda = 0.0, mu = 0.0, theta = 0.0;
 		

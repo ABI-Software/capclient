@@ -35,7 +35,7 @@ Point3D HeartModel::TransformToLocalCoordinateRC(const Point3D& g) const
 	return Point3D(0,0,0);
 }
 
-Point3D HeartModel::TransformToProlateSheroidal(const Point3D& rc) const
+Point3D HeartModel::TransformToProlateSpheroidal(const Point3D& rc) const
 {
 	return Point3D(0,0,0);
 }
