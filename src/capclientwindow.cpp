@@ -19,6 +19,7 @@ extern "C"
 #include <api/cmiss_context.h>
 #include <api/cmiss_field.h>
 #include <api/cmiss_stream.h>
+#include <api/cmiss_rendition.h>
 }
 
 #include "utils/debug.h"
@@ -948,6 +949,44 @@ void CAPClientWindow::LoadHermiteHeartElements()
 	Cmiss_stream_resource_destroy(&stream_resource);
 	Cmiss_stream_information_destroy(&stream_information);
 	Cmiss_region_destroy(&root_region);
+}
+
+void CAPClientWindow::InitializeMII(const std::string& sliceName)
+{
+	// Initialize the MII-related field and iso_scalar to some dummy values
+	// This is done to set the graphical attributes that are needed for the MII rendering
+	
+	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";";
+	//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
+	//		sliceName.c_str() );
+	Cmiss_context_execute_command(cmissContext_, command.c_str());
+	
+	command = "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_" + sliceName + " as slice_" + sliceName + "iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;";
+	//sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
+	//,sliceName.c_str());
+	Cmiss_context_execute_command(cmissContext_, command.c_str());
+}
+
+void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
+{
+	std::stringstream ss_context;
+	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[";
+	ss_context << plane.x << " " << plane.y << " " << plane.z << "]\";";
+//	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
+//			sliceName.c_str() ,
+//			normalTransformed.x, normalTransformed.y, normalTransformed.z);
+	Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
+	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
+	Cmiss_region_id heart_region = Cmiss_region_find_subregion_at_path(root_region, "heart");
+	Cmiss_rendition_id heart_rendition = Cmiss_graphics_module_get_rendition(graphics_module, heart_region);
+	std::stringstream ss_rendition;
+	ss_rendition << "as slice_" << sliceName << " iso_value " << iso_value;
+	Cmiss_rendition_execute_command(heart_rendition, ss_rendition.str().c_str());
+	Cmiss_region_destroy(&heart_region);
+	Cmiss_region_destroy(&root_region);
+		
 }
 
 } // end namespace cap

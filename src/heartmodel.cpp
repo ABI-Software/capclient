@@ -324,16 +324,16 @@ void HeartModel::SetMIIVisibility(bool visibility)
 
 void HeartModel::SetMIIVisibility(bool visibility, int index)
 {
-	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
+	//--GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
 	
 	int visible = visibility ? 1 : 0;
 	
 	const int indexOffset = 3;
 	
-	int numSettings = 0; //GT_element_group_get_number_of_settings(gt_element_group);
+	int numSettings = 0; //--GT_element_group_get_number_of_settings(gt_element_group);
 	assert(index + indexOffset < (numSettings+1));
 	
-	GT_element_settings* settings = 0; //get_settings_at_position_in_GT_element_group(gt_element_group,index + indexOffset);
+	GT_element_settings* settings = 0; //--get_settings_at_position_in_GT_element_group(gt_element_group,index + indexOffset);
 	if (!settings)
 	{
 		cout << "Can't find settings by position" << endl;
@@ -341,14 +341,14 @@ void HeartModel::SetMIIVisibility(bool visibility, int index)
 	}
 	//GT_element_settings_set_visibility(settings, visible);
 	
-//	static int line_width = 0; //TODO this test doesn't work as expected the line_width doesnt change
-//	std::cout << "line_width = " << line_width << std::endl;
-//	if ((index + indexOffset) == numSettings)
-//		GT_element_settings_set_line_width(settings, line_width++);
-//	if (line_width > 20)
-//		line_width = 0;
+//--	static int line_width = 0; //TODO this test doesn't work as expected the line_width doesnt change
+//--	std::cout << "line_width = " << line_width << std::endl;
+//--	if ((index + indexOffset) == numSettings)
+//--		GT_element_settings_set_line_width(settings, line_width++);
+//--	if (line_width > 20)
+//--		line_width = 0;
 
-	//GT_element_group_modify(gt_element_group, gt_element_group);
+	//--GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
 void HeartModel::UpdateMII(int index, double iso_value)
