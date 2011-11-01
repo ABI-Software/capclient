@@ -124,6 +124,22 @@ public:
 	void LoadHeartModel(std::vector<std::string> fullExnodeFileNames);
 
 	/**
+	 * Initializes the mii for the given slice.
+	 *
+	 * @param	sliceName	The name of the slice.
+	 */
+	void InitializeMII(const std::string& sliceName);
+
+	/**
+	 * Updates the mii.
+	 *
+	 * @param	sliceName	The name of the slice.
+	 * @param	plane	 	The plane.
+	 * @param	iso_value	The iso value.
+	 */
+	void UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value);
+
+	/**
 	 * Populate the slice list with the visibilities given.  The association
 	 * of slice to visibility is done purely through position in the vector.
 	 *

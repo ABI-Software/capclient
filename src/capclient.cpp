@@ -440,31 +440,16 @@ void CAPClient::InitializeMII()
 	for (;itr != labelledSlices_.end();++itr)
 	{
 		const std::string& sliceName = itr->GetLabel();
-		//char str[256];
-		
-		// Initialize the MII-related field and iso_scalar to some dummy values
-		// This is done to set the graphical attributes that are needed for the MII rendering
-		
-		std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";";
-		//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
-		//		sliceName.c_str() );
-		Cmiss_context_execute_command(gui_->GetCmissContext(), command.c_str());
-		
-		command = "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_" + sliceName + " iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;";
-		//sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
-		//,sliceName.c_str());
-		Cmiss_context_execute_command(gui_->GetCmissContext(), command.c_str());
+		gui_->InitializeMII(sliceName);
 	}
 }
 
 void CAPClient::UpdateMII()
 {
 	LabelledSlices::const_iterator cit = labelledSlices_.begin();
-	for (int index = 0;cit != labelledSlices_.end();cit++, index++)
+	for (; cit != labelledSlices_.end(); cit++)
 	{
 		const std::string& sliceName = cit->GetLabel();
-		char str[256];
-		
 		
 		const ImagePlane& plane = *(cit->GetDICOMImages().at(0)->GetImagePlane());
 		assert(heartModelPtr_);
@@ -476,14 +461,10 @@ void CAPClient::UpdateMII()
 		
 		//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
 		Vector3D normalTransformed = m * plane.normal;
-		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
-				sliceName.c_str() ,
-				normalTransformed.x, normalTransformed.y, normalTransformed.z);
-		Cmiss_context_execute_command(gui_->GetCmissContext(), str);
 		
 		Point3D pointTLCTransformed = mInv * plane.tlc;
 		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
-		heartModelPtr_->UpdateMII(index, d);
+		gui_->UpdateMII(sliceName, normalTransformed, d);
 	}
 }
 
@@ -499,7 +480,7 @@ void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
 	UpdateStatesAfterLoadingModel();
 	//		XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false); FIXME
 	//		XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
-	gui_->EnterInitState(); // HACK to clear mii and wireframe check boxes
+	//--gui_->EnterInitState(); // HACK to clear mii and wireframe check boxes
 	heartModelPtr_->SetMIIVisibility(false);
 	heartModelPtr_->SetModelVisibility(false);
 }
