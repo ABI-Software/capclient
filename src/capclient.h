@@ -107,7 +107,7 @@ public:
 		}
 		else
 		{
-			for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
+			for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
 			{
 				SetImageVisibility(visibility, i);
 			}
@@ -125,7 +125,7 @@ public:
 	{
 		miiIsOn_ = checked;
 		assert(heartModelPtr_);
-		for (int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
+		for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
 		{
 			if (gui_->IsSliceChecked(i))
 			{
@@ -427,8 +427,7 @@ private:
 		// ( = mii checkbox and the slice list)
 		if (miiIsOn_)
 		{
-			const int numberOfSlices = imageSet_->GetNumberOfSlices();
-			for (int i = 0; i < numberOfSlices; i++)
+			for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
 			{
 				std::cout << "slice num = " << i << ", isChecked = " << gui_->IsSliceChecked(i) << '\n';
 				if (!gui_->IsSliceChecked(i))
