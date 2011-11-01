@@ -107,14 +107,39 @@ public:
 	 * Set the state of the widgets to the model loaded state.
 	 */
 	void EnterModelLoadedState();
-	
+
+	/**
+	 * Loads the template heart model.
+	 */
+	void LoadTemplateHeartModel();
+
+	/**
+	 * Populate the slice list with the visibilities given.  The association
+	 * of slice to visibility is done purely through position in the vector.
+	 *
+	 * @param	sliceNames  	List of names of the slices.
+	 * @param	visibilities	The visibilities of the associted slices.
+	 */
 	void PopulateSliceList(std::vector<std::string> const& sliceNames,  std::vector<bool> const& visibilities);
-	
-	bool IsSliceChecked(int i) const
+
+	/**
+	 * Query if the 'i'th slice checked.
+	 *
+	 * @param	i	Zero-based index of the.
+	 *
+	 * @return	true if slice checked, false if not.
+	 */
+	bool IsSliceChecked(unsigned int i) const
 	{
 		return checkListBox_Slice->IsChecked(i);
 	}
-	
+
+	/**
+	 * Sets an animation slider range.
+	 *
+	 * @param	min	The minimum.
+	 * @param	max	The maximum.
+	 */
 	void SetAnimationSliderRange(int min, int max);
 
 	/**

@@ -856,4 +856,8 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 	return;
 }
 
+void CAPClientWindow::LoadTemplateHeartModel()
+{
+}
+
 } // end namespace cap
