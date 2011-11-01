@@ -22,7 +22,6 @@ extern "C"
 #include "standardheartdefinitions.h"
 #include "CAPMath.h"
 
-//#include "SliceInfo.h"
 struct Scene_object;
 
 namespace cap
