@@ -326,7 +326,7 @@ void HeartModel::SetMIIVisibility(bool visibility, int index)
 {
 	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
 	
-	int visible = visibility? 1:0;
+	int visible = visibility ? 1 : 0;
 	
 	const int indexOffset = 3;
 	

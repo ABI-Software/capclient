@@ -17,7 +17,7 @@
 #include "CAPTimeSmoother.h"
 #include "filesystem.h"
 
-#include "time_varying_prior.dat.h"
+#include "timevaryingprior.dat.h"
 #include "GlobalSmoothTVMatrix.dat.h"
 
 namespace cap
@@ -47,7 +47,7 @@ CAPTimeSmoother::CAPTimeSmoother()
 	Harwell_Boeing_load(tmpFileName, pImpl->S);
 	FileSystem::RemoveFile(tmpFileName);
 
-	std::string prior = FileSystem::WriteCharBufferToString(time_varying_prior_dat, time_varying_prior_dat_len);
+	std::string prior = FileSystem::WriteCharBufferToString(timevaryingprior_dat, timevaryingprior_dat_len);
 	std::stringstream ss(std::stringstream::in | std::stringstream::out);
 	ss << prior;
 

@@ -110,8 +110,18 @@ public:
 
 	/**
 	 * Loads the template heart model.
+	 *
+	 * @param	numberOfModelFrames	Number of model frames.
 	 */
-	void LoadTemplateHeartModel();
+	void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
+
+	/**
+	 * Loads a heart model from the list of exnode files.  Each exnode file
+	 * is listed with it's full path.
+	 *
+	 * @param	fullExnodeFileNames	List of names of the exnode files.
+	 */
+	void LoadHeartModel(std::vector<std::string> fullExnodeFileNames);
 
 	/**
 	 * Populate the slice list with the visibilities given.  The association
@@ -181,6 +191,12 @@ public:
 	void RedrawNow() const { cmguiPanel_->RedrawNow(); }
 	
 private:
+
+	/**
+	 * Loads the hermite heart elements.
+	 */
+	void LoadHermiteHeartElements();
+
 	/**
 	 * Set the field image as the texture for the material identified from
 	 * the given name.
