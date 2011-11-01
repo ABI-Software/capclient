@@ -435,7 +435,7 @@ SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiPanel *cmguiManager
 
 		std::vector<Cmiss_field_image_id> textures;
 		//Cmiss_field_image_id image_volume = 0;
-		//cmguiManager->CreateCmissImageTexture(image_volume, images);
+		//cmguiManager->Cmiss_field_module_create_image_texture(image_volume, images);
 		SliceInfo sliceInfo(label, images, textures /** TODO: requires fixing */);
 		dicomSlices.push_back(sliceInfo);
 	}

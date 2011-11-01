@@ -24,7 +24,7 @@ extern "C"
 #include "utilities.h"
 
 
-Cmiss_field_image_id CreateCmissImageTexture(Cmiss_field_module_id field_module, const cap::DICOMPtr& dicom_image)
+Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const cap::DICOMPtr& dicom_image)
 {
 	//std::cout << "CmguiPanel::" << __func__ << std::endl;
 	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
