@@ -81,7 +81,6 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 		//-- TODO: contours
 	}
 	
-	// nothing happens when I click on the list.
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
 	InitializeModelTemplate(labelledSlices);
@@ -480,10 +479,7 @@ void CAPClient::UpdateMII()
 
 void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
 {
-	LabelledSlices::const_iterator 
-		itrToMinNumberOfFrames = std::min_element(slices.begin(), slices.end(),
-											  ComparatorForNumFrames());
-	int minNumberOfFrames = GetMinimumNumberOfFrames();//itrToMinNumberOfFrames->GetDICOMImages().size();
+	unsigned int minNumberOfFrames = GetMinimumNumberOfFrames();
 	
 	heartModelPtr_.reset(new HeartModel("heart", gui_->GetCmissContext()));
 	assert(heartModelPtr_);
