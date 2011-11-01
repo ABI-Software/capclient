@@ -18,6 +18,7 @@ extern "C"
 #include <configure/cmgui_configure.h>
 #include <api/cmiss_context.h>
 #include <api/cmiss_field.h>
+#include <api/cmiss_stream.h>
 }
 
 #include "utils/debug.h"
@@ -31,6 +32,8 @@ extern "C"
 #include "cmgui/utilities.h"
 #include "material.h"
 #include "cmguicallbacks.h"
+#include "heartmodel.exnode.h"
+#include "globalhermiteparam.exelem.h"
 
 
 #include "images/capicon.xpm"
@@ -856,8 +859,95 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 	return;
 }
 
-void CAPClientWindow::LoadTemplateHeartModel()
+void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 {
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+
+	// Read in the heart model spaced over the number of model frames
+	for (unsigned int i = 0; i < numberOfModelFrames; i++)
+	{
+		double time = static_cast<double>(i)/numberOfModelFrames;
+		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
+		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
+
+		Cmiss_region_read(root_region, stream_information);
+
+		Cmiss_stream_resource_destroy(&stream_resource);
+		Cmiss_stream_information_destroy(&stream_information);
+		Cmiss_stream_information_region_destroy(&stream_information_region);
+	}
+
+	// Wrap the end point add another set of nodes at time 1.0
+	{
+		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
+		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
+
+		Cmiss_region_read(root_region, stream_information);
+
+		Cmiss_stream_resource_destroy(&stream_resource);
+		Cmiss_stream_information_destroy(&stream_information);
+		Cmiss_stream_information_region_destroy(&stream_information_region);
+	}
+
+	LoadHermiteHeartElements();
+
+	Cmiss_region_destroy(&root_region);
+}
+
+void CAPClientWindow::LoadHeartModel(std::vector<std::string> fullExnodeFileNames)
+{
+	unsigned int numberOfModelFrames = fullExnodeFileNames.size();
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	for (unsigned int i = 0; i < numberOfModelFrames; i++)
+	{
+		double time = static_cast<double>(i)/numberOfModelFrames;
+		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
+		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(i).c_str());
+
+		Cmiss_region_read(root_region, stream_information);
+
+		Cmiss_stream_resource_destroy(&stream_resource);
+		Cmiss_stream_information_destroy(&stream_information);
+		Cmiss_stream_information_region_destroy(&stream_information_region);
+	}
+
+	// Wrap the end point add another set of nodes at time 1.0
+	{
+		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
+		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
+
+		Cmiss_region_read(root_region, stream_information);
+
+		Cmiss_stream_resource_destroy(&stream_resource);
+		Cmiss_stream_information_destroy(&stream_information);
+		Cmiss_stream_information_region_destroy(&stream_information_region);
+	}
+
+	LoadHermiteHeartElements();
+
+	Cmiss_region_destroy(&root_region);
+}
+
+void CAPClientWindow::LoadHermiteHeartElements()
+{
+	// Read in the Hermite elements
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+	Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, globalhermiteparam_exelem, globalhermiteparam_exelem_len);
+
+	Cmiss_region_read(root_region, stream_information);
+
+	Cmiss_stream_resource_destroy(&stream_resource);
+	Cmiss_stream_information_destroy(&stream_information);
+	Cmiss_region_destroy(&root_region);
 }
 
 } // end namespace cap

@@ -211,9 +211,11 @@ SET(TXT_FILES
 	src/templates/vert.prog
 	src/templates/frag.prog
 	src/templates/GlobalSmoothTVMatrix.dat
-	src/templates/time_varying_prior.dat
+	src/templates/timevaryingprior.dat
 	src/templates/GlobalSmoothPerFrameMatrix.dat
 	src/templates/GlobalMapBezierToHermite.dat
+	src/templates/globalhermiteparam.exelem
+	src/templates/heartmodel.exnode
 	src/templates/prior.dat
 	)
 SET(TXT_HDRS)

@@ -22,6 +22,7 @@ extern "C"
 #include "filesystem.h"
 
 #include "utilities.h"
+#include "utils/debug.h"
 
 
 Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const cap::DICOMPtr& dicom_image)
@@ -66,12 +67,12 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 {
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext);
 	//Got to find the child region first!!
-	std::cout << "Subregion name = " << regionName << std::endl;
+	dbg("Subregion name = " + regionName);
 	Cmiss_region_id region = 0;
 	if(!(region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str())))
 	{
 		//error
-		std::cout << "Cmiss_region_find_subregion_at_path() returned 0 : "<< region << std::endl;
+		dbg("Cmiss_region_find_subregion_at_path() returned 0 : " + regionName);
 		return;
 	}
 

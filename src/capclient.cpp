@@ -262,7 +262,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 void CAPClient::OpenModel(const std::string& filename)
 {
 	cardiacAnnotationPtr_.reset(0);
-	//		CAPXMLFile xmlFile(filename.c_str());
+
 	CAPXMLFile xmlFile(filename);
 	dbg("Start reading xml file");
 	xmlFile.ReadFile();
@@ -276,7 +276,6 @@ void CAPClient::OpenModel(const std::string& filename)
 		dbg("Can't locate image files");
 		return;
 	}
-	std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints();
 	
 	LoadLabelledImages(labelledSlices);
 	//TODO: Load cardiac annotations
@@ -286,6 +285,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	//--LoadImagesFromXMLFile(slicesWithImages);
 	
 	
+	std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	dbg("number of exnodeFilenames = " + toString(exnodeFileNames.size()));
 	if (exnodeFileNames.empty())
@@ -315,10 +315,10 @@ void CAPClient::OpenModel(const std::string& filename)
 		return;
 	}
 	
-	std::string const& exelemFileName = xmlFile.GetExelemFileName();
+	const std::string& exelemFileName = xmlFile.GetExelemFileName();
 	
 	//HACK FIXME
-	std::string xmlFilename = filename.c_str();
+	std::string xmlFilename = filename;
 	size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
 	std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 	dbg("modelFilePath = " + modelFilePath);
@@ -328,7 +328,17 @@ void CAPClient::OpenModel(const std::string& filename)
 	heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
 	int numberOfModelFrames = exnodeFileNames.size();
 	heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
-	LoadHeartModel(modelFilePath, exnodeFileNames);
+
+	std::vector<std::string>::const_iterator cit = exnodeFileNames.begin();
+	std::vector<std::string> fullExnodeFileNames;
+	for(; cit != exnodeFileNames.end(); cit++)
+	{
+		fullExnodeFileNames.push_back(modelFilePath + "/" + *cit);
+	}
+	//LoadHeartModel(modelFilePath, exnodeFileNames);
+	gui_->LoadHeartModel(fullExnodeFileNames);
+	UpdateStatesAfterLoadingModel();
+	EnterModelLoadedState();
 	//labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID();
 	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
@@ -484,7 +494,9 @@ void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
 	heartModelPtr_.reset(new HeartModel("heart"));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
-	LoadTemplateHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
+	//LoadTemplateHeartModel("heart", std::string(CAP_DATA_DIR) + "templates/" ); //HACK FIXME
+	gui_->LoadTemplateHeartModel(minNumberOfFrames);
+	UpdateStatesAfterLoadingModel();
 	//		XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false); FIXME
 	//		XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
 	gui_->EnterInitState(); // HACK to clear mii and wireframe check boxes
