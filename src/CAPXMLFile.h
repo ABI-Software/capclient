@@ -28,12 +28,6 @@ public:
 		std::string variable; // lambda, mu, theta or x, y, z
 	};
 
-	//struct Surface // consider enum?
-	//{
-	//	static std::string const EPI;
-	//	static std::string const ENDO;
-	//};
-
 	struct Point
 	{
 		std::map<std::string, Value> values;
