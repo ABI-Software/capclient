@@ -351,42 +351,6 @@ void HeartModel::SetMIIVisibility(bool visibility, int index)
 	//--GT_element_group_modify(gt_element_group, gt_element_group);
 }
 
-void HeartModel::UpdateMII(int index, double iso_value)
-{
-	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
-		
-	int numSettings = 0; //GT_element_group_get_number_of_settings(gt_element_group);
-	
-	const int indexOffset = 3;
-//	std::cout << __func__ << ": numSettings = " << numSettings << ", index = " << index << std::endl;
-	assert(index + indexOffset < (numSettings+1));
-	
-	GT_element_settings* settings = 0; //get_settings_at_position_in_GT_element_group(gt_element_group,index + indexOffset);
-	if (!settings)
-	{
-		cout << "Can't find settings by position" << endl;
-		assert(settings);
-	}
-	
-	//--struct Computed_field *iso_scalar_field = 0;
-	//--double *current_iso_values, decimation_threshold, *iso_values,
-	//--		first_iso_value, last_iso_value;
-	//--int number_of_iso_values = 0;
-	//--GT_element_settings_get_iso_surface_parameters(settings, &iso_scalar_field,
-	//--		&number_of_iso_values, &iso_values,
-	//--		&first_iso_value, &last_iso_value, 
-	//--		&decimation_threshold);
-	//--*iso_values = iso_value;
-	//--GT_element_settings_set_iso_surface_parameters(settings, iso_scalar_field,
-	//--	number_of_iso_values, iso_values,
-	//--	first_iso_value, last_iso_value,
-	//--	decimation_threshold);
-
-	//--DEALLOCATE(iso_values);
-	
-	//--GT_element_group_modify(gt_element_group, gt_element_group);
-}
-
 void HeartModel::SetModelVisibility(bool visibility)
 {
 

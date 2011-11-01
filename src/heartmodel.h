@@ -233,14 +233,6 @@ public:
 	void SetMIIVisibility(bool visibility, int index);
 
 	/**
-	 * Updates the mii.
-	 *
-	 * @param	index	 	Zero-based index of the.
-	 * @param	iso_value	The iso value.
-	 */
-	void UpdateMII(int index, double iso_value);
-
-	/**
 	 * Sets a model visibility.
 	 *
 	 * @param	visibility	true to visibility.
