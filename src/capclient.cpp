@@ -476,10 +476,6 @@ void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
 	gui_->LoadTemplateHeartModel(minNumberOfFrames);
 	UpdateStatesAfterLoadingModel();
-	//		XRCCTRL(*this, "MII", wxCheckBox)->SetValue(false); FIXME
-	//		XRCCTRL(*this, "Wireframe", wxCheckBox)->SetValue(false);
-	//--gui_->EnterInitState(); // HACK to clear mii and wireframe check boxes
-	heartModelPtr_->SetMIIVisibility(false);
 }
 
 unsigned int CAPClient::GetMinimumNumberOfFrames() const

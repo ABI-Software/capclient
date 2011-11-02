@@ -95,45 +95,6 @@ public:
 		gui_ = win;
 	}
 
-	void SetImageVisibility(bool visibility, std::string const& sliceName = "")
-	{
-		if (sliceName.length()) //REVISE
-		{
-			const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
-
-			unsigned int i = find(sliceNames.begin(),sliceNames.end(), sliceName) - sliceNames.begin();
-			assert(i < sliceNames.size());
-			SetImageVisibility(visibility, i);
-		}
-		else
-		{
-			for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
-			{
-				SetImageVisibility(visibility, i);
-			}
-		}
-	}
-	
-	void SetImageVisibility(bool visibility, int index)
-	{
-		if (miiIsOn_)	
-			heartModelPtr_->SetMIIVisibility(visibility, index);
-		imageSet_->SetVisible(visibility, index);
-	}
-	
-	void OnMIICheckBox(bool checked)
-	{
-		miiIsOn_ = checked;
-		assert(heartModelPtr_);
-		for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
-		{
-			if (gui_->IsSliceChecked(i))
-			{
-				heartModelPtr_->SetMIIVisibility(checked,i);
-			}
-		}
-	}
-	
 	/**
 	 * Gets a frame number for the given time.
 	 *
@@ -393,33 +354,11 @@ private:
 		UpdateModelVisibilityAccordingToUI();
 		
 		InitializeMII(); // This turns on all MII's
-		UpdateMIIVisibilityAccordingToUI();
 	}
 	
 	void UpdateModelVisibilityAccordingToUI()
 	{
 		gui_->SetModelVisibility(wireFrameIsOn_);
-	}
-	
-	void UpdateMIIVisibilityAccordingToUI()
-	{
-		// Update the visibility of each mii according to the ui status
-		// ( = mii checkbox and the slice list)
-		if (miiIsOn_)
-		{
-			for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
-			{
-				std::cout << "slice num = " << i << ", isChecked = " << gui_->IsSliceChecked(i) << '\n';
-				if (!gui_->IsSliceChecked(i))
-				{
-					heartModelPtr_->SetMIIVisibility(false,i);
-				}
-			}
-		}
-		else
-		{
-			heartModelPtr_->SetMIIVisibility(false);
-		}
 	}
 	
 	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames)
