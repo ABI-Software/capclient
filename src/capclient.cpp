@@ -335,11 +335,10 @@ void CAPClient::OpenModel(const std::string& filename)
 	{
 		fullExnodeFileNames.push_back(modelFilePath + "/" + *cit);
 	}
-	//LoadHeartModel(modelFilePath, exnodeFileNames);
 	gui_->LoadHeartModel(fullExnodeFileNames);
 	UpdateStatesAfterLoadingModel();
 	EnterModelLoadedState();
-	//labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID();
+
 	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
 	gtMatrix m;

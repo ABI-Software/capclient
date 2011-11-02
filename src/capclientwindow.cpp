@@ -552,7 +552,7 @@ void CAPClientWindow::OnMIICheckBox(wxCommandEvent& event)
 void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
 	dbg(__func__);
-	//mainApp_->OnWireframeCheckBox(event.IsChecked());
+	SetModelVisibility(event.IsChecked());
 }
 
 void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
@@ -586,7 +586,7 @@ void CAPClientWindow::UpdateModeSelectionUI(size_t newMode)
 	{
 		choice_Mode->Append(wxString(ModeStrings[i],wxConvUTF8));
 	}
-	choice_Mode->SetSelection(newMode);	
+	choice_Mode->SetSelection(newMode);
 }
 
 void CAPClientWindow::OnAcceptButtonPressed(wxCommandEvent& event)
@@ -972,11 +972,9 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	std::stringstream ss_context;
 	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[";
 	ss_context << plane.x << " " << plane.y << " " << plane.z << "]\";";
-//	sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[%f %f %f]\";",
-//			sliceName.c_str() ,
-//			normalTransformed.x, normalTransformed.y, normalTransformed.z);
+
 	Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
-	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
+
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
 	Cmiss_region_id heart_region = Cmiss_region_find_subregion_at_path(root_region, "heart");
@@ -984,9 +982,28 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	std::stringstream ss_rendition;
 	ss_rendition << "as slice_" << sliceName << " iso_value " << iso_value;
 	Cmiss_rendition_execute_command(heart_rendition, ss_rendition.str().c_str());
+
+	Cmiss_rendition_destroy(&heart_rendition);
+	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_region_destroy(&heart_region);
 	Cmiss_region_destroy(&root_region);
-		
+}
+
+void CAPClientWindow::SetModelVisibility(bool visibility)
+{
+	int visibility_flag = visibility ? 1 : 0;
+
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region_id heart_region = Cmiss_region_find_subregion_at_path(root_region, "heart");
+
+	Cmiss_rendition_id heart_rendition = Cmiss_graphics_module_get_rendition(graphics_module, heart_region);
+	Cmiss_rendition_set_visibility_flag(heart_rendition, visibility_flag);
+
+	Cmiss_rendition_destroy(&heart_rendition);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_region_destroy(&heart_region);
+	Cmiss_region_destroy(&root_region);
 }
 
 } // end namespace cap
