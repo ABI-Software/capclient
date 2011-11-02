@@ -83,7 +83,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 	
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
-	InitializeModelTemplate(labelledSlices);
+	InitializeModelTemplate();
 	EnterImagesLoadedState();
 }
 
@@ -433,8 +433,6 @@ void CAPClient::EnterImagesLoadedState()
 
 void CAPClient::InitializeMII()
 {
-	// This method only makes sense when both the images and the model have been already loaded.
-	//--const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
 	LabelledSlices::const_iterator itr = labelledSlices_.begin();
 	for (;itr != labelledSlices_.end();++itr)
 	{
@@ -467,10 +465,13 @@ void CAPClient::UpdateMII()
 	}
 }
 
-void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
+void CAPClient::InitializeModelTemplate()
 {
 	unsigned int minNumberOfFrames = GetMinimumNumberOfFrames();
 	
+	if (minNumberOfFrames == 0) // Make sure some images have been loaded.
+		return;
+
 	heartModelPtr_.reset(new HeartModel("heart"));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
@@ -480,8 +481,13 @@ void CAPClient::InitializeModelTemplate(const LabelledSlices& slices)
 
 unsigned int CAPClient::GetMinimumNumberOfFrames() const
 {
+	// Check to make sure we have at least some labelled slices
+	if (labelledSlices_.size() == 0)
+		return 0;
+
 	LabelledSlices::const_iterator cit = labelledSlices_.begin();
 	unsigned int minFrames = cit->GetDICOMImages().size();
+	cit++;
 	dbg("frame count: " + toString(minFrames));
 	for (;cit != labelledSlices_.end(); cit++)
 	{
