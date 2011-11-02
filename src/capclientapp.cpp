@@ -52,6 +52,7 @@ bool CAPApp::OnInit()
 {
 #ifdef _MSC_VER
 	_CrtDumpMemoryLeaks();
+	_CrtSetBreakAlloc(11785);
 #endif
 	std::cout << "CAPApp::" << __func__ << std::endl;
 	wxXmlResource::Get()->InitAllHandlers();
