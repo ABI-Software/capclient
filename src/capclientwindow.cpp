@@ -126,7 +126,7 @@ void CAPClientWindow::MakeConnections()
 	Connect(slider_AnimationSpeed->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSpeedControlEvent));
 	Connect(checkListBox_Slice->GetId(), wxEVT_COMMAND_LISTBOX_SELECTED, wxListEventHandler(CAPClientWindow::OnObjectCheckListSelected));
 	Connect(checkListBox_Slice->GetId(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, wxListEventHandler(CAPClientWindow::OnObjectCheckListChecked));
-	Connect(checkBox_Wireframe->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnWireframeCheckBox));
+	Connect(checkBox_Visibility->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnWireframeCheckBox));
 	Connect(checkBox_MII->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnMIICheckBox));
 	
 	Connect(wxEVT_IDLE, wxIdleEventHandler(CAPClientWindow::OnIdle), 0, this);
@@ -146,8 +146,8 @@ void CAPClientWindow::EnterInitState()
 	button_HideShowOthers->Enable(false);
 	checkBox_MII->Enable(false);
 	checkBox_MII->SetValue(false);
-	checkBox_Wireframe->Enable(false);
-	checkBox_Wireframe->SetValue(false);
+	checkBox_Visibility->Enable(false);
+	checkBox_Visibility->SetValue(false);
 	slider_Contrast->Enable(false);
 	slider_Brightness->Enable(false);
 	choice_Mode->Enable(false);
@@ -181,7 +181,7 @@ void CAPClientWindow::EnterImagesLoadedState()
 	button_HideShowAll->Enable(true);
 	button_HideShowOthers->Enable(true);
 	checkBox_MII->Enable(false);
-	checkBox_Wireframe->Enable(false);
+	checkBox_Visibility->Enable(false);
 	slider_Brightness->Enable(true);
 	slider_Contrast->Enable(true);
 	choice_Mode->Enable(true);
@@ -225,8 +225,8 @@ void CAPClientWindow::EnterModelLoadedState()
 	button_HideShowAll->Enable(true);
 	button_HideShowOthers->Enable(true);
 	checkBox_MII->Enable(true);
-	checkBox_Wireframe->Enable(true);
-	checkBox_Wireframe->SetValue(true);
+	checkBox_Visibility->Enable(true);
+	checkBox_Visibility->SetValue(true);
 	slider_Brightness->Enable(true);
 	slider_Contrast->Enable(true);
 	choice_Mode->Enable(true);
