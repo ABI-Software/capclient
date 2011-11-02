@@ -1,6 +1,11 @@
 
-#include <stdio.h>
+#ifdef _MSC_VER
+#define _CRTDBG_MAP_ALLOC
+#endif
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 #include <io.h>
 #include <string.h>
 #include <errno.h>
