@@ -266,10 +266,6 @@ private:
 
 	void ResetModeChoice();
 
-	void UpdateModelVisibilityAccordingToUI();
-
-	void UpdateMIIVisibilityAccordingToUI();
-	
 	/**
 	 * Window widget event handlers.
 	 */
