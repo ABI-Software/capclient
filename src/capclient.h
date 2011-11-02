@@ -376,7 +376,6 @@ private:
 	, ib_(0)
 	, imageSet_(0)
 	, labelledSlices_(LabelledSlices())
-	, hideAll_(false)
 	, heartModelPtr_(0)
 	, modeller_(0)
 	, mainWindowState_(INIT_STATE)
@@ -390,8 +389,6 @@ private:
 	
 	ImageSet* imageSet_;	/**< Set the image belongs to */
 	LabelledSlices labelledSlices_; /**< The labelled slices */
-	
-	bool hideAll_;  /**< true to hide, false to show all */
 	
 	boost::scoped_ptr<HeartModel> heartModelPtr_;  /**< The heart model pointer */
 	
