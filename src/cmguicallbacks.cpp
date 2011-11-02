@@ -22,8 +22,8 @@ extern "C"
 namespace cap
 {
 
-int input_callback(struct Scene_viewer *scene_viewer, 
-						  struct Graphics_buffer_input *input, void *viewer_frame_void)
+int input_callback(Cmiss_scene_viewer_id scene_viewer, 
+						  struct Cmiss_scene_viewer_input *input, void *viewer_frame_void)
 {
 	//	cout << "input_callback() : input_type = " << input->type << endl;
 	//	if (input->type == GRAPHICS_BUFFER_KEY_PRESS)
@@ -106,8 +106,8 @@ int input_callback(struct Scene_viewer *scene_viewer,
 		return 0; // returning false means don't call the other input handlers;
 }
 
-int input_callback_image_shifting(struct Scene_viewer *scene_viewer, 
-										 struct Graphics_buffer_input *input, void *viewer_frame_void)
+int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer, 
+										 struct Cmiss_scene_viewer_input *input, void *viewer_frame_void)
 {
 	//	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
 	

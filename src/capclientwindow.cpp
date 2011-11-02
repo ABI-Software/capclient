@@ -195,7 +195,7 @@ void CAPClientWindow::EnterImagesLoadedState()
 
 	StopCine();
 	// Initialize timer for animation
-	size_t numberOfLogicalFrames = mainApp_->GetMinimumNumberOfFrames();//-- TODO: set this properly!!! imageSet_->GetNumberOfFrames(); // smallest number of frames of all slices
+	size_t numberOfLogicalFrames = mainApp_->GetMinimumNumberOfFrames();
 	if (timeNotifier_)
 	{
 		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
@@ -205,13 +205,8 @@ void CAPClientWindow::EnterImagesLoadedState()
 	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MINIMUM_TIME, 0.0);
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
-	//		Time_keeper_set_minimum(timeKeeper_, 0); // FIXME time range is always 0~1
-	//		Time_keeper_set_maximum(timeKeeper_, 1);
 	
 	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
-	
-	//--gui_->SetTitle(wxString(imageSet_->GetPatientID().c_str(),wxConvUTF8));
-
 }
 
 void CAPClientWindow::EnterModelLoadedState()
@@ -785,14 +780,21 @@ void CAPClientWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
 		isPlaneShiftModeOn = true;
 		button_PlaneShift->SetLabel(wxT("End Shifting"));
 
-		// mainApp_->StartPlaneShift();
+		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+						input_callback, (void*)this);
+		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+						input_callback_image_shifting, (void*)this, 1/*add_first*/);
 	}
 	else
 	{
 		isPlaneShiftModeOn = false;
 		button_PlaneShift->SetLabel(wxT("Start Shifting"));
 		
-		// mainApp_->FinishPlaneShift();
+		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+						input_callback_image_shifting, (void*)this);
+		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+						input_callback, (void*)this, 1/*add_first*/);
+		//imageSet_->SetShiftedImagePosition();
 	}
 	
 	return;

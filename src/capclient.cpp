@@ -28,41 +28,6 @@ const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
 	throw std::exception();
 }
 
-void CAPClient::LoadImages(const SlicesWithImages& slices) // name misleading?
-{
-	assert(!slices.empty());
-	
-	if(imageSet_)
-	{
-		imageSet_->SetVisible(false); // HACK should really destroy region
-		delete imageSet_;
-	}
-	
-	ImageSetBuilder builder(slices);
-	imageSet_ = builder.build();
-	imageSet_->SetVisible(true);//FIXME
-	
-	this->PopulateSliceList(); // fill in slice check box list
-}
-
-void CAPClient::PopulateSliceList()
-{	
-	const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
-	std::vector<bool> visibilities;
-	BOOST_FOREACH(std::string const& sliceName, sliceNames)
-	{
-		if (imageSet_->IsVisible(sliceName))
-		{
-			visibilities.push_back(true);
-		}
-		else
-		{
-			visibilities.push_back(false);
-		}
-	}
-	gui_->PopulateSliceList(sliceNames, visibilities);
-}
-
 void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 {
 	gui_->ClearTextureSlices();
@@ -111,7 +76,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 	//	// Reset the state of the CAPClientWindow
 	//	EnterInitState(); // this re-registers the input call back -REVISE
 	
-	LoadImages(slices);
+	//-- Gone LoadImages(slices);
 	//InitializeModelTemplate(slices);
 	
 	// Create DataPoints if corresponding annotations exist in the CardiacAnnotation
@@ -403,7 +368,6 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	
 	CAPXMLFile xmlFile(dirname);
 	
-	//SlicesWithImages const& slicesAndImages = imageSet_->GetSlicesWithImages();
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
 	xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
