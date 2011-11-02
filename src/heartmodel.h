@@ -218,21 +218,6 @@ public:
 	void SetRenderMode(RenderMode mode);
 
 	/**
-	 * Sets a mii visibility.
-	 *
-	 * @param	visibility	true to visibility.
-	 */
-	void SetMIIVisibility(bool visibility);
-
-	/**
-	 * Sets a mii visibility.
-	 *
-	 * @param	visibility	true to visibility.
-	 * @param	index	  	Zero-based index of the.
-	 */
-	void SetMIIVisibility(bool visibility, int index);
-
-	/**
 	 * Sets a model visibility.
 	 *
 	 * @param	visibility	true to visibility.
