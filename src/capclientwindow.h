@@ -156,7 +156,7 @@ public:
 	void PopulateSliceList(std::vector<std::string> const& sliceNames,  std::vector<bool> const& visibilities);
 
 	/**
-	 * Query if the 'i'th slice checked.
+	 * Query if the 'i'th slice is checked.
 	 *
 	 * @param	i	Zero-based index of the.
 	 *
