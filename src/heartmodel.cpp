@@ -310,28 +310,6 @@ void HeartModel::SetRenderMode(RenderMode mode)
 	}
 }
 
-void HeartModel::SetModelVisibility(bool visibility)
-{
-
-	//GT_element_group* gt_element_group = Scene_object_get_graphical_element_group(modelSceneObject_);
-	
-//	int numSettings = GT_element_group_get_number_of_settings(gt_element_group);
-//	cout <<  numSettings << endl;
-	
-	int visible = visibility? 1:0;
-	
-	for (int i = 1; i < 3 ; i++) // FIX magic numbers
-	{
-		GT_element_settings* settings = 0; // get_settings_at_position_in_GT_element_group(gt_element_group,i);
-		if (!settings)
-		{
-			cout << "Can't find GT element settings by position" << endl;
-		}
-		// GT_element_settings_set_visibility(settings, visible);
-	}
-	// GT_element_group_modify(gt_element_group, gt_element_group);
-}
-
 Point3D HeartModel::TransformToLocalCoordinateRC(const Point3D& global) const
 {
 	// FIX inefficient to compute mInv every time
