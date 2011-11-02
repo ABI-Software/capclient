@@ -198,8 +198,6 @@ public:
 	 */
 	void LoadCardiacAnnotations(const CardiacAnnotation& anno);
 
-	void SetModelVisibility(bool visibility) {}
-	
 	void SetMIIVisibility(bool visibility, int sliceNum) {}
 
 	/**
@@ -398,16 +396,6 @@ private:
 		UpdateMIIVisibilityAccordingToUI();
 	}
 	
-	void LoadTemplateHeartModel(std::string const dirname, std::string const& path)
-	{
-		// This function is used to load the unfitted generic heart model.
-		// Currently this is necessary. It might be possible to eliminate the use of generic model
-		// in the future by creating the related cmgui nodes, fields and element completely thru cmgui api
-		assert(heartModelPtr_);
-		heartModelPtr_->ReadModelFromFiles(dirname, path);
-		UpdateStatesAfterLoadingModel();
-	}
-
 	void UpdateModelVisibilityAccordingToUI()
 	{
 		gui_->SetModelVisibility(wireFrameIsOn_);
