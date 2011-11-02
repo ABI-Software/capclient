@@ -134,12 +134,6 @@ public:
 		}
 	}
 	
-	void OnWireframeCheckBox(bool checked)
-	{
-		assert(heartModelPtr_);
-		heartModelPtr_->SetModelVisibility(checked);
-	}
-
 	/**
 	 * Gets a frame number for the given time.
 	 *
@@ -335,8 +329,7 @@ private:
 	{
 		gui_->EnterModelLoadedState();
 		
-		assert(heartModelPtr_);
-		heartModelPtr_->SetModelVisibility(true);
+		gui_->SetModelVisibility(true);
 		
 		mainWindowState_ = MODEL_LOADED_STATE;
 	}
@@ -417,8 +410,7 @@ private:
 
 	void UpdateModelVisibilityAccordingToUI()
 	{
-		assert(heartModelPtr_);
-		heartModelPtr_->SetModelVisibility(wireFrameIsOn_);
+		gui_->SetModelVisibility(wireFrameIsOn_);
 	}
 	
 	void UpdateMIIVisibilityAccordingToUI()

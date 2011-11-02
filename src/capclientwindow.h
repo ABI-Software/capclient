@@ -140,6 +140,13 @@ public:
 	void UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value);
 
 	/**
+	 * Sets a model visibility.
+	 *
+	 * @param	visibility	true to visibility.
+	 */
+	void SetModelVisibility(bool visibility);
+
+	/**
 	 * Populate the slice list with the visibilities given.  The association
 	 * of slice to visibility is done purely through position in the vector.
 	 *
