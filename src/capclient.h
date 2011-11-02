@@ -76,11 +76,10 @@ public:
 	}
 	
 	/**
-	 * Destructor deletes imageSet_ and modeller_
+	 * Destructor deletes modeller_ and ib_
 	 */
 	~CAPClient()
 	{
-		delete imageSet_;
 		delete modeller_;
 		if (ib_)
 			delete ib_;
@@ -104,16 +103,6 @@ public:
 	 */
 	int GetFrameNumberForTime(double time);
 
-	void SetImageBrightness(double brightness)
-	{
-		imageSet_->SetBrightness(brightness);
-	}
-	
-	void SetImageContrast(double contrast)
-	{
-		imageSet_->SetContrast(contrast);
-	}
-	
 	void ProcessDataPointsEnteredForCurrentMode()
 	{
 		if (modeller_->OnAccept())
@@ -133,14 +122,6 @@ public:
 	{
 		modeller_->ChangeMode((CAPModeller::ModellingMode) mode);//FIX type unsafe
 		gui_->UpdateModeSelectionUI(mode);
-	}
-	
-	void LoadImages(SlicesWithImages const& slices);
-	
-	void LoadImagesFromXMLFile(SlicesWithImages const& slices)
-	{
-		LoadImages(slices);
-		EnterImagesLoadedState();
 	}
 	
 	virtual void LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno);
@@ -174,37 +155,17 @@ public:
 	
 	void SaveModel(std::string const& dirname, std::string const& userComment);
 	
-	void StartPlaneShift()
-	{
-//		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
-//						input_callback, (void*)this);
-//		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
-//						input_callback_image_shifting, (void*)this, 1/*add_first*/);
-	}
-	
-	void FinishPlaneShift()
-	{
-//		Cmiss_scene_viewer_remove_input_callback(sceneViewer_,
-//						input_callback_image_shifting, (void*)this);
-//		Cmiss_scene_viewer_add_input_callback(sceneViewer_,
-//						input_callback, (void*)this, 1/*add_first*/);
-		
-		imageSet_->SetShiftedImagePosition();
-	}
-	
 	void OnExportModel(std::string const& dirname)
 	{
-		std::cout << __func__ << "\n";
-		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
-		
+		IsoSurfaceCapture* iso = 0;//new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
+		assert(iso);
 		iso->OnExportModel(dirname);
 	}
 	
 	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
 	{
-		std::cout << __func__ << "\n";
-		IsoSurfaceCapture* iso = new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
-		
+		IsoSurfaceCapture* iso = 0; //new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
+		assert(iso);
 		iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
 	}
 	
@@ -272,11 +233,6 @@ private:
 
 		// Also clean up cmgui objects such as scene, regions, materials ..etc
 		cardiacAnnotationPtr_.reset(0);
-		if(imageSet_)
-		{
-			delete imageSet_;
-			imageSet_ = 0;
-		}
 		heartModelPtr_.reset(0);
 
 		mainWindowState_ = INIT_STATE;
@@ -298,24 +254,6 @@ private:
 		// ???????
 		delete this;
 	}
-	
-// 	void PopulateSliceList()
-// 	{	
-// 		const std::vector<std::string>& sliceNames = imageSet_->GetSliceNames();
-// 		std::vector<bool> visibilities;
-// 		BOOST_FOREACH(std::string const& sliceName, sliceNames)
-// 		{
-// 			if (imageSet_->IsVisible(sliceName))
-// 			{
-// 				visibilities.push_back(true);
-// 			}
-// 			else
-// 			{
-// 				visibilities.push_back(false);
-// 			}
-// 		}
-// 		gui_->PopulateSliceList(sliceNames, visibilities);
-// 	}
 	
 	/**
 	 * Popluate the slice list in the gui.
@@ -374,7 +312,6 @@ private:
 	CAPClient()
 	: gui_(0)
 	, ib_(0)
-	, imageSet_(0)
 	, labelledSlices_(LabelledSlices())
 	, heartModelPtr_(0)
 	, modeller_(0)
@@ -387,7 +324,6 @@ private:
 	CAPClientWindow* gui_;  /**< The graphical user interface */
 	ImageBrowser* ib_;  /**< The ib */
 	
-	ImageSet* imageSet_;	/**< Set the image belongs to */
 	LabelledSlices labelledSlices_; /**< The labelled slices */
 	
 	boost::scoped_ptr<HeartModel> heartModelPtr_;  /**< The heart model pointer */
