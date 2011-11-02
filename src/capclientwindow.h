@@ -140,6 +140,13 @@ public:
 	void UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value);
 
 	/**
+	 * Sets a mii visibility.
+	 *
+	 * @param	visibility	true to visibility.
+	 */
+	void SetMIIVisibility(bool visibility);
+
+	/**
 	 * Sets a model visibility.
 	 *
 	 * @param	visibility	true to visibility.

@@ -548,7 +548,7 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 void CAPClientWindow::OnMIICheckBox(wxCommandEvent& event)
 {
 	dbg(__func__);
-	mainApp_->OnMIICheckBox(event.IsChecked());
+	SetMIIVisibility(event.IsChecked());
 }
 
 void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
@@ -1006,6 +1006,22 @@ void CAPClientWindow::SetModelVisibility(bool visibility)
 	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_region_destroy(&heart_region);
 	Cmiss_region_destroy(&root_region);
+}
+
+void CAPClientWindow::SetMIIVisibility(bool visibility)
+{
+	//void OnMIICheckBox(bool checked)
+	//{
+	//	miiIsOn_ = checked;
+	//	assert(heartModelPtr_);
+	//	for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
+	//	{
+	//		if (gui_->IsSliceChecked(i))
+	//		{
+	//			heartModelPtr_->SetMIIVisibility(checked,i);
+	//		}
+	//	}
+	//}
 }
 
 } // end namespace cap
