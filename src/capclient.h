@@ -321,7 +321,12 @@ private:
 	 * Popluate the slice list in the gui.
 	 */
 	void PopulateSliceList();
-	
+
+	/**
+	 * Initializes the mii.  This method only makes sense 
+	 * when both the images and the model have been already 
+	 * loaded.
+	 */
 	void InitializeMII();
 	
 	void UpdateMII();
@@ -334,7 +339,11 @@ private:
 		}
 	};
 
-	void InitializeModelTemplate(const LabelledSlices& slices);
+	/**
+	 * Initializes the model template.  If the images have not
+	 * been loaded then this function will do nothing.
+	 */
+	void InitializeModelTemplate();
 	
 	void CreateModeller()
 	{
@@ -350,15 +359,7 @@ private:
 	{
 		CreateModeller();
 		gui_->UpdateModeSelectionUI(CAPModeller::APEX);
-		
-		UpdateModelVisibilityAccordingToUI();
-		
 		InitializeMII(); // This turns on all MII's
-	}
-	
-	void UpdateModelVisibilityAccordingToUI()
-	{
-		gui_->SetModelVisibility(wireFrameIsOn_);
 	}
 	
 	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames)
