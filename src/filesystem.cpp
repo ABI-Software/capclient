@@ -5,7 +5,13 @@
  *      Author: jchu014
  */
 
+#ifdef _MSC_VER
+#define _CRTDBG_MAP_ALLOC
+#endif
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <dirent.h>
