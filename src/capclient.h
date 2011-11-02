@@ -377,7 +377,6 @@ private:
 	, imageSet_(0)
 	, labelledSlices_(LabelledSlices())
 	, hideAll_(false)
-	, miiIsOn_(false)
 	, wireFrameIsOn_(false)
 	, heartModelPtr_(0)
 	, modeller_(0)
@@ -394,7 +393,6 @@ private:
 	LabelledSlices labelledSlices_; /**< The labelled slices */
 	
 	bool hideAll_;  /**< true to hide, false to show all */
-	bool miiIsOn_;  /**< true if mii is on */
 	bool wireFrameIsOn_;	/**< true if wire frame is on */
 	
 	boost::scoped_ptr<HeartModel> heartModelPtr_;  /**< The heart model pointer */
