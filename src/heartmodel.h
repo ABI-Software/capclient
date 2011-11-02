@@ -218,13 +218,6 @@ public:
 	void SetRenderMode(RenderMode mode);
 
 	/**
-	 * Sets a model visibility.
-	 *
-	 * @param	visibility	true to visibility.
-	 */
-	void SetModelVisibility(bool visibility);
-
-	/**
 	 * Map to model frame time.
 	 *
 	 * @param	time	The time.
