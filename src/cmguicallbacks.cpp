@@ -25,109 +25,120 @@ namespace cap
 int input_callback(Cmiss_scene_viewer_id scene_viewer, 
 						  struct Cmiss_scene_viewer_input *input, void *viewer_frame_void)
 {
-	//	cout << "input_callback() : input_type = " << input->type << endl;
-	//	if (input->type == GRAPHICS_BUFFER_KEY_PRESS)
-	//	{
-		//		int keyCode = input->key_code;
-		//		cout << "Key pressed = " << keyCode << endl;
-		//		return 0;
-		//	}
+	Cmiss_scene_viewer_input_event_type event_type;
+	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
+	dbg("input_callback() : input_type = " + event_type);
+	if (event_type == CMISS_SCENE_VIEWER_INPUT_KEY_PRESS)
+	{
+		int keyCode = Cmiss_scene_viewer_input_get_key_code(input);
+		dbg("Key pressed = " + keyCode);
+		return 0;
+	}
+
+	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
+	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);
+	if (!(modifier_flags & CMISS_SCENE_VIEWER_INPUT_MODIFIER_SHIFT))
+	{
+		return 1;
+	}
 		
-		//if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
-		{
-			return 1;
-		}
+	static Cmiss_node_id selectedNode = 0; // Thread unsafe
+	CAPClientWindow* gui = static_cast<CAPClientWindow*>(viewer_frame_void);
+	
+	// We have to stop the animation when the user clicks on the 3D panel.
+	// Since dragging a point while cine is playing can cause a problem
+	// But Is this the best place put this code?
+	gui->StopCine();
+	
+	double x = static_cast<double>(Cmiss_scene_viewer_input_get_x_position(input));
+	double y = static_cast<double>(Cmiss_scene_viewer_input_get_y_position(input));
+	double time = gui->GetCurrentTime(); // TODO REVISE
+	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
+	{
+		int button_number = Cmiss_scene_viewer_input_get_button_number(input);
+		// Select node or create one
+		dbg("Mouse clicked, time = " + toString(time));
+		dbg("Mouse button number = " + button_number); // input->button_number << '\n';
 		
-		static Cmiss_node_id selectedNode = 0; // Thread unsafe
-		CAPClientWindow* gui = static_cast<CAPClientWindow*>(viewer_frame_void);
+		Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
+		Point3D coords;
+		selectedNode = Cmiss_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
 		
-		// We have to stop the animation when the user clicks on the 3D panel.
-		// Since dragging a point while cine is playing can cause a problem
-		// But Is this the best place put this code?
-		gui->StopCine();
-		
-		double x = (double)(0.0); // input->position_x);
-		double y = (double)(0.0); // input->position_y);
-		double time = gui->GetCurrentTime(); // TODO REVISE
-		//if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
-		{
-			// Select node or create one
-			std::cout << "Mouse clicked, time = " << time << '\n';
-			std::cout << "Mouse button number = " << 0 << "\n"; // input->button_number << '\n';
-			
-			Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
-			Point3D coords;
-			selectedNode = Cmiss_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
-			
-			//if (input->button_number == wxMOUSE_BTN_LEFT )
-			{	
-				if (!selectedNode) //REVISE
-				{
-					selectedNode = Cmiss_create_or_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
-					if (selectedNode != 0) 
-					{
-						gui->AddDataPoint(selectedNode, coords);
-					}
-				}
-			}
-			//else if (input->button_number == wxMOUSE_BTN_RIGHT)
+		if (button_number == wxMOUSE_BTN_LEFT )
+		{	
+			if (!selectedNode) //REVISE
 			{
-				if (selectedNode)
+				selectedNode = Cmiss_create_or_select_node_from_screen_coords(scene_viewer, x, y, time, coords);
+				if (selectedNode != 0) 
 				{
-					gui->RemoveDataPoint(selectedNode);
-					selectedNode = 0;
+					gui->AddDataPoint(selectedNode, coords);
 				}
 			}
 		}
-		//else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
+		else if (button_number == wxMOUSE_BTN_RIGHT)
 		{
-			// Move node		
-			if (!selectedNode)
+			if (selectedNode)
 			{
-				std::cout << "GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode" << '\n';
-				//			frame->InitialiseModel();
-				return 0;
+				gui->RemoveDataPoint(selectedNode);
+				selectedNode = 0;
 			}
-			Point3D coords;
-			//		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
-			Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
-			Cmiss_move_node_to_screen_coords(scene_viewer, selectedNode, x, y, time, coords);
-			
-			//		cout << "Move coord = " << coords << endl;
-			gui->MoveDataPoint(selectedNode, coords);
 		}
-		//else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
+	}
+	else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
+	{
+		// Move node		
+		if (!selectedNode)
 		{
-			std::cout << "Mouse released" << '\n';
-			gui->SmoothAlongTime();
-			selectedNode = NULL;
+			dbg("GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode");
+			//			frame->InitialiseModel();
+			return 0;
 		}
+		Point3D coords;
+		//		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
+		Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
+		Cmiss_move_node_to_screen_coords(scene_viewer, selectedNode, x, y, time, coords);
 		
-		return 0; // returning false means don't call the other input handlers;
+		//		cout << "Move coord = " << coords << endl;
+		gui->MoveDataPoint(selectedNode, coords);
+	}
+	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
+	{
+		dbg("Mouse released");
+		gui->SmoothAlongTime();
+		selectedNode = 0;
+	}
+	
+	return 0; // returning false means don't call the other input handlers;
 }
 
 int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer, 
 										 struct Cmiss_scene_viewer_input *input, void *viewer_frame_void)
 {
+	Cmiss_scene_viewer_input_event_type event_type;
+	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
+	dbg("input_callback_image_shifting() : input_type = " + event_type);
 	//	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
 	
-	//if (!(input->input_modifier & GRAPHICS_BUFFER_INPUT_MODIFIER_SHIFT))
+	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
+	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);
+	if (!(modifier_flags & CMISS_SCENE_VIEWER_INPUT_MODIFIER_SHIFT))
 	{
 		return 1;
 	}
 	
-	//	static Cmiss_node_id selectedNode = NULL; // Thread unsafe
-	//	CAPClientWindow* frame = static_cast<CAPClientWindow*>(viewer_frame_void);
+	static Cmiss_node_id selectedNode = 0; // Thread unsafe
+	CAPClientWindow* gui = static_cast<CAPClientWindow*>(viewer_frame_void);
 	
-	double x = (double)(0.0); // input->position_x);
-	double y = (double)(0.0); // (input->position_y);
+	double x = static_cast<double>(Cmiss_scene_viewer_input_get_x_position(input));
+	double y = static_cast<double>(Cmiss_scene_viewer_input_get_y_position(input));
 	
 	static double coords[3];
 	static Cmiss_region_id selectedRegion;
-	//if (input->type == GRAPHICS_BUFFER_BUTTON_PRESS)
+	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
 	{
 		// Select node or create one
-		std::cout << "Mouse button number = " << 0 << "\n"; // input->button_number << '\n';
+		int button_number = Cmiss_scene_viewer_input_get_button_number(input);
+		dbg("Mouse button number = " + button_number);
 		
 		CAPClientWindow* gui = static_cast<CAPClientWindow*>(viewer_frame_void);
 		Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
@@ -139,7 +150,7 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 		}
 		
 	}
-	//else if (input->type == GRAPHICS_BUFFER_MOTION_NOTIFY)
+	else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
 	{
 		double new_coords[3];
 		//Cmiss_region_id selectedRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
@@ -179,7 +190,7 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 			}
 		}
 	}
-	//else if (input->type == GRAPHICS_BUFFER_BUTTON_RELEASE)
+	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
 	{
 		std::cout << "Mouse released" << '\n';
 	}
