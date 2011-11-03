@@ -17,9 +17,7 @@ extern "C"
 #include <configure/cmgui_configure.h>
 #include <api/cmiss_field_image.h>
 #include <api/cmiss_scene_viewer.h>
-#include <api/cmiss_scene.h>
 #include <api/cmiss_stream.h>
-#include <api/cmiss_graphics_filter.h>
 #include <api/cmiss_interactive_tool.h>
 #include <api/cmiss_rendition.h>
 #include <api/cmiss_graphic.h>
@@ -33,12 +31,13 @@ extern "C"
 #include "utils/debug.h"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
+#include "cmgui/utilities.h"
 
 namespace cap
 {
 
 CmguiPanel::CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, wxPanel* panel)
-	: cmissSceneViewer_(CreateSceneViewer(cmissContext, name, panel))
+	: cmissSceneViewer_(Cmiss_context_create_scene_viewer(cmissContext, name, panel))
 {
 	SetFreeSpin(false);
 	//Cmiss_scene_viewer_set_lookat_parameters_non_skew(
@@ -148,48 +147,6 @@ void CmguiPanel::ViewAll() const
 {
 	Cmiss_scene_viewer_view_all(cmissSceneViewer_);
 }
-
-Cmiss_scene_viewer_id CmguiPanel::CreateSceneViewer(Cmiss_context_id cmissContext,  const std::string& sceneName, wxPanel* panel) const
-{
-	std::cout << "CmguiPanel::" << __func__ << std::endl;
-	assert(panel);
-	Cmiss_scene_viewer_package_id package = Cmiss_context_get_default_scene_viewer_package(cmissContext);
-	Cmiss_scene_viewer_id sceneViewer = Cmiss_scene_viewer_create_wx(package, panel, CMISS_SCENE_VIEWER_BUFFERING_DOUBLE, CMISS_SCENE_VIEWER_STEREO_ANY_MODE, 8, 8, 8);
-	assert(sceneViewer);
-	
-	std::string sceneTitle = sceneName;
-	if (sceneTitle.empty())
-	{
-		sceneTitle = std::string("default");
-	}
-	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
-	Cmiss_graphics_module_enable_renditions(graphics_module, root_region);
-	Cmiss_graphics_filter_id graphics_filter = Cmiss_graphics_module_create_filter_visibility_flags(graphics_module);
-	Cmiss_scene_id scene = Cmiss_graphics_module_create_scene(graphics_module);
-	Cmiss_scene_set_filter(scene, graphics_filter);
-	Cmiss_scene_set_region(scene, root_region);
-	Cmiss_scene_set_name(scene, sceneTitle.c_str());
-	Cmiss_scene_viewer_set_scene(sceneViewer, scene);
-	Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1 );
-	
-	Cmiss_region_destroy(&root_region);
-	Cmiss_graphics_filter_destroy(&graphics_filter);
-	Cmiss_graphics_module_destroy(&graphics_module);
-	Cmiss_scene_destroy(&scene);
-	
-	Cmiss_scene_viewer_set_interactive_tool_by_name(sceneViewer, "transform_tool");
-	Cmiss_interactive_tool_id itool = Cmiss_scene_viewer_get_current_interactive_tool(sceneViewer);
-	Cmiss_interactive_tool_execute_command(itool, "");
-//	struct Interactive_tool * intTool = Scene_viewer_get_interactive_tool(sceneViewer);
-//	Interactive_tool_transform_set_free_spin(intTool, 0);
-
-	//Cmiss_scene_viewer_package_destroy(&package);
-	//Cmiss_scene_viewer_destroy(&sceneViewer);
-	
-	return sceneViewer;
-}
-
 
 /*
 void CmguiPanel::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,

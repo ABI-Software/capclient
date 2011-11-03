@@ -7,6 +7,18 @@
 
 #include "CAPMath.h"
 
+class wxPanel;
+/**
+ * Create the scene from the given context with the given name on the given panel.
+ * The returned handle to the scene viewer must be destroyed.
+ * 
+ * \param cmissContext the context to create the scene for.
+ * \param sceneName the name of the scene.
+ * \param panel the wxWidgets panel to view the scene on.
+ * \returns an accessed cmiss scene viewer.
+ */
+Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissContext,  const std::string& sceneName, wxPanel* panel);
+
 /**
  * Create a texture from list of images.  The dicom given is 
  * read in to the existing field_image.  That is the field_image 
