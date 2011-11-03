@@ -74,16 +74,6 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	cmguiPanel_ = new CmguiPanel(cmissContext_, "CAPClient", panel_Cmgui);
 	SetIcon(wxICON(capicon));
 	
-	// GUI initialization
-	//CreateStatusBar(0);
-	//UpdateFrameNumber(0);
-
-	// Initialize check box list of scene objects (image slices)
-	//objectList_ = XRCCTRL(*this, "SliceList", wxCheckListBox);
-	//objectList_->SetSelection(wxNOT_FOUND);
-	//objectList_->Clear();
-	//m_pPanel = XRCCTRL(*this, "CmguiPanel", wxPanel);
-	
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);
 	checkListBox_Slice->Clear();
 	
@@ -120,6 +110,7 @@ void CAPClientWindow::MakeConnections()
 	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
 	Connect(button_HideShowAll->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
 	Connect(button_HideShowOthers->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
+	Connect(button_PlaneShift->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnPlaneShiftButtonClicked));
 	Connect(slider_Brightness->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
 	Connect(slider_Contrast->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
 	Connect(slider_Animation->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderEvent));
@@ -771,7 +762,7 @@ void CAPClientWindow::OnQuit(wxCommandEvent& event)
 	wxExit();
 }
 
-void CAPClientWindow::OnPlaneShiftButtonPressed(wxCommandEvent& event)
+void CAPClientWindow::OnPlaneShiftButtonClicked(wxCommandEvent& event)
 {
 	static bool isPlaneShiftModeOn = false;
 	
