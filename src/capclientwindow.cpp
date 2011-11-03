@@ -16,6 +16,7 @@
 extern "C"
 {
 #include <configure/cmgui_configure.h>
+#include <api/cmiss_status.h>
 #include <api/cmiss_context.h>
 #include <api/cmiss_field.h>
 #include <api/cmiss_stream.h>
@@ -65,6 +66,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, timeNotifier_(0)
 	, previousSaveLocation_("")
 	, initialised_xmlUserCommentDialog_(false)
+	, modeStates_()
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
@@ -76,6 +78,21 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);
 	checkListBox_Slice->Clear();
+	
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "/");
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
+	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
+
+	// Set the annotation field to empty and *then* create the point glyph
+	SetAnnotationString(" ");
+	Cmiss_rendition_execute_command(rendition, "point glyph empty general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
+
+	Cmiss_region_destroy(&root_region);
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_rendition_destroy(&rendition);
+
 	
 	this->Fit();
 	this->Centre();
@@ -110,7 +127,8 @@ void CAPClientWindow::MakeConnections()
 	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
 	Connect(button_HideShowAll->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
 	Connect(button_HideShowOthers->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
-	Connect(button_PlaneShift->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnPlaneShiftButtonClicked));
+	Connect(button_PlaneShift->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlaneShift));
+	Connect(button_Accept->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
 	Connect(slider_Brightness->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
 	Connect(slider_Contrast->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
 	Connect(slider_Animation->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderEvent));
@@ -198,6 +216,7 @@ void CAPClientWindow::EnterImagesLoadedState()
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
 	
 	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
+	SetAnnotationString("View mode");
 }
 
 void CAPClientWindow::EnterModelLoadedState()
@@ -233,6 +252,22 @@ void CAPClientWindow::OnIdle(wxIdleEvent& event)
 	{
 		event.RequestMore();
 	}
+}
+
+void CAPClientWindow::SetAnnotationString(std::string text)
+{
+	modeStates_.push_back(text);
+	std::string field_param = "string_constant '" + text + "'";
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "/");
+	Cmiss_field_module_define_field(field_module, "annotation", field_param.c_str());
+
+	Cmiss_field_module_destroy(&field_module);
+}
+
+void CAPClientWindow::RestorePreviousAnnotationString()
+{
+	modeStates_.pop_back();
+	SetAnnotationString(modeStates_.back());
 }
 
 void CAPClientWindow::CreateCAPIconInContext() const
@@ -577,9 +612,9 @@ void CAPClientWindow::UpdateModeSelectionUI(size_t newMode)
 	choice_Mode->SetSelection(newMode);
 }
 
-void CAPClientWindow::OnAcceptButtonPressed(wxCommandEvent& event)
+void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 {
-	std::cout << "Accept" << std::endl;
+	dbg("Accept");
 	// mainApp_->ProcessDataPointsEnteredForCurrentMode();
 }
 
@@ -762,23 +797,22 @@ void CAPClientWindow::OnQuit(wxCommandEvent& event)
 	wxExit();
 }
 
-void CAPClientWindow::OnPlaneShiftButtonClicked(wxCommandEvent& event)
+void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 {
-	static bool isPlaneShiftModeOn = false;
 	
-	if (!isPlaneShiftModeOn)
+	//dbg("==== shifting");
+	if (button_PlaneShift->GetLabel() == wxT("Start Shifting"))
 	{
-		isPlaneShiftModeOn = true;
 		button_PlaneShift->SetLabel(wxT("End Shifting"));
 
 		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
 						input_callback, (void*)this);
 		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
 						input_callback_image_shifting, (void*)this, 1/*add_first*/);
+		SetAnnotationString("Plane shifting mode");
 	}
 	else
 	{
-		isPlaneShiftModeOn = false;
 		button_PlaneShift->SetLabel(wxT("Start Shifting"));
 		
 		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
@@ -786,9 +820,8 @@ void CAPClientWindow::OnPlaneShiftButtonClicked(wxCommandEvent& event)
 		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
 						input_callback, (void*)this, 1/*add_first*/);
 		//imageSet_->SetShiftedImagePosition();
+		RestorePreviousAnnotationString();
 	}
-	
-	return;
 }
 
 void CAPClientWindow::OnExportModel(wxCommandEvent& event)
