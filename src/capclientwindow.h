@@ -261,7 +261,19 @@ private:
 	 * Creates the CAPClient icon in the cmgui context.
 	 */
 	void CreateCAPIconInContext() const;
-	
+
+	/**
+	 * Sets an annotation field to use the given string.
+	 *
+	 * @param	text	The text.
+	 */
+	void SetAnnotationString(std::string text);
+
+	/**
+	 * Restore previous annotation string.
+	 */
+	void RestorePreviousAnnotationString();
+
 	std::string PromptForUserComment();
 
 	void ResetModeChoice();
@@ -281,9 +293,9 @@ private:
 	void OnWireframeCheckBox(wxCommandEvent& event);
 	void OnBrightnessSliderEvent(wxCommandEvent& event);
 	void OnContrastSliderEvent(wxCommandEvent& event);
-	void OnAcceptButtonPressed(wxCommandEvent& event);
+	void OnAcceptClicked(wxCommandEvent& event);
 	void OnModellingModeChanged(wxCommandEvent& event);
-	void OnPlaneShiftButtonClicked(wxCommandEvent& event);
+	void OnTogglePlaneShift(wxCommandEvent& event);
 	
 	/**
 	 * Menu event handlers.
@@ -317,6 +329,7 @@ private:
 
 	std::string previousSaveLocation_; /**< The previous save location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
+	std::vector<std::string> modeStates_;
 };
 
 } // end namespace cap

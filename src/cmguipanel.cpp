@@ -47,7 +47,6 @@ CmguiPanel::CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, w
 	//Cmiss_scene_viewer_set_near_and_far_plane(cmissSceneViewer_, 1.92056, 686.342);
 	//Cmiss_scene_viewer_set_view_angle(cmissSceneViewer_, 12.9646);
 	//Cmiss_scene_viewer_set_viewport_mode(cmissSceneViewer_, CMISS_SCENE_VIEWER_VIEWPORT_RELATIVE);
-
 }
 	
 CmguiPanel::~CmguiPanel()
