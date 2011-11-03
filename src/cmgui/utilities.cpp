@@ -16,6 +16,8 @@ extern "C"
 #include <api/cmiss_node.h>
 #include <api/cmiss_element.h>
 #include <api/cmiss_field_module.h>
+#include <api/cmiss_graphics_filter.h>
+#include <api/cmiss_scene.h>
 }
 
 #include "DICOMImage.h"
@@ -24,6 +26,39 @@ extern "C"
 #include "utilities.h"
 #include "utils/debug.h"
 
+class wxPanel;
+
+Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissContext,  const std::string& sceneName, wxPanel* panel)
+{
+	assert(panel);
+	Cmiss_scene_viewer_package_id package = Cmiss_context_get_default_scene_viewer_package(cmissContext);
+	Cmiss_scene_viewer_id sceneViewer = Cmiss_scene_viewer_create_wx(package, panel, CMISS_SCENE_VIEWER_BUFFERING_DOUBLE, CMISS_SCENE_VIEWER_STEREO_ANY_MODE, 8, 8, 8);
+	assert(sceneViewer);
+	
+	std::string sceneTitle = sceneName;
+	if (sceneTitle.empty())
+	{
+		sceneTitle = std::string("default");
+	}
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_graphics_module_enable_renditions(graphics_module, root_region);
+	Cmiss_graphics_filter_id graphics_filter = Cmiss_graphics_module_create_filter_visibility_flags(graphics_module);
+	Cmiss_scene_id scene = Cmiss_graphics_module_create_scene(graphics_module);
+	Cmiss_scene_set_filter(scene, graphics_filter);
+	Cmiss_scene_set_region(scene, root_region);
+	Cmiss_scene_set_name(scene, sceneTitle.c_str());
+	Cmiss_scene_viewer_set_scene(sceneViewer, scene);
+	Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1);
+	
+	Cmiss_region_destroy(&root_region);
+	Cmiss_graphics_filter_destroy(&graphics_filter);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_scene_destroy(&scene);
+	//Cmiss_scene_viewer_package_destroy(&package); // identifier not found
+	
+	return sceneViewer;
+}
 
 Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const cap::DICOMPtr& dicom_image)
 {

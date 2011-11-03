@@ -112,17 +112,6 @@ public:
 	void ViewAll() const;
 
 private:
-	/**
-	 * Create the scene from the given context with the given name on the given panel.
-	 * The returned handle to the scene viewer must be destroyed.
-	 * 
-	 * \param cmissContext the context to create the scene for.
-	 * \param sceneName the name of the scene.
-	 * \param panel the wxWidgets panel to view the scene on.
-	 * \returns an accessed cmiss scene viewer.
-	 */
-	Cmiss_scene_viewer_id CreateSceneViewer(Cmiss_context_id cmissContext, const std::string& sceneName, wxPanel* panel) const;
-	
 	Cmiss_scene_viewer_id cmissSceneViewer_; /**< the scene viewer for this panel */
 
 };
