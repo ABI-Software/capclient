@@ -283,7 +283,7 @@ private:
 	void OnContrastSliderEvent(wxCommandEvent& event);
 	void OnAcceptButtonPressed(wxCommandEvent& event);
 	void OnModellingModeChanged(wxCommandEvent& event);
-	void OnPlaneShiftButtonPressed(wxCommandEvent& event);
+	void OnPlaneShiftButtonClicked(wxCommandEvent& event);
 	
 	/**
 	 * Menu event handlers.
