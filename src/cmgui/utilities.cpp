@@ -98,6 +98,35 @@ Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id
 	return field_module;
 }
 
+int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::string regionName)
+{
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, regionName.c_str());
+	int r = 1;
+	if (region == 0)
+	{
+		region = Cmiss_region_create_child(root_region, regionName.c_str());
+		Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+		r = Cmiss_field_module_define_field(field_module, "coordinates", "finite_element num 3 coordinate");
+		std::string clear_command = "gfx modify g_element " + regionName + " general clear;";
+		std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" centre 0,0,0 font default select_on material default selected_material default_selected;";
+		if (r)
+		{
+			r = Cmiss_context_execute_command(cmissContext, clear_command.c_str());
+		}
+		if (r)
+		{
+			r = Cmiss_context_execute_command(cmissContext, node_command.c_str());
+		}
+		Cmiss_field_module_destroy(&field_module);
+	}
+
+	Cmiss_region_destroy(&root_region);
+	Cmiss_region_destroy(&region);
+
+	return r;
+}
+
 void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string& regionName, Cmiss_graphics_material_id material)
 {
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext);
@@ -115,16 +144,16 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 	Cmiss_field_id coordinates = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
 	Cmiss_field_id xi = Cmiss_field_module_find_field_by_name(field_module, "xi");
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
-	Cmiss_graphics_material_id sel_material = Cmiss_graphics_module_create_material(graphics_module);
+	//Cmiss_graphics_material_id sel_material = Cmiss_graphics_module_create_material(graphics_module);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
 	Cmiss_graphic_id surface = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
 
 	Cmiss_graphic_set_coordinate_field(surface, coordinates);
 	Cmiss_graphic_set_material(surface, material);
-	Cmiss_graphic_set_selected_material(surface, sel_material);
+	Cmiss_graphic_set_selected_material(surface, material);
 	Cmiss_graphic_set_texture_coordinate_field(surface, xi);
 	
-	//Cmiss_graphic_destroy(&surface);
+	Cmiss_graphic_destroy(&surface);
 	Cmiss_field_destroy(&coordinates);
 	Cmiss_field_destroy(&xi);
 	Cmiss_field_module_destroy(&field_module);

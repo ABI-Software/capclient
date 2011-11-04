@@ -44,6 +44,7 @@ extern "C"
 #include "CAPXMLFileHandler.h"
 #include "heartmodel.h"
 #include "IsoSurfaceCapture.h"
+#include "utils/debug.h"
 
 //class Cmiss_node;
 class wxPanel;
@@ -213,8 +214,8 @@ public:
 		modeller_->SmoothAlongTime();
 		
 		assert(heartModelPtr_);
-		std::cout << "ED Volume(EPI) = " << heartModelPtr_->ComputeVolume(EPICARDIUM, 0) << '\n';
-		std::cout << "ED Volume(ENDO) = " << heartModelPtr_->ComputeVolume(ENDOCARDIUM, 0) << '\n';
+		dbg("ED Volume(EPI) = " + toString(heartModelPtr_->ComputeVolume(EPICARDIUM, 0)));
+		dbg("ED Volume(ENDO) = " + toString(heartModelPtr_->ComputeVolume(ENDOCARDIUM, 0)));
 	}
 	
 private:

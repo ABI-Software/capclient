@@ -21,6 +21,7 @@ extern "C"
 #include <api/cmiss_field.h>
 #include <api/cmiss_stream.h>
 #include <api/cmiss_rendition.h>
+#include <api/cmiss_interactive_tool.h>
 }
 
 #include "utils/debug.h"
@@ -80,7 +81,6 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	checkListBox_Slice->Clear();
 	
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "/");
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
 
@@ -89,7 +89,6 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	Cmiss_rendition_execute_command(rendition, "point glyph empty general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
 
 	Cmiss_region_destroy(&root_region);
-	Cmiss_field_module_destroy(&field_module);
 	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_rendition_destroy(&rendition);
 
@@ -105,9 +104,9 @@ CAPClientWindow::~CAPClientWindow()
 	dbg(__func__);
 	delete cmguiPanel_;
 
-	Cmiss_context_destroy(&cmissContext_);
 	Cmiss_time_keeper_destroy(&timeKeeper_);
 	Cmiss_time_notifier_destroy(&timeNotifier_);
+	Cmiss_context_destroy(&cmissContext_);
 }
 
 void CAPClientWindow::MakeConnections()
@@ -122,12 +121,14 @@ void CAPClientWindow::MakeConnections()
 	Connect(XRCID("menuItem_Save"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
 	Connect(XRCID("menuItem_Export"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
 	Connect(XRCID("menuItem_ExportToBinaryVolume"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
-	
+	Connect(XRCID("menuItem_ImageBrowseWindow"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImages));
+
 	// Widgets (buttons, sliders ...)
 	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
 	Connect(button_HideShowAll->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
 	Connect(button_HideShowOthers->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
 	Connect(button_PlaneShift->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlaneShift));
+	Connect(button_Model->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleModel));
 	Connect(button_Accept->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
 	Connect(slider_Brightness->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
 	Connect(slider_Contrast->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
@@ -137,6 +138,8 @@ void CAPClientWindow::MakeConnections()
 	Connect(checkListBox_Slice->GetId(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, wxListEventHandler(CAPClientWindow::OnObjectCheckListChecked));
 	Connect(checkBox_Visibility->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnWireframeCheckBox));
 	Connect(checkBox_MII->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnMIICheckBox));
+	Connect(choice_ModelDisplayMode->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(CAPClientWindow::OnModelDisplayModeChanged));
+	Connect(choice_Mode->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(CAPClientWindow::OnModellingModeChanged));
 	
 	Connect(wxEVT_IDLE, wxIdleEventHandler(CAPClientWindow::OnIdle), 0, this);
 	//Connect(wxEVT_QUIT, 
@@ -157,11 +160,13 @@ void CAPClientWindow::EnterInitState()
 	checkBox_MII->SetValue(false);
 	checkBox_Visibility->Enable(false);
 	checkBox_Visibility->SetValue(false);
+	choice_ModelDisplayMode->Enable(false);
 	slider_Contrast->Enable(false);
 	slider_Brightness->Enable(false);
 	choice_Mode->Enable(false);
 	button_Accept->Enable(false);
 	button_PlaneShift->Enable(false);
+	button_Model->Enable(false);
 
 	//wxMenu *fileMenu = menuBar_Main->GetMenu(0);
 	menuItem_OpenModel->Enable(true);
@@ -191,11 +196,13 @@ void CAPClientWindow::EnterImagesLoadedState()
 	button_HideShowOthers->Enable(true);
 	checkBox_MII->Enable(false);
 	checkBox_Visibility->Enable(false);
+	choice_ModelDisplayMode->Enable(false);
 	slider_Brightness->Enable(true);
 	slider_Contrast->Enable(true);
 	choice_Mode->Enable(true);
 	button_Accept->Enable(true);
 	button_PlaneShift->Enable(true);
+	button_Model->Enable(true);
 
 	menuItem_OpenModel->Enable(true);
 	menuItem_Save->Enable(true);
@@ -216,7 +223,10 @@ void CAPClientWindow::EnterImagesLoadedState()
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
 	
 	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
-	SetAnnotationString("View mode");
+	SetAnnotationString("Transform mode");
+	int r = Cmiss_context_execute_command(cmissContext_, "gfx modify g_element heart node_points LOCAL glyph sphere general size \"10*10*10\" centre 0,0,0 font default select_on material default selected_material default_selected;");
+
+	dbg("=== r : " + toString(r));
 }
 
 void CAPClientWindow::EnterModelLoadedState()
@@ -232,17 +242,22 @@ void CAPClientWindow::EnterModelLoadedState()
 	checkBox_MII->Enable(true);
 	checkBox_Visibility->Enable(true);
 	checkBox_Visibility->SetValue(true);
+	choice_ModelDisplayMode->Enable(true);
 	slider_Brightness->Enable(true);
 	slider_Contrast->Enable(true);
 	choice_Mode->Enable(true);
 	button_Accept->Enable(true);
 	button_PlaneShift->Enable(true);
+	button_Model->Enable(true);
 
 	menuItem_OpenModel->Enable(true);
 	menuItem_Save->Enable(true);
 	menuItem_Export->Enable(true);
 	menuItem_ExportToBinaryVolume->Enable(true);
 
+	Cmiss_context_execute_command(cmissContext_, "gfx modify g_element heart general clear;");
+	wxCommandEvent event;
+	OnModelDisplayModeChanged(event);
 	//GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
 }
 
@@ -618,17 +633,46 @@ void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 	// mainApp_->ProcessDataPointsEnteredForCurrentMode();
 }
 
+CAPModeller::ModellingMode CAPClientWindow::GetModellingMode() const
+{
+	return static_cast<CAPModeller::ModellingMode>(choice_Mode->GetSelection());
+}
+
 void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 {
-	std::cout << "MODE = " << choice_Mode->GetStringSelection() << endl;
+	dbg(std::string("MODE = ") + choice_Mode->GetStringSelection().c_str());
 
 	int selectionIndex = choice_Mode->GetSelection();
 	// mainApp_->ChangeModellingMode(selectionIndex);
 }
 
+void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
+{
+	dbg(std::string("MODE = ") + choice_ModelDisplayMode->GetStringSelection().c_str());
+
+	if (choice_ModelDisplayMode->GetSelection() == HeartModel::WIREFRAME)
+	{
+		//FIX use api calls
+		Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces exterior face xi3_0 no_select material green render_wireframe;");
+		
+		Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces exterior face xi3_1 no_select material red render_wireframe;");
+	}
+	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
+	{
+		Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces exterior face xi3_0 no_select material green render_shaded;");
+		
+		Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces exterior face xi3_1 no_select material red render_shaded;");
+	}
+
+}
+
 void CAPClientWindow::OnAbout(wxCommandEvent& event)
 {
-	std::cout << "CAPClientWindow::" << __func__ << std::endl;
+	dbg(std::string("CAPClientWindow::") + __func__);
 	wxBoxSizer *topsizer;
 	wxHtmlWindow *html;
 	wxDialog dlg(this, wxID_ANY, wxString(_("About CAP Client")));
@@ -799,28 +843,63 @@ void CAPClientWindow::OnQuit(wxCommandEvent& event)
 
 void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 {
-	
-	//dbg("==== shifting");
 	if (button_PlaneShift->GetLabel() == wxT("Start Shifting"))
 	{
 		button_PlaneShift->SetLabel(wxT("End Shifting"));
+		button_Model->Enable(false);
+		choice_Mode->Enable(false);
+		button_Accept->Enable(false);
 
-		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-						input_callback, (void*)this);
+		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "element_tool");
+		Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(cmguiPanel_->GetCmissSceneViewer());
+		Cmiss_interactive_tool_execute_command(i_tool, "no_select_elements no_select_lines select_faces");
+		Cmiss_interactive_tool_destroy(&i_tool);
+
 		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-						input_callback_image_shifting, (void*)this, 1/*add_first*/);
+			input_callback_image_shifting, (void*)this, 1/*add_first*/);
 		SetAnnotationString("Plane shifting mode");
 	}
 	else
 	{
 		button_PlaneShift->SetLabel(wxT("Start Shifting"));
 		
+		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
 		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
 						input_callback_image_shifting, (void*)this);
-		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-						input_callback, (void*)this, 1/*add_first*/);
 		//imageSet_->SetShiftedImagePosition();
 		RestorePreviousAnnotationString();
+		button_Model->Enable(true);
+		choice_Mode->Enable(true);
+		button_Accept->Enable(true);
+	}
+}
+
+void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
+{
+	if (button_Model->GetLabel() == wxT("Start Modelling"))
+	{
+		button_PlaneShift->Enable(false);
+		button_Model->SetLabel(wxT("End Modelling"));
+		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "node_tool");
+		//Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(cmguiPanel_->GetCmissSceneViewer());
+		//int r = Cmiss_interactive_tool_execute_command(i_tool, "constrain_to_surfaces group heart coordinate_field coordinates edit create define");
+
+		//dbg("node tool : " + toString(r));
+		//Cmiss_interactive_tool_destroy(&i_tool);
+
+		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+			input_callback_modelling, (void*)this, 1/*add_first*/);
+
+		SetAnnotationString("Modelling mode");
+	}
+	else
+	{
+		button_Model->SetLabel(wxT("Start Modelling"));
+		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
+		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+			input_callback_modelling, (void*)this);
+		RestorePreviousAnnotationString();
+		button_PlaneShift->Enable(true);
 	}
 }
 

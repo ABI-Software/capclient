@@ -18,6 +18,8 @@
 namespace cap
 {
 
+const CAPModeller::ModellingModeMap CAPModeller::ModellingModeStrings = CAPModeller::InitModellingModeStrings();
+
 CAPModeller::CAPModeller(HeartModel& heartModel)
 :
 	modellingModeApex_(),

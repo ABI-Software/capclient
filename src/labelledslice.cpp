@@ -16,31 +16,9 @@ LabelledSlice::LabelledSlice(const std::string& label, std::vector<DICOMPtr> dic
 
 }
 
-LabelledSlice::LabelledSlice(const LabelledSlice& other)
-	: AbstractLabelled(other.label_)
-	, dicomImages_(other.dicomImages_)
-{
-
-}
-
 LabelledSlice::~LabelledSlice()
 {
 
-}
-
-LabelledSlice& LabelledSlice::operator=(const LabelledSlice& other)
-{
-	this->label_ = other.label_;
-	return *this;
-}
-
-bool LabelledSlice::operator==(const LabelledSlice& other) const
-{
-///TODO: return ...;
-	if (this->label_ == other.label_)
-		return true;
-	
-	return false;
 }
 
 }

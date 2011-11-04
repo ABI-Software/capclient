@@ -16,6 +16,7 @@ extern "C"
 #include "labelledslice.h"
 #include "imagebrowser.h"
 #include "labelledtexture.h"
+#include "utils/debug.h"
 
 namespace cap
 {
@@ -33,7 +34,7 @@ ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowser *cl
 
 ImageBrowser::~ImageBrowser()
 {
-	std::cout << "ImageBrowser::~ImageBrowser()" << std::endl;
+	dbg("ImageBrowser::~ImageBrowser()");
 	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
 	{
 		Cmiss_field_image_id tex = value.second;
@@ -340,6 +341,7 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	ChangeImageAnnotation(frameNumber);
 	
 	gui_->ViewAll();
+	gui_->SetAnnotationString(dicomImages.at(frameNumber)->GetFilename());
 	double radius = std::max(width, height) / 2.0;
 	gui_->FitSceneViewer(radius);
 	gui_->RefreshPreviewPanel();

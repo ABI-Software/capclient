@@ -28,6 +28,7 @@ extern "C"
 #include "CAPMath.h"
 #include "CmguiExtensions.h"
 #include "textureslice.h"
+#include "CAPModeller.h"
 
 
 namespace cap
@@ -209,7 +210,13 @@ public:
 	 * @return	The time keeper.
 	 */
 	Cmiss_time_keeper_id GetTimeKeeper() const { return timeKeeper_; }
-	
+
+	/**
+	 * Gets the modelling mode.
+	 *
+	 * @return	The modelling mode.
+	 */
+	CAPModeller::ModellingMode GetModellingMode() const;
 	
 	void UpdateFrameNumber(int frameNumber);
 	
@@ -296,6 +303,8 @@ private:
 	void OnAcceptClicked(wxCommandEvent& event);
 	void OnModellingModeChanged(wxCommandEvent& event);
 	void OnTogglePlaneShift(wxCommandEvent& event);
+	void OnToggleModel(wxCommandEvent& event);
+	void OnModelDisplayModeChanged(wxCommandEvent& event);
 	
 	/**
 	 * Menu event handlers.

@@ -45,7 +45,7 @@ public:
 	enum RenderMode
 	{
 		WIREFRAME,
-		SOLID
+		SHADED
 	};
 
 	/**
