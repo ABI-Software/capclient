@@ -256,7 +256,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	if (exnodeFileNames.empty())
 	{
 		// This means no output element is defined
-		//--InitializeModelTemplate(slicesWithImages);
+		InitializeModelTemplate();
 		EnterImagesLoadedState();
 		
 		dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(dataPoints.size()));

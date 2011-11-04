@@ -26,6 +26,7 @@ extern "C"
 #include "material.h"
 #include "vert.prog.h"
 #include "frag.prog.h"
+#include "utils/debug.h"
 
 namespace cap
 {
@@ -56,7 +57,7 @@ Material::Material(const std::string& materialName, Cmiss_graphics_module_id gra
 Material::~Material()
 {
 	char *name = Cmiss_graphics_material_get_name(material_);
-	std::cout << __func__ << ": " << std::string(name) << std::endl;
+	dbg(std::string(__func__) + ": " + std::string(name));
 	Cmiss_deallocate(name);
 	Cmiss_graphics_material_destroy(&material_);
 	// TODO need to find out how to destroy material and texture properly

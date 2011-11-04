@@ -34,6 +34,20 @@ public:
 		BASEPLANE,
 		GUIDEPOINT
 	};
+
+	typedef std::map<CAPModeller::ModellingMode, std::string> ModellingModeMap;
+
+	static const ModellingModeMap ModellingModeStrings;
+	static ModellingModeMap InitModellingModeStrings()
+	{
+		ModellingModeMap m;
+		m[APEX] = std::string("APEX");
+		m[BASE] = std::string("BASE");
+		m[RV] = std::string("RV");
+		m[BASEPLANE] = std::string("BASEPLANE");
+		m[GUIDEPOINT] = std::string("GUIDEPOINT");
+		return m;
+	}
 	
 	explicit CAPModeller(HeartModel& heartModel);
 	~CAPModeller(){}

@@ -22,6 +22,7 @@ extern "C" {
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
 #include "CAPMath.h"
+#include "utils/debug.h"
 
 namespace cap
 {
@@ -285,8 +286,10 @@ void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 	{
 		for (int j = 0; j < 4; j++)
 		{
+			dbgn(" " + toString(transform[i][j]));
 			patientToGlobalTransform_[i][j] = transform[i][j];//REVISE use a wrapper class
 		}
+		dbg("");
 	}
 	
 	//Scene_object_set_transformation(modelSceneObject_, &patientToGlobalTransform_);

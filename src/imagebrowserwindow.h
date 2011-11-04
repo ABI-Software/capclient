@@ -146,6 +146,13 @@ public:
 	void ClearAnnotationTable();
 	void CreateAnnotationTableColumns();
 	void PopulateAnnotationTableRow(int rowNumber, std::string const& label, std::string const& rid, std::string const& scope);
+
+	/**
+	 * Sets an annotation string.
+	 *
+	 * @param	text	The text.
+	 */
+	void SetAnnotationString(std::string text);
 	
 private:
 	std::string GetCellContentsString( long row_number, int column ) const;
@@ -161,7 +168,7 @@ private:
 	 * Make the connections from the gui widgets to event handlers.
 	 */
 	void MakeConnections();
-	
+
 	/**
 	 * Event handlers for the window.
 	 */

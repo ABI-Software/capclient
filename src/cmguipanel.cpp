@@ -91,13 +91,13 @@ void CmguiPanel::RedrawNow() const
 void CmguiPanel::SetFreeSpin(bool on)
 {
 	Cmiss_scene_viewer_set_interactive_tool_by_name(cmissSceneViewer_, "transform_tool");
-	Cmiss_interactive_tool_id iTool = Cmiss_scene_viewer_get_current_interactive_tool(cmissSceneViewer_);
+	Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(cmissSceneViewer_);
 	if (on)
-		Cmiss_interactive_tool_execute_command(iTool, "free_spin");
+		Cmiss_interactive_tool_execute_command(i_tool, "free_spin");
 	else
-		Cmiss_interactive_tool_execute_command(iTool, "no_free_spin");
+		Cmiss_interactive_tool_execute_command(i_tool, "no_free_spin");
 	
-	Cmiss_interactive_tool_destroy(&iTool);
+	Cmiss_interactive_tool_destroy(&i_tool);
 }
 
 void CmguiPanel::SetViewingPlane(const ImagePlane& plane)

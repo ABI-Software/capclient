@@ -40,6 +40,18 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
  */
 Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id cmissContext, const std::string& regionName);
 
+/**
+ * Cmiss context create region with nodes.  This utility function creates
+ * a region with the given name if it doesn't exist.  And then also creates  
+ * a rectangular coordinate field called 'coordinates'.  It also creates a   
+ * graphical element for nodes using the glyph 'sphere'.
+ *
+ * @param	cmissContext	Context to use.
+ * @param	regionName  	Name of the region.
+ *
+ * @return	.
+ */
+int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::string regionName);
 
 /**
  * Create a surface in the given region and uses the supplied material as a texture for the 

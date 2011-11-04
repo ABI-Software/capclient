@@ -31,6 +31,7 @@ extern "C"
 #include <api/cmiss_scene.h>
 #include <api/cmiss_field.h>
 #include <api/cmiss_field_module.h>
+#include <api/cmiss_rendition.h>
 }
 
 #include "imagebrowserwindow.h"
@@ -40,6 +41,7 @@ extern "C"
 #include "DICOMImage.h"
 #include "material.h"
 #include "imagebrowser.h"
+#include "utils/debug.h"
 
 namespace
 {
@@ -61,6 +63,16 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	cmguiPanel_ = new CmguiPanel(cmissContext_, IMAGE_PREVIEW, panel_cmgui);
 	
 	SetIcon(wxICON(capicon));
+
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
+	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
+	SetAnnotationString(" ");
+	Cmiss_rendition_execute_command(rendition, "point glyph empty general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
+
+	Cmiss_region_destroy(&root_region);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_rendition_destroy(&rendition);
 
 	Fit();
 	// This stops the window from getting too long in height 
@@ -113,7 +125,7 @@ void ImageBrowserWindow::CreateAnnotationTableColumns()
 
 ImageBrowserWindow::~ImageBrowserWindow()
 {
-	std::cout << "ImageBrowserWindow::~ImageBrowserWindow()" << std::endl;
+	dbg("===ImageBrowserWindow::~ImageBrowserWindow()");
 	delete cmguiPanel_;
 	Cmiss_context_destroy(&cmissContext_);
 	//Cmiss_context_execute_command(cmguiPanel_->GetCmissContext(),
@@ -134,6 +146,15 @@ void ImageBrowserWindow::UpdateProgressDialog(int count)
 void ImageBrowserWindow::DestroyProgressDialog()
 {
 	progressDialogPtr_.reset(0);
+}
+
+void ImageBrowserWindow::SetAnnotationString(std::string text)
+{
+	std::string field_param = "string_constant '" + text + "'";
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "/");
+	Cmiss_field_module_define_field(field_module, "annotation", field_param.c_str());
+
+	Cmiss_field_module_destroy(&field_module);
 }
 
 void ImageBrowserWindow::PopulateImageTableRow(int rowNumber,
