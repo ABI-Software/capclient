@@ -210,13 +210,6 @@ public:
 	// Member functions related to rendering
 
 	/**
-	 * Sets a render mode.
-	 *
-	 * @param	mode	The mode.
-	 */
-	void SetRenderMode(RenderMode mode);
-
-	/**
 	 * Map to model frame time.
 	 *
 	 * @param	time	The time.

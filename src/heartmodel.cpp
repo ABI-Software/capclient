@@ -295,24 +295,6 @@ void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 	//Scene_object_set_transformation(modelSceneObject_, &patientToGlobalTransform_);
 }
 
-void HeartModel::SetRenderMode(RenderMode mode)
-{
-	if (mode == HeartModel::WIREFRAME)
-	{
-		Cmiss_context_id context = pImpl_->cmissContext;
-		
-		//FIX use api calls
-		//Cmiss_context_execute_command(context,
-		//"gfx mod g_el heart surfaces exterior face xi3_0 no_select material green selected_material default_selected render_wireframe;"
-		//);
-		
-		//Cmiss_context_execute_command(context,
-		//"gfx mod g_el heart surfaces exterior face xi3_1 no_select material red selected_material default_selected render_wireframe;"
-		//);
-		
-	}
-}
-
 Point3D HeartModel::TransformToLocalCoordinateRC(const Point3D& global) const
 {
 	// FIX inefficient to compute mInv every time
