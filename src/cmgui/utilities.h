@@ -36,9 +36,20 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
  * 
  * \param cmissContext the context to use.
  * \param regionName the region name to get the field module from.
- * \returns an accessed field module for the region or 0 on failure.
+ * \returns an accessed field module for the region or 0 if it didn't succeed.
  */
 Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id cmissContext, const std::string& regionName);
+
+/**
+ * Get the rendition for the given region.  The receiver of the rendition
+ * will need to destroy the handle they receive.
+ *
+ * @param	cmissContext	the context to use.
+ * @param	regionName  	Name of the region.
+ *
+ * @return	an accessed rendition for the region or 0 if it didn't succeed.
+ */
+Cmiss_rendition_id Cmiss_context_get_rendition_for_region(Cmiss_context_id cmissContext, const std::string& regionName);
 
 /**
  * Cmiss context create region with nodes.  This utility function creates
@@ -49,7 +60,7 @@ Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id
  * @param	cmissContext	Context to use.
  * @param	regionName  	Name of the region.
  *
- * @return	.
+ * @return	CMISS_OK on success, otherwise failure.
  */
 int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::string regionName);
 

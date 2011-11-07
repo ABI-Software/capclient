@@ -140,7 +140,15 @@ public:
 //	double CalculateMass();
 
 	/**
-	 * Sets a local to global transformation.
+	 * Sets a local to global transformation.  The transformation
+	 * matrix defines a 4x4 rectangular cartesian coordinate 
+	 * transformation matrix.  The matrix is specified as follows
+	 * 
+	 * [ Sx*R11, Sx*R12, Sx*R13, 0 ]
+	 * [ Sy*R21, Sy*R22, Sy*R23, 0 ]
+	 * [ Sz*R31, Sz*R32, Sz*R33, 0 ]
+	 * [   x   ,   y   ,   z   , 1 ]
+	 * 
 	 *
 	 * @param	transform	The transform.
 	 */

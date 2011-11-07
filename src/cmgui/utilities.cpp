@@ -69,10 +69,12 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
 	Cmiss_field_destroy(&temp_field);
 	Cmiss_stream_information_id stream_information = Cmiss_field_image_create_stream_information(field_image);
+	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
 	Cmiss_stream_information_image_id image_stream_information = Cmiss_stream_information_cast_image(stream_information);
 	
 	/* Read image data from a file */
 	Cmiss_stream_resource_id stream = Cmiss_stream_information_create_resource_file(stream_information, dicom_image->GetFilename().c_str());
+	Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 0.0);
 	//Cmiss_field_image_set_filter_mode(field_image,	CMISS_FIELD_IMAGE_FILTER_LINEAR);
 	Cmiss_field_image_read(field_image, stream_information);
 	
@@ -83,6 +85,7 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 	Cmiss_stream_resource_destroy(&stream);
 	Cmiss_stream_information_image_destroy(&image_stream_information);
 	Cmiss_stream_information_destroy(&stream_information);
+	Cmiss_stream_information_region_destroy(&stream_information_region);
 	
 	return field_image;
 }
@@ -96,6 +99,20 @@ Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id
 	Cmiss_region_destroy(&region);
 	
 	return field_module;
+}
+
+Cmiss_rendition_id Cmiss_context_get_rendition_for_region(Cmiss_context_id cmissContext, const std::string& regionName)
+{
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
+	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
+
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_region_destroy(&root_region);
+	Cmiss_region_destroy(&region);
+	
+	return rendition;
 }
 
 int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::string regionName)

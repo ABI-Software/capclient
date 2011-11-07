@@ -22,6 +22,7 @@ extern "C"
 #include <api/cmiss_stream.h>
 #include <api/cmiss_rendition.h>
 #include <api/cmiss_interactive_tool.h>
+#include <api/cmiss_graphic.h>
 }
 
 #include "utils/debug.h"
@@ -224,9 +225,6 @@ void CAPClientWindow::EnterImagesLoadedState()
 	
 	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
 	SetAnnotationString("Transform mode");
-	int r = Cmiss_context_execute_command(cmissContext_, "gfx modify g_element heart node_points LOCAL glyph sphere general size \"10*10*10\" centre 0,0,0 font default select_on material default selected_material default_selected;");
-
-	dbg("=== r : " + toString(r));
 }
 
 void CAPClientWindow::EnterModelLoadedState()
@@ -349,7 +347,7 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 	if (button_Play->GetLabel() == wxT("play"))
 	{
 		// start stuff
-		cmguiPanel_->LookingHere();
+		//cmguiPanel_->LookingHere();
 		PlayCine();
 	}
 	else
@@ -648,26 +646,30 @@ void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 
 void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 {
-	dbg(std::string("MODE = ") + choice_ModelDisplayMode->GetStringSelection().c_str());
-
+	//Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
+	//Cmiss_graphic_id surface = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
+	//Cmiss_graphic_set_coordinate_system(surface, CMISS_GRAPHICS_COORDINATE_SYSTEM_LOCAL);
+	//Cmiss_graphic_set_render_type(surface, CMISS_GRAPHICS_RENDER_TYPE_WIREFRAME);
 	if (choice_ModelDisplayMode->GetSelection() == HeartModel::WIREFRAME)
 	{
 		//FIX use api calls
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces exterior face xi3_0 no_select material green render_wireframe;");
+		int r1 = Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_0 no_select material green render_wireframe;");
 		
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces exterior face xi3_1 no_select material red render_wireframe;");
+		int r2 = Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc  exterior face xi3_1 no_select material red render_wireframe;");
+
+		dbg("wireframe : " + toString(r1) + ", " + toString(r2));
 	}
 	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
 	{
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces exterior face xi3_0 no_select material green render_shaded;");
+		int r1 = Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_0 no_select material green render_shaded;");
 		
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces exterior face xi3_1 no_select material red render_shaded;");
+		int r2 = Cmiss_context_execute_command(cmissContext_,
+			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_1 no_select material red render_shaded;");
+		dbg("shaded : " + toString(r1) + ", " + toString(r2));
 	}
-
 }
 
 void CAPClientWindow::OnAbout(wxCommandEvent& event)
@@ -722,6 +724,34 @@ void CAPClientWindow::ResetModeChoice()
 		choice_Mode->Delete(i);
 	}
 	choice_Mode->SetSelection(0);
+}
+
+void CAPClientWindow::SetHeartTransform(const gtMatrix& transform)
+{
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_begin_change(field_module);
+	std::stringstream ss_mx;
+	ss_mx << "constant ";
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			ss_mx << transform[i][j] << " ";
+		}
+	}
+
+	std::stringstream ss_tr;
+	ss_tr << "constant " << transform[3][0] << " " << transform[3][1] << " " << transform[3][2];
+	int r1 = Cmiss_field_module_define_field(field_module, "local_to_global_mx", ss_mx.str().c_str());
+	int r2 = Cmiss_field_module_define_field(field_module, "local_to_global_tr", ss_tr.str().c_str());
+	int r3 = Cmiss_field_module_define_field(field_module, "coordinates_rc", "coordinate_transformation field coordinates");
+	int r4 = Cmiss_field_module_define_field(field_module, "temp1", "matrix_multiply num 3 fields local_to_global_mx coordinates_rc");
+	int r5 = Cmiss_field_module_define_field(field_module, "patient_coordinates_rc", "add fields temp1 local_to_global_tr");
+
+	dbg("conversion " + toString(r1==CMISS_OK) + ", " + toString(r2==CMISS_OK) + ", " + toString(r3==CMISS_OK) + ", " + toString(r4==CMISS_OK) + ", " + toString(r5==CMISS_OK));
+	Cmiss_field_module_end_change(field_module);
+
+	Cmiss_field_module_destroy(&field_module);
 }
 
 void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
@@ -977,10 +1007,11 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 		double time = static_cast<double>(i)/numberOfModelFrames;
 		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
 		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
 		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
+		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resource, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
 
-		Cmiss_region_read(root_region, stream_information);
+		int r1 = Cmiss_region_read(root_region, stream_information);
+		dbg("Init model : " + toString(r) + ", " + toString(time));
 
 		Cmiss_stream_resource_destroy(&stream_resource);
 		Cmiss_stream_information_destroy(&stream_information);
@@ -991,8 +1022,8 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 	{
 		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
 		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
 		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
+		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resource, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
 
 		Cmiss_region_read(root_region, stream_information);
 
@@ -1006,52 +1037,67 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 	Cmiss_region_destroy(&root_region);
 }
 
-void CAPClientWindow::LoadHeartModel(std::vector<std::string> fullExnodeFileNames)
+void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames)
 {
+	LoadHermiteHeartElements(fullExelemFileName);
+
 	unsigned int numberOfModelFrames = fullExnodeFileNames.size();
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+	//Cmiss_stream_resource_id stream_resources[] = new Cmiss_stream_resource_id[numberOfModelFrames+1];
+	std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames + 1);
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
 	{
 		double time = static_cast<double>(i)/numberOfModelFrames;
-		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
-		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
-		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(i).c_str());
+		//Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(i).c_str());
+		stream_resources[i] = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(i).c_str());
 
-		Cmiss_region_read(root_region, stream_information);
+		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[i], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
+		//int r = Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
+		//dbg("Read nodes time = " + toString(time) + ", " + toString(r == CMISS_OK));
 
-		Cmiss_stream_resource_destroy(&stream_resource);
-		Cmiss_stream_information_destroy(&stream_information);
-		Cmiss_stream_information_region_destroy(&stream_information_region);
+		int r1 = 0; //Cmiss_region_read(root_region, stream_information);
+		//int r1 = Cmiss_region_read_file_with_time(root_region, fullExnodeFileNames.at(i).c_str(), timeKeeper_, time);
+		dbg("Read nodes time = " + toString(time) + ", " + toString(r == CMISS_OK) + ", " + toString(r1==CMISS_OK) + ", " + fullExnodeFileNames.at(i));
+
+		//Cmiss_stream_resource_destroy(&stream_resource);
 	}
 
 	// Wrap the end point add another set of nodes at time 1.0
 	{
-		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
-		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-		Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
-		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
+		//Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+		//Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+		//Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
+		stream_resources[numberOfModelFrames] = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
+		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[numberOfModelFrames], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
 
-		Cmiss_region_read(root_region, stream_information);
+		//Cmiss_region_read(root_region, stream_information);
 
-		Cmiss_stream_resource_destroy(&stream_resource);
-		Cmiss_stream_information_destroy(&stream_information);
-		Cmiss_stream_information_region_destroy(&stream_information_region);
+		//Cmiss_stream_resource_destroy(&stream_resource);
+		//Cmiss_stream_information_destroy(&stream_information);
+		//Cmiss_stream_information_region_destroy(&stream_information_region);
 	}
-
-	LoadHermiteHeartElements();
-
+	int r = Cmiss_region_read(root_region, stream_information);
+	dbg("read : " + toString(r == CMISS_OK));
+	Cmiss_stream_information_region_destroy(&stream_information_region);
+	Cmiss_stream_information_destroy(&stream_information);
 	Cmiss_region_destroy(&root_region);
 }
 
-void CAPClientWindow::LoadHermiteHeartElements()
+void CAPClientWindow::LoadHermiteHeartElements(std::string exelemFileName)
 {
 	// Read in the Hermite elements
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
-	Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, globalhermiteparam_exelem, globalhermiteparam_exelem_len);
+	Cmiss_stream_resource_id stream_resource = 0;
+	if (exelemFileName.size() > 0)
+		stream_resource = Cmiss_stream_information_create_resource_file(stream_information, exelemFileName.c_str());
+	else
+		stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, globalhermiteparam_exelem, globalhermiteparam_exelem_len);
 
-	Cmiss_region_read(root_region, stream_information);
+	int r = Cmiss_region_read(root_region, stream_information);
+	dbg("Hermite elem : " + toString(r == CMISS_OK));
 
 	Cmiss_stream_resource_destroy(&stream_resource);
 	Cmiss_stream_information_destroy(&stream_information);
@@ -1063,8 +1109,8 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 	// Initialize the MII-related field and iso_scalar to some dummy values
 	// This is done to set the graphical attributes that are needed for the MII rendering
 	
-	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";";
-	//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[1 1 1]\";",
+	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[1 1 1]\";";
+	//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[1 1 1]\";",
 	//		sliceName.c_str() );
 	Cmiss_context_execute_command(cmissContext_, command.c_str());
 	
@@ -1077,7 +1123,7 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
 {
 	std::stringstream ss_context;
-	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields heart_rc_coord \"[";
+	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[";
 	ss_context << plane.x << " " << plane.y << " " << plane.z << "]\";";
 
 	Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());

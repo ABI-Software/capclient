@@ -300,16 +300,19 @@ void CAPClient::OpenModel(const std::string& filename)
 	{
 		fullExnodeFileNames.push_back(modelFilePath + "/" + *cit);
 	}
-	gui_->LoadHeartModel(fullExnodeFileNames);
-	UpdateStatesAfterLoadingModel();
+	std::string fullExelemFileName = modelFilePath + "/" + exelemFileName;
+	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
+	gtMatrix m;
+	xmlFile.GetTransformationMatrix(m);
+	gui_->SetHeartTransform(m);
 	EnterModelLoadedState();
 
 	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
-	gtMatrix m;
-	xmlFile.GetTransformationMatrix(m);
+	UpdateStatesAfterLoadingModel();
 	heartModelPtr_->SetLocalToGlobalTransformation(m);
 	modeller_->SetDataPoints(dataPoints);
+
 	UpdateMII();
 	
 	gui_->UpdateModeSelectionUI(CAPModeller::GUIDEPOINT);
@@ -439,7 +442,7 @@ void CAPClient::InitializeModelTemplate()
 	heartModelPtr_.reset(new HeartModel("heart"));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
-	gui_->LoadTemplateHeartModel(minNumberOfFrames);
+	//gui_->LoadTemplateHeartModel(minNumberOfFrames);
 	UpdateStatesAfterLoadingModel();
 }
 

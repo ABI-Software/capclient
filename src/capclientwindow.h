@@ -117,12 +117,13 @@ public:
 	void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
 
 	/**
-	 * Loads a heart model from the list of exnode files.  Each exnode file
-	 * is listed with it's full path.
+	 * Loads a heart model from the list of exnode files.  Each exnode file is listed with it's full
+	 * path.
 	 *
+	 * @param	fullExelemFileName 	Full path file name of the exelem file.
 	 * @param	fullExnodeFileNames	List of names of the exnode files.
 	 */
-	void LoadHeartModel(std::vector<std::string> fullExnodeFileNames);
+	void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);
 
 	/**
 	 * Initializes the mii for the given slice.
@@ -217,7 +218,20 @@ public:
 	 * @return	The modelling mode.
 	 */
 	CAPModeller::ModellingMode GetModellingMode() const;
-	
+
+	/**
+	 * Sets the heart transform.  This function applies a transformation
+	 * from a prolate spheriodal coordinate field named 'coordinates' to
+	 * a rectangular cartesian field named 'patient_coordinates_rc' that has 
+	 * been transformed using the given transformation matrix.
+	 * 
+	 * It is expected that the prolate spheriodal field 'coordinates'
+	 * is already defined.
+	 *
+	 * @param	transform	The transform.
+	 */
+	void SetHeartTransform(const gtMatrix& transform);
+
 	void UpdateFrameNumber(int frameNumber);
 	
 	void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position);
@@ -230,9 +244,13 @@ public:
 private:
 
 	/**
-	 * Loads the hermite heart elements.
+	 * Loads the hermite heart elements.  If the exelem file name
+	 * is not given then the default elements for the heart model 
+	 * will be read in.
+	 *
+	 * @param	exelemFileName	(optional) filename of the exelem file.
 	 */
-	void LoadHermiteHeartElements();
+	void LoadHermiteHeartElements(std::string exelemFileName = "");
 
 	/**
 	 * Set the field image as the texture for the material identified from

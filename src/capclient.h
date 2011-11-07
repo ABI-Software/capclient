@@ -104,6 +104,9 @@ public:
 	 */
 	int GetFrameNumberForTime(double time);
 
+	/**
+	 * Process the data points entered for current mode.
+	 */
 	void ProcessDataPointsEnteredForCurrentMode()
 	{
 		if (modeller_->OnAccept())
@@ -118,7 +121,12 @@ public:
 			}
 		}
 	}
-	
+
+	/**
+	 * Change modelling mode.
+	 *
+	 * @param	mode	The mode.
+	 */
 	void ChangeModellingMode(int mode)
 	{
 		modeller_->ChangeMode((CAPModeller::ModellingMode) mode);//FIX type unsafe
@@ -141,45 +149,98 @@ public:
 	 */
 	void LoadCardiacAnnotations(const CardiacAnnotation& anno);
 
-	void SetMIIVisibility(bool visibility, int sliceNum) {}
-
 	/**
 	 * Using the ImageBrowser class open some images from the given directory namespace.
 	 * 
 	 * \param imageDirname the directory name to open images from.
 	 */
 	void OpenImages(const std::string& imageDirname);
-	
-	void OpenModel(std::string const& filename);
-	
+
+	/**
+	 * Opens a model.
+	 *
+	 * @param	filename	Filename of the file.
+	 */
+	void OpenModel(const std::string& filename);
+
+	/**
+	 * Opens an annotation.
+	 *
+	 * @param	filename		Filename of the file.
+	 * @param	imageDirname	Pathname of the image directory.
+	 */
 	void OpenAnnotation(std::string const& filename, std::string const& imageDirname);
-	
+
+	/**
+	 * Saves a model.
+	 *
+	 * @param	dirname	   	Pathname of the directory.
+	 * @param	userComment	The user comment.
+	 */
 	void SaveModel(std::string const& dirname, std::string const& userComment);
-	
+
+	/**
+	 * Executes the export model action.
+	 *
+	 * @param	dirname	Pathname of the directory.
+	 */
 	void OnExportModel(std::string const& dirname)
 	{
 		IsoSurfaceCapture* iso = 0;//new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
 		assert(iso);
 		iso->OnExportModel(dirname);
 	}
-	
+
+	/**
+	 * Executes the export model to binary volume action.
+	 *
+	 * @param	dirname   	Pathname of the directory.
+	 * @param	apexMargin	The apex margin.
+	 * @param	baseMargin	The base margin.
+	 * @param	spacing   	The spacing.
+	 */
 	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
 	{
 		IsoSurfaceCapture* iso = 0; //new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
 		assert(iso);
 		iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
 	}
-	
+
+	/**
+	 * Adds a data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	position		   	The position.
+	 * @param	time			   	The time.
+	 */
 	void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position, double time)
 	{
 		modeller_->AddDataPoint(dataPointID, position, time);
 	}
-	
+
+	/**
+	 * Move data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	newPosition		   	The new position.
+	 * @param	time			   	The time.
+	 */
 	void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition, double time)
 	{
 		modeller_->MoveDataPoint(dataPointID, newPosition, time);
 	}
 
+	/**
+	 * Removes the data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	time			   	The time.
+	 */
+	void RemoveDataPoint(Cmiss_node* dataPointID, double time) 
+	{
+		modeller_->RemoveDataPoint(dataPointID, time);
+	}
+	
 	/**
 	 * Gets the image plane for the image stack with the given label.
 	 * Throws an exception if the label is not found, but this should not
@@ -200,11 +261,9 @@ public:
 	 */
 	unsigned int GetMinimumNumberOfFrames() const;
 
-	void RemoveDataPoint(Cmiss_node* dataPointID, double time) 
-	{
-		modeller_->RemoveDataPoint(dataPointID, time);
-	}
-	
+	/**
+	 * Smooth along time.
+	 */
 	void SmoothAlongTime()
 	{
 		if (!modeller_)
@@ -224,7 +283,10 @@ private:
 	 * Initialise the window
 	 */
 	void Initialize();
-	
+
+	/**
+	 * Enter initial state.
+	 */
 	void EnterInitState() 
 	{
 		gui_->EnterInitState();
@@ -238,9 +300,15 @@ private:
 
 		mainWindowState_ = INIT_STATE;
 	}
-	
+
+	/**
+	 * Enter images loaded state.
+	 */
 	void EnterImagesLoadedState();
-	
+
+	/**
+	 * Enter model loaded state.
+	 */
 	void EnterModelLoadedState()
 	{
 		gui_->EnterModelLoadedState();
@@ -249,7 +317,10 @@ private:
 		
 		mainWindowState_ = MODEL_LOADED_STATE;
 	}
-	
+
+	/**
+	 * Terminates this object.
+	 */
 	void Terminate()
 	{
 		// ???????
@@ -267,9 +338,15 @@ private:
 	 * loaded.
 	 */
 	void InitializeMII();
-	
+
+	/**
+	 * Updates the mii.
+	 */
 	void UpdateMII();
-	
+
+	/**
+	 * Comparator for number of frames. 
+	 */
 	struct ComparatorForNumFrames
 	{
 		bool operator() (const LabelledSlice& a, const LabelledSlice& b)
@@ -283,7 +360,10 @@ private:
 	 * been loaded then this function will do nothing.
 	 */
 	void InitializeModelTemplate();
-	
+
+	/**
+	 * Creates the modeller.
+	 */
 	void CreateModeller()
 	{
 		if (modeller_)
@@ -293,14 +373,23 @@ private:
 		assert(heartModelPtr_);
 		modeller_ = new CAPModeller(*heartModelPtr_); // initialise modeller and all the data points
 	}
-	
+
+	/**
+	 * Updates the states after loading model.
+	 */
 	void UpdateStatesAfterLoadingModel()
 	{
 		CreateModeller();
 		gui_->UpdateModeSelectionUI(CAPModeller::APEX);
 		InitializeMII(); // This turns on all MII's
 	}
-	
+
+	/**
+	 * Loads a heart model.
+	 *
+	 * @param	path		  	Full pathname of the file.
+	 * @param	modelFilenames	The model filenames.
+	 */
 	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames)
 	{
 		assert(heartModelPtr_);
@@ -309,7 +398,9 @@ private:
 		EnterModelLoadedState();
 	}
 	
-	// Private Constructor - This class should be instantiated from the static factory method
+	/**
+	 * Private default constructor - This class should be instantiated from the static factory method.
+	 */
 	CAPClient()
 	: gui_(0)
 	, ib_(0)
@@ -321,9 +412,9 @@ private:
 	{
 	}
 	
-	static CAPClient* instance_;	/**< The instance */
+	static CAPClient* instance_;	/**< The only instance of the CAPClient */
 	CAPClientWindow* gui_;  /**< The graphical user interface */
-	ImageBrowser* ib_;  /**< The ib */
+	ImageBrowser* ib_;  /**< The image browser */
 	
 	LabelledSlices labelledSlices_; /**< The labelled slices */
 	
