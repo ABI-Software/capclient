@@ -192,7 +192,7 @@ int HeartModel::ReadModelFromFiles(const std::string& model_dir_path, const std:
 	// FIX use API calls instead of command line
 	// TODO extract method
 	char str[256];
-	sprintf((char*)str, "gfx define field /heart/heart_rc_coord coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
+	sprintf((char*)str, "gfx define field /heart/patient_coordinates_rc coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
 	// Cmiss_context_execute_command(pImpl_->cmissContext, str);
 
 	
@@ -204,7 +204,7 @@ int HeartModel::ReadModelFromFiles(const std::string& model_dir_path, const std:
 	// "gfx modify g_element heart general clear circle_discretization 6 default_coordinate coordinates element_discretization \"6*6*6\" native_discretization none;"	);
 	//This clears the timer frequency
 	
-	SetRenderMode(HeartModel::WIREFRAME); // Since it was cleared, this sets up frequency 
+	//SetRenderMode(HeartModel::WIREFRAME); // Since it was cleared, this sets up frequency 
 															// but incorrectly at default freq = 10 hz
 	
 	// Set the timer frequency : NB this has to be done after setting disc & creating surfaces level See above 
@@ -292,6 +292,7 @@ void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 		dbg("");
 	}
 	
+	dbg("*** Missing update : HeartModel::SetLocalToGlobalTransformation");
 	//Scene_object_set_transformation(modelSceneObject_, &patientToGlobalTransform_);
 }
 
@@ -318,7 +319,8 @@ Vector3D HeartModel::TransformToLocalCoordinateRC(const Vector3D& global) const
 Point3D HeartModel::TransformToProlateSpheroidal(const Point3D& rc) const
 {
 	double lambda = 0.0, mu = 0.0, theta = 0.0;
-		
+	dbg("*** Missing update : HeartModel::TransformToProlateSpheroidal");
+	
 	// cartesian_to_prolate_spheroidal(rc.x, rc.y, rc.z, focalLength_, &lambda, &mu, &theta,0);
 	//cout << "lambda: " << lambda << ", mu: " << mu << ", theta: " << theta << ", focalLength = " << focalLength_ << endl;
 	
@@ -327,6 +329,8 @@ Point3D HeartModel::TransformToProlateSpheroidal(const Point3D& rc) const
 
 int HeartModel::ComputeXi(const Point3D& coord, Point3D& xi_coord, double time) const
 {
+	dbg("*** Missing update : HeartModel::ComputeXi");
+
 	//1. Transform to model coordinate 	
 	const Point3D& coordLocal = TransformToLocalCoordinateRC(coord);
 	
@@ -343,7 +347,7 @@ int HeartModel::ComputeXi(const Point3D& coord, Point3D& xi_coord, double time) 
 	Cmiss_region* cmiss_region = pImpl_->region;
 	
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(cmiss_region);
-	Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "heart_rc_coord");//FIX
+	Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "patient_coordinates_rc");//FIX
 	
 	double point[3], xi[3];
 	xi[0] = 0.0; xi[1] = 0.0; xi[2] = 0.0;
@@ -405,6 +409,8 @@ void HeartModel::SetLambda(const std::vector<double>& lambdaParams, double time)
 {
 //	std::cout << __func__ << ": time = " << time << std::endl;
 	
+	dbg("*** Missing update : HeartModel::SetLambda");
+
 	for (int i = 1; i <= NUMBER_OF_NODES; i ++) // node index starts at 1
 	{
 	
@@ -468,6 +474,8 @@ const std::vector<double> HeartModel::GetLambda(int frame) const
 
 void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
 {
+	dbg("*** Missing update : HeartModel::SetMuFromBasePlaneForFrame");
+
 	double time = static_cast<double>(frameNumber)/numberOfModelFrames_;
 	const Vector3D& normal = TransformToLocalCoordinateRC(basePlane.normal);
 	const Point3D& position = TransformToLocalCoordinateRC(basePlane.position);
@@ -739,6 +747,8 @@ void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNum
 	
 void HeartModel::SetTheta(int frame)
 {
+	dbg("*** Missing update : HeartModel::SetTheta");
+
 	double time = (double)frame / GetNumberOfModelFrames();
 	const double thetas[4] = { 0, M_PI_2, M_PI, M_PI_2 * 3.0};
 	
@@ -805,6 +815,8 @@ int HeartModel::MapToModelFrameNumber(double time) const
 
 double HeartModel::ComputeVolume(SurfaceType surface, double time) const
 {
+	dbg("*** Missing update : HeartModel::ComputeVolume");
+
 	const int numElements = 16;
 	const int nx = 7, ny = 7;
 
@@ -918,6 +930,7 @@ double HeartModel::ComputeVolume(SurfaceType surface, double time) const
 
 void HeartModel::SetFocalLengh(double focalLength)
 {
+	dbg("*** Missing update : HeartModel::SetFocalLengh " + toString(focalLength));
 	if (!pImpl_->field)
 	{
 		std::cout << __func__ << " : pImpl_->field is not defined yet\n"; 
@@ -945,7 +958,6 @@ void HeartModel::SetFocalLengh(double focalLength)
 		//	coordinate_system->parameters.focus = focalLength_;
 		//}
 	}
-	return;
 }
 
 } // end namespace cap

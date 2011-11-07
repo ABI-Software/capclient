@@ -31,7 +31,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 {
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
-	dbg("input_callback() : input_type = " + toString(event_type));
+	//dbg("input_callback() : input_type = " + toString(event_type));
 
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
 	std::string modelling_mode = CAPModeller::ModellingModeStrings.find(gui->GetModellingMode())->second;
@@ -120,7 +120,7 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 {
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
-	dbg("input_callback_image_shifting() : input_type = " + toString(event_type));
+	//dbg("input_callback_image_shifting() : input_type = " + toString(event_type));
 	//	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
 	
 	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
@@ -203,14 +203,14 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 int time_callback(Cmiss_time_notifier_id time, double current_time, void *capclientwindow_void)
 {
 	//DEBUG
-	dbg("Time_call_back time = " + toString(current_time));
+	//dbg("Time_call_back time = " + toString(current_time));
 	
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
 	gui->SetTime(current_time);
 	
 	//gui->RedrawNow(); // this forces refresh even when UI is being manipulated by user
 	
-	return 0;
+	return 1;
 }
 
 }
