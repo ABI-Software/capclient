@@ -240,6 +240,7 @@ void CAPClientWindow::EnterModelLoadedState()
 	button_HideShowAll->Enable(true);
 	button_HideShowOthers->Enable(true);
 	checkBox_MII->Enable(true);
+	checkBox_MII->SetValue(false);
 	checkBox_Visibility->Enable(true);
 	checkBox_Visibility->SetValue(true);
 	choice_ModelDisplayMode->Enable(true);
@@ -255,7 +256,8 @@ void CAPClientWindow::EnterModelLoadedState()
 	menuItem_Export->Enable(true);
 	menuItem_ExportToBinaryVolume->Enable(true);
 
-	Cmiss_context_execute_command(cmissContext_, "gfx modify g_element heart general clear;");
+	//Cmiss_context_execute_command(cmissContext_, "gfx modify g_element heart general clear;");
+	SetMIIVisibility(checkBox_MII->GetValue());
 	wxCommandEvent event;
 	OnModelDisplayModeChanged(event);
 	//GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
@@ -458,6 +460,7 @@ void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 	if (cit != textureSliceMap_.end())
 	{
 		SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+		SetMIIVisibility(cit->first, visibility);
 	}
 }
 
@@ -551,6 +554,7 @@ void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 	{
 		checkListBox_Slice->Check(i, visibility);
 		SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+		SetMIIVisibility(cit->first, visibility);
 	}
 }
 
@@ -577,6 +581,7 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 		{
 			checkListBox_Slice->Check(i, visibility);
 			SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+			SetMIIVisibility(cit->first, visibility);
 		}
 	}
 }
@@ -655,22 +660,19 @@ void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 	if (choice_ModelDisplayMode->GetSelection() == HeartModel::WIREFRAME)
 	{
 		//FIX use api calls
-		int r1 = Cmiss_context_execute_command(cmissContext_,
+		Cmiss_context_execute_command(cmissContext_,
 			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_0 no_select material green render_wireframe;");
 		
-		int r2 = Cmiss_context_execute_command(cmissContext_,
+		Cmiss_context_execute_command(cmissContext_,
 			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc  exterior face xi3_1 no_select material red render_wireframe;");
-
-		dbg("wireframe : " + toString(r1) + ", " + toString(r2));
 	}
 	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
 	{
-		int r1 = Cmiss_context_execute_command(cmissContext_,
+		Cmiss_context_execute_command(cmissContext_,
 			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_0 no_select material green render_shaded;");
 		
-		int r2 = Cmiss_context_execute_command(cmissContext_,
+		Cmiss_context_execute_command(cmissContext_,
 			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_1 no_select material red render_shaded;");
-		dbg("shaded : " + toString(r1) + ", " + toString(r2));
 	}
 }
 
@@ -1145,37 +1147,35 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	Cmiss_rendition_destroy(&heart_rendition);
 }
 
-void CAPClientWindow::SetModelVisibility(bool visibility)
+void CAPClientWindow::SetModelVisibility(bool visible)
 {
-	int visibility_flag = visibility ? 1 : 0;
+	int visibility_flag = visible ? 1 : 0;
 
-	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	Cmiss_region_id heart_region = Cmiss_region_find_subregion_at_path(root_region, "heart");
-
-	Cmiss_rendition_id heart_rendition = Cmiss_graphics_module_get_rendition(graphics_module, heart_region);
+	Cmiss_rendition_id heart_rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
 	Cmiss_rendition_set_visibility_flag(heart_rendition, visibility_flag);
 
 	Cmiss_rendition_destroy(&heart_rendition);
-	Cmiss_graphics_module_destroy(&graphics_module);
-	Cmiss_region_destroy(&heart_region);
-	Cmiss_region_destroy(&root_region);
 }
 
-void CAPClientWindow::SetMIIVisibility(bool visibility)
+void CAPClientWindow::SetMIIVisibility(bool visible)
 {
-	//void OnMIICheckBox(bool checked)
-	//{
-	//	miiIsOn_ = checked;
-	//	assert(heartModelPtr_);
-	//	for (unsigned int i = 0; i < imageSet_->GetNumberOfSlices(); i++)
-	//	{
-	//		if (gui_->IsSliceChecked(i))
-	//		{
-	//			heartModelPtr_->SetMIIVisibility(checked,i);
-	//		}
-	//	}
-	//}
+	for (unsigned int i = 0; i < checkListBox_Slice->GetCount(); i++)
+	{
+		bool sliceVisible = checkListBox_Slice->IsChecked(i);
+		std::string name = checkListBox_Slice->GetString(i).c_str();
+		SetMIIVisibility(name, visible && sliceVisible);
+	}
+}
+
+void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
+{
+	std::string command = "gfx mod g_el heart iso_surfaces as iso_" + name;
+	if (visible)
+		command += " visible";
+	else
+		command += " invisible";
+
+	Cmiss_context_execute_command(cmissContext_, command.c_str());
 }
 
 } // end namespace cap

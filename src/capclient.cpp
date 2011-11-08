@@ -85,7 +85,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 	cardiacAnnotationPtr_.reset(new CardiacAnnotation(anno));
 	
 	// The following code should only execute when reading a pre-defined annotation file
-	Cmiss_context_id cmiss_context = gui_->GetCmissContext();
+	Cmiss_context_id cmiss_context = 0;//--gui_->GetCmissContext();
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
 	bool apexDefined = false;
 	bool baseDefined = false;
@@ -305,7 +305,6 @@ void CAPClient::OpenModel(const std::string& filename)
 	gtMatrix m;
 	xmlFile.GetTransformationMatrix(m);
 	gui_->SetHeartTransform(m);
-	EnterModelLoadedState();
 
 	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
@@ -314,6 +313,7 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	UpdateMII();
 	
+	EnterModelLoadedState();
 	gui_->UpdateModeSelectionUI(CAPModeller::GUIDEPOINT);
 }
 
@@ -443,10 +443,8 @@ unsigned int CAPClient::GetMinimumNumberOfFrames() const
 	LabelledSlices::const_iterator cit = labelledSlices_.begin();
 	unsigned int minFrames = cit->GetDICOMImages().size();
 	cit++;
-	dbg("frame count: " + toString(minFrames));
 	for (;cit != labelledSlices_.end(); cit++)
 	{
-		dbg("frame count: " + toString(cit->GetDICOMImages().size()));
 		if (cit->GetDICOMImages().size() < minFrames)
 			minFrames = cit->GetDICOMImages().size();
 	}
