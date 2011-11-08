@@ -144,16 +144,24 @@ public:
 	/**
 	 * Sets a mii visibility.
 	 *
-	 * @param	visibility	true to visibility.
+	 * @param	visible	true to visibility.
 	 */
-	void SetMIIVisibility(bool visibility);
+	void SetMIIVisibility(bool visible);
+
+	/**
+	 * Sets a mii visibility.
+	 *
+	 * @param	name   	The name.
+	 * @param	visible	true to visibile.
+	 */
+	void SetMIIVisibility(const std::string& name, bool visible);
 
 	/**
 	 * Sets a model visibility.
 	 *
-	 * @param	visibility	true to visibility.
+	 * @param	visible	true to visibility.
 	 */
-	void SetModelVisibility(bool visibility);
+	void SetModelVisibility(bool visible);
 
 	/**
 	 * Populate the slice list with the visibilities given.  The association
@@ -163,18 +171,6 @@ public:
 	 * @param	visibilities	The visibilities of the associted slices.
 	 */
 	void PopulateSliceList(std::vector<std::string> const& sliceNames,  std::vector<bool> const& visibilities);
-
-	/**
-	 * Query if the 'i'th slice is checked.
-	 *
-	 * @param	i	Zero-based index of the.
-	 *
-	 * @return	true if slice checked, false if not.
-	 */
-	bool IsSliceChecked(unsigned int i) const
-	{
-		return checkListBox_Slice->IsChecked(i);
-	}
 
 	/**
 	 * Sets an animation slider range.
