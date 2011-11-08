@@ -192,7 +192,8 @@ void CAPClientWindow::EnterImagesLoadedState()
 	slider_Animation->Enable(true);
 	slider_Animation->SetValue(0);
 	slider_AnimationSpeed->Enable(true);
-	button_Play->Enable(true);
+	if (mainApp_->GetMinimumNumberOfFrames() > 1)
+		button_Play->Enable(true);
 	button_HideShowAll->Enable(true);
 	button_HideShowOthers->Enable(true);
 	checkBox_MII->Enable(false);
@@ -234,7 +235,8 @@ void CAPClientWindow::EnterModelLoadedState()
 	
 	slider_Animation->Enable(true);
 	slider_AnimationSpeed->Enable(true);
-	button_Play->Enable(true);
+	if (mainApp_->GetMinimumNumberOfFrames() > 1)
+		button_Play->Enable(true);
 	button_HideShowAll->Enable(true);
 	button_HideShowOthers->Enable(true);
 	checkBox_MII->Enable(true);
@@ -328,13 +330,13 @@ void CAPClientWindow::SmoothAlongTime()
 void CAPClientWindow::PlayCine()
 {
 	Cmiss_time_keeper_play(timeKeeper_, CMISS_TIME_KEEPER_PLAY_FORWARD);
-	button_Play->SetLabel(wxT("stop"));
+	button_Play->SetLabel(wxT("Stop"));
 }
 
 void CAPClientWindow::StopCine()
 {
 	Cmiss_time_keeper_stop(timeKeeper_);
-	button_Play->SetLabel(wxT("play"));
+	button_Play->SetLabel(wxT("Play"));
 	//wxCommandEvent event;
 	//OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 }
@@ -344,7 +346,7 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 	dbg("CAPClientWindow::OnTogglePlay");
 	//--mainApp_->OnTogglePlay();
 
-	if (button_Play->GetLabel() == wxT("play"))
+	if (button_Play->GetLabel() == wxT("Play"))
 	{
 		// start stuff
 		//cmguiPanel_->LookingHere();
@@ -1112,12 +1114,16 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[1 1 1]\";";
 	//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[1 1 1]\";",
 	//		sliceName.c_str() );
-	Cmiss_context_execute_command(cmissContext_, command.c_str());
+	int r1 = Cmiss_context_execute_command(cmissContext_, command.c_str());
+	dbg("init f command : " + toString(r1 == CMISS_OK) + ", " + command);
 	
-	command = "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_" + sliceName + " as slice_" + sliceName + "iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;";
+	//command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " exterior iso_scalar slice_" + sliceName + " iso_values 100 use_faces select_off material gold selected_material default_selected render_shaded line_width 2;";
+	//command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_coordinates_rc exterior tessellation default LOCAL iso_scalar slice_" + sliceName + " iso_values 100 use_faces native_discretization NONE no_select material gold selected_material default_selected render_shaded;";
+	command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_coordinates_rc exterior iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select;";
 	//sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
 	//,sliceName.c_str());
-	Cmiss_context_execute_command(cmissContext_, command.c_str());
+	int r2 = Cmiss_context_execute_command(cmissContext_, command.c_str());
+	dbg("init g_e command : " + toString(r2 == CMISS_OK) + ", " + command);
 }
 
 void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
@@ -1126,20 +1132,17 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[";
 	ss_context << plane.x << " " << plane.y << " " << plane.z << "]\";";
 
-	Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
+	int r1 = Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
 
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
-	Cmiss_region_id heart_region = Cmiss_region_find_subregion_at_path(root_region, "heart");
-	Cmiss_rendition_id heart_rendition = Cmiss_graphics_module_get_rendition(graphics_module, heart_region);
+	Cmiss_rendition_id heart_rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
 	std::stringstream ss_rendition;
-	ss_rendition << "as slice_" << sliceName << " iso_value " << iso_value;
-	Cmiss_rendition_execute_command(heart_rendition, ss_rendition.str().c_str());
+	ss_rendition << "gfx mod g_el heart iso_surfaces as iso_" << sliceName << " coordinate patient_coordinates_rc exterior iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material gold;";
+	//int r2 = Cmiss_rendition_execute_command(heart_rendition, ss_rendition.str().c_str());
+	int r2 = Cmiss_context_execute_command(cmissContext_, ss_rendition.str().c_str());
 
+	dbg("UpdateMII 1 : " + toString(r1 == CMISS_OK) + ", " + ss_context.str());
+	dbg("UpdateMII 2 : " + toString(r2 == CMISS_OK) + ", " + ss_rendition.str());
 	Cmiss_rendition_destroy(&heart_rendition);
-	Cmiss_graphics_module_destroy(&graphics_module);
-	Cmiss_region_destroy(&heart_region);
-	Cmiss_region_destroy(&root_region);
 }
 
 void CAPClientWindow::SetModelVisibility(bool visibility)

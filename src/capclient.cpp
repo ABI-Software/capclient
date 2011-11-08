@@ -309,9 +309,8 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
-	UpdateStatesAfterLoadingModel();
 	heartModelPtr_->SetLocalToGlobalTransformation(m);
-	modeller_->SetDataPoints(dataPoints);
+	//--modeller_->SetDataPoints(dataPoints);
 
 	UpdateMII();
 	
@@ -416,19 +415,8 @@ void CAPClient::UpdateMII()
 		const std::string& sliceName = cit->GetLabel();
 		
 		const ImagePlane& plane = *(cit->GetDICOMImages().at(0)->GetImagePlane());
-		assert(heartModelPtr_);
-		const gtMatrix& m = heartModelPtr_->GetLocalToGlobalTransformation();
-		
-		gtMatrix mInv;
-		inverseMatrix(m, mInv);
-		transposeMatrix(mInv); // gtMatrix is column Major and our matrix functions assume row major FIX!!
-		
-		//Need to transform the image plane using the Local to global transformation matrix of the heart (ie to hearts local coord)
-		Vector3D normalTransformed = m * plane.normal;
-		
-		Point3D pointTLCTransformed = mInv * plane.tlc;
-		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
-		gui_->UpdateMII(sliceName, normalTransformed, d);
+		double d = DotProduct(plane.tlc, plane.normal);
+		gui_->UpdateMII(sliceName, plane.normal, d);
 	}
 }
 

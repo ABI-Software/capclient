@@ -309,7 +309,7 @@ private:
 	std::vector<std::string> exnodeModelFileNames_; /**< List of names of the exnode model files */
 	int numberOfModelFrames_;   /**< Number of model frames */
 	
-	double focalLength_;	/**< Length of the focal */
+	double focalLength_;	/**< focal length for prolate spheriod coordinate system */
 	
 	
 	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model
