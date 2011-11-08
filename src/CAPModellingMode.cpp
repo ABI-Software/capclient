@@ -879,6 +879,7 @@ void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
 	//Initialise bezier global params for each model
 	for (int i=0; i<134;i++)
 	{
+		int num = heartModel_.GetNumberOfModelFrames();
 		timeVaryingDataPoints_[i].resize(heartModel_.GetNumberOfModelFrames());
 		
 //		std::cout << std::endl;
