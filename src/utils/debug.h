@@ -6,10 +6,13 @@
 #include <string>
 #include <sstream>
 
+
 #ifdef _MSC_VER
 # define WINDOWS_LEAN_AND_MEAN
 # define NOMINMAX
 # include <windows.h>
+#else
+# include <iostream>
 #endif
 
 /**
