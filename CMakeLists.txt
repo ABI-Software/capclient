@@ -98,7 +98,6 @@ SET( APP_HDRS
 	src/VolumeGraph.h
 	src/capclientapp.h
 	src/textureslice.h
-	src/iplaneshifting.h
 	)
 
 #INCLUDE(source_files.cmake)

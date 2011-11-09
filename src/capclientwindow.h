@@ -29,7 +29,6 @@ extern "C"
 #include "CmguiExtensions.h"
 #include "textureslice.h"
 #include "CAPModeller.h"
-#include "iplaneshifting.h"
 
 
 namespace cap
@@ -54,7 +53,7 @@ typedef std::map< std::string, boost::shared_ptr<TextureSlice> > TextureSliceMap
  * using an application like wxformbuilder (wxformbuilder.org) 
  * [which, in this case, was used to generate this file].
  */
-class CAPClientWindow : public CAPClientWindowUI, public IPlaneShifting
+class CAPClientWindow : public CAPClientWindowUI
 {
 public:
 	/**
@@ -104,7 +103,7 @@ public:
 	void SetStartPosition(unsigned int x, unsigned int y);
 
 	/**
-	 * Updates the position.
+	 * Updates the position.  This function is part of the PlaneShiftingInterface.
 	 *
 	 * @param	x	The x coordinate.
 	 * @param	y	The y coordinate.
@@ -112,7 +111,7 @@ public:
 	void UpdatePosition(unsigned int x, unsigned int y);
 
 	/**
-	 * Sets an end position.
+	 * Sets an end position.  This function is part of the PlaneShiftingInterface.
 	 *
 	 * @param	x	The x coordinate.
 	 * @param	y	The y coordinate.

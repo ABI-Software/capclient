@@ -20,7 +20,6 @@ extern "C"
 #include "capclient.h"
 #include "cmgui/utilities.h"
 #include "utils/debug.h"
-#include "iplaneshifting.h"
 
 #include "cmguicallbacks.h"
 
@@ -116,7 +115,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 }
 
 int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer, 
-										 struct Cmiss_scene_viewer_input *input, void *planeshifting_void)
+	struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
 {
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
@@ -126,19 +125,21 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
 	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);
 
-	IPlaneShifting* gui = static_cast<IPlaneShifting*>(planeshifting_void);
+	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
+	int x = Cmiss_scene_viewer_input_get_x_position(input);
+	int y = Cmiss_scene_viewer_input_get_y_position(input);
 	
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
 	{
-		gui->SetStartPosition(Cmiss_scene_viewer_input_get_x_position(input), Cmiss_scene_viewer_input_get_y_position(input));
+		gui->SetStartPosition(x, y);
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
 	{
-		gui->UpdatePosition(Cmiss_scene_viewer_input_get_x_position(input), Cmiss_scene_viewer_input_get_y_position(input));
+		gui->UpdatePosition(x, y);
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
 	{
-		gui->SetEndPosition(Cmiss_scene_viewer_input_get_x_position(input), Cmiss_scene_viewer_input_get_y_position(input));
+		gui->SetEndPosition(x, y);
 	}
 	
 	return 1; // returning false means don't call the other input handlers;
