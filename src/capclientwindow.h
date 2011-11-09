@@ -119,6 +119,19 @@ public:
 	void SetEndPosition(unsigned int x, unsigned int y);
 
 	/**
+	 * Reposition image plane.
+	 *
+	 * @param	regionName	Name of the region.
+	 * @param	plane	  	The plane.
+	 */
+	void RepositionImagePlane(const std::string& regionName, const ImagePlane* plane);
+
+	/**
+	 * Ends the current modelling mode.
+	 */
+	void EndCurrentModellingMode();
+
+	/**
 	 * Set the state of the widgets to the initial state.
 	 */
 	void EnterInitState();

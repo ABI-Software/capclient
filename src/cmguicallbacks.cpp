@@ -121,10 +121,21 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
 	//dbg("input_callback_image_shifting() : input_type = " + toString(event_type));
 	//	cout << "input_callback_image_shifting() : input_type = " << input->type << endl;
+	if (event_type == CMISS_SCENE_VIEWER_INPUT_KEY_PRESS)
+	{
+		int key_code = Cmiss_scene_viewer_input_get_key_code(input);
+		dbg("Key code : " + toString(key_code));
+	}
 	
 	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
 	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);
 
+	if (modifier_flags == CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL)
+	{
+		// Orienting the scene, not moving elements
+		return 1;
+	}
+	
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
 	int x = Cmiss_scene_viewer_input_get_x_position(input);
 	int y = Cmiss_scene_viewer_input_get_y_position(input);

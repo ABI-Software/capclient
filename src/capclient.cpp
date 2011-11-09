@@ -452,5 +452,34 @@ unsigned int CAPClient::GetMinimumNumberOfFrames() const
 	return minFrames;
 }
 
+void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D& position)
+{
+	LabelledSlices::iterator it = labelledSlices_.begin();
+	for (; it != labelledSlices_.end() && it->GetLabel() != regionName; it++)
+		;
+
+	if (it != labelledSlices_.end())
+	{
+		ImagePlane *plane = it->GetDICOMImages().at(0)->GetImagePlane();
+		Vector3D posDiff = position - previousPosition_;
+		double projDistance = DotProduct(posDiff, plane->normal);
+		Vector3D delta = projDistance*plane->normal;
+		ImagePlane newLocation;
+		newLocation = *plane;
+		newLocation.blc = newLocation.blc - delta;
+		newLocation.brc = newLocation.brc - delta;
+		newLocation.tlc = newLocation.tlc - delta;
+		newLocation.trc = newLocation.trc - delta;
+		gui_->RepositionImagePlane(regionName, &newLocation);
+		BOOST_FOREACH(DICOMPtr dicom, it->GetDICOMImages())
+		{
+			ImagePlane *dicomPlane = dicom->GetImagePlane();
+			*dicomPlane = newLocation;
+		}
+		SetPreviousPosition(position);
+	}
+
+}
+
 } // namespace cap
 

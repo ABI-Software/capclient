@@ -276,6 +276,26 @@ public:
 		dbg("ED Volume(EPI) = " + toString(heartModelPtr_->ComputeVolume(EPICARDIUM, 0)));
 		dbg("ED Volume(ENDO) = " + toString(heartModelPtr_->ComputeVolume(ENDOCARDIUM, 0)));
 	}
+
+	/**
+	 * Sets the previous position.
+	 *
+	 * @param	position	The position.
+	 */
+	void SetPreviousPosition(const Point3D& position)
+	{
+		previousPosition_ = position;
+	}
+
+	/**
+	 * Updates the plane position.  The plane position is updated according to
+	 * the delta between the given position and the previous position.  There 
+	 * is an expectation that the previous position has already been set.
+	 *
+	 * @param	regionName	Name of the region.
+	 * @param	position  	The position.
+	 */
+	void UpdatePlanePosition(const std::string& regionName, const Point3D& position);
 	
 private:
 	
@@ -434,7 +454,7 @@ private:
 
 	CAPClientWindowState mainWindowState_;  /**< State of the main window */
 	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_; /**< The cardiac annotation pointer */
-	
+	Point3D previousPosition_;  /**< The previous position */
 };
 
 } // namespace cap
