@@ -354,7 +354,7 @@
 												<border>0</border>
 												<object class="wxStaticBoxSizer">
 													<orient>wxHORIZONTAL</orient>
-													<label>Plane Shifting</label>
+													<label>Plane Shifting Mode</label>
 													<object class="sizeritem">
 														<option>0</option>
 														<flag>wxALL|wxEXPAND</flag>

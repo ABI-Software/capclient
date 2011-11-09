@@ -401,6 +401,11 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	cmguiPanel_->ViewAll();
 }
 
+void CAPClientWindow::RepositionImagePlane(const std::string& regionName, const ImagePlane* plane)
+{
+	RepositionPlaneElement(cmissContext_, regionName, plane);
+}
+
 std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const LabelledSlice& labelledSlice)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, labelledSlice.GetLabel());
@@ -937,6 +942,19 @@ void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
 	}
 }
 
+void CAPClientWindow::EndCurrentModellingMode()
+{
+	if (button_Model->GetLabel() == wxT("End Modelling"))
+	{
+		button_Model->SetLabel(wxT("Start Modelling"));
+		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
+		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+			input_callback_modelling, (void*)this);
+		RestorePreviousAnnotationString();
+		button_PlaneShift->Enable(true);
+	}
+}
+
 void CAPClientWindow::OnExportModel(wxCommandEvent& event)
 {
 	//cout << "CAPClientWindow::" << __func__ << endl;
@@ -1185,14 +1203,17 @@ void CAPClientWindow::SetStartPosition(unsigned int x, unsigned int y)
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 
 		Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
-		dbg("Mesh size : " + toString(Cmiss_mesh_get_size(mesh2d)));
+		if (Cmiss_mesh_get_size(mesh2d) > 0)
+		{
+			Point3D pt(x, y, 0.0);
+			mainApp_->SetPreviousPosition(pt);
+		}
 		Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh2d);
 		Cmiss_element_id element = Cmiss_element_iterator_next(element_iterator);
 		dbg("element : " + toString(element));
 		//Cmiss_element_template_get_node
 		Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
 		Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
-		dbg("node : " + toString(selected_node));
 		Cmiss_field_cache_set_node(field_cache, selected_node);
 		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
 		double values[3];
@@ -1206,13 +1227,22 @@ void CAPClientWindow::SetStartPosition(unsigned int x, unsigned int y)
 		Cmiss_node_iterator_destroy(&it);
 		Cmiss_nodeset_destroy(&nodeset);
 		Cmiss_field_module_destroy(&field_module);
-
-
-		dbg("plane node : " + toString(values[0]) + ", " + toString(values[1]) + ", " + toString(values[2]));
 }
 
 void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 {
+	std::string regionName = "SA1";
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, regionName.c_str());
+
+	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
+	if (Cmiss_mesh_get_size(mesh2d) > 0)
+	{
+		Point3D pt(x, y, 0.0);
+		mainApp_->UpdatePlanePosition(regionName, pt);
+	}
+
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_mesh_destroy(&mesh2d);
 }
 
 void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
