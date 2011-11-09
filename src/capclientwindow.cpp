@@ -899,7 +899,7 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 		
 		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
 		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-						input_callback_image_shifting, (void*)this);
+						input_callback_image_shifting, static_cast<void*>(this));
 		//imageSet_->SetShiftedImagePosition();
 		RestorePreviousAnnotationString();
 		button_Model->Enable(true);
