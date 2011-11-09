@@ -890,7 +890,7 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 		Cmiss_interactive_tool_destroy(&i_tool);
 
 		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-			input_callback_image_shifting, (void*)this, 1/*add_first*/);
+			input_callback_image_shifting, (void*)this, 0/*add_first*/);
 		SetAnnotationString("Plane shifting mode");
 	}
 	else
@@ -1176,6 +1176,47 @@ void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 		command += " invisible";
 
 	Cmiss_context_execute_command(cmissContext_, command.c_str());
+}
+
+void CAPClientWindow::SetStartPosition(unsigned int x, unsigned int y)
+{
+		Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "SA1");
+		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+
+		Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
+		dbg("Mesh size : " + toString(Cmiss_mesh_get_size(mesh2d)));
+		Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh2d);
+		Cmiss_element_id element = Cmiss_element_iterator_next(element_iterator);
+		dbg("element : " + toString(element));
+		//Cmiss_element_template_get_node
+		Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
+		Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
+		dbg("node : " + toString(selected_node));
+		Cmiss_field_cache_set_node(field_cache, selected_node);
+		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+		double values[3];
+		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
+	
+		Cmiss_element_destroy(&element);
+		Cmiss_element_iterator_destroy(&element_iterator);
+		Cmiss_mesh_destroy(&mesh2d);
+		Cmiss_field_cache_destroy(&field_cache);
+		Cmiss_field_destroy(&coordinate_field);
+		Cmiss_node_iterator_destroy(&it);
+		Cmiss_nodeset_destroy(&nodeset);
+		Cmiss_field_module_destroy(&field_module);
+
+
+		dbg("plane node : " + toString(values[0]) + ", " + toString(values[1]) + ", " + toString(values[2]));
+}
+
+void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
+{
+}
+
+void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
+{
 }
 
 } // end namespace cap

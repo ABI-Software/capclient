@@ -20,6 +20,7 @@ extern "C"
 #include "capclient.h"
 #include "cmgui/utilities.h"
 #include "utils/debug.h"
+#include "iplaneshifting.h"
 
 #include "cmguicallbacks.h"
 
@@ -64,7 +65,6 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 		Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(gui->GetCmissSceneViewer());
 		std::string command = "group " + modelling_mode + " coordinate_field coordinates edit create define constrain_to_surfaces";
 		Cmiss_interactive_tool_execute_command(i_tool, command.c_str());
-
 		Cmiss_interactive_tool_destroy(&i_tool);
 	}
 	//else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
@@ -116,7 +116,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 }
 
 int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer, 
-										 struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
+										 struct Cmiss_scene_viewer_input *input, void *planeshifting_void)
 {
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
@@ -125,79 +125,23 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 	
 	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
 	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);
-	if (!(modifier_flags & CMISS_SCENE_VIEWER_INPUT_MODIFIER_SHIFT))
-	{
-		return 1;
-	}
+
+	IPlaneShifting* gui = static_cast<IPlaneShifting*>(planeshifting_void);
 	
-	static Cmiss_node_id selectedNode = 0; // Thread unsafe
-	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
-	
-	double x = static_cast<double>(Cmiss_scene_viewer_input_get_x_position(input));
-	double y = static_cast<double>(Cmiss_scene_viewer_input_get_y_position(input));
-	
-	static double coords[3];
-	static Cmiss_region_id selectedRegion;
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
 	{
-		// Select node or create one
-		int button_number = Cmiss_scene_viewer_input_get_button_number(input);
-		dbg("Mouse button number = " + button_number);
-		
-		Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
-		selectedRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)coords, (Cmiss_region_id)0);
-		if (selectedRegion)
-		{
-			std::string sliceName = ""; // Cmiss_region_get_path(selectedRegion);
-			std::cout << "selected = " << sliceName << '\n';
-		}
-		
+		gui->SetStartPosition(Cmiss_scene_viewer_input_get_x_position(input), Cmiss_scene_viewer_input_get_y_position(input));
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
 	{
-		double new_coords[3];
-		//Cmiss_region_id selectedRegion = Cmiss_get_slice_region(x, y, (double*)new_coords, selectedRegion);
-		if (selectedRegion)
-		{
-			Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
-			Cmiss_region_id tempRegion = Cmiss_get_slice_region(scene_viewer, x, y, (double*)new_coords, selectedRegion);
-			if (!tempRegion)
-			{
-				std::cout << __func__ << ": ERROR\n";
-				return 0;
-			}
-			//			string sliceName = Cmiss_region_get_path(selectedRegion);
-			//			cout << "dragged = " << sliceName << endl;
-			//			cout << "coords = " << coords[0] << ", " << coords[1] << ", " << coords[2] << "\n";
-			//			cout << "new_coords = " << new_coords[0] << ", " << new_coords[1] << ", " << new_coords[2] << "\n";
-			for (int nodeNum = 1; nodeNum < 5; nodeNum++)
-			{
-				char nodeName[256];
-				sprintf(nodeName,"%d", nodeNum);
-				//if (Cmiss_node* node = Cmiss_region_get_node(selectedRegion, nodeName))
-				{
-					double x, y, z;
-					//						FE_node_get_position_cartesian(node, 0, &x, &y, &z, 0);
-					//					cout << "before = " << x << ", " << y << ", " << z << endl;
-					x += (new_coords[0] - coords[0]);
-					y += (new_coords[1] - coords[1]);
-					z += (new_coords[2] - coords[2]);
-					//					cout << "after = " << x << ", " << y << ", " << z << "\n" << endl ;
-					//						FE_node_set_position_cartesian(node, 0, x, y, z);
-				}
-			}
-			for (int i = 0; i<3; i++)
-			{
-				coords[i] = new_coords[i];
-			}
-		}
+		gui->UpdatePosition(Cmiss_scene_viewer_input_get_x_position(input), Cmiss_scene_viewer_input_get_y_position(input));
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
 	{
-		std::cout << "Mouse released" << '\n';
+		gui->SetEndPosition(Cmiss_scene_viewer_input_get_x_position(input), Cmiss_scene_viewer_input_get_y_position(input));
 	}
 	
-	return 0; // returning false means don't call the other input handlers;
+	return 1; // returning false means don't call the other input handlers;
 }
 
 int time_callback(Cmiss_time_notifier_id time, double current_time, void *capclientwindow_void)
