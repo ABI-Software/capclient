@@ -58,7 +58,7 @@ class CAPClientWindow;
  * The gui(view) class for CAPClient is CAPClientWindow.  This class is follows 
  * the singleton pattern so that we can only have one CAPCLient.
  */
-class CAPClient : private IImageBrowser, public wxApp
+class CAPClient : private IImageBrowser//, public wxApp
 {
 public:
 	
