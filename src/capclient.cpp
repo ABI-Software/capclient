@@ -290,7 +290,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	
 	heartModelPtr_.reset(new HeartModel("heart"));
 	assert(heartModelPtr_);
-	heartModelPtr_->SetFocalLengh(xmlFile.GetFocalLength());
+	heartModelPtr_->SetFocalLength(xmlFile.GetFocalLength());
 	int numberOfModelFrames = exnodeFileNames.size();
 	heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
 
@@ -430,7 +430,8 @@ void CAPClient::InitializeModelTemplate()
 	heartModelPtr_.reset(new HeartModel("heart"));
 	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
-	//gui_->LoadTemplateHeartModel(minNumberOfFrames);
+	gui_->LoadTemplateHeartModel(minNumberOfFrames);
+	gui_->SetHeartTransform(heartModelPtr_->GetLocalToGlobalTransformation());
 	UpdateStatesAfterLoadingModel();
 }
 
@@ -466,10 +467,10 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 		Vector3D delta = projDistance*plane->normal;
 		ImagePlane newLocation;
 		newLocation = *plane;
-		newLocation.blc = newLocation.blc - delta;
-		newLocation.brc = newLocation.brc - delta;
-		newLocation.tlc = newLocation.tlc - delta;
-		newLocation.trc = newLocation.trc - delta;
+		newLocation.blc = newLocation.blc + delta;
+		newLocation.brc = newLocation.brc + delta;
+		newLocation.tlc = newLocation.tlc + delta;
+		newLocation.trc = newLocation.trc + delta;
 		gui_->RepositionImagePlane(regionName, &newLocation);
 		BOOST_FOREACH(DICOMPtr dicom, it->GetDICOMImages())
 		{
@@ -477,6 +478,8 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 			*dicomPlane = newLocation;
 		}
 		SetPreviousPosition(position);
+		double d = DotProduct(newLocation.tlc, newLocation.normal);
+		gui_->UpdateMII(regionName, newLocation.normal, d);
 	}
 
 }

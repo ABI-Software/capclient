@@ -94,13 +94,18 @@ public:
 	
 	void UpdateModeSelectionUI(size_t mode);
 
+	double ComputeHeartVolume(SurfaceType surface, double time) const;
+
+	void OnAccept();
+
 	/**
-	 * Sets a start position.  This function is part of the PlaneShiftingInterface.
+	 * Sets the intial position for calculating plane shifting movement.
+	 * This function is part of the PlaneShiftingInterface.
 	 *
 	 * @param	x	The x coordinate (in pixels).
 	 * @param	y	The y coordinate (in pixels).
 	 */
-	void SetStartPosition(unsigned int x, unsigned int y);
+	void SetInitialPosition(unsigned int x, unsigned int y);
 
 	/**
 	 * Updates the position.  This function is part of the PlaneShiftingInterface.
@@ -255,7 +260,7 @@ public:
 	/**
 	 * Sets the heart transform.  This function applies a transformation
 	 * from a prolate spheriodal coordinate field named 'coordinates' to
-	 * a rectangular cartesian field named 'patient_coordinates_rc' that has 
+	 * a rectangular cartesian field named 'patient_rc_coordinates' that has 
 	 * been transformed using the given transformation matrix.
 	 * 
 	 * It is expected that the prolate spheriodal field 'coordinates'

@@ -213,7 +213,7 @@ public:
 	 *
 	 * @param	focalLength	Length of the focal.
 	 */
-	void SetFocalLengh(double focalLength);
+	void SetFocalLength(double focalLength);
 	
 	// Member functions related to rendering
 

@@ -49,7 +49,7 @@ void HeartModel::SetLambda(const std::vector<double>& lambdaParams, double time)
 void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 {}
 
-void HeartModel::SetFocalLengh(double focalLength)
+void HeartModel::SetFocalLength(double focalLength)
 {}
 
 void HeartModel::SetTheta(int frameNumber)

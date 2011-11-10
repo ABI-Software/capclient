@@ -32,6 +32,7 @@ extern "C"
 #include "cmguipanel.h"
 #include "CmguiExtensions.h"
 #include "cmgui/utilities.h"
+#include "cmguicallbacks.h"
 
 namespace cap
 {
@@ -40,13 +41,10 @@ CmguiPanel::CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, w
 	: cmissSceneViewer_(Cmiss_context_create_scene_viewer(cmissContext, name, panel))
 {
 	SetFreeSpin(false);
-	//Cmiss_scene_viewer_set_lookat_parameters_non_skew(
-	//	cmissSceneViewer_, 105.824, 164.155, 5.39987,
-	//	11.3427, -2.31351, -10.3133,
-	//	-0.0184453, 0.104329, -0.994372 );
-	//Cmiss_scene_viewer_set_near_and_far_plane(cmissSceneViewer_, 1.92056, 686.342);
-	//Cmiss_scene_viewer_set_view_angle(cmissSceneViewer_, 12.9646);
-	//Cmiss_scene_viewer_set_viewport_mode(cmissSceneViewer_, CMISS_SCENE_VIEWER_VIEWPORT_RELATIVE);
+
+	// The following crashes on my Windows 7 machine.
+	//Cmiss_scene_viewer_set_transparency_mode(cmissSceneViewer_, CMISS_SCENE_VIEWER_TRANSPARENCY_ORDER_INDEPENDENT);
+	//Cmiss_scene_viewer_set_transparency_layers(cmissSceneViewer_, 4);
 }
 	
 CmguiPanel::~CmguiPanel()
@@ -65,6 +63,16 @@ void CmguiPanel::LookHere() const
 	Cmiss_scene_viewer_set_view_angle(cmissSceneViewer_, 0.220906);
 	Cmiss_scene_viewer_set_viewport_mode(cmissSceneViewer_, CMISS_SCENE_VIEWER_VIEWPORT_RELATIVE);
 	Cmiss_scene_viewer_set_viewing_volume(cmissSceneViewer_, -15.0613, 15.0613, -15.0613, 15.0613, 1.92056, 686.342);
+}
+
+void CmguiPanel::SetCallbackCtrlModifierSwitch() const
+{
+	Cmiss_scene_viewer_add_input_callback(cmissSceneViewer_, input_callback_ctrl_modifier_switch, 0, 1);
+}
+
+void CmguiPanel::RemoveCallbackCtrlModifierSwitch() const
+{
+	Cmiss_scene_viewer_remove_input_callback(cmissSceneViewer_, input_callback_ctrl_modifier_switch, 0);
 }
 
 void CmguiPanel::LookingHere() const
