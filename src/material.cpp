@@ -24,8 +24,8 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "material.h"
-#include "vert.prog.h"
-#include "frag.prog.h"
+#include "hexified/vert.prog.h"
+#include "hexified/frag.prog.h"
 #include "utils/debug.h"
 #include "filesystem.h"
 
