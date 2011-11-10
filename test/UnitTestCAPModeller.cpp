@@ -6,7 +6,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "CAPModeller.h"
+#include "model/modeller.h"
 #include "heartmodel.h"
 
 namespace cap 
