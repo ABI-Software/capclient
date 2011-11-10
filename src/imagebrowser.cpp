@@ -344,7 +344,7 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	gui_->SetAnnotationString(dicomImages.at(frameNumber)->GetFilename());
 	double radius = std::max(width, height) / 2.0;
 	gui_->FitSceneViewer(radius);
-	gui_->RefreshPreviewPanel();
+	//gui_->RefreshPreviewPanel();
 }
 
 void ImageBrowser::OnOrderByRadioBox(int event)

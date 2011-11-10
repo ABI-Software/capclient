@@ -298,11 +298,6 @@ void ImageBrowserWindow::FitSceneViewer(double radius)
 	cmguiPanel_->SetViewingVolume(radius);
 }
 
-void ImageBrowserWindow::RefreshPreviewPanel()
-{
-	cmguiPanel_->RedrawNow();
-}
-
 void ImageBrowserWindow::OnImageTableItemSelected(wxListEvent& event)
 {	
 	browser_->OnImageTableItemSelected(event.GetItem().GetData());
@@ -324,7 +319,7 @@ void ImageBrowserWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 	float brightness = (float)(value - min) / (float)(max - min);
 	material_->SetBrightness(brightness);
 	
-	RefreshPreviewPanel();
+	//RefreshPreviewPanel();
 }
 
 void ImageBrowserWindow::OnContrastSliderEvent(wxCommandEvent& event)
@@ -337,7 +332,7 @@ void ImageBrowserWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	assert(material_);
 	material_->SetContrast(contrast);
 	
-	RefreshPreviewPanel();
+	//RefreshPreviewPanel();
 }
 
 void ImageBrowserWindow::OnShortAxisButtonEvent(wxCommandEvent& WXUNUSED(event))

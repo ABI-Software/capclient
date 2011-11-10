@@ -124,12 +124,6 @@ public:
 	void FitSceneViewer(double radius);
 	
 	/**
-	 * Force a redraw.  This is used, for instance, at times when 
-	 * the slider is animating.
-	 */
-	void RefreshPreviewPanel();
-	
-	/**
 	 * View all
 	 */
 	void ViewAll() const { cmguiPanel_->ViewAll(); }

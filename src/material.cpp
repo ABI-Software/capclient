@@ -27,6 +27,7 @@ extern "C"
 #include "vert.prog.h"
 #include "frag.prog.h"
 #include "utils/debug.h"
+#include "filesystem.h"
 
 namespace cap
 {
@@ -40,18 +41,13 @@ Material::Material(const std::string& materialName, Cmiss_graphics_module_id gra
 	Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 1);
 
 	// Initialize shaders that are used for adjusting brightness and contrast
-	char *vertex_program_string = new char[vert_prog_len+1];
-	snprintf(vertex_program_string, vert_prog_len+1, "%s", vert_prog);
-	char *fragment_program_string = new char[frag_prog_len+1];
-	snprintf(fragment_program_string, frag_prog_len+1, "%s", frag_prog);
-	char *buffer = new char[51 + vert_prog_len + frag_prog_len + 1];
-	snprintf(buffer, 51 + vert_prog_len + frag_prog_len + 1, "vertex_program_string \"%s\" fragment_program_string \"%s\"", vertex_program_string, fragment_program_string);
-	Cmiss_graphics_material_execute_command(material_, buffer);
+	std::string vertex_program = FileSystem::WriteCharBufferToString(vert_prog, vert_prog_len);
+	std::string fragment_program = FileSystem::WriteCharBufferToString(frag_prog, frag_prog_len);
+
+	std::string buffer = "vertex_program_string \"" + vertex_program + "\" fragment_program_string \"" + fragment_program + "\"";
+	Cmiss_graphics_material_execute_command(material_, buffer.c_str());
 	Cmiss_graphics_material_execute_command(material_, "uniform_name contrast_raw uniform_value 0.5");
 	Cmiss_graphics_material_execute_command(material_, "uniform_name brightness_raw uniform_value 0.5");
-	delete[] buffer;
-	delete[] vertex_program_string;
-	delete[] fragment_program_string;
 }
 
 Material::~Material()

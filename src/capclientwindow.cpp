@@ -87,7 +87,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 
 	// Set the annotation field to empty and *then* create the point glyph
 	SetAnnotationString(" ");
-	Cmiss_rendition_execute_command(rendition, "point glyph empty general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
+	Cmiss_rendition_execute_command(rendition, "point glyph none general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
 
 	Cmiss_region_destroy(&root_region);
 	Cmiss_graphics_module_destroy(&graphics_module);
@@ -304,10 +304,10 @@ double CAPClientWindow::GetCurrentTime() const
 	return Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 }
 
-Cmiss_scene_viewer_id CAPClientWindow::GetCmissSceneViewer() const
-{
-	return cmguiPanel_->GetCmissSceneViewer();
-}
+//Cmiss_scene_viewer_id CAPClientWindow::GetCmissSceneViewer() const
+//{
+//	return cmguiPanel_->GetCmissSceneViewer();
+//}
 
 void CAPClientWindow::AddDataPoint(Cmiss_node* dataPointID, Point3D const& position)
 {
@@ -593,13 +593,11 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 
 void CAPClientWindow::OnMIICheckBox(wxCommandEvent& event)
 {
-	dbg(__func__);
 	SetMIIVisibility(event.IsChecked());
 }
 
 void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
-	dbg(__func__);
 	SetModelVisibility(event.IsChecked());
 }
 
@@ -642,11 +640,6 @@ void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 	mainApp_->ProcessDataPointsEnteredForCurrentMode();
 }
 
-CAPModeller::ModellingMode CAPClientWindow::GetModellingMode() const
-{
-	return static_cast<CAPModeller::ModellingMode>(choice_Mode->GetSelection());
-}
-
 void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 {
 	dbg(std::string("MODE = ") + choice_Mode->GetStringSelection().c_str());
@@ -682,7 +675,6 @@ void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 
 void CAPClientWindow::OnAbout(wxCommandEvent& event)
 {
-	dbg(std::string("CAPClientWindow::") + __func__);
 	wxBoxSizer *topsizer;
 	wxHtmlWindow *html;
 	wxDialog dlg(this, wxID_ANY, wxString(_("About CAP Client")));
@@ -733,6 +725,27 @@ void CAPClientWindow::ResetModeChoice()
 	}
 	choice_Mode->SetSelection(0);
 }
+
+void CAPClientWindow::EnterModellingMode()
+{
+	CAPModeller::ModellingMode currentMode = static_cast<CAPModeller::ModellingMode>(choice_Mode->GetSelection());
+	const std::string& modelling_mode = CAPModeller::ModellingModeStrings.find(currentMode)->second;
+
+	Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
+	std::string command = "group " + modelling_mode + " coordinate_field coordinates edit create define constrain_to_surfaces";
+	cmguiPanel_->SetInteractiveTool("node_tool", command);
+	if (button_Play->GetLabel() == wxT("Stop"))
+		previousCineState_ = true;
+	else
+		previousCineState_ = false;
+}
+
+void CAPClientWindow::ExitModellingMode()
+{
+	if (previousCineState_)
+		PlayCine();
+}
+
 
 void CAPClientWindow::SetHeartTransform(const gtMatrix& transform)
 {
@@ -888,15 +901,11 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 		choice_Mode->Enable(false);
 		button_Accept->Enable(false);
 
-		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "element_tool");
-		Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(cmguiPanel_->GetCmissSceneViewer());
-		Cmiss_interactive_tool_execute_command(i_tool, "no_select_elements no_select_lines select_faces");
-		Cmiss_interactive_tool_destroy(&i_tool);
+		cmguiPanel_->SetInteractiveTool("element_tool", "no_select_elements no_select_lines select_faces");
 
-		cmguiPanel_->SetCallbackCtrlModifierSwitch();
+		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
+		cmguiPanel_->SetCallback(input_callback_image_shifting, static_cast<void *>(this));
 		// cmguiPanel_->SetImageShiftingCallback(this);
-		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-			input_callback_image_shifting, (void*)this, 0/*add_first*/);
 		SetAnnotationString("Plane shifting mode");
 	}
 	else
@@ -911,13 +920,12 @@ void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
 	{
 		button_PlaneShift->Enable(false);
 		button_Model->SetLabel(wxT("End Modelling"));
-		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "node_tool");
-		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-			input_callback_modelling, (void*)this, 1/*add_first*/);
+		
+		cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this), true);
 
 		// Really important that this callback comes first, because otherwise the callback above
 		// will never fire properly
-		cmguiPanel_->SetCallbackCtrlModifierSwitch();
+		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
 		SetAnnotationString("Modelling mode");
 	}
 	else
@@ -931,22 +939,18 @@ void CAPClientWindow::EndCurrentModellingMode()
 	if (button_Model->GetLabel() == wxT("End Modelling"))
 	{
 		button_Model->SetLabel(wxT("Start Modelling"));
-		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
-		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-			input_callback_modelling, (void*)this);
-		cmguiPanel_->RemoveCallbackCtrlModifierSwitch();
+		cmguiPanel_->SetInteractiveTool("transform_tool");
+		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
+		cmguiPanel_->RemoveCallback(input_callback_modelling, static_cast<void *>(this));
 		RestorePreviousAnnotationString();
 		button_PlaneShift->Enable(true);
 	}
 	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
 	{
 		button_PlaneShift->SetLabel(wxT("Start Shifting"));
-		
-		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
-		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-			input_callback_image_shifting, static_cast<void*>(this));
-		cmguiPanel_->RemoveCallbackCtrlModifierSwitch();
-		//imageSet_->SetShiftedImagePosition();
+		cmguiPanel_->SetInteractiveTool("transform_tool");
+		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
+		cmguiPanel_->RemoveCallback(input_callback_image_shifting, static_cast<void *>(this));
 		RestorePreviousAnnotationString();
 		button_Model->Enable(true);
 		choice_Mode->Enable(true);
@@ -1027,10 +1031,11 @@ void CAPClientWindow::OnAccept()
 void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-
 	// Create a heart region to stop Cmgui adding lines to the new rendition
 	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, "heart");
 	Cmiss_region_destroy(&heart_region);
+
+	LoadHermiteHeartElements();
 
 	// Read in the heart model spaced over the number of model frames
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
@@ -1039,10 +1044,9 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
 		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
 		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
-		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resource, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
+		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resource, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
 
-		int r1 = Cmiss_region_read(root_region, stream_information);
-		dbg("Init model : " + toString(r) + ", " + toString(time));
+		Cmiss_region_read(root_region, stream_information);
 
 		Cmiss_stream_resource_destroy(&stream_resource);
 		Cmiss_stream_information_destroy(&stream_information);
@@ -1063,17 +1067,19 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 		Cmiss_stream_information_region_destroy(&stream_information_region);
 	}
 
-	LoadHermiteHeartElements();
-
 	Cmiss_region_destroy(&root_region);
 }
 
 void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames)
 {
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	// Create a heart region to stop Cmgui adding lines to the new rendition
+	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, "heart");
+	Cmiss_region_destroy(&heart_region);
+
 	LoadHermiteHeartElements(fullExelemFileName);
 
 	unsigned int numberOfModelFrames = fullExnodeFileNames.size();
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
 	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
 	//Cmiss_stream_resource_id stream_resources[] = new Cmiss_stream_resource_id[numberOfModelFrames+1];
@@ -1081,36 +1087,25 @@ void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
 	{
 		double time = static_cast<double>(i)/numberOfModelFrames;
-		//Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(i).c_str());
 		stream_resources[i] = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(i).c_str());
 
-		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[i], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
-		//int r = Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
-		//dbg("Read nodes time = " + toString(time) + ", " + toString(r == CMISS_OK));
-
-		int r1 = 0; //Cmiss_region_read(root_region, stream_information);
-		//int r1 = Cmiss_region_read_file_with_time(root_region, fullExnodeFileNames.at(i).c_str(), timeKeeper_, time);
-		dbg("Read nodes time = " + toString(time) + ", " + toString(r == CMISS_OK) + ", " + toString(r1==CMISS_OK) + ", " + fullExnodeFileNames.at(i));
-
-		//Cmiss_stream_resource_destroy(&stream_resource);
+		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[i], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
 	}
 
 	// Wrap the end point add another set of nodes at time 1.0
 	{
-		//Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
-		//Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-		//Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
 		stream_resources[numberOfModelFrames] = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
 		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[numberOfModelFrames], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
-
-		//Cmiss_region_read(root_region, stream_information);
-
-		//Cmiss_stream_resource_destroy(&stream_resource);
-		//Cmiss_stream_information_destroy(&stream_information);
-		//Cmiss_stream_information_region_destroy(&stream_information_region);
 	}
-	int r = Cmiss_region_read(root_region, stream_information);
-	dbg("read : " + toString(r == CMISS_OK));
+	Cmiss_region_read(root_region, stream_information);
+
+	std::vector<Cmiss_stream_resource_id>::iterator it = stream_resources.begin();
+	while (it != stream_resources.end())
+	{
+		Cmiss_stream_resource_destroy(&(*it));
+		it++;
+	}
+
 	Cmiss_stream_information_region_destroy(&stream_information_region);
 	Cmiss_stream_information_destroy(&stream_information);
 	Cmiss_region_destroy(&root_region);
@@ -1127,8 +1122,7 @@ void CAPClientWindow::LoadHermiteHeartElements(std::string exelemFileName)
 	else
 		stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, globalhermiteparam_exelem, globalhermiteparam_exelem_len);
 
-	int r = Cmiss_region_read(root_region, stream_information);
-	dbg("Hermite elem : " + toString(r == CMISS_OK));
+	Cmiss_region_read(root_region, stream_information);
 
 	Cmiss_stream_resource_destroy(&stream_resource);
 	Cmiss_stream_information_destroy(&stream_information);
@@ -1139,20 +1133,11 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 {
 	// Initialize the MII-related field and iso_scalar to some dummy values
 	// This is done to set the graphical attributes that are needed for the MII rendering
-	
 	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";";
-	//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";",
-	//		sliceName.c_str() );
-	int r1 = Cmiss_context_execute_command(cmissContext_, command.c_str());
-	dbg("init f command : " + toString(r1 == CMISS_OK) + ", " + command);
+	Cmiss_context_execute_command(cmissContext_, command.c_str());
 	
-	//command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " exterior iso_scalar slice_" + sliceName + " iso_values 100 use_faces select_off material gold selected_material default_selected render_shaded line_width 2;";
-	//command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_rc_coordinates exterior tessellation default LOCAL iso_scalar slice_" + sliceName + " iso_values 100 use_faces native_discretization NONE no_select material gold selected_material default_selected render_shaded;";
 	command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select;";
-	//sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
-	//,sliceName.c_str());
-	int r2 = Cmiss_context_execute_command(cmissContext_, command.c_str());
-	dbg("init g_e command : " + toString(r2 == CMISS_OK) + ", " + command);
+	Cmiss_context_execute_command(cmissContext_, command.c_str());
 }
 
 void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
@@ -1160,17 +1145,13 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	std::stringstream ss_context;
 	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[";
 	ss_context << plane.x << " " << plane.y << " " << plane.z << "]\";";
-
-	int r1 = Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
+	Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
 
 	Cmiss_rendition_id heart_rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
 	std::stringstream ss_rendition;
 	ss_rendition << "gfx mod g_el heart iso_surfaces as iso_" << sliceName << " coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material gold;";
-	//int r2 = Cmiss_rendition_execute_command(heart_rendition, ss_rendition.str().c_str());
-	int r2 = Cmiss_context_execute_command(cmissContext_, ss_rendition.str().c_str());
+	Cmiss_context_execute_command(cmissContext_, ss_rendition.str().c_str());
 
-	dbg("UpdateMII 1 : " + toString(r1 == CMISS_OK) + ", " + ss_context.str());
-	dbg("UpdateMII 2 : " + toString(r2 == CMISS_OK) + ", " + ss_rendition.str());
 	Cmiss_rendition_destroy(&heart_rendition);
 }
 
@@ -1237,6 +1218,46 @@ void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 
 void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
 {
+}
+
+Cmiss_node_id CAPClientWindow::GetCurrentlySelectedNode() const
+{
+	CAPModeller::ModellingMode currentMode = static_cast<CAPModeller::ModellingMode>(choice_Mode->GetSelection());
+	const std::string& modelling_mode = CAPModeller::ModellingModeStrings.find(currentMode)->second;
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
+
+	Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
+	// We are assuming here that only one node is selected.  If the node tool is set so that
+	// only single selection is possible then we are golden, if not...
+	Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
+
+	Cmiss_node_iterator_destroy(&it);
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_module_destroy(&field_module);
+
+	return selected_node;
+}
+
+Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
+{
+	CAPModeller::ModellingMode currentMode = static_cast<CAPModeller::ModellingMode>(choice_Mode->GetSelection());
+	const std::string& modelling_mode = CAPModeller::ModellingModeStrings.find(currentMode)->second;
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_cache_set_node(field_cache, node);
+	Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	double values[3];
+	Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
+
+	Cmiss_field_cache_destroy(&field_cache);
+	Cmiss_field_destroy(&coordinate_field);
+	Cmiss_field_module_destroy(&field_module);
+
+	Point3D coords;
+	coords.x = values[0]; coords.y = values[1]; coords.z = values[2];
+
+	return coords;
 }
 
 double CAPClientWindow::ComputeHeartVolume(SurfaceType surface, double time) const
@@ -1321,69 +1342,6 @@ double CAPClientWindow::ComputeHeartVolume(SurfaceType surface, double time) con
 		Cmiss_element_destroy(&element);
 		element = Cmiss_element_iterator_next(element_iterator);
 	}
-//	for (int ne=0;ne<numElements;ne++)
-//	{
-//		//identifier.number = ne+1;
-//		Cmiss_element_id element = 0; // FE_region_get_FE_element_from_identifier(fe_region, &identifier);
-//		
-//		Cmiss_field_cache_set_element(field_cache, element);
-//		if (!element)
-//		{
-//			std::cout << __func__ << " Error: can't find element from id = " << ne << std::endl;
-//		}
-//		//calculate vertex coordinates for element subdivision
-//		for (int i=0;i<nx;i++)
-//		{
-//			for (int j=0;j<ny;j++)
-//			{
-//				//calculate lamda mu and theta at this point
-//				//--double values[3], xi[3];
-//				double xi[3];
-//				xi[0] = (double) i/(nx-1);
-//				xi[1] = (double) j/(ny-1);
-//				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
-//				//if (!Computed_field_evaluate_in_element(field, element, xi,
-//				//	time, (struct FE_element *)NULL, values, (FE_value*)0 /*derivatives*/))
-//				{
-//					std::cout << "Error: Computed_field_evaluate_in_element\n";	
-//					return -1.0;
-//				}
-//
-//				//prolate_spheroidal_to_cartesian(values[0],values[1],values[2],
-//				//	focalLength_, &temp.x, &temp.y, &temp.z, (FE_value*)0);
-//
-////				std::cout << __func__ << ": " << temp.x << " " << temp.y << " " << temp.z << endl;
-//
-//				p[(j*nx+i)] = temp;
-//			} // j
-//		} // I
-//		//do for all quads
-//		//note vertices must be ordered ccw viewed from outside
-//		for(int i=0;i<nx-1;i++){
-//			for(int j=0;j<ny-1;j++){
-//				int n1 = j*(nx) + i ;
-//				int n2 = n1 + 1;
-//				int n3 = n2 + (nx);
-//				double vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
-//				vol_sum += vol;
-//
-//				n1 = n1;
-//				n2 = n3;
-//				n3 = n2-1;
-//				vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
-//				vol_sum += vol;
-//			} /* j */
-//		} /* i */
-//		//store the base ring
-//		if(ne<4)
-//		{
-//			for(int k=0;k<nx;k++)
-//			{
-//				b[ne][k] = p[(ny-1)*nx + k];
-//			}
-//		}
-//
-//	} /* ne */
 
 	Cmiss_element_iterator_destroy(&element_iterator);
 	Cmiss_field_cache_destroy(&field_cache);

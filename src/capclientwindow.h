@@ -234,14 +234,14 @@ public:
 	 * 
 	 * \returns the scene viewer.
 	 */
-	Cmiss_scene_viewer_id GetCmissSceneViewer() const;
+	//Cmiss_scene_viewer_id GetCmissSceneViewer() const;
 
 	/**
 	 * Gets the cmiss context.
 	 *
 	 * @return	The cmiss context.
 	 */
-	Cmiss_context_id GetCmissContext() const { return cmissContext_; }
+	//Cmiss_context_id GetCmissContext() const { return cmissContext_; }
 
 	/**
 	 * Gets the time keeper.
@@ -249,13 +249,6 @@ public:
 	 * @return	The time keeper.
 	 */
 	Cmiss_time_keeper_id GetTimeKeeper() const { return timeKeeper_; }
-
-	/**
-	 * Gets the modelling mode.
-	 *
-	 * @return	The modelling mode.
-	 */
-	CAPModeller::ModellingMode GetModellingMode() const;
 
 	/**
 	 * Sets the heart transform.  This function applies a transformation
@@ -270,15 +263,82 @@ public:
 	 */
 	void SetHeartTransform(const gtMatrix& transform);
 
+	/**
+	 * Gets the currently selected node.
+	 *
+	 * @return	The currently selected node.
+	 */
+	Cmiss_node_id GetCurrentlySelectedNode() const;
+
+	/**
+	 * Gets a nodes rectanglar cartesian coordinates.  This function
+	 * is part of the Modelling interface and only gets the selected node
+	 * from one of the modelling regions.  It will only evaluate the node
+	 * in the "coordinates" field for the given region.
+	 *
+	 * @param	node	The node.
+	 *
+	 * @return	The node rectanglar cartesian coordinates.
+	 */
+	Point3D GetNodeRCCoordinates(Cmiss_node_id node) const;
+
+	/**
+	 * Enter modelling mode.  When entering the modelling mode some things need
+	 * to be done.
+	 *	1. Create a region for the current modelling mode if one doesn't already exist.
+	 *	2. Set the node tool up to work with the current modelling mode.  
+	 *	3. Record the current state of the cine.
+	 */
+	void EnterModellingMode();
+
+	/**
+	 * Exit modelling mode.  When exiting the modelling mode we reinstate the previous
+	 * cine mode.
+	 */
+	void ExitModellingMode();
+
+	/**
+	 * Updates the frame number described by frameNumber.
+	 *
+	 * @param	frameNumber	The frame number.
+	 */
 	void UpdateFrameNumber(int frameNumber);
-	
+
+	/**
+	 * Adds a data point to 'position'.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	position		   	The position.
+	 */
 	void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position);
+
+	/**
+	 * Move data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	newPosition		   	The new position.
+	 */
 	void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition);
+
+	/**
+	 * Removes the data point described by dataPointID.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 */
 	void RemoveDataPoint(Cmiss_node* dataPointID);
+
+	/**
+	 * Smooth along time.
+	 */
 	void SmoothAlongTime();
+
+	/**
+	 * Sets a time.
+	 *
+	 * @param	time	The time.
+	 */
 	void SetTime(double time);
-	void RedrawNow() const { cmguiPanel_->RedrawNow(); }
-	
+
 private:
 
 	/**
@@ -395,6 +455,7 @@ private:
 	std::string previousSaveLocation_; /**< The previous save location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
 	std::vector<std::string> modeStates_;
+	bool previousCineState_; /**< true if cine was playing, false otherwise */
 };
 
 } // end namespace cap

@@ -65,14 +65,25 @@ void CmguiPanel::LookHere() const
 	Cmiss_scene_viewer_set_viewing_volume(cmissSceneViewer_, -15.0613, 15.0613, -15.0613, 15.0613, 1.92056, 686.342);
 }
 
-void CmguiPanel::SetCallbackCtrlModifierSwitch() const
+void CmguiPanel::SetCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class, bool addFirst) const
 {
-	Cmiss_scene_viewer_add_input_callback(cmissSceneViewer_, input_callback_ctrl_modifier_switch, 0, 1);
+	Cmiss_scene_viewer_add_input_callback(cmissSceneViewer_, callback, callback_class, addFirst ? 1 : 0);
 }
 
-void CmguiPanel::RemoveCallbackCtrlModifierSwitch() const
+void CmguiPanel::RemoveCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class) const
 {
-	Cmiss_scene_viewer_remove_input_callback(cmissSceneViewer_, input_callback_ctrl_modifier_switch, 0);
+	Cmiss_scene_viewer_remove_input_callback(cmissSceneViewer_, callback, callback_class);
+}
+
+void CmguiPanel::SetInteractiveTool(const std::string& tool, const std::string& command) const
+{
+	Cmiss_scene_viewer_set_interactive_tool_by_name(cmissSceneViewer_, tool.c_str());
+	if (command.size() > 0)
+	{
+		Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(cmissSceneViewer_);
+		Cmiss_interactive_tool_execute_command(i_tool, command.c_str());
+		Cmiss_interactive_tool_destroy(&i_tool);
+	}
 }
 
 void CmguiPanel::LookingHere() const
@@ -89,11 +100,6 @@ void CmguiPanel::LookingHere() const
 	dbg("up  : " + toString(upx) + ", " + toString(upy) + ", " + toString(upz));
 	dbg("va  : " + toString(va));
 	dbg("vvo : " + toString(left) + ", " + toString(right) + ", " + toString(bottom)+ ", " + toString(top) + ", " + toString(np) + ", " + toString(fp));
-}
-
-void CmguiPanel::RedrawNow() const
-{
-	Cmiss_scene_viewer_redraw_now(cmissSceneViewer_);
 }
 
 void CmguiPanel::SetFreeSpin(bool on)
@@ -143,6 +149,7 @@ void CmguiPanel::SetViewingVolume(double radius)
 		near_plane = 0.01*eye_distance;
 	
 	Cmiss_scene_viewer_set_viewing_volume(cmissSceneViewer_, -radius, radius, -radius, radius, near_plane, far_plane);
+	Cmiss_scene_viewer_redraw_now(cmissSceneViewer_);
 }
 
 void CmguiPanel::SetTumbleRate(double speed)
