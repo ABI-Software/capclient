@@ -8,7 +8,7 @@
 #ifndef CAPMODELLER_H_
 #define CAPMODELLER_H_
 
-#include "CAPModellingMode.h"
+#include "model/modellingmode.h"
 //#include <boost/ptr_container/ptr_vector.hpp>
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
 

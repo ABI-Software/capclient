@@ -95,8 +95,8 @@ LIST(APPEND UNIT_TESTS ImageSet)
 
 SET(CAPModeller_SRC
 	UnitTestCAPModeller.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPModellingMode.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPModeller.cpp
+	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
+	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPTimeSmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
 )
