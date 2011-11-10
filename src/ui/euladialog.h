@@ -5,10 +5,8 @@
  *      Author: jchu014
  */
 
-#ifndef CAPEULADIALOG_H_
-#define CAPEULADIALOG_H_
-
-#include "CAPHtmlWindow.h"
+#ifndef UI_EULADIALOG_H_
+#define UI_EULADIALOG_H_
 
 #include "wx/wxprec.h"
 // For compilers that don't support precompilation, include "wx/wx.h";
@@ -19,6 +17,8 @@
 
 #include <string>
 
+#include "ui/htmlwindow.h"
+
 namespace cap
 {
 
@@ -26,8 +26,7 @@ class CAPEulaDialog : public wxDialog
 {
 public:
 	CAPEulaDialog()
-	:
-		wxDialog( 0, wxID_ANY, wxString(_("End User License Agreement")), wxDefaultPosition, wxDefaultSize, -1)
+		: wxDialog( 0, wxID_ANY, wxString(_("End User License Agreement")), wxDefaultPosition, wxDefaultSize, -1)
 	{		
 		wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
 		
@@ -49,6 +48,7 @@ public:
 		
 		SetSizer(topsizer);
 		topsizer->Fit(this);
+		Center();
 	}
 
 	void OnAcceptButtonEvent(wxCommandEvent& WXUNUSED(event))
@@ -74,4 +74,4 @@ END_EVENT_TABLE()
 
 } // namespace cap
 
-#endif /* CAPEULADIALOG_H_ */
+#endif /* UI_EULADIALOG_H_ */

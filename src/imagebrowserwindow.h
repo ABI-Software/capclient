@@ -166,24 +166,24 @@ private:
 	/**
 	 * Event handlers for the window.
 	 */
-	void OnImageTableItemSelected(wxListEvent& event);
-	void OnCloseImageBrowserWindow(wxCloseEvent& event);
-	void OnPreviewSelectionSliderEvent(wxCommandEvent& event);
-	void OnBrightnessSliderEvent(wxCommandEvent& event);
-	void OnContrastSliderEvent(wxCommandEvent& event);
-	void OnShortAxisButtonEvent(wxCommandEvent& event);
-	void OnLongAxisButtonEvent(wxCommandEvent& event);
-	void OnNoneButtonEvent(wxCommandEvent& event);
-	void OnOKButtonClicked(wxCommandEvent& event);
-	void OnCancelButtonClicked(wxCommandEvent& event);
-	void OnOrderByRadioBox(wxCommandEvent& event);
-	void OnCaseSelected(wxCommandEvent& event);
+	void OnImageTableItemSelected(wxListEvent& event); /**< event handler. */
+	void OnCloseImageBrowserWindow(wxCloseEvent& event); /**< event handler. */
+	void OnPreviewSelectionSliderEvent(wxCommandEvent& event); /**< event handler. */
+	void OnBrightnessSliderEvent(wxCommandEvent& event); /**< event handler. */
+	void OnContrastSliderEvent(wxCommandEvent& event); /**< event handler. */
+	void OnShortAxisButtonEvent(wxCommandEvent& event); /**< event handler. */
+	void OnLongAxisButtonEvent(wxCommandEvent& event); /**< event handler. */
+	void OnNoneButtonEvent(wxCommandEvent& event); /**< event handler. */
+	void OnOKButtonClicked(wxCommandEvent& event); /**< event handler. */
+	void OnCancelButtonClicked(wxCommandEvent& event); /**< event handler. */
+	void OnOrderByRadioBox(wxCommandEvent& event); /**< event handler. */
+	void OnCaseSelected(wxCommandEvent& event); /**< event handler. */
 	
 	ImageBrowser *browser_; /**< the data for this window. */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	CmguiPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
 	
-	boost::shared_ptr<Material> material_;
+	boost::shared_ptr<Material> material_; /**< material. */
 	
 	static const std::string IMAGE_PREVIEW; /**< Image preview string. */
 	

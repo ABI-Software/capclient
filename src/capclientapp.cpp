@@ -15,7 +15,7 @@ extern "C"
 #include "labelledtexture.h"
 #include "capclient.h"
 #include "capclientwindow.h"
-#include "CAPEulaDialog.h"
+#include "ui/euladialog.h"
 
 /**
  * \mainpage CAP Client
@@ -40,7 +40,7 @@ namespace cap
 bool HandleEula()
 {
 	CAPEulaDialog eulaDialog;
-	eulaDialog.Center();
+	//eulaDialog.Center();
 	if (eulaDialog.ShowModal() != wxID_OK)
 	{
 		return false;

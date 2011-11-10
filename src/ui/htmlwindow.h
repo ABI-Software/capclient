@@ -5,8 +5,8 @@
  *      Author: jchu014
  */
 
-#ifndef CAPHTMLWINDOW_H_
-#define CAPHTMLWINDOW_H_
+#ifndef UI_HTMLWINDOW_H_
+#define UI_HTMLWINDOW_H_
 
 #include <wx/html/htmlwin.h>
 
@@ -23,4 +23,4 @@ public:
 };
 
 } // end namespace cap
-#endif /* CAPHTMLWINDOW_H_ */
+#endif /* UI_HTMLWINDOW_H_ */
