@@ -217,6 +217,7 @@ SET(TXT_FILES
 	src/templates/globalhermiteparam.exelem
 	src/templates/heartmodel.exnode
 	src/templates/prior.dat
+	src/html/aboutcapclient.html
 	)
 SET(TXT_HDRS)
 FOREACH(TXT_FILE ${TXT_FILES})
