@@ -25,6 +25,7 @@ extern "C" {
 }
 
 #include "DICOMImage.h"
+#include "cmguicallbacks.h"
 
 class wxPanel;
 //struct Scene_object;	
@@ -54,23 +55,43 @@ public:
 	 * Destroys Cmgui handles to the cmiss context and the cmiss scene viewer.
 	 */
 	~CmguiPanel();
-	
-	void SetCallbackCtrlModifierSwitch() const;
-	void RemoveCallbackCtrlModifierSwitch() const;
-
-	void LookHere() const;
-	void LookingHere() const;
 
 	/**
-	 * Get the cmiss scene viewer for this panel.  Have to make this public so 
-	 * that the callbacks can get a handle to it.
-	 * 
-	 * \returns the cmiss scene viewer for this panel.  Unaccessed.
+	 * Callback, sets the given callback .
+	 *
+	 * @param	callback	  	The callback function.
+	 * @param	callback_class	(optional) [in,out] If non-null, the callback class.
+	 * @param	addFirst	  	(optional) true to add callback first, false otherwise.
 	 */
-	Cmiss_scene_viewer_id GetCmissSceneViewer() const
-	{
-		return cmissSceneViewer_;
-	}
+	void SetCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class = 0, bool addFirst = false) const;
+
+	/**
+	 * Removes the callback described by callback.
+	 *
+	 * @param	callback	  	The callback.
+	 * @param	callback_class	(optional) [in,out] If non-null, the callback class.
+	 */
+	void RemoveCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class = 0) const;
+
+	/**
+	 * Sets an interactive tool.  The tool of the given name is set active with the optional
+	 * given command string.
+	 *
+	 * @param	tool   	The tool.
+	 * @param	command	(optional) the command.
+	 */
+	void SetInteractiveTool(const std::string& tool, const std::string& command = "") const;
+
+	/**
+	 * Look here.  Set the scene viewer to look at the pre-specified location.
+	 * This is for looking at the CAPClient glyph icon.
+	 */
+	void LookHere() const;
+
+	/**
+	 * Looking here.  Helpful function for getting the current look at paramters.
+	 */
+	void LookingHere() const;
 
 	/**
 	 * Set the interactive tool spin on if true, otherwise turn free spin off.
@@ -79,12 +100,6 @@ public:
 	 * The default is on [true].
 	 */
 	void SetFreeSpin(bool on = true);
-	
-	/**
-	 * Force a redraw of the scene now, used when manipulating widgets that change the
-	 * scene and the effect should be seen immediately.
-	 */
-	void RedrawNow() const;
 	
 	/**
 	 * Set the viewing volume to using the given radius.  Call the ViewAll() function

@@ -37,7 +37,6 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	//dbg("input_callback() : input_type = " + toString(event_type));
 
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
-	std::string modelling_mode = CAPModeller::ModellingModeStrings.find(gui->GetModellingMode())->second;
 
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_KEY_PRESS)
 	{
@@ -69,7 +68,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	// But Is this the best place put this code?
 	gui->StopCine();
 	
-	double time = gui->GetCurrentTime(); // TODO REVISE
+	//double time = gui->GetCurrentTime(); // TODO REVISE
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
 	{
 		int button_number = Cmiss_scene_viewer_input_get_button_number(input);
@@ -77,12 +76,8 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 		//dbg("Mouse clicked, time = " + toString(time));
 		//dbg("Mouse button number = " + toString(button_number));
 		
-		Cmiss_context_create_region_with_nodes(gui->GetCmissContext(), modelling_mode);
+		gui->EnterModellingMode();
 		
-		Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(gui->GetCmissSceneViewer());
-		std::string command = "group " + modelling_mode + " coordinate_field coordinates edit create define constrain_to_surfaces";
-		Cmiss_interactive_tool_execute_command(i_tool, command.c_str());
-		Cmiss_interactive_tool_destroy(&i_tool);
 	}
 	//else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
 	//{
@@ -104,28 +99,14 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
 	{
 		//dbg("Mouse released");
-		Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(gui->GetCmissContext(), modelling_mode.c_str());
-		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
-
-		Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
-		Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
-		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-		Cmiss_field_cache_set_node(field_cache, selected_node);
-		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-		double values[3];
-		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
-	
-		Cmiss_field_cache_destroy(&field_cache);
-		Cmiss_field_destroy(&coordinate_field);
-		Cmiss_node_iterator_destroy(&it);
-		Cmiss_nodeset_destroy(&nodeset);
-		Cmiss_field_module_destroy(&field_module);
-
-		Point3D coords;
-		coords.x = values[0]; coords.y = values[1]; coords.z = values[2];
 		//dbg("node location : " + toString(coords));
-		gui->AddDataPoint(selected_node, coords);
-		gui->SmoothAlongTime();
+		Cmiss_node_id selected_node = gui->GetCurrentlySelectedNode();
+		if (selected_node)
+		{
+			Point3D coords = gui->GetNodeRCCoordinates(selected_node);
+			gui->AddDataPoint(selected_node, coords);
+		}
+		//--gui->SmoothAlongTime();
 	}
 	
 	return 1; // returning false means don't call the other input handlers;

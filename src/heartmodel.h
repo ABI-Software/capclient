@@ -32,7 +32,8 @@ class Vector3D;
 struct Plane;
 
 /**
- * Left ventricular prolate spheriod 4x4 model.
+ * Left ventricular prolate spheriod heart model.  This class
+ * holds the information related to the heart model.
  */
 class HeartModel
 {
@@ -52,8 +53,6 @@ public:
 	 * Constructor.
 	 *
 	 * @param	name	The model name.
-	 *
-	 * ### param	context	The context.
 	 */
 	explicit HeartModel(const std::string& name);
 
