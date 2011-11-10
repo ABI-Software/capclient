@@ -69,7 +69,7 @@ void CAPModellingModeApex::PerformExitAction()
 	}
 }
 
-CAPModellingMode* CAPModellingModeApex::OnAccept(CAPModeller& modeller)
+CAPModellingMode* CAPModellingModeApex::OnAccept(Modeller& modeller)
 {
 	if (apex_.empty())
 	{
@@ -133,7 +133,7 @@ void CAPModellingModeBase::PerformExitAction()
 	}
 }
 
-CAPModellingMode* CAPModellingModeBase::OnAccept(CAPModeller& modeller)
+CAPModellingMode* CAPModellingModeBase::OnAccept(Modeller& modeller)
 {
 	if (base_.empty())
 	{
@@ -195,7 +195,7 @@ void CAPModellingModeRV::PerformExitAction()
 	}
 }
 
-CAPModellingMode* CAPModellingModeRV::OnAccept(CAPModeller& modeller)
+CAPModellingMode* CAPModellingModeRV::OnAccept(Modeller& modeller)
 {
 	if ((rvInserts_.size() % 2) || rvInserts_.empty())
 	{
@@ -257,7 +257,7 @@ void CAPModellingModeBasePlane::PerformExitAction()
 	}
 }
 
-CAPModellingMode* CAPModellingModeBasePlane::OnAccept(CAPModeller& modeller)
+CAPModellingMode* CAPModellingModeBasePlane::OnAccept(Modeller& modeller)
 {
 	if ((basePlanePoints_.size() % 2) || basePlanePoints_.empty())
 	{
@@ -384,7 +384,7 @@ void CAPModellingModeGuidePoints::PerformExitAction()
 	}
 }
 
-CAPModellingMode* CAPModellingModeGuidePoints::OnAccept(CAPModeller& modeller)
+CAPModellingMode* CAPModellingModeGuidePoints::OnAccept(Modeller& modeller)
 {
 	return 0;
 }

@@ -268,10 +268,10 @@ void CAPClient::OpenModel(const std::string& filename)
 		//HACK : uncommenting the following will enable models to be constructed from model files with
 		// only the input element defined.
 		
-		CAPModeller::ModellingMode mode = modeller_->GetCurrentMode();
+		Modeller::ModellingMode mode = modeller_->GetCurrentMode();
 		gui_->UpdateModeSelectionUI(mode);
 		dbg( "Mode = " + toString(mode));
-		if (mode == CAPModeller::GUIDEPOINT)
+		if (mode == Modeller::GUIDEPOINT)
 		{
 			EnterModelLoadedState();
 		}
@@ -313,7 +313,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	UpdateMII();
 	
 	EnterModelLoadedState();
-	gui_->UpdateModeSelectionUI(CAPModeller::GUIDEPOINT);
+	gui_->UpdateModeSelectionUI(Modeller::GUIDEPOINT);
 }
 
 void CAPClient::OpenAnnotation(const std::string& filename, const std::string& imageDirname)

@@ -1,5 +1,5 @@
 /*
- * CAPModeller.cpp
+ * Modeller.cpp
  *
  *  Created on: Apr 15, 2009
  *      Author: jchu014
@@ -18,9 +18,9 @@
 namespace cap
 {
 
-const CAPModeller::ModellingModeMap CAPModeller::ModellingModeStrings = CAPModeller::InitModellingModeStrings();
+const Modeller::ModellingModeMap Modeller::ModellingModeStrings = Modeller::InitModellingModeStrings();
 
-CAPModeller::CAPModeller(HeartModel& heartModel)
+Modeller::Modeller(HeartModel& heartModel)
 :
 	modellingModeApex_(),
 	modellingModeBase_(),
@@ -31,22 +31,22 @@ CAPModeller::CAPModeller(HeartModel& heartModel)
 {	
 }
 
-void CAPModeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, double time)
+void Modeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, double time)
 {
 	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
 }
 
-void CAPModeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
+void Modeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	currentModellingMode_->MoveDataPoint(dataPointID, coord, time);
 }
 
-void CAPModeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
+void Modeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	currentModellingMode_->RemoveDataPoint(dataPointID, time);
 }
 
-bool CAPModeller::OnAccept()
+bool Modeller::OnAccept()
 {
 	CAPModellingMode* newMode = currentModellingMode_->OnAccept(*this);
 	if (newMode) 
@@ -58,32 +58,32 @@ bool CAPModeller::OnAccept()
 	return false;
 }
 
-CAPModellingMode* CAPModeller::GetModellingModeApex()
+CAPModellingMode* Modeller::GetModellingModeApex()
 {
 	return &modellingModeApex_;
 }
 
-CAPModellingMode* CAPModeller::GetModellingModeBase()
+CAPModellingMode* Modeller::GetModellingModeBase()
 {
 	return &modellingModeBase_;
 }
 
-CAPModellingMode* CAPModeller::GetModellingModeRV()
+CAPModellingMode* Modeller::GetModellingModeRV()
 {
 	return &modellingModeRV_;
 }
 
-CAPModellingMode* CAPModeller::GetModellingModeBasePlane()
+CAPModellingMode* Modeller::GetModellingModeBasePlane()
 {
 	return &modellingModeBasePlane_;
 }
 
-CAPModellingModeGuidePoints* CAPModeller::GetModellingModeGuidePoints()
+CAPModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
 {
 	return &modellingModeGuidePoints_;
 }
 
-void CAPModeller::InitialiseModel()
+void Modeller::InitialiseModel()
 {
 	CAPModellingModeBasePlane* gpMode = dynamic_cast<CAPModellingModeBasePlane*>(currentModellingMode_); //REVISE
 	if (gpMode)
@@ -99,7 +99,7 @@ void CAPModeller::InitialiseModel()
 	modellingModeGuidePoints_.InitialiseModelLambdaParams();
 }
 
-void CAPModeller::UpdateTimeVaryingModel() //REVISE
+void Modeller::UpdateTimeVaryingModel() //REVISE
 {
 //	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 //	if (gpMode)
@@ -109,7 +109,7 @@ void CAPModeller::UpdateTimeVaryingModel() //REVISE
 	modellingModeGuidePoints_.UpdateTimeVaryingModel();
 }
 
-void CAPModeller::SmoothAlongTime()
+void Modeller::SmoothAlongTime()
 {
 	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 	if (gpMode)
@@ -118,7 +118,7 @@ void CAPModeller::SmoothAlongTime()
 	}
 }
 
-void CAPModeller::ChangeMode(ModellingMode mode)
+void Modeller::ChangeMode(ModellingMode mode)
 {
 	CAPModellingMode* newMode;
 	switch (mode)
@@ -145,14 +145,14 @@ void CAPModeller::ChangeMode(ModellingMode mode)
 	ChangeMode(newMode);
 }
 
-void CAPModeller::ChangeMode(CAPModellingMode* newMode)
+void Modeller::ChangeMode(CAPModellingMode* newMode)
 {
 	currentModellingMode_->PerformExitAction();
 	currentModellingMode_ = newMode;
 	currentModellingMode_->PerformEntryAction();
 }
 
-std::vector<DataPoint> CAPModeller::GetDataPoints() const
+std::vector<DataPoint> Modeller::GetDataPoints() const
 {
 	std::vector<DataPoint> dataPoints;
 	
@@ -189,7 +189,7 @@ std::vector<DataPoint> CAPModeller::GetDataPoints() const
 	return dataPoints;
 }
 
-void CAPModeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
+void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 {
 	if (dataPoints.empty()) //FIXME 
 	{

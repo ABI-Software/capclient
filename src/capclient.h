@@ -110,10 +110,10 @@ public:
 	{
 		if (modeller_->OnAccept())
 		{
-			CAPModeller::ModellingMode mode = modeller_->GetCurrentMode();
+			Modeller::ModellingMode mode = modeller_->GetCurrentMode();
 			//== std::cout << "Current Mode = " << ModeStrings[mode] << '\n'; 
 			gui_->UpdateModeSelectionUI(mode);
-			if (mode == CAPModeller::GUIDEPOINT)
+			if (mode == Modeller::GUIDEPOINT)
 			{
 				UpdateMII();
 				EnterModelLoadedState();
@@ -128,7 +128,7 @@ public:
 	 */
 	void ChangeModellingMode(int mode)
 	{
-		modeller_->ChangeMode((CAPModeller::ModellingMode) mode);//FIX type unsafe
+		modeller_->ChangeMode((Modeller::ModellingMode) mode);//FIX type unsafe
 		gui_->UpdateModeSelectionUI(mode);
 	}
 	
@@ -390,7 +390,7 @@ private:
 			delete modeller_;
 		}
 		assert(heartModelPtr_);
-		modeller_ = new CAPModeller(*heartModelPtr_); // initialise modeller and all the data points
+		modeller_ = new Modeller(*heartModelPtr_); // initialise modeller and all the data points
 	}
 
 	/**
@@ -399,7 +399,7 @@ private:
 	void UpdateStatesAfterLoadingModel()
 	{
 		CreateModeller();
-		gui_->UpdateModeSelectionUI(CAPModeller::APEX);
+		gui_->UpdateModeSelectionUI(Modeller::APEX);
 		InitializeMII(); // This turns on all MII's
 	}
 
@@ -439,7 +439,7 @@ private:
 	
 	boost::scoped_ptr<HeartModel> heartModelPtr_;  /**< The heart model pointer */
 	
-	CAPModeller* modeller_; /**< The modeller */
+	Modeller* modeller_; /**< The modeller */
 
 	/**
 	 * Values that represent CAPClientWindowState. 
