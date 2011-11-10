@@ -1,5 +1,5 @@
 /*
- * CAPEulaDialog.h
+ * euladialog.h
  *
  *  Created on: Sep 6, 2010
  *      Author: jchu014
@@ -18,22 +18,19 @@
 #include <string>
 
 #include "ui/htmlwindow.h"
-#include "aboutcapclient.html.h"
+
 namespace cap
 {
 
-class CAPEulaDialog : public wxDialog
+class EulaDialog : public wxDialog
 {
 public:
-	CAPEulaDialog()
+	EulaDialog()
 		: wxDialog( 0, wxID_ANY, wxString(_("End User License Agreement")), wxDefaultPosition, wxDefaultSize, -1)
 	{		
 		wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
 		
-		wxHtmlWindow* html = new CAPHtmlWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800, 600));
-		html->SetBorders(0);
-		std::string page = FileSystem::WriteCharBufferToString(aboutcapclient_html, aboutcapclient_html_len);
-		html->SetPage(page);
+		wxHtmlWindow* html = new HtmlWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800, 600));
 		//html->LoadPage(wxT("Data/HTML/AboutCAPClient.html"));
 		
 		topsizer->Add(html, 1, wxALL, 10);
@@ -69,8 +66,8 @@ public:
 	
 };
 
-BEGIN_EVENT_TABLE(CAPEulaDialog, wxDialog)
-	EVT_BUTTON(XRCID("wxID_OK"), CAPEulaDialog::OnAcceptButtonEvent)
+BEGIN_EVENT_TABLE(EulaDialog, wxDialog)
+	EVT_BUTTON(XRCID("wxID_OK"), EulaDialog::OnAcceptButtonEvent)
 END_EVENT_TABLE()
 
 } // namespace cap

@@ -201,6 +201,7 @@ XRC_TO_CPP("${APP_XRC}" UI_SRCS_AND_HDRS)
 SET(CAPCLIENT_VERSION_STRING ${CAPCLIENT_VERSION_MAJOR}.${CAPCLIENT_VERSION_MINOR}.${CAPCLIENT_VERSION_PATCH})
 # Configure capclientconfig header file.
 CONFIGURE_FILE(src/capclientconfig.h.cmake src/capclientconfig.h)
+CONFIGURE_FILE(src/html/aboutcapclient.html.cmake src/aboutcapclient.html)
 
 # Create an executable to convert text files into c strings
 # in a header file.
@@ -217,19 +218,28 @@ SET(TXT_FILES
 	src/templates/globalhermiteparam.exelem
 	src/templates/heartmodel.exnode
 	src/templates/prior.dat
-	src/html/aboutcapclient.html
+	src/images/mri_icon.png
+	src/images/abi_icon.png
 	)
 SET(TXT_HDRS)
 FOREACH(TXT_FILE ${TXT_FILES})
 	GET_FILENAME_COMPONENT(TXT_FILE_NAME ${TXT_FILE} NAME)
 	SET(TXT_FILE_HDR src/${TXT_FILE_NAME}.h)
-	ADD_CUSTOM_COMMAND(OUTPUT ${TXT_FILE_HDR}
+	ADD_CUSTOM_COMMAND(OUTPUT "${TXT_FILE_HDR}"
 		COMMAND cmake -E make_directory src
-		COMMAND ${TXT2INCLUDE_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/${TXT_FILE} ${TXT_FILE_HDR}
+		COMMAND ${TXT2INCLUDE_EXE} "${CMAKE_CURRENT_SOURCE_DIR}/${TXT_FILE}" "${TXT_FILE_HDR}"
 		DEPENDS txt2include
 		MAIN_DEPENDENCY ${TXT_FILES})
 	LIST(APPEND TXT_HDRS ${TXT_FILE_HDR})
 ENDFOREACH()
+
+# special case for our configured html page
+ADD_CUSTOM_COMMAND(OUTPUT src/aboutcapclient.html.h
+	COMMAND cmake -E make_directory src
+	COMMAND ${TXT2INCLUDE_EXE} "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html" src/aboutcapclient.html.h
+	DEPENDS txt2include "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html"
+	MAIN_DEPENDENCY "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html")
+LIST(APPEND TXT_HDRS src/aboutcapclient.html.h)
 
 IF(WIN32)
 	# The _SCL_SECURE_NO_DEPRECATE define is required for gmm/gmm.h version 4.1.

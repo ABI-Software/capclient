@@ -1,5 +1,5 @@
 /*
- * CAPHtmlWindow.cpp
+ * HtmlWindow.cpp
  *
  *  Created on: Sep 6, 2010
  *      Author: jchu014
@@ -13,11 +13,15 @@
 #include <wx/image.h>
 
 #include "ui/htmlwindow.h"
+#include "filesystem.h"
+#include "aboutcapclient.html.h"
+#include "mri_icon.png.h"
+#include "abi_icon.png.h"
 
 namespace cap
 {
 
-CAPHtmlWindow::CAPHtmlWindow(wxWindow *parent, wxWindowID id, const wxPoint& pos,
+HtmlWindow::HtmlWindow(wxWindow *parent, wxWindowID id, const wxPoint& pos,
 	const wxSize& size, long style, const wxString& name)
 	: wxHtmlWindow(parent, id, pos, size, style, name)
 {
@@ -26,9 +30,16 @@ CAPHtmlWindow::CAPHtmlWindow(wxWindow *parent, wxWindowID id, const wxPoint& pos
 #if (wxUSE_LIBPNG)
 	wxImage::AddHandler(new wxPNGHandler());
 #endif
+		SetBorders(0);
+		FileSystem::WriteCharBufferToFile("mri_icon.png", mri_icon_png, mri_icon_png_len);
+		FileSystem::WriteCharBufferToFile("abi_icon.png", abi_icon_png, abi_icon_png_len);
+		std::string page = FileSystem::WriteCharBufferToString(aboutcapclient_html, aboutcapclient_html_len);
+		SetPage(page);
+		FileSystem::RemoveFile("mri_icon.png");
+		FileSystem::RemoveFile("abi_icon.png");
 }
  
-void CAPHtmlWindow::OnLinkClicked(const wxHtmlLinkInfo& link)
+void HtmlWindow::OnLinkClicked(const wxHtmlLinkInfo& link)
 {
 	if (link.GetHref().StartsWith(_T("http://")))
 		wxLaunchDefaultBrowser(link.GetHref());
