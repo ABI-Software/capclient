@@ -27,7 +27,7 @@ extern "C"
 #include "material.h"
 #include "CAPMath.h"
 #include "textureslice.h"
-#include "CAPModeller.h"
+#include "model/modeller.h"
 
 
 namespace cap
