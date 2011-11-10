@@ -125,10 +125,10 @@ DataPoint& DataPoint::operator=(DataPoint const& rhs)
 
 } // namespace cap
 
-TEST(CAPModellerTest, CAPModellingModeApex)
+TEST(CAPModellerTest, ModellingModeApex)
 {
 	using namespace cap;
-	CAPModellingModeApex m;
+	ModellingModeApex m;
 	m.PerformEntryAction();
 	
 }

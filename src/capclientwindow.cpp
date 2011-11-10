@@ -730,7 +730,7 @@ void CAPClientWindow::ResetModeChoice()
 
 void CAPClientWindow::EnterModellingMode()
 {
-	Modeller::ModellingMode currentMode = static_cast<Modeller::ModellingMode>(choice_Mode->GetSelection());
+	Modeller::ModellingModeEnum currentMode = static_cast<Modeller::ModellingModeEnum>(choice_Mode->GetSelection());
 	const std::string& modelling_mode = Modeller::ModellingModeStrings.find(currentMode)->second;
 
 	Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
@@ -1224,7 +1224,7 @@ void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
 
 Cmiss_node_id CAPClientWindow::GetCurrentlySelectedNode() const
 {
-	Modeller::ModellingMode currentMode = static_cast<Modeller::ModellingMode>(choice_Mode->GetSelection());
+	Modeller::ModellingModeEnum currentMode = static_cast<Modeller::ModellingModeEnum>(choice_Mode->GetSelection());
 	const std::string& modelling_mode = Modeller::ModellingModeStrings.find(currentMode)->second;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
@@ -1243,7 +1243,7 @@ Cmiss_node_id CAPClientWindow::GetCurrentlySelectedNode() const
 
 Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
 {
-	Modeller::ModellingMode currentMode = static_cast<Modeller::ModellingMode>(choice_Mode->GetSelection());
+	Modeller::ModellingModeEnum currentMode = static_cast<Modeller::ModellingModeEnum>(choice_Mode->GetSelection());
 	const std::string& modelling_mode = Modeller::ModellingModeStrings.find(currentMode)->second;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
 	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);

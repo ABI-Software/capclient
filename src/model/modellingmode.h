@@ -1,5 +1,5 @@
 /*
- * CAPModellingMode.h
+ * ModellingMode.h
  *
  *  Created on: May 27, 2009
  *      Author: jchu014
@@ -19,13 +19,13 @@ namespace cap
 
 class Modeller;
 
-class CAPModellingMode 
+class ModellingMode 
 {
 public:
-	CAPModellingMode();
-	virtual ~CAPModellingMode();
+	ModellingMode();
+	virtual ~ModellingMode();
 	
-	virtual CAPModellingMode* OnAccept(Modeller& modeller) = 0;
+	virtual ModellingMode* OnAccept(Modeller& modeller) = 0;
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time) = 0;
@@ -34,13 +34,13 @@ public:
 	virtual void PerformExitAction() = 0;
 };
 
-class CAPModellingModeApex : public CAPModellingMode
+class ModellingModeApex : public ModellingMode
 {
 public:
-	CAPModellingModeApex()
+	ModellingModeApex()
 	{}
 	
-	CAPModellingMode* OnAccept(Modeller& modeller);
+	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -56,13 +56,13 @@ private:
 	std::vector<DataPoint> apex_; // holds at most 1 item
 };
 
-class CAPModellingModeBase : public CAPModellingMode
+class ModellingModeBase : public ModellingMode
 {
 public:
-	CAPModellingModeBase()
+	ModellingModeBase()
 	{}
 	
-	CAPModellingMode* OnAccept(Modeller& modeller);
+	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -78,14 +78,14 @@ private:
 
 class HeartModel;
 
-class CAPModellingModeRV : public CAPModellingMode
+class ModellingModeRV : public ModellingMode
 {
 public:
-	CAPModellingModeRV(HeartModel& heartModel)
+	ModellingModeRV(HeartModel& heartModel)
 	:heartModel_(heartModel)
 	{}
 	
-	CAPModellingMode* OnAccept(Modeller& modeller);
+	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -101,14 +101,14 @@ private:
 	HeartModel& heartModel_;
 };
 
-class CAPModellingModeBasePlane : public CAPModellingMode
+class ModellingModeBasePlane : public ModellingMode
 {
 public:
-	CAPModellingModeBasePlane(HeartModel& heartModel)
+	ModellingModeBasePlane(HeartModel& heartModel)
 	:heartModel_(heartModel)
 	{}
 	
-	CAPModellingMode* OnAccept(Modeller& modeller);
+	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -137,15 +137,15 @@ class Preconditioner;
 class GSmoothAMatrix;
 class SolverLibraryFactory;
 
-class CAPModellingModeGuidePoints : public CAPModellingMode
+class ModellingModeGuidePoints : public ModellingMode
 {
 public:
 	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 	
-	CAPModellingModeGuidePoints(HeartModel& heartModel);
-	~CAPModellingModeGuidePoints();
+	ModellingModeGuidePoints(HeartModel& heartModel);
+	~ModellingModeGuidePoints();
 	
-	CAPModellingMode* OnAccept(Modeller& modeller);
+	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);

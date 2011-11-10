@@ -110,7 +110,7 @@ public:
 	{
 		if (modeller_->OnAccept())
 		{
-			Modeller::ModellingMode mode = modeller_->GetCurrentMode();
+			Modeller::ModellingModeEnum mode = modeller_->GetCurrentMode();
 			//== std::cout << "Current Mode = " << ModeStrings[mode] << '\n'; 
 			gui_->UpdateModeSelectionUI(mode);
 			if (mode == Modeller::GUIDEPOINT)
@@ -128,7 +128,7 @@ public:
 	 */
 	void ChangeModellingMode(int mode)
 	{
-		modeller_->ChangeMode((Modeller::ModellingMode) mode);//FIX type unsafe
+		modeller_->ChangeMode((Modeller::ModellingModeEnum) mode);//FIX type unsafe
 		gui_->UpdateModeSelectionUI(mode);
 	}
 	

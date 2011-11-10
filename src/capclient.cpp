@@ -268,7 +268,7 @@ void CAPClient::OpenModel(const std::string& filename)
 		//HACK : uncommenting the following will enable models to be constructed from model files with
 		// only the input element defined.
 		
-		Modeller::ModellingMode mode = modeller_->GetCurrentMode();
+		Modeller::ModellingModeEnum mode = modeller_->GetCurrentMode();
 		gui_->UpdateModeSelectionUI(mode);
 		dbg( "Mode = " + toString(mode));
 		if (mode == Modeller::GUIDEPOINT)
