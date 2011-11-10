@@ -32,12 +32,12 @@ extern "C"
 #include <api/cmiss_field.h>
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_rendition.h>
+#include <api/cmiss_region.h>
 }
 
 #include "imagebrowserwindow.h"
 
 #include "cmgui/utilities.h"
-#include "CmguiExtensions.h"
 #include "DICOMImage.h"
 #include "material.h"
 #include "imagebrowser.h"

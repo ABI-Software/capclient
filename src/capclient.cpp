@@ -145,7 +145,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							}
 							Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 							Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
-							Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
+							Cmiss_node_id cmissNode = 0;//--Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
 							
 							assert(modeller_);
 							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
@@ -205,8 +205,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							}
 							Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 							Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
-							Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region,
-																					field, (double*) coords, time);
+							Cmiss_node_id cmissNode = 0;//--Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
 							
 							assert(modeller_);
 							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);

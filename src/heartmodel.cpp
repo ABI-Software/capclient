@@ -12,7 +12,7 @@
 
 extern "C" {
 #include <api/cmiss_field.h>
-//#include <api/cmiss_region.h>
+#include <api/cmiss_region.h>
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_graphic.h>
 #include <api/cmiss_rendition.h>
@@ -20,7 +20,6 @@ extern "C" {
 
 #include "heartmodel.h"
 #include "cmguipanel.h"
-#include "CmguiExtensions.h"
 #include "CAPMath.h"
 #include "utils/debug.h"
 
@@ -129,7 +128,7 @@ int HeartModel::ReadModelFromFiles(const std::string& model_dir_path, const std:
 		//cout << "DEBUG: i = " << i << ", filename = " << filename << endl;
 		double time = static_cast<double>(i)/numberOfModelFrames_;
 		std::cout << __func__ << ": time = " << time << endl;
-		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
+		//--if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 		{
 			std::cout << "Error reading ex file: " << filename << std::endl;
 		}
@@ -139,7 +138,7 @@ int HeartModel::ReadModelFromFiles(const std::string& model_dir_path, const std:
 		const string& filenameString = dir_path + modelFilenames.at(0);
 		char* filename = const_cast<char*>(filenameString.c_str());
 		double time = 1.0;
-		if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
+		//--if (!Cmiss_region_read_file_with_time(region,filename,time_keeper,time))
 		{
 			std::cout << "Error reading ex file: " << filename << std::endl;
 		}
@@ -399,7 +398,7 @@ int HeartModel::ComputeXi(const Point3D& coord, Point3D& xi_coord, double time) 
 		xi_coord.x = xi[0];
 		xi_coord.y = xi[1];
 		xi_coord.z = xi[2];
-		return Cmiss_element_get_identifier(element);
+		//--return Cmiss_element_get_identifier(element);
 	}
 	
 	return -1;

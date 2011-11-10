@@ -67,7 +67,6 @@ SET( APP_HDRS
 	src/CAPXMLFile.h
 	src/CAPXMLFileHandler.h
 	src/cmguicallbacks.h
-	src/CmguiExtensions.h
 	src/CmguiImageSliceGraphics.h
 	src/cmguipanel.h
 	src/capclientconfig.h
@@ -117,7 +116,6 @@ SET( APP_SRCS
 	src/CAPXMLFile.cpp
 	src/CAPXMLFileHandler.cpp
 	src/cmguicallbacks.cpp
-	src/CmguiExtensions.cpp
 	src/CmguiImageSliceGraphics.cpp
 	src/cmguipanel.cpp
 	src/DICOMImage.cpp

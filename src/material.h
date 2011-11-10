@@ -17,7 +17,6 @@ extern "C"
 #include <api/cmiss_graphics_material.h>
 }
 
-#include "CmguiExtensions.h"
 
 namespace cap
 {
