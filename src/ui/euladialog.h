@@ -18,7 +18,7 @@
 #include <string>
 
 #include "ui/htmlwindow.h"
-
+#include "aboutcapclient.html.h"
 namespace cap
 {
 
@@ -32,7 +32,9 @@ public:
 		
 		wxHtmlWindow* html = new CAPHtmlWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800, 600));
 		html->SetBorders(0);
-		html->LoadPage(wxT("Data/HTML/AboutCAPClient.html"));
+		std::string page = FileSystem::WriteCharBufferToString(aboutcapclient_html, aboutcapclient_html_len);
+		html->SetPage(page);
+		//html->LoadPage(wxT("Data/HTML/AboutCAPClient.html"));
 		
 		topsizer->Add(html, 1, wxALL, 10);
 		
@@ -48,7 +50,6 @@ public:
 		
 		SetSizer(topsizer);
 		topsizer->Fit(this);
-		Center();
 	}
 
 	void OnAcceptButtonEvent(wxCommandEvent& WXUNUSED(event))
