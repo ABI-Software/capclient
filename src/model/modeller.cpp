@@ -5,7 +5,7 @@
  *      Author: jchu014
  */
 
-#include "CAPModeller.h"
+#include "model/modeller.h"
 
 #include <iostream>
 #include <assert.h>
