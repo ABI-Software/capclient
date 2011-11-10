@@ -17,8 +17,8 @@
 #include "CAPTimeSmoother.h"
 #include "filesystem.h"
 
-#include "timevaryingprior.dat.h"
-#include "GlobalSmoothTVMatrix.dat.h"
+#include "hexified/timevaryingprior.dat.h"
+#include "hexified/GlobalSmoothTVMatrix.dat.h"
 
 namespace cap
 {

@@ -222,27 +222,35 @@ SET(TXT_FILES
 SET(TXT_HDRS)
 FOREACH(TXT_FILE ${TXT_FILES})
 	GET_FILENAME_COMPONENT(TXT_FILE_NAME ${TXT_FILE} NAME)
-	SET(TXT_FILE_HDR src/${TXT_FILE_NAME}.h)
+	SET(TXT_FILE_HDR src/hexified/${TXT_FILE_NAME}.h)
 	ADD_CUSTOM_COMMAND(OUTPUT "${TXT_FILE_HDR}"
 		COMMAND cmake -E make_directory src
+		COMMAND cmake -E make_directory src/hexified
 		COMMAND ${TXT2INCLUDE_EXE} "${CMAKE_CURRENT_SOURCE_DIR}/${TXT_FILE}" "${TXT_FILE_HDR}"
 		DEPENDS txt2include
 		MAIN_DEPENDENCY ${TXT_FILES})
-	LIST(APPEND TXT_HDRS ${TXT_FILE_HDR})
+	LIST(APPEND TXT_HDRS "${CMAKE_CURRENT_BINARY_DIR}/${TXT_FILE_HDR}")
 ENDFOREACH()
 
 # special case for our configured html page
-ADD_CUSTOM_COMMAND(OUTPUT src/aboutcapclient.html.h
+SET(ABOUTCAPCLIENT_HDR src/hexified/aboutcapclient.html.h)
+ADD_CUSTOM_COMMAND(OUTPUT ${ABOUTCAPCLIENT_HDR}
 	COMMAND cmake -E make_directory src
-	COMMAND ${TXT2INCLUDE_EXE} "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html" src/aboutcapclient.html.h
-	DEPENDS txt2include "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html"
+	COMMAND cmake -E make_directory src/hexified
+	COMMAND ${TXT2INCLUDE_EXE} "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html" ${ABOUTCAPCLIENT_HDR}
+	DEPENDS txt2include
 	MAIN_DEPENDENCY "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html")
-LIST(APPEND TXT_HDRS src/aboutcapclient.html.h)
+LIST(APPEND TXT_HDRS "${CMAKE_CURRENT_BINARY_DIR}/${ABOUTCAPCLIENT_HDR}")
 
-IF(WIN32)
+IF(MSVC)
 	# The _SCL_SECURE_NO_DEPRECATE define is required for gmm/gmm.h version 4.1.
 	# The _CRT_SECURE_NO_WARNINGS define is required to stop visual studio from being annoying.
 	SET(PLATFORM_DEFS _SCL_SECURE_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
+ENDIF()
+
+IF(MSVC_IDE)
+	# I want to group the source files by the directory layout for Visual Studio
+	GROUP_SOURCE_FILES(${APP_SRCS} ${APP_HDRS} ${UI_SRCS_AND_HDRS} ${TXT_HDRS})
 ENDIF()
 
 # Must set the values defined in ZINC_DEFINITIONS
@@ -290,6 +298,7 @@ ELSE()
 		"${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a"
 		"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a")
 ENDIF()
+
 # Unit Testing
 IF(CAP_ENABLE_UNIT_TESTS)
 	SET(CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")

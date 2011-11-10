@@ -37,8 +37,8 @@ extern "C"
 #include "cmgui/utilities.h"
 #include "material.h"
 #include "cmguicallbacks.h"
-#include "heartmodel.exnode.h"
-#include "globalhermiteparam.exelem.h"
+#include "hexified/heartmodel.exnode.h"
+#include "hexified/globalhermiteparam.exelem.h"
 #include "ui/htmlwindow.h"
 
 

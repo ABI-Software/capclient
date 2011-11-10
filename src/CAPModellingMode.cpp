@@ -16,9 +16,9 @@
 #include <boost/foreach.hpp>
 
 #include "capclientconfig.h"
-#include "GlobalSmoothPerFrameMatrix.dat.h"
-#include "GlobalMapBezierToHermite.dat.h"
-#include "prior.dat.h"
+#include "hexified/GlobalSmoothPerFrameMatrix.dat.h"
+#include "hexified/GlobalMapBezierToHermite.dat.h"
+#include "hexified/prior.dat.h"
 #include "CAPModellingMode.h"
 #include "CAPModeller.h"
 #include "CAPTotalLeastSquares.h"
