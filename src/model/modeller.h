@@ -26,7 +26,7 @@ class HeartModel;
 
 class Modeller {
 public:
-	enum ModellingMode
+	enum ModellingModeEnum
 	{
 		APEX,
 		BASE,
@@ -35,12 +35,12 @@ public:
 		GUIDEPOINT
 	};
 
-	typedef std::map<Modeller::ModellingMode, std::string> ModellingModeMap;
+	typedef std::map<Modeller::ModellingModeEnum, std::string> ModellingModeEnumMap;
 
-	static const ModellingModeMap ModellingModeStrings;
-	static ModellingModeMap InitModellingModeStrings()
+	static const ModellingModeEnumMap ModellingModeStrings;
+	static ModellingModeEnumMap InitModellingModeStrings()
 	{
-		ModellingModeMap m;
+		ModellingModeEnumMap m;
 		m[APEX] = std::string("APEX");
 		m[BASE] = std::string("BASE");
 		m[RV] = std::string("RV");
@@ -60,15 +60,15 @@ public:
 	
 	bool OnAccept();
 	
-	CAPModellingMode* GetModellingModeApex();
+	ModellingMode* GetModellingModeApex();
 	
-	CAPModellingMode* GetModellingModeBase();
+	ModellingMode* GetModellingModeBase();
 	
-	CAPModellingMode* GetModellingModeRV();
+	ModellingMode* GetModellingModeRV();
 	
-	CAPModellingMode* GetModellingModeBasePlane();
+	ModellingMode* GetModellingModeBasePlane();
 	
-	CAPModellingModeGuidePoints* GetModellingModeGuidePoints();
+	ModellingModeGuidePoints* GetModellingModeGuidePoints();
 	
 	std::vector<DataPoint> GetDataPoints() const;
 	
@@ -89,11 +89,11 @@ public:
 	
 	void SmoothAlongTime();
 	
-	void ChangeMode(ModellingMode mode);
+	void ChangeMode(ModellingModeEnum mode);
 	
-	ModellingMode GetCurrentMode() const
+	ModellingModeEnum GetCurrentMode() const
 	{
-		ModellingMode mode;
+		ModellingModeEnum mode;
 		if (currentModellingMode_ == &modellingModeApex_)
 		{
 			mode = APEX;
@@ -118,15 +118,15 @@ public:
 	}
 	
 private:
-	void ChangeMode(CAPModellingMode* newMode);
+	void ChangeMode(ModellingMode* newMode);
 	
-	CAPModellingModeApex modellingModeApex_;
-	CAPModellingModeBase modellingModeBase_;
-	CAPModellingModeRV modellingModeRV_;
-	CAPModellingModeBasePlane modellingModeBasePlane_;
-	CAPModellingModeGuidePoints modellingModeGuidePoints_;
+	ModellingModeApex modellingModeApex_;
+	ModellingModeBase modellingModeBase_;
+	ModellingModeRV modellingModeRV_;
+	ModellingModeBasePlane modellingModeBasePlane_;
+	ModellingModeGuidePoints modellingModeGuidePoints_;
 	
-	CAPModellingMode* currentModellingMode_;
+	ModellingMode* currentModellingMode_;
 	
 	
 };

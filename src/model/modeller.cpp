@@ -18,7 +18,7 @@
 namespace cap
 {
 
-const Modeller::ModellingModeMap Modeller::ModellingModeStrings = Modeller::InitModellingModeStrings();
+const Modeller::ModellingModeEnumMap Modeller::ModellingModeStrings = Modeller::InitModellingModeStrings();
 
 Modeller::Modeller(HeartModel& heartModel)
 :
@@ -48,7 +48,7 @@ void Modeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 
 bool Modeller::OnAccept()
 {
-	CAPModellingMode* newMode = currentModellingMode_->OnAccept(*this);
+	ModellingMode* newMode = currentModellingMode_->OnAccept(*this);
 	if (newMode) 
 	{
 		ChangeMode(newMode);
@@ -58,34 +58,34 @@ bool Modeller::OnAccept()
 	return false;
 }
 
-CAPModellingMode* Modeller::GetModellingModeApex()
+ModellingMode* Modeller::GetModellingModeApex()
 {
 	return &modellingModeApex_;
 }
 
-CAPModellingMode* Modeller::GetModellingModeBase()
+ModellingMode* Modeller::GetModellingModeBase()
 {
 	return &modellingModeBase_;
 }
 
-CAPModellingMode* Modeller::GetModellingModeRV()
+ModellingMode* Modeller::GetModellingModeRV()
 {
 	return &modellingModeRV_;
 }
 
-CAPModellingMode* Modeller::GetModellingModeBasePlane()
+ModellingMode* Modeller::GetModellingModeBasePlane()
 {
 	return &modellingModeBasePlane_;
 }
 
-CAPModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
+ModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
 {
 	return &modellingModeGuidePoints_;
 }
 
 void Modeller::InitialiseModel()
 {
-	CAPModellingModeBasePlane* gpMode = dynamic_cast<CAPModellingModeBasePlane*>(currentModellingMode_); //REVISE
+	ModellingModeBasePlane* gpMode = dynamic_cast<ModellingModeBasePlane*>(currentModellingMode_); //REVISE
 	if (gpMode)
 	{
 		const DataPoint& apex = modellingModeApex_.GetApex();
@@ -101,7 +101,7 @@ void Modeller::InitialiseModel()
 
 void Modeller::UpdateTimeVaryingModel() //REVISE
 {
-//	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
+//	ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 //	if (gpMode)
 //	{
 //		gpMode->UpdateTimeVaryingModel();
@@ -111,16 +111,16 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 
 void Modeller::SmoothAlongTime()
 {
-	CAPModellingModeGuidePoints* gpMode = dynamic_cast<CAPModellingModeGuidePoints*>(currentModellingMode_); //REVISE
+	ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 	if (gpMode)
 	{
 		gpMode->SmoothAlongTime();
 	}
 }
 
-void Modeller::ChangeMode(ModellingMode mode)
+void Modeller::ChangeMode(ModellingModeEnum mode)
 {
-	CAPModellingMode* newMode;
+	ModellingMode* newMode;
 	switch (mode)
 	{
 	case APEX:
@@ -145,7 +145,7 @@ void Modeller::ChangeMode(ModellingMode mode)
 	ChangeMode(newMode);
 }
 
-void Modeller::ChangeMode(CAPModellingMode* newMode)
+void Modeller::ChangeMode(ModellingMode* newMode)
 {
 	currentModellingMode_->PerformExitAction();
 	currentModellingMode_ = newMode;
@@ -208,11 +208,11 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 					boost::bind(&DataPoint::GetDataPointType, _2)));
 
 	currentModellingMode_ = GetModellingModeApex();
-	ModellingMode currentModeEnum = APEX;
+	ModellingModeEnum currentModeEnum = APEX;
 	BOOST_FOREACH(DataPoint& dataPoint, dataPoints)
 	{
 		// type unsafe but much less verbose than switch cases
-		ModellingMode mode = static_cast<ModellingMode>(dataPoint.GetDataPointType());
+		ModellingModeEnum mode = static_cast<ModellingModeEnum>(dataPoint.GetDataPointType());
 		if (mode != currentModeEnum)
 		{
 			// Change mode and call OnAccept on the currentModellingMode_
