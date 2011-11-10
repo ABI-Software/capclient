@@ -82,7 +82,6 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/DataPoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CmguiExtensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFileHandler.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp

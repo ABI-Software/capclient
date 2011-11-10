@@ -27,6 +27,7 @@
 extern "C"
 {
 #include <api/cmiss_field_module.h>
+#include <api/cmiss_region.h>
 }
 
 #include "capclientconfig.h"
@@ -37,7 +38,6 @@ extern "C"
 #include "heartmodel.h"
 #include "DataPoint.h"
 #include "cmguipanel.h"
-#include "CmguiExtensions.h"
 #include "filesystem.h"
 #include "PlatformInfo.h"
 #include "CAPContour.h"
@@ -482,12 +482,13 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints() const
 
 			if (!region)
 			{
-				std::cout << __func__ << " : Can't find subregion at path : " << image.label << '\n';
+				dbg(std::string(__func__) + " : Can't find subregion at path : " + image.label);
 				continue;
 			}
 			Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 			Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
-			Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
+			dbg("**** Requires implementation");
+			//--Cmiss_node_id cmissNode = Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
 
 			Point3D coordPoint3D(static_cast<Real>(coords[0]), static_cast<Real>(coords[1]), static_cast<Real>(coords[2]));
 			//--dataPoints.push_back(DataPoint(cmissNode, coordPoint3D, p.type, time));

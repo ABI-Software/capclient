@@ -30,7 +30,6 @@ extern "C"
 #include "capclientconfig.h"
 #include "utils/debug.h"
 #include "cmguipanel.h"
-#include "CmguiExtensions.h"
 #include "cmgui/utilities.h"
 #include "cmguicallbacks.h"
 

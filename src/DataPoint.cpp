@@ -8,10 +8,10 @@
 #include <limits>
 
 #include "DataPoint.h"
+#include "utils/debug.h"
 
 extern "C" {
 }
-#include "CmguiExtensions.h"
 
 namespace cap
 {
@@ -95,8 +95,8 @@ void DataPoint::SetValidPeriod(double startTime, double endTime)
 
 void DataPoint::SetVisible(bool visibility)
 {
-	std::cout << __func__ << ": StartTime = " << startTime_ << " , endTime = " << endTime_ << '\n';
-	Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
+	dbg(std::string(__func__) + ": StartTime = " + toString(startTime_) + " , endTime = " + toString(endTime_));
+	//Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
 }
 
 DataPointType DataPoint::GetDataPointType() const

@@ -23,6 +23,8 @@ extern "C"
 #include <api/cmiss_rendition.h>
 #include <api/cmiss_interactive_tool.h>
 #include <api/cmiss_graphic.h>
+#include <api/cmiss_field_module.h>
+#include <api/cmiss_element.h>
 }
 
 #include "utils/debug.h"

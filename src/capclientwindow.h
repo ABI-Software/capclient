@@ -26,7 +26,6 @@ extern "C"
 #include "cmguipanel.h"
 #include "material.h"
 #include "CAPMath.h"
-#include "CmguiExtensions.h"
 #include "textureslice.h"
 #include "CAPModeller.h"
 
