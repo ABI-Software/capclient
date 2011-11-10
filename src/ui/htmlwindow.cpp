@@ -12,7 +12,7 @@
 #endif
 #include <wx/image.h>
 
-#include "CAPHtmlWindow.h"
+#include "ui/htmlwindow.h"
 
 namespace cap
 {

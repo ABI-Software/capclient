@@ -55,8 +55,8 @@ SET( APP_HDRS
 	src/CAPBasis.h
 	src/CAPBinaryVolumeParameterDialog.h
 	src/CAPContour.h
-	src/CAPEulaDialog.h
-	src/CAPHtmlWindow.h
+	src/ui/euladialog.h
+	src/ui/htmlwindow.h
 	src/material.h
 	src/CAPMath.h
 	src/heartmodel.h
@@ -108,7 +108,7 @@ SET( APP_SRCS
 	src/capclientapp.cpp
 	src/CAPAnnotationFile.cpp
 	src/CAPContour.cpp
-	src/CAPHtmlWindow.cpp
+	src/ui/htmlwindow.cpp
 	src/material.cpp
 	src/heartmodel.cpp
 	src/CAPModeller.cpp
