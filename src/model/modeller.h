@@ -1,5 +1,5 @@
  /*
- * CAPModeller.h
+ * Modeller.h
  *
  *  Created on: Apr 15, 2009
  *      Author: jchu014
@@ -24,7 +24,7 @@ class HeartModel;
 //class GSmoothAMatrix;
 //class SolverLibraryFactory;
 
-class CAPModeller {
+class Modeller {
 public:
 	enum ModellingMode
 	{
@@ -35,7 +35,7 @@ public:
 		GUIDEPOINT
 	};
 
-	typedef std::map<CAPModeller::ModellingMode, std::string> ModellingModeMap;
+	typedef std::map<Modeller::ModellingMode, std::string> ModellingModeMap;
 
 	static const ModellingModeMap ModellingModeStrings;
 	static ModellingModeMap InitModellingModeStrings()
@@ -49,8 +49,8 @@ public:
 		return m;
 	}
 	
-	explicit CAPModeller(HeartModel& heartModel);
-	~CAPModeller(){}
+	explicit Modeller(HeartModel& heartModel);
+	~Modeller(){}
 	
 	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	

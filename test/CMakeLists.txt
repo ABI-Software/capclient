@@ -93,14 +93,14 @@ SET(ImageSet_SRC
 )
 LIST(APPEND UNIT_TESTS ImageSet)
 
-SET(CAPModeller_SRC
-	UnitTestCAPModeller.cpp
+SET(Modeller_SRC
+	UnitTestModeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPTimeSmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
 )
-LIST(APPEND UNIT_TESTS CAPModeller)
+LIST(APPEND UNIT_TESTS Modeller)
 
 SET(CAPAnnotationFile_SRC
 	UnitTestCAPAnnotationFile.cpp
@@ -152,8 +152,8 @@ IF(MSVC)
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 	)
 	
-	SET(CAPModeller_SRC
-		${CAPModeller_SRC}
+	SET(Modeller_SRC
+		${Modeller_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 	)

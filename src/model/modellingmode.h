@@ -17,7 +17,7 @@
 namespace cap
 {
 
-class CAPModeller;
+class Modeller;
 
 class CAPModellingMode 
 {
@@ -25,7 +25,7 @@ public:
 	CAPModellingMode();
 	virtual ~CAPModellingMode();
 	
-	virtual CAPModellingMode* OnAccept(CAPModeller& modeller) = 0;
+	virtual CAPModellingMode* OnAccept(Modeller& modeller) = 0;
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time) = 0;
@@ -40,7 +40,7 @@ public:
 	CAPModellingModeApex()
 	{}
 	
-	CAPModellingMode* OnAccept(CAPModeller& modeller);
+	CAPModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -62,7 +62,7 @@ public:
 	CAPModellingModeBase()
 	{}
 	
-	CAPModellingMode* OnAccept(CAPModeller& modeller);
+	CAPModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -85,7 +85,7 @@ public:
 	:heartModel_(heartModel)
 	{}
 	
-	CAPModellingMode* OnAccept(CAPModeller& modeller);
+	CAPModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -108,7 +108,7 @@ public:
 	:heartModel_(heartModel)
 	{}
 	
-	CAPModellingMode* OnAccept(CAPModeller& modeller);
+	CAPModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
@@ -145,7 +145,7 @@ public:
 	CAPModellingModeGuidePoints(HeartModel& heartModel);
 	~CAPModellingModeGuidePoints();
 	
-	CAPModellingMode* OnAccept(CAPModeller& modeller);
+	CAPModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
