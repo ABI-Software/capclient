@@ -60,8 +60,8 @@ SET( APP_HDRS
 	src/material.h
 	src/CAPMath.h
 	src/heartmodel.h
-	src/CAPModeller.h
-	src/CAPModellingMode.h
+	src/model/modeller.h
+	src/model/modellingmode.h
 	src/CAPTimeSmoother.h
 	src/CAPTotalLeastSquares.h
 	src/CAPXMLFile.h
@@ -110,8 +110,8 @@ SET( APP_SRCS
 	src/ui/htmlwindow.cpp
 	src/material.cpp
 	src/heartmodel.cpp
-	src/CAPModeller.cpp
-	src/CAPModellingMode.cpp
+	src/model/modeller.cpp
+	src/model/modellingmode.cpp
 	src/CAPTimeSmoother.cpp
 	src/CAPXMLFile.cpp
 	src/CAPXMLFileHandler.cpp
