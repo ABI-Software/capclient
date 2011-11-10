@@ -31,13 +31,13 @@ extern "C"
 #include "capclientapp.h"
 #include "capclientwindow.h"
 #include "UserCommentDialog.h"
-#include "CAPHtmlWindow.h"
 #include "CAPBinaryVolumeParameterDialog.h"
 #include "cmgui/utilities.h"
 #include "material.h"
 #include "cmguicallbacks.h"
 #include "heartmodel.exnode.h"
 #include "globalhermiteparam.exelem.h"
+#include "ui/htmlwindow.h"
 
 
 #include "images/capicon.xpm"
@@ -681,9 +681,9 @@ void CAPClientWindow::OnAbout(wxCommandEvent& event)
 	
 	topsizer = new wxBoxSizer(wxVERTICAL);
 	
-	html = new CAPHtmlWindow(&dlg, wxID_ANY, wxDefaultPosition, wxSize(600, 400));
-	html -> SetBorders(0);
-	html -> LoadPage(wxT("Data/HTML/AboutCAPClient.html"));
+	html = new HtmlWindow(&dlg, wxID_ANY, wxDefaultPosition, wxSize(600, 400));
+	//html -> SetBorders(0);
+	//html -> LoadPage(wxT("Data/HTML/AboutCAPClient.html"));
 	//html -> SetSize(html -> GetInternalRepresentation() -> GetWidth(),
 	//				html -> GetInternalRepresentation() -> GetHeight());
 	

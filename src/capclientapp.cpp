@@ -39,7 +39,7 @@ namespace cap
  */
 bool HandleEula()
 {
-	CAPEulaDialog eulaDialog;
+	EulaDialog eulaDialog;
 	//eulaDialog.Center();
 	if (eulaDialog.ShowModal() != wxID_OK)
 	{
@@ -55,7 +55,6 @@ bool CAPApp::OnInit()
 	//_CrtSetBreakAlloc(12123);
 	//_CrtSetBreakAlloc(12119);
 #endif
-	std::cout << "CAPApp::" << __func__ << std::endl;
 	wxXmlResource::Get()->InitAllHandlers();
 	
 	/**

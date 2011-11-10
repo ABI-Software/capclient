@@ -14,10 +14,9 @@
 	</STYLE>
 </HEAD>
 <BODY LANG="en-NZ" DIR="LTR">
-<P><IMG SRC="AboutCAPClient_html_me8525e9.png" NAME="PPTABI" ALIGN=BOTTOM WIDTH=237 HEIGHT=66 BORDER=0><IMG SRC="AboutCAPClient_html_m2ae6469e.png" NAME="Picture 1" ALIGN=BOTTOM WIDTH=237 HEIGHT=67 BORDER=0></P>
-<H1 STYLE="margin-left: 1.83cm; text-indent: -0.76cm">CAP client 
-1.0</H1>
-<P STYLE="margin-bottom: 0cm"><FONT FACE="Cambria, serif">CAP client
+<P><IMG SRC="abi_icon.png" NAME="PPTABI" ALIGN=BOTTOM WIDTH=237 HEIGHT=66 BORDER=0><IMG SRC="mri_icon.png" NAME="Picture 1" ALIGN=BOTTOM WIDTH=237 HEIGHT=67 BORDER=0></P>
+<H1 STYLE="margin-left: 1.83cm; text-indent: -0.76cm">CAP Client @CAPCLIENT_VERSION_STRING@</H1>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Cambria, serif">CAP Client
 is the client side software of the Cardiac Atlas Project
 (</FONT><A HREF="http://www.cardiacatlas.org/"><FONT COLOR="#000080"><FONT FACE="Cambria, serif"><U>http://www.cardiacatlas.org</U></FONT></FONT></A><FONT FACE="Cambria, serif">),
 funded by the National Institutes of Health. </FONT>
@@ -53,7 +52,7 @@ TO MAKE OR INFLUENCE CLINICAL DECISIONS. </B></FONT>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm"><FONT FACE="Cambria, serif">The CAP
-client software is provided &quot;AS IS&quot; by Auckland UniServices
+Client software is provided &quot;AS IS&quot; by Auckland UniServices
 Limited, an independent company responsible for managing the
 intellectual property of the University of Auckland, and any express
 or implied warranty, for any purpose, is disclaimed, and in no event
@@ -61,16 +60,16 @@ shall Auckland UniServices Limited or the University of Auckland, or
 their employees, agents or contractors, be liable for any direct,
 indirect, incidental, special, exemplary, or consequential loss or
 damage, however caused, arising in any way out of the use of the CAP
-client software.</FONT></P>
+Client software.</FONT></P>
 <P STYLE="margin-bottom: 0cm"><FONT FACE="Cambria, serif">A source
-code version of the CAP client software that you may use, modify and
+code version of the CAP Client software that you may use, modify and
 distribute is available to you free-of-charge from
 www.cardiacatlas.org under the Mozilla Public License Version 1.1 and
 other open source software licenses, as indicated in the table below.
 </FONT>
 </P>
 <P STYLE="margin-bottom: 0cm"><FONT FACE="Cambria, serif">The CAP
-client software is based on intellectual property protected by U.S.
+Client software is based on intellectual property protected by U.S.
 Patent No. 7155042.</FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>

@@ -13,10 +13,10 @@
 namespace cap
 {
 
-class CAPHtmlWindow: public wxHtmlWindow
+class HtmlWindow: public wxHtmlWindow
 {
 public:
-	CAPHtmlWindow(wxWindow *parent, wxWindowID id = -1,
+	HtmlWindow(wxWindow *parent, wxWindowID id = -1,
 		const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
 		long style = wxHW_SCROLLBAR_AUTO, const wxString& name = _T("htmlWindow"));
 	void OnLinkClicked(const wxHtmlLinkInfo& link);
