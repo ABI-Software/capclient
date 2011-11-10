@@ -639,8 +639,7 @@ void CAPClientWindow::UpdateModeSelectionUI(size_t newMode)
 
 void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 {
-	dbg("Accept");
-	// mainApp_->ProcessDataPointsEnteredForCurrentMode();
+	mainApp_->ProcessDataPointsEnteredForCurrentMode();
 }
 
 CAPModeller::ModellingMode CAPClientWindow::GetModellingMode() const
@@ -653,7 +652,7 @@ void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 	dbg(std::string("MODE = ") + choice_Mode->GetStringSelection().c_str());
 
 	int selectionIndex = choice_Mode->GetSelection();
-	// mainApp_->ChangeModellingMode(selectionIndex);
+	mainApp_->ChangeModellingMode(selectionIndex);
 }
 
 void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
@@ -666,18 +665,18 @@ void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 	{
 		//FIX use api calls
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_0 no_select material green render_wireframe;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_wireframe;");
 		
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc  exterior face xi3_1 no_select material red render_wireframe;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates  exterior face xi3_1 no_select material red render_wireframe;");
 	}
 	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
 	{
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_0 no_select material green render_shaded;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_shaded;");
 		
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_coordinates_rc exterior face xi3_1 no_select material red render_shaded;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red render_shaded;");
 	}
 }
 
@@ -755,7 +754,7 @@ void CAPClientWindow::SetHeartTransform(const gtMatrix& transform)
 	int r2 = Cmiss_field_module_define_field(field_module, "local_to_global_tr", ss_tr.str().c_str());
 	int r3 = Cmiss_field_module_define_field(field_module, "coordinates_rc", "coordinate_transformation field coordinates");
 	int r4 = Cmiss_field_module_define_field(field_module, "temp1", "matrix_multiply num 3 fields local_to_global_mx coordinates_rc");
-	int r5 = Cmiss_field_module_define_field(field_module, "patient_coordinates_rc", "add fields temp1 local_to_global_tr");
+	int r5 = Cmiss_field_module_define_field(field_module, "patient_rc_coordinates", "add fields temp1 local_to_global_tr");
 
 	dbg("conversion " + toString(r1==CMISS_OK) + ", " + toString(r2==CMISS_OK) + ", " + toString(r3==CMISS_OK) + ", " + toString(r4==CMISS_OK) + ", " + toString(r5==CMISS_OK));
 	Cmiss_field_module_end_change(field_module);
@@ -894,22 +893,15 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 		Cmiss_interactive_tool_execute_command(i_tool, "no_select_elements no_select_lines select_faces");
 		Cmiss_interactive_tool_destroy(&i_tool);
 
+		cmguiPanel_->SetCallbackCtrlModifierSwitch();
+		// cmguiPanel_->SetImageShiftingCallback(this);
 		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
 			input_callback_image_shifting, (void*)this, 0/*add_first*/);
 		SetAnnotationString("Plane shifting mode");
 	}
 	else
 	{
-		button_PlaneShift->SetLabel(wxT("Start Shifting"));
-		
-		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
-		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-						input_callback_image_shifting, static_cast<void*>(this));
-		//imageSet_->SetShiftedImagePosition();
-		RestorePreviousAnnotationString();
-		button_Model->Enable(true);
-		choice_Mode->Enable(true);
-		button_Accept->Enable(true);
+		EndCurrentModellingMode();
 	}
 }
 
@@ -920,25 +912,17 @@ void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
 		button_PlaneShift->Enable(false);
 		button_Model->SetLabel(wxT("End Modelling"));
 		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "node_tool");
-		//Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(cmguiPanel_->GetCmissSceneViewer());
-		//int r = Cmiss_interactive_tool_execute_command(i_tool, "constrain_to_surfaces group heart coordinate_field coordinates edit create define");
-
-		//dbg("node tool : " + toString(r));
-		//Cmiss_interactive_tool_destroy(&i_tool);
-
 		Cmiss_scene_viewer_add_input_callback(cmguiPanel_->GetCmissSceneViewer(),
 			input_callback_modelling, (void*)this, 1/*add_first*/);
 
+		// Really important that this callback comes first, because otherwise the callback above
+		// will never fire properly
+		cmguiPanel_->SetCallbackCtrlModifierSwitch();
 		SetAnnotationString("Modelling mode");
 	}
 	else
 	{
-		button_Model->SetLabel(wxT("Start Modelling"));
-		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
-		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
-			input_callback_modelling, (void*)this);
-		RestorePreviousAnnotationString();
-		button_PlaneShift->Enable(true);
+		EndCurrentModellingMode();
 	}
 }
 
@@ -950,8 +934,23 @@ void CAPClientWindow::EndCurrentModellingMode()
 		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
 		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
 			input_callback_modelling, (void*)this);
+		cmguiPanel_->RemoveCallbackCtrlModifierSwitch();
 		RestorePreviousAnnotationString();
 		button_PlaneShift->Enable(true);
+	}
+	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
+	{
+		button_PlaneShift->SetLabel(wxT("Start Shifting"));
+		
+		Cmiss_scene_viewer_set_interactive_tool_by_name(cmguiPanel_->GetCmissSceneViewer(), "transform_tool");
+		Cmiss_scene_viewer_remove_input_callback(cmguiPanel_->GetCmissSceneViewer(),
+			input_callback_image_shifting, static_cast<void*>(this));
+		cmguiPanel_->RemoveCallbackCtrlModifierSwitch();
+		//imageSet_->SetShiftedImagePosition();
+		RestorePreviousAnnotationString();
+		button_Model->Enable(true);
+		choice_Mode->Enable(true);
+		button_Accept->Enable(true);
 	}
 }
 
@@ -1019,9 +1018,19 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 	return;
 }
 
+void CAPClientWindow::OnAccept()
+{
+	wxCommandEvent cmd_event;
+	OnAcceptClicked(cmd_event);
+}
+
 void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+
+	// Create a heart region to stop Cmgui adding lines to the new rendition
+	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, "heart");
+	Cmiss_region_destroy(&heart_region);
 
 	// Read in the heart model spaced over the number of model frames
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
@@ -1131,15 +1140,15 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 	// Initialize the MII-related field and iso_scalar to some dummy values
 	// This is done to set the graphical attributes that are needed for the MII rendering
 	
-	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[1 1 1]\";";
-	//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[1 1 1]\";",
+	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";";
+	//sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";",
 	//		sliceName.c_str() );
 	int r1 = Cmiss_context_execute_command(cmissContext_, command.c_str());
 	dbg("init f command : " + toString(r1 == CMISS_OK) + ", " + command);
 	
 	//command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " exterior iso_scalar slice_" + sliceName + " iso_values 100 use_faces select_off material gold selected_material default_selected render_shaded line_width 2;";
-	//command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_coordinates_rc exterior tessellation default LOCAL iso_scalar slice_" + sliceName + " iso_values 100 use_faces native_discretization NONE no_select material gold selected_material default_selected render_shaded;";
-	command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_coordinates_rc exterior iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select;";
+	//command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_rc_coordinates exterior tessellation default LOCAL iso_scalar slice_" + sliceName + " iso_values 100 use_faces native_discretization NONE no_select material gold selected_material default_selected render_shaded;";
+	command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select;";
 	//sprintf((char*)str, "gfx modify g_element heart iso_surfaces exterior iso_scalar slice_%s iso_values 100 use_faces select_on material gold selected_material default_selected render_shaded line_width 2;"
 	//,sliceName.c_str());
 	int r2 = Cmiss_context_execute_command(cmissContext_, command.c_str());
@@ -1149,14 +1158,14 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
 {
 	std::stringstream ss_context;
-	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields patient_coordinates_rc \"[";
+	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[";
 	ss_context << plane.x << " " << plane.y << " " << plane.z << "]\";";
 
 	int r1 = Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
 
 	Cmiss_rendition_id heart_rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
 	std::stringstream ss_rendition;
-	ss_rendition << "gfx mod g_el heart iso_surfaces as iso_" << sliceName << " coordinate patient_coordinates_rc exterior iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material gold;";
+	ss_rendition << "gfx mod g_el heart iso_surfaces as iso_" << sliceName << " coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material gold;";
 	//int r2 = Cmiss_rendition_execute_command(heart_rendition, ss_rendition.str().c_str());
 	int r2 = Cmiss_context_execute_command(cmissContext_, ss_rendition.str().c_str());
 
@@ -1196,48 +1205,29 @@ void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 	Cmiss_context_execute_command(cmissContext_, command.c_str());
 }
 
-void CAPClientWindow::SetStartPosition(unsigned int x, unsigned int y)
+void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)
 {
-		Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "SA1");
-		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
-		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+	std::string regionName = "SA1";
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, regionName.c_str());
+	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
+	if (Cmiss_mesh_get_size(mesh2d) > 0)
+	{
+		Point3D pt(-static_cast<Real>(x), -static_cast<Real>(y), 0.0);
+		mainApp_->SetPreviousPosition(pt);
+	}
 
-		Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
-		if (Cmiss_mesh_get_size(mesh2d) > 0)
-		{
-			Point3D pt(x, y, 0.0);
-			mainApp_->SetPreviousPosition(pt);
-		}
-		Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh2d);
-		Cmiss_element_id element = Cmiss_element_iterator_next(element_iterator);
-		dbg("element : " + toString(element));
-		//Cmiss_element_template_get_node
-		Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
-		Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
-		Cmiss_field_cache_set_node(field_cache, selected_node);
-		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-		double values[3];
-		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
-	
-		Cmiss_element_destroy(&element);
-		Cmiss_element_iterator_destroy(&element_iterator);
-		Cmiss_mesh_destroy(&mesh2d);
-		Cmiss_field_cache_destroy(&field_cache);
-		Cmiss_field_destroy(&coordinate_field);
-		Cmiss_node_iterator_destroy(&it);
-		Cmiss_nodeset_destroy(&nodeset);
-		Cmiss_field_module_destroy(&field_module);
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_mesh_destroy(&mesh2d);
 }
 
 void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 {
 	std::string regionName = "SA1";
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, regionName.c_str());
-
 	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
 	if (Cmiss_mesh_get_size(mesh2d) > 0)
 	{
-		Point3D pt(x, y, 0.0);
+		Point3D pt(-static_cast<Real>(x), -static_cast<Real>(y), 0.0);
 		mainApp_->UpdatePlanePosition(regionName, pt);
 	}
 
@@ -1247,6 +1237,180 @@ void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 
 void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
 {
+}
+
+double CAPClientWindow::ComputeHeartVolume(SurfaceType surface, double time) const
+{
+	//dbg("CAPClientWindow::ComputeHeartVolume");
+
+	const int numElements = 16;
+	const int nx = 7, ny = 7;
+
+	Point3D b[numElements][nx];
+	Point3D p[numElements*nx*ny];
+	Point3D temp;
+	double vol_sum = 0;
+	Point3D origin(0,0,0);
+
+	// initialise arrays
+	for (int ne=0;ne<numElements;ne++)
+	{
+		for(int i=0;i<nx;i++)
+		{
+			b[ne][i] = Point3D(0,0,0);
+		}
+	}
+
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_id rc_coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
+	//struct CM_element_information identifier;
+	//identifier.type = CM_ELEMENT;
+	Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
+	Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh);
+	Cmiss_element_id element = Cmiss_element_iterator_next(element_iterator);
+	//do for all elements
+	while (element != 0)
+	{
+		//calculate vertex coordinates for element subdivision
+		for (int i=0;i<nx;i++)
+		{
+			for (int j=0;j<ny;j++)
+			{
+				//calculate lamda mu and theta at this point
+				//--double values[3], xi[3];
+				double xi[3], values[3];
+				xi[0] = (double) i/(nx-1);
+				xi[1] = (double) j/(ny-1);
+				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
+
+				Cmiss_field_cache_set_mesh_location(field_cache, element, 3, xi);
+
+				Cmiss_field_evaluate_real(rc_coordinate_field, field_cache, 3, values);
+
+				p[(j*nx+i)] = Point3D(values);
+			} // j
+		} // I
+		
+		//do for all quads
+		//note vertices must be ordered ccw viewed from outside
+		for(int i=0;i<nx-1;i++){
+			for(int j=0;j<ny-1;j++){
+				int n1 = j*(nx) + i ;
+				int n2 = n1 + 1;
+				int n3 = n2 + (nx);
+				double vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
+				vol_sum += vol;
+
+				n1 = n1;
+				n2 = n3;
+				n3 = n2-1;
+				vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
+				vol_sum += vol;
+			} /* j */
+		} /* i */
+		//store the base ring
+		int ne = Cmiss_element_get_identifier(element);
+		if( ne < 4)
+		{
+			for(int k=0;k<nx;k++)
+			{
+				b[ne][k] = p[(ny-1)*nx + k];
+			}
+		}
+		Cmiss_element_destroy(&element);
+		element = Cmiss_element_iterator_next(element_iterator);
+	}
+//	for (int ne=0;ne<numElements;ne++)
+//	{
+//		//identifier.number = ne+1;
+//		Cmiss_element_id element = 0; // FE_region_get_FE_element_from_identifier(fe_region, &identifier);
+//		
+//		Cmiss_field_cache_set_element(field_cache, element);
+//		if (!element)
+//		{
+//			std::cout << __func__ << " Error: can't find element from id = " << ne << std::endl;
+//		}
+//		//calculate vertex coordinates for element subdivision
+//		for (int i=0;i<nx;i++)
+//		{
+//			for (int j=0;j<ny;j++)
+//			{
+//				//calculate lamda mu and theta at this point
+//				//--double values[3], xi[3];
+//				double xi[3];
+//				xi[0] = (double) i/(nx-1);
+//				xi[1] = (double) j/(ny-1);
+//				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
+//				//if (!Computed_field_evaluate_in_element(field, element, xi,
+//				//	time, (struct FE_element *)NULL, values, (FE_value*)0 /*derivatives*/))
+//				{
+//					std::cout << "Error: Computed_field_evaluate_in_element\n";	
+//					return -1.0;
+//				}
+//
+//				//prolate_spheroidal_to_cartesian(values[0],values[1],values[2],
+//				//	focalLength_, &temp.x, &temp.y, &temp.z, (FE_value*)0);
+//
+////				std::cout << __func__ << ": " << temp.x << " " << temp.y << " " << temp.z << endl;
+//
+//				p[(j*nx+i)] = temp;
+//			} // j
+//		} // I
+//		//do for all quads
+//		//note vertices must be ordered ccw viewed from outside
+//		for(int i=0;i<nx-1;i++){
+//			for(int j=0;j<ny-1;j++){
+//				int n1 = j*(nx) + i ;
+//				int n2 = n1 + 1;
+//				int n3 = n2 + (nx);
+//				double vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
+//				vol_sum += vol;
+//
+//				n1 = n1;
+//				n2 = n3;
+//				n3 = n2-1;
+//				vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
+//				vol_sum += vol;
+//			} /* j */
+//		} /* i */
+//		//store the base ring
+//		if(ne<4)
+//		{
+//			for(int k=0;k<nx;k++)
+//			{
+//				b[ne][k] = p[(ny-1)*nx + k];
+//			}
+//		}
+//
+//	} /* ne */
+
+	Cmiss_element_iterator_destroy(&element_iterator);
+	Cmiss_field_cache_destroy(&field_cache);
+	Cmiss_field_destroy(&rc_coordinate_field);
+	Cmiss_field_module_destroy(&field_module);
+	/* now close the top */
+	/* find centroid of the top ring */
+	int num=0;
+	Point3D c(0,0,0);
+	for(int ne=0;ne<4;ne++){
+		for(int i=0;i<nx;i++){
+			c += b[ne][i];
+			num++;
+		}
+	}
+	c *= (1/(double)num);
+	for(int ne=0;ne<4;ne++){
+		for(int i=0;i<nx-1;i++){
+			int n1 = i ;
+			int n2 = n1+1;
+			double vol = ComputeVolumeOfTetrahedron(b[ne][n1], b[ne][n2], c, origin);
+			vol_sum += vol;
+		}
+	}
+
+	return (vol_sum/6000.0);
+	// (6*1000), 6 times volume of tetrahedron & for ml
 }
 
 } // end namespace cap

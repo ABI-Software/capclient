@@ -55,6 +55,9 @@ public:
 	 */
 	~CmguiPanel();
 	
+	void SetCallbackCtrlModifierSwitch() const;
+	void RemoveCallbackCtrlModifierSwitch() const;
+
 	void LookHere() const;
 	void LookingHere() const;
 

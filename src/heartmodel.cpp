@@ -192,7 +192,7 @@ int HeartModel::ReadModelFromFiles(const std::string& model_dir_path, const std:
 	// FIX use API calls instead of command line
 	// TODO extract method
 	char str[256];
-	sprintf((char*)str, "gfx define field /heart/patient_coordinates_rc coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
+	sprintf((char*)str, "gfx define field /heart/patient_rc_coordinates coordinate_system rectangular_cartesian coordinate_transformation field coordinates;");
 	// Cmiss_context_execute_command(pImpl_->cmissContext, str);
 
 	
@@ -347,7 +347,7 @@ int HeartModel::ComputeXi(const Point3D& coord, Point3D& xi_coord, double time) 
 	Cmiss_region* cmiss_region = pImpl_->region;
 	
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(cmiss_region);
-	Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "patient_coordinates_rc");//FIX
+	Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");//FIX
 	
 	double point[3], xi[3];
 	xi[0] = 0.0; xi[1] = 0.0; xi[2] = 0.0;
@@ -928,9 +928,9 @@ double HeartModel::ComputeVolume(SurfaceType surface, double time) const
 	// (6*1000), 6 times volume of tetrahedron & for ml
 }
 
-void HeartModel::SetFocalLengh(double focalLength)
+void HeartModel::SetFocalLength(double focalLength)
 {
-	dbg("*** Missing update : HeartModel::SetFocalLengh " + toString(focalLength));
+	dbg("*** Missing update : HeartModel::SetFocalLength " + toString(focalLength));
 	if (!pImpl_->field)
 	{
 		std::cout << __func__ << " : pImpl_->field is not defined yet\n"; 

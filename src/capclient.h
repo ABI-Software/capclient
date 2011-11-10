@@ -273,8 +273,8 @@ public:
 		modeller_->SmoothAlongTime();
 		
 		assert(heartModelPtr_);
-		dbg("ED Volume(EPI) = " + toString(heartModelPtr_->ComputeVolume(EPICARDIUM, 0)));
-		dbg("ED Volume(ENDO) = " + toString(heartModelPtr_->ComputeVolume(ENDOCARDIUM, 0)));
+		dbg("ED Volume(EPI) = " + toString(gui_->ComputeHeartVolume(EPICARDIUM, 0)));
+		dbg("ED Volume(ENDO) = " + toString(gui_->ComputeHeartVolume(ENDOCARDIUM, 0)));
 	}
 
 	/**

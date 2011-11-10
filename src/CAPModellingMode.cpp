@@ -795,7 +795,7 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	Vector3D zAxis = CrossProduct(xAxis,yAxis);
 	zAxis.Normalise();
 	yAxis.CrossProduct(zAxis,xAxis);
-	std::cout << "Model coord x axis vector" << xAxis << std::endl;
+	dbg("Model coord x axis vector" + toString(xAxis));
 	std::cout << "Model coord y axis vector" << yAxis << std::endl;
 	std::cout << "Model coord z axis vector" << zAxis << std::endl;
 	
@@ -830,7 +830,7 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 	//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 	double focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
 	std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
-	heartModel_.SetFocalLengh(focalLength);
+	heartModel_.SetFocalLength(focalLength);
 	
 	// Construct base planes from the base plane points
 	int numberOfModelFrames = heartModel_.GetNumberOfModelFrames();
@@ -870,8 +870,6 @@ void CAPModellingModeGuidePoints::InitialiseModel(
 //	// REVISE
 //	framesWithDataPoints_.clear();
 //	framesWithDataPoints_.resize(numberOfModelFrames, 0);
-	
-	return;
 }
 
 void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
@@ -883,7 +881,7 @@ void CAPModellingModeGuidePoints::InitialiseModelLambdaParams()
 		timeVaryingDataPoints_[i].resize(heartModel_.GetNumberOfModelFrames());
 		
 //		std::cout << std::endl;
-		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
+		for(int j = 0; j < heartModel_.GetNumberOfModelFrames();j++)
 		{
 			double xi = (double)j/heartModel_.GetNumberOfModelFrames();
 			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
