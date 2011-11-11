@@ -22,14 +22,14 @@ extern "C"
 #include "capclientconfig.h"
 #include "CmguiImageSliceGraphics.h"
 #include "material.h"
-#include "cmguipanel.h"
+#include "cmgui/sceneviewerpanel.h"
 #include "CAPMath.h"
 
 namespace cap
 {
 	
 CmguiImageSliceGraphics::CmguiImageSliceGraphics(
-		const CmguiPanel& cmguiManager,
+		const SceneViewerPanel& cmguiManager,
 		const std::string& sliceName,
 		const std::vector<Cmiss_texture*>& textures)
 	: cmguiManager_(cmguiManager)

@@ -37,7 +37,7 @@ extern "C"
 #include "DICOMImage.h"
 #include "heartmodel.h"
 #include "DataPoint.h"
-#include "cmguipanel.h"
+#include "cmgui/sceneviewerpanel.h"
 #include "filesystem.h"
 #include "PlatformInfo.h"
 #include "CAPContour.h"
@@ -330,7 +330,7 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 	return labelledSlices;
 }
 
-SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(CmguiPanel *cmguiManager) const
+SlicesWithImages CAPXMLFileHandler::GetSlicesWithImages(SceneViewerPanel *cmguiManager) const
 {
 	SlicesWithImages dicomSlices;
 

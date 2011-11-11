@@ -23,7 +23,7 @@ extern "C"
 
 #include "ui/CAPClientWindowUI.h"
 
-#include "cmguipanel.h"
+#include "cmgui/sceneviewerpanel.h"
 #include "material.h"
 #include "CAPMath.h"
 #include "textureslice.h"
@@ -445,7 +445,7 @@ private:
 	
 	CAPClient* mainApp_; /**< handle to the model class for this window */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
-	CmguiPanel* cmguiPanel_; /**< handle to a cmgui panel class */
+	SceneViewerPanel* cmguiPanel_; /**< handle to a cmgui panel class */
 	TextureSliceMap textureSliceMap_; /**< A map of texture slices. */ 
 	std::vector<Cmiss_field_image_id> fieldImages_; /**< A vector of field images. */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */

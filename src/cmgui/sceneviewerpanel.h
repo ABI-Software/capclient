@@ -38,23 +38,23 @@ namespace cap
  * This class contains a cmiss_scene_viewer handle so that it can control 
  * this scene for the context it belongs to.
  */
-class CmguiPanel
+class SceneViewerPanel
 {
 public:
 	/**
-	 * Explicit constructor that initialises a cmgui scene with
+	 * Constructor that initialises a cmgui scene with
 	 * the givn name on the given panel.
 	 * 
 	 * \param cmissContext the handle to the cmiss context, unreferenced so don't destroy.
 	 * \param name the name to give to the scene.
 	 * \param panel the panel to display the scene on.
 	 */
-	explicit CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, wxPanel* panel);
+	SceneViewerPanel(Cmiss_context_id cmissContext, const std::string& name, wxPanel* panel);
 	
 	/**
 	 * Destroys Cmgui handles to the cmiss context and the cmiss scene viewer.
 	 */
-	~CmguiPanel();
+	~SceneViewerPanel();
 
 	/**
 	 * Callback, sets the given callback .

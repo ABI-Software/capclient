@@ -77,7 +77,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	Cmiss_time_keeper_set_repeat_mode(timeKeeper_, CMISS_TIME_KEEPER_REPEAT_MODE_PLAY_LOOP);
 	Cmiss_time_keeper_set_frame_mode(timeKeeper_, CMISS_TIME_KEEPER_FRAME_MODE_PLAY_REAL_TIME);
 
-	cmguiPanel_ = new CmguiPanel(cmissContext_, "CAPClient", panel_Cmgui);
+	cmguiPanel_ = new SceneViewerPanel(cmissContext_, "CAPClient", panel_Cmgui);
 	SetIcon(wxICON(capicon));
 	
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);

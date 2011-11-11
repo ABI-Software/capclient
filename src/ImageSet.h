@@ -26,7 +26,7 @@ namespace cap
 
 class ImagePlane;
 class ImageSlice;
-class CmguiPanel;
+class SceneViewerPanel;
 
 typedef std::map<std::string, boost::shared_ptr<ImageSlice> > ImageSlicesMap;
 

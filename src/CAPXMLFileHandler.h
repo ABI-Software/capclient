@@ -18,7 +18,7 @@ namespace cap
 class CAPXMLFile;
 class DataPoint;
 class HeartModel;
-class CmguiPanel;
+class SceneViewerPanel;
 
 /**
  * Capxml file handler. 
@@ -50,7 +50,7 @@ public:
 	 *  Also generated the instances of DICOMImage, Cmiss_texture,
 	 *  DataPoint (and the Cmiss_node) and the model.
 	 */
-	SlicesWithImages GetSlicesWithImages(CmguiPanel *cmguiManager) const;
+	SlicesWithImages GetSlicesWithImages(SceneViewerPanel *cmguiManager) const;
 
 	/**
 	 * Gets the labelled slices that are define in the CAPXMLFile.

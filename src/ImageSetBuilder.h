@@ -20,7 +20,7 @@
 namespace cap
 {
 
-class CmguiPanel;
+class SceneViewerPanel;
 class ImageSet;
 
 /**
