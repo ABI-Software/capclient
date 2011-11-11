@@ -21,14 +21,13 @@ namespace cap
 const Modeller::ModellingModeEnumMap Modeller::ModellingModeStrings = Modeller::InitModellingModeStrings();
 
 Modeller::Modeller(HeartModel& heartModel)
-:
-	modellingModeApex_(),
-	modellingModeBase_(),
-	modellingModeRV_(heartModel),
-	modellingModeBasePlane_(heartModel),
-	modellingModeGuidePoints_(heartModel),
-	currentModellingMode_(&modellingModeApex_)
-{	
+	: modellingModeApex_()
+	, modellingModeBase_()
+	, modellingModeRV_()
+	, modellingModeBasePlane_()
+	, modellingModeGuidePoints_()
+	, currentModellingMode_(&modellingModeApex_)
+{
 }
 
 void Modeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, double time)

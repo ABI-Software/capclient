@@ -41,7 +41,7 @@ namespace
 namespace cap
 {
 
-ModellingMode::ModellingMode() 
+ModellingMode::ModellingMode()
 {
 }
 
@@ -76,7 +76,7 @@ ModellingMode* ModellingModeApex::OnAccept(Modeller& modeller)
 		std::cout << __func__ << ": Apex not defined" << std::endl;
 		return 0;
 	}
-	
+
 	return modeller.GetModellingModeBase();
 }
 
@@ -208,12 +208,12 @@ ModellingMode* ModellingModeRV::OnAccept(Modeller& modeller)
 void ModellingModeRV::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	DataPoint dataPoint(dataPointID, coord, RV, time);
-	double startTime = heartModel_.MapToModelFrameTime(time);
-	double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
-	double endTime = startTime + duration;
+	//double startTime = heartModel_.MapToModelFrameTime(time);
+	//double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
+	//double endTime = startTime + duration;
 	
-	std::cout << __func__ << ": time = " << time << ", startTime = " << startTime << ", endTime = " << endTime << std::endl;
-	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
+	//std::cout << __func__ << ": time = " << time << ", startTime = " << startTime << ", endTime = " << endTime << std::endl;
+	//dataPoint.SetValidPeriod(startTime,endTime); //REVISE
 	dataPoint.SetVisible(true);
 	rvInserts_.insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
 }
@@ -276,10 +276,10 @@ ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 void ModellingModeBasePlane::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	DataPoint dataPoint(dataPointID, coord, BASEPLANE, time);
-	double startTime = heartModel_.MapToModelFrameTime(time);
-	double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
-	double endTime = startTime + duration;
-	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
+	//double startTime = heartModel_.MapToModelFrameTime(time);
+	//double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
+	//double endTime = startTime + duration;
+	//dataPoint.SetValidPeriod(startTime,endTime); //REVISE
 	dataPoint.SetVisible(true);
 	basePlanePoints_.push_back(dataPoint);
 }
@@ -309,13 +309,11 @@ const std::vector<DataPoint>& ModellingModeBasePlane::GetBasePlanePoints() const
 
 // ModellingModeGuidePoints
 
-ModellingModeGuidePoints::ModellingModeGuidePoints(HeartModel& heartModel)
-: 
-	heartModel_(heartModel),
-	solverFactory_(new GMMFactory),
-	//solverFactory_(new VNLFactory),
-	timeVaryingDataPoints_(134),
-	timeSmoother_()
+ModellingModeGuidePoints::ModellingModeGuidePoints()
+	: solverFactory_(new GMMFactory)
+	//, solverFactory_(new VNLFactory)
+	, timeVaryingDataPoints_(134)
+	, timeSmoother_()
 {
 	SolverLibraryFactory& factory = *solverFactory_;
 	
@@ -396,15 +394,15 @@ void ModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Point
 #endif
 	
 	DataPoint dataPoint(dataPointID, coord, GUIDEPOINT, time);
-	double startTime = heartModel_.MapToModelFrameTime(time);
-	double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
-	double endTime = startTime + duration;
-	dataPoint.SetValidPeriod(startTime,endTime); //REVISE
+	//double startTime = heartModel_.MapToModelFrameTime(time);
+	//double duration = (double)1.0f / heartModel_.GetNumberOfModelFrames();
+	//double endTime = startTime + duration;
+	//dataPoint.SetValidPeriod(startTime,endTime); //REVISE
 	dataPoint.SetVisible(true);
 		
-	int frameNumber = heartModel_.MapToModelFrameNumber(dataPoint.GetTime());
+	int frameNumber = 0;//heartModel_.MapToModelFrameNumber(dataPoint.GetTime());
 	
-	dbg(std::string("ModellingModeGuidePoints::AddDataPoint time = ") + toString(dataPoint.GetTime()) + ", frame number = " + toString(frameNumber));
+	dbg(std::string("**** Change me **** ModellingModeGuidePoints::AddDataPoint time = ") + toString(dataPoint.GetTime()) + ", frame number = " + toString(frameNumber));
 	
 	vectorOfDataPoints_[frameNumber].insert(std::pair<Cmiss_node* ,DataPoint>(dataPointID,dataPoint));
 	framesWithDataPoints_[frameNumber]++;
@@ -420,25 +418,28 @@ void ModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Point
 
 void ModellingModeGuidePoints::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
-	int frameNumber = heartModel_.MapToModelFrameNumber(time);
-	DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
-	assert(itr != vectorOfDataPoints_[frameNumber].end());
-	itr->second.SetCoordinate(coord);
-	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
+	dbg("**** FIX, move to modeller class ****");
+	//int frameNumber = heartModel_.MapToModelFrameNumber(time);
+	//DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
+	//assert(itr != vectorOfDataPoints_[frameNumber].end());
+	//itr->second.SetCoordinate(coord);
+	//FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
 
 void ModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
-	int frameNumber = heartModel_.MapToModelFrameNumber(time);
-	DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
-	assert(itr != vectorOfDataPoints_[frameNumber].end());
-	vectorOfDataPoints_[frameNumber].erase(itr);
-	framesWithDataPoints_[frameNumber]--;
-	FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
+	dbg("**** FIX, move to modeller class ****");
+	//int frameNumber = heartModel_.MapToModelFrameNumber(time);
+	//DataPoints::iterator itr = vectorOfDataPoints_[frameNumber].find(dataPointID);
+	//assert(itr != vectorOfDataPoints_[frameNumber].end());
+	//vectorOfDataPoints_[frameNumber].erase(itr);
+	//framesWithDataPoints_[frameNumber]--;
+	//FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
 
 void ModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumber)
-{		
+{
+	dbg("**** FIX, move to modeller class ****");
 	// Compute P 
 	// 1. find xi coords for each data point
 	DataPoints::iterator itr = dataPoints.begin();
@@ -450,7 +451,7 @@ void ModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumber)
 	for (int i = 0; itr!=end; ++itr, ++i)
 	{
 		Point3D xi;
-		int elem_id = heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (double)frameNumber/heartModel_.GetNumberOfModelFrames());
+		int elem_id = 0;//--heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (double)frameNumber/heartModel_.GetNumberOfModelFrames());
 	//	if(!itr->second.GetSurfaceType())
 		{
 			if (xi.z < 0.5)
@@ -467,8 +468,8 @@ void ModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumber)
 		xi_vector.push_back(xi);
 		element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
 		
-		const Point3D dataPointLocal = heartModel_.TransformToLocalCoordinateRC(itr->second.GetCoordinate());
-		const Point3D dataPointPS = heartModel_.TransformToProlateSpheroidal(dataPointLocal);
+		Point3D dataPointLocal;//-- = heartModel_.TransformToLocalCoordinateRC(itr->second.GetCoordinate());
+		Point3D dataPointPS;//-- = heartModel_.TransformToProlateSpheroidal(dataPointLocal);
 		(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 	}
 	
@@ -553,7 +554,7 @@ void ModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumber)
 //	heartModel_.SetLambda(hermiteLambdaParams);
 #define UPDATE_CMGUI
 #ifdef UPDATE_CMGUI
-	heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber); //Hermite
+	//--heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber); //Hermite
 	
 	UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
 #endif
@@ -573,6 +574,7 @@ void ModellingModeGuidePoints::FitModel(DataPoints& dataPoints, int frameNumber)
 void ModellingModeGuidePoints::SmoothAlongTime()
 {
 	// For each global parameter in the per frame model
+	dbg("**** FIX ME, move to modeller class ****");
 	clock_t before = clock();
 		
 #define SMOOTH_ALONG_TIME
@@ -584,9 +586,9 @@ void ModellingModeGuidePoints::SmoothAlongTime()
 		
 //		std::cout << lambdas << std::endl;
 		
-		for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++) //FIX duplicate code
+		for(int j=0; j<1/*--heartModel_.GetNumberOfModelFrames()*/;j++) //FIX duplicate code
 		{
-			double xi = (double)j/heartModel_.GetNumberOfModelFrames();
+			double xi = 0;//--(double)j/heartModel_.GetNumberOfModelFrames();
 			double lambda = timeSmoother_.ComputeLambda(xi, lambdas);
 			timeVaryingDataPoints_[i][j] = lambda;
 		}
@@ -602,9 +604,9 @@ void ModellingModeGuidePoints::SmoothAlongTime()
 
 void ModellingModeGuidePoints::UpdateTimeVaryingModel()
 {
-	for(int j=0; j<heartModel_.GetNumberOfModelFrames();j++)
+	for(int j=0; j<1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
 	{
-		double time = (double)j/heartModel_.GetNumberOfModelFrames();
+		double time = 0.0;//--(double)j/heartModel_.GetNumberOfModelFrames();
 		Vector* x = solverFactory_->CreateVector(134);
 		for (int i=0; i< 134; i++)
 		{
@@ -613,7 +615,7 @@ void ModellingModeGuidePoints::UpdateTimeVaryingModel()
 //		std::cout << "x(" << j << ")" << *x << std::endl;
 		
 		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
-		heartModel_.SetLambda(hermiteLambdaParams, time);
+		//--heartModel_.SetLambda(hermiteLambdaParams, time);
 		delete x;
 	}
 }
@@ -703,7 +705,7 @@ Plane ModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plane>&
 	// Handle edge cases where prevFrame > nextFrame (i.e interpolation occurs around the end point)
 	int nextFrame;
 	Plane nextPlane;
-	int maxFrame = heartModel_.GetNumberOfModelFrames();
+	int maxFrame = 1;//--heartModel_.GetNumberOfModelFrames();
 	if (itr == planes.end())
 	{
 		nextFrame = planes.begin()->first + maxFrame;
@@ -777,7 +779,8 @@ void ModellingModeGuidePoints::InitialiseModel(
 		const std::vector<DataPoint>& basePlanePoints)
 {
 	// Compute model coordinate axes from Apex, Base and RV insert points
-
+	
+	dbg("**** MOVE ME, to the modeller class ****");
 	Vector3D xAxis= apex.GetCoordinate() - base.GetCoordinate();
 	xAxis.Normalise();
 
@@ -821,7 +824,7 @@ void ModellingModeGuidePoints::InitialiseModel(
 	transform[3][2]=static_cast<float>(origin.z);
 	transform[3][3]=1;
 	
-	heartModel_.SetLocalToGlobalTransformation(transform);
+	//--heartModel_.SetLocalToGlobalTransformation(transform);
 	
 	// TODO properly Compute FocalLength
 	double lengthFromApexToBase = (apex.GetCoordinate() - base.GetCoordinate()).Length();
@@ -830,17 +833,17 @@ void ModellingModeGuidePoints::InitialiseModel(
 	//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 	double focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
 	std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
-	heartModel_.SetFocalLength(focalLength);
+	//--heartModel_.SetFocalLength(focalLength);
 	
 	// Construct base planes from the base plane points
-	int numberOfModelFrames = heartModel_.GetNumberOfModelFrames();
+	int numberOfModelFrames = 1;//--heartModel_.GetNumberOfModelFrames();
 	
 	std::map<int, Plane> planes; // value_type = (frame, plane) pair
 	std::vector<DataPoint>::const_iterator itrSrc = basePlanePoints.begin();
 
 	while ( itrSrc!=basePlanePoints.end())
 	{
-		int frameNumber = heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
+		int frameNumber = 1;//--heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
 		double timeOfNextFrame = (double)(frameNumber+1)/numberOfModelFrames;
 		std::vector<DataPoint> basePlanePointsInOneFrame;
 		for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
@@ -859,11 +862,11 @@ void ModellingModeGuidePoints::InitialiseModel(
 	
 	for(int i = 0; i < numberOfModelFrames; i++)
 	{
-		heartModel_.SetTheta(i);
+		//--heartModel_.SetTheta(i);
 		const Plane& plane = InterpolateBasePlane(planes, i);
 		
 //		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl; 
-		heartModel_.SetMuFromBasePlaneForFrame(plane, i);
+		//--heartModel_.SetMuFromBasePlaneForFrame(plane, i);
 		//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 	}
 	
@@ -874,16 +877,17 @@ void ModellingModeGuidePoints::InitialiseModel(
 
 void ModellingModeGuidePoints::InitialiseModelLambdaParams()
 {
+	dbg("**** MOVE ME, to the modeller class");
 	//Initialise bezier global params for each model
 	for (int i=0; i<134;i++)
 	{
-		int num = heartModel_.GetNumberOfModelFrames();
-		timeVaryingDataPoints_[i].resize(heartModel_.GetNumberOfModelFrames());
+		int num = 0;//--heartModel_.GetNumberOfModelFrames();
+		timeVaryingDataPoints_[i].resize(1/*--heartModel_.GetNumberOfModelFrames()*/);
 		
 //		std::cout << std::endl;
-		for(int j = 0; j < heartModel_.GetNumberOfModelFrames();j++)
+		for(int j = 0; j < 1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
 		{
-			double xi = (double)j/heartModel_.GetNumberOfModelFrames();
+			double xi = 0.0;//--(double)j/heartModel_.GetNumberOfModelFrames();
 			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
 			double lambda = timeSmoother_.ComputeLambda(xi, prior);
 //			std::cout << "(" << xi << ", " << lambda << ") ";
@@ -894,8 +898,8 @@ void ModellingModeGuidePoints::InitialiseModelLambdaParams()
 	}
 	
 	vectorOfDataPoints_.clear();
-	vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
-	framesWithDataPoints_.assign(heartModel_.GetNumberOfModelFrames(), 0);
+	//--vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
+	//--framesWithDataPoints_.assign(heartModel_.GetNumberOfModelFrames(), 0);
 	
 //#ifndef NDEBUG
 //	std::cout << "vectorOfDataPoints_.size() = " << vectorOfDataPoints_.size() << '\n';

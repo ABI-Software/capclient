@@ -19,12 +19,23 @@ namespace cap
 
 class Modeller;
 
-class ModellingMode 
+/**
+ * Modelling mode.  This is an abstract base class for the modelling modes.
+ */
+class ModellingMode
 {
 public:
+
+	/**
+	 * Default constructor.
+	 */
 	ModellingMode();
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~ModellingMode();
-	
+
 	virtual ModellingMode* OnAccept(Modeller& modeller) = 0;
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
@@ -37,8 +48,7 @@ public:
 class ModellingModeApex : public ModellingMode
 {
 public:
-	ModellingModeApex()
-	{}
+	ModellingModeApex() {}
 	
 	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
@@ -59,8 +69,7 @@ private:
 class ModellingModeBase : public ModellingMode
 {
 public:
-	ModellingModeBase()
-	{}
+	ModellingModeBase() {}
 	
 	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
@@ -81,9 +90,7 @@ class HeartModel;
 class ModellingModeRV : public ModellingMode
 {
 public:
-	ModellingModeRV(HeartModel& heartModel)
-	:heartModel_(heartModel)
-	{}
+	ModellingModeRV() {}
 	
 	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
@@ -98,15 +105,13 @@ public:
 private:
 	std::map<Cmiss_node*, DataPoint> rvInserts_; // holds n pairs of DataPoints ( n >= 1 )
 	
-	HeartModel& heartModel_;
+	//HeartModel& heartModel_;
 };
 
 class ModellingModeBasePlane : public ModellingMode
 {
 public:
-	ModellingModeBasePlane(HeartModel& heartModel)
-	:heartModel_(heartModel)
-	{}
+	ModellingModeBasePlane() {}
 	
 	ModellingMode* OnAccept(Modeller& modeller);
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
@@ -121,7 +126,7 @@ public:
 private:
 	std::vector<DataPoint> basePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
 	
-	HeartModel& heartModel_;
+	//HeartModel& heartModel_;
 };
 
 } // end namespace cap
@@ -142,7 +147,7 @@ class ModellingModeGuidePoints : public ModellingMode
 public:
 	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 	
-	ModellingModeGuidePoints(HeartModel& heartModel);
+	ModellingModeGuidePoints();
 	~ModellingModeGuidePoints();
 	
 	ModellingMode* OnAccept(Modeller& modeller);
@@ -176,7 +181,7 @@ private:
 	
 	std::vector<double> ConvertToHermite(const Vector&) const;
 	
-	HeartModel& heartModel_;
+	//HeartModel& heartModel_;
 	
 	std::vector<DataPoints> vectorOfDataPoints_;
 	
