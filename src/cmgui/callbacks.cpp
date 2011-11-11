@@ -18,10 +18,10 @@ extern "C"
 #include "labelledtexture.h"
 
 #include "capclient.h"
-#include "cmgui/utilities.h"
+#include "cmgui/extensions.h"
 #include "utils/debug.h"
 
-#include "cmguicallbacks.h"
+#include "cmgui/callbacks.h"
 
 namespace cap
 {

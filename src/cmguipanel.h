@@ -25,7 +25,7 @@ extern "C" {
 }
 
 #include "DICOMImage.h"
-#include "cmguicallbacks.h"
+#include "cmgui/callbacks.h"
 
 class wxPanel;
 //struct Scene_object;	

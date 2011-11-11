@@ -30,8 +30,8 @@ extern "C"
 #include "capclientconfig.h"
 #include "utils/debug.h"
 #include "cmguipanel.h"
-#include "cmgui/utilities.h"
-#include "cmguicallbacks.h"
+#include "cmgui/extensions.h"
+#include "cmgui/callbacks.h"
 
 namespace cap
 {
