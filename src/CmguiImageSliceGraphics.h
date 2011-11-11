@@ -23,7 +23,7 @@ namespace cap
 {
 
 class Material;
-class CmguiPanel;
+class SceneViewerPanel;
 
 /**
  * What does the Cmgui image slice graphics class do for me?
@@ -34,7 +34,7 @@ class CmguiImageSliceGraphics : public ImageSliceGraphics
 {
 public:
 	
-	CmguiImageSliceGraphics(const CmguiPanel& cmguiManager,
+	CmguiImageSliceGraphics(const SceneViewerPanel& cmguiManager,
 			const std::string& sliceName,
 			const std::vector<Cmiss_texture*>& textures);
 	
@@ -66,7 +66,7 @@ private:
 	
 	std::string sliceName_;
 	Scene_object* sceneObject_; // the scene object this slice corresponds to
-	CmguiPanel const& cmguiManager_;
+	SceneViewerPanel const& cmguiManager_;
 	boost::shared_ptr<Material> material_;
 	std::vector<Cmiss_texture*> textures_;
 };

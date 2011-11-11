@@ -30,7 +30,7 @@ extern "C"
 #include "SliceInfo.h"
 #include "iimagebrowser.h"
 #include "imagebrowserwindow.h"
-#include "cmguipanel.h"
+#include "cmgui/sceneviewerpanel.h"
 #include "CAPAnnotationFile.h"
 
 namespace cap

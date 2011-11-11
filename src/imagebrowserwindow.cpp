@@ -60,7 +60,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	, cmguiPanel_(0)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
-	cmguiPanel_ = new CmguiPanel(cmissContext_, IMAGE_PREVIEW, panel_cmgui);
+	cmguiPanel_ = new SceneViewerPanel(cmissContext_, IMAGE_PREVIEW, panel_cmgui);
 	
 	SetIcon(wxICON(capicon));
 

@@ -30,7 +30,7 @@ extern "C"
 
 #include "ui/ImageBrowserWindowUI.h"
 #include "SliceInfo.h"
-#include "cmguipanel.h"
+#include "cmgui/sceneviewerpanel.h"
 
 class wxListCtrl;
 class wxListEvent;
@@ -40,7 +40,7 @@ namespace cap
 {
 
 class DICOMImage;
-class CmguiPanel;
+class SceneViewerPanel;
 class Material;
 class ImageBrowser;
 
@@ -181,7 +181,7 @@ private:
 	
 	ImageBrowser *browser_; /**< the data for this window. */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
-	CmguiPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
+	SceneViewerPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
 	
 	boost::shared_ptr<Material> material_; /**< material. */
 	

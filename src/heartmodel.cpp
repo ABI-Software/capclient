@@ -19,7 +19,7 @@ extern "C" {
 }
 
 #include "heartmodel.h"
-#include "cmguipanel.h"
+#include "cmgui/sceneviewerpanel.h"
 #include "CAPMath.h"
 #include "utils/debug.h"
 

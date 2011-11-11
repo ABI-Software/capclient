@@ -62,7 +62,7 @@ Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissCo
 
 Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const cap::DICOMPtr& dicom_image)
 {
-	//std::cout << "CmguiPanel::" << __func__ << std::endl;
+	//std::cout << "SceneViewerPanel::" << __func__ << std::endl;
 	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
 	std::string name = "tex_" + cap::FileSystem::GetFileNameWOE(dicom_image->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
 	Cmiss_field_set_name(temp_field, name.c_str());
@@ -245,7 +245,7 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 
 void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, double width, double height)
 {
-	//std::cout << "CmguiPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
+	//std::cout << "SceneViewerPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
@@ -276,7 +276,7 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 
 void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane)
 {
-	//std::cout << "CmguiPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
+	//std::cout << "SceneViewerPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
@@ -309,7 +309,7 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 
 void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, Real *tlc, Real *trc, Real *brc, Real *blc)
 {
-	//std::cout << "CmguiPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
+	//std::cout << "SceneViewerPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());

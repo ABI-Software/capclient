@@ -129,7 +129,7 @@ Set(DICOMImage_SRC
 
 SET(GuiTestImageBrowser_SRC
 	UnitTestImageBrowser.cpp
-	${CAPCLIENT_ROOT_DIR}/src/cmguipanel.cpp
+	${CAPCLIENT_ROOT_DIR}/src/cmgui/sceneviewerpanel.cpp
 	${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
 	${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
 	${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp

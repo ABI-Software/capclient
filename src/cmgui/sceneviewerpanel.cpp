@@ -1,5 +1,5 @@
 /*
- * CmguiPanel.cpp
+ * SceneViewerPanel.cpp
  *
  *  Created on: Feb 19, 2009
  *      Author: jchu014
@@ -29,14 +29,14 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "utils/debug.h"
-#include "cmguipanel.h"
+#include "cmgui/sceneviewerpanel.h"
 #include "cmgui/extensions.h"
 #include "cmgui/callbacks.h"
 
 namespace cap
 {
 
-CmguiPanel::CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, wxPanel* panel)
+SceneViewerPanel::SceneViewerPanel(Cmiss_context_id cmissContext, const std::string& name, wxPanel* panel)
 	: cmissSceneViewer_(Cmiss_context_create_scene_viewer(cmissContext, name, panel))
 {
 	SetFreeSpin(false);
@@ -46,13 +46,13 @@ CmguiPanel::CmguiPanel(Cmiss_context_id cmissContext, const std::string& name, w
 	//Cmiss_scene_viewer_set_transparency_layers(cmissSceneViewer_, 4);
 }
 	
-CmguiPanel::~CmguiPanel()
+SceneViewerPanel::~SceneViewerPanel()
 {
-	std::cout << "CmguiPanel::~CmguiPanel()" << std::endl;
+	std::cout << "SceneViewerPanel::~SceneViewerPanel()" << std::endl;
 	Cmiss_scene_viewer_destroy(&cmissSceneViewer_);
 }
 
-void CmguiPanel::LookHere() const
+void SceneViewerPanel::LookHere() const
 {
 	Cmiss_scene_viewer_set_lookat_parameters_non_skew(
 		cmissSceneViewer_, 105.824, 164.155, 5.39987,
@@ -64,17 +64,17 @@ void CmguiPanel::LookHere() const
 	Cmiss_scene_viewer_set_viewing_volume(cmissSceneViewer_, -15.0613, 15.0613, -15.0613, 15.0613, 1.92056, 686.342);
 }
 
-void CmguiPanel::SetCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class, bool addFirst) const
+void SceneViewerPanel::SetCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class, bool addFirst) const
 {
 	Cmiss_scene_viewer_add_input_callback(cmissSceneViewer_, callback, callback_class, addFirst ? 1 : 0);
 }
 
-void CmguiPanel::RemoveCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class) const
+void SceneViewerPanel::RemoveCallback(Cmiss_scene_viewer_input_callback callback, void *callback_class) const
 {
 	Cmiss_scene_viewer_remove_input_callback(cmissSceneViewer_, callback, callback_class);
 }
 
-void CmguiPanel::SetInteractiveTool(const std::string& tool, const std::string& command) const
+void SceneViewerPanel::SetInteractiveTool(const std::string& tool, const std::string& command) const
 {
 	Cmiss_scene_viewer_set_interactive_tool_by_name(cmissSceneViewer_, tool.c_str());
 	if (command.size() > 0)
@@ -85,7 +85,7 @@ void CmguiPanel::SetInteractiveTool(const std::string& tool, const std::string& 
 	}
 }
 
-void CmguiPanel::LookingHere() const
+void SceneViewerPanel::LookingHere() const
 {
 	double dof, fd, eyex, eyey, eyez, lx, ly, lz, upx, upy, upz, va, left, right, bottom, top, np, fp;
 	Cmiss_scene_viewer_get_depth_of_field(cmissSceneViewer_, &dof, &fd);
@@ -101,7 +101,7 @@ void CmguiPanel::LookingHere() const
 	dbg("vvo : " + toString(left) + ", " + toString(right) + ", " + toString(bottom)+ ", " + toString(top) + ", " + toString(np) + ", " + toString(fp));
 }
 
-void CmguiPanel::SetFreeSpin(bool on)
+void SceneViewerPanel::SetFreeSpin(bool on)
 {
 	Cmiss_scene_viewer_set_interactive_tool_by_name(cmissSceneViewer_, "transform_tool");
 	Cmiss_interactive_tool_id i_tool = Cmiss_scene_viewer_get_current_interactive_tool(cmissSceneViewer_);
@@ -113,7 +113,7 @@ void CmguiPanel::SetFreeSpin(bool on)
 	Cmiss_interactive_tool_destroy(&i_tool);
 }
 
-void CmguiPanel::SetViewingPlane(const ImagePlane& plane)
+void SceneViewerPanel::SetViewingPlane(const ImagePlane& plane)
 {
 	// compute the center of the image plane, eye(camera) position and the up vector
 	Point3D planeCenter =  plane.blc + (0.5 * (plane.trc - plane.blc));
@@ -133,7 +133,7 @@ void CmguiPanel::SetViewingPlane(const ImagePlane& plane)
 	}
 }
 
-void CmguiPanel::SetViewingVolume(double radius)
+void SceneViewerPanel::SetViewingVolume(double radius)
 {
 	const double view_angle = 40.0, width_factor = 1.05, clip_factor = 10.0;
 	double eye_distance, near_plane, far_plane;
@@ -151,23 +151,23 @@ void CmguiPanel::SetViewingVolume(double radius)
 	Cmiss_scene_viewer_redraw_now(cmissSceneViewer_);
 }
 
-void CmguiPanel::SetTumbleRate(double speed)
+void SceneViewerPanel::SetTumbleRate(double speed)
 {
 	Cmiss_scene_viewer_set_tumble_rate(cmissSceneViewer_, speed);
 }
 
-void CmguiPanel::ViewAll() const
+void SceneViewerPanel::ViewAll() const
 {
 	Cmiss_scene_viewer_view_all(cmissSceneViewer_);
 }
 
 /*
-void CmguiPanel::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
+void SceneViewerPanel::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 		Cmiss_graphics_material_id material, std::string const& regionName) const
 {
 	//using namespace std;
 	
-	std::cout << "CmguiPanel::AssignMaterialToObject" << std::endl;
+	std::cout << "SceneViewerPanel::AssignMaterialToObject" << std::endl;
 	//Cmiss_scene_id scene = 0;
 	//if (scene_viewer)
 	//{
@@ -246,7 +246,7 @@ void CmguiPanel::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 		//}
 	}
 	
-	std::cout << "Leaving: CmguiPanel::AssignMaterialToObject" << std::endl;
+	std::cout << "Leaving: SceneViewerPanel::AssignMaterialToObject" << std::endl;
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 
@@ -254,7 +254,7 @@ void CmguiPanel::AssignMaterialToObject(Cmiss_scene_viewer_id scene_viewer,
 	return;
 }*/
 
-//void CmguiPanel::DestroyTexture(Cmiss_texture_id tex) const
+//void SceneViewerPanel::DestroyTexture(Cmiss_texture_id tex) const
 //{
 //	DESTROY(Texture)(&tex);
 //}
