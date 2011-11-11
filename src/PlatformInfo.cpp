@@ -81,7 +81,7 @@ std::string PlatformInfo::GetOSVersion()
 	RegCloseKey (hKey);
 	delete lpData;
 	
-    return version;   // Program successfully completed.
+	return version;   // Program successfully completed.
 }
 
 }
