@@ -47,7 +47,7 @@ SET(CAP_CLIENT_EXECUTABLE capclient)
 #INCLUDE(header_files.cmake)
 SET( APP_HDRS
 	src/abstractlabelled.h
-	src/cmgui/utilities.h
+	src/cmgui/extensions.h
 	src/AnnotationEditor.h
 	src/AnnotationWindow.h
 	src/Archiver.h
@@ -66,7 +66,7 @@ SET( APP_HDRS
 	src/CAPTotalLeastSquares.h
 	src/CAPXMLFile.h
 	src/CAPXMLFileHandler.h
-	src/cmguicallbacks.h
+	src/cmgui/callbacks.h
 	src/CmguiImageSliceGraphics.h
 	src/cmguipanel.h
 	src/capclientconfig.h
@@ -101,7 +101,7 @@ SET( APP_HDRS
 
 #INCLUDE(source_files.cmake)
 SET( APP_SRCS
-	src/cmgui/utilities.cpp
+	src/cmgui/extensions.cpp
 	src/AnnotationEditor.cpp
 	src/AnnotationWindow.cpp
 	src/capclientapp.cpp
@@ -115,7 +115,7 @@ SET( APP_SRCS
 	src/CAPTimeSmoother.cpp
 	src/CAPXMLFile.cpp
 	src/CAPXMLFileHandler.cpp
-	src/cmguicallbacks.cpp
+	src/cmgui/callbacks.cpp
 	src/CmguiImageSliceGraphics.cpp
 	src/cmguipanel.cpp
 	src/DICOMImage.cpp

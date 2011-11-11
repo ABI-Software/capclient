@@ -37,7 +37,7 @@ extern "C"
 
 #include "imagebrowserwindow.h"
 
-#include "cmgui/utilities.h"
+#include "cmgui/extensions.h"
 #include "DICOMImage.h"
 #include "material.h"
 #include "imagebrowser.h"

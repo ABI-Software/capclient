@@ -23,7 +23,7 @@ extern "C"
 #include "DICOMImage.h"
 #include "filesystem.h"
 
-#include "utilities.h"
+#include "cmgui/extensions.h"
 #include "utils/debug.h"
 
 class wxPanel;
