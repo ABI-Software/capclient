@@ -40,7 +40,6 @@ namespace cap
 {
 
 class DICOMImage;
-class SceneViewerPanel;
 class Material;
 class ImageBrowser;
 

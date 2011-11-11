@@ -65,6 +65,13 @@ Cmiss_rendition_id Cmiss_context_get_rendition_for_region(Cmiss_context_id cmiss
 int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::string regionName);
 
 /**
+ * Gets the field module for the first non empty selection in the given context.
+ *
+ * @return	An accessed field module, or 0 on failure.
+ */
+Cmiss_field_module_id Cmiss_context_get_first_non_empty_selection_field_module(Cmiss_context_id cmissContext);
+
+/**
  * Create a surface in the given region and uses the supplied material as a texture for the 
  * surface created.
  * 

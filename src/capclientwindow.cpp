@@ -16,6 +16,7 @@
 extern "C"
 {
 #include <configure/cmgui_configure.h>
+#include <api/cmiss_core.h>
 #include <api/cmiss_status.h>
 #include <api/cmiss_context.h>
 #include <api/cmiss_field.h>
@@ -1190,12 +1191,11 @@ void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 
 void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)
 {
-	std::string regionName = "SA1";
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, regionName.c_str());
-	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
+	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
+	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_dimension(field_module, 2);
 	if (Cmiss_mesh_get_size(mesh2d) > 0)
 	{
-		Point3D pt(-static_cast<Real>(x), -static_cast<Real>(y), 0.0);
+		Point3D pt(static_cast<Real>(x), static_cast<Real>(y), 0.0);
 		mainApp_->SetPreviousPosition(pt);
 	}
 
@@ -1205,17 +1205,21 @@ void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)
 
 void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 {
-	std::string regionName = "SA1";
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, regionName.c_str());
-	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_name(field_module, "cmiss_selection.cmiss_mesh_2d");
+	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
+	Cmiss_region_id region = Cmiss_field_module_get_region(field_module); // Missing API
+	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_dimension(field_module, 2);
 	if (Cmiss_mesh_get_size(mesh2d) > 0)
 	{
-		Point3D pt(-static_cast<Real>(x), -static_cast<Real>(y), 0.0);
+		char *name = Cmiss_region_get_name(region);
+		std::string regionName(name);
+		Cmiss_deallocate(name);
+		Point3D pt(static_cast<Real>(x), static_cast<Real>(y), 0.0);
 		mainApp_->UpdatePlanePosition(regionName, pt);
 	}
 
 	Cmiss_field_module_destroy(&field_module);
 	Cmiss_mesh_destroy(&mesh2d);
+	Cmiss_region_destroy(&region);
 }
 
 void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
