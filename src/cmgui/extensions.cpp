@@ -12,6 +12,7 @@ extern "C"
 #include <api/cmiss_graphic.h>
 #include <api/cmiss_rendition.h>
 #include <api/cmiss_field.h>
+#include <api/cmiss_field_group.h>
 #include <api/cmiss_field_finite_element.h>
 #include <api/cmiss_node.h>
 #include <api/cmiss_element.h>
@@ -142,6 +143,21 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 	Cmiss_region_destroy(&region);
 
 	return r;
+}
+
+Cmiss_field_module_id Cmiss_context_get_first_non_empty_selection_field_module(Cmiss_context_id cmissContext)
+{
+	Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, "/");
+	Cmiss_field_group_id group_field = Cmiss_rendition_get_selection_group(rendition);
+	Cmiss_field_group_id selected_group = Cmiss_field_group_get_first_non_empty_group(group_field);
+	Cmiss_field_id selected_field = Cmiss_field_group_base_cast(selected_group); // non accessed handle
+	Cmiss_field_module_id field_module = Cmiss_field_get_field_module(selected_field);
+
+	Cmiss_field_group_destroy(&group_field);
+	Cmiss_field_group_destroy(&selected_group);
+	Cmiss_rendition_destroy(&rendition);
+
+	return field_module;
 }
 
 void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string& regionName, Cmiss_graphics_material_id material)
