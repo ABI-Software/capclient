@@ -116,7 +116,8 @@ public:
 		}
 		return mode;
 	}
-	
+	friend class ModellingMode;
+	friend class ModellingModeApex;
 private:
 	void ChangeMode(ModellingMode* newMode);
 	
