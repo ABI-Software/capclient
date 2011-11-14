@@ -20,8 +20,9 @@ namespace cap
 
 const Modeller::ModellingModeEnumMap Modeller::ModellingModeStrings = Modeller::InitModellingModeStrings();
 
-Modeller::Modeller(HeartModel& heartModel)
-	: modellingModeApex_()
+Modeller::Modeller(CAPClient *mainApp)
+	: mainApp_(mainApp)
+	, modellingModeApex_()
 	, modellingModeBase_()
 	, modellingModeRV_()
 	, modellingModeBasePlane_()
