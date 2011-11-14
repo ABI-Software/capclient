@@ -51,22 +51,6 @@ public:
 	static const ModellingModeEnumMap ModellingModeStrings; /**< The modelling mode strings */
 
 	/**
-	 * Initialises the modelling mode strings.
-	 *
-	 * @return	.
-	 */
-	static ModellingModeEnumMap InitModellingModeStrings()
-	{
-		ModellingModeEnumMap m;
-		m[APEX] = std::string("APEX");
-		m[BASE] = std::string("BASE");
-		m[RV] = std::string("RV");
-		m[BASEPLANE] = std::string("BASEPLANE");
-		m[GUIDEPOINT] = std::string("GUIDEPOINT");
-		return m;
-	}
-
-	/**
 	 * Constructor.
 	 *
 	 * @param	mainApp	The main application.
@@ -222,6 +206,22 @@ public:
 	}
 
 private:
+	/**
+	 * Initialises the modelling mode strings.
+	 *
+	 * @return	.
+	 */
+	static ModellingModeEnumMap InitModellingModeStrings()
+	{
+		ModellingModeEnumMap m;
+		m[APEX] = std::string("APEX");
+		m[BASE] = std::string("BASE");
+		m[RV] = std::string("RV");
+		m[BASEPLANE] = std::string("BASEPLANE");
+		m[GUIDEPOINT] = std::string("GUIDEPOINT");
+		return m;
+	}
+
 	void ChangeMode(ModellingMode* newMode);
 	
 	CAPClient *mainApp_;	/**< The main application */

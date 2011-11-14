@@ -31,7 +31,7 @@ Modeller::Modeller(CAPClient *mainApp)
 {
 }
 
-void Modeller::AddDataPoint(Cmiss_node* dataPointID,  const Point3D& coord, double time)
+void Modeller::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
 }
