@@ -1206,7 +1206,7 @@ void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)
 void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
-	Cmiss_region_id region = Cmiss_field_module_get_region(field_module); // Missing API
+	Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
 	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_dimension(field_module, 2);
 	if (Cmiss_mesh_get_size(mesh2d) > 0)
 	{
