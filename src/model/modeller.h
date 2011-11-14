@@ -17,15 +17,23 @@ struct Cmiss_node; //REVISE
 namespace cap
 {
 
-class HeartModel;
+class CAPClient;
 //class SparseMatrix;
 //class Vector;
 //class Preconditioner;
 //class GSmoothAMatrix;
 //class SolverLibraryFactory;
 
+/**
+ * This Modeller class controls the modelling of the heart model.  It holds the current modelling mode
+ * and holds the data points used in the modelling process.
+ */
 class Modeller {
 public:
+
+	/**
+	 * Values that represent ModellingModeEnum.
+	 */
 	enum ModellingModeEnum
 	{
 		APEX,
@@ -35,9 +43,18 @@ public:
 		GUIDEPOINT
 	};
 
+	/**
+	 * Defines an alias representing the modelling mode enum map.
+	 */
 	typedef std::map<Modeller::ModellingModeEnum, std::string> ModellingModeEnumMap;
 
-	static const ModellingModeEnumMap ModellingModeStrings;
+	static const ModellingModeEnumMap ModellingModeStrings; /**< The modelling mode strings */
+
+	/**
+	 * Initialises the modelling mode strings.
+	 *
+	 * @return	.
+	 */
 	static ModellingModeEnumMap InitModellingModeStrings()
 	{
 		ModellingModeEnumMap m;
@@ -48,30 +65,99 @@ public:
 		m[GUIDEPOINT] = std::string("GUIDEPOINT");
 		return m;
 	}
-	
-	explicit Modeller(HeartModel& heartModel);
+
+	/**
+	 * Constructor.
+	 *
+	 * @param	mainApp	The main application.
+	 */
+	explicit Modeller(CAPClient *mainApp);
+
+	/**
+	 * Destructor.
+	 */
 	~Modeller(){}
-	
+
+	/**
+	 * Adds a data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	coord			   	The coordinate.
+	 * @param	time			   	The time.
+	 */
 	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	
+
+	/**
+	 * Move data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	coord			   	The coordinate.
+	 * @param	time			   	The time.
+	 */
 	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	
+
+	/**
+	 * Removes the data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	time			   	The time.
+	 */
 	void RemoveDataPoint(Cmiss_node* dataPointID, double time);
-	
+
+	/**
+	 * Executes the accept action.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
 	bool OnAccept();
-	
+
+	/**
+	 * Gets the modelling mode apex.
+	 *
+	 * @return	null if it fails, else the modelling mode apex.
+	 */
 	ModellingMode* GetModellingModeApex();
-	
+
+	/**
+	 * Gets the modelling mode base.
+	 *
+	 * @return	null if it fails, else the modelling mode base.
+	 */
 	ModellingMode* GetModellingModeBase();
-	
+
+	/**
+	 * Gets the modelling mode rv.
+	 *
+	 * @return	null if it fails, else the modelling mode rv.
+	 */
 	ModellingMode* GetModellingModeRV();
-	
+
+	/**
+	 * Gets the modelling mode base plane.
+	 *
+	 * @return	null if it fails, else the modelling mode base plane.
+	 */
 	ModellingMode* GetModellingModeBasePlane();
-	
+
+	/**
+	 * Gets the modelling mode guide points.
+	 *
+	 * @return	null if it fails, else the modelling mode guide points.
+	 */
 	ModellingModeGuidePoints* GetModellingModeGuidePoints();
-	
+
+	/**
+	 * Gets the data points.
+	 *
+	 * @return	The data points.
+	 */
 	std::vector<DataPoint> GetDataPoints() const;
-	
+
+	/**
+	 * Sets a data points.
+	 *
+	 * @param [in,out]	allDataPoints	all data points.
+	 */
 	void SetDataPoints(std::vector<DataPoint>& allDataPoints); // this is used for feeding in data points read in from external files
 
 //	void SetApex(const std::vector<DataPoint>& apex);
@@ -81,16 +167,34 @@ public:
 //	void SetRVInsertionPoints(const std::map<Cmiss_node*, DataPoint>& rvInserts);
 //	
 //	void SetBasePlanePoints(const std::map<Cmiss_node*, DataPoint>& rvInserts);
-	
-	
+
+	/**
+	 * Initialises the model.
+	 */
 	void InitialiseModel();
-	
+
+	/**
+	 * Updates the time varying model.
+	 */
 	void UpdateTimeVaryingModel();
-	
+
+	/**
+	 * Smooth along time.
+	 */
 	void SmoothAlongTime();
-	
+
+	/**
+	 * Change mode.
+	 *
+	 * @param	mode	The mode.
+	 */
 	void ChangeMode(ModellingModeEnum mode);
-	
+
+	/**
+	 * Gets the current mode.
+	 *
+	 * @return	The current mode.
+	 */
 	ModellingModeEnum GetCurrentMode() const
 	{
 		ModellingModeEnum mode;
@@ -116,18 +220,18 @@ public:
 		}
 		return mode;
 	}
-	friend class ModellingMode;
-	friend class ModellingModeApex;
+
 private:
 	void ChangeMode(ModellingMode* newMode);
 	
-	ModellingModeApex modellingModeApex_;
-	ModellingModeBase modellingModeBase_;
-	ModellingModeRV modellingModeRV_;
-	ModellingModeBasePlane modellingModeBasePlane_;
-	ModellingModeGuidePoints modellingModeGuidePoints_;
+	CAPClient *mainApp_;	/**< The main application */
+	ModellingModeApex modellingModeApex_;   /**< The modelling mode apex */
+	ModellingModeBase modellingModeBase_;   /**< The modelling mode base */
+	ModellingModeRV modellingModeRV_;   /**< The modelling mode rv */
+	ModellingModeBasePlane modellingModeBasePlane_; /**< The modelling mode base plane */
+	ModellingModeGuidePoints modellingModeGuidePoints_; /**< The modelling mode guide points */
 	
-	ModellingMode* currentModellingMode_;
+	ModellingMode* currentModellingMode_;   /**< The current modelling mode */
 	
 	
 };

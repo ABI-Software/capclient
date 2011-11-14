@@ -390,7 +390,7 @@ private:
 			delete modeller_;
 		}
 		assert(heartModelPtr_);
-		modeller_ = new Modeller(*heartModelPtr_); // initialise modeller and all the data points
+		modeller_ = new Modeller(this); // initialise modeller and all the data points
 	}
 
 	/**
