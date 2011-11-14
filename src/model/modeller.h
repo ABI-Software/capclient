@@ -209,7 +209,7 @@ private:
 	/**
 	 * Initialises the modelling mode strings.
 	 *
-	 * @return	.
+	 * @return	A Modelling mode enum map of enums to strings.
 	 */
 	static ModellingModeEnumMap InitModellingModeStrings()
 	{
