@@ -15,6 +15,8 @@ IF(NOT CAPCLIENT_ROOT_DIR)
 	# going to be separated from the  rest of the CAP Client 
 	# files.
 	SET(CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
+	SET(TXT2INCLUDE_TARGET txt2include)
+	ADD_EXECUTABLE(${TXT2INCLUDE_TARGET} ${CAPCLIENT_ROOT_DIR}/src/utils/txt2include.c)
 ELSE()
 	SET(CAPTEST_GMM_INCLUDE_DIR "${CAP_GMM_INCLUDE_DIR}")
 ENDIF()
@@ -126,43 +128,60 @@ Set(DICOMImage_SRC
 	UnitTestDICOMImage.cpp
 	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
 )
+IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
+	LIST(APPEND GUI_TESTS ImageBrowser)
+	SET(ImageBrowser_SRC
+		UnitTestImageBrowser.cpp
+		${CAPCLIENT_ROOT_DIR}/src/cmgui/sceneviewerpanel.cpp
+		${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
+		${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
+		${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
+		${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
+		${CAPCLIENT_ROOT_DIR}/src/material.cpp
+		${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
+		${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
+		${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
+	)
 
-SET(GuiTestImageBrowser_SRC
-	UnitTestImageBrowser.cpp
-	${CAPCLIENT_ROOT_DIR}/src/cmgui/sceneviewerpanel.cpp
-	${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
-	${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
-	${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
-	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensionscpp
-	${CAPCLIENT_ROOT_DIR}/src/material.cpp
-	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
-	${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
-	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
-)
-LIST(APPEND GUI_TESTS GuiTestImageBrowser)
+	LIST(APPEND GUI_TESTS SelfDeletion)
+	XRC_TO_CPP("ui/selfdeletionwindowui.xrc" SelfDeletion_UI_SRCS_AND_HDRS)
+	SET(SelfDeletion_SRC
+		UnitTestSelfDeletion.cpp
+		${SelfDeletion_UI_SRCS_AND_HDRS}
+		)
+ENDIF()
 
 IF(MSVC)
 	SET(CAPAnnotationFile_SRC
 		${CAPAnnotationFile_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
-	)
+		)
+		
 	SET(FileSystem_SRC
 		${FileSystem_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
-	)
+		)
 	
 	SET(Modeller_SRC
 		${Modeller_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
-	)
+		)
 	
 	SET(Xml_SRC
 		${Xml_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
-	)
+		)
+	
+	IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
+		SET(ImageBrowser_SRC
+			${ImageBrowser_SRC}
+			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+			)
+	ENDIF()
 ENDIF()
 
 # copy XML files
@@ -184,9 +203,17 @@ ENDFOREACH()
 
 IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	FOREACH( TEST ${GUI_TESTS} )
-		ADD_EXECUTABLE(${TEST} ${${TEST}_SRC})
-		ADD_TEST(${TEST} ${TEST})
-		TARGET_LINK_LIBRARIES(${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+		ADD_EXECUTABLE(GuiTest${TEST} ${${TEST}_SRC})
+		ADD_TEST(GuiTest${TEST} GuiTest${TEST})
+		TARGET_LINK_LIBRARIES(GuiTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+		IF(MSVC)
+			TARGET_LINK_LIBRARIES(GuiTest${TEST}
+				optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
+				debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib")
+		ELSE()
+			TARGET_LINK_LIBRARIES(GuiTest${TEST}
+				"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a")
+		ENDIF()
 	ENDFOREACH()
 ENDIF()
 
