@@ -71,7 +71,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, timeNotifier_(0)
 	, previousSaveLocation_("")
 	, initialised_xmlUserCommentDialog_(false)
-	, modeStates_()
+	, previousCineState_(false)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
@@ -84,18 +84,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);
 	checkListBox_Slice->Clear();
 	
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
-	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
-
-	// Set the annotation field to empty and *then* create the point glyph
-	SetAnnotationString(" ");
-	Cmiss_rendition_execute_command(rendition, "point glyph none general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
-
-	Cmiss_region_destroy(&root_region);
-	Cmiss_graphics_module_destroy(&graphics_module);
-	Cmiss_rendition_destroy(&rendition);
-
+	CreateStatusTextStringsFieldRenditions();
 	
 	this->Fit();
 	this->Centre();
@@ -107,6 +96,15 @@ CAPClientWindow::~CAPClientWindow()
 {
 	dbg(__func__);
 	delete cmguiPanel_;
+
+	StatusTextStringsFieldMap::iterator it = statusTextStringsFieldMap_.begin();
+	while (it != statusTextStringsFieldMap_.end())
+	{
+
+		Cmiss_field_destroy(&(it->second.first));
+		Cmiss_graphic_destroy(&(it->second.second));
+		statusTextStringsFieldMap_.erase(it++);
+	}
 
 	Cmiss_time_keeper_destroy(&timeKeeper_);
 	Cmiss_time_notifier_destroy(&timeNotifier_);
@@ -125,7 +123,10 @@ void CAPClientWindow::MakeConnections()
 	Connect(XRCID("menuItem_Save"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
 	Connect(XRCID("menuItem_Export"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
 	Connect(XRCID("menuItem_ExportToBinaryVolume"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
-	Connect(XRCID("menuItem_ImageBrowseWindow"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImages));
+	Connect(XRCID("menuItem_viewAll"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewAll));
+	Connect(XRCID("menuItem_currentMode"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
+	Connect(XRCID("menuItem_heartVolumeEPI"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
+	Connect(XRCID("menuItem_heartVolumeENDO"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 
 	// Widgets (buttons, sliders ...)
 	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
@@ -157,7 +158,7 @@ void CAPClientWindow::EnterInitState()
 	// Put the gui in the init state
 	slider_Animation->Enable(false);
 	slider_AnimationSpeed->Enable(false);
-	button_Play->Enable(true);
+	button_Play->Enable(false);
 	button_HideShowAll->Enable(false);
 	button_HideShowOthers->Enable(false);
 	checkBox_MII->Enable(false);
@@ -205,7 +206,7 @@ void CAPClientWindow::EnterImagesLoadedState()
 	slider_Brightness->Enable(true);
 	slider_Contrast->Enable(true);
 	choice_Mode->Enable(true);
-	button_Accept->Enable(true);
+	button_Accept->Enable(false);
 	button_PlaneShift->Enable(true);
 	button_Model->Enable(true);
 
@@ -228,7 +229,6 @@ void CAPClientWindow::EnterImagesLoadedState()
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
 	
 	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
-	SetAnnotationString("Transform mode");
 }
 
 void CAPClientWindow::EnterModelLoadedState()
@@ -250,7 +250,7 @@ void CAPClientWindow::EnterModelLoadedState()
 	slider_Brightness->Enable(true);
 	slider_Contrast->Enable(true);
 	choice_Mode->Enable(true);
-	button_Accept->Enable(true);
+	button_Accept->Enable(false);
 	button_PlaneShift->Enable(true);
 	button_Model->Enable(true);
 
@@ -274,20 +274,62 @@ void CAPClientWindow::OnIdle(wxIdleEvent& event)
 	}
 }
 
-void CAPClientWindow::SetAnnotationString(std::string text)
+void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 {
-	modeStates_.push_back(text);
-	std::string field_param = "string_constant '" + text + "'";
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "/");
-	Cmiss_field_module_define_field(field_module, "annotation", field_param.c_str());
+	// Set the annotation field to empty and *then* create the point glyph
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
+	Cmiss_region_id statustext_region = Cmiss_region_create_subregion(root_region, "statustext");
+	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
+
+
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(root_region);
+
+	Cmiss_field_id currentmode_field = Cmiss_field_module_create_field(field_module, "currentmode", "string_constant 'no mode'");
+	Cmiss_graphic_id currentmode_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
+	int r1 = Cmiss_graphic_define(currentmode_graphic, "normalised_window_fit_left glyph none general label currentmode centre 0.0,0.0,0.0 material default selected_material default_selected;");
+	statusTextStringsFieldMap_["currentmode"] = std::make_pair(currentmode_field, currentmode_graphic);
+
+	dbg("what : " + toString(currentmode_field) + ", " + toString(currentmode_graphic) + ", " + toString(r1 == CMISS_OK));
+
+	Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'ED Volume(EPI) = --'");
+	Cmiss_graphic_id heartvolumeepi_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
+	Cmiss_graphic_define(heartvolumeepi_graphic, "glyph none general label heartvolumeepi centre 0.95,-0.9,0.0 no_select normalised_window_fit_left;");
+	statusTextStringsFieldMap_["heartvolumeepi"] = std::make_pair(heartvolumeepi_field, heartvolumeepi_graphic);
+
+	Cmiss_field_id heartvolumeendo_field = Cmiss_field_module_create_field(field_module, "heartvolumeendo", "string_constant 'ED Volume(ENDO) = --'");
+	Cmiss_graphic_id heartvolumeendo_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
+	Cmiss_graphic_define(heartvolumeendo_graphic, "glyph none label heartvolumeendo centre 0.95,-0.8,0.0 no_select normalised_window_fit_left;");
+	statusTextStringsFieldMap_["heartvolumeendo"] = std::make_pair(heartvolumeendo_field, heartvolumeendo_graphic);
 
 	Cmiss_field_module_destroy(&field_module);
+	Cmiss_region_destroy(&statustext_region);
+	Cmiss_region_destroy(&root_region);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_rendition_destroy(&rendition);
 }
 
-void CAPClientWindow::RestorePreviousAnnotationString()
+void CAPClientWindow::SetStatusTextString(std::string mode, std::string text, bool visible) const
 {
-	modeStates_.pop_back();
-	SetAnnotationString(modeStates_.back());
+	StatusTextStringsFieldMap::const_iterator cit = statusTextStringsFieldMap_.find(mode);
+	if (cit != statusTextStringsFieldMap_.end())
+	{
+		Cmiss_field_id field = cit->second.first;
+		Cmiss_graphic_id graphic = cit->second.second;
+
+		Cmiss_field_module_id field_module = Cmiss_field_get_field_module(field);
+		Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+
+		int r1 = 0;
+		if (text.size() > 0)
+			r1 = Cmiss_field_assign_string(field, cache, text.c_str());
+		int r2 = Cmiss_graphic_set_visibility_flag(graphic, visible ? 1 : 0);
+
+		dbg("what : " + toString(field) + ", " + toString(graphic) + ", " + toString(r1 == CMISS_OK) + ", " + toString(r2 == CMISS_OK));
+		Cmiss_field_cache_destroy(&cache);
+		Cmiss_field_module_destroy(&field_module);
+	}
+
 }
 
 void CAPClientWindow::CreateCAPIconInContext() const
@@ -676,6 +718,28 @@ void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 	}
 }
 
+void CAPClientWindow::OnViewAll(wxCommandEvent& event)
+{
+	cmguiPanel_->ViewAll();
+}
+
+void CAPClientWindow::OnViewStatusText(wxCommandEvent& event)
+{
+	dbg("OnViewStatusText : " + std::string(event.GetString()) + " ; " + toString(event.IsChecked()));
+	if (XRCID("menuItem_currentMode") == event.GetId())
+	{
+		SetStatusTextString("currentmode", "", event.IsChecked());
+	}
+	else if (XRCID("menuItem_heartVolumeEPI") == event.GetId())
+	{
+		SetStatusTextString("heartvolumeepi", "", event.IsChecked());
+	}
+	else if (XRCID("menuItem_heartVolumeENDO") == event.GetId())
+	{
+		SetStatusTextString("heartvolumeendo", "", event.IsChecked());
+	}
+}
+
 void CAPClientWindow::OnAbout(wxCommandEvent& event)
 {
 	wxBoxSizer *topsizer;
@@ -908,8 +972,7 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 
 		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
 		cmguiPanel_->SetCallback(input_callback_image_shifting, static_cast<void *>(this));
-		// cmguiPanel_->SetImageShiftingCallback(this);
-		SetAnnotationString("Plane shifting mode");
+		SetStatusTextString("currentmode", "Plane shifting mode", menuItem_currentMode->IsChecked());
 	}
 	else
 	{
@@ -922,6 +985,7 @@ void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
 	if (button_Model->GetLabel() == wxT("Start Modelling"))
 	{
 		button_PlaneShift->Enable(false);
+		button_Accept->Enable(true);
 		button_Model->SetLabel(wxT("End Modelling"));
 		
 		cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this), true);
@@ -929,7 +993,7 @@ void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
 		// Really important that this callback comes first, because otherwise the callback above
 		// will never fire properly
 		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
-		SetAnnotationString("Modelling mode");
+		SetStatusTextString("currentmode", "Modelling mode", menuItem_currentMode->IsChecked());
 	}
 	else
 	{
@@ -945,7 +1009,7 @@ void CAPClientWindow::EndCurrentModellingMode()
 		cmguiPanel_->SetInteractiveTool("transform_tool");
 		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
 		cmguiPanel_->RemoveCallback(input_callback_modelling, static_cast<void *>(this));
-		RestorePreviousAnnotationString();
+		SetStatusTextString("currentmode", "Transform mode", menuItem_currentMode->IsChecked());
 		button_PlaneShift->Enable(true);
 	}
 	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
@@ -954,10 +1018,10 @@ void CAPClientWindow::EndCurrentModellingMode()
 		cmguiPanel_->SetInteractiveTool("transform_tool");
 		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
 		cmguiPanel_->RemoveCallback(input_callback_image_shifting, static_cast<void *>(this));
-		RestorePreviousAnnotationString();
+		SetStatusTextString("currentmode", "Transform mode", menuItem_currentMode->IsChecked());
 		button_Model->Enable(true);
 		choice_Mode->Enable(true);
-		button_Accept->Enable(true);
+		button_Accept->Enable(false);
 	}
 }
 
@@ -1372,6 +1436,11 @@ double CAPClientWindow::ComputeHeartVolume(SurfaceType surface, double time) con
 			vol_sum += vol;
 		}
 	}
+
+	if (surface == ENDOCARDIUM)
+		SetStatusTextString("heartvolumeendo", "ED Volume(ENDO) = " + toString(vol_sum/6000.0) + " ml", menuItem_heartVolumeENDO->IsChecked());
+	else
+		SetStatusTextString("heartvolumeepi", "ED Volume(EPI) = " + toString(vol_sum/6000.0) + " ml", menuItem_heartVolumeEPI->IsChecked());
 
 	return (vol_sum/6000.0);
 	// (6*1000), 6 times volume of tetrahedron & for ml

@@ -19,6 +19,7 @@
 extern "C"
 {
 #include <api/cmiss_field_image.h>
+#include <api/cmiss_graphic.h>
 }
 
 #include "ui/CAPClientWindowUI.h"
@@ -39,6 +40,16 @@ class CAPClient; // Forward declare this so we can pass a pointer to the class l
  * Defines an alias representing the texture slice map.
  */
 typedef std::map< std::string, boost::shared_ptr<TextureSlice> > TextureSliceMap;
+
+/**
+ * Defines an alias representing the cmiss field graphic pair.
+ */
+typedef std::pair<Cmiss_field_id, Cmiss_graphic_id> CmissFieldGraphicPair;
+
+/**
+ * Defines an alias representing the status text strings field map.
+ */
+typedef std::map<std::string, CmissFieldGraphicPair> StatusTextStringsFieldMap;
 
 /**
  * \brief CAPClientWindow is the gui(view) for the CAPClient class.
@@ -87,14 +98,38 @@ public:
 	 */
 	void ClearTextureSlices();
 
+	/**
+	 * Play cine.
+	 */
 	void PlayCine();
-	
+
+	/**
+	 * Stop cine.
+	 */
 	void StopCine();
-	
+
+	/**
+	 * Updates the mode selection user interface described by mode.
+	 *
+	 * @param	mode	The mode.
+	 */
 	void UpdateModeSelectionUI(size_t mode);
 
+	/**
+	 * Calculates the heart volume.
+	 *
+	 * @param	surface	The surface (EPI or ENDO).
+	 * @param	time   	The time.
+	 *
+	 * @return	The calculated heart volume.
+	 */
 	double ComputeHeartVolume(SurfaceType surface, double time) const;
 
+	/**
+	 * Executes the accept action.  Callback API for cmgui to activate the
+	 * OnAccept function.  Pressing the 'a' key in the Cmgui scene viewer panel
+	 * will simulate the pressing of the accept button on the modeller panel.
+	 */
 	void OnAccept();
 
 	/**
@@ -385,20 +420,41 @@ private:
 	void CreateCAPIconInContext() const;
 
 	/**
-	 * Sets an annotation field to use the given string.
+	 * Sets the 'text' of the field named in 'mode'.  The mode string must be a key of the
+	 * statusTextStringsFieldMap_.  Set the text string empty if the string for the current mode
+	 * does not need to be changed.
 	 *
-	 * @param	text	The text.
+	 * @param	mode   	The mode.
+	 * @param	text   	The text.
+	 * @param	visible	Whether the text string is visible or not.
 	 */
-	void SetAnnotationString(std::string text);
+	void SetStatusTextString(std::string mode, std::string text, bool visible) const;
 
 	/**
-	 * Restore previous annotation string.
+	 * Gets the prompt for user comment.
+	 *
+	 * @return	.
 	 */
-	void RestorePreviousAnnotationString();
-
 	std::string PromptForUserComment();
 
+	/**
+	 * Resets the mode choice.
+	 */
 	void ResetModeChoice();
+
+	/**
+	 * Creates the status text strings field renditions.  In this function
+	 * we create the rendition element for the status text string fields.  A point
+	 * glyph of type none is created for the status text field to use.  The point glyph
+	 * is set in normalised window fit left coordinates.  The names of the fields are
+	 *  #.	"currentmode"
+	 *  #.	"heartvolumeepi"
+	 *  #.	"heartvolumeendo"
+	 *  
+	 * This function populates the statusTextStringsFieldMap_ with the above strings for 
+	 * keys and it's Cmiss_field_id as it's value.
+	 */
+	void CreateStatusTextStringsFieldRenditions();
 
 	/**
 	 * Window widget event handlers.
@@ -431,7 +487,9 @@ private:
 	void OnSave(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnExportModel(wxCommandEvent& event);
-	void OnExportModelToBinaryVolume(wxCommandEvent& event);	
+	void OnExportModelToBinaryVolume(wxCommandEvent& event);
+	void OnViewAll(wxCommandEvent& event);
+	void OnViewStatusText(wxCommandEvent& event);
 	
 	/**
 	 * Make the connections for the widgets.
@@ -453,8 +511,8 @@ private:
 
 	std::string previousSaveLocation_; /**< The previous save location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
-	std::vector<std::string> modeStates_;
 	bool previousCineState_; /**< true if cine was playing, false otherwise */
+	StatusTextStringsFieldMap statusTextStringsFieldMap_;   /**< The status text strings field map */
 };
 
 } // end namespace cap

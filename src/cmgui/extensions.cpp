@@ -380,10 +380,7 @@ void SetVisibilityForRegion(Cmiss_context_id cmissContext, const std::string& re
 	assert(region);
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
-	if (visibility)
-		Cmiss_rendition_set_visibility_flag(rendition, 1);
-	else
-		Cmiss_rendition_set_visibility_flag(rendition, 0);
+	Cmiss_rendition_set_visibility_flag(rendition, visibility ? 1 : 0);
 }
 
 
