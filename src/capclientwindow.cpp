@@ -280,27 +280,29 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
 	Cmiss_region_id statustext_region = Cmiss_region_create_subregion(root_region, "statustext");
-	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
+	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, statustext_region);
 
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(statustext_region);
 
-	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(root_region);
-
+	Cmiss_field_module_begin_change(field_module);
 	Cmiss_field_id currentmode_field = Cmiss_field_module_create_field(field_module, "currentmode", "string_constant 'no mode'");
 	Cmiss_graphic_id currentmode_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
-	int r1 = Cmiss_graphic_define(currentmode_graphic, "normalised_window_fit_left glyph none general label currentmode centre 0.0,0.0,0.0 material default selected_material default_selected;");
+	Cmiss_graphic_define(currentmode_graphic, "normalised_window_fit_left glyph none general label currentmode centre -0.95,-0.9,0.0 font default material default;");
+	Cmiss_graphic_set_visibility_flag(currentmode_graphic, 0);
 	statusTextStringsFieldMap_["currentmode"] = std::make_pair(currentmode_field, currentmode_graphic);
-
-	dbg("what : " + toString(currentmode_field) + ", " + toString(currentmode_graphic) + ", " + toString(r1 == CMISS_OK));
 
 	Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'ED Volume(EPI) = --'");
 	Cmiss_graphic_id heartvolumeepi_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
-	Cmiss_graphic_define(heartvolumeepi_graphic, "glyph none general label heartvolumeepi centre 0.95,-0.9,0.0 no_select normalised_window_fit_left;");
+	Cmiss_graphic_define(heartvolumeepi_graphic, "glyph none general label heartvolumeepi centre -0.95,0.9,0.0 no_select normalised_window_fit_left font default material default;");
+	Cmiss_graphic_set_visibility_flag(heartvolumeepi_graphic, 0);
 	statusTextStringsFieldMap_["heartvolumeepi"] = std::make_pair(heartvolumeepi_field, heartvolumeepi_graphic);
 
 	Cmiss_field_id heartvolumeendo_field = Cmiss_field_module_create_field(field_module, "heartvolumeendo", "string_constant 'ED Volume(ENDO) = --'");
 	Cmiss_graphic_id heartvolumeendo_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
-	Cmiss_graphic_define(heartvolumeendo_graphic, "glyph none label heartvolumeendo centre 0.95,-0.8,0.0 no_select normalised_window_fit_left;");
+	Cmiss_graphic_define(heartvolumeendo_graphic, "glyph none label heartvolumeendo centre -0.95,0.85,0.0 no_select normalised_window_fit_left font default material default;");
+	Cmiss_graphic_set_visibility_flag(heartvolumeendo_graphic, 0);
 	statusTextStringsFieldMap_["heartvolumeendo"] = std::make_pair(heartvolumeendo_field, heartvolumeendo_graphic);
+	Cmiss_field_module_end_change(field_module);
 
 	Cmiss_field_module_destroy(&field_module);
 	Cmiss_region_destroy(&statustext_region);
@@ -309,27 +311,36 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 	Cmiss_rendition_destroy(&rendition);
 }
 
-void CAPClientWindow::SetStatusTextString(std::string mode, std::string text, bool visible) const
+void CAPClientWindow::SetStatusTextString(std::string mode, std::string text) const
 {
 	StatusTextStringsFieldMap::const_iterator cit = statusTextStringsFieldMap_.find(mode);
 	if (cit != statusTextStringsFieldMap_.end())
 	{
 		Cmiss_field_id field = cit->second.first;
-		Cmiss_graphic_id graphic = cit->second.second;
 
 		Cmiss_field_module_id field_module = Cmiss_field_get_field_module(field);
+		Cmiss_field_module_begin_change(field_module);
 		Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
 
-		int r1 = 0;
 		if (text.size() > 0)
-			r1 = Cmiss_field_assign_string(field, cache, text.c_str());
-		int r2 = Cmiss_graphic_set_visibility_flag(graphic, visible ? 1 : 0);
+			Cmiss_field_assign_string(field, cache, text.c_str());
+		
 
-		dbg("what : " + toString(field) + ", " + toString(graphic) + ", " + toString(r1 == CMISS_OK) + ", " + toString(r2 == CMISS_OK));
+		Cmiss_field_module_end_change(field_module);
+
 		Cmiss_field_cache_destroy(&cache);
 		Cmiss_field_module_destroy(&field_module);
 	}
+}
 
+void CAPClientWindow::SetStatusTextVisibility(std::string mode, bool visible) const
+{
+	StatusTextStringsFieldMap::const_iterator cit = statusTextStringsFieldMap_.find(mode);
+	if (cit != statusTextStringsFieldMap_.end())
+	{
+		Cmiss_graphic_id graphic = cit->second.second;
+		Cmiss_graphic_set_visibility_flag(graphic, visible ? 1 : 0);
+	}
 }
 
 void CAPClientWindow::CreateCAPIconInContext() const
@@ -725,18 +736,17 @@ void CAPClientWindow::OnViewAll(wxCommandEvent& event)
 
 void CAPClientWindow::OnViewStatusText(wxCommandEvent& event)
 {
-	dbg("OnViewStatusText : " + std::string(event.GetString()) + " ; " + toString(event.IsChecked()));
 	if (XRCID("menuItem_currentMode") == event.GetId())
 	{
-		SetStatusTextString("currentmode", "", event.IsChecked());
+		SetStatusTextVisibility("currentmode", event.IsChecked());
 	}
 	else if (XRCID("menuItem_heartVolumeEPI") == event.GetId())
 	{
-		SetStatusTextString("heartvolumeepi", "", event.IsChecked());
+		SetStatusTextVisibility("heartvolumeepi", event.IsChecked());
 	}
 	else if (XRCID("menuItem_heartVolumeENDO") == event.GetId())
 	{
-		SetStatusTextString("heartvolumeendo", "", event.IsChecked());
+		SetStatusTextVisibility("heartvolumeendo", event.IsChecked());
 	}
 }
 
@@ -972,7 +982,7 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 
 		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
 		cmguiPanel_->SetCallback(input_callback_image_shifting, static_cast<void *>(this));
-		SetStatusTextString("currentmode", "Plane shifting mode", menuItem_currentMode->IsChecked());
+		SetStatusTextString("currentmode", "Plane shifting mode");
 	}
 	else
 	{
@@ -993,7 +1003,7 @@ void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
 		// Really important that this callback comes first, because otherwise the callback above
 		// will never fire properly
 		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
-		SetStatusTextString("currentmode", "Modelling mode", menuItem_currentMode->IsChecked());
+		SetStatusTextString("currentmode", "Modelling mode");
 	}
 	else
 	{
@@ -1009,7 +1019,7 @@ void CAPClientWindow::EndCurrentModellingMode()
 		cmguiPanel_->SetInteractiveTool("transform_tool");
 		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
 		cmguiPanel_->RemoveCallback(input_callback_modelling, static_cast<void *>(this));
-		SetStatusTextString("currentmode", "Transform mode", menuItem_currentMode->IsChecked());
+		SetStatusTextString("currentmode", "Transform mode");
 		button_PlaneShift->Enable(true);
 	}
 	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
@@ -1018,7 +1028,7 @@ void CAPClientWindow::EndCurrentModellingMode()
 		cmguiPanel_->SetInteractiveTool("transform_tool");
 		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
 		cmguiPanel_->RemoveCallback(input_callback_image_shifting, static_cast<void *>(this));
-		SetStatusTextString("currentmode", "Transform mode", menuItem_currentMode->IsChecked());
+		SetStatusTextString("currentmode", "Transform mode");
 		button_Model->Enable(true);
 		choice_Mode->Enable(true);
 		button_Accept->Enable(false);
@@ -1438,9 +1448,9 @@ double CAPClientWindow::ComputeHeartVolume(SurfaceType surface, double time) con
 	}
 
 	if (surface == ENDOCARDIUM)
-		SetStatusTextString("heartvolumeendo", "ED Volume(ENDO) = " + toString(vol_sum/6000.0) + " ml", menuItem_heartVolumeENDO->IsChecked());
+		SetStatusTextString("heartvolumeendo", "ED Volume(ENDO) = " + toString(vol_sum/6000.0) + " ml");
 	else
-		SetStatusTextString("heartvolumeepi", "ED Volume(EPI) = " + toString(vol_sum/6000.0) + " ml", menuItem_heartVolumeEPI->IsChecked());
+		SetStatusTextString("heartvolumeepi", "ED Volume(EPI) = " + toString(vol_sum/6000.0) + " ml");
 
 	return (vol_sum/6000.0);
 	// (6*1000), 6 times volume of tetrahedron & for ml

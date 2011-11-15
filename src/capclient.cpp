@@ -48,7 +48,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 	
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
-	InitializeModelTemplate();
+	//InitializeModelTemplate();
 	EnterImagesLoadedState();
 }
 
@@ -241,39 +241,40 @@ void CAPClient::OpenModel(const std::string& filename)
 		return;
 	}
 	
+	// TODO: Hide CAPClient icon in scene viewer
+	// TODO: clean up existing
 	LoadLabelledImages(labelledSlices);
 	//TODO: Load cardiac annotations
 	// LoadCardiacAnnotations(cardiacAnnotations);
-
-	// TODO clean up first
-	//--LoadImagesFromXMLFile(slicesWithImages);
-	
 	
 	std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	dbg("number of exnodeFilenames = " + toString(exnodeFileNames.size()));
 	if (exnodeFileNames.empty())
 	{
-		// This means no output element is defined
-		InitializeModelTemplate();
-		EnterImagesLoadedState();
-		
-		dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(dataPoints.size()));
-		modeller_->SetDataPoints(dataPoints);
-		// FIXME memory is prematurely released when ok button is pressed from the following window
-		// Suppress this feature for now
-		//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
-		//			frame->Show(true);
-		
-		//HACK : uncommenting the following will enable models to be constructed from model files with
-		// only the input element defined.
-		
-		Modeller::ModellingModeEnum mode = modeller_->GetCurrentMode();
-		gui_->UpdateModeSelectionUI(mode);
-		dbg( "Mode = " + toString(mode));
-		if (mode == Modeller::GUIDEPOINT)
+		if(!dataPoints.empty())
 		{
-			EnterModelLoadedState();
+			// This means no output element is defined
+			InitializeModelTemplate();
+			CreateModeller();
+			
+			dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(dataPoints.size()));
+			modeller_->SetDataPoints(dataPoints);
+			// FIXME memory is prematurely released when ok button is pressed from the following window
+			// Suppress this feature for now
+			//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
+			//			frame->Show(true);
+			
+			//HACK : uncommenting the following will enable models to be constructed from model files with
+			// only the input element defined.
+			
+			Modeller::ModellingModeEnum mode = modeller_->GetCurrentMode();
+			gui_->UpdateModeSelectionUI(mode);
+			dbg( "Mode = " + toString(mode));
+			if (mode == Modeller::GUIDEPOINT)
+			{
+				EnterModelLoadedState();
+			}
 		}
 		
 		return;
@@ -281,18 +282,21 @@ void CAPClient::OpenModel(const std::string& filename)
 	
 	const std::string& exelemFileName = xmlFile.GetExelemFileName();
 	
-	//HACK FIXME
 	std::string xmlFilename = filename;
 	size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
 	std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 	dbg("modelFilePath = " + modelFilePath);
 	
-	heartModelPtr_.reset(new HeartModel("heart"));
-	assert(heartModelPtr_);
-	heartModelPtr_->SetFocalLength(xmlFile.GetFocalLength());
 	int numberOfModelFrames = exnodeFileNames.size();
-	heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
+	gtMatrix m;
+	xmlFile.GetTransformationMatrix(m);
 
+	heartModelPtr_.reset(new HeartModel("heart"));
+	heartModelPtr_->SetFocalLength(xmlFile.GetFocalLength());
+	heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
+	heartModelPtr_->SetLocalToGlobalTransformation(m);
+
+	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	std::vector<std::string>::const_iterator cit = exnodeFileNames.begin();
 	std::vector<std::string> fullExnodeFileNames;
 	for(; cit != exnodeFileNames.end(); cit++)
@@ -300,14 +304,11 @@ void CAPClient::OpenModel(const std::string& filename)
 		fullExnodeFileNames.push_back(modelFilePath + "/" + *cit);
 	}
 	std::string fullExelemFileName = modelFilePath + "/" + exelemFileName;
-	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
-	gtMatrix m;
-	xmlFile.GetTransformationMatrix(m);
-	gui_->SetHeartTransform(m);
 
-	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
+	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
+	gui_->SetHeartTransform(m);
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
-	heartModelPtr_->SetLocalToGlobalTransformation(m);
+
 	//--modeller_->SetDataPoints(dataPoints);
 
 	UpdateMII();
@@ -341,10 +342,11 @@ void CAPClient::OpenAnnotation(const std::string& filename, const std::string& i
 	
 	if (ib_)
 		delete ib_;
-	ib_ = ImageBrowser::CreateImageBrowser(imageDirname, this);
+	ImageBrowser *ib = ImageBrowser::CreateImageBrowser(imageDirname, this);
+	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
 	
 	// Set annotations to the images in the ImageBrowserWindow.
-	ib_->SetAnnotation(annotationFile.GetCardiacAnnotation());
+//	ib_->SetAnnotation(annotationFile.GetCardiacAnnotation());
 }
 
 void CAPClient::OpenImages(const std::string& imageDirname)
@@ -431,7 +433,7 @@ void CAPClient::InitializeModelTemplate()
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
 	gui_->LoadTemplateHeartModel(minNumberOfFrames);
 	gui_->SetHeartTransform(heartModelPtr_->GetLocalToGlobalTransformation());
-	UpdateStatesAfterLoadingModel();
+	//--InitializeMII(); // This turns on all MII's
 }
 
 unsigned int CAPClient::GetMinimumNumberOfFrames() const

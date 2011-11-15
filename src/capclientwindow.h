@@ -421,14 +421,21 @@ private:
 
 	/**
 	 * Sets the 'text' of the field named in 'mode'.  The mode string must be a key of the
-	 * statusTextStringsFieldMap_.  Set the text string empty if the string for the current mode
-	 * does not need to be changed.
+	 * statusTextStringsFieldMap_.
+	 *
+	 * @param	mode	The mode.
+	 * @param	text	The text.
+	 */
+	void SetStatusTextString(std::string mode, std::string text) const;
+
+	/**
+	 * Sets the status text visibility.  The mode string must be a key of the
+	 * statusTextStringsFieldMap_.
 	 *
 	 * @param	mode   	The mode.
-	 * @param	text   	The text.
-	 * @param	visible	Whether the text string is visible or not.
+	 * @param	visible	true to show, false to hide.
 	 */
-	void SetStatusTextString(std::string mode, std::string text, bool visible) const;
+	void SetStatusTextVisibility(std::string mode, bool visible) const;
 
 	/**
 	 * Gets the prompt for user comment.

@@ -391,30 +391,7 @@ private:
 		}
 		assert(heartModelPtr_);
 		modeller_ = new Modeller(this); // initialise modeller and all the data points
-	}
-
-	/**
-	 * Updates the states after loading model.
-	 */
-	void UpdateStatesAfterLoadingModel()
-	{
-		CreateModeller();
 		gui_->UpdateModeSelectionUI(Modeller::APEX);
-		InitializeMII(); // This turns on all MII's
-	}
-
-	/**
-	 * Loads a heart model.
-	 *
-	 * @param	path		  	Full pathname of the file.
-	 * @param	modelFilenames	The model filenames.
-	 */
-	void LoadHeartModel(std::string const& path, std::vector<std::string> const& modelFilenames)
-	{
-		assert(heartModelPtr_);
-		heartModelPtr_->ReadModelFromFiles(path, modelFilenames);
-		UpdateStatesAfterLoadingModel();
-		EnterModelLoadedState();
 	}
 	
 	/**
