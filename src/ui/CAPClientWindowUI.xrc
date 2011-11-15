@@ -40,9 +40,24 @@
 			</object>
 			<object class="wxMenu" name="menu_View">
 				<label>_View</label>
-				<object class="wxMenuItem" name="menuItem_ImageBrowseWindow">
-					<label>Open Image Browse Window</label>
+				<object class="wxMenuItem" name="menuItem_viewAll">
+					<label>View _All</label>
 					<help></help>
+				</object>
+				<object class="wxMenuItem" name="menuItem_currentMode">
+					<label>Current Mode</label>
+					<help></help>
+					<checkable>1</checkable>
+				</object>
+				<object class="wxMenuItem" name="menuItem_heartVolumeEPI">
+					<label>Heart Volume EPI</label>
+					<help></help>
+					<checkable>1</checkable>
+				</object>
+				<object class="wxMenuItem" name="menuItem_heartVolumeENDO">
+					<label>Heart Volume ENDO</label>
+					<help></help>
+					<checkable>1</checkable>
 				</object>
 			</object>
 			<object class="wxMenu" name="menu_Help">
