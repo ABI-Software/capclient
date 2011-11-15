@@ -12,7 +12,7 @@ INCLUDE(Macros)
 
 DEFINE_ARCHITECTURE_DIR()
 # Try and find CMISS_ROOT variable so we can prime the 
-# finding of the Zinc and GDCM libraries.  Otherwise
+# finding of the Cmgui and GDCM libraries.  Otherwise
 # they can be set directly or entered when using a gui tool.
 IF(CMISS_ROOT)
 	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
@@ -34,7 +34,7 @@ OPTION_WITH_DEFAULT(CAP_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests."
 OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary." ON)
 
 # wxWidgets 2.8.10 can only be built in 32-bit mode on Mac
-# Zinc uses wxWidgets 2.8.10 so that too is only built in 
+# Cmgui uses wxWidgets 2.8.10 so that too is only built in 
 # 32-bit mode.  Therefore force the CAP Client to also be 
 # built in 32-bit mode on Mac.
 IF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
@@ -147,7 +147,7 @@ SET( APP_XRC
 	)
 
 SET(MISSING_DEPENDENCY)
-# Find the Zinc libraries, using a gui the Zinc_DIR variable
+# Find the Cmgui libraries, using a gui the Cmgui_DIR variable
 # can be set if needed.  Alternatively it can be set on the 
 # command line when creating the CMake cache.
 FIND_PACKAGE(Cmgui)
@@ -203,8 +203,9 @@ CONFIGURE_FILE(src/html/aboutcapclient.html.cmake src/aboutcapclient.html)
 
 # Create an executable to convert text files into c strings
 # in a header file.
-ADD_EXECUTABLE(txt2include src/utils/txt2include.c)
-GET_TARGET_PROPERTY(TXT2INCLUDE_EXE txt2include LOCATION)
+SET(TXT2INCLUDE_TARGET txt2include)
+ADD_EXECUTABLE(${TXT2INCLUDE_TARGET} src/utils/txt2include.c)
+#GET_TARGET_PROPERTY(TXT2INCLUDE_EXE txt2include LOCATION)
 #INCLUDE(txt_files.cmake)
 SET(TXT_FILES
 	src/templates/vert.prog
@@ -219,27 +220,19 @@ SET(TXT_FILES
 	src/images/mri_icon.png
 	src/images/abi_icon.png
 	)
+	
 SET(TXT_HDRS)
+SET(TEXT_HDR_PATH_PREFIX "src/hexified")
 FOREACH(TXT_FILE ${TXT_FILES})
+	HEXIFY_FILE(${TXT2INCLUDE_TARGET} "${TEXT_HDR_PATH_PREFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/${TXT_FILE}")
 	GET_FILENAME_COMPONENT(TXT_FILE_NAME ${TXT_FILE} NAME)
-	SET(TXT_FILE_HDR src/hexified/${TXT_FILE_NAME}.h)
-	ADD_CUSTOM_COMMAND(OUTPUT "${TXT_FILE_HDR}"
-		COMMAND cmake -E make_directory src
-		COMMAND cmake -E make_directory src/hexified
-		COMMAND ${TXT2INCLUDE_EXE} "${CMAKE_CURRENT_SOURCE_DIR}/${TXT_FILE}" "${TXT_FILE_HDR}"
-		DEPENDS txt2include
-		MAIN_DEPENDENCY ${TXT_FILES})
+	SET(TXT_FILE_HDR "${TEXT_HDR_PATH_PREFIX}/${TXT_FILE_NAME}.h")
 	LIST(APPEND TXT_HDRS "${CMAKE_CURRENT_BINARY_DIR}/${TXT_FILE_HDR}")
 ENDFOREACH()
 
-# special case for our configured html page
-SET(ABOUTCAPCLIENT_HDR src/hexified/aboutcapclient.html.h)
-ADD_CUSTOM_COMMAND(OUTPUT ${ABOUTCAPCLIENT_HDR}
-	COMMAND cmake -E make_directory src
-	COMMAND cmake -E make_directory src/hexified
-	COMMAND ${TXT2INCLUDE_EXE} "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html" ${ABOUTCAPCLIENT_HDR}
-	DEPENDS txt2include
-	MAIN_DEPENDENCY "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html")
+# special case for our configured html page because it is in the build tree
+HEXIFY_FILE( ${TXT2INCLUDE_TARGET} "${TEXT_HDR_PATH_PREFIX}" "${CMAKE_CURRENT_BINARY_DIR}/src/aboutcapclient.html")
+SET(ABOUTCAPCLIENT_HDR "${TEXT_HDR_PATH_PREFIX}/aboutcapclient.html.h")
 LIST(APPEND TXT_HDRS "${CMAKE_CURRENT_BINARY_DIR}/${ABOUTCAPCLIENT_HDR}")
 
 IF(MSVC)
@@ -258,7 +251,7 @@ FOREACH(DEF ${CMGUI_DEFINITIONS} ${PLATFORM_DEFS})
 	ADD_DEFINITIONS(-D${DEF})
 ENDFOREACH()
 
-# Set the include directories, Zinc does not know that it is dependent on gdcm??? 
+# Set the include directories, Cmgui does not know that it is dependent on gdcm??? 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMGUI_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS} ${GMM_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
 IF(MSVC)
 	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/win32)
@@ -273,7 +266,7 @@ SET_TARGET_PROPERTIES(${CAP_CLIENT_EXECUTABLE} PROPERTIES DEBUG_POSTFIX "d" MINS
 # and for each of your dependant executable/library targets:
 TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIBRARIES})
 
-# these libraries are not pulled in by Zinc or one of it's dependencies
+# these libraries are not pulled in by Cmgui or one of it's dependencies
 # is not reporting that it needs them
 IF(MSVC)
 	TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
@@ -311,7 +304,6 @@ IF(CAP_PRINT_SUMMARY)
 	MESSAGE(STATUS "======== CAP Client Configuration Summary ========")
 	MESSAGE(STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
 	MESSAGE(STATUS "CMAKE_SYSTEM_NAME is ${CMAKE_SYSTEM_NAME}")
-#	MESSAGE(STATUS "CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 	MESSAGE(STATUS "==================================================")
 	MESSAGE(STATUS "")
 ENDIF()
