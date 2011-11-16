@@ -49,12 +49,12 @@ Modeller::Modeller(CAPClient *mainApp)
 
 	// Read in S (smoothness matrix)
 	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
-	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalSmoothPerFrameMatrix_dat, GlobalSmoothPerFrameMatrix_dat_len);
+	FileSystem::WriteCharBufferToFile(tmpFileName, globalsmoothperframematrix_dat, globalsmoothperframematrix_dat_len);
 	S_ = factory.CreateSparseMatrixFromFile(tmpFileName);
 	FileSystem::RemoveFile(tmpFileName);
 	// Read in G (global to local parameter map)
 	tmpFileName = FileSystem::CreateTemporaryEmptyFile();
-	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalMapBezierToHermite_dat, GlobalMapBezierToHermite_dat_len);
+	FileSystem::WriteCharBufferToFile(tmpFileName, globalmapbeziertohermite_dat, globalmapbeziertohermite_dat_len);
 	G_ = factory.CreateSparseMatrixFromFile(tmpFileName);
 	FileSystem::RemoveFile(tmpFileName);
 

@@ -108,7 +108,7 @@ TEST(FileSystemTest, WriteBufferFile)
 {
 	using namespace cap;
 	std::string filename = FileSystem::CreateTemporaryEmptyFile(std::string(FILESYSTEM_TESTDIR));
-	bool res = FileSystem::WriteCharBufferToFile(filename, GlobalSmoothTVMatrix_dat, GlobalSmoothTVMatrix_dat_len);
+	bool res = FileSystem::WriteCharBufferToFile(filename, globalsmoothtvmatrix_dat, globalsmoothtvmatrix_dat_len);
 	EXPECT_EQ(true, res);
 	res = FileSystem::RemoveFile(filename);
 	EXPECT_EQ(true, res);
