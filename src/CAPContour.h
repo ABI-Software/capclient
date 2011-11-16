@@ -8,7 +8,7 @@
 #ifndef CAPCONTOUR_H_
 #define CAPCONTOUR_H_
 
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 #include <string>
 #include <vector>

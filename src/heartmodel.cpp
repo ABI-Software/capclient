@@ -20,7 +20,7 @@ extern "C" {
 
 #include "heartmodel.h"
 #include "cmgui/sceneviewerpanel.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 #include "utils/debug.h"
 
 namespace cap

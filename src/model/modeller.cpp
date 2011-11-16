@@ -23,7 +23,7 @@
 #include "math/solverlibraryfactory.h"
 #include "math/gmmfactory.h"
 #include "math/vnlfactory.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 #include "math/basis.h"
 
 namespace cap

@@ -130,7 +130,6 @@ TEST(CAPModellerTest, ModellingModeApex)
 	using namespace cap;
 	ModellingModeApex m;
 	m.PerformEntryAction();
-	
 }
 
 
@@ -179,4 +178,12 @@ TEST(StringScanTest, ScanLine)
 	EXPECT_EQ(Neltvl, 0);
 }
 
+TEST(Modeller, AddApexPoint)
+{
+	using namespace cap;
+	Modeller modeller(0);
+	Point3D coord(4, 5, 6);
+	modeller.AddDataPoint(0, coord, 0.0);
+	EXPECT_TRUE(modeller.OnAccept());
+}
 

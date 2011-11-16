@@ -4,7 +4,7 @@
 
 #include "unittestconfigure.h"
 #include "DICOMImage.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 TEST(DICOMImageTest, GetFilename)
 {

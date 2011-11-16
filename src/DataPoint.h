@@ -9,7 +9,7 @@
 #define DATAPOINT_H_
 
 #include "SliceInfo.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 extern "C" {
 #include "api/cmiss_node.h"

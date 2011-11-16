@@ -14,7 +14,7 @@
 #include <boost/tr1/memory.hpp>
 
 #include "ImageSliceGraphics.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 struct Scene_object;
 class Cmiss_texture;
