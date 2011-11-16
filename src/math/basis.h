@@ -17,7 +17,7 @@ namespace cap
 {
 
 
-class CAPFourierBasis
+class FourierBasis
 {
 public:
 	void Evaluate(double bf[], const double xi[]) const
@@ -37,7 +37,7 @@ public:
 	}
 };
 
-class CAPBiCubicHermiteLinearBasis
+class BiCubicHermiteLinearBasis
 {
 public:
 	void Evaluate(double bf[], const double xi[]) const

@@ -1,5 +1,5 @@
 /*
- * CAPTimeSmoother.cpp
+ * TimeSmoother.cpp
  *
  *  Created on: May 5, 2009
  *      Author: jchu014
@@ -26,9 +26,9 @@ namespace cap
 //const static char* Sfile = "Data/templates/GlobalSmoothTVMatrix.dat";
 //const static char* priorFile = "Data/templates/time_varying_prior.dat";
 
-struct CAPTimeSmootherImpl
+struct TimeSmootherImpl
 {
-	CAPTimeSmootherImpl()
+	TimeSmootherImpl()
 	:S(11,11),
 	Priors(11,134)
 	{}
@@ -37,9 +37,9 @@ struct CAPTimeSmootherImpl
 	gmm::dense_matrix<double> Priors;
 };
 
-CAPTimeSmoother::CAPTimeSmoother()
+TimeSmoother::TimeSmoother()
 :
-	pImpl(new CAPTimeSmootherImpl)
+	pImpl(new TimeSmootherImpl)
 {
 	//read in S
 	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
@@ -68,23 +68,23 @@ CAPTimeSmoother::CAPTimeSmoother()
 	//dbg(toString(pImpl->Priors));
 }
 
-CAPTimeSmoother::~CAPTimeSmoother()
+TimeSmoother::~TimeSmoother()
 {
 	delete pImpl;
 }
 
-double CAPTimeSmoother::MapToXi(double time) const
+double TimeSmoother::MapToXi(double time) const
 {
 	return time;
 }
 
-std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vector<double>& dataPoints, const std::vector<int>& framesWithDataPoints) const
+std::vector<double> TimeSmoother::FitModel(int parameterIndex, const std::vector<double>& dataPoints, const std::vector<int>& framesWithDataPoints) const
 {
 	// 1. Project data points (from each frame) to model to get corresponding xi
 	// Here the data points are the nodal parameters at each frame and linearly map to xi
 	// 2. Construct P
 	
-	CAPFourierBasis basis;
+	FourierBasis basis;
 	int numRows = dataPoints.size();
 	gmm::dense_matrix<double> P(numRows, NUMBER_OF_PARAMETERS);
 	
@@ -160,7 +160,7 @@ std::vector<double> CAPTimeSmoother::FitModel(int parameterIndex, const std::vec
 	return x;
 }
 
-std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber) const
+std::vector<double> TimeSmoother::GetPrior(int paramNumber) const
 {
 	std::vector<double> prior(11);
 	for (int i =0; i<11; i++)
@@ -171,10 +171,10 @@ std::vector<double> CAPTimeSmoother::GetPrior(int paramNumber) const
 	return prior;
 }
 
-double CAPTimeSmoother::ComputeLambda(double xi, const std::vector<double>& params) const
+double TimeSmoother::ComputeLambda(double xi, const std::vector<double>& params) const
 {
 	double psi[NUMBER_OF_PARAMETERS];
-	CAPFourierBasis basis;
+	FourierBasis basis;
 	double xiDouble[1];
 	xiDouble[0] = xi;
 	basis.Evaluate(psi, xiDouble);

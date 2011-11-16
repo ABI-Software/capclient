@@ -582,7 +582,7 @@ void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
 	//    use this function as a temporary soln until Cmgui supports this
 	double psi[32]; //FIX 32?
 	std::vector<Entry> entries;
-	CAPBiCubicHermiteLinearBasis basis;
+	BiCubicHermiteLinearBasis basis;
 	std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
 	std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
 

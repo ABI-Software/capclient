@@ -292,7 +292,7 @@ private:
 	
 	SparseMatrix* bezierToHermiteTransform_;	/**< The bezier to hermite transform, temporary? */
 	
-	CAPTimeSmoother timeSmoother_;  /**< The time smoother */
+	TimeSmoother timeSmoother_;  /**< The time smoother */
 };
 
 } //end namespace cap
