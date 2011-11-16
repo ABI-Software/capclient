@@ -210,10 +210,10 @@ ADD_EXECUTABLE(${TXT2INCLUDE_TARGET} src/utils/txt2include.c)
 SET(TXT_FILES
 	src/templates/vert.prog
 	src/templates/frag.prog
-	src/templates/GlobalSmoothTVMatrix.dat
+	src/templates/globalsmoothtvmatrix.dat
 	src/templates/timevaryingprior.dat
-	src/templates/GlobalSmoothPerFrameMatrix.dat
-	src/templates/GlobalMapBezierToHermite.dat
+	src/templates/globalsmoothperframematrix.dat
+	src/templates/globalmapbeziertohermite.dat
 	src/templates/globalhermiteparam.exelem
 	src/templates/heartmodel.exnode
 	src/templates/prior.dat

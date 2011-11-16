@@ -43,7 +43,7 @@ TimeSmoother::TimeSmoother()
 {
 	//read in S
 	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
-	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalSmoothTVMatrix_dat, GlobalSmoothTVMatrix_dat_len);
+	FileSystem::WriteCharBufferToFile(tmpFileName, globalsmoothtvmatrix_dat, globalsmoothtvmatrix_dat_len);
 	Harwell_Boeing_load(tmpFileName, pImpl->S);
 	FileSystem::RemoveFile(tmpFileName);
 
