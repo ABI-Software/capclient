@@ -70,21 +70,74 @@ public:
 	 * \param max the maximum number for the slider to represent.
 	 */
 	void SetAnimationSliderMax(size_t max);
-	
+
+	/**
+	 * Sets an information field.
+	 *
+	 * @param	fieldName	Name of the field.
+	 * @param	data	 	The data.
+	 */
 	void SetInfoField(std::string const& fieldName, std::string const& data);
+
+	/**
+	 * Populate image table row.
+	 *
+	 * @param	rowNumber		 	The row number.
+	 * @param	seriesNumber	 	The series number.
+	 * @param	seriesDescription	Information describing the series.
+	 * @param	sequenceName	 	Name of the sequence.
+	 * @param	numImages		 	Number of images.
+	 * @param	userDataPtr		 	The user data pointer.
+	 */
 	void PopulateImageTableRow(int rowNumber,
 			int seriesNumber, std::string const& seriesDescription,
 			std::string const& sequenceName, size_t numImages,
 			long int const& userDataPtr);
+
+	/**
+	 * Select first row in image table.
+	 */
 	void SelectFirstRowInImageTable();
+
+	/**
+	 * Clears the image table.
+	 */
 	void ClearImageTable();
-	
+
+	/**
+	 * Creates the progress dialog.
+	 *
+	 * @param	title  	The title.
+	 * @param	message	The message.
+	 * @param	max	   	The maximum.
+	 */
 	void CreateProgressDialog(std::string const& title, std::string const& message, int max);
+
+	/**
+	 * Updates the progress dialog described by count.
+	 *
+	 * @param	count	Number of.
+	 */
 	void UpdateProgressDialog(int count);
+
+	/**
+	 * Destroys the progress dialog.
+	 */
 	void DestroyProgressDialog();
-	
+
+	/**
+	 * Creates a message box.
+	 *
+	 * @param	message	The message.
+	 * @param	caption	The caption.
+	 */
 	void CreateMessageBox(std::string const& message, std::string const& caption);
-	
+
+	/**
+	 * Gets the list of labels from image table.
+	 *
+	 * @return	The list of labels from image table.
+	 */
 	std::vector<std::pair<std::string, long int> > GetListOfLabelsFromImageTable() const;
 	
 	/**
@@ -126,18 +179,56 @@ public:
 	 * View all
 	 */
 	void ViewAll() const { cmguiPanel_->ViewAll(); }
-	
+
+	/**
+	 * Sets an image table row label.
+	 *
+	 * @param	index	Zero-based index of the.
+	 * @param	label	The label.
+	 */
 	void SetImageTableRowLabel(long int index, std::string const& label);
 	// Sets the label to the row in the image table with the matching user data
+
+	/**
+	 * Sets an image table row label by user data.
+	 *
+	 * @param	userData	Information describing the user.
+	 * @param	label   	The label.
+	 */
 	void SetImageTableRowLabelByUserData(long int userData, std::string const& label);
 
 //	void ShowImageAnnotation();
-	
+
+	/**
+	 * Creates the image table columns.
+	 */
 	void CreateImageTableColumns();
+
+	/**
+	 * Puts a label on selected slice.
+	 *
+	 * @param	label	The label.
+	 */
 	void PutLabelOnSelectedSlice(std::string const& label);
-	
+
+	/**
+	 * Clears the annotation table.
+	 */
 	void ClearAnnotationTable();
+
+	/**
+	 * Creates the annotation table columns.
+	 */
 	void CreateAnnotationTableColumns();
+
+	/**
+	 * Populate annotation table row.
+	 *
+	 * @param	rowNumber	The row number.
+	 * @param	label	 	The label.
+	 * @param	rid		 	The rid.
+	 * @param	scope	 	The scope.
+	 */
 	void PopulateAnnotationTableRow(int rowNumber, std::string const& label, std::string const& rid, std::string const& scope);
 
 	/**
@@ -146,7 +237,21 @@ public:
 	 * @param	text	The text.
 	 */
 	void SetAnnotationString(std::string text);
-	
+
+	/**
+	 * Sets the image location for the image location widget.
+	 *
+	 * @param	dir	The dir.
+	 */
+	void SetImageLocation(const std::string& dir);
+
+	/**
+	 * Gets the image location.
+	 *
+	 * @return	The image location.
+	 */
+	std::string GetImageLocation() const;
+
 private:
 
 	/**
@@ -193,6 +298,8 @@ private:
 	void OnCancelButtonClicked(wxCommandEvent& event); /**< event handler. */
 	void OnOrderByRadioBox(wxCommandEvent& event); /**< event handler. */
 	void OnCaseSelected(wxCommandEvent& event); /**< event handler. */
+	void OnChooseDirectory(wxCommandEvent& event); /**< event handler. */
+	void OnChooseArchive(wxCommandEvent& event); /**< event handler. */
 	
 	ImageBrowser *browser_; /**< the data for this window. */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */

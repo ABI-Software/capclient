@@ -18,6 +18,8 @@ TextureSlice::~TextureSlice()
 	std::vector<Cmiss_field_image_id>::iterator it = fieldImages_.begin();
 	for (; it != fieldImages_.end(); it++)
 		Cmiss_field_image_destroy(&(*it));
+
+	fieldImages_.clear();
 }
 
 void TextureSlice::ChangeTexture(unsigned int index)

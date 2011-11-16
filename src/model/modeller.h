@@ -153,9 +153,9 @@ public:
 //	void SetBasePlanePoints(const std::map<Cmiss_node*, DataPoint>& rvInserts);
 
 	/**
-	 * Initialises the model.
+	 * Align model.
 	 */
-	void InitialiseModel();
+	void AlignModel();
 
 	/**
 	 * Updates the time varying model.
@@ -222,6 +222,21 @@ private:
 		return m;
 	}
 
+	/**
+	 * Fit plane to base plane points.
+	 *
+	 * @param	basePlanePoints	The base plane points.
+	 * @param	xAxis		   	The x coordinate axis.
+	 *
+	 * @return	The fitted plane.
+	 */
+	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const;
+
+	/**
+	 * Change modelling mode.
+	 *
+	 * @param [in,out]	newMode	If non-null, the new mode.
+	 */
 	void ChangeMode(ModellingMode* newMode);
 	
 	CAPClient *mainApp_;	/**< The main application */

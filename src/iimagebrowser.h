@@ -26,6 +26,7 @@ public:
 	virtual void LoadImagesFromImageBrowserWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno) = 0;
 	virtual void LoadLabelledImages(const LabelledSlices& labelledSlices) = 0;
 	virtual void LoadCardiacAnnotations(const CardiacAnnotation& anno) = 0;
+	virtual void SetImageLocation(const std::string& location) = 0;
 };
 
 } // end namespace cap

@@ -317,19 +317,19 @@ public:
 	Point3D GetNodeRCCoordinates(Cmiss_node_id node) const;
 
 	/**
-	 * Enter modelling mode.  When entering the modelling mode some things need
+	 * Start modelling action.  When starting the modelling action some things need
 	 * to be done.
 	 *	1. Create a region for the current modelling mode if one doesn't already exist.
 	 *	2. Set the node tool up to work with the current modelling mode.  
 	 *	3. Record the current state of the cine.
 	 */
-	void EnterModellingMode();
+	void StartModellingAction();
 
 	/**
-	 * Exit modelling mode.  When exiting the modelling mode we reinstate the previous
+	 * Endt modelling action.  When ending the modelling action we reinstate the previous
 	 * cine mode.
 	 */
-	void ExitModellingMode();
+	void EndModellingAction();
 
 	/**
 	 * Updates the frame number described by frameNumber.
@@ -481,7 +481,7 @@ private:
 	void OnAcceptClicked(wxCommandEvent& event);
 	void OnModellingModeChanged(wxCommandEvent& event);
 	void OnTogglePlaneShift(wxCommandEvent& event);
-	void OnToggleModel(wxCommandEvent& event);
+	void OnToggleModelling(wxCommandEvent& event);
 	void OnModelDisplayModeChanged(wxCommandEvent& event);
 	
 	/**
@@ -518,7 +518,7 @@ private:
 
 	std::string previousSaveLocation_; /**< The previous save location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
-	bool previousCineState_; /**< true if cine was playing, false otherwise */
+	bool modellingStoppedCine_; /**< true if cine was playing when modelling started, false otherwise */
 	StatusTextStringsFieldMap statusTextStringsFieldMap_;   /**< The status text strings field map */
 };
 

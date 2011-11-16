@@ -25,6 +25,7 @@ public:
 	void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno){}
 	void LoadCardiacAnnotations(const CardiacAnnotation &){}
 	void LoadLabelledImages(const LabelledSlices &){}
+	void SetImageLocation(const std::string& location){}
 };
 
 DICOMImage::DICOMImage(const std::string& filename)

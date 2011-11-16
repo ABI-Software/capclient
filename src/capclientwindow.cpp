@@ -71,7 +71,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, timeNotifier_(0)
 	, previousSaveLocation_("")
 	, initialised_xmlUserCommentDialog_(false)
-	, previousCineState_(false)
+	, modellingStoppedCine_(false)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
@@ -133,7 +133,7 @@ void CAPClientWindow::MakeConnections()
 	Connect(button_HideShowAll->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
 	Connect(button_HideShowOthers->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
 	Connect(button_PlaneShift->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlaneShift));
-	Connect(button_Model->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleModel));
+	Connect(button_Model->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleModelling));
 	Connect(button_Accept->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
 	Connect(slider_Brightness->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
 	Connect(slider_Contrast->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
@@ -780,15 +780,15 @@ void CAPClientWindow::OnAbout(wxCommandEvent& event)
 
 void CAPClientWindow::OnOpenImages(wxCommandEvent& event)
 {
+	mainApp_->OpenImages();
 	//cout << "CAPClientWindow::" << __func__ << endl;
-	wxString defaultPath = wxGetCwd();;
+	//wxString defaultPath = wxGetCwd();;
 	
-	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
-	if ( !dirname.empty() )
-	{
-		cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
-		mainApp_->OpenImages(std::string(dirname.mb_str()));
-	}
+	//const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
+	//if ( !dirname.empty() )
+	//{
+	//	cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
+	//}
 }
 
 void CAPClientWindow::ResetModeChoice()
@@ -803,7 +803,7 @@ void CAPClientWindow::ResetModeChoice()
 	choice_Mode->SetSelection(0);
 }
 
-void CAPClientWindow::EnterModellingMode()
+void CAPClientWindow::StartModellingAction()
 {
 	Modeller::ModellingModeEnum currentMode = static_cast<Modeller::ModellingModeEnum>(choice_Mode->GetSelection());
 	const std::string& modelling_mode = Modeller::ModellingModeStrings.find(currentMode)->second;
@@ -812,15 +812,21 @@ void CAPClientWindow::EnterModellingMode()
 	std::string command = "group " + modelling_mode + " coordinate_field coordinates edit create define constrain_to_surfaces";
 	cmguiPanel_->SetInteractiveTool("node_tool", command);
 	if (button_Play->GetLabel() == wxT("Stop"))
-		previousCineState_ = true;
+	{
+		//StopCine();
+		modellingStoppedCine_ = true;
+	}
 	else
-		previousCineState_ = false;
+		modellingStoppedCine_ = false;
 }
 
-void CAPClientWindow::ExitModellingMode()
+void CAPClientWindow::EndModellingAction()
 {
-	if (previousCineState_)
-		PlayCine();
+	if (modellingStoppedCine_)
+	{
+		modellingStoppedCine_ = false;
+		//PlayCine();
+	}
 }
 
 
@@ -990,13 +996,14 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnToggleModel(wxCommandEvent& event)
+void CAPClientWindow::OnToggleModelling(wxCommandEvent& event)
 {
 	if (button_Model->GetLabel() == wxT("Start Modelling"))
 	{
 		button_PlaneShift->Enable(false);
 		button_Accept->Enable(true);
 		button_Model->SetLabel(wxT("End Modelling"));
+		mainApp_->StartModelling();
 		
 		cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this), true);
 

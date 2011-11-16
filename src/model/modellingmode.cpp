@@ -21,7 +21,7 @@
 #include "hexified/prior.dat.h"
 #include "model/modellingmode.h"
 #include "model/modeller.h"
-#include "CAPTotalLeastSquares.h"
+#include "math/totalleastsquares.h"
 #include "SolverLibraryFactory.h"
 #include "GMMFactory.h"
 #include "VNLFactory.h"
@@ -266,9 +266,9 @@ ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 	}
 	
 	DataPointTimeLessThan lessThan; // need lambda functions !
-	std::sort(basePlanePoints_.begin(),basePlanePoints_.end(),lessThan);
+	std::sort(basePlanePoints_.begin(), basePlanePoints_.end(), lessThan);
 	
-	modeller.InitialiseModel();
+	modeller.AlignModel();
 	modeller.UpdateTimeVaryingModel();
 	return modeller.GetModellingModeGuidePoints();
 }
@@ -730,44 +730,6 @@ Plane ModellingModeGuidePoints::InterpolateBasePlane(const std::map<int, Plane>&
 	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
 	
 	plane.position = prevPlane.position + coefficient * (nextPlane.position - prevPlane.position);
-	
-	return plane;
-}
-
-Plane ModellingModeGuidePoints::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const
-{
-	Plane plane;
-	
-	if (basePlanePoints.size() > 2)
-	{
-		// Total Least Squares using SVD
-		std::vector<Point3D> vectorOfPoints;
-		for (std::vector<DataPoint>::const_iterator i = basePlanePoints.begin();
-				i != basePlanePoints.end(); ++i)
-		{
-			vectorOfPoints.push_back(i->GetCoordinate());
-		}
-		plane = FitPlaneUsingTLS(vectorOfPoints);
-	}
-	else
-	{
-		// When only 2 base plane points have been specified
-		Vector3D temp1 = basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate();
-		temp1.Normalise();
-		
-		Vector3D temp2 = CrossProduct(temp1, xAxis);
-		
-		plane.normal = CrossProduct(temp1, temp2);
-		plane.normal.Normalise();
-		
-		plane.position = basePlanePoints[0].GetCoordinate() + (0.5 * (basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate()));
-	}
-	
-	// make sure plane normal is always pointing toward the apex
-	if (DotProduct(plane.normal, xAxis) < 0)
-	{
-		plane.normal *= -1; 
-	}
 	
 	return plane;
 }
