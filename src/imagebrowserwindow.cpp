@@ -356,13 +356,11 @@ void ImageBrowserWindow::OnNoneButtonEvent(wxCommandEvent& WXUNUSED(event))
 void ImageBrowserWindow::OnOKButtonClicked(wxCommandEvent& WXUNUSED(event))
 {
 	browser_->OnOKButtonClicked();
-	Close();
 }
 
 void ImageBrowserWindow::OnCancelButtonClicked(wxCommandEvent& WXUNUSED(event))
 {
 	browser_->OnCancelButtonClicked();
-	Close();
 }
 
 void ImageBrowserWindow::OnOrderByRadioBox(wxCommandEvent& event)
@@ -374,7 +372,9 @@ void ImageBrowserWindow::OnOrderByRadioBox(wxCommandEvent& event)
 void ImageBrowserWindow::OnCloseImageBrowserWindow(wxCloseEvent& WXUNUSED(event))
 {
 	// TODO DO clean up!!
-	Destroy();
+	dbg("ImageBrowserWindow::OnCloseImageBrowserWindow");
+	browser_->OnCancelButtonClicked();
+	//Destroy();
 	//	exit(0);
 }
 
