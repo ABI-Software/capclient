@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "unittestconfigure.h"
 #include "utils/filesystem.h"
-#include "hexified/GlobalSmoothTVMatrix.dat.h"
+#include "hexified/globalsmoothtvmatrix.dat.h"
 
 char testString1[] = "/home/dummies/are/us";
 char testString2[] = "/home/dummies/are/ferry.txt";

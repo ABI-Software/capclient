@@ -18,7 +18,7 @@
 #include "utils/filesystem.h"
 
 #include "hexified/timevaryingprior.dat.h"
-#include "hexified/GlobalSmoothTVMatrix.dat.h"
+#include "hexified/globalsmoothtvmatrix.dat.h"
 
 namespace cap
 {
