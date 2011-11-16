@@ -76,14 +76,12 @@ public:
 	}
 	
 	/**
-	 * Destructor deletes modeller_ and ib_
+	 * Destructor deletes modeller_
 	 */
 	~CAPClient()
 	{
 		dbg("CAPClient::~CAPClient()");
 		delete modeller_;
-		if (ib_)
-			delete ib_;
 	}
 	
 	/**
@@ -400,7 +398,6 @@ private:
 	 */
 	CAPClient()
 	: gui_(0)
-	, ib_(0)
 	, labelledSlices_(LabelledSlices())
 	, heartModelPtr_(0)
 	, modeller_(0)
@@ -411,7 +408,6 @@ private:
 	
 	static CAPClient* instance_;	/**< The only instance of the CAPClient */
 	CAPClientWindow* gui_;  /**< The graphical user interface */
-	ImageBrowser* ib_;  /**< The image browser */
 	
 	LabelledSlices labelledSlices_; /**< The labelled slices */
 	

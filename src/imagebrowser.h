@@ -50,6 +50,8 @@ typedef std::map<std::string, Cmiss_field_image_id> TextureTable; /** A map of t
  * Images that are labelled as short axis or long axis are, when the 'OK' button is pressed loaded into the main window
  * and made ready for use in modelling.  This class will preview images when the are selected in the image table.  Details 
  * of the dicom image and annotations are also displayed.
+ * 
+ * This class will delete itself and the ImageBrowserWindow when the ImageBrowserWindow is closed.
  */
 class ImageBrowser
 {

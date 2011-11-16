@@ -340,22 +340,17 @@ void CAPClient::OpenAnnotation(const std::string& filename, const std::string& i
 	//		EnterInitState();
 	//		cardiacAnnotationPtr_.reset(new CardiacAnnotation(annotationFile.GetCardiacAnnotation()));
 	
-	if (ib_)
-		delete ib_;
 	ImageBrowser *ib = ImageBrowser::CreateImageBrowser(imageDirname, this);
 	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
 	
 	// Set annotations to the images in the ImageBrowserWindow.
-//	ib_->SetAnnotation(annotationFile.GetCardiacAnnotation());
+//--	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
 }
 
 void CAPClient::OpenImages(const std::string& imageDirname)
 {
-	if (ib_)
-		delete ib_;
-	ib_ = ImageBrowser::CreateImageBrowser(imageDirname, this);
+	ImageBrowser::CreateImageBrowser(imageDirname, this);
 	std::cout << "CAPClient::OpenImages show window" << std::endl;
-	//ib_->ShowWindow();
 }
 
 void CAPClient::SaveModel(const std::string& dirname, const std::string& userComment)
