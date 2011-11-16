@@ -8,11 +8,11 @@
 #ifndef CAPMODELLINGMODE_H_
 #define CAPMODELLINGMODE_H_
 
-// Implementation of FSM using the State Pattern
-
-#include "DataPoint.h"
 #include <vector>
 #include <map>
+
+#include "DataPoint.h"
+#include "math/timesmoother.h"
 
 namespace cap
 {
@@ -20,7 +20,13 @@ namespace cap
 class Modeller;
 
 /**
- * Modelling mode.  This is an abstract base class for the modelling modes.
+ * Defines an alias representing the data points.
+ */
+typedef std::map<Cmiss_node*, DataPoint> DataPoints;
+
+/**
+ * Modelling mode.  This is an abstract base class for the modelling modes. Implementation of
+ * FSM using the State Pattern.
  */
 class ModellingMode
 {
@@ -36,15 +42,55 @@ public:
 	 */
 	virtual ~ModellingMode();
 
+	/**
+	 * Executes the accept action.
+	 *
+	 * @param [in,out]	modeller	The modeller.
+	 *
+	 * @return	null if it fails, else.
+	 */
 	virtual ModellingMode* OnAccept(Modeller& modeller) = 0;
+
+	/**
+	 * Adds a data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	coord			   	The coordinate.
+	 * @param	time			   	The time.
+	 */
 	virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
+
+	/**
+	 * Move data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	coord			   	The coordinate.
+	 * @param	time			   	The time.
+	 */
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
+
+	/**
+	 * Removes the data point.
+	 *
+	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+	 * @param	time			   	The time.
+	 */
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time) = 0;
-	
+
+	/**
+	 * Perform entry action.
+	 */
 	virtual void PerformEntryAction() = 0;
+
+	/**
+	 * Perform exit action.
+	 */
 	virtual void PerformExitAction() = 0;
 };
 
+/**
+ * Modelling mode apex.
+ */
 class ModellingModeApex : public ModellingMode
 {
 public:
@@ -63,9 +109,12 @@ public:
 	virtual void PerformExitAction();
 	
 private:
-	std::vector<DataPoint> apex_; // holds at most 1 item
+	std::vector<DataPoint> apex_;   /**< The apex, holds at most one item */
 };
 
+/**
+ * Modelling mode base.
+ */
 class ModellingModeBase : public ModellingMode
 {
 public:
@@ -82,11 +131,14 @@ public:
 	virtual void PerformExitAction();
 	
 private:
-	std::vector<DataPoint> base_; // holds at most 1 item
+	std::vector<DataPoint> base_;   /**< The base, holds at most one item */
 };
 
 class HeartModel;
 
+/**
+ * Modelling mode rv.
+ */
 class ModellingModeRV : public ModellingMode
 {
 public:
@@ -103,11 +155,12 @@ public:
 	virtual void PerformExitAction();
 	
 private:
-	std::map<Cmiss_node*, DataPoint> rvInserts_; // holds n pairs of DataPoints ( n >= 1 )
-	
-	//HeartModel& heartModel_;
+	std::map<Cmiss_node*, DataPoint> rvInserts_;	/**< The rv inserts, holds n pairs of DataPoints ( n >= 1 ) */
 };
 
+/**
+ * Modelling mode base plane.
+ */
 class ModellingModeBasePlane : public ModellingMode
 {
 public:
@@ -124,29 +177,16 @@ public:
 	virtual void PerformExitAction();
 	
 private:
-	std::vector<DataPoint> basePlanePoints_; // holds n pairs of DataPoints ( n >= 1 )
-	
-	//HeartModel& heartModel_;
+	std::vector<DataPoint> basePlanePoints_;	/**< The base plane points, holds n pairs of DataPoints ( n >= 1 ) */
 };
 
-} // end namespace cap
-
-#include "CAPTimeSmoother.h"
-
-namespace cap
-{
-
-class SparseMatrix;
 class Vector;
-class Preconditioner;
-class GSmoothAMatrix;
-class SolverLibraryFactory;
-
+/**
+ * Modelling mode guide points.
+ */
 class ModellingModeGuidePoints : public ModellingMode
 {
 public:
-	typedef std::map<Cmiss_node*, DataPoint> DataPoints;
-	
 	ModellingModeGuidePoints();
 	~ModellingModeGuidePoints();
 	
@@ -155,47 +195,19 @@ public:
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
-	std::vector<DataPoint> GetDataPoints() const;
+	std::vector<DataPoint> GetGuidePoints() const;
 	
 	virtual void PerformEntryAction();
 	virtual void PerformExitAction();
 	
-	void InitialiseModel(const DataPoint& apex,
-			const DataPoint& base,
-			const std::map<Cmiss_node*, DataPoint>& rvInserts,
-			const std::vector<DataPoint>& basePlanePoints);
-	
-	void InitialiseModelLambdaParams();
-	
-	//void ReadModelFromFile(std::string& filename);
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
-	void UpdateTimeVaryingModel();
-	void SmoothAlongTime();
 	
 private:
-	void FitModel(DataPoints& dataPoints, int frameNumber);
-	
-	Plane InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const;
-
-	std::vector<double> ConvertToHermite(const Vector&) const;
-	
-	//HeartModel& heartModel_;
 	
 	std::vector<DataPoints> vectorOfDataPoints_;
 	
 	std::vector< std::vector<double> > timeVaryingDataPoints_;
 	
-	SolverLibraryFactory* solverFactory_;
-	SparseMatrix* S_;
-	SparseMatrix* G_;
-	//SparseMatrix* P_;
-	Preconditioner* preconditioner_;
-	GSmoothAMatrix* aMatrix_;
-	Vector* prior_;
-	
-	SparseMatrix* bezierToHermiteTransform_; // Temporary
-	
-	CAPTimeSmoother timeSmoother_;
 	std::vector<int> framesWithDataPoints_;
 };
 

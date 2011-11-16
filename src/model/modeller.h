@@ -12,17 +12,19 @@
 //#include <boost/ptr_container/ptr_vector.hpp>
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
 
+#include "DataPoint.h"
+
 struct Cmiss_node; //REVISE
 
 namespace cap
 {
 
 class CAPClient;
-//class SparseMatrix;
-//class Vector;
-//class Preconditioner;
-//class GSmoothAMatrix;
-//class SolverLibraryFactory;
+class SparseMatrix;
+class Vector;
+class Preconditioner;
+class GSmoothAMatrix;
+class SolverLibraryFactory;
 
 /**
  * This Modeller class controls the modelling of the heart model.  It holds the current modelling mode
@@ -60,7 +62,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	~Modeller(){}
+	~Modeller();
 
 	/**
 	 * Adds a data point.
@@ -168,6 +170,11 @@ public:
 	void SmoothAlongTime();
 
 	/**
+	 * Initialises the model lambda parameters.
+	 */
+	void InitialiseModelLambdaParams();
+
+	/**
 	 * Change mode.
 	 *
 	 * @param	mode	The mode.
@@ -233,11 +240,38 @@ private:
 	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const;
 
 	/**
+	 * Interpolate base plane.
+	 *
+	 * @param	planes	The planes.
+	 * @param	frame 	The frame.
+	 *
+	 * @return	The interpolated plane.
+	 */
+	Plane InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const;
+
+	/**
+	 * Fit model.
+	 *
+	 * @param [in,out]	dataPoints	The data points.
+	 * @param	frameNumber		  	The frame number.
+	 */
+	void FitModel(DataPoints& dataPoints, int frameNumber);
+
+	/**
 	 * Change modelling mode.
 	 *
 	 * @param [in,out]	newMode	If non-null, the new mode.
 	 */
 	void ChangeMode(ModellingMode* newMode);
+
+	/**
+	 * Converts a  to hermite parameters.
+	 *
+	 * @param	bezierParams	vector to convert.
+	 *
+	 * @return	The hermite paramter vector.
+	 */
+	std::vector<double> ConvertToHermite(const Vector& bezierParams) const;
 	
 	CAPClient *mainApp_;	/**< The main application */
 	ModellingModeApex modellingModeApex_;   /**< The modelling mode apex */
@@ -248,7 +282,17 @@ private:
 	
 	ModellingMode* currentModellingMode_;   /**< The current modelling mode */
 	
+	SolverLibraryFactory* solverFactory_;   /**< The solver factory */
+	SparseMatrix* S_;   /**< The s */
+	SparseMatrix* G_;   /**< The g */
+	//SparseMatrix* P_;
+	Preconditioner* preconditioner_;	/**< The preconditioner */
+	GSmoothAMatrix* aMatrix_;   /**< The matrix */
+	Vector* prior_; /**< The prior */
 	
+	SparseMatrix* bezierToHermiteTransform_;	/**< The bezier to hermite transform, temporary? */
+	
+	CAPTimeSmoother timeSmoother_;  /**< The time smoother */
 };
 
 } //end namespace cap

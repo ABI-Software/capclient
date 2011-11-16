@@ -14,8 +14,16 @@
 #include <boost/foreach.hpp>
 
 #include "capclientconfig.h"
+#include "hexified/GlobalSmoothPerFrameMatrix.dat.h"
+#include "hexified/GlobalMapBezierToHermite.dat.h"
+#include "hexified/prior.dat.h"
 #include "utils/debug.h"
 #include "math/totalleastsquares.h"
+#include "math/solverlibraryfactory.h"
+#include "math/gmmfactory.h"
+#include "math/vnlfactory.h"
+#include "CAPMath.h"
+#include "math/basis.h"
 
 namespace cap
 {
@@ -30,7 +38,49 @@ Modeller::Modeller(CAPClient *mainApp)
 	, modellingModeBasePlane_()
 	, modellingModeGuidePoints_()
 	, currentModellingMode_(&modellingModeApex_)
+	, solverFactory_(new GMMFactory)
+	//, solverFactory_(new VNLFactory)
+	, timeSmoother_()
 {
+	SolverLibraryFactory& factory = *solverFactory_;
+	
+	dbg("Solver Library = " + factory.GetName());
+
+	// Read in S (smoothness matrix)
+	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
+	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalSmoothPerFrameMatrix_dat, GlobalSmoothPerFrameMatrix_dat_len);
+	S_ = factory.CreateSparseMatrixFromFile(tmpFileName);
+	FileSystem::RemoveFile(tmpFileName);
+	// Read in G (global to local parameter map)
+	tmpFileName = FileSystem::CreateTemporaryEmptyFile();
+	FileSystem::WriteCharBufferToFile(tmpFileName, GlobalMapBezierToHermite_dat, GlobalMapBezierToHermite_dat_len);
+	G_ = factory.CreateSparseMatrixFromFile(tmpFileName);
+	FileSystem::RemoveFile(tmpFileName);
+
+	dbg("Done reading S & G matrices");
+	
+	// initialize preconditioner and GSMoothAMatrix
+	
+	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
+	
+	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
+	dbg("Done creating GSmoothAMatrix");
+	
+	tmpFileName = FileSystem::CreateTemporaryEmptyFile();
+	FileSystem::WriteCharBufferToFile(tmpFileName, prior_dat, prior_dat_len);
+	prior_ = factory.CreateVectorFromFile(tmpFileName);
+	FileSystem::RemoveFile(tmpFileName);
+}
+
+Modeller::~Modeller()
+{
+	delete aMatrix_;
+	delete preconditioner_;
+	//delete P_;
+	delete S_;
+	delete G_;
+	delete prior_;
+	delete solverFactory_;
 }
 
 void Modeller::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
@@ -229,22 +279,109 @@ void Modeller::AlignModel()
 	modellingModeGuidePoints_.InitialiseModelLambdaParams();
 }
 
+Plane Modeller::InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const
+{
+	assert(!planes.empty());
+	std::map<int, Plane>::const_iterator itr = planes.begin();
+	
+	
+	int prevFrame = 0;
+	Plane prevPlane;
+	while (itr->first < frame && itr != planes.end())
+	{
+		prevFrame = itr->first;
+		prevPlane = itr->second;
+		itr++;
+	}
+	if (itr->first == frame) // Key frame, no interpolation needed
+	{
+		return itr->second;
+	}
+	
+	// Handle edge cases where prevFrame > nextFrame (i.e interpolation occurs around the end point)
+	int nextFrame;
+	Plane nextPlane;
+	int maxFrame = 1;//--heartModel_.GetNumberOfModelFrames();
+	if (itr == planes.end())
+	{
+		nextFrame = planes.begin()->first + maxFrame;
+		nextPlane = planes.begin()->second;
+	}
+	else 
+	{
+		nextFrame = itr->first;
+		nextPlane = itr->second;
+	}
+	
+	if (itr == planes.begin())
+	{
+		std::map<int, Plane>::const_reverse_iterator last = planes.rbegin();
+		prevFrame = last->first - maxFrame;
+		prevPlane = last->second;
+	}
+	
+	Plane plane;
+	double coefficient = (double)(frame - prevFrame)/(nextFrame - prevFrame);
+	
+	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
+	
+	plane.position = prevPlane.position + coefficient * (nextPlane.position - prevPlane.position);
+	
+	return plane;
+}
+
 void Modeller::UpdateTimeVaryingModel() //REVISE
 {
-//	ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-//	if (gpMode)
-//	{
-//		gpMode->UpdateTimeVaryingModel();
-//	}
-	modellingModeGuidePoints_.UpdateTimeVaryingModel();
+	if (GetCurrentMode() == GUIDEPOINT)
+	{
+		for(int j=0; j<1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
+		{
+			double time = 0.0;//--(double)j/heartModel_.GetNumberOfModelFrames();
+			Vector* x = solverFactory_->CreateVector(134);
+			for (int i=0; i< 134; i++)
+			{
+				(*x)[i] = timeVaryingDataPoints_[i][j];
+			}
+	//		std::cout << "x(" << j << ")" << *x << std::endl;
+			
+			const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
+			//--heartModel_.SetLambda(hermiteLambdaParams, time);
+			delete x;
+		}
+	}
 }
 
 void Modeller::SmoothAlongTime()
 {
 	ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-	if (gpMode)
+	if (GetCurrentMode() == GUIDEPOINT)
 	{
-		gpMode->SmoothAlongTime();
+		// For each global parameter in the per frame model
+		clock_t before = clock();
+			
+#define SMOOTH_ALONG_TIME
+#ifdef SMOOTH_ALONG_TIME
+		for (int i=0; i < 134; i++) // FIX magic number
+		{
+	//		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
+			const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i], framesWithDataPoints_);
+			
+	//		std::cout << lambdas << std::endl;
+			
+			for(int j=0; j<1/*--heartModel_.GetNumberOfModelFrames()*/;j++) //FIX duplicate code
+			{
+				double xi = 0;//--(double)j/heartModel_.GetNumberOfModelFrames();
+				double lambda = timeSmoother_.ComputeLambda(xi, lambdas);
+				timeVaryingDataPoints_[i][j] = lambda;
+			}
+		}
+#endif
+		
+		clock_t after = clock();
+		dbg(solverFactory_->GetName() + " Smoothing time = " + toString(after - before));
+		
+		// feed the results back to Cmgui
+		UpdateTimeVaryingModel();
 	}
 }
 
@@ -304,7 +441,7 @@ std::vector<DataPoint> Modeller::GetDataPoints() const
 				boost::bind(&Map::value_type::second, _1));
 
 		std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
-		Vector const& gps = modellingModeGuidePoints_.GetDataPoints();
+		Vector const& gps = modellingModeGuidePoints_.GetGuidePoints();
 		std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
 	}
 	else
@@ -359,5 +496,227 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 	SmoothAlongTime();
 //	std::cout << "Base is in " << modellingModeBase_.GetBase().GetSliceName() << '\n';
 }
+
+void Modeller::InitialiseModelLambdaParams()
+{
+	dbg("**** MOVE ME, to the modeller class");
+	//Initialise bezier global params for each model
+	for (int i=0; i<134;i++)
+	{
+		int num = 0;//--heartModel_.GetNumberOfModelFrames();
+		timeVaryingDataPoints_[i].resize(1/*--heartModel_.GetNumberOfModelFrames()*/);
+		
+//		std::cout << std::endl;
+		for(int j = 0; j < 1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
+		{
+			double xi = 0.0;//--(double)j/heartModel_.GetNumberOfModelFrames();
+			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
+			double lambda = timeSmoother_.ComputeLambda(xi, prior);
+//			std::cout << "(" << xi << ", " << lambda << ") ";
+			timeVaryingDataPoints_[i][j] = lambda;
+		}
+//		std::cout << std::endl;
+//		std::cout << "timeVaryingDataPoints_ : " << timeVaryingDataPoints_[i]  << std::endl;
+	}
+	
+	vectorOfDataPoints_.clear();
+	//--vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
+	//--framesWithDataPoints_.assign(heartModel_.GetNumberOfModelFrames(), 0);
+	
+//#ifndef NDEBUG
+//	std::cout << "vectorOfDataPoints_.size() = " << vectorOfDataPoints_.size() << '\n';
+//	for (int i=0; i<vectorOfDataPoints_.size();i++)
+//	{
+//		std::cout << "vectorOfDataPoints_["<< i << "] : " << vectorOfDataPoints_[i].size() << '\n';
+//	}
+//#endif
+}
+
+void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
+{
+	dbg("**** FIX, move to modeller class ****");
+	// Compute P 
+	// 1. find xi coords for each data point
+	DataPoints::iterator itr = dataPoints.begin();
+	DataPoints::const_iterator end = dataPoints.end();
+	std::vector<Point3D> xi_vector;
+	std::vector<int> element_id_vector;
+	Vector* dataLambda = solverFactory_->CreateVector(dataPoints.size()); // for rhs
+
+	for (int i = 0; itr!=end; ++itr, ++i)
+	{
+		Point3D xi;
+		int elem_id = 0;//--heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (double)frameNumber/heartModel_.GetNumberOfModelFrames());
+	//	if(!itr->second.GetSurfaceType())
+		{
+			if (xi.z < 0.5)
+			{
+				xi.z = 0.0f; // projected on endocardium
+				itr->second.SetSurfaceType(ENDOCARDIUM);
+			}
+			else
+			{
+				xi.z = 1.0f; // projected on epicardium
+				itr->second.SetSurfaceType(EPICARDIUM);
+			}
+		}
+		xi_vector.push_back(xi);
+		element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
+		
+		Point3D dataPointLocal;//-- = heartModel_.TransformToLocalCoordinateRC(itr->second.GetCoordinate());
+		Point3D dataPointPS;//-- = heartModel_.TransformToProlateSpheroidal(dataPointLocal);
+		(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
+	}
+	
+	//debug
+#ifndef NDEBUG
+	std::cout << "dataLambda = " << *dataLambda << std::endl;
+#endif
+	
+	// 2. evaluate basis at the xi coords
+	//    use this function as a temporary soln until Cmgui supports this
+	double psi[32]; //FIX 32?
+	std::vector<Entry> entries;
+	CAPBiCubicHermiteLinearBasis basis;
+	std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
+	std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
+
+	for (int xiIndex = 0; itr_xi!=end_xi; ++itr_xi, ++xiIndex)
+	{
+		double temp[3];
+		temp[0] = itr_xi->x;
+		temp[1] = itr_xi->y;
+		temp[2] = itr_xi->z;
+		basis.Evaluate(psi, temp);
+		
+		for (int nodalValueIndex = 0; nodalValueIndex < 32; nodalValueIndex++)
+		{
+			Entry e;
+			e.value = psi[nodalValueIndex];
+			e.colIndex = 32*(element_id_vector[xiIndex])+nodalValueIndex;
+			e.rowIndex = xiIndex;
+			entries.push_back(e);
+		}
+	}
+	
+	// 3. construct P
+	SparseMatrix* P = solverFactory_->CreateSparseMatrix(dataPoints.size(), 512, entries); //FIX
+	
+	aMatrix_->UpdateData(*P);
+	
+	// Compute RHS - GtPt(dataLamba - priorLambda)
+
+//	std::cout << "prior_ = " << *prior_ << endl;
+	Vector* lambda = G_->mult(*prior_);
+	//std::cout << "lambda = " << *lambda << endl;
+	
+	// p = P * lambda : prior at projected data points
+	Vector* p = P->mult(*lambda);
+//	std::cout << "p = " << *p << endl;
+	
+	// transform to local --> one above
+	// transform to PS --> done above
+	// dataLambda = dataPoints in the same order as P (* weight) TODO : implement weight!
+	
+	// dataLambda = dataLambda - p
+	*dataLambda -= *p;
+	// rhs = GtPt p
+	Vector* temp = P->trans_mult(*dataLambda);
+	Vector* rhs = G_->trans_mult(*temp);
+	
+	// Solve Normal equation
+	const double tolerance = 1.0e-3;
+	const int maximumIteration = 100;
+	
+	Vector* x = solverFactory_->CreateVector(134); //FIX magic number
+	
+	clock_t before = clock();
+	
+	solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
+
+	clock_t after = clock();
+	std::cout << solverFactory_->GetName() << " CG time = " << (after - before) << std::endl;
+	std::cout << "Frame number = " << frameNumber << std::endl;
+
+	        
+	*x += *prior_;
+//	std::cout << "x = " << *x << std::endl;
+//	std::cout << "prior_ = " << *prior_ << endl;
+	
+	const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
+	
+	// Model should have the notion of frames
+//	heartModel_.SetLambda(hermiteLambdaParams);
+#define UPDATE_CMGUI
+#ifdef UPDATE_CMGUI
+	//--heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber); //Hermite
+	
+	UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
+#endif
+//	SmoothAlongTime();
+	
+	delete P;
+	delete lambda;
+	delete p;
+	delete dataLambda;
+	delete temp;
+	delete rhs;
+	delete x;
+	
+	return;
+}
+
+std::vector<double> Modeller::ConvertToHermite(const Vector& bezierParams) const
+{
+	// convert Bezier params to hermite params to they can be fed to Cmgui
+	// 
+	//Vector* hermiteParams = (*bezierToHermiteTransform_).mult(bezierParams);
+	// TODO REVISE inefficient
+	Vector* hermiteParams = (*G_).mult(bezierParams);
+	
+	int indices[128] = {
+		26,    25,    22,    21,     6,     5,     2,     1,
+		27,    26,    23,    22,     7,     6,     3,     2,
+		28,    27,    24,    23,     8,     7,     4,     3,
+		25,    28,    21,    24,     5,     8,     1,     4,
+		30,    29,    26,    25,    10,     9,     6,     5,
+		31,    30,    27,    26,    11,    10,     7,     6,
+		32,    31,    28,    27,    12,    11,     8,     7,
+		29,    32,    25,    28,     9,    12,     5,     8,
+		34,    33,    30,    29,    14,    13,    10,     9,
+		35,    34,    31,    30,    15,    14,    11,    10,
+		36,    35,    32,    31,    16,    15,    12,    11,
+		33,    36,    29,    32,    13,    16,     9,    12,
+		38,    37,    34,    33,    18,    17,    14,    13,
+		39,    38,    35,    34,    19,    18,    15,    14,
+		40,    39,    36,    35,    20,    19,    16,    15,
+		37,    40,    33,    36,    17,    20,    13,    16
+	};
+	
+	int invertedIndices[40];
+		
+	for (int i = 0; i <128; i++)
+	{
+		invertedIndices[indices[i]-1] = i;
+	}
+	
+	std::vector<double> temp(160);
+	
+	for (int i =0; i < 40 ;i++)
+	{
+		temp[i*4] = (*hermiteParams)[invertedIndices[i]*4];
+		temp[i*4+1] = (*hermiteParams)[invertedIndices[i]*4+1];
+		temp[i*4+2] = (*hermiteParams)[invertedIndices[i]*4+2];
+		temp[i*4+3] = (*hermiteParams)[invertedIndices[i]*4+3];
+	}
+//	for (int i = 0; i < 160 ; ++i)
+//	{
+//		temp[i] = (*hermiteParams)[i];
+//	}
+	
+	delete hermiteParams;
+	return temp;
+}
+
 
 } // end namespace cap
