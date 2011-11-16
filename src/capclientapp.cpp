@@ -64,7 +64,7 @@ bool CAPApp::OnInit()
 	//	return false;
 	
 	// Create the main application model
-	CAPClient* mainApp = CAPClient::CreateCAPClient();
+	CAPClient* mainApp = CAPClient::GetCAPClientInstance();
 	
 	assert(mainApp);
 	// We cannot initialise this from inside the CAPClientWindow constructor unfortunately.
@@ -79,9 +79,13 @@ bool CAPApp::OnInit()
 
 int CAPApp::OnExit()
 {
-	std::cout << "CAPApp::" << __func__ << std::endl;
+	dbg(std::string("CAPApp::") + __func__);
+	int r = wxApp::OnExit();
 	// Clean up anything started in OnInit();
-	return 0;
+	CAPClient* mainApp = CAPClient::GetCAPClientInstance();
+	delete mainApp;
+
+	return r;
 }
 
 void CAPApp::OnInitCmdLine(wxCmdLineParser& parser)
