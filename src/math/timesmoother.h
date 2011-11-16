@@ -1,5 +1,5 @@
 /*
- * CAPTimeSmoother.h
+ * TimeSmoother.h
  *
  *  Created on: May 5, 2009
  *      Author: jchu014
@@ -13,9 +13,9 @@
 namespace cap
 {
 
-struct CAPTimeSmootherImpl;
+struct TimeSmootherImpl;
 
-class CAPTimeSmoother
+class TimeSmoother
 {
 //	class TimeVaryingModel //per nodal parameter
 //	{
@@ -23,9 +23,9 @@ class CAPTimeSmoother
 //	};
 
 public:
-	CAPTimeSmoother();
+	TimeSmoother();
 	
-	~CAPTimeSmoother();
+	~TimeSmoother();
 	
 	std::vector<double> FitModel(int parameterIndex, 
 			const std::vector<double>& dataPoints,
@@ -37,7 +37,7 @@ public:
 	
 private:
 	double MapToXi(double time) const;
-	CAPTimeSmootherImpl* pImpl;
+	TimeSmootherImpl* pImpl;
 	
 	static const int NUMBER_OF_PARAMETERS = 11;
 	static const int CAP_WEIGHT_GP = 10;

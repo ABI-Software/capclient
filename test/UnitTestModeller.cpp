@@ -137,7 +137,7 @@ TEST(CAPModellerTest, ModellingModeApex)
 TEST(CAPTimeSmootherTest, Create)
 {
 	using namespace cap;
-	CAPTimeSmoother ts;
+	TimeSmoother ts;
 }
 
 #ifdef _MSC_VER
