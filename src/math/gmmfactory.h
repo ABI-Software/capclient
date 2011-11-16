@@ -15,7 +15,7 @@
 
 #include <gmm/gmm.h>
 
-#include "solverlibraryfactory.h"
+#include "math/solverlibraryfactory.h"
 
 namespace cap
 {

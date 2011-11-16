@@ -17,7 +17,7 @@
 #include <vnl/algo/vnl_conjugate_gradient.h>
 
 #include "capclientconfig.h"
-#include "SolverLibraryFactory.h"
+#include "math/solverlibraryfactory.h"
 
 namespace cap
 {
