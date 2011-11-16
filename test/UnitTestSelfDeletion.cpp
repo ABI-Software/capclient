@@ -11,78 +11,37 @@
 #include <wx/xrc/xmlres.h>
 
 #include "utils/debug.h"
-#include "ui/selfdeletionwindowui.h"
+
+#include "selfdeletion.h"
 
 namespace cap
 {
-	class SelfDeletion;
-
-	class SelfDeletionWindow : public SelfDeletionWindowUI
-	{
-	public:
-		SelfDeletionWindow(SelfDeletion *sd)
-			: sd_(sd)
-		{
-		}
-
-		~SelfDeletionWindow()
-		{
-			dbg("~SelfDeletionWindow()");
-		}
-
-		SelfDeletion *sd_;
-	};
-
-	class SelfDeletion
-	{
-	public:
-		void SetSelfDeletionWindow(SelfDeletionWindow *sdw)
-		{
-			sdw_ = sdw;
-		}
-
-		static SelfDeletion* CreateSelfDeletion()
-		{
-			if (!wxXmlInitialised_)
-			{
-				wxXmlInitialised_ = true;
-				wxXmlInit_selfdeletionwindowui();
-			}
-
-			SelfDeletion* sd = new SelfDeletion();
-			SelfDeletionWindow* frame = new SelfDeletionWindow(sd);
-			frame->Show(true);
-			sd->SetSelfDeletionWindow(frame);
-			
-			return sd;
-		}
-
-		SelfDeletion()
-			: sdw_(0)
-		{
-		}
-
-		~SelfDeletion()
-		{
-			dbg("~SelfDeletion()");
-		}
-
-		static bool wxXmlInitialised_;
-		SelfDeletionWindow *sdw_;
-	};
 	bool SelfDeletion::wxXmlInitialised_ = false;
 
 	class TestApp : public wxApp
 	{
+	public:
 		bool OnInit()
 		{
 			wxXmlResource::Get()->InitAllHandlers();
+			sd_ = SelfDeletion::CreateSelfDeletion();  // Leaves a hanging SelfDeletion pointer that must delete itself.
 			return true;
 		}
+
+		int OnExit()
+		{
+			dbg("TestApp::OnExit()");
+			int r = wxApp::OnExit();
+			//delete sd_;
+			return r;
+		}
+
+		SelfDeletion* sd_;
 	};
 }
 
-TEST(SelfDeletion, DeleteOnOk)
+// Can't do multiple tests with this setup, one should be fine.
+TEST(SelfDeletion, DeleteOnCancel)
 {
 	int argc = 0;
 	char **argv = 0;
@@ -93,11 +52,34 @@ TEST(SelfDeletion, DeleteOnOk)
 	
 	// you can create top level-windows here or in OnInit()
 	// do your testing here
-	SelfDeletion* sd = SelfDeletion::CreateSelfDeletion();
 	
-	//wxTheApp->OnRun(); // Don't start main loop
+#if defined ENABLE_GUI_INTERACTION
+	wxTheApp->OnRun(); // Do/Don't start main loop
+#else
+	TestApp *ta = static_cast<TestApp *>(wxTheApp);
+	wxCommandEvent event;
+	ta->sd_->sdw_->OnCancel(event);
+#endif
 	wxTheApp->OnExit();
-	//delete sd;
 	wxEntryCleanup();
+	wxApp::SetInstance(0);
 }
+
+// Interaction code
+//int main(int argc, char *argv[])
+//{
+//	using namespace cap;
+//	wxApp::SetInstance( new TestApp() );
+//	wxEntryStart( argc, argv );
+//	wxTheApp->OnInit();
+//	
+//	// you can create top level-windows here or in OnInit()
+//	// do your testing here
+//	
+//	wxTheApp->OnRun(); // Do/Don't start main loop
+//	wxTheApp->OnExit();
+//	wxEntryCleanup();
+//
+//	return 0;
+//}
 

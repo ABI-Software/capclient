@@ -147,6 +147,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	XRC_TO_CPP("ui/selfdeletionwindowui.xrc" SelfDeletion_UI_SRCS_AND_HDRS)
 	SET(SelfDeletion_SRC
 		UnitTestSelfDeletion.cpp
+		selfdeletionwindow.cpp
 		${SelfDeletion_UI_SRCS_AND_HDRS}
 		)
 ENDIF()
