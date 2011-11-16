@@ -41,7 +41,7 @@ extern "C"
 #include "CAPAnnotationFile.h"
 #include "model/modeller.h"
 #include "CAPXMLFileHandler.h"
-#include "heartmodel.h"
+#include "model/heart.h"
 #include "IsoSurfaceCapture.h"
 #include "utils/debug.h"
 

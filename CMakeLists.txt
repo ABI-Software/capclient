@@ -59,7 +59,7 @@ SET( APP_HDRS
 	src/ui/htmlwindow.h
 	src/material.h
 	src/math/algebra.h
-	src/heartmodel.h
+	src/model/heart.h
 	src/model/modeller.h
 	src/model/modellingmode.h
 	src/math/timesmoother.h
@@ -72,7 +72,7 @@ SET( APP_HDRS
 	src/capclientconfig.h
 	src/utils/debug.h
 	src/DICOMImage.h
-	src/DataPoint.h
+	src/datapoint.h
 	src/utils/filesystem.h
 	src/math/gmmfactory.h
 	src/IAnnotationWindow.h
@@ -109,7 +109,7 @@ SET( APP_SRCS
 	src/CAPContour.cpp
 	src/ui/htmlwindow.cpp
 	src/material.cpp
-	src/heartmodel.cpp
+	src/model/heart.cpp
 	src/model/modeller.cpp
 	src/model/modellingmode.cpp
 	src/math/timesmoother.cpp
@@ -119,7 +119,7 @@ SET( APP_SRCS
 	src/CmguiImageSliceGraphics.cpp
 	src/cmgui/sceneviewerpanel.cpp
 	src/DICOMImage.cpp
-	src/DataPoint.cpp
+	src/datapoint.cpp
 	src/utils/filesystem.cpp
 	src/imagebrowser.cpp
 	src/imagebrowserwindow.cpp

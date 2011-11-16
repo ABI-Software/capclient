@@ -33,7 +33,7 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "ImageSet.h"
-#include "heartmodel.h"
+#include "model/heart.h"
 #include "SliceInfo.h"
 
 namespace cap
