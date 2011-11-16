@@ -14,8 +14,8 @@
 #include <boost/foreach.hpp>
 
 #include "capclientconfig.h"
-#include "hexified/GlobalSmoothPerFrameMatrix.dat.h"
-#include "hexified/GlobalMapBezierToHermite.dat.h"
+#include "hexified/globalsmoothperframematrix.dat.h"
+#include "hexified/globalmapbeziertohermite.dat.h"
 #include "hexified/prior.dat.h"
 #include "utils/debug.h"
 #include "utils/filesystem.h"
