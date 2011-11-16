@@ -19,7 +19,7 @@
 #include "model/modellingmode.h"
 #include "model/modeller.h"
 #include "math/solverlibraryfactory.h"
-#include "filesystem.h"
+#include "utils/filesystem.h"
 #include "utils/debug.h"
 
 namespace

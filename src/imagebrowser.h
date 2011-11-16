@@ -26,7 +26,7 @@ extern "C"
 
 #include "CAPMath.h"
 #include "DICOMImage.h"
-#include "filesystem.h"
+#include "utils/filesystem.h"
 #include "SliceInfo.h"
 #include "iimagebrowser.h"
 #include "imagebrowserwindow.h"

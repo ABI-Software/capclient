@@ -2,8 +2,8 @@
 #include <gtest/gtest.h>
 #include <algorithm>
 #include "unittestconfigure.h"
-#include "filesystem.h"
-#include "GlobalSmoothTVMatrix.dat.h"
+#include "utils/filesystem.h"
+#include "hexified/GlobalSmoothTVMatrix.dat.h"
 
 char testString1[] = "/home/dummies/are/us";
 char testString2[] = "/home/dummies/are/ferry.txt";

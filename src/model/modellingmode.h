@@ -196,7 +196,9 @@ public:
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	std::vector<DataPoint> GetGuidePoints() const;
-	
+	const std::vector< std::vector<double> >& GetTimeVaryingDataPoints() const { return timeVaryingDataPoints_; }
+	const std::vector<int>& GetFramesWithDataPoints() const { return framesWithDataPoints_; }
+
 	virtual void PerformEntryAction();
 	virtual void PerformExitAction();
 	

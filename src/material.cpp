@@ -27,7 +27,7 @@ extern "C"
 #include "hexified/vert.prog.h"
 #include "hexified/frag.prog.h"
 #include "utils/debug.h"
-#include "filesystem.h"
+#include "utils/filesystem.h"
 
 namespace cap
 {
