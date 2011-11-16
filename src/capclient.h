@@ -66,7 +66,7 @@ public:
 	 * assignment operator are private.  This enables us to control the creation
 	 * of the CAPClient object.
 	 */
-	static CAPClient* CreateCAPClient()
+	static CAPClient* GetCAPClientInstance()
 	{
 		if (instance_ == 0)
 		{
@@ -80,6 +80,7 @@ public:
 	 */
 	~CAPClient()
 	{
+		dbg("CAPClient::~CAPClient()");
 		delete modeller_;
 		if (ib_)
 			delete ib_;
