@@ -371,11 +371,19 @@ void ImageBrowser::OnCancelButtonClicked()
 	// Should probably use reference counted smart pointer for Cmiss_texture
 	// Since the ownership is shared between ImageSlice and this (ImageBrowserWindow)
 	
-	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	//BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	//{
+	//	Cmiss_field_image_id tex = value.second;
+	//	Cmiss_field_image_destroy(&tex);
+	//}
+	
+	if (gui_)
 	{
-		Cmiss_field_image_id tex = value.second;
-		Cmiss_field_image_destroy(&tex);
+		gui_->Destroy();
+		gui_ = 0;
 	}
+
+	delete this;
 }
 
 void ImageBrowser::OnOKButtonClicked()
@@ -444,7 +452,10 @@ void ImageBrowser::OnOKButtonClicked()
 	//--client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
 	client_->LoadLabelledImages(labelledSlices);
 	client_->LoadCardiacAnnotations(cardiacAnnotation_);
-	gui_->Hide();
+
+	gui_->Destroy();
+	gui_ = 0;
+	delete this;
 }
 
 void ImageBrowser::OnNoneButtonEvent()
