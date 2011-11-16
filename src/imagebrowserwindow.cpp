@@ -68,7 +68,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
 	SetAnnotationString(" ");
-	Cmiss_rendition_execute_command(rendition, "point glyph empty general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
+	Cmiss_rendition_execute_command(rendition, "point glyph none general size \"2*2*2\" label annotation centre -0.95,-0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
 
 	Cmiss_region_destroy(&root_region);
 	Cmiss_graphics_module_destroy(&graphics_module);
@@ -79,13 +79,9 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	// when there are many items in the Image Table
 	SetSize(-1, 768);
 	Centre();
-	// Work around for bug ID: 3053989
-	// see https://sourceforge.net/tracker/?func=detail&aid=3053989&group_id=237340&atid=1103258 for more info
-	#ifdef WIN32
-	this->Maximize(true);
-	#endif
 	MakeConnections();
 	CreatePreviewScene();
+	FindWindowById(XRCID("wxID_OK"))->Enable(false);
 }
 
 void ImageBrowserWindow::MakeConnections()
@@ -337,20 +333,23 @@ void ImageBrowserWindow::OnContrastSliderEvent(wxCommandEvent& event)
 
 void ImageBrowserWindow::OnShortAxisButtonEvent(wxCommandEvent& WXUNUSED(event))
 {
-	//	std::cout << __func__ << '\n';
 	browser_->OnShortAxisButtonEvent();
+	if (IsAtLeastOneImageLabelled())
+		FindWindowById(XRCID("wxID_OK"))->Enable(true);
 }
 
 void ImageBrowserWindow::OnLongAxisButtonEvent(wxCommandEvent& WXUNUSED(event))
 {
-	//	std::cout << __func__ << '\n';
 	browser_->OnLongAxisButtonEvent();
+	if (IsAtLeastOneImageLabelled())
+		FindWindowById(XRCID("wxID_OK"))->Enable(true);
 }
 
 void ImageBrowserWindow::OnNoneButtonEvent(wxCommandEvent& WXUNUSED(event))
 {
-	//	std::cout << __func__ << '\n';
 	browser_->OnNoneButtonEvent();
+	if (!IsAtLeastOneImageLabelled())
+		FindWindowById(XRCID("wxID_OK"))->Enable(false);
 }
 
 void ImageBrowserWindow::OnOKButtonClicked(wxCommandEvent& WXUNUSED(event))
@@ -426,8 +425,24 @@ void ImageBrowserWindow::SetImageTableRowLabelByUserData(long int userDataPtr, s
 		index--;
 	}
 	
-	throw std::invalid_argument("No such user date in Image Table");
+	throw std::invalid_argument("No such user data in Image Table");
 	return;
+}
+
+bool ImageBrowserWindow::IsAtLeastOneImageLabelled() const
+{
+	bool oneImageLabelled = false;
+	long index = listCtrl_imageTable->GetItemCount() - 1;
+	while(index >= 0 && !oneImageLabelled)
+	{
+		std::string label = GetCellContentsString(index, LABEL_COLUMN_INDEX);
+		if (label.length() > 0)
+			oneImageLabelled = true;
+		else
+			index--;
+	}
+
+	return oneImageLabelled;
 }
 
 std::vector<std::pair<std::string, long int> > ImageBrowserWindow::GetListOfLabelsFromImageTable() const
