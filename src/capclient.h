@@ -27,7 +27,7 @@ extern "C"
 }
 
 #include "iimagebrowser.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 #include "capclientconfig.h"
 #include "capclientwindow.h"

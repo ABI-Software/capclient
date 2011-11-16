@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 TEST(Vector3DTest, Creation)
 {

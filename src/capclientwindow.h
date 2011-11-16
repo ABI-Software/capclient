@@ -26,7 +26,7 @@ extern "C"
 
 #include "cmgui/sceneviewerpanel.h"
 #include "material.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 #include "textureslice.h"
 #include "model/modeller.h"
 

@@ -58,7 +58,7 @@ SET( APP_HDRS
 	src/ui/euladialog.h
 	src/ui/htmlwindow.h
 	src/material.h
-	src/CAPMath.h
+	src/math/algebra.h
 	src/heartmodel.h
 	src/model/modeller.h
 	src/model/modellingmode.h

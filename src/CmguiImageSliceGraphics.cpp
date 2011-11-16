@@ -23,7 +23,7 @@ extern "C"
 #include "CmguiImageSliceGraphics.h"
 #include "material.h"
 #include "cmgui/sceneviewerpanel.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 namespace cap
 {

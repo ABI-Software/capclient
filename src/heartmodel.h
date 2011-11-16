@@ -20,7 +20,7 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "standardheartdefinitions.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 struct Scene_object;
 

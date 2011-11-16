@@ -5,7 +5,7 @@
  * This file contains prototypes for utilites for the Cmgui library.
  */
 
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 class wxPanel;
 /**

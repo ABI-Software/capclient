@@ -9,7 +9,7 @@
 #define CAPXMLFILE_H_
 
 #include "SliceInfo.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 #include "CAPAnnotationFile.h" //REVISE
 
 #include <string>

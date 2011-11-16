@@ -14,7 +14,7 @@
 #include <boost/utility.hpp>
 #include <boost/bind.hpp>
 
-#include "CAPMath.h"
+#include "math/algebra.h"
 #include "CAPContour.h"
 
 //struct Cmiss_texture;

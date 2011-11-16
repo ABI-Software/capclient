@@ -16,7 +16,7 @@
 #include <vnl/vnl_linear_system.h>
 
 #include "capclientconfig.h"
-#include "CAPMath.h"
+#include "math/algebra.h"
 
 namespace cap
 {

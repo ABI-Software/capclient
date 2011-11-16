@@ -24,7 +24,7 @@ extern "C"
 #include <api/cmiss_field_image.h>
 }
 
-#include "CAPMath.h"
+#include "math/algebra.h"
 #include "DICOMImage.h"
 #include "utils/filesystem.h"
 #include "SliceInfo.h"
