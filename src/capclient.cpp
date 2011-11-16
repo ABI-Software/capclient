@@ -347,9 +347,9 @@ void CAPClient::OpenAnnotation(const std::string& filename, const std::string& i
 //--	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
 }
 
-void CAPClient::OpenImages(const std::string& imageDirname)
+void CAPClient::OpenImages()
 {
-	ImageBrowser::CreateImageBrowser(imageDirname, this);
+	ImageBrowser::CreateImageBrowser(previousImageLocation_, this);
 	std::cout << "CAPClient::OpenImages show window" << std::endl;
 }
 
@@ -424,7 +424,6 @@ void CAPClient::InitializeModelTemplate()
 		return;
 
 	heartModelPtr_.reset(new HeartModel("heart"));
-	assert(heartModelPtr_);
 	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
 	gui_->LoadTemplateHeartModel(minNumberOfFrames);
 	gui_->SetHeartTransform(heartModelPtr_->GetLocalToGlobalTransformation());

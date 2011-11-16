@@ -96,8 +96,11 @@ void ImageBrowserWindow::MakeConnections()
 	Connect(button_longAxis->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnLongAxisButtonEvent));
 	Connect(button_shortAxis->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnShortAxisButtonEvent));
 	Connect(button_none->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnNoneButtonEvent));
+	Connect(button_dir->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnChooseDirectory));
+	Connect(button_zip->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnChooseArchive));
 	Connect(radioBox_orderBy->GetId(), wxEVT_COMMAND_RADIOBOX_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOrderByRadioBox));
 	Connect(choice_caseList->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnCaseSelected));
+
 }
 
 void ImageBrowserWindow::CreateImageTableColumns()
@@ -292,6 +295,27 @@ void ImageBrowserWindow::SetInfoField(std::string const& fieldName, std::string 
 void ImageBrowserWindow::FitSceneViewer(double radius)
 {
 	cmguiPanel_->SetViewingVolume(radius);
+}
+
+void ImageBrowserWindow::SetImageLocation(const std::string& dir)
+{
+	textCtrl_imageLocation->SetValue(dir);
+}
+
+std::string ImageBrowserWindow::GetImageLocation() const
+{
+	return std::string(textCtrl_imageLocation->GetValue());
+}
+
+void ImageBrowserWindow::OnChooseDirectory(wxCommandEvent& event)
+{
+	dbg("ImageBrowserWindow::OnChooseDirectory");
+	browser_->ChooseImageDirectory();
+}
+
+void ImageBrowserWindow::OnChooseArchive(wxCommandEvent& event)
+{
+	dbg("ImageBrowserWindow::OnChooseArchive");
 }
 
 void ImageBrowserWindow::OnImageTableItemSelected(wxListEvent& event)

@@ -74,14 +74,28 @@ void ImageBrowser::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	ChangePreviewImage(0);
 }
 
-void ImageBrowser::Initialize()
+void ImageBrowser::ChooseImageDirectory()
 {
-	assert(gui_);
+	std::string path = gui_->GetImageLocation();
+	if (path.empty() || !FileSystem::IsDirectory(path))
+		path = wxGetCwd();;
 	
+	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path);
+	if (!dirname.empty())
+	{
+		archiveFilename_ = std::string(dirname);
+		gui_->SetImageLocation(archiveFilename_);
+		LoadImages();
+	}
+}
+
+void ImageBrowser::LoadImages()
+{
 	ReadInDICOMFiles();
 	if (dicomFileTable_.empty())
 	{
-		std::cout << "No valid DICOM files were found here" << std::endl;
+		dbg("No valid DICOM files were found here");
+		gui_->SetImageLocation("");
 	}
 	else
 	{
@@ -91,13 +105,28 @@ void ImageBrowser::Initialize()
 	}
 }
 
+void ImageBrowser::Initialize()
+{
+	assert(gui_);
+	if (archiveFilename_.empty())
+	{
+		ChooseImageDirectory();
+		archiveFilename_ = gui_->GetImageLocation();
+	}
+	else
+	{
+		gui_->SetImageLocation(archiveFilename_);
+		LoadImages();
+	}
+}
+
 void ImageBrowser::ReadInDICOMFiles()
 {
 	//	std::string dirname = TEST_DIR;
 	// TODO unzip archive file
 	// for now we assume the archive has already been unzipped
 	// and archiveFilename points to the containing dir
-	std::string const& dirname = archiveFilename_;
+	const std::string& dirname = archiveFilename_;
 	std::vector<std::string> const& filenames = FileSystem::GetAllFileNames(dirname);
 	
 	gui_->CreateProgressDialog("Please wait", "Analysing DICOM headers", filenames.size());
@@ -452,6 +481,7 @@ void ImageBrowser::OnOKButtonClicked()
 	//--client_->LoadImagesFromImageBrowserWindow(slices, cardiacAnnotation_);
 	client_->LoadLabelledImages(labelledSlices);
 	client_->LoadCardiacAnnotations(cardiacAnnotation_);
+	client_->SetImageLocation(gui_->GetImageLocation());
 
 	gui_->Destroy();
 	gui_ = 0;

@@ -37,7 +37,7 @@
 													<option>1</option>
 													<flag>wxALL</flag>
 													<border>5</border>
-													<object class="wxTextCtrl" name="textCtrl_imageDirectory">
+													<object class="wxTextCtrl" name="textCtrl_imageLocation">
 														<value></value>
 														<maxlength>0</maxlength>
 													</object>

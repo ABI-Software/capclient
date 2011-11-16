@@ -432,8 +432,18 @@ struct Plane
 	Point3D position;
 };
 
-inline
-double SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
+
+
+/**
+ * Solve a*sine(x coordinate) + b*cosine(x coordinate) = c.  For 0 < x < 180.
+ *
+ * @param	a	a.
+ * @param	b	The b.
+ * @param	c	The c.
+ *
+ * @return	.
+ */
+inline double SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
 {
 	// This solves a sin(x) + b cos(x) = c for 0 < x < 180;
 	
@@ -478,10 +488,11 @@ double SolveASinXPlusBCosXIsEqualToC(double a, double b, double c)
 	return x;
 }
 
+/**
+ * Image plane.  This class defines a rectangular object in 3D space
+ */
 class ImagePlane
 {
-// This class defines a rectangular object in 3D space
-	
 public:
 	Point3D tlc;            /**< top left corner */
 	Point3D trc;            /**< top right corner */

@@ -142,6 +142,11 @@ public:
 		
 		return imageBrowser;
 	}
+
+	/**
+	 * Choose image directory.
+	 */
+	void ChooseImageDirectory();
 	
 	/**
 	 * Destructor for ImageBrowser
@@ -164,7 +169,12 @@ private:
 	 * to already be set.
 	 */
 	void Initialize();
-	
+
+	/**
+	 * Loads the images from the directory specified in archiveFilename_.
+	 */
+	void LoadImages();
+
 	/**
 	 * Set the image browser window pointer to give this model
 	 * class access to the gui(view).

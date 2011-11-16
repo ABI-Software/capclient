@@ -114,8 +114,13 @@ public:
 			gui_->UpdateModeSelectionUI(mode);
 			if (mode == Modeller::GUIDEPOINT)
 			{
+				if (!heartModelPtr_.get())
+				{
+					InitializeModelTemplate();
+					EnterModelLoadedState();
+				}
 				UpdateMII();
-				EnterModelLoadedState();
+
 			}
 		}
 	}
@@ -148,11 +153,9 @@ public:
 	void LoadCardiacAnnotations(const CardiacAnnotation& anno);
 
 	/**
-	 * Using the ImageBrowser class open some images from the given directory namespace.
-	 * 
-	 * \param imageDirname the directory name to open images from.
+	 * Using the ImageBrowser class open some images.
 	 */
-	void OpenImages(const std::string& imageDirname);
+	void OpenImages();
 
 	/**
 	 * Opens a model.
@@ -294,7 +297,26 @@ public:
 	 * @param	position  	The position.
 	 */
 	void UpdatePlanePosition(const std::string& regionName, const Point3D& position);
-	
+
+	/**
+	 * Sets an image location.
+	 *
+	 * @param	location	The location.
+	 */
+	void SetImageLocation(const std::string& location)
+	{
+		previousImageLocation_ = location;
+	}
+
+	/**
+	 * Checks to make sure the modeller is ready to start modelling.
+	 */
+	void StartModelling()
+	{
+		if (!modeller_)
+			CreateModeller();
+	}
+
 private:
 	
 	/**
@@ -309,9 +331,6 @@ private:
 	{
 		gui_->EnterInitState();
 		
-		// Initialize input callback
-		//Scene_viewer_add_input_callback(sceneViewer_, input_callback, (void*)this, 1/*add_first*/);
-
 		// Also clean up cmgui objects such as scene, regions, materials ..etc
 		cardiacAnnotationPtr_.reset(0);
 		heartModelPtr_.reset(0);
@@ -384,25 +403,24 @@ private:
 	 */
 	void CreateModeller()
 	{
-		if (modeller_)
+		if (!modeller_)
 		{
-			delete modeller_;
+			modeller_ = new Modeller(this); // initialise modeller and all the data points
+			gui_->UpdateModeSelectionUI(Modeller::APEX);
 		}
-		assert(heartModelPtr_);
-		modeller_ = new Modeller(this); // initialise modeller and all the data points
-		gui_->UpdateModeSelectionUI(Modeller::APEX);
 	}
 	
 	/**
 	 * Private default constructor - This class should be instantiated from the static factory method.
 	 */
 	CAPClient()
-	: gui_(0)
-	, labelledSlices_(LabelledSlices())
-	, heartModelPtr_(0)
-	, modeller_(0)
-	, mainWindowState_(INIT_STATE)
-	, cardiacAnnotationPtr_(0)
+		: gui_(0)
+		, labelledSlices_(LabelledSlices())
+		, heartModelPtr_(0)
+		, modeller_(0)
+		, mainWindowState_(INIT_STATE)
+		, cardiacAnnotationPtr_(0)
+		, previousImageLocation_("")
 	{
 	}
 	
@@ -428,6 +446,7 @@ private:
 	CAPClientWindowState mainWindowState_;  /**< State of the main window */
 	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_; /**< The cardiac annotation pointer */
 	Point3D previousPosition_;  /**< The previous position */
+	std::string previousImageLocation_; /**< The previous image location */
 };
 
 } // namespace cap

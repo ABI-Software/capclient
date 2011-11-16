@@ -63,7 +63,7 @@ SET( APP_HDRS
 	src/model/modeller.h
 	src/model/modellingmode.h
 	src/CAPTimeSmoother.h
-	src/CAPTotalLeastSquares.h
+	src/math/totalleastsquares.h
 	src/CAPXMLFile.h
 	src/CAPXMLFileHandler.h
 	src/cmgui/callbacks.h

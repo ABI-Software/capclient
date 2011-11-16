@@ -60,13 +60,9 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	int modifier_flags_int = static_cast<int>(modifier_flags);
 	if (modifier_flags_int & CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL)
 	{
+		gui->EndModellingAction();
 		return 1;
 	}
-	
-	// We have to stop the animation when the user clicks on the 3D panel.
-	// Since dragging a point while cine is playing can cause a problem
-	// But Is this the best place put this code?
-	gui->StopCine();
 	
 	//double time = gui->GetCurrentTime(); // TODO REVISE
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
@@ -76,7 +72,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 		//dbg("Mouse clicked, time = " + toString(time));
 		//dbg("Mouse button number = " + toString(button_number));
 		
-		gui->EnterModellingMode();
+		gui->StartModellingAction();
 		
 	}
 	//else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
@@ -106,6 +102,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 			Point3D coords = gui->GetNodeRCCoordinates(selected_node);
 			gui->AddDataPoint(selected_node, coords);
 		}
+		gui->EndModellingAction();
 		//--gui->SmoothAlongTime();
 	}
 	

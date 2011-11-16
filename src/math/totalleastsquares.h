@@ -1,5 +1,5 @@
 /*
- * CAPTotalLeastSquares.h
+ * math/totalleastsquares.h
  *
  *  Created on: Feb 12, 2010
  *      Author: jchu014

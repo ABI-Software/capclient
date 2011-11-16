@@ -167,7 +167,7 @@ public:
 	
 	void InitialiseModelLambdaParams();
 	
-	void ReadModelFromFile(std::string& filename);
+	//void ReadModelFromFile(std::string& filename);
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
 	void UpdateTimeVaryingModel();
 	void SmoothAlongTime();
@@ -176,9 +176,7 @@ private:
 	void FitModel(DataPoints& dataPoints, int frameNumber);
 	
 	Plane InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const;
-	
-	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const;
-	
+
 	std::vector<double> ConvertToHermite(const Vector&) const;
 	
 	//HeartModel& heartModel_;
