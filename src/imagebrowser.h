@@ -122,16 +122,6 @@ public:
 	}
 	
 	/**
-	 * Pass through function to allow upstream to control the visibility of the 
-	 * window.
-	 */
-	void ShowWindow() const
-	{
-		std::cout << gui_ << std::endl;
-		gui_->Show(true);
-	}
-	
-	/**
 	 * Factory function for creating an image browser.
 	 * 
 	 * \param archiveFilename a string with the directory where the user wants images read from.
