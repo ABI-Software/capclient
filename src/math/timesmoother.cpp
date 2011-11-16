@@ -15,7 +15,7 @@
 #include "capclientconfig.h"
 #include "utils/debug.h"
 #include "math/timesmoother.h"
-#include "filesystem.h"
+#include "utils/filesystem.h"
 
 #include "hexified/timevaryingprior.dat.h"
 #include "hexified/GlobalSmoothTVMatrix.dat.h"

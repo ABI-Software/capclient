@@ -18,6 +18,7 @@
 #include "hexified/GlobalMapBezierToHermite.dat.h"
 #include "hexified/prior.dat.h"
 #include "utils/debug.h"
+#include "utils/filesystem.h"
 #include "math/totalleastsquares.h"
 #include "math/solverlibraryfactory.h"
 #include "math/gmmfactory.h"
@@ -274,9 +275,10 @@ void Modeller::AlignModel()
 	//	// REVISE
 	//	framesWithDataPoints_.clear();
 	//	framesWithDataPoints_.resize(numberOfModelFrames, 0);
+		InitialiseModelLambdaParams();
 	}
 	
-	modellingModeGuidePoints_.InitialiseModelLambdaParams();
+	
 }
 
 Plane Modeller::InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const
@@ -334,13 +336,14 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 {
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
+		const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
 		for(int j=0; j<1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
 		{
 			double time = 0.0;//--(double)j/heartModel_.GetNumberOfModelFrames();
 			Vector* x = solverFactory_->CreateVector(134);
 			for (int i=0; i< 134; i++)
 			{
-				(*x)[i] = timeVaryingDataPoints_[i][j];
+				(*x)[i] = timeVaryingDataPoints[i][j];
 			}
 	//		std::cout << "x(" << j << ")" << *x << std::endl;
 			
@@ -361,10 +364,12 @@ void Modeller::SmoothAlongTime()
 			
 #define SMOOTH_ALONG_TIME
 #ifdef SMOOTH_ALONG_TIME
+		const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
+		const std::vector<int>& framesWithDataPoints = modellingModeGuidePoints_.GetFramesWithDataPoints();
 		for (int i=0; i < 134; i++) // FIX magic number
 		{
 	//		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
-			const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i], framesWithDataPoints_);
+			const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints[i], framesWithDataPoints);
 			
 	//		std::cout << lambdas << std::endl;
 			
@@ -372,7 +377,7 @@ void Modeller::SmoothAlongTime()
 			{
 				double xi = 0;//--(double)j/heartModel_.GetNumberOfModelFrames();
 				double lambda = timeSmoother_.ComputeLambda(xi, lambdas);
-				timeVaryingDataPoints_[i][j] = lambda;
+				//--timeVaryingDataPoints[i][j] = lambda;
 			}
 		}
 #endif
@@ -464,7 +469,7 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 		// e.g model files converted from CIM models
 		// FIXME - this does not work in cases where neither data points nor
 		//         model files are defined in the xml file.
-		modellingModeGuidePoints_.InitialiseModelLambdaParams();
+		InitialiseModelLambdaParams();
 //		ChangeMode(GetModellingModeGuidePoints());
 		return;
 	}
@@ -504,7 +509,7 @@ void Modeller::InitialiseModelLambdaParams()
 	for (int i=0; i<134;i++)
 	{
 		int num = 0;//--heartModel_.GetNumberOfModelFrames();
-		timeVaryingDataPoints_[i].resize(1/*--heartModel_.GetNumberOfModelFrames()*/);
+		//--timeVaryingDataPoints_[i].resize(1/*--heartModel_.GetNumberOfModelFrames()*/);
 		
 //		std::cout << std::endl;
 		for(int j = 0; j < 1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
@@ -513,13 +518,13 @@ void Modeller::InitialiseModelLambdaParams()
 			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
 			double lambda = timeSmoother_.ComputeLambda(xi, prior);
 //			std::cout << "(" << xi << ", " << lambda << ") ";
-			timeVaryingDataPoints_[i][j] = lambda;
+			//--timeVaryingDataPoints_[i][j] = lambda;
 		}
 //		std::cout << std::endl;
 //		std::cout << "timeVaryingDataPoints_ : " << timeVaryingDataPoints_[i]  << std::endl;
 	}
 	
-	vectorOfDataPoints_.clear();
+	//--vectorOfDataPoints_.clear();
 	//--vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
 	//--framesWithDataPoints_.assign(heartModel_.GetNumberOfModelFrames(), 0);
 	
@@ -651,7 +656,7 @@ void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
 #ifdef UPDATE_CMGUI
 	//--heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber); //Hermite
 	
-	UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
+	modellingModeGuidePoints_.UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
 #endif
 //	SmoothAlongTime();
 	

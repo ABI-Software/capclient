@@ -13,10 +13,10 @@
 #include <wx/image.h>
 
 #include "ui/htmlwindow.h"
-#include "filesystem.h"
-#include "aboutcapclient.html.h"
-#include "mri_icon.png.h"
-#include "abi_icon.png.h"
+#include "utils/filesystem.h"
+#include "hexified/aboutcapclient.html.h"
+#include "hexified/mri_icon.png.h"
+#include "hexified/abi_icon.png.h"
 
 namespace cap
 {

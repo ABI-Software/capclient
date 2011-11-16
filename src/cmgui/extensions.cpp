@@ -22,7 +22,7 @@ extern "C"
 }
 
 #include "DICOMImage.h"
-#include "filesystem.h"
+#include "utils/filesystem.h"
 
 #include "cmgui/extensions.h"
 #include "utils/debug.h"

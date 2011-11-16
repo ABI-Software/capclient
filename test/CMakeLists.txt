@@ -80,7 +80,7 @@ SET(Xml_SRC
 	UnitTestCAPXMLFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
 	${CAPCLIENT_ROOT_DIR}/src/PlatformInfo.cpp
-	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/DataPoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
@@ -100,7 +100,7 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
-	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 )
 LIST(APPEND UNIT_TESTS Modeller)
 
@@ -119,7 +119,7 @@ LIST(APPEND UNIT_TESTS AnnotationEditor)
 
 SET(FileSystem_SRC
 	UnitTestFileSystem.cpp
-	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 )
 LIST(APPEND UNIT_TESTS FileSystem)
 
@@ -140,7 +140,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		${CAPCLIENT_ROOT_DIR}/src/material.cpp
 		${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 		${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
-		${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
+		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	)
 
 	LIST(APPEND GUI_TESTS SelfDeletion)
