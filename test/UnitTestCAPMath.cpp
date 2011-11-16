@@ -6,13 +6,13 @@ TEST(Vector3DTest, Creation)
 	using cap::Vector3D;
 	
 	Vector3D vec1(1,2,3);
-	EXPECT_FLOAT_EQ(vec1.x,1);
-	EXPECT_FLOAT_EQ(vec1.y,2);
-	EXPECT_FLOAT_EQ(vec1.z,3);
+	EXPECT_DOUBLE_EQ(vec1.x,1);
+	EXPECT_DOUBLE_EQ(vec1.y,2);
+	EXPECT_DOUBLE_EQ(vec1.z,3);
 	Vector3D vec2;
-	EXPECT_FLOAT_EQ(vec2.x,0);
-	EXPECT_FLOAT_EQ(vec2.y,0);
-	EXPECT_FLOAT_EQ(vec2.z,0);
+	EXPECT_DOUBLE_EQ(vec2.x,0);
+	EXPECT_DOUBLE_EQ(vec2.y,0);
+	EXPECT_DOUBLE_EQ(vec2.z,0);
 }
 
 TEST(Vector3DTest, Length)
@@ -20,9 +20,9 @@ TEST(Vector3DTest, Length)
 	using cap::Vector3D;
 	
 	Vector3D vec1(1,2,3);
-	EXPECT_FLOAT_EQ(vec1.Length(), 3.741657386773941);
+	EXPECT_DOUBLE_EQ(vec1.Length(), 3.741657386773941);
 	Vector3D vec2(3,2,1);
-	EXPECT_FLOAT_EQ(vec1.Length(), vec2.Length());
+	EXPECT_DOUBLE_EQ(vec1.Length(), vec2.Length());
 }
 
 TEST(Vector3DTest, Nomalize)
@@ -31,10 +31,10 @@ TEST(Vector3DTest, Nomalize)
 	
 	Vector3D vec1(1,2,3);
 	vec1.Normalise();
-	EXPECT_FLOAT_EQ(vec1.Length(), 1);
-	EXPECT_FLOAT_EQ(vec1.x, 0.267261241912424);
-	EXPECT_FLOAT_EQ(vec1.y, 0.534522483824849);
-	EXPECT_FLOAT_EQ(vec1.z, 0.8017837257372730);
+	EXPECT_DOUBLE_EQ(vec1.Length(), 1);
+	EXPECT_DOUBLE_EQ(vec1.x, 0.267261241912424);
+	EXPECT_DOUBLE_EQ(vec1.y, 0.534522483824849);
+	EXPECT_DOUBLE_EQ(vec1.z, 0.8017837257372730);
 }
 
 TEST(Vector3DTest, Equality)
@@ -60,22 +60,22 @@ TEST(Vector3DTest, Muliplication)
 	Vector3D vec2(2,4,6);
 	EXPECT_EQ(vec1*2, vec2);
 	EXPECT_EQ(2*vec1, vec2);
-	EXPECT_FLOAT_EQ(vec1*vec1, 14);
-	EXPECT_FLOAT_EQ(vec1*vec2, 28);
+	EXPECT_DOUBLE_EQ(vec1*vec1, 14);
+	EXPECT_DOUBLE_EQ(vec1*vec2, 28);
 	Vector3D vec3;
 	vec3.CrossProduct(vec1,vec2);
-	EXPECT_FLOAT_EQ(vec3.x, 0);
-	EXPECT_FLOAT_EQ(vec3.y, 0);
-	EXPECT_FLOAT_EQ(vec3.z, 0);
+	EXPECT_DOUBLE_EQ(vec3.x, 0);
+	EXPECT_DOUBLE_EQ(vec3.y, 0);
+	EXPECT_DOUBLE_EQ(vec3.z, 0);
 	vec3.CrossProduct(vec1,Vector3D(3,2,1));
-	EXPECT_FLOAT_EQ(vec3.x, -4);
-	EXPECT_FLOAT_EQ(vec3.y, 8);
-	EXPECT_FLOAT_EQ(vec3.z, -4);
+	EXPECT_DOUBLE_EQ(vec3.x, -4);
+	EXPECT_DOUBLE_EQ(vec3.y, 8);
+	EXPECT_DOUBLE_EQ(vec3.z, -4);
 	
 	Vector3D vec4 = CrossProduct(vec1,Vector3D(3,2,1));
-	EXPECT_FLOAT_EQ(vec4.x, -4);
-	EXPECT_FLOAT_EQ(vec4.y, 8);
-	EXPECT_FLOAT_EQ(vec4.z, -4);
+	EXPECT_DOUBLE_EQ(vec4.x, -4);
+	EXPECT_DOUBLE_EQ(vec4.y, 8);
+	EXPECT_DOUBLE_EQ(vec4.z, -4);
 }
 
 TEST(Vector3DTest, Addition)
@@ -106,9 +106,9 @@ TEST(Vector3DTest, Point3D)
 	Vector3D vec1(1,2,3);
 	EXPECT_EQ(point1-point2, vec1);
 	Point3D point3 = point2 + vec1;
-	EXPECT_FLOAT_EQ(point3.x, point1.x);
-	EXPECT_FLOAT_EQ(point3.y, point1.y);
-	EXPECT_FLOAT_EQ(point3.z, point1.z);
+	EXPECT_DOUBLE_EQ(point3.x, point1.x);
+	EXPECT_DOUBLE_EQ(point3.y, point1.y);
+	EXPECT_DOUBLE_EQ(point3.z, point1.z);
 }
 
 TEST(ComputeVolumeOfTetrahedronTest, Volume)
@@ -116,7 +116,7 @@ TEST(ComputeVolumeOfTetrahedronTest, Volume)
 	using namespace cap;
 	
 	// computes 6 * the actual volume (to save some computation)
-	//EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(0.0f,0.0f,0.0f,
+	//EXPECT_DOUBLE_EQ(ComputeVolumeOfTetrahedron(0.0f,0.0f,0.0f,
 //			1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f), 1);
 	
 	Point3D a(0,0,0);
@@ -124,13 +124,13 @@ TEST(ComputeVolumeOfTetrahedronTest, Volume)
 	Point3D c(0,1,0);
 	Point3D d(0,0,1);
 	
-	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 1);
+	EXPECT_DOUBLE_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 1);
 	
 	d.z = -2.0f;
-	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2);
+	EXPECT_DOUBLE_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2);
 	
 	d.z = -2.7f;
-	EXPECT_FLOAT_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2.7);
+	EXPECT_DOUBLE_EQ(ComputeVolumeOfTetrahedron(a,b,c,d), 2.7);
 }
 
 TEST(MathFunctionTest, SolveASinXPlusBCosXIsEqualToC)
