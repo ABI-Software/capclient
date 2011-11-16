@@ -99,6 +99,8 @@ SET(Modeller_SRC
 	UnitTestModeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
+	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
+	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 )

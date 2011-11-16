@@ -18,7 +18,7 @@ extern "C" {
 #include <api/cmiss_rendition.h>
 }
 
-#include "heartmodel.h"
+#include "model/heart.h"
 #include "cmgui/sceneviewerpanel.h"
 #include "math/algebra.h"
 #include "utils/debug.h"
