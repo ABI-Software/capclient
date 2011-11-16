@@ -148,6 +148,22 @@ public:
 	void SetAnnotationString(std::string text);
 	
 private:
+
+	/**
+	 * Query if this object has at least one image labelled.
+	 *
+	 * @return	true if at least one image is labelled, false if not.
+	 */
+	bool IsAtLeastOneImageLabelled() const;
+
+	/**
+	 * Gets a cell contents string.
+	 *
+	 * @param	row_number	The row number.
+	 * @param	column	  	The column.
+	 *
+	 * @return	The cell contents string.
+	 */
 	std::string GetCellContentsString( long row_number, int column ) const;
 	
 	/**
