@@ -12,7 +12,9 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include "gmm/gmm.h"
+
+#include <gmm/gmm.h>
+
 #include "SolverLibraryFactory.h"
 
 namespace cap
@@ -424,4 +426,5 @@ private:
 };
 
 } // end namespace cap
+
 #endif /* GMMFACTORY_H_ */

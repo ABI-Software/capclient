@@ -13,12 +13,15 @@
 
 namespace cap
 {
-
+/**
+ * File system.  This class implements some cross platform file system utilities.
+ */
 class FileSystem
 {
-public:
-	explicit FileSystem();
+private:
+	FileSystem();
 
+public:
 	/**
 	 * Gets all the names of the files in the given directory.
 	 *

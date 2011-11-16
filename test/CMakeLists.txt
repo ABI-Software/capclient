@@ -99,7 +99,7 @@ SET(Modeller_SRC
 	UnitTestModeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPTimeSmoother.cpp
+	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/filesystem.cpp
 )
 LIST(APPEND UNIT_TESTS Modeller)

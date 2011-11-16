@@ -9,12 +9,12 @@
 #include <iostream>
 #include <sstream>
 
-#include "CAPBasis.h"
+#include "math/basis.h"
 #include "gmm/gmm.h" // TODO use wrapper
 
 #include "capclientconfig.h"
 #include "utils/debug.h"
-#include "CAPTimeSmoother.h"
+#include "math/timesmoother.h"
 #include "filesystem.h"
 
 #include "hexified/timevaryingprior.dat.h"

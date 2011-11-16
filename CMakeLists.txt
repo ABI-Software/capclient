@@ -52,7 +52,7 @@ SET( APP_HDRS
 	src/AnnotationWindow.h
 	src/Archiver.h
 	src/CAPAnnotationFile.h
-	src/CAPBasis.h
+	src/math/basis.h
 	src/CAPBinaryVolumeParameterDialog.h
 	src/CAPContour.h
 	src/ui/euladialog.h
@@ -62,7 +62,7 @@ SET( APP_HDRS
 	src/heartmodel.h
 	src/model/modeller.h
 	src/model/modellingmode.h
-	src/CAPTimeSmoother.h
+	src/math/timesmoother.h
 	src/math/totalleastsquares.h
 	src/CAPXMLFile.h
 	src/CAPXMLFileHandler.h
@@ -90,10 +90,10 @@ SET( APP_HDRS
 	src/capclientwindow.h
 	src/PlatformInfo.h
 	src/SliceInfo.h
-	src/SolverLibraryFactory.h
+	src/math/solverlibraryfactory.h
 	src/standardheartdefinitions.h
 	src/UserCommentDialog.h
-	src/VNLFactory.h
+	src/math/vnlfactory.h
 	src/VolumeGraph.h
 	src/capclientapp.h
 	src/textureslice.h
@@ -112,7 +112,7 @@ SET( APP_SRCS
 	src/heartmodel.cpp
 	src/model/modeller.cpp
 	src/model/modellingmode.cpp
-	src/CAPTimeSmoother.cpp
+	src/math/timesmoother.cpp
 	src/CAPXMLFile.cpp
 	src/CAPXMLFileHandler.cpp
 	src/cmgui/callbacks.cpp
