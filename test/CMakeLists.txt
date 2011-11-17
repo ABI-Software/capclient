@@ -81,7 +81,7 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
 	${CAPCLIENT_ROOT_DIR}/src/PlatformInfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
-	${CAPCLIENT_ROOT_DIR}/src/DataPoint.cpp
+	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFile.cpp
