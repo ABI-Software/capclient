@@ -298,6 +298,13 @@ public:
 	void SetHeartTransform(const gtMatrix& transform);
 
 	/**
+	 * Sets the heart prolate spheriod focul length.
+	 *
+	 * @param	foculLength	focul length for the prolate spheriod coordinate system.
+	 */
+	void SetHeartFoculLength(double foculLength);
+
+	/**
 	 * Gets the currently selected node.
 	 *
 	 * @return	The currently selected node.

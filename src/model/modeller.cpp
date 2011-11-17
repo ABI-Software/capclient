@@ -166,6 +166,8 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlan
 	}
 	
 	// make sure plane normal is always pointing toward the apex
+	dbg("plane normal : " + toString(plane.normal));
+	dbg("xAxis : " + toString(xAxis));
 	if (DotProduct(plane.normal, xAxis) < 0)
 	{
 		plane.normal *= -1; 
@@ -271,7 +273,7 @@ void Modeller::AlignModel()
 		for(int i = 0; i < numberOfModelFrames; i++)
 		{
 			//--heartModel_.SetTheta(i);
-			const Plane& plane = InterpolateBasePlane(planes, i);
+			//--const Plane& plane = InterpolateBasePlane(planes, i);
 			
 	//		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl; 
 			//--heartModel_.SetMuFromBasePlaneForFrame(plane, i);

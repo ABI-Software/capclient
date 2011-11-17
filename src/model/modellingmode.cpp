@@ -258,6 +258,21 @@ ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 	
 	DataPointTimeLessThan lessThan; // need lambda functions !
 	std::sort(basePlanePoints_.begin(), basePlanePoints_.end(), lessThan);
+
+	// Check that there are pairs for the same timesteps
+	std::vector<DataPoint>::const_iterator cit = basePlanePoints_.begin();
+	while ( cit != basePlanePoints_.end())
+	{
+		double time1 = cit->GetTime();
+		cit++;
+		double time2 = cit->GetTime();
+		cit++;
+		if (fabs(time1-time2) > 1e-06)
+		{
+			dbg("ModellingModeBasePlane::OnAccept: Need n pairs of base plane points with pairs at the same time step (" + toString(time1) + ", " + toString(time2) + ")");
+			return 0;
+		}
+	}
 	
 	//modeller.AlignModel();
 	//modeller.UpdateTimeVaryingModel();
