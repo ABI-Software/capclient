@@ -7,7 +7,7 @@
 
 #include <limits>
 
-#include "DataPoint.h"
+#include "datapoint.h"
 #include "utils/debug.h"
 
 extern "C" {

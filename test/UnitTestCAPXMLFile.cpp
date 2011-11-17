@@ -14,7 +14,7 @@
 #include "CAPXMLFile.h"
 #undef private
 #include "CAPXMLFileHandler.h"
-#include "DataPoint.h"
+#include "datapoint.h"
 
 namespace
 {

@@ -12,7 +12,7 @@
 //#include <boost/ptr_container/ptr_vector.hpp>
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
 
-#include "DataPoint.h"
+#include "datapoint.h"
 #include "imodeller.h"
 
 struct Cmiss_node; //REVISE
