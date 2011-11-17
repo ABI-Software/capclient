@@ -547,7 +547,7 @@ void Modeller::InitialiseModelLambdaParams()
 
 void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
 {
-	dbg("**** FIX, move to modeller class ****");
+	dbg("**** FIX, not yet updated to Cmgui 2.8.0 ****");
 	// Compute P 
 	// 1. find xi coords for each data point
 	DataPoints::iterator itr = dataPoints.begin();

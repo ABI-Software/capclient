@@ -263,6 +263,10 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	EXPECT_TRUE(node1 != 0);
 	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
 	EXPECT_TRUE(node2 != 0);
+	Cmiss_node_id node3 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+	EXPECT_TRUE(node3 != 0);
+	Cmiss_node_id node4 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+	EXPECT_TRUE(node4 != 0);
 	Point3D bp1(-18.4984, -52.6508, 43.958);
 	Point3D bp2(-3.04825, -0.0334985, 8.7444);
 
@@ -270,7 +274,9 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	Modeller modeller(&mcc);
 	modeller.ChangeMode(Modeller::BASEPLANE);
 	modeller.AddDataPoint(node1, bp1, 0.2);
-	modeller.AddDataPoint(node2, bp2, 0.3);
+	modeller.AddDataPoint(node2, bp2, 0.2);
+	modeller.AddDataPoint(node3, bp1, 0.4);
+	modeller.AddDataPoint(node4, bp2, 0.42);
 	EXPECT_FALSE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
 
