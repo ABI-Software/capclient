@@ -38,7 +38,7 @@ void CAPClient::SetTemplateToPatientTransformation(const gtMatrix& m)
 void CAPClient::SetHeartModelFocalLength(double focalLength)
 {
 	heartModelPtr_->SetFocalLength(focalLength);
-	gui_->SetHeartFoculLength(focalLength);
+	gui_->SetHeartFocalLength(focalLength);
 }
 
 int CAPClient::GetNumberOfHeartModelFrames() const

@@ -829,10 +829,10 @@ void CAPClientWindow::EndModellingAction()
 	}
 }
 
-void CAPClientWindow::SetHeartFoculLength(double foculLength)
+void CAPClientWindow::SetHeartFocalLength(double focalLength)
 {
 	std::stringstream ss;
-	ss << "focus " << foculLength;
+	ss << "focus " << focalLength;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
 	Cmiss_field_module_define_field(field_module, "coordinates", ss.str().c_str());
 	Cmiss_field_module_destroy(&field_module);
