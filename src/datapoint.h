@@ -8,16 +8,18 @@
 #ifndef DATAPOINT_H_
 #define DATAPOINT_H_
 
-#include "SliceInfo.h"
-#include "math/algebra.h"
-
 extern "C" {
 #include "api/cmiss_node.h"
 }
 
+#include "SliceInfo.h"
+#include "math/algebra.h"
+
 namespace cap
 {
-
+/**
+ * Data point.  This class encapsultates the points for modelling.
+ */
 class DataPoint
 {
 public:

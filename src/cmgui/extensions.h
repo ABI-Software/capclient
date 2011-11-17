@@ -5,6 +5,17 @@
  * This file contains prototypes for utilites for the Cmgui library.
  */
 
+extern "C"
+{
+#include <configure/cmgui_configure.h>
+#include <api/cmiss_context.h>
+#include <api/cmiss_scene_viewer.h>
+#include <api/cmiss_field_module.h>
+#include <api/cmiss_field_image.h>
+#include <api/cmiss_node.h>
+}
+
+#include "DICOMImage.h"
 #include "math/algebra.h"
 
 class wxPanel;
@@ -70,6 +81,18 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
  * @return	An accessed field module, or 0 on failure.
  */
 Cmiss_field_module_id Cmiss_context_get_first_non_empty_selection_field_module(Cmiss_context_id cmissContext);
+
+/**
+ * Cmiss context create node.
+ *
+ * @param	cmissContext	Context to use.
+ * @param	x				The x coordinate.
+ * @param	y				The y coordinate.
+ * @param	z				The z coordinate.
+ *
+ * @return	an accessed node, or 0 on failure.
+ */
+Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext, double x, double y, double z);
 
 /**
  * Create a surface in the given region and uses the supplied material as a texture for the 

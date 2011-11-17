@@ -217,13 +217,14 @@ public:
 	// Member functions related to rendering
 
 	/**
-	 * Map to model frame time.
+	 * Map to model frame time.  Maps the argument time to the closest frame in time and returns the
+	 * frame time.
 	 *
 	 * @param	time	The time.
 	 *
-	 * @return	.
+	 * @return	Nearest frame time.
 	 */
-	double MapToModelFrameTime(double time) const; // maps the argument time to the closest frame in time and returns the frame time
+	double MapToModelFrameTime(double time) const;
 
 	/**
 	 * Map to model frame number.

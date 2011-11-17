@@ -31,7 +31,7 @@ namespace cap
 
 const Modeller::ModellingModeEnumMap Modeller::ModellingModeStrings = Modeller::InitModellingModeStrings();
 
-Modeller::Modeller(CAPClient *mainApp)
+Modeller::Modeller(IModeller *mainApp)
 	: mainApp_(mainApp)
 	, modellingModeApex_()
 	, modellingModeBase_()
@@ -176,7 +176,7 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlan
 
 void Modeller::AlignModel()
 {
-	if (GetCurrentMode() == BASEPLANE)
+	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		const DataPoint& apex = modellingModeApex_.GetApex();
 		const DataPoint& base = modellingModeBase_.GetBase();
@@ -201,6 +201,9 @@ void Modeller::AlignModel()
 		zAxis.Normalise();
 		yAxis.CrossProduct(zAxis,xAxis);
 		dbg("Model coord x axis vector" + toString(xAxis));
+		dbg("Model coord y axis vector" + toString(yAxis));
+		dbg("Model coord z axis vector" + toString(zAxis));
+		std::cout << "Model coord x axis vector" << xAxis << std::endl;
 		std::cout << "Model coord y axis vector" << yAxis << std::endl;
 		std::cout << "Model coord z axis vector" << zAxis << std::endl;
 		
@@ -226,6 +229,8 @@ void Modeller::AlignModel()
 		transform[3][2]=static_cast<float>(origin.z);
 		transform[3][3]=1;
 		
+
+		mainApp_->SetTemplateToPatientTransformation(transform);
 		//--heartModel_.SetLocalToGlobalTransformation(transform);
 		
 		// TODO properly Compute FocalLength
@@ -235,17 +240,18 @@ void Modeller::AlignModel()
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 		double focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
 		std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
+		mainApp_->SetHeartModelFocalLength(focalLength);
 		//--heartModel_.SetFocalLength(focalLength);
 		
 		// Construct base planes from the base plane points
-		int numberOfModelFrames = 1;//--heartModel_.GetNumberOfModelFrames();
+		int numberOfModelFrames = mainApp_->GetNumberOfHeartModelFrames();//--heartModel_.GetNumberOfModelFrames();
 		
 		std::map<int, Plane> planes; // value_type = (frame, plane) pair
 		std::vector<DataPoint>::const_iterator itrSrc = basePlanePoints.begin();
 
 		while ( itrSrc!=basePlanePoints.end())
 		{
-			int frameNumber = 1;//--heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
+			int frameNumber = mainApp_->GetFrameNumberForTime(itrSrc->GetTime());//--heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
 			double timeOfNextFrame = (double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<DataPoint> basePlanePointsInOneFrame;
 			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
@@ -289,7 +295,7 @@ Plane Modeller::InterpolateBasePlane(const std::map<int, Plane>& planes, int fra
 	
 	int prevFrame = 0;
 	Plane prevPlane;
-	while (itr->first < frame && itr != planes.end())
+	while (itr != planes.end() && itr->first < frame)
 	{
 		prevFrame = itr->first;
 		prevPlane = itr->second;

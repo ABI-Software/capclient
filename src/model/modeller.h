@@ -13,6 +13,7 @@
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
 
 #include "DataPoint.h"
+#include "imodeller.h"
 
 struct Cmiss_node; //REVISE
 
@@ -55,9 +56,9 @@ public:
 	/**
 	 * Constructor.
 	 *
-	 * @param	mainApp	The main application.
+	 * @param	mainApp	An interface to the main application that allows limited interaction.
 	 */
-	explicit Modeller(CAPClient *mainApp);
+	explicit Modeller(IModeller *mainApp);
 
 	/**
 	 * Destructor.
@@ -273,7 +274,7 @@ private:
 	 */
 	std::vector<double> ConvertToHermite(const Vector& bezierParams) const;
 	
-	CAPClient *mainApp_;	/**< The main application */
+	IModeller *mainApp_;	/**< The main application */
 	ModellingModeApex modellingModeApex_;   /**< The modelling mode apex */
 	ModellingModeBase modellingModeBase_;   /**< The modelling mode base */
 	ModellingModeRV modellingModeRV_;   /**< The modelling mode rv */
