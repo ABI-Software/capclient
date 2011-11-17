@@ -28,6 +28,23 @@ const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
 	throw std::exception();
 }
 
+void CAPClient::SetTemplateToPatientTransformation(const gtMatrix& m)
+{
+	assert(heartModelPtr_);
+	heartModelPtr_->SetLocalToGlobalTransformation(m);
+	gui_->SetHeartTransform(m);
+}
+
+void CAPClient::SetHeartModelFocalLength(double focalLength)
+{
+	heartModelPtr_->SetFocalLength(focalLength);
+}
+
+int CAPClient::GetNumberOfHeartModelFrames() const
+{
+	return heartModelPtr_->GetNumberOfModelFrames();
+}
+
 void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 {
 	gui_->ClearTextureSlices();
@@ -48,7 +65,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 	
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
-	//InitializeModelTemplate();
+	//InitializeHeartModelTemplate();
 	EnterImagesLoadedState();
 }
 
@@ -77,7 +94,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 	//	EnterInitState(); // this re-registers the input call back -REVISE
 	
 	//-- Gone LoadImages(slices);
-	//InitializeModelTemplate(slices);
+	//InitializeHeartModelTemplate(slices);
 	
 	// Create DataPoints if corresponding annotations exist in the CardiacAnnotation
 	assert(!anno.imageAnnotations.empty());
@@ -255,7 +272,7 @@ void CAPClient::OpenModel(const std::string& filename)
 		if(!dataPoints.empty())
 		{
 			// This means no output element is defined
-			InitializeModelTemplate();
+			InitializeHeartModelTemplate();
 			CreateModeller();
 			
 			dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(dataPoints.size()));
@@ -416,7 +433,7 @@ void CAPClient::UpdateMII()
 	}
 }
 
-void CAPClient::InitializeModelTemplate()
+void CAPClient::InitializeHeartModelTemplate()
 {
 	unsigned int minNumberOfFrames = GetMinimumNumberOfFrames();
 	

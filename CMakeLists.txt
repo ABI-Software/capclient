@@ -61,6 +61,7 @@ SET( APP_HDRS
 	src/math/algebra.h
 	src/model/heart.h
 	src/model/modeller.h
+	src/model/imodeller.h
 	src/model/modellingmode.h
 	src/math/timesmoother.h
 	src/math/totalleastsquares.h

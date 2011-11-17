@@ -190,7 +190,7 @@ ModellingMode* ModellingModeRV::OnAccept(Modeller& modeller)
 {
 	if ((rvInserts_.size() % 2) || rvInserts_.empty())
 	{
-		std::cout << __func__ << ": Need n pairs of rv insertion points" << std::endl;
+		dbg("ModellingModeRV::OnAccept: Need n pairs of rv insertion points");
 		return 0;
 	}
 	return modeller.GetModellingModeBasePlane();
@@ -252,15 +252,15 @@ ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 {
 	if ((basePlanePoints_.size() % 2) || basePlanePoints_.empty())
 	{
-		std::cout << __func__ << ": Need n pairs of base plane points" << std::endl;
+		dbg("ModellingModeBasePlane::OnAccept: Need n pairs of base plane points");
 		return 0;
 	}
 	
 	DataPointTimeLessThan lessThan; // need lambda functions !
 	std::sort(basePlanePoints_.begin(), basePlanePoints_.end(), lessThan);
 	
-	modeller.AlignModel();
-	modeller.UpdateTimeVaryingModel();
+	//modeller.AlignModel();
+	//modeller.UpdateTimeVaryingModel();
 	return modeller.GetModellingModeGuidePoints();
 }
 

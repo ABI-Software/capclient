@@ -290,9 +290,6 @@ void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 		}
 		dbg("");
 	}
-	
-	dbg("*** Missing update : HeartModel::SetLocalToGlobalTransformation");
-	//Scene_object_set_transformation(modelSceneObject_, &patientToGlobalTransform_);
 }
 
 Point3D HeartModel::TransformToLocalCoordinateRC(const Point3D& global) const

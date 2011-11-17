@@ -57,7 +57,7 @@ class CAPClientWindow;
  * The gui(view) class for CAPClient is CAPClientWindow.  This class is follows 
  * the singleton pattern so that we can only have one CAPCLient.
  */
-class CAPClient : private IImageBrowser//, public wxApp
+class CAPClient : private IImageBrowser, public IModeller//, public wxApp
 {
 public:
 	
@@ -103,6 +103,13 @@ public:
 	int GetFrameNumberForTime(double time);
 
 	/**
+	 * Gets the number of heart model frames.
+	 *
+	 * @return	The number of heart model frames.
+	 */
+	int GetNumberOfHeartModelFrames() const;
+
+	/**
 	 * Process the data points entered for current mode.
 	 */
 	void ProcessDataPointsEnteredForCurrentMode()
@@ -116,7 +123,10 @@ public:
 			{
 				if (!heartModelPtr_.get())
 				{
-					InitializeModelTemplate();
+					InitializeHeartModelTemplate();
+					assert(heartModelPtr_.get());
+					modeller_->AlignModel();
+					//modeller_->UpdateTimeVaryingModel();
 					EnterModelLoadedState();
 				}
 				UpdateMII();
@@ -137,7 +147,22 @@ public:
 	}
 	
 	virtual void LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno);
-	
+
+	/**
+	 * Sets a template to patient transformation.  This function implements the pure virtual
+	 * function from the IModeller interface.
+	 *
+	 * @param	m	The transform.
+	 */
+	void SetTemplateToPatientTransformation(const gtMatrix& m);
+
+	/**
+	 * Sets the heart model focal length.
+	 *
+	 * @param	focalLength	focal length for prolate spheriodal coordinate system.
+	 */
+	void SetHeartModelFocalLength(double focalLength);
+
 	/**
 	 * Implement pure virtual function from IImageBrowser interface 
 	 * so that labelledSlices, labelledTextures and cardiac annotations 
@@ -393,10 +418,10 @@ private:
 	};
 
 	/**
-	 * Initializes the model template.  If the images have not
+	 * Initializes the heart model template.  If the images have not
 	 * been loaded then this function will do nothing.
 	 */
-	void InitializeModelTemplate();
+	void InitializeHeartModelTemplate();
 
 	/**
 	 * Creates the modeller.

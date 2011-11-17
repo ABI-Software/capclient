@@ -42,8 +42,6 @@ DataPoint::DataPoint(const DataPoint& other)
 		
 DataPoint::~DataPoint()
 {
-//	std::cout << __func__ << ": Node id = " << Cmiss_node_get_identifier(cmissNode_) <<
-//			": use count = " << FE_node_get_access_count(cmissNode_) << '\n';
 	Cmiss_node_destroy(&cmissNode_);
 }
 

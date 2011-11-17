@@ -196,6 +196,24 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 	Cmiss_region_destroy(&root_region);
 }
 
+Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext, double x, double y, double z)
+{
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(root_region);
+	Cmiss_field_module_begin_change(field_module);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_node_template_id node_template1 = Cmiss_nodeset_create_node_template(nodeset);
+	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template1);
+	Cmiss_field_module_end_change(field_module);
+	
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_node_template_destroy(&node_template1);
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_region_destroy(&root_region);
+
+	return node;
+}
+
 void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName)
 {
 	const int element_node_count = 4;
@@ -252,6 +270,7 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_element_template_destroy(&element_template);
 	Cmiss_field_module_end_change(field_module);
 	
+	Cmiss_field_module_destroy(&field_module);
 	Cmiss_mesh_destroy(&mesh);
 	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_field_destroy(&coordinates_field);
