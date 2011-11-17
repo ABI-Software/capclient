@@ -829,6 +829,14 @@ void CAPClientWindow::EndModellingAction()
 	}
 }
 
+void CAPClientWindow::SetHeartFoculLength(double foculLength)
+{
+	std::stringstream ss;
+	ss << "focus " << foculLength;
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_define_field(field_module, "coordinates", ss.str().c_str());
+	Cmiss_field_module_destroy(&field_module);
+}
 
 void CAPClientWindow::SetHeartTransform(const gtMatrix& transform)
 {
@@ -836,9 +844,9 @@ void CAPClientWindow::SetHeartTransform(const gtMatrix& transform)
 	Cmiss_field_module_begin_change(field_module);
 	std::stringstream ss_mx;
 	ss_mx << "constant ";
-	for (int i = 0; i < 3; i++)
+	for (int j = 0; j < 3; j++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (int i = 0; i < 3; i++)
 		{
 			ss_mx << transform[i][j] << " ";
 		}
@@ -846,13 +854,12 @@ void CAPClientWindow::SetHeartTransform(const gtMatrix& transform)
 
 	std::stringstream ss_tr;
 	ss_tr << "constant " << transform[3][0] << " " << transform[3][1] << " " << transform[3][2];
-	int r1 = Cmiss_field_module_define_field(field_module, "local_to_global_mx", ss_mx.str().c_str());
-	int r2 = Cmiss_field_module_define_field(field_module, "local_to_global_tr", ss_tr.str().c_str());
-	int r3 = Cmiss_field_module_define_field(field_module, "coordinates_rc", "coordinate_transformation field coordinates");
-	int r4 = Cmiss_field_module_define_field(field_module, "temp1", "matrix_multiply num 3 fields local_to_global_mx coordinates_rc");
-	int r5 = Cmiss_field_module_define_field(field_module, "patient_rc_coordinates", "add fields temp1 local_to_global_tr");
+	Cmiss_field_module_define_field(field_module, "local_to_global_mx", ss_mx.str().c_str());
+	Cmiss_field_module_define_field(field_module, "local_to_global_tr", ss_tr.str().c_str());
+	Cmiss_field_module_define_field(field_module, "coordinates_rc", "coordinate_transformation field coordinates");
+	Cmiss_field_module_define_field(field_module, "temp1", "matrix_multiply num 3 fields local_to_global_mx coordinates_rc");
+	Cmiss_field_module_define_field(field_module, "patient_rc_coordinates", "add fields temp1 local_to_global_tr");
 
-	dbg("conversion " + toString(r1==CMISS_OK) + ", " + toString(r2==CMISS_OK) + ", " + toString(r3==CMISS_OK) + ", " + toString(r4==CMISS_OK) + ", " + toString(r5==CMISS_OK));
 	Cmiss_field_module_end_change(field_module);
 
 	Cmiss_field_module_destroy(&field_module);

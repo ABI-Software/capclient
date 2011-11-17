@@ -66,20 +66,17 @@ bool CAPApp::OnInit()
 	// Create the main application model
 	CAPClient* mainApp = CAPClient::GetCAPClientInstance();
 	
-	assert(mainApp);
 	// We cannot initialise this from inside the CAPClientWindow constructor unfortunately.
 	wxXmlInit_CAPClientWindowUI();
 	CAPClientWindow *frame = new CAPClientWindow(mainApp);
 	mainApp->SetCAPClientWindow(frame);
 	SetTopWindow(frame);
-	frame->Show(true);
 	
-	return true;
+	return frame->Show(true);
 }
 
 int CAPApp::OnExit()
 {
-	dbg(std::string("CAPApp::") + __func__);
 	int r = wxApp::OnExit();
 	// Clean up anything started in OnInit();
 	CAPClient* mainApp = CAPClient::GetCAPClientInstance();
@@ -88,28 +85,28 @@ int CAPApp::OnExit()
 	return r;
 }
 
-void CAPApp::OnInitCmdLine(wxCmdLineParser& parser)
-{
-	std::cout << __func__ << std::endl;
-	parser.SetDesc(g_cmdLineDesc);
-	// must refuse '/' as parameter starter or cannot use "/path" style paths
-	parser.SetSwitchChars(wxT("-"));
-}
+//void CAPApp::OnInitCmdLine(wxCmdLineParser& parser)
+//{
+//	dbg(__func__);
+//	parser.SetDesc(g_cmdLineDesc);
+//	// must refuse '/' as parameter starter or cannot use "/path" style paths
+//	parser.SetSwitchChars(wxT("-"));
+//}
 
-bool CAPApp::OnCmdLineParsed(wxCmdLineParser& parser)
-{
-	std::cout << __func__ << std::endl;
-	server_mode_ = parser.Found(wxT("s"));
-	
-	// to get at your unnamed parameters use
-	wxArrayString files;
-	for (unsigned int i = 0; i < parser.GetParamCount(); i++)
-	{
-		files.Add(parser.GetParam(i));
-	}
-	
-	return true;
-}
+//bool CAPApp::OnCmdLineParsed(wxCmdLineParser& parser)
+//{
+//	dbg(__func__);
+//	server_mode_ = parser.Found(wxT("s"));
+//	
+//	// to get at your unnamed parameters use
+//	wxArrayString files;
+//	for (unsigned int i = 0; i < parser.GetParamCount(); i++)
+//	{
+//		files.Add(parser.GetParam(i));
+//	}
+//	
+//	return true;
+//}
 
 }
 

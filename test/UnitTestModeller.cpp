@@ -226,8 +226,8 @@ TEST(Modeller, AddBasePlanePoints)
 	modeller.AddDataPoint(node4, rv2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
-	modeller.AddDataPoint(node5, bp1, 0.0);
-	modeller.AddDataPoint(node6, bp2, 0.0);
+	modeller.AddDataPoint(node5, bp1, 1.0);
+	modeller.AddDataPoint(node6, bp2, 1.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
 
@@ -254,4 +254,30 @@ TEST(Modeller, AddBasePlanePoints)
 	Cmiss_node_destroy(&node6);
 	Cmiss_context_destroy(&context);
 }
+
+TEST(Modeller, BasePlanePointsDifferentTimes)
+{
+	using namespace cap;
+	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
+	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+	EXPECT_TRUE(node1 != 0);
+	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+	EXPECT_TRUE(node2 != 0);
+	Point3D bp1(-18.4984, -52.6508, 43.958);
+	Point3D bp2(-3.04825, -0.0334985, 8.7444);
+
+	MinimalCAPClient mcc;
+	Modeller modeller(&mcc);
+	modeller.ChangeMode(Modeller::BASEPLANE);
+	modeller.AddDataPoint(node1, bp1, 0.2);
+	modeller.AddDataPoint(node2, bp2, 0.3);
+	EXPECT_FALSE(modeller.OnAccept());
+	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
+
+
+	Cmiss_node_destroy(&node1);
+	Cmiss_node_destroy(&node2);
+	Cmiss_context_destroy(&context);
+}
+
 
