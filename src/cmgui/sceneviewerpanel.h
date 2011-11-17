@@ -8,13 +8,9 @@
 #ifndef CMGUIPANEL_H_
 #define CMGUIPANEL_H_
 
-/** A singleton class to ease the interaction with the Cmgui API
- * 
- */
 #include <cassert>
 #include <string>
 #include <vector>
-#include <boost/tr1/memory.hpp>
 
 extern "C" {
 #include <configure/cmgui_configure.h>
@@ -24,11 +20,9 @@ extern "C" {
 #include <api/cmiss_field_module.h>
 }
 
-#include "DICOMImage.h"
-#include "cmgui/callbacks.h"
+#include "math/algebra.h"
 
 class wxPanel;
-//struct Scene_object;	
 
 namespace cap
 {
