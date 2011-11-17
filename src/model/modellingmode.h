@@ -11,7 +11,7 @@
 #include <vector>
 #include <map>
 
-#include "DataPoint.h"
+#include "datapoint.h"
 #include "math/timesmoother.h"
 
 namespace cap
