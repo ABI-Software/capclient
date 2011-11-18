@@ -153,6 +153,7 @@ void ImageBrowser::ReadInDICOMFiles()
 			gui_->UpdateProgressDialog(count);
 		}
 	}
+	gui_->UpdateProgressDialog(filenames.size());
 	gui_->DestroyProgressDialog(); // REVISE interface 
 }
 
@@ -193,7 +194,7 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 		}
 		textureMap_.insert(make_pair(slice.first, image_field_stack));
 	}
-	
+	gui_->UpdateProgressDialog(GetSliceMapImageCount());
 	gui_->DestroyProgressDialog();
 	return;
 }
@@ -370,7 +371,8 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	ChangeImageAnnotation(frameNumber);
 	
 	gui_->ViewAll();
-	gui_->SetAnnotationString(dicomImages.at(frameNumber)->GetFilename());
+	std::string filename = FileSystem::GetFileName(dicomImages.at(frameNumber)->GetFilename());
+	gui_->SetAnnotationString("File name : " + filename);
 	double radius = std::max(width, height) / 2.0;
 	gui_->FitSceneViewer(radius);
 	//gui_->RefreshPreviewPanel();

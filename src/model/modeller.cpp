@@ -247,22 +247,25 @@ void Modeller::AlignModel()
 		
 		// Construct base planes from the base plane points
 		int numberOfModelFrames = mainApp_->GetNumberOfHeartModelFrames();//--heartModel_.GetNumberOfModelFrames();
+		double framePeriod = 1.0/numberOfModelFrames;
 		
-		std::map<int, Plane> planes; // value_type = (frame, plane) pair
+		std::map<double, Plane> planes; // value_type = (frame, plane) pair
 		std::vector<DataPoint>::const_iterator itrSrc = basePlanePoints.begin();
+
 
 		while ( itrSrc!=basePlanePoints.end())
 		{
-			int frameNumber = mainApp_->GetFrameNumberForTime(itrSrc->GetTime());//--heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
-			double timeOfNextFrame = (double)(frameNumber+1)/numberOfModelFrames;
+			//int frameNumber = mainApp_->GetFrameNumberForTime(itrSrc->GetTime());//--heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
+			double frameTime = itrSrc->GetTime();
+			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<DataPoint> basePlanePointsInOneFrame;
-			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
+			for (; itrSrc!=basePlanePoints.end() && frameTime < timeOfNextFrame; ++itrSrc)
 			{
 				basePlanePointsInOneFrame.push_back(*itrSrc);
 			}
 			// Fit plane to the points
 			Plane plane = FitPlaneToBasePlanePoints(basePlanePointsInOneFrame, xAxis);
-			planes.insert(std::make_pair(frameNumber, plane));
+			planes.insert(std::make_pair(frameTime, plane));
 		}
 		
 		// Set initial model parameters lambda, mu and theta
@@ -272,8 +275,9 @@ void Modeller::AlignModel()
 		
 		for(int i = 0; i < numberOfModelFrames; i++)
 		{
-			//--heartModel_.SetTheta(i);
-			//--const Plane& plane = InterpolateBasePlane(planes, i);
+			//-- This call could be unnecessary as the nodes are already spaced out at regular intervals around the circle
+			//--heartModel_.SetTheta(i);  
+			const Plane& plane = InterpolateBasePlane(planes, i*framePeriod);
 			
 	//		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl; 
 			//--heartModel_.SetMuFromBasePlaneForFrame(plane, i);
@@ -289,49 +293,49 @@ void Modeller::AlignModel()
 	
 }
 
-Plane Modeller::InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const
+Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const
 {
 	assert(!planes.empty());
-	std::map<int, Plane>::const_iterator itr = planes.begin();
+	std::map<double, Plane>::const_iterator itr = planes.begin();
 	
 	
-	int prevFrame = 0;
+	double prevFrameTime = 0;
 	Plane prevPlane;
-	while (itr != planes.end() && itr->first < frame)
+	while (itr != planes.end() && itr->first < frameTime)
 	{
-		prevFrame = itr->first;
+		prevFrameTime = itr->first;
 		prevPlane = itr->second;
 		itr++;
 	}
-	if (itr->first == frame) // Key frame, no interpolation needed
+	if (itr != planes.end() && fabs(itr->first - frameTime) < 1e-06) // Key frame, no interpolation needed
 	{
 		return itr->second;
 	}
 	
 	// Handle edge cases where prevFrame > nextFrame (i.e interpolation occurs around the end point)
-	int nextFrame;
+	double nextFrameTime;
 	Plane nextPlane;
-	int maxFrame = 1;//--heartModel_.GetNumberOfModelFrames();
+	double maxFrame = 1.0;//--heartModel_.GetNumberOfModelFrames();
 	if (itr == planes.end())
 	{
-		nextFrame = planes.begin()->first + maxFrame;
+		nextFrameTime = planes.begin()->first + maxFrame;
 		nextPlane = planes.begin()->second;
 	}
 	else 
 	{
-		nextFrame = itr->first;
+		nextFrameTime = itr->first;
 		nextPlane = itr->second;
 	}
 	
 	if (itr == planes.begin())
 	{
-		std::map<int, Plane>::const_reverse_iterator last = planes.rbegin();
-		prevFrame = last->first - maxFrame;
+		std::map<double, Plane>::const_reverse_iterator last = planes.rbegin();
+		prevFrameTime = last->first - maxFrame;
 		prevPlane = last->second;
 	}
 	
 	Plane plane;
-	double coefficient = (double)(frame - prevFrame)/(nextFrame - prevFrame);
+	double coefficient = (double)(frameTime - prevFrameTime)/(nextFrameTime - prevFrameTime);
 	
 	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
 	
@@ -512,7 +516,7 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 
 void Modeller::InitialiseModelLambdaParams()
 {
-	dbg("**** MOVE ME, to the modeller class");
+	dbg("**** FIX ME, to the work with Cmgui 2.8.0");
 	//Initialise bezier global params for each model
 	for (int i=0; i<134;i++)
 	{
