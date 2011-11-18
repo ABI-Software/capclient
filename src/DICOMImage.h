@@ -246,6 +246,16 @@ public:
 	}
 
 	/**
+	 * Gets the content time.
+	 *
+	 * @return	The content time.
+	 */
+	const std::string& GetContentTime() const
+	{
+		return contentTime_;
+	}
+
+	/**
 	 * Query if this image is shifted.
 	 *
 	 * @return	true if shifted, false if not.
@@ -378,6 +388,7 @@ private:
 	std::string seriesInstanceUID_;
 	std::string seriesDescription_;
 	std::string sequenceName_;
+	std::string contentTime_;
 	double triggerTime_;
 	int seriesNumber_;
 	Point3D position3D_; /**< image position, location in mm from the origin of the RCS */

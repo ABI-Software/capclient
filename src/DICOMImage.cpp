@@ -24,6 +24,8 @@
 #include <ostream>
 #include <boost/algorithm/string.hpp>
 
+#include "utils/debug.h"
+
 namespace cap
 {
 
@@ -50,6 +52,7 @@ void DICOMImage::ReadDICOMFile()
 	// pixel spacing (0028,0030)
 	// series description (0008,103e) 
 	// trigger time (0018,1060) 
+	// image trigger delay (0018, 1067) 
 	// (0018,1090) IS [28]         # 2,1 Cardiac Number of Images
 
 	gdcm::Reader r;
@@ -156,6 +159,22 @@ void DICOMImage::ReadDICOMFile()
 	{
 		cout << "Trigger Time not found in the DICOM header \n";
 		triggerTime_ = -1;
+	}
+
+	// Content Time (0018,1067)
+	if (ds.FindDataElement(gdcm::Tag(0x0008,0x0033)))
+	{
+		const gdcm::DataElement& contentTime = ds.GetDataElement(gdcm::Tag(0x0008,0x0033));
+		gdcm::Attribute<0x0008,0x0033> at_ct;
+		at_ct.SetFromDataElement(contentTime);
+		contentTime_ = at_ct.GetValue();
+		dbg("content time : " + toString(contentTime_));
+		cout << "content time : " << contentTime_ << endl;
+	}
+	else
+	{
+		cout << "Image trigger delay not found in the DICOM header \n";
+		//triggerTime_ = -1;
 	}
 
 	if (ds.FindDataElement(gdcm::Tag(0x0028,0x0010)))
