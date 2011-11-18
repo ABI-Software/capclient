@@ -17,7 +17,7 @@ extern "C"
 #include "labelledslice.h"
 #include "labelledtexture.h"
 
-#include "capclient.h"
+#include "capclientwindow.h"
 #include "cmgui/extensions.h"
 #include "utils/debug.h"
 

@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/tr1/memory.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <wx/wxprec.h>
 #include <wx/xrc/xmlres.h>
@@ -18,23 +18,25 @@
 
 extern "C"
 {
+#include <api/cmiss_context.h>
 #include <api/cmiss_field_image.h>
 #include <api/cmiss_graphic.h>
+#include <api/cmiss_node.h>
 }
 
 #include "ui/CAPClientWindowUI.h"
 
-#include "cmgui/sceneviewerpanel.h"
-#include "material.h"
+#include "standardheartdefinitions.h"
 #include "math/algebra.h"
-#include "textureslice.h"
-#include "model/modeller.h"
-
 
 namespace cap
 {
 
 class CAPClient; // Forward declare this so we can pass a pointer to the class later on.
+class TextureSlice;
+class LabelledSlice;
+class SceneViewerPanel;
+class HeartModel;
 
 /**
  * Defines an alias representing the texture slice map.
@@ -116,16 +118,6 @@ public:
 	void UpdateModeSelectionUI(size_t mode);
 
 	/**
-	 * Calculates the heart volume.
-	 *
-	 * @param	surface	The surface (EPI or ENDO).
-	 * @param	time   	The time.
-	 *
-	 * @return	The calculated heart volume.
-	 */
-	double ComputeHeartVolume(SurfaceType surface, double time) const;
-
-	/**
 	 * Executes the accept action.  Callback API for cmgui to activate the
 	 * OnAccept function.  Pressing the 'a' key in the Cmgui scene viewer panel
 	 * will simulate the pressing of the accept button on the modeller panel.
@@ -184,22 +176,6 @@ public:
 	 * Set the state of the widgets to the model loaded state.
 	 */
 	void EnterModelLoadedState();
-
-	/**
-	 * Loads the template heart model.
-	 *
-	 * @param	numberOfModelFrames	Number of model frames.
-	 */
-	void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
-
-	/**
-	 * Loads a heart model from the list of exnode files.  Each exnode file is listed with it's full
-	 * path.
-	 *
-	 * @param	fullExelemFileName 	Full path file name of the exelem file.
-	 * @param	fullExnodeFileNames	List of names of the exnode files.
-	 */
-	void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);
 
 	/**
 	 * Initializes the mii for the given slice.
@@ -262,20 +238,6 @@ public:
 	 * \returns the current time.
 	 */
 	double GetCurrentTime() const;
-	
-	/**
-	 * Get the scene viewer.
-	 * 
-	 * \returns the scene viewer.
-	 */
-	//Cmiss_scene_viewer_id GetCmissSceneViewer() const;
-
-	/**
-	 * Gets the cmiss context.
-	 *
-	 * @return	The cmiss context.
-	 */
-	//Cmiss_context_id GetCmissContext() const { return cmissContext_; }
 
 	/**
 	 * Gets the time keeper.
@@ -283,6 +245,27 @@ public:
 	 * @return	The time keeper.
 	 */
 	Cmiss_time_keeper_id GetTimeKeeper() const { return timeKeeper_; }
+
+	/**
+	 * Creates the heart model.  If the heart model exists it will be deleted and a new one created.
+	 */
+	void CreateHeartModel();
+
+	/**
+	 * Initialises the heart model.  If there are no images set then the heart model will not be
+	 * enabled.
+	 */
+	void InitialiseHeartModel();
+
+	/**
+	 * Query if this objects heart model is initialised .
+	 *
+	 * @return	true if heart model is initialised, false if not.
+	 */
+	bool IsInitialisedHeartModel() const
+	{
+		return (heartModel_ != 0);
+	}
 
 	/**
 	 * Sets the heart transform.  This function applies a transformation
@@ -295,14 +278,40 @@ public:
 	 *
 	 * @param	transform	The transform.
 	 */
-	void SetHeartTransform(const gtMatrix& transform);
+	void SetHeartModelTransformation(const gtMatrix& transform);
 
 	/**
 	 * Sets the heart prolate spheriod focal length.
 	 *
 	 * @param	focalLength	focal length for the prolate spheriod coordinate system.
 	 */
-	void SetHeartFocalLength(double focalLength);
+	void SetHeartModelFocalLength(double focalLength);
+
+	/**
+	 * Loads the template heart model.
+	 *
+	 * @param	numberOfModelFrames	Number of model frames.
+	 */
+	void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
+
+	/**
+	 * Calculates the heart volume.
+	 *
+	 * @param	surface	The surface (EPI or ENDO).
+	 * @param	time   	The time.
+	 *
+	 * @return	The calculated heart volume.
+	 */
+	double ComputeHeartVolume(SurfaceType surface, double time) const;
+
+	/**
+	 * Loads a heart model from the list of exnode files.  Each exnode file is listed with it's full
+	 * path.
+	 *
+	 * @param	fullExelemFileName 	Full path file name of the exelem file.
+	 * @param	fullExnodeFileNames	List of names of the exnode files.
+	 */
+	void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);
 
 	/**
 	 * Gets the currently selected node.
@@ -520,6 +529,7 @@ private:
 	SceneViewerPanel* cmguiPanel_; /**< handle to a cmgui panel class */
 	TextureSliceMap textureSliceMap_; /**< A map of texture slices. */ 
 	std::vector<Cmiss_field_image_id> fieldImages_; /**< A vector of field images. */
+	HeartModel* heartModel_;  /**< The heart model pointer */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
 	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */
 
