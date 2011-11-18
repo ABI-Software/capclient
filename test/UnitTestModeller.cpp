@@ -22,7 +22,7 @@ namespace cap
 	class MinimalCAPClient : public IModeller
 	{
 	public:
-		void SetTemplateToPatientTransformation(const gtMatrix& m)
+		void SetHeartModelTransformation(const gtMatrix& m)
 		{
 			for (int i = 0; i<4; i++)
 			{
@@ -36,11 +36,6 @@ namespace cap
 		void SetHeartModelFocalLength(double focalLength)
 		{
 			fl_ = focalLength;
-		}
-
-		int GetFrameNumberForTime(double time)
-		{
-			return 0;
 		}
 
 		int GetNumberOfHeartModelFrames() const

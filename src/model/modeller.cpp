@@ -232,7 +232,7 @@ void Modeller::AlignModel()
 		transform[3][3]=1;
 		
 
-		mainApp_->SetTemplateToPatientTransformation(transform);
+		mainApp_->SetHeartModelTransformation(transform);
 		//--heartModel_.SetLocalToGlobalTransformation(transform);
 		
 		// TODO properly Compute FocalLength
@@ -255,7 +255,6 @@ void Modeller::AlignModel()
 
 		while ( itrSrc!=basePlanePoints.end())
 		{
-			//int frameNumber = mainApp_->GetFrameNumberForTime(itrSrc->GetTime());//--heartModel_.MapToModelFrameNumber(itrSrc->GetTime());
 			double frameTime = itrSrc->GetTime();
 			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<DataPoint> basePlanePointsInOneFrame;

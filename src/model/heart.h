@@ -52,9 +52,9 @@ public:
 	/**
 	 * Constructor.
 	 *
-	 * @param	name	The model name.
+	 * @param	cmissContext	The context for the heart model.
 	 */
-	explicit HeartModel(const std::string& name);
+	explicit HeartModel(Cmiss_context_id cmissContext);
 
 	/**
 	 * Destructor.
@@ -291,14 +291,14 @@ private:
 	static const int NUMBER_OF_NODES = 40;  /**< Number of nodes */
 
 	/**
-	 * Reads a model information.
+	 * Reads model information from file.
 	 *
 	 * @param	modelInfoFilePath	Full pathname of the model information file.
 	 */
 	void ReadModelInfo(const std::string& modelInfoFilePath);
 
 	/**
-	 * Writes a model information.
+	 * Writes model information to file.
 	 *
 	 * @param	modelInfoFilePath	Full pathname of the model information file.
 	 */
@@ -311,11 +311,8 @@ private:
 	
 	double focalLength_;	/**< focal length for prolate spheriod coordinate system */
 	
-	
-	Scene_object* modelSceneObject_; //pointer to the Cmgui scene object for the model
-	
 	class HeartModelImpl;
-	boost::scoped_ptr<HeartModelImpl> pImpl_; /**< use PIMPL to hide Cmgui related implementation details (region, scene object , etc) */
+	HeartModelImpl* pImpl_; /**< use PIMPL to hide Cmgui related implementation details (region, scene object , etc) */
 
 	/**
 	 * Copy constructor. Non copyable

@@ -94,15 +94,6 @@ public:
 	}
 
 	/**
-	 * Gets a frame number for the given time.
-	 *
-	 * @param	time	The time.
-	 *
-	 * @return	The frame number for given time.
-	 */
-	int GetFrameNumberForTime(double time);
-
-	/**
 	 * Gets the number of heart model frames.
 	 *
 	 * @return	The number of heart model frames.
@@ -121,10 +112,9 @@ public:
 			gui_->UpdateModeSelectionUI(mode);
 			if (mode == Modeller::GUIDEPOINT)
 			{
-				if (!heartModelPtr_.get())
+				if (!gui_->IsInitialisedHeartModel())
 				{
 					InitializeHeartModelTemplate();
-					assert(heartModelPtr_.get());
 					modeller_->AlignModel();
 					//modeller_->UpdateTimeVaryingModel();
 					EnterModelLoadedState();
@@ -154,7 +144,7 @@ public:
 	 *
 	 * @param	m	The transform.
 	 */
-	void SetTemplateToPatientTransformation(const gtMatrix& m);
+	void SetHeartModelTransformation(const gtMatrix& m);
 
 	/**
 	 * Sets the heart model focal length.
@@ -298,7 +288,6 @@ public:
 		}
 		modeller_->SmoothAlongTime();
 		
-		assert(heartModelPtr_);
 		dbg("ED Volume(EPI) = " + toString(gui_->ComputeHeartVolume(EPICARDIUM, 0)));
 		dbg("ED Volume(ENDO) = " + toString(gui_->ComputeHeartVolume(ENDOCARDIUM, 0)));
 	}
@@ -358,7 +347,6 @@ private:
 		
 		// Also clean up cmgui objects such as scene, regions, materials ..etc
 		cardiacAnnotationPtr_.reset(0);
-		heartModelPtr_.reset(0);
 
 		mainWindowState_ = INIT_STATE;
 	}
@@ -418,7 +406,7 @@ private:
 	};
 
 	/**
-	 * Initializes the heart model template.  If the images have not
+	 * Initializes the heart model from the template.  If no images have 
 	 * been loaded then this function will do nothing.
 	 */
 	void InitializeHeartModelTemplate();
@@ -441,7 +429,6 @@ private:
 	CAPClient()
 		: gui_(0)
 		, labelledSlices_(LabelledSlices())
-		, heartModelPtr_(0)
 		, modeller_(0)
 		, mainWindowState_(INIT_STATE)
 		, cardiacAnnotationPtr_(0)
@@ -453,8 +440,6 @@ private:
 	CAPClientWindow* gui_;  /**< The graphical user interface */
 	
 	LabelledSlices labelledSlices_; /**< The labelled slices */
-	
-	boost::scoped_ptr<HeartModel> heartModelPtr_;  /**< The heart model pointer */
 	
 	Modeller* modeller_; /**< The modeller */
 

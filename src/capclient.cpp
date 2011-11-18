@@ -8,14 +8,6 @@ namespace cap
 
 CAPClient* CAPClient::instance_ = 0;
 
-int CAPClient::GetFrameNumberForTime(double time)
-{
-	assert(heartModelPtr_);
-	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
-
-	return frameNumber;
-}
-
 const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
 {
 	LabelledSlices::const_iterator cit = labelledSlices_.begin();
@@ -28,22 +20,19 @@ const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
 	throw std::exception();
 }
 
-void CAPClient::SetTemplateToPatientTransformation(const gtMatrix& m)
+void CAPClient::SetHeartModelTransformation(const gtMatrix& m)
 {
-	assert(heartModelPtr_);
-	heartModelPtr_->SetLocalToGlobalTransformation(m);
-	gui_->SetHeartTransform(m);
+	gui_->SetHeartModelTransformation(m);
 }
 
 void CAPClient::SetHeartModelFocalLength(double focalLength)
 {
-	heartModelPtr_->SetFocalLength(focalLength);
-	gui_->SetHeartFocalLength(focalLength);
+	gui_->SetHeartModelFocalLength(focalLength);
 }
 
 int CAPClient::GetNumberOfHeartModelFrames() const
 {
-	return heartModelPtr_->GetNumberOfModelFrames();
+	return GetMinimumNumberOfFrames();
 }
 
 void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
@@ -66,7 +55,6 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 	
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
-	//InitializeHeartModelTemplate();
 	EnterImagesLoadedState();
 }
 
@@ -306,13 +294,9 @@ void CAPClient::OpenModel(const std::string& filename)
 	dbg("modelFilePath = " + modelFilePath);
 	
 	int numberOfModelFrames = exnodeFileNames.size();
+	assert(numberOfModelFrames == GetMinimumNumberOfFrames());
 	gtMatrix m;
 	xmlFile.GetTransformationMatrix(m);
-
-	heartModelPtr_.reset(new HeartModel("heart"));
-	heartModelPtr_->SetFocalLength(xmlFile.GetFocalLength());
-	heartModelPtr_->SetNumberOfModelFrames(numberOfModelFrames);
-	heartModelPtr_->SetLocalToGlobalTransformation(m);
 
 	std::string title = labelledSlices.at(0).GetDICOMImages().at(0)->GetPatientID() + " - " + xmlFile.GetFilename();
 	std::vector<std::string>::const_iterator cit = exnodeFileNames.begin();
@@ -323,8 +307,11 @@ void CAPClient::OpenModel(const std::string& filename)
 	}
 	std::string fullExelemFileName = modelFilePath + "/" + exelemFileName;
 
+	gui_->CreateHeartModel();
+	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
-	gui_->SetHeartTransform(m);
+	gui_->SetHeartModelTransformation(m);
+
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
 
 	//--modeller_->SetDataPoints(dataPoints);
@@ -378,15 +365,15 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	if (mainWindowState_ == MODEL_LOADED_STATE)
 	{
 		std::cout << __func__ << " - Model name: " << dirname.c_str() << '\n';
-		assert(heartModelPtr_);
-		heartModelPtr_->WriteToFile(dirname.c_str());
+		//--assert(heartModelPtr_);
+		//--heartModelPtr_->WriteToFile(dirname.c_str());
 	}
 	
 	CAPXMLFile xmlFile(dirname);
 	
 	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
-	xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
+	//--xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
 	xmlFileHandler.AddProvenanceDetail(userComment);
 	
 	std::string modelName = FileSystem::GetFileNameWOE(dirname);
@@ -436,16 +423,13 @@ void CAPClient::UpdateMII()
 
 void CAPClient::InitializeHeartModelTemplate()
 {
-	unsigned int minNumberOfFrames = GetMinimumNumberOfFrames();
-	
-	if (minNumberOfFrames == 0) // Make sure some images have been loaded.
-		return;
+	unsigned int numberOfModelFrames = GetMinimumNumberOfFrames();
 
-	heartModelPtr_.reset(new HeartModel("heart"));
-	heartModelPtr_->SetNumberOfModelFrames(minNumberOfFrames);
-	gui_->LoadTemplateHeartModel(minNumberOfFrames);
-	gui_->SetHeartTransform(heartModelPtr_->GetLocalToGlobalTransformation());
-	//--InitializeMII(); // This turns on all MII's
+	if (numberOfModelFrames > 0)
+	{
+		gui_->CreateHeartModel();
+		gui_->LoadTemplateHeartModel(numberOfModelFrames);
+	}
 }
 
 unsigned int CAPClient::GetMinimumNumberOfFrames() const

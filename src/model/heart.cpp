@@ -29,22 +29,22 @@ namespace cap
 class HeartModel::HeartModelImpl
 {
 public:
-	HeartModelImpl()
+	explicit HeartModelImpl(Cmiss_context_id context)
 		: region(0)
 		, field(0)
-		, cmissContext(0)
+		, cmissContext(Cmiss_context_access(context))
 	{}
 	
 	Cmiss_context_id cmissContext;
-	Cmiss_region* region;
+	Cmiss_region_id region;
 	//Scene_object* sceneObject;
 	Cmiss_field_id field;
 };
 
-HeartModel::HeartModel(const std::string& modelName)
-	: modelName_(modelName)
+HeartModel::HeartModel(Cmiss_context_id cmissContext)
+	: modelName_("heart")
 	, focalLength_(42.0) // FIX magic number
-	, pImpl_(new HeartModel::HeartModelImpl)
+	, pImpl_(new HeartModel::HeartModelImpl(cmissContext))
 {
 	// initialize patientToGlobalTransform_ to identity matrix
 	for (int i = 0; i < 4 ;++i)
@@ -83,6 +83,9 @@ HeartModel::~HeartModel()
 //		Cmiss_region_destroy(&pImpl_->region);
 		Cmiss_region_destroy(&root);
 	}
+
+	Cmiss_context_destroy(&(pImpl_->cmissContext));
+	delete pImpl_;
 }
 
 using namespace std;
@@ -530,7 +533,7 @@ void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNum
 			//Error
 		//}
 		Point3D lastpoint(x,y,z);
-	    
+
 		double z1 = DotProduct(normal, lastpoint-position);
 		double z2 = DotProduct(normal, point-position);
 		if((z1*z2) < 0.0) 

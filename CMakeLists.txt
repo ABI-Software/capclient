@@ -129,6 +129,7 @@ SET( APP_SRCS
 	src/labelledslice.cpp
 	src/labelledtexture.cpp
 	src/capclientwindow.cpp
+	src/capclientwindowheartmodel.cpp
 	src/PlatformInfo.cpp
 	src/capclient.cpp
 	src/textureslice.cpp
