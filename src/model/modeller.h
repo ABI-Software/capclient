@@ -248,7 +248,7 @@ private:
 	 *
 	 * @return	The interpolated plane.
 	 */
-	Plane InterpolateBasePlane(const std::map<int, Plane>& planes, int frame) const;
+	Plane InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const;
 
 	/**
 	 * Fit model.

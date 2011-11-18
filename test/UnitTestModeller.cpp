@@ -226,8 +226,8 @@ TEST(Modeller, AddBasePlanePoints)
 	modeller.AddDataPoint(node4, rv2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
-	modeller.AddDataPoint(node5, bp1, 1.0);
-	modeller.AddDataPoint(node6, bp2, 1.0);
+	modeller.AddDataPoint(node5, bp1, 0.25);
+	modeller.AddDataPoint(node6, bp2, 0.25);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
 
@@ -277,8 +277,8 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	modeller.AddDataPoint(node2, bp2, 0.2);
 	modeller.AddDataPoint(node3, bp1, 0.4);
 	modeller.AddDataPoint(node4, bp2, 0.42);
-	EXPECT_FALSE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
+	EXPECT_TRUE(modeller.OnAccept());
+	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
 
 
 	Cmiss_node_destroy(&node1);
