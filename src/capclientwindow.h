@@ -288,6 +288,14 @@ public:
 	void SetHeartModelFocalLength(double focalLength);
 
 	/**
+	 * Sets a heart model mu from base plane at time.
+	 *
+	 * @param	plane	The plane.
+	 * @param	time 	The time.
+	 */
+	void SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time);
+
+	/**
 	 * Loads the template heart model.
 	 *
 	 * @param	numberOfModelFrames	Number of model frames.

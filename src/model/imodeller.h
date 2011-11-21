@@ -12,6 +12,7 @@ namespace cap
 		virtual ~IModeller() {}
 		virtual void SetHeartModelTransformation(const gtMatrix& m) = 0;
 		virtual void SetHeartModelFocalLength(double focalLength) = 0;
+		virtual void SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time) = 0;
 		virtual int GetNumberOfHeartModelFrames() const = 0;
 
 	};

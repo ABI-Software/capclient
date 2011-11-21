@@ -9,9 +9,6 @@
 #define _CRTDBG_MAP_ALLOC
 #endif
 #include <stdlib.h>
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <dirent.h>
@@ -36,6 +33,11 @@ extern "C"
 # define DIR_SEPERATOR '/'
 #endif
 #define MKS_TEMPLATE_NAME "CAPXXXXXX"
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 #include "capclientconfig.h"
 #include "filesystem.h"
