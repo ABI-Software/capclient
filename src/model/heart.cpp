@@ -22,6 +22,11 @@ extern "C" {
 #include "cmgui/sceneviewerpanel.h"
 #include "math/algebra.h"
 #include "utils/debug.h"
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 namespace cap
 {
@@ -471,11 +476,12 @@ const std::vector<double> HeartModel::GetLambda(int frame) const
 	return lambdas;
 }
 
-void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
+//--void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber)
+void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, double time)
 {
 	dbg("*** Missing update : HeartModel::SetMuFromBasePlaneForFrame");
 
-	double time = static_cast<double>(frameNumber)/numberOfModelFrames_;
+	//double time = static_cast<double>(frameNumber)/numberOfModelFrames_;
 	const Vector3D& normal = TransformToLocalCoordinateRC(basePlane.normal);
 	const Point3D& position = TransformToLocalCoordinateRC(basePlane.position);
 	const int numberOfComponents = 3; // lambda, mu and theta
@@ -740,7 +746,7 @@ void HeartModel::SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNum
 			//DEACCESS(FE_node)(&node);
 		}
 	}
-	  
+	
 	return;
 }
 	

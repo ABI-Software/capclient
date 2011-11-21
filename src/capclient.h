@@ -154,6 +154,14 @@ public:
 	void SetHeartModelFocalLength(double focalLength);
 
 	/**
+	 * Sets a heart model mu from base plane at the given time.
+	 *
+	 * @param	plane	The plane.
+	 * @param	time 	The time.
+	 */
+	void SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time);
+
+	/**
 	 * Implement pure virtual function from IImageBrowser interface 
 	 * so that labelledSlices, labelledTextures and cardiac annotations 
 	 * can be passed to this class.

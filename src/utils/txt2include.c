@@ -3,15 +3,17 @@
 #ifdef _MSC_VER
 #define _CRTDBG_MAP_ALLOC
 #endif
-#include <stdlib.h>
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#endif
 #include <string.h>     /* for strncmp() */
 #include <ctype.h>      /* for isalnum() */
 #if defined(MSDOS) || defined(WIN32) || defined(OS2)
 # include <io.h>        /* for setmode() */
 # include <fcntl.h>     /* for O_BINARY e.t.c. */
+#endif
+#include <stdlib.h>
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
 #endif
 
 #if defined(MSDOS) || defined(WIN32) || defined(OS2)

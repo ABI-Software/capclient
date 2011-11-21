@@ -2,6 +2,11 @@
 
 #include "capclient.h"
 #include "utils/debug.h"
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 namespace cap
 {
@@ -28,6 +33,10 @@ void CAPClient::SetHeartModelTransformation(const gtMatrix& m)
 void CAPClient::SetHeartModelFocalLength(double focalLength)
 {
 	gui_->SetHeartModelFocalLength(focalLength);
+}
+
+void CAPClient::SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time)
+{
 }
 
 int CAPClient::GetNumberOfHeartModelFrames() const

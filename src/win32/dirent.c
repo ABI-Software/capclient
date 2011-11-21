@@ -15,10 +15,12 @@
 #define _CRTDBG_MAP_ALLOC
 #endif
 #include <stdlib.h>
+#include <string.h>
 #ifdef _MSC_VER
 #include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
 #endif
-#include <string.h>
 
 #ifdef __cplusplus
 extern "C"

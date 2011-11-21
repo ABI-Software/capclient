@@ -61,6 +61,7 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${GTEST_INCLUDE_DIRS}
 	${CAPCLIENT_ROOT_DIR}/src
+	${CAPCLIENT_ROOT_DIR}/test
 	${CMGUI_INCLUDE_DIRS}
 	${GDCM_INCLUDE_DIRS}
 	${GMM_INCLUDE_DIRS}
@@ -101,6 +102,7 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
 	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
+	${CAPCLIENT_ROOT_DIR}/src/capclientwindowheartmodel.cpp
 	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
@@ -195,6 +197,7 @@ FOREACH( TEST ${UNIT_TESTS} )
 	ADD_EXECUTABLE(UnitTest${TEST} ${${TEST}_SRC})
 	ADD_TEST(UnitTest${TEST} UnitTest${TEST})
 	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+	SET_TARGET_PROPERTIES(UnitTest${TEST} PROPERTIES  COMPILE_DEFINITIONS "UnitTest${TEST}" )
 	IF(MSVC)
 		TARGET_LINK_LIBRARIES(UnitTest${TEST}
 			optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"

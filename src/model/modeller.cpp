@@ -25,6 +25,11 @@
 #include "math/vnlfactory.h"
 #include "math/algebra.h"
 #include "math/basis.h"
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 namespace cap
 {
@@ -274,12 +279,14 @@ void Modeller::AlignModel()
 		
 		for(int i = 0; i < numberOfModelFrames; i++)
 		{
+			double time = i*framePeriod;
 			//-- This call could be unnecessary as the nodes are already spaced out at regular intervals around the circle
 			//--heartModel_.SetTheta(i);  
-			const Plane& plane = InterpolateBasePlane(planes, i*framePeriod);
+			const Plane& plane = InterpolateBasePlane(planes, time);
 			
 	//		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl; 
-			//--heartModel_.SetMuFromBasePlaneForFrame(plane, i);
+			//--heartModel_.SetMuFromBasePlaneForFrame(plane, time);
+			mainApp_->SetHeartModelMuFromBasePlaneAtTime(plane, time);
 			//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 		}
 		
@@ -515,7 +522,7 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 
 void Modeller::InitialiseModelLambdaParams()
 {
-	dbg("**** FIX ME, to the work with Cmgui 2.8.0");
+	dbg("**** FIX ME, Modeller::InitialiseModelLambdaParams() to the work with Cmgui 2.8.0");
 	//Initialise bezier global params for each model
 	for (int i=0; i<134;i++)
 	{

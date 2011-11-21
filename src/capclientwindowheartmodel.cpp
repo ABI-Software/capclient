@@ -16,15 +16,27 @@ extern "C"
 #include <api/cmiss_graphic.h>
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_element.h>
+#include <api/cmiss_node.h>
 }
 
+#ifdef UnitTestModeller
+#include "modellercapclientwindow.h"
+#include "modellercapclient.h"
+#else
 #include "capclientwindow.h"
-
 #include "capclient.h"
+#endif
 #include "cmgui/extensions.h"
 #include "hexified/heartmodel.exnode.h"
 #include "hexified/globalhermiteparam.exelem.h"
 #include "utils/debug.h"
+#include "model/heart.h"
+
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 namespace cap
 {
@@ -54,10 +66,99 @@ void CAPClientWindow::InitialiseHeartModel()
 void CAPClientWindow::SetHeartModelFocalLength(double focalLength)
 {
 	std::stringstream ss;
-	ss << "focus " << focalLength;
+	ss << "coor pro focus " << focalLength;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
 	Cmiss_field_module_define_field(field_module, "coordinates", ss.str().c_str());
 	Cmiss_field_module_destroy(&field_module);
+}
+
+void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane, double time)
+{
+	const Vector3D& normal = heartModel_->TransformToLocalCoordinateRC(basePlane.normal);
+	const Point3D& position = heartModel_->TransformToLocalCoordinateRC(basePlane.position);
+	const int numberOfComponents = 3; // lambda, mu and theta
+	
+	//Epi
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_begin_change(field_module);
+	Cmiss_field_id coords_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	Cmiss_field_id coords_rc = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rc");
+
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_cache_set_time(cache, time);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+
+	// EPI nodes [0-19], ENDO nodes [20-39]
+	for (int k = 0; k < 40; k += 20)
+	{
+		double mu[4];
+		for (int i=0; i < 4; i++)
+		{
+			Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + i + 1);
+			Cmiss_field_cache_set_node(cache, node);
+			double loc[3], loc_ps[3];
+			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+			mu[i] = loc_ps[1];
+			Cmiss_field_evaluate_real(coords_rc, cache, 3, loc);
+			Point3D point(loc[0],loc[1],loc[2]);
+			Point3D prevPoint;
+			double initial = DotProduct(normal, point - position);
+			//do while on the same side and less than pi
+			do
+			{
+				loc_ps[1] += M_PI/180.0;  //one degree increments for mu parameter
+				Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+				mu[i] = loc_ps[1];
+				Cmiss_field_evaluate_real(coords_rc, cache, 3, loc);
+				prevPoint = point;
+				point = Point3D(loc[0],loc[1],loc[2]);
+			}
+			while((initial*DotProduct(normal, point - position) > 0.0) && (mu[i] < M_PI));
+			
+			//Cmiss_field_evaluate_real(coords_rc, cache, 3, loc);
+			//Point3D lastpoint(loc[0],loc[1],loc[2]);
+
+			double z1 = DotProduct(normal, prevPoint-position);
+			double z2 = DotProduct(normal, point-position);
+			if((z1*z2) < 0.0) 
+			{
+				double zdiff = z2-z1;
+				double s;
+				if(fabs(zdiff)<1.0e-05) s=0.5;
+				else s = (-z1)/zdiff;
+				point = prevPoint + s*(point-prevPoint);
+				loc[0] = point.x;
+				loc[1] = point.y;
+				loc[2] = point.z;
+				Cmiss_field_assign_real(coords_rc, cache, 3, loc);
+			}
+
+			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+			mu[i] = loc_ps[1];
+			Cmiss_node_destroy(&node);
+			dbg("mu [" + toString(i) + "] = " + toString(mu[i]));
+		}
+
+		for (int j=1;j<5;j++)
+		{
+			for (int i=0;i<4;i++)
+			{
+				Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + (j * 4) + i + 1);
+				double loc_ps[3];
+				Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+				loc_ps[1] = mu[i]/4.0 * (4.0- (double)j);
+				Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+				Cmiss_node_destroy(&node);
+			}
+		}
+	}
+
+	Cmiss_field_module_end_change(field_module);
+
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_module_destroy(&field_module);
+	
 }
 
 void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)

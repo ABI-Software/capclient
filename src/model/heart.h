@@ -124,7 +124,8 @@ public:
 	 * @param	basePlane  	The base plane.
 	 * @param	frameNumber	The frame number.
 	 */
-	void SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber);
+	//void SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber);
+	void SetMuFromBasePlaneForFrame(const Plane& basePlane, double time);
 
 	/**
 	 * Sets a theta.

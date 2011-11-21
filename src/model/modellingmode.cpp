@@ -21,6 +21,11 @@
 #include "math/solverlibraryfactory.h"
 #include "utils/filesystem.h"
 #include "utils/debug.h"
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 namespace
 {
