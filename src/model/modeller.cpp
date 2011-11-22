@@ -156,7 +156,7 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlan
 		}
 		plane = FitPlaneUsingTLS(vectorOfPoints);
 	}
-	else
+	else if (basePlanePoints.size() == 2)
 	{
 		// When only 2 base plane points have been specified
 		Vector3D temp1 = basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate();
@@ -168,6 +168,13 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlan
 		plane.normal.Normalise();
 		
 		plane.position = basePlanePoints[0].GetCoordinate() + (0.5 * (basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate()));
+	}
+	else
+	{
+		// One base plane point
+		plane.position = basePlanePoints[0].GetCoordinate();
+		plane.normal = xAxis;
+		plane.normal.Normalise();
 	}
 	
 	// make sure plane normal is always pointing toward the apex
@@ -243,10 +250,12 @@ void Modeller::AlignModel()
 		// TODO properly Compute FocalLength
 		double lengthFromApexToBase = (apex.GetCoordinate() - base.GetCoordinate()).Length();
 		std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
+		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + toString(lengthFromApexToBase));
 		
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 		double focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
 		std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
+		dbg("Modeller::AlignModel() : new focal length = " + toString(focalLength));
 		mainApp_->SetHeartModelFocalLength(focalLength);
 		//--heartModel_.SetFocalLength(focalLength);
 		
@@ -260,10 +269,11 @@ void Modeller::AlignModel()
 
 		while ( itrSrc!=basePlanePoints.end())
 		{
+			dbg("bp points : " + toString(itrSrc->GetTime()) + ", " + toString(itrSrc->GetCoordinate()));
 			double frameTime = itrSrc->GetTime();
 			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<DataPoint> basePlanePointsInOneFrame;
-			for (; itrSrc!=basePlanePoints.end() && frameTime < timeOfNextFrame; ++itrSrc)
+			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 			{
 				basePlanePointsInOneFrame.push_back(*itrSrc);
 			}
@@ -276,6 +286,11 @@ void Modeller::AlignModel()
 		// initial values for lambda come from the prior
 		// theta is 1/4pi apart)
 		// mu is equally spaced up to the base plane
+		std::map<double, Plane>::const_iterator cit = planes.begin();
+		for (; cit != planes.end(); cit++)
+		{
+			dbg("planes map : " + toString(cit->first) + ", " + toString(cit->second.position));
+		}
 		
 		for(int i = 0; i < numberOfModelFrames; i++)
 		{
@@ -301,6 +316,7 @@ void Modeller::AlignModel()
 
 Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const
 {
+	// TODO: This function doesn't depend upon this class move into math...
 	assert(!planes.empty());
 	std::map<double, Plane>::const_iterator itr = planes.begin();
 	
@@ -526,7 +542,7 @@ void Modeller::InitialiseModelLambdaParams()
 	//Initialise bezier global params for each model
 	for (int i=0; i<134;i++)
 	{
-		int num = 0;//--heartModel_.GetNumberOfModelFrames();
+		int num = mainApp_->GetNumberOfHeartModelFrames();//--heartModel_.GetNumberOfModelFrames();
 		//--timeVaryingDataPoints_[i].resize(1/*--heartModel_.GetNumberOfModelFrames()*/);
 		
 //		std::cout << std::endl;
@@ -557,7 +573,7 @@ void Modeller::InitialiseModelLambdaParams()
 
 void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
 {
-	dbg("**** FIX, not yet updated to Cmgui 2.8.0 ****");
+	dbg("**** FIX, Modeller::FitModel not yet updated to Cmgui 2.8.0 ****");
 	// Compute P 
 	// 1. find xi coords for each data point
 	DataPoints::iterator itr = dataPoints.begin();
@@ -685,8 +701,6 @@ void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
 	delete temp;
 	delete rhs;
 	delete x;
-	
-	return;
 }
 
 std::vector<double> Modeller::ConvertToHermite(const Vector& bezierParams) const

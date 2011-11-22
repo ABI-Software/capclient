@@ -78,7 +78,6 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 	const Point3D& position = heartModel_->TransformToLocalCoordinateRC(basePlane.position);
 	const int numberOfComponents = 3; // lambda, mu and theta
 	
-	//Epi
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
 	Cmiss_field_module_begin_change(field_module);
 	Cmiss_field_id coords_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
@@ -88,6 +87,7 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 	Cmiss_field_cache_set_time(cache, time);
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 
+	dbg("Plane : (" + toString(time) + ") " + toString(basePlane.normal) + ", " + toString(basePlane.position));
 	// EPI nodes [0-19], ENDO nodes [20-39]
 	for (int k = 0; k < 40; k += 20)
 	{
@@ -136,9 +136,9 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 			mu[i] = loc_ps[1];
 			Cmiss_node_destroy(&node);
-			dbg("mu [" + toString(i) + "] = " + toString(mu[i]));
+			
 		}
-
+		dbg("mu [" + toString(0) + "] = " + toString(mu[0]));
 		for (int j=1;j<5;j++)
 		{
 			for (int i=0;i<4;i++)

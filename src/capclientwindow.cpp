@@ -71,6 +71,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, mainApp_(mainApp)
 	, cmissContext_(Cmiss_context_create("CAPClient"))
 	, cmguiPanel_(0)
+	, miiMap_()
 	, heartModel_(0)
 	, timeKeeper_(0)
 	, timeNotifier_(0)
@@ -111,6 +112,12 @@ CAPClientWindow::~CAPClientWindow()
 		Cmiss_field_destroy(&(it->second.first));
 		Cmiss_graphic_destroy(&(it->second.second));
 		statusTextStringsFieldMap_.erase(it++);
+	}
+	MIIGraphicMap::iterator miiMap_it = miiMap_.begin();
+	while (miiMap_it != miiMap_.end())
+	{
+		Cmiss_graphic_destroy(&(miiMap_it->second));
+		miiMap_.erase(miiMap_it++);
 	}
 
 	Cmiss_time_keeper_destroy(&timeKeeper_);
@@ -267,6 +274,7 @@ void CAPClientWindow::EnterModelLoadedState()
 	menuItem_ExportToBinaryVolume->Enable(true);
 
 	//Cmiss_context_execute_command(cmissContext_, "gfx modify g_element heart general clear;");
+
 	SetMIIVisibility(checkBox_MII->GetValue());
 	wxCommandEvent event;
 	OnModelDisplayModeChanged(event);
@@ -500,7 +508,7 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 	size_t index = 0;
 	BOOST_FOREACH(std::string const& sliceName, sliceNames)
 	{
-		std::cout << "Slice name = " << sliceName << '\n';
+		dbg("Slice name = " + sliceName);
 		checkListBox_Slice->Append(wxString(sliceName.c_str(), wxConvUTF8));
 		bool visible = visibilities.at(index);
 		/* default selection */
@@ -508,9 +516,10 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 		{
 			checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1),1);
 		}
-		checkListBox_Slice->SetSelection(wxNOT_FOUND);
+		SetVisibilityForRegion(cmissContext_, sliceName, visible);
 		index ++;
 	}
+	checkListBox_Slice->SetSelection(wxNOT_FOUND);
 }
 
 void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
@@ -1089,26 +1098,70 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 {
 	// Initialize the MII-related field and iso_scalar to some dummy values
 	// This is done to set the graphical attributes that are needed for the MII rendering
-	std::string command = "gfx define field /heart/slice_" + sliceName + " coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";";
-	Cmiss_context_execute_command(cmissContext_, command.c_str());
-	
-	command = "gfx modify g_element heart iso_surfaces as iso_" + sliceName + " coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select;";
-	Cmiss_context_execute_command(cmissContext_, command.c_str());
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region_id heart_region = Cmiss_region_find_subregion_at_path(root_region, "heart");
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(heart_region);
+	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
+	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, heart_region);
+
+	// Create slice_* name field which is the dot product of the patient_rc_coordinates and the image plane.
+	std::string field_name = "slice_" + sliceName;
+	Cmiss_field_id slice_field = Cmiss_field_module_create_field(field_module, field_name.c_str(), "coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";");
+
+	// Create iso surface of the slice_* and iso value
+	Cmiss_graphic_id iso = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_ISO_SURFACES);
+	Cmiss_field_id patient_rc_coordinates = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
+	int r1 = Cmiss_graphic_set_coordinate_field(iso, patient_rc_coordinates);
+	std::string command = "exterior iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select;";
+	int r2 = Cmiss_graphic_define(iso, command.c_str());
+
+	// Save the iso field and graphic to the mii map.
+	miiMap_[sliceName] = iso;
+
+	Cmiss_field_destroy(&slice_field);
+	Cmiss_field_destroy(&patient_rc_coordinates);
+	Cmiss_rendition_destroy(&rendition);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_region_destroy(&root_region);
+	Cmiss_region_destroy(&heart_region);
 }
 
 void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
 {
-	std::stringstream ss_context;
-	ss_context << "gfx define field /heart/slice_" << sliceName << " coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[";
-	ss_context << plane.x << " " << plane.y << " " << plane.z << "]\";";
-	Cmiss_context_execute_command(cmissContext_, ss_context.str().c_str());
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_graphic_id iso = miiMap_[sliceName];
+	if (!iso)
+	{
+		InitializeMII(sliceName);
+		iso = miiMap_[sliceName];
+	}
+	std::string field_name = "slice_" + sliceName;
+	std::stringstream field_command;
+	field_command << "coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[";
+	field_command << plane.x << " " << plane.y << " " << plane.z << "]\";";
+	int r1 = Cmiss_field_module_define_field(field_module, field_name.c_str(), field_command.str().c_str());
 
-	Cmiss_rendition_id heart_rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
-	std::stringstream ss_rendition;
-	ss_rendition << "gfx mod g_el heart iso_surfaces as iso_" << sliceName << " coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material gold;";
-	Cmiss_context_execute_command(cmissContext_, ss_rendition.str().c_str());
+	std::stringstream graphic_command;
+	graphic_command << "coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material gold;";
+	int r2 = Cmiss_graphic_define(iso, graphic_command.str().c_str());
 
-	Cmiss_rendition_destroy(&heart_rendition);
+	SetMIIVisibility(sliceName, IsMIIVisible(sliceName));
+
+	Cmiss_field_module_destroy(&field_module);
+}
+
+bool CAPClientWindow::IsMIIVisible(const std::string& sliceName)
+{
+	for (unsigned int i = 0; i < checkListBox_Slice->GetCount(); i++)
+	{
+		if (checkListBox_Slice->GetString(i) == sliceName &&
+			checkListBox_Slice->IsChecked(i) &&
+			checkBox_MII->IsChecked())
+			return true;
+	}
+
+	return false;
 }
 
 void CAPClientWindow::SetModelVisibility(bool visible)
@@ -1123,23 +1176,22 @@ void CAPClientWindow::SetModelVisibility(bool visible)
 
 void CAPClientWindow::SetMIIVisibility(bool visible)
 {
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_begin_change(field_module);
 	for (unsigned int i = 0; i < checkListBox_Slice->GetCount(); i++)
 	{
 		bool sliceVisible = checkListBox_Slice->IsChecked(i);
 		std::string name = checkListBox_Slice->GetString(i).c_str();
 		SetMIIVisibility(name, visible && sliceVisible);
 	}
+	Cmiss_field_module_end_change(field_module);
+	Cmiss_field_module_destroy(&field_module);
 }
 
 void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 {
-	std::string command = "gfx mod g_el heart iso_surfaces as iso_" + name;
-	if (visible)
-		command += " visible";
-	else
-		command += " invisible";
-
-	Cmiss_context_execute_command(cmissContext_, command.c_str());
+	Cmiss_graphic_id iso = miiMap_[name];
+	int r = Cmiss_graphic_set_visibility_flag(iso, visible ? 1 : 0);
 }
 
 void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)

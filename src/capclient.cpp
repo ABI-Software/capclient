@@ -48,6 +48,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 {
 	gui_->ClearTextureSlices();
 	labelledSlices_ = labelledSlices;
+	unsigned int shortAxisCount = 0;
 	// read (or reread) in dicoms to create image textures (again) for this context.
 	LabelledSlices::const_iterator it;
 	std::vector<std::string> sliceNames;
@@ -57,11 +58,22 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 		// I want the gui to deal with this labelled slice.  The gui needs to create a scene create field images
 		// create a texture for displaying field images and position the surface in the scene to the correct place.
 		gui_->CreateTextureSlice(*it);
-		sliceNames.push_back((*it).GetLabel());
-		visibilities.push_back(true);
+		std::string currentLabel = it->GetLabel();
+		sliceNames.push_back(currentLabel);
+		dbg("label : '" + currentLabel + "'");
+		if (currentLabel.compare(0, 2, "SA") == 0)
+		{
+			shortAxisCount++;
+		}
+		if (currentLabel == "LA1")
+			visibilities.push_back(true);
+		else
+			visibilities.push_back(false);
 		//-- TODO: contours
 	}
-	
+	double halfShortAxisCount = shortAxisCount / 2.0;
+	int visibleShortAxis = static_cast<int>(halfShortAxisCount + 0.5) - 1; // visibility index is zero based
+	visibilities[visibleShortAxis] = true;
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
 	EnterImagesLoadedState();
