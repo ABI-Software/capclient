@@ -54,6 +54,11 @@ typedef std::pair<Cmiss_field_id, Cmiss_graphic_id> CmissFieldGraphicPair;
 typedef std::map<std::string, CmissFieldGraphicPair> StatusTextStringsFieldMap;
 
 /**
+ * Defines an alias representing the mii field graphic map.
+ */
+typedef std::map<std::string, Cmiss_graphic_id > MIIGraphicMap;
+
+/**
  * \brief CAPClientWindow is the gui(view) for the CAPClient class.
  * This class has a handle to a cmiss_context from which it can create
  * scenes to view the data.
@@ -462,6 +467,15 @@ private:
 	void SetStatusTextVisibility(std::string mode, bool visible) const;
 
 	/**
+	 * Query if the MII named 'sliceName' is visible.
+	 *
+	 * @param	sliceName	Name of the slice.
+	 *
+	 * @return	true if mii visible, false if not.
+	 */
+	bool IsMIIVisible(const std::string& sliceName);
+
+	/**
 	 * Gets the prompt for user comment.
 	 *
 	 * @return	.
@@ -537,6 +551,7 @@ private:
 	SceneViewerPanel* cmguiPanel_; /**< handle to a cmgui panel class */
 	TextureSliceMap textureSliceMap_; /**< A map of texture slices. */ 
 	std::vector<Cmiss_field_image_id> fieldImages_; /**< A vector of field images. */
+	MIIGraphicMap miiMap_; /**< The mii map */
 	HeartModel* heartModel_;  /**< The heart model pointer */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
 	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */

@@ -213,6 +213,17 @@ public:
 		return mode;
 	}
 
+	/**
+	 * Interpolate base plane.
+	 *
+	 * @param	planes	The planes.
+	 * @param	frame 	The frame.
+	 *
+	 * @return	The interpolated plane.
+	 */
+	Plane InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const;
+
+
 private:
 	/**
 	 * Initialises the modelling mode strings.
@@ -239,16 +250,6 @@ private:
 	 * @return	The fitted plane.
 	 */
 	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const;
-
-	/**
-	 * Interpolate base plane.
-	 *
-	 * @param	planes	The planes.
-	 * @param	frame 	The frame.
-	 *
-	 * @return	The interpolated plane.
-	 */
-	Plane InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const;
 
 	/**
 	 * Fit model.

@@ -14,10 +14,13 @@ extern "C"
 }
 
 #include "cmgui/extensions.h"
+#define private public
 #include "model/modeller.h"
+#undef private
 #include "model/heart.h"
 #include "modellercapclientwindow.h"
 #include "modellercapclient.h"
+#include "utils/debug.h"
 
 TEST(CAPModellerTest, ModellingModeApex)
 {
@@ -276,6 +279,10 @@ TEST(Modeller, AlignModel)
 	EXPECT_TRUE(node5 != 0);
 	Cmiss_node_id node6 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -3.04825, -0.0334985, 8.7444);
 	EXPECT_TRUE(node6 != 0);
+	Cmiss_node_id node7 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -18.4984, -52.6508, 33.958);
+	EXPECT_TRUE(node7 != 0);
+	Cmiss_node_id node8 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -3.04825, -0.0334985, 0.7444);
+	EXPECT_TRUE(node8 != 0);
 
 	Point3D apex(24.2506, -71.3943, -9.00449);
 	Point3D base(-20.4335, -22.5206, 38.4314);
@@ -283,6 +290,8 @@ TEST(Modeller, AlignModel)
 	Point3D rv2(-3.52178, -35.387, -20.3095);
 	Point3D bp1(-18.4984, -52.6508, 43.958);
 	Point3D bp2(-3.04825, -0.0334985, 8.7444);
+	Point3D bp3(-18.4984, -52.6508, 33.958);
+	Point3D bp4(-3.04825, -0.0334985, 0.7444);
 
 	Modeller modeller(&mcc);
 	modeller.AddDataPoint(node1, apex, 0.0);
@@ -295,6 +304,8 @@ TEST(Modeller, AlignModel)
 	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
 	modeller.AddDataPoint(node5, bp1, 0.5);
 	modeller.AddDataPoint(node6, bp2, 0.5);
+	modeller.AddDataPoint(node7, bp3, 0.8);
+	modeller.AddDataPoint(node8, bp4, 0.9);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
 
@@ -306,6 +317,30 @@ TEST(Modeller, AlignModel)
 	Cmiss_node_destroy(&node4);
 	Cmiss_node_destroy(&node5);
 	Cmiss_node_destroy(&node6);
+	Cmiss_node_destroy(&node7);
+	Cmiss_node_destroy(&node8);
 	//Cmiss_context_destroy(&context);
 }
+
+TEST(Modeller, InterpolateBasePlane)
+{
+	using namespace cap;
+	Modeller modeller(0);
+
+	Plane one;
+	one.normal = Vector3D(0, 1, 0);
+	one.position = Point3D();
+	Plane two;
+	two.normal = Vector3D(0, 1, 0);
+	two.position = Point3D(0, 1, 0);
+	std::map<double, Plane> planes;
+	planes[0.0] = one;
+	planes[1.0] = two;
+	double time = 0.5;
+	Plane iPlane = modeller.InterpolateBasePlane(planes, time);
+
+	dbg("Interpolated : " + toString(iPlane.position) + ", " + toString(iPlane.normal));
+	EXPECT_EQ(Point3D(0, 0.5, 0), iPlane.position);
+}
+
 
