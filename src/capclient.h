@@ -116,7 +116,7 @@ public:
 				{
 					InitializeHeartModelTemplate();
 					modeller_->AlignModel();
-					//modeller_->UpdateTimeVaryingModel();
+					modeller_->UpdateTimeVaryingModel();
 					EnterModelLoadedState();
 				}
 				UpdateMII();

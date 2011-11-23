@@ -95,6 +95,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	this->Fit();
 	this->Centre();
 	MakeConnections();
+	CreateMaterials();
 	EnterInitState();
 }
 
@@ -287,6 +288,10 @@ void CAPClientWindow::OnIdle(wxIdleEvent& event)
 	{
 		event.RequestMore();
 	}
+}
+
+void CAPClientWindow::CreateMaterials()
+{
 }
 
 void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
@@ -555,27 +560,24 @@ void CAPClientWindow::SetAnimationSliderRange(int min, int max)
 	slider_Animation->SetMax(max);
 }
 
+void CAPClientWindow::ChangeAllTextures(double time)
+{
+	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
+	for (; cit != textureSliceMap_.end(); cit++)
+	{
+		cit->second->ChangeTextureNearestTo(time);
+	}
+}
+
 void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
 	int value = slider_Animation->GetValue();
 	int min = slider_Animation->GetMin();
 	int max = slider_Animation->GetMax();
 	
-	//dbg( std::string(__func__) + " : time = " + toString(value) + ", min = " + toString(min) + ", max = " + toString(max) );
 	double time =  (double)(value - min) / (double)(max - min);
-	
-	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
-	for (; cit != textureSliceMap_.end(); cit++)
-	{
-		cit->second->ChangeTextureNearestTo(time);
-	}
-	//--Time_keeper_request_new_time(timeKeeper_, time);
-	// mainApp_->OnAnimationSliderEvent(time);
-	//--gui_->SetTime(time);
-	//-- need this for next 	int frameNumber = heartModelPtr_->MapToModelFrameNumber(time);
-
-	//--gui_->UpdateFrameNumber(frameNumber);
-	//--Refresh3DCanvas(); // forces redraw while silder is being manipulated
+	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
+	ChangeAllTextures(time);
 }
 
 void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
@@ -601,10 +603,9 @@ void CAPClientWindow::SetTime(double time)
 {
 	int min = slider_Animation->GetMin();
 	int max = slider_Animation->GetMax();
-	//cout << "min = " << min << " ,max = " << max <<endl; 
+
 	slider_Animation->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min + 0.5);
-	wxCommandEvent event;
-	OnAnimationSliderEvent(event); // Setting the slider value doesn't trigger a slider event so we do it here for it.
+	ChangeAllTextures(time);
 }
 
 void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
