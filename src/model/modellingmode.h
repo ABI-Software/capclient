@@ -196,20 +196,16 @@ public:
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
 	std::vector<DataPoint> GetGuidePoints() const;
-	const std::vector< std::vector<double> >& GetTimeVaryingDataPoints() const { return timeVaryingDataPoints_; }
+	//const std::vector< std::vector<double> >& GetTimeVaryingDataPoints() const { return timeVaryingDataPoints_; }
 	const std::vector<int>& GetFramesWithDataPoints() const { return framesWithDataPoints_; }
+	void Reset(unsigned int numFrames);
 
 	virtual void PerformEntryAction();
 	virtual void PerformExitAction();
 	
-	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
-	
 private:
 	
 	std::vector<DataPoints> vectorOfDataPoints_;
-	
-	std::vector< std::vector<double> > timeVaryingDataPoints_;
-	
 	std::vector<int> framesWithDataPoints_;
 };
 

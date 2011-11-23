@@ -99,7 +99,7 @@ void DataPoint::SetValidPeriod(double startTime, double endTime)
 void DataPoint::SetVisible(bool visibility)
 {
 	dbg(std::string(__func__) + ": StartTime = " + toString(startTime_) + " , endTime = " + toString(endTime_));
-	//Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
+	//--Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
 }
 
 DataPointType DataPoint::GetDataPointType() const

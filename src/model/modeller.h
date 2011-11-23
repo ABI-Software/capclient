@@ -242,6 +242,14 @@ private:
 	}
 
 	/**
+	 * Updates the time varying data points.
+	 *
+	 * @param	x		   	The vector of data points.
+	 * @param	frameNumber	The frame number.
+	 */
+	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
+
+	/**
 	 * Fit plane to base plane points.
 	 *
 	 * @param	basePlanePoints	The base plane points.
@@ -284,6 +292,8 @@ private:
 	
 	ModellingMode* currentModellingMode_;   /**< The current modelling mode */
 	
+	std::vector< std::vector<double> > timeVaryingDataPoints_;
+
 	SolverLibraryFactory* solverFactory_;   /**< The solver factory */
 	SparseMatrix* S_;   /**< The s */
 	SparseMatrix* G_;   /**< The g */

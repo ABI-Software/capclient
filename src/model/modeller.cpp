@@ -44,6 +44,7 @@ Modeller::Modeller(IModeller *mainApp)
 	, modellingModeBasePlane_()
 	, modellingModeGuidePoints_()
 	, currentModellingMode_(&modellingModeApex_)
+	, timeVaryingDataPoints_(134)
 	, solverFactory_(new GMMFactory)
 	//, solverFactory_(new VNLFactory)
 	, timeSmoother_()
@@ -309,6 +310,7 @@ void Modeller::AlignModel()
 	//	framesWithDataPoints_.clear();
 	//	framesWithDataPoints_.resize(numberOfModelFrames, 0);
 		InitialiseModelLambdaParams();
+		modellingModeGuidePoints_.Reset(numberOfModelFrames);
 	}
 	
 	
@@ -370,14 +372,15 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 {
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
-		const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
-		for(int j=0; j<1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
+		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+		//--const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
+		for(int j=0; j < numFrames/*--heartModel_.GetNumberOfModelFrames()*/;j++)
 		{
-			double time = 0.0;//--(double)j/heartModel_.GetNumberOfModelFrames();
+			double time = static_cast<double>(j)/numFrames;//--(double)j/heartModel_.GetNumberOfModelFrames();
 			Vector* x = solverFactory_->CreateVector(134);
 			for (int i=0; i< 134; i++)
 			{
-				(*x)[i] = timeVaryingDataPoints[i][j];
+				(*x)[i] = timeVaryingDataPoints_[i][j];
 			}
 	//		std::cout << "x(" << j << ")" << *x << std::endl;
 			
@@ -390,7 +393,7 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 
 void Modeller::SmoothAlongTime()
 {
-	ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
+	//--ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		// For each global parameter in the per frame model
@@ -398,20 +401,21 @@ void Modeller::SmoothAlongTime()
 			
 #define SMOOTH_ALONG_TIME
 #ifdef SMOOTH_ALONG_TIME
-		const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
+		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+		//--const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
 		const std::vector<int>& framesWithDataPoints = modellingModeGuidePoints_.GetFramesWithDataPoints();
 		for (int i=0; i < 134; i++) // FIX magic number
 		{
 	//		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
-			const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints[i], framesWithDataPoints);
+			const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i], framesWithDataPoints);
 			
 	//		std::cout << lambdas << std::endl;
 			
-			for(int j=0; j<1/*--heartModel_.GetNumberOfModelFrames()*/;j++) //FIX duplicate code
+			for(int j=0; j < numFrames/*--heartModel_.GetNumberOfModelFrames()*/;j++) //FIX duplicate code
 			{
-				double xi = 0;//--(double)j/heartModel_.GetNumberOfModelFrames();
+				double xi = static_cast<double>(j)/numFrames;//--(double)j/heartModel_.GetNumberOfModelFrames();
 				double lambda = timeSmoother_.ComputeLambda(xi, lambdas);
-				//--timeVaryingDataPoints[i][j] = lambda;
+				timeVaryingDataPoints_[i][j] = lambda;
 			}
 		}
 #endif
@@ -538,26 +542,27 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 
 void Modeller::InitialiseModelLambdaParams()
 {
-	dbg("**** FIX ME, Modeller::InitialiseModelLambdaParams() to the work with Cmgui 2.8.0");
 	//Initialise bezier global params for each model
+	int numFrames = mainApp_->GetNumberOfHeartModelFrames();
 	for (int i=0; i<134;i++)
 	{
-		int num = mainApp_->GetNumberOfHeartModelFrames();//--heartModel_.GetNumberOfModelFrames();
-		//--timeVaryingDataPoints_[i].resize(1/*--heartModel_.GetNumberOfModelFrames()*/);
+		//--heartModel_.GetNumberOfModelFrames();
+		timeVaryingDataPoints_[i].resize(numFrames/*--heartModel_.GetNumberOfModelFrames()*/);
 		
 //		std::cout << std::endl;
-		for(int j = 0; j < 1/*--heartModel_.GetNumberOfModelFrames()*/;j++)
+		for(int j = 0; j < numFrames/*--heartModel_.GetNumberOfModelFrames()*/;j++)
 		{
-			double xi = 0.0;//--(double)j/heartModel_.GetNumberOfModelFrames();
+			double xi = static_cast<double>(j)/numFrames;//--(double)j/heartModel_.GetNumberOfModelFrames();
 			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
 			double lambda = timeSmoother_.ComputeLambda(xi, prior);
 //			std::cout << "(" << xi << ", " << lambda << ") ";
-			//--timeVaryingDataPoints_[i][j] = lambda;
+			timeVaryingDataPoints_[i][j] = lambda;
 		}
 //		std::cout << std::endl;
 //		std::cout << "timeVaryingDataPoints_ : " << timeVaryingDataPoints_[i]  << std::endl;
 	}
 	
+	// DO this elsewhere
 	//--vectorOfDataPoints_.clear();
 	//--vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
 	//--framesWithDataPoints_.assign(heartModel_.GetNumberOfModelFrames(), 0);
@@ -690,7 +695,7 @@ void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
 #ifdef UPDATE_CMGUI
 	//--heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber); //Hermite
 	
-	modellingModeGuidePoints_.UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
+	UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
 #endif
 //	SmoothAlongTime();
 	
@@ -701,6 +706,18 @@ void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
 	delete temp;
 	delete rhs;
 	delete x;
+}
+
+
+void Modeller::UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber)
+{
+	// Update the (Bezier) parameters for the newly fitted frame
+	// This is in turn used as data points for the time varying model in the smoothing step
+	
+	for (int i = 0; i < 134; i++)
+	{
+		timeVaryingDataPoints_[i][frameNumber] = x[i];
+	}
 }
 
 std::vector<double> Modeller::ConvertToHermite(const Vector& bezierParams) const

@@ -421,7 +421,14 @@ private:
 	 * \param fieldImage the field image to use as a texture.
 	 */
 	void ChangeTexture(const std::string& name, Cmiss_field_image_id fieldImage);
-	
+
+	/**
+	 * Change all the texture slices to display the correct texture for the given time.
+	 *
+	 * @param	time	The time.
+	 */
+	void ChangeAllTextures(double time);
+
 	/**
 	 * Create a vector of field images from the dicom images in the labelled slice in
 	 * the region determined from the label of the labelled slice.  This function will
@@ -486,6 +493,11 @@ private:
 	 * Resets the mode choice.
 	 */
 	void ResetModeChoice();
+
+	/**
+	 * Create the materials used for colouring visual entities.
+	 */
+	void CreateMaterials();
 
 	/**
 	 * Creates the status text strings field renditions.  In this function

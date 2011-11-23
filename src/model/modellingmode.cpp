@@ -306,7 +306,6 @@ const std::vector<DataPoint>& ModellingModeBasePlane::GetBasePlanePoints() const
 // ModellingModeGuidePoints
 
 ModellingModeGuidePoints::ModellingModeGuidePoints()
-	: timeVaryingDataPoints_(134)
 {
 }
 
@@ -395,17 +394,6 @@ void ModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, double t
 	//FitModel(vectorOfDataPoints_[frameNumber], frameNumber);
 }
 
-void ModellingModeGuidePoints::UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber)
-{
-	// Update the (Bezier) parameters for the newly fitted frame
-	// This is in turn used as data points for the time varying model in the smoothing step
-	
-	for (int i = 0; i < 134; i++)
-	{
-		timeVaryingDataPoints_[i][frameNumber] = x[i];
-	}
-}
-
 std::vector<DataPoint> ModellingModeGuidePoints::GetGuidePoints() const
 {
 	using boost::bind;
@@ -417,6 +405,10 @@ std::vector<DataPoint> ModellingModeGuidePoints::GetGuidePoints() const
 		std::transform(map.begin(), map.end(), std::back_inserter(v), bind(&Map::value_type::second, _1));
 	}
 	return v;
+}
+
+void ModellingModeGuidePoints::Reset(unsigned int numFrames)
+{
 }
 
 } // end namespace cap
