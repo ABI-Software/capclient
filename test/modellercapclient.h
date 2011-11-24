@@ -38,6 +38,11 @@ namespace cap
 			gui_->SetHeartModelMuFromBasePlaneAtTime(plane, time);
 		}
 
+		void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time)
+		{
+			gui_->SetHeartModelLambdaParamsAtTime(lambdaParams, time);
+		}
+
 		unsigned int GetMinimumNumberOfFrames() const
 		{
 			return 25;

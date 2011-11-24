@@ -37,6 +37,12 @@ void CAPClient::SetHeartModelFocalLength(double focalLength)
 
 void CAPClient::SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time)
 {
+	gui_->SetHeartModelMuFromBasePlaneAtTime(plane, time);
+}
+
+void CAPClient::SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time)
+{
+	gui_->SetHeartModelLambdaParamsAtTime(lambdaParams, time);
 }
 
 int CAPClient::GetNumberOfHeartModelFrames() const

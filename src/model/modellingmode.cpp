@@ -80,6 +80,8 @@ void ModellingModeApex::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coo
 {
 	if (!apex_.empty())
 	{
+		//apex_[0]
+		//Cmiss_node_destroy(&(apex_[0].GetCmissNode()));
 		apex_.clear();
 	}
 

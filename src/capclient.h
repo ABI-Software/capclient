@@ -154,12 +154,20 @@ public:
 	void SetHeartModelFocalLength(double focalLength);
 
 	/**
-	 * Sets a heart model mu from base plane at the given time.
+	 * Sets the heart model mu from the base plane at the given time.
 	 *
 	 * @param	plane	The plane.
 	 * @param	time 	The time.
 	 */
 	void SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time);
+
+	/**
+	 * Sets the heart model lambda parameters at the given time.
+	 *
+	 * @param	lambdaParams	The lambda parameters.
+	 * @param	time			The time.
+	 */
+	void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time);
 
 	/**
 	 * Implement pure virtual function from IImageBrowser interface 

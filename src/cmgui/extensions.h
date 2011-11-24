@@ -95,6 +95,15 @@ Cmiss_field_module_id Cmiss_context_get_first_non_empty_selection_field_module(C
 Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext, double x, double y, double z);
 
 /**
+ * Cmiss graphics material set properties.
+ *
+ * @param	mat	   	The mat.
+ * @param	name   	The name.
+ * @param	ambient	The ambient.
+ */
+void Cmiss_graphics_material_set_properties(Cmiss_graphics_material_id mat, std::string name, double ambient[3], double diffuse[3], double emission[3], double specular[3], double shininess, double alpha);
+
+/**
  * Create a surface in the given region and uses the supplied material as a texture for the 
  * surface created.
  * 

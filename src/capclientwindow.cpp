@@ -26,6 +26,7 @@ extern "C"
 #include <api/cmiss_graphic.h>
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_element.h>
+#include <api/cmiss_graphics_material.h>
 }
 
 #include "utils/debug.h"
@@ -71,6 +72,8 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, mainApp_(mainApp)
 	, cmissContext_(Cmiss_context_create("CAPClient"))
 	, cmguiPanel_(0)
+	, heart_epi_surface_(0)
+	, heart_endo_surface_(0)
 	, miiMap_()
 	, heartModel_(0)
 	, timeKeeper_(0)
@@ -106,6 +109,11 @@ CAPClientWindow::~CAPClientWindow()
 	if (heartModel_)
 		delete heartModel_;
 
+	if (heart_epi_surface_)
+		Cmiss_graphic_destroy(&heart_epi_surface_);
+	if (heart_endo_surface_)
+		Cmiss_graphic_destroy(&heart_endo_surface_);
+
 	StatusTextStringsFieldMap::iterator it = statusTextStringsFieldMap_.begin();
 	while (it != statusTextStringsFieldMap_.end())
 	{
@@ -117,7 +125,8 @@ CAPClientWindow::~CAPClientWindow()
 	MIIGraphicMap::iterator miiMap_it = miiMap_.begin();
 	while (miiMap_it != miiMap_.end())
 	{
-		Cmiss_graphic_destroy(&(miiMap_it->second));
+		Cmiss_graphic_destroy(&(miiMap_it->second.first));
+		Cmiss_graphic_destroy(&(miiMap_it->second.second));
 		miiMap_.erase(miiMap_it++);
 	}
 
@@ -292,6 +301,43 @@ void CAPClientWindow::OnIdle(wxIdleEvent& event)
 
 void CAPClientWindow::CreateMaterials()
 {
+	//gfx create material green normal_mode ambient 0 0.5 0 diffuse 0 1 0 emission 0 0 0 specular 0.2 0.2 0.2 alpha 1 shininess 0.1;
+
+	Cmiss_graphics_module_id gm = Cmiss_context_get_default_graphics_module(cmissContext_);
+	double ambient[3], diffuse[3], emission[3], specular[3];
+	ambient[0] = 0.0;ambient[1] = 0.5;ambient[2] = 0.0;
+	diffuse[0] = 0.0;diffuse[1] = 1.0;diffuse[2] = 0.0;
+	emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
+	specular[0] = 0.2;specular[1] = 0.2;specular[2] = 0.2;
+	Cmiss_graphics_material_id green = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(green, "green", ambient, diffuse, emission, specular, 0.1, 0.5);
+
+	Cmiss_graphics_material_id red = Cmiss_graphics_module_create_material(gm);
+	ambient[0] = 0.5;ambient[1] = 0.0;ambient[2] = 0.0;
+	diffuse[0] = 1.0;diffuse[1] = 0.0;diffuse[2] = 0.0;
+	emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
+	specular[0] = 0.2;specular[1] = 0.2;specular[2] = 0.2;
+	Cmiss_graphics_material_set_properties(red, "red", ambient, diffuse, emission, specular, 0.1, 0.5);
+
+	Cmiss_graphics_material_id pink = Cmiss_graphics_module_create_material(gm);
+	ambient[0] = 1.0;ambient[1] = 0.22;ambient[2] = 0.74;
+	diffuse[0] = 1.0;diffuse[1] = 0.28;diffuse[2] = 0.8;
+	emission[0] = 1.0;emission[1] = 0.31;emission[2] = 0.79;
+	specular[0] = 1.0;specular[1] = 0.38;specular[2] = 0.8;
+	Cmiss_graphics_material_set_properties(pink, "pink", ambient, diffuse, emission, specular, 0.3, 0.5);
+
+	Cmiss_graphics_material_id orange = Cmiss_graphics_module_create_material(gm);
+	ambient[0] = 1.0;ambient[1] = 0.4;ambient[2] = 0.0;
+	diffuse[0] = 1.0;diffuse[1] = 0.35;diffuse[2] = 0.0;
+	emission[0] = 1.0;emission[1] = 0.31;emission[2] = 0.0;
+	specular[0] = 1.0;specular[1] = 0.38;specular[2] = 0.0;
+	Cmiss_graphics_material_set_properties(orange, "orange", ambient, diffuse, emission, specular, 0.1, 0.5);
+
+	Cmiss_graphics_material_destroy(&green);
+	Cmiss_graphics_material_destroy(&red);
+	Cmiss_graphics_material_destroy(&pink);
+	Cmiss_graphics_material_destroy(&orange);
+	Cmiss_graphics_module_destroy(&gm);
 }
 
 void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
@@ -718,21 +764,35 @@ void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 
 void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 {
-	//Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
-	//Cmiss_graphic_id surface = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-	//Cmiss_graphic_set_coordinate_system(surface, CMISS_GRAPHICS_COORDINATE_SYSTEM_LOCAL);
-	//Cmiss_graphic_set_render_type(surface, CMISS_GRAPHICS_RENDER_TYPE_WIREFRAME);
+	if (!heart_epi_surface_)
+	{
+		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
+		heart_epi_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
+		Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green");
+		Cmiss_rendition_destroy(&rendition);
+	}
+	if (!heart_endo_surface_)
+	{
+		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
+		heart_endo_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
+		Cmiss_graphic_define(heart_endo_surface_, "coordinate patient_rc_coordinates exterior face xi3_1 no_select material red");
+		Cmiss_rendition_destroy(&rendition);
+	}
+
 	if (choice_ModelDisplayMode->GetSelection() == HeartModel::WIREFRAME)
 	{
-		//FIX use api calls
+		//r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_wireframe");
+		//r2 = Cmiss_graphic_define(heart_endo_surface_, "render_wireframe");
 		Cmiss_context_execute_command(cmissContext_,
 			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_wireframe;");
 		
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates  exterior face xi3_1 no_select material red render_wireframe;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red render_wireframe;");
 	}
 	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
 	{
+		//r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_shaded");
+		//r2 = Cmiss_graphic_define(heart_endo_surface_, "render_shaded");
 		Cmiss_context_execute_command(cmissContext_,
 			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_shaded;");
 		
@@ -1110,14 +1170,18 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 	Cmiss_field_id slice_field = Cmiss_field_module_create_field(field_module, field_name.c_str(), "coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";");
 
 	// Create iso surface of the slice_* and iso value
-	Cmiss_graphic_id iso = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_ISO_SURFACES);
 	Cmiss_field_id patient_rc_coordinates = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
-	int r1 = Cmiss_graphic_set_coordinate_field(iso, patient_rc_coordinates);
-	std::string command = "exterior iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select;";
-	int r2 = Cmiss_graphic_define(iso, command.c_str());
+	Cmiss_graphic_id iso_epi = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_ISO_SURFACES);
+	int r1 = Cmiss_graphic_set_coordinate_field(iso_epi, patient_rc_coordinates);
+	std::string command_epi = "exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select line_width 2 material red;";
+	int r2 = Cmiss_graphic_define(iso_epi, command_epi.c_str());
+	Cmiss_graphic_id iso_endo = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_ISO_SURFACES);
+	int r3 = Cmiss_graphic_set_coordinate_field(iso_endo, patient_rc_coordinates);
+	std::string command_endo = "exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select line_width 2 material green;";
+	int r4 = Cmiss_graphic_define(iso_endo, command_endo.c_str());
 
 	// Save the iso field and graphic to the mii map.
-	miiMap_[sliceName] = iso;
+	miiMap_[sliceName] = std::make_pair(iso_epi, iso_endo);
 
 	Cmiss_field_destroy(&slice_field);
 	Cmiss_field_destroy(&patient_rc_coordinates);
@@ -1131,11 +1195,13 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
-	Cmiss_graphic_id iso = miiMap_[sliceName];
-	if (!iso)
+	Cmiss_graphic_id iso_epi = miiMap_[sliceName].first;
+	Cmiss_graphic_id iso_endo = miiMap_[sliceName].second;
+	if (!iso_epi && !iso_endo)
 	{
 		InitializeMII(sliceName);
-		iso = miiMap_[sliceName];
+		iso_epi = miiMap_[sliceName].first;
+		iso_endo = miiMap_[sliceName].second;
 	}
 	std::string field_name = "slice_" + sliceName;
 	std::stringstream field_command;
@@ -1143,9 +1209,12 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	field_command << plane.x << " " << plane.y << " " << plane.z << "]\";";
 	int r1 = Cmiss_field_module_define_field(field_module, field_name.c_str(), field_command.str().c_str());
 
-	std::stringstream graphic_command;
-	graphic_command << "coordinate patient_rc_coordinates exterior iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material gold;";
-	int r2 = Cmiss_graphic_define(iso, graphic_command.str().c_str());
+	std::stringstream graphic_command_epi;
+	graphic_command_epi << "coordinate patient_rc_coordinates exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material red;";
+	int r2 = Cmiss_graphic_define(iso_epi, graphic_command_epi.str().c_str());
+	std::stringstream graphic_command_endo;
+	graphic_command_endo << "coordinate patient_rc_coordinates exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material green;";
+	int r3 = Cmiss_graphic_define(iso_endo, graphic_command_endo.str().c_str());
 
 	SetMIIVisibility(sliceName, IsMIIVisible(sliceName));
 
@@ -1167,12 +1236,8 @@ bool CAPClientWindow::IsMIIVisible(const std::string& sliceName)
 
 void CAPClientWindow::SetModelVisibility(bool visible)
 {
-	int visibility_flag = visible ? 1 : 0;
-
-	Cmiss_rendition_id heart_rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
-	Cmiss_rendition_set_visibility_flag(heart_rendition, visibility_flag);
-
-	Cmiss_rendition_destroy(&heart_rendition);
+	Cmiss_graphic_set_visibility_flag(heart_epi_surface_, visible ? 1 : 0);
+	Cmiss_graphic_set_visibility_flag(heart_endo_surface_, visible ? 1 : 0);
 }
 
 void CAPClientWindow::SetMIIVisibility(bool visible)
@@ -1191,8 +1256,10 @@ void CAPClientWindow::SetMIIVisibility(bool visible)
 
 void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 {
-	Cmiss_graphic_id iso = miiMap_[name];
-	int r = Cmiss_graphic_set_visibility_flag(iso, visible ? 1 : 0);
+	Cmiss_graphic_id iso_epi = miiMap_[name].first;
+	Cmiss_graphic_id iso_endo = miiMap_[name].second;
+	int r1 = Cmiss_graphic_set_visibility_flag(iso_epi, visible ? 1 : 0);
+	int r2 = Cmiss_graphic_set_visibility_flag(iso_endo, visible ? 1 : 0);
 }
 
 void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)

@@ -310,6 +310,7 @@ void Modeller::AlignModel()
 	//	framesWithDataPoints_.clear();
 	//	framesWithDataPoints_.resize(numberOfModelFrames, 0);
 		InitialiseModelLambdaParams();
+
 		modellingModeGuidePoints_.Reset(numberOfModelFrames);
 	}
 	
@@ -386,6 +387,7 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 			
 			const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
 			//--heartModel_.SetLambda(hermiteLambdaParams, time);
+			mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
 			delete x;
 		}
 	}

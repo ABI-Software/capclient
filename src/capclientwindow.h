@@ -56,7 +56,7 @@ typedef std::map<std::string, CmissFieldGraphicPair> StatusTextStringsFieldMap;
 /**
  * Defines an alias representing the mii field graphic map.
  */
-typedef std::map<std::string, Cmiss_graphic_id > MIIGraphicMap;
+typedef std::map<std::string, std::pair<Cmiss_graphic_id, Cmiss_graphic_id> > MIIGraphicMap;
 
 /**
  * \brief CAPClientWindow is the gui(view) for the CAPClient class.
@@ -299,6 +299,14 @@ public:
 	 * @param	time 	The time.
 	 */
 	void SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time);
+
+	/**
+	 * Sets the heart model lambda parameters at the given time.
+	 *
+	 * @param	lambdaParams	The lambda parameters.
+	 * @param	time			The time.
+	 */
+	void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time);
 
 	/**
 	 * Loads the template heart model.
@@ -563,6 +571,8 @@ private:
 	SceneViewerPanel* cmguiPanel_; /**< handle to a cmgui panel class */
 	TextureSliceMap textureSliceMap_; /**< A map of texture slices. */ 
 	std::vector<Cmiss_field_image_id> fieldImages_; /**< A vector of field images. */
+	Cmiss_graphic_id heart_epi_surface_; /**< The heart epicardium surface */
+	Cmiss_graphic_id heart_endo_surface_;	/**< The heart endocardium surface */
 	MIIGraphicMap miiMap_; /**< The mii map */
 	HeartModel* heartModel_;  /**< The heart model pointer */
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
