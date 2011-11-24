@@ -44,9 +44,10 @@ DataPoint::DataPoint(const DataPoint& other)
 	, endTime_(other.endTime_)
 {
 };
-		
+
 DataPoint::~DataPoint()
 {
+	dbg("DataPoint::~DataPoint()");
 	Cmiss_node_destroy(&cmissNode_);
 }
 

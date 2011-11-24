@@ -19,6 +19,7 @@ extern "C"
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_graphics_filter.h>
 #include <api/cmiss_scene.h>
+#include <api/cmiss_graphics_material.h>
 }
 
 #include "DICOMImage.h"
@@ -148,6 +149,17 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 	Cmiss_region_destroy(&region);
 
 	return r;
+}
+
+void Cmiss_graphics_material_set_properties(Cmiss_graphics_material_id mat, std::string name, double ambient[3], double diffuse[3], double emission[3], double specular[3], double shininess, double alpha)
+{
+	Cmiss_graphics_material_set_name(mat, name.c_str());
+	Cmiss_graphics_material_set_attribute_real3(mat, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_AMBIENT, ambient);
+	Cmiss_graphics_material_set_attribute_real3(mat, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_DIFFUSE, diffuse);
+	Cmiss_graphics_material_set_attribute_real3(mat, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_EMISSION, emission);
+	Cmiss_graphics_material_set_attribute_real3(mat, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_SPECULAR, specular);
+	Cmiss_graphics_material_set_attribute_real(mat, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_SHININESS, shininess);
+	Cmiss_graphics_material_set_attribute_real(mat, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_ALPHA, alpha);
 }
 
 Cmiss_field_module_id Cmiss_context_get_first_non_empty_selection_field_module(Cmiss_context_id cmissContext)

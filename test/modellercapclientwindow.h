@@ -18,6 +18,7 @@ namespace cap
 		void InitialiseHeartModel();
 		void SetHeartModelFocalLength(double focalLength);
 		void SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane, double time);
+		void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time);
 		void SetHeartModelTransformation(const gtMatrix& transform);
 		void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
 		void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);

@@ -152,13 +152,60 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 			}
 		}
 	}
-
+	Cmiss_field_destroy(&coords_ps);
+	Cmiss_field_destroy(&coords_rc);
 	Cmiss_field_module_end_change(field_module);
 
 	Cmiss_field_cache_destroy(&cache);
 	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_field_module_destroy(&field_module);
-	
+}
+
+void CAPClientWindow::SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time)
+{
+
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_begin_change(field_module);
+	Cmiss_field_id coords_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	//Cmiss_field_id coords_rc = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rc");
+	Cmiss_field_id d_ds1 = Cmiss_field_module_find_field_by_name(field_module, "d_ds1");
+	Cmiss_field_id d_ds2 = Cmiss_field_module_find_field_by_name(field_module, "d_ds2");
+	Cmiss_field_id d2_ds1ds2 = Cmiss_field_module_find_field_by_name(field_module, "d2_ds1ds2");
+
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_cache_set_time(cache, time);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+
+	for (int i = 0; i < 40; i ++) // node index starts at 1
+	{
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
+		Cmiss_field_cache_set_node(cache, node);
+		double loc_ps[3];
+		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+		loc_ps[0] = lambdaParams[4 * i + 0];
+		Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+		double loc_d_ds1[] = {0.0, 0.0, 0.0};
+		loc_d_ds1[0] = lambdaParams[4 * i + 1];
+		Cmiss_field_assign_real(d_ds1, cache, 1, loc_d_ds1);
+		double loc_d_ds2[] = {0.0, 0.0, 0.0};
+		loc_d_ds2[0] = lambdaParams[4 * i + 2];
+		Cmiss_field_assign_real(d_ds2, cache, 1, loc_d_ds2);
+		double loc_d2_ds1ds2[] = {0.0, 0.0, 0.0};
+		loc_d2_ds1ds2[0] = lambdaParams[4 * i + 3];
+		Cmiss_field_assign_real(d2_ds1ds2, cache, 1, loc_d2_ds1ds2);
+		Cmiss_node_destroy(&node);
+	}
+
+	Cmiss_field_destroy(&coords_ps);
+	//Cmiss_field_destroy(&coords_rc);
+	Cmiss_field_destroy(&d_ds1);
+	Cmiss_field_destroy(&d_ds2);
+	Cmiss_field_destroy(&d2_ds1ds2);
+	Cmiss_field_module_end_change(field_module);
+
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_module_destroy(&field_module);
 }
 
 void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
@@ -179,6 +226,9 @@ void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
 	ss_tr << "constant " << transform[3][0] << " " << transform[3][1] << " " << transform[3][2];
 	Cmiss_field_module_define_field(field_module, "local_to_global_mx", ss_mx.str().c_str());
 	Cmiss_field_module_define_field(field_module, "local_to_global_tr", ss_tr.str().c_str());
+	Cmiss_field_module_define_field(field_module, "d_ds1", "node_value fe_field coordinates d/ds1");
+	Cmiss_field_module_define_field(field_module, "d_ds2", "node_value fe_field coordinates d/ds2");
+	Cmiss_field_module_define_field(field_module, "d2_ds1ds2", "node_value fe_field coordinates d2/ds1ds2");
 	Cmiss_field_module_define_field(field_module, "coordinates_rc", "coordinate_transformation field coordinates");
 	Cmiss_field_module_define_field(field_module, "temp1", "matrix_multiply num 3 fields local_to_global_mx coordinates_rc");
 	Cmiss_field_module_define_field(field_module, "patient_rc_coordinates", "add fields temp1 local_to_global_tr");
