@@ -78,6 +78,8 @@ TEST(StringScanTest, ScanLine)
 TEST(Modeller, AddApexPoints)
 {
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
+	Cmiss_region_id region = Cmiss_context_get_default_region(context);
+
 	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
 	EXPECT_TRUE(node1 != 0);
 	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
@@ -86,18 +88,21 @@ TEST(Modeller, AddApexPoints)
 	Modeller modeller(0);
 	Point3D coord1(4, 5, 6);
 	Point3D coord2(9, 8, 7);
-	modeller.AddDataPoint(node1, coord1, 0.0);
-	modeller.AddDataPoint(node2, coord2, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), coord1, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), coord2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::BASE, modeller.GetCurrentMode());
 	Cmiss_node_destroy(&node1);
 	Cmiss_node_destroy(&node2);
+	Cmiss_region_destroy(&region);
 	Cmiss_context_destroy(&context);
 }
 
 TEST(Modeller, AddBasePoints)
 {
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
+	Cmiss_region_id region = Cmiss_context_get_default_region(context);
+
 	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
 	EXPECT_TRUE(node1 != 0);
 	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
@@ -108,18 +113,19 @@ TEST(Modeller, AddBasePoints)
 	using namespace cap;
 	Modeller modeller(0);
 	Point3D coord1(4, 5, 6);
-	modeller.AddDataPoint(node1, coord1, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), coord1, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	Point3D coord2(1, 5, 3);
 	Point3D coord3(9, 8, 7);
-	modeller.AddDataPoint(node2, coord2, 0.0);
-	modeller.AddDataPoint(node3, coord3, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), coord2, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), coord3, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::RV, modeller.GetCurrentMode());
 
 	Cmiss_node_destroy(&node1);
 	Cmiss_node_destroy(&node2);
 	Cmiss_node_destroy(&node3);
+	Cmiss_region_destroy(&region);
 	Cmiss_context_destroy(&context);
 }
 
@@ -127,6 +133,7 @@ TEST(Modeller, AddRVPoints)
 {
 	using namespace cap;
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
+	Cmiss_region_id region = Cmiss_context_get_default_region(context);
 
 	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
 	EXPECT_TRUE(node1 != 0);
@@ -139,17 +146,17 @@ TEST(Modeller, AddRVPoints)
 
 	Modeller modeller(0);
 	Point3D coord1(4, 5, 6);
-	modeller.AddDataPoint(node1, coord1, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), coord1, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	Point3D coord2(1, 5, 3);
-	modeller.AddDataPoint(node2, coord2, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), coord2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	Point3D coord3(9, 8, 7);
-	modeller.AddDataPoint(node3, coord3, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), coord3, 0.0);
 	EXPECT_FALSE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::RV, modeller.GetCurrentMode());
 	Point3D coord4(9, 10, 7);
-	modeller.AddDataPoint(node4, coord4, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), coord4, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
 
@@ -157,6 +164,7 @@ TEST(Modeller, AddRVPoints)
 	Cmiss_node_destroy(&node2);
 	Cmiss_node_destroy(&node3);
 	Cmiss_node_destroy(&node4);
+	Cmiss_region_destroy(&region);
 	Cmiss_context_destroy(&context);
 }
 
@@ -164,6 +172,7 @@ TEST(Modeller, AddBasePlanePoints)
 {
 	using namespace cap;
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
+	Cmiss_region_id region = Cmiss_context_get_default_region(context);
 	CAPClient mcc;
 	mcc.gui_->CreateHeartModel();
 	mcc.gui_->LoadTemplateHeartModel(25);
@@ -189,16 +198,16 @@ TEST(Modeller, AddBasePlanePoints)
 	Point3D bp2(-3.04825, -0.0334985, 8.7444);
 
 	Modeller modeller(&mcc);
-	modeller.AddDataPoint(node1, apex, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), apex, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	modeller.AddDataPoint(node2, base, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), base, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	modeller.AddDataPoint(node3, rv1, 0.0);
-	modeller.AddDataPoint(node4, rv2, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), rv1, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), rv2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
-	modeller.AddDataPoint(node5, bp1, 0.25);
-	modeller.AddDataPoint(node6, bp2, 0.25);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node5), bp1, 0.25);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node6), bp2, 0.25);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
 
@@ -223,6 +232,7 @@ TEST(Modeller, AddBasePlanePoints)
 	Cmiss_node_destroy(&node4);
 	Cmiss_node_destroy(&node5);
 	Cmiss_node_destroy(&node6);
+	Cmiss_region_destroy(&region);
 	Cmiss_context_destroy(&context);
 }
 
@@ -230,6 +240,7 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 {
 	using namespace cap;
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
+	Cmiss_region_id region = Cmiss_context_get_default_region(context);
 	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
 	EXPECT_TRUE(node1 != 0);
 	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
@@ -244,10 +255,10 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	CAPClient mcc;
 	Modeller modeller(&mcc);
 	modeller.ChangeMode(Modeller::BASEPLANE);
-	modeller.AddDataPoint(node1, bp1, 0.2);
-	modeller.AddDataPoint(node2, bp2, 0.2);
-	modeller.AddDataPoint(node3, bp1, 0.4);
-	modeller.AddDataPoint(node4, bp2, 0.42);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), bp1, 0.2);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), bp2, 0.2);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), bp1, 0.4);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.42);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
 
@@ -256,6 +267,7 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	Cmiss_node_destroy(&node2);
 	Cmiss_node_destroy(&node3);
 	Cmiss_node_destroy(&node4);
+	Cmiss_region_destroy(&region);
 	Cmiss_context_destroy(&context);
 }
 
@@ -266,6 +278,7 @@ TEST(Modeller, AlignModel)
 	CAPClient mcc;
 	mcc.gui_->CreateHeartModel();
 	mcc.gui_->LoadTemplateHeartModel(25);
+	Cmiss_region_id region = Cmiss_context_get_default_region(mcc.gui_->cmissContext_);
 
 	Cmiss_node_id node1 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 24.2506, -71.3943, -9.00449);
 	EXPECT_TRUE(node1 != 0);
@@ -294,18 +307,18 @@ TEST(Modeller, AlignModel)
 	Point3D bp4(-3.04825, -0.0334985, 0.7444);
 
 	Modeller modeller(&mcc);
-	modeller.AddDataPoint(node1, apex, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), apex, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	modeller.AddDataPoint(node2, base, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), base, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	modeller.AddDataPoint(node3, rv1, 0.0);
-	modeller.AddDataPoint(node4, rv2, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), rv1, 0.0);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), rv2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
-	modeller.AddDataPoint(node5, bp1, 0.5);
-	modeller.AddDataPoint(node6, bp2, 0.5);
-	modeller.AddDataPoint(node7, bp3, 0.8);
-	modeller.AddDataPoint(node8, bp4, 0.9);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node5), bp1, 0.5);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node6), bp2, 0.5);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node7), bp3, 0.8);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node8), bp4, 0.9);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
 
@@ -319,6 +332,7 @@ TEST(Modeller, AlignModel)
 	Cmiss_node_destroy(&node6);
 	Cmiss_node_destroy(&node7);
 	Cmiss_node_destroy(&node8);
+	Cmiss_region_destroy(&region);
 	//Cmiss_context_destroy(&context);
 }
 

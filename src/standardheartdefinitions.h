@@ -19,7 +19,7 @@ enum SurfaceType
 /**
  * Enum describing points on the heart.
  */
-enum DataPointType
+enum ModellingPointType
 {
 	APEX,
 	BASE,

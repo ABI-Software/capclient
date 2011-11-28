@@ -32,7 +32,7 @@ public:
 	{
 		std::map<std::string, Value> values;
 		SurfaceType surface;
-		DataPointType type;
+		ModellingPointType type;
 	};
 
 //	struct ContourFile

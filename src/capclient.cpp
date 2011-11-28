@@ -181,7 +181,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							Cmiss_node_id cmissNode = 0;//--Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
 							
 							assert(modeller_);
-							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
+							//--modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
 							ProcessDataPointsEnteredForCurrentMode();
 							Cmiss_region_destroy(&region);
 							apexDefined = true;
@@ -241,7 +241,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							Cmiss_node_id cmissNode = 0;//--Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
 							
 							assert(modeller_);
-							modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
+							//--modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
 							ProcessDataPointsEnteredForCurrentMode();
 							Cmiss_region_destroy(&region);
 							baseDefined = true;
@@ -398,7 +398,9 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	
 	CAPXMLFile xmlFile(dirname);
 	
-	std::vector<DataPoint> const& dataPoints = modeller_->GetDataPoints();
+	dbg("Warning: CAPClient::SaveModel - not working with modelling points.");
+	//std::vector<DataPoint> const& dataPoints; // -- = modeller_->GetDataPoints();
+	std::vector<DataPoint> dataPoints; // -- = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
 	//--xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
 	xmlFileHandler.AddProvenanceDetail(userComment);

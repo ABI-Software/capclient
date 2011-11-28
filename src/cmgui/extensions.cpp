@@ -132,16 +132,36 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		region = Cmiss_region_create_child(root_region, regionName.c_str());
 		Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 		r = Cmiss_field_module_define_field(field_module, "coordinates", "finite_element num 3 coordinate");
-		std::string clear_command = "gfx modify g_element " + regionName + " general clear;";
-		std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" centre 0,0,0 font default select_on material default selected_material default_selected;";
-		if (r)
-		{
-			r = Cmiss_context_execute_command(cmissContext, clear_command.c_str());
-		}
-		if (r)
-		{
-			r = Cmiss_context_execute_command(cmissContext, node_command.c_str());
-		}
+		//std::string clear_command = "gfx modify g_element " + regionName + " general clear;";
+		r = Cmiss_field_module_define_field(field_module, "time", "time_value");
+		r = Cmiss_field_module_define_field(field_module, "visibility_control_field", "constant 1");
+		std::string label = regionName + "_label";
+		std::string label_command = "string_constant " + regionName;
+		r = Cmiss_field_module_define_field(field_module, label.c_str(), label_command.c_str());
+		//r = Cmiss_field_module_define_field(field_module, "invisible_control_field", "constant 0");
+		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
+		Cmiss_graphic_id node_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_NODE_POINTS);
+		std::string material = "default";
+		if (regionName == "APEX" || regionName == "BASE")
+			material = "light_blue";
+		else if (regionName == "RV")
+			material = "orange";
+		else if (regionName == "BASEPLANE")
+			material = "pink";
+
+		//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
+		std::string node_command = "coordinate coordinates LOCAL glyph sphere general size \"6*6*6\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
+		Cmiss_graphic_define(node_graphic, node_command.c_str());
+		//if (r)
+		//{
+		//	r = Cmiss_context_execute_command(cmissContext, clear_command.c_str());
+		//}
+		//if (r)
+		//{
+		//	r = Cmiss_context_execute_command(cmissContext, node_command.c_str());
+		//}
+		Cmiss_graphic_destroy(&node_graphic);
+		Cmiss_rendition_destroy(&rendition);
 		Cmiss_field_module_destroy(&field_module);
 	}
 

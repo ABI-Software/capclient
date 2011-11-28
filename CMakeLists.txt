@@ -63,6 +63,7 @@ SET( APP_HDRS
 	src/model/modeller.h
 	src/model/imodeller.h
 	src/model/modellingmode.h
+	src/model/modellingpoint.h
 	src/math/timesmoother.h
 	src/math/totalleastsquares.h
 	src/CAPXMLFile.h
@@ -113,6 +114,7 @@ SET( APP_SRCS
 	src/model/heart.cpp
 	src/model/modeller.cpp
 	src/model/modellingmode.cpp
+	src/model/modellingpoint.cpp
 	src/math/timesmoother.cpp
 	src/CAPXMLFile.cpp
 	src/CAPXMLFileHandler.cpp

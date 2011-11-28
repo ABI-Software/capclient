@@ -342,6 +342,11 @@ public:
 	Cmiss_node_id GetCurrentlySelectedNode() const;
 
 	/**
+	 * Adds currently selected node.  If no node is currenly selected then do nothing.
+	 */
+	void AddCurrentlySelectedNode();
+
+	/**
 	 * Gets a nodes rectanglar cartesian coordinates.  This function
 	 * is part of the Modelling interface and only gets the selected node
 	 * from one of the modelling regions.  It will only evaluate the node
@@ -381,7 +386,7 @@ public:
 	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
 	 * @param	position		   	The position.
 	 */
-	void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position);
+	//void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position);
 
 	/**
 	 * Move data point.
