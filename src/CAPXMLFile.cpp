@@ -51,7 +51,7 @@ void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 	//slice
 	xmlChar* typeCStr = xmlGetProp(cur, (xmlChar const*)"type"); 
 //	std::cout << "type = " << typeCStr << '\n';
-	DataPointType type;
+	ModellingPointType type;
 	std::string typeStr((char*)typeCStr);
 	if (typeStr == "apex")
 	{

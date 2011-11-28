@@ -90,9 +90,14 @@ Modeller::~Modeller()
 	delete solverFactory_;
 }
 
-void Modeller::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
+//void Modeller::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
+//{
+//	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
+//}
+
+void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 {
-	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
+	currentModellingMode_->AddModellingPoint(region, node_id, position, time);
 }
 
 void Modeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
@@ -142,7 +147,7 @@ ModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
 	return &modellingModeGuidePoints_;
 }
 
-Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const
+Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& basePlanePoints, const Vector3D& xAxis) const
 {
 	Plane plane;
 	
@@ -150,17 +155,17 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlan
 	{
 		// Total Least Squares using SVD
 		std::vector<Point3D> vectorOfPoints;
-		for (std::vector<DataPoint>::const_iterator i = basePlanePoints.begin();
+		for (std::vector<ModellingPoint>::const_iterator i = basePlanePoints.begin();
 				i != basePlanePoints.end(); ++i)
 		{
-			vectorOfPoints.push_back(i->GetCoordinate());
+			vectorOfPoints.push_back(i->GetPosition());
 		}
 		plane = FitPlaneUsingTLS(vectorOfPoints);
 	}
 	else if (basePlanePoints.size() == 2)
 	{
 		// When only 2 base plane points have been specified
-		Vector3D temp1 = basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate();
+		Vector3D temp1 = basePlanePoints[1].GetPosition() - basePlanePoints[0].GetPosition();
 		temp1.Normalise();
 		
 		Vector3D temp2 = CrossProduct(temp1, xAxis);
@@ -168,12 +173,12 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlan
 		plane.normal = CrossProduct(temp1, temp2);
 		plane.normal.Normalise();
 		
-		plane.position = basePlanePoints[0].GetCoordinate() + (0.5 * (basePlanePoints[1].GetCoordinate() - basePlanePoints[0].GetCoordinate()));
+		plane.position = basePlanePoints[0].GetPosition() + (0.5 * (basePlanePoints[1].GetPosition() - basePlanePoints[0].GetPosition()));
 	}
 	else
 	{
 		// One base plane point
-		plane.position = basePlanePoints[0].GetCoordinate();
+		plane.position = basePlanePoints[0].GetPosition();
 		plane.normal = xAxis;
 		plane.normal.Normalise();
 	}
@@ -193,25 +198,25 @@ void Modeller::AlignModel()
 {
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
-		const DataPoint& apex = modellingModeApex_.GetApex();
-		const DataPoint& base = modellingModeBase_.GetBase();
-		const std::map<Cmiss_node*, DataPoint>& rvInserts = modellingModeRV_.GetRVInsertPoints();
-		const std::vector<DataPoint>& basePlanePoints = modellingModeBasePlane_.GetBasePlanePoints(); 
+		const ModellingPoint& apex = modellingModeApex_.GetApex();
+		const ModellingPoint& base = modellingModeBase_.GetBase();
+		const ModellingPointsMap& rvInserts = modellingModeRV_.GetRVInsertPoints();
+		const ModellingPointsMap& basePlanePoints = modellingModeBasePlane_.GetBasePlanePoints(); 
 	
-		Vector3D xAxis= apex.GetCoordinate() - base.GetCoordinate();
+		Vector3D xAxis= apex.GetPosition() - base.GetPosition();
 		xAxis.Normalise();
 
-		std::map<Cmiss_node*, DataPoint>::const_iterator itr = rvInserts.begin();
-		std::map<Cmiss_node*, DataPoint>::const_iterator end = rvInserts.end();
+		ModellingPointsMap::const_iterator itr = rvInserts.begin();
+		ModellingPointsMap::const_iterator end = rvInserts.end();
 		Point3D sum;
 		for (;itr!=end;++itr)
 		{
-			sum += itr->second.GetCoordinate();
+			sum += itr->second.GetPosition();
 		}
 		
 		Point3D averageOfRVInserts = sum / rvInserts.size();
 		
-		Vector3D yAxis = averageOfRVInserts - base.GetCoordinate();
+		Vector3D yAxis = averageOfRVInserts - base.GetPosition();
 		Vector3D zAxis = CrossProduct(xAxis,yAxis);
 		zAxis.Normalise();
 		yAxis.CrossProduct(zAxis,xAxis);
@@ -223,7 +228,7 @@ void Modeller::AlignModel()
 		std::cout << "Model coord z axis vector" << zAxis << std::endl;
 		
 		// Compute the position of the model coord origin. (1/3 of the way from base to apex)
-		Point3D origin = base.GetCoordinate() + (0.3333) * (apex.GetCoordinate() - base.GetCoordinate());
+		Point3D origin = base.GetPosition() + (0.3333) * (apex.GetPosition() - base.GetPosition());
 		
 		// Transform heart model using the newly computed axes
 		gtMatrix transform;
@@ -249,12 +254,12 @@ void Modeller::AlignModel()
 		//--heartModel_.SetLocalToGlobalTransformation(transform);
 		
 		// TODO properly Compute FocalLength
-		double lengthFromApexToBase = (apex.GetCoordinate() - base.GetCoordinate()).Length();
+		double lengthFromApexToBase = (apex.GetPosition() - base.GetPosition()).Length();
 		std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
 		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + toString(lengthFromApexToBase));
 		
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
-		double focalLength = (apex.GetCoordinate() - origin).Length()  / cosh(1.0);
+		double focalLength = (apex.GetPosition() - origin).Length()  / cosh(1.0);
 		std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
 		dbg("Modeller::AlignModel() : new focal length = " + toString(focalLength));
 		mainApp_->SetHeartModelFocalLength(focalLength);
@@ -265,18 +270,18 @@ void Modeller::AlignModel()
 		double framePeriod = 1.0/numberOfModelFrames;
 		
 		std::map<double, Plane> planes; // value_type = (frame, plane) pair
-		std::vector<DataPoint>::const_iterator itrSrc = basePlanePoints.begin();
+		ModellingPointsMap::const_iterator itrSrc = basePlanePoints.begin();
 
 
 		while ( itrSrc!=basePlanePoints.end())
 		{
-			dbg("bp points : " + toString(itrSrc->GetTime()) + ", " + toString(itrSrc->GetCoordinate()));
-			double frameTime = itrSrc->GetTime();
+			//--dbg("bp points : " + toString(itrSrc->GetTime()) + ", " + toString(itrSrc->GetCoordinate()));
+			double frameTime = itrSrc->second.GetTime();
 			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
-			std::vector<DataPoint> basePlanePointsInOneFrame;
-			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
+			std::vector<ModellingPoint> basePlanePointsInOneFrame;
+			for (; itrSrc!=basePlanePoints.end() && itrSrc->second.GetTime() < timeOfNextFrame; ++itrSrc)
 			{
-				basePlanePointsInOneFrame.push_back(*itrSrc);
+				basePlanePointsInOneFrame.push_back(itrSrc->second);
 			}
 			// Fit plane to the points
 			Plane plane = FitPlaneToBasePlanePoints(basePlanePointsInOneFrame, xAxis);
@@ -464,30 +469,31 @@ void Modeller::ChangeMode(ModellingMode* newMode)
 	currentModellingMode_->PerformEntryAction();
 }
 
-std::vector<DataPoint> Modeller::GetDataPoints() const
+std::vector<ModellingPoint> Modeller::GetDataPoints() const
 {
-	std::vector<DataPoint> dataPoints;
+	std::vector<ModellingPoint> modellingPoints;
 	
-	typedef std::vector<DataPoint> Vector;
-	Vector const& bps = modellingModeBasePlane_.GetBasePlanePoints();
+	typedef std::vector<ModellingPoint> Vector;
+	const ModellingPointsMap& bps = modellingModeBasePlane_.GetBasePlanePoints();
 
 	if (!bps.empty())
 	{
 		// This means the user has reached the guide points modelling stage
 		// i.e the model has been initialised.
 
-		dataPoints.push_back(modellingModeApex_.GetApex());
-		dataPoints.push_back(modellingModeBase_.GetBase());
+		dbg("Warning: Modeller::GetDataPoints()  not adding apex modelling point!!");
+		modellingPoints.push_back(modellingModeApex_.GetApex());
+		modellingPoints.push_back(modellingModeBase_.GetBase());
 
-		typedef std::map<Cmiss_node*, DataPoint> Map;
-		Map const& rvInsert = modellingModeRV_.GetRVInsertPoints();
+		//--typedef std::map<Cmiss_node*, DataPoint> Map;
+		//--const ModellingPointsMap& rvInsert = modellingModeRV_.GetRVInsertPoints();
 
-		std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
-				boost::bind(&Map::value_type::second, _1));
+		//--std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
+		//--		boost::bind(&ModellingPointsMap::value_type::second, _1));
 
-		std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
-		Vector const& gps = modellingModeGuidePoints_.GetGuidePoints();
-		std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
+		//--std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
+		//--Vector const& gps = modellingModeGuidePoints_.GetGuidePoints();
+		//--std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
 	}
 	else
 	{
@@ -495,14 +501,15 @@ std::vector<DataPoint> Modeller::GetDataPoints() const
 		// return an empty vector
 		// TODO might make more sense to just return the data points that have been put on
 		// even if the model has not been initialised (i.e guide point mode has not been reached)
-		dataPoints.clear(); // this is actually redundant but left here for clarity
+		modellingPoints.clear(); // this is actually redundant but left here for clarity
 	}
 
-	return dataPoints;
+	return modellingPoints;
 }
 
 void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 {
+	dbg("Modeller::SetDataPoints - update for modelling points.");
 	if (dataPoints.empty()) //FIXME 
 	{
 		// This handles the case where no data points are defined
@@ -515,7 +522,7 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 	}
 	
 	std::sort(dataPoints.begin(), dataPoints.end(),
-			boost::bind( std::less<DataPointType>(),
+			boost::bind( std::less<ModellingPointType>(),
 					boost::bind(&DataPoint::GetDataPointType, _1),
 					boost::bind(&DataPoint::GetDataPointType, _2)));
 
@@ -531,7 +538,7 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 			OnAccept();
 			currentModeEnum = mode;
 		}
-		AddDataPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
+		//--AddModellingPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
 	}
 	if (currentModeEnum == BASEPLANE) // no guide points defined
 	{
@@ -565,15 +572,15 @@ void Modeller::InitialiseModelLambdaParams()
 	}
 	
 	// DO this elsewhere
-	//--vectorOfDataPoints_.clear();
-	//--vectorOfDataPoints_.resize(heartModel_.GetNumberOfModelFrames());
+	//--vectorOfModellingPoints_.clear();
+	//--vectorOfModellingPoints_.resize(heartModel_.GetNumberOfModelFrames());
 	//--framesWithDataPoints_.assign(heartModel_.GetNumberOfModelFrames(), 0);
 	
 //#ifndef NDEBUG
-//	std::cout << "vectorOfDataPoints_.size() = " << vectorOfDataPoints_.size() << '\n';
-//	for (int i=0; i<vectorOfDataPoints_.size();i++)
+//	std::cout << "vectorOfModellingPoints_.size() = " << vectorOfModellingPoints_.size() << '\n';
+//	for (int i=0; i<vectorOfModellingPoints_.size();i++)
 //	{
-//		std::cout << "vectorOfDataPoints_["<< i << "] : " << vectorOfDataPoints_[i].size() << '\n';
+//		std::cout << "vectorOfModellingPoints_["<< i << "] : " << vectorOfModellingPoints_[i].size() << '\n';
 //	}
 //#endif
 }

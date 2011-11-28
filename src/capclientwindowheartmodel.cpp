@@ -146,7 +146,7 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 				Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + (j * 4) + i + 1);
 				double loc_ps[3];
 				Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-				loc_ps[1] = mu[i]/4.0 * (4.0- (double)j);
+				loc_ps[1] = mu[i]/4.0 * (4.0- static_cast<double>(j));
 				Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 				Cmiss_node_destroy(&node);
 			}

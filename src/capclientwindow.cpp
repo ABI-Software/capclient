@@ -304,36 +304,71 @@ void CAPClientWindow::CreateMaterials()
 	//gfx create material green normal_mode ambient 0 0.5 0 diffuse 0 1 0 emission 0 0 0 specular 0.2 0.2 0.2 alpha 1 shininess 0.1;
 
 	Cmiss_graphics_module_id gm = Cmiss_context_get_default_graphics_module(cmissContext_);
-	double ambient[3], diffuse[3], emission[3], specular[3];
+	double ambient[3], diffuse[3], diffuse_sel[3], emission[3], specular[3];
 	ambient[0] = 0.0;ambient[1] = 0.5;ambient[2] = 0.0;
 	diffuse[0] = 0.0;diffuse[1] = 1.0;diffuse[2] = 0.0;
+	diffuse_sel[0] = 0.0;diffuse_sel[1] = 5.0;diffuse_sel[2] = 0.0;
 	emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
 	specular[0] = 0.2;specular[1] = 0.2;specular[2] = 0.2;
 	Cmiss_graphics_material_id green = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(green, "green", ambient, diffuse, emission, specular, 0.1, 0.5);
+	Cmiss_graphics_material_set_properties(green, "green", ambient, diffuse, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_id green_sel = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(green_sel, "green_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_id green_surface = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(green_surface, "green_surface", ambient, diffuse, emission, specular, 0.1, 0.5);
 
-	Cmiss_graphics_material_id red = Cmiss_graphics_module_create_material(gm);
 	ambient[0] = 0.5;ambient[1] = 0.0;ambient[2] = 0.0;
 	diffuse[0] = 1.0;diffuse[1] = 0.0;diffuse[2] = 0.0;
+	diffuse_sel[0] = 0.5;diffuse_sel[1] = 0.0;diffuse_sel[2] = 0.0;
 	emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
 	specular[0] = 0.2;specular[1] = 0.2;specular[2] = 0.2;
-	Cmiss_graphics_material_set_properties(red, "red", ambient, diffuse, emission, specular, 0.1, 0.5);
+	Cmiss_graphics_material_id red = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(red, "red", ambient, diffuse, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_id red_sel = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(red_sel, "red_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_id red_surface = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(red_surface, "red_surface", ambient, diffuse, emission, specular, 0.1, 0.5);
 
 	Cmiss_graphics_material_id pink = Cmiss_graphics_module_create_material(gm);
 	ambient[0] = 1.0;ambient[1] = 0.22;ambient[2] = 0.74;
 	diffuse[0] = 1.0;diffuse[1] = 0.28;diffuse[2] = 0.8;
+	diffuse_sel[0] = 0.5;diffuse_sel[1] = 0.14;diffuse_sel[2] = 0.4;
 	emission[0] = 1.0;emission[1] = 0.31;emission[2] = 0.79;
 	specular[0] = 1.0;specular[1] = 0.38;specular[2] = 0.8;
-	Cmiss_graphics_material_set_properties(pink, "pink", ambient, diffuse, emission, specular, 0.3, 0.5);
+	Cmiss_graphics_material_set_properties(pink, "pink", ambient, diffuse, emission, specular, 0.3, 1.0);
+	Cmiss_graphics_material_id pink_sel = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(pink_sel, "pink_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 
 	Cmiss_graphics_material_id orange = Cmiss_graphics_module_create_material(gm);
 	ambient[0] = 1.0;ambient[1] = 0.4;ambient[2] = 0.0;
 	diffuse[0] = 1.0;diffuse[1] = 0.35;diffuse[2] = 0.0;
+	diffuse_sel[0] = 0.5;diffuse_sel[1] = 0.17;diffuse_sel[2] = 0.0;
 	emission[0] = 1.0;emission[1] = 0.31;emission[2] = 0.0;
 	specular[0] = 1.0;specular[1] = 0.38;specular[2] = 0.0;
-	Cmiss_graphics_material_set_properties(orange, "orange", ambient, diffuse, emission, specular, 0.1, 0.5);
+	Cmiss_graphics_material_set_properties(orange, "orange", ambient, diffuse, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_id orange_sel = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(orange_sel, "orange_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 
+	//gfx create material light_blue normal_mode ambient 0.54 0.84 1 diffuse 0.28 0.46 1 emission 0.25 0.46 0.75 specular 0.46 0.73 1 alpha 1 shininess 0.2;
+	Cmiss_graphics_material_id light_blue = Cmiss_graphics_module_create_material(gm);
+	ambient[0] = 0.54;ambient[1] = 0.84;ambient[2] = 1.0;
+	diffuse[0] = 0.28;diffuse[1] = 0.46;diffuse[2] = 1.0;
+	diffuse_sel[0] = 0.14;diffuse_sel[1] = 0.23;diffuse_sel[2] = 0.5;
+	emission[0] = 0.25;emission[1] = 0.46;emission[2] = 0.75;
+	specular[0] = 0.46;specular[1] = 0.73;specular[2] = 1.0;
+	Cmiss_graphics_material_set_properties(light_blue, "light_blue", ambient, diffuse, emission, specular, 0.3, 1.0);
+	Cmiss_graphics_material_id light_blue_sel = Cmiss_graphics_module_create_material(gm);
+	Cmiss_graphics_material_set_properties(light_blue_sel, "light_blue_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+
+	Cmiss_graphics_material_destroy(&green_surface);
+	Cmiss_graphics_material_destroy(&red_surface);
+	Cmiss_graphics_material_destroy(&green_sel);
+	Cmiss_graphics_material_destroy(&light_blue_sel);
+	Cmiss_graphics_material_destroy(&red_sel);
+	Cmiss_graphics_material_destroy(&pink_sel);
+	Cmiss_graphics_material_destroy(&orange_sel);
 	Cmiss_graphics_material_destroy(&green);
+	Cmiss_graphics_material_destroy(&light_blue);
 	Cmiss_graphics_material_destroy(&red);
 	Cmiss_graphics_material_destroy(&pink);
 	Cmiss_graphics_material_destroy(&orange);
@@ -426,10 +461,10 @@ double CAPClientWindow::GetCurrentTime() const
 	return Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 }
 
-void CAPClientWindow::AddDataPoint(Cmiss_node* dataPointID, Point3D const& position)
-{
-	mainApp_->AddDataPoint(dataPointID, position, GetCurrentTime());
-}
+//void CAPClientWindow::AddDataPoint(Cmiss_node* dataPointID, Point3D const& position)
+//{
+//	mainApp_->AddDataPoint(dataPointID, position, GetCurrentTime());
+//}
 
 void CAPClientWindow::MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition)
 {
@@ -768,14 +803,14 @@ void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 	{
 		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
 		heart_epi_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-		Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green");
+		Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green_surface");
 		Cmiss_rendition_destroy(&rendition);
 	}
 	if (!heart_endo_surface_)
 	{
 		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
 		heart_endo_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-		Cmiss_graphic_define(heart_endo_surface_, "coordinate patient_rc_coordinates exterior face xi3_1 no_select material red");
+		Cmiss_graphic_define(heart_endo_surface_, "coordinate patient_rc_coordinates exterior face xi3_1 no_select material red_surface");
 		Cmiss_rendition_destroy(&rendition);
 	}
 
@@ -784,20 +819,20 @@ void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 		//r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_wireframe");
 		//r2 = Cmiss_graphic_define(heart_endo_surface_, "render_wireframe");
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_wireframe;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green_surface render_wireframe;");
 		
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red render_wireframe;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red_surface render_wireframe;");
 	}
 	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
 	{
 		//r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_shaded");
 		//r2 = Cmiss_graphic_define(heart_endo_surface_, "render_shaded");
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_shaded;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green_surface render_shaded;");
 		
 		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red render_shaded;");
+			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red_surface render_shaded;");
 	}
 }
 
@@ -1297,6 +1332,46 @@ void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 
 void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
 {
+}
+
+void CAPClientWindow::AddCurrentlySelectedNode()
+{
+	//Modeller::ModellingModeEnum currentMode = static_cast<Modeller::ModellingModeEnum>(choice_Mode->GetSelection());
+	//const std::string& modelling_mode = Modeller::ModellingModeStrings.find(currentMode)->second;
+	//Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	//Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, modelling_mode.c_str());
+	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
+	Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
+	//Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
+
+	Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
+	// We are assuming here that only one node is selected.  If the node tool is set so that
+	// only single selection is possible then we are golden, if not...
+	Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
+	if (selected_node)
+	{
+		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+		Cmiss_field_cache_set_node(field_cache, selected_node);
+		double values[3];
+		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
+
+		Point3D coords;
+		coords.x = values[0]; coords.y = values[1]; coords.z = values[2];
+
+		int node_id = Cmiss_node_get_identifier(selected_node);
+		mainApp_->AddModellingPoint(region, node_id, coords, GetCurrentTime());
+		Cmiss_field_destroy(&coordinate_field);
+		Cmiss_node_destroy(&selected_node);
+	}
+
+	//Cmiss_region_destroy(&root_region);
+	Cmiss_region_destroy(&region);
+	Cmiss_field_cache_destroy(&field_cache);
+	Cmiss_node_iterator_destroy(&it);
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_module_destroy(&field_module);
 }
 
 Cmiss_node_id CAPClientWindow::GetCurrentlySelectedNode() const

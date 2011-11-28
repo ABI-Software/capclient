@@ -32,11 +32,13 @@ namespace cap
 {
 
 const int KEYCODE_A = 65;
+const int KEYCODE_D = 68;
 const int KEYCODE_E = 69;
 
 int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer, 
 						  struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
 {
+	static bool modellingActive = false;
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
 	//dbg("input_callback() : input_type = " + toString(event_type));
@@ -57,6 +59,11 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 			gui->OnAccept();
 			return 0;
 		}
+		if (keyCode == KEYCODE_D)
+		{
+			// delete currently selected node.
+			return 0;
+		}
 	}
 
 	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
@@ -65,7 +72,11 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	int modifier_flags_int = static_cast<int>(modifier_flags);
 	if (modifier_flags_int & CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL)
 	{
+		//gui->AddCurrentlySelectedNode();
+		if (modellingActive)
+			gui->AddCurrentlySelectedNode();
 		gui->EndModellingAction();
+		modellingActive = false;
 		return 1;
 	}
 	
@@ -78,6 +89,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 		//dbg("Mouse button number = " + toString(button_number));
 		
 		gui->StartModellingAction();
+		modellingActive = true;
 		
 	}
 	//else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
@@ -101,13 +113,15 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	{
 		//dbg("Mouse released");
 		//dbg("node location : " + toString(coords));
-		Cmiss_node_id selected_node = gui->GetCurrentlySelectedNode();
-		if (selected_node)
-		{
-			Point3D coords = gui->GetNodeRCCoordinates(selected_node);
-			gui->AddDataPoint(selected_node, coords);
-		}
+		//Cmiss_node_id selected_node = gui->GetCurrentlySelectedNode();
+		//if (selected_node)
+		//{
+		//	Point3D coords = gui->GetNodeRCCoordinates(selected_node);
+		//	gui->AddDataPoint(selected_node, coords);
+		//}
+		gui->AddCurrentlySelectedNode();
 		gui->EndModellingAction();
+		modellingActive = false;
 		//--gui->SmoothAlongTime();
 	}
 	

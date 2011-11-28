@@ -245,9 +245,13 @@ public:
 	 * @param	position		   	The position.
 	 * @param	time			   	The time.
 	 */
-	void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position, double time)
+	//void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position, double time)
+	//{
+	//	modeller_->AddDataPoint(dataPointID, position, time);
+	//}
+	void AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 	{
-		modeller_->AddDataPoint(dataPointID, position, time);
+		modeller_->AddModellingPoint(region, node_id, position, time);
 	}
 
 	/**

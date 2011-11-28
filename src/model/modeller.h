@@ -72,7 +72,8 @@ public:
 	 * @param	coord			   	The coordinate.
 	 * @param	time			   	The time.
 	 */
-	void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	//void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	void AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time);
 
 	/**
 	 * Move data point.
@@ -138,7 +139,7 @@ public:
 	 *
 	 * @return	The data points.
 	 */
-	std::vector<DataPoint> GetDataPoints() const;
+	std::vector<ModellingPoint> GetDataPoints() const;
 
 	/**
 	 * Sets a data points.
@@ -257,7 +258,7 @@ private:
 	 *
 	 * @return	The fitted plane.
 	 */
-	Plane FitPlaneToBasePlanePoints(const std::vector<DataPoint>& basePlanePoints, const Vector3D& xAxis) const;
+	Plane FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& basePlanePoints, const Vector3D& xAxis) const;
 
 	/**
 	 * Fit model.

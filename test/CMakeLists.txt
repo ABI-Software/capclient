@@ -102,6 +102,7 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
 	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
+	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/capclientwindowheartmodel.cpp
 	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
