@@ -35,10 +35,9 @@ const int KEYCODE_A = 65;
 const int KEYCODE_D = 68;
 const int KEYCODE_E = 69;
 
-int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer, 
-						  struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
+int input_callback_modelling_setup(Cmiss_scene_viewer_id scene_viewer, 
+	struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
 {
-	static bool modellingActive = false;
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
 	//dbg("input_callback() : input_type = " + toString(event_type));
@@ -72,28 +71,43 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	int modifier_flags_int = static_cast<int>(modifier_flags);
 	if (modifier_flags_int & CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL)
 	{
-		//gui->AddCurrentlySelectedNode();
-		if (modellingActive)
-			gui->AddCurrentlySelectedNode();
+		return 1;
+	}
+	
+	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
+	{
+		gui->StartModellingAction();
+	}
+
+	return 1;
+}
+
+int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer, 
+	struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
+{
+	Cmiss_scene_viewer_input_event_type event_type;
+	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
+	//dbg("input_callback() : input_type = " + toString(event_type));
+
+	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
+
+	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
+	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);
+
+	int modifier_flags_int = static_cast<int>(modifier_flags);
+	if (modifier_flags_int & CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL)
+	{
 		gui->EndModellingAction();
-		modellingActive = false;
 		return 1;
 	}
 	
 	//double time = gui->GetCurrentTime(); // TODO REVISE
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
 	{
-		int button_number = Cmiss_scene_viewer_input_get_button_number(input);
-		// Select node or create one
-		//dbg("Mouse clicked, time = " + toString(time));
-		//dbg("Mouse button number = " + toString(button_number));
-		
-		gui->StartModellingAction();
-		modellingActive = true;
-		
+		gui->AddCurrentlySelectedNode();
 	}
-	//else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
-	//{
+	else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
+	{
 	//	// Move node		
 	//	if (!selectedNode)
 	//	{
@@ -108,20 +122,11 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	//	
 	//	//		cout << "Move coord = " << coords << endl;
 	//	gui->MoveDataPoint(selectedNode, coords);
-	//}
+	//--	gui->MoveCurrentlySelectedNode();
+	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
 	{
-		//dbg("Mouse released");
-		//dbg("node location : " + toString(coords));
-		//Cmiss_node_id selected_node = gui->GetCurrentlySelectedNode();
-		//if (selected_node)
-		//{
-		//	Point3D coords = gui->GetNodeRCCoordinates(selected_node);
-		//	gui->AddDataPoint(selected_node, coords);
-		//}
-		gui->AddCurrentlySelectedNode();
 		gui->EndModellingAction();
-		modellingActive = false;
 		//--gui->SmoothAlongTime();
 	}
 	

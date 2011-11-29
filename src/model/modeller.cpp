@@ -469,7 +469,7 @@ void Modeller::ChangeMode(ModellingMode* newMode)
 	currentModellingMode_->PerformEntryAction();
 }
 
-std::vector<ModellingPoint> Modeller::GetDataPoints() const
+std::vector<ModellingPoint> Modeller::GetModellingPoints() const
 {
 	std::vector<ModellingPoint> modellingPoints;
 	

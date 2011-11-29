@@ -135,26 +135,18 @@ public:
 	ModellingModeGuidePoints* GetModellingModeGuidePoints();
 
 	/**
-	 * Gets the data points.
+	 * Gets the modelling points.
 	 *
-	 * @return	The data points.
+	 * @return	The modelling points.
 	 */
-	std::vector<ModellingPoint> GetDataPoints() const;
+	std::vector<ModellingPoint> GetModellingPoints() const;
 
 	/**
-	 * Sets a data points.
+	 * Sets data points is used for feeding in data points read in from external files.
 	 *
 	 * @param [in,out]	allDataPoints	all data points.
 	 */
-	void SetDataPoints(std::vector<DataPoint>& allDataPoints); // this is used for feeding in data points read in from external files
-
-//	void SetApex(const std::vector<DataPoint>& apex);
-//	
-//	void SetBase(const std::vector<DataPoint>& base);
-//	
-//	void SetRVInsertionPoints(const std::map<Cmiss_node*, DataPoint>& rvInserts);
-//	
-//	void SetBasePlanePoints(const std::map<Cmiss_node*, DataPoint>& rvInserts);
+	void SetDataPoints(std::vector<DataPoint>& allDataPoints);
 
 	/**
 	 * Align model.

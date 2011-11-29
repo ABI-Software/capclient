@@ -136,7 +136,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		r = Cmiss_field_module_define_field(field_module, "time", "time_value");
 		r = Cmiss_field_module_define_field(field_module, "visibility_control_field", "constant 1");
 		std::string label = regionName + "_label";
-		std::string label_command = "string_constant " + regionName;
+		std::string label_command = "string_constant \'    " + regionName + "\'";
 		r = Cmiss_field_module_define_field(field_module, label.c_str(), label_command.c_str());
 		//r = Cmiss_field_module_define_field(field_module, "invisible_control_field", "constant 0");
 		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
@@ -150,7 +150,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 			material = "pink";
 
 		//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-		std::string node_command = "coordinate coordinates LOCAL glyph sphere general size \"6*6*6\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
+		std::string node_command = "coordinate coordinates LOCAL glyph sphere general size \"6*6*6\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label coordinates;";
 		Cmiss_graphic_define(node_graphic, node_command.c_str());
 		//if (r)
 		//{

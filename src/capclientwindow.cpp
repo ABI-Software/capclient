@@ -1083,11 +1083,12 @@ void CAPClientWindow::OnToggleModelling(wxCommandEvent& event)
 		button_Model->SetLabel(wxT("End Modelling"));
 		mainApp_->StartModelling();
 		
-		cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this), true);
+		cmguiPanel_->SetCallback(input_callback_modelling_setup, static_cast<void *>(this), true);
 
 		// Really important that this callback comes first, because otherwise the callback above
 		// will never fire properly
 		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
+		cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this));
 		SetStatusTextString("currentmode", "Modelling mode");
 	}
 	else

@@ -198,6 +198,87 @@ void CAPXMLFileHandler::ConstructCAPXMLFile(const LabelledSlices& labelledSlices
 		xmlFile_.AddExnode(exnode);
 	}
 }
+void CAPXMLFileHandler::Clear()
+{
+	xmlFile_.ClearInputAndOutput();
+}
+
+void CAPXMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
+{
+	if (labelledSlices.empty())
+	{
+		dbg("CAPXMLFileHandler::AddLabelledSlices : No dicom files to construct CAPXMLFile from");
+		return;
+	}
+	
+	std::string studyIUid = labelledSlices[0].GetDICOMImages()[0]->GetStudyInstanceUID();
+	xmlFile_.SetStudyInstanceUID(studyIUid);
+	std::string const& filename = xmlFile_.GetFilename();
+	size_t positionOfLastSlash = filename.find_last_of("/\\");
+//	std::cout << "positionOfLastSlash = " << positionOfLastSlash << std::endl;
+	std::string name = filename.substr(positionOfLastSlash+1);
+	xmlFile_.SetName(name);
+	xmlFile_.SetChamber("LV");
+	
+	// CAPXMLInput
+	int slice = 0;
+	
+	typedef std::pair<Vector3D, Vector3D> Orientation;
+	BOOST_FOREACH(const LabelledSlice& labelledSlice, labelledSlices)
+	{
+		std::string const& label = labelledSlice.GetLabel();
+		std::vector<DICOMPtr> const& dicomFiles = labelledSlice.GetDICOMImages();
+		
+		int frame = 0;
+		BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
+		{
+			CAPXMLFile::Image image;
+			image.sopiuid = dicomFile->GetSopInstanceUID();
+			image.seriesiuid = dicomFile->GetSeriesInstanceUID();
+			image.label = label;
+			image.frame = frame++;
+			image.slice = slice;
+			image.imageOrientation = boost::shared_ptr<Orientation>();
+			image.imagePosition = boost::shared_ptr<Point3D>();;
+			image.points = std::vector<CAPXMLFile::Point>();
+			// if the images have been shifted for mis-registraion correction,
+			// put the new position and orientation in each image element
+			// TODO : This is really a per-slice attribute rather than per image.
+			//        Need to change the xml file schema accordingly ??
+			
+			if (dicomFile->IsShifted())
+			{
+				Point3D const& pos = dicomFile->GetImagePosition();
+				image.imagePosition = boost::make_shared<Point3D>(pos);
+			}
+
+			if (dicomFile->IsRotated())
+			{
+				Orientation ori = dicomFile->GetImageOrientation();
+				image.imageOrientation = boost::make_shared<Orientation>(ori);
+			}
+			
+//			BOOST_FOREACH(ContourPtr& contour, dicomFile->GetContours())
+//			{	
+//				std::string const& filename = contour->GetFilename();
+//				size_t positionOfLastSlash = filename.find_last_of("/\\");
+//				std::string baseName = filename.substr(positionOfLastSlash + 1);
+//				int number = contour->GetContourNumber();
+//				CAPXMLFile::ContourFile contourFile = {baseName, number};
+//				image.contourFiles.push_back(contourFile);
+//			}
+			
+			//image.points; // FIX?
+			xmlFile_.AddImage(image);
+		}
+		slice++;
+	}
+	
+}
+
+void CAPXMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& modellingPoints)
+{
+}
 
 namespace
 {
