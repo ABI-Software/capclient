@@ -605,6 +605,27 @@ std::vector<DataPoint> CAPXMLFileHandler::GetDataPoints() const
 	return dataPoints;
 }
 
+ModellingPoints CAPXMLFileHandler::GetModellingPoints() const
+{
+	ModellingPoints modellingPoints;
+	CAPXMLFile::Input& input = xmlFile_.GetInput();
+	std::vector<CAPXMLFile::Point>::const_iterator cit = input.points.begin();
+	for (; cit != input.points.end(); ++cit)
+	{
+		const CAPXMLFile::Point& p = *cit;
+		double coords[3];
+		coords[0] = (*p.values.find("x")).second.value;
+		coords[1] = (*p.values.find("y")).second.value;
+		coords[2] = (*p.values.find("z")).second.value;
+
+		Point3D position(coords);
+		ModellingPoint mp(p.type, 0, -1, position, p.time);
+		modellingPoints.push_back(mp);
+	}
+
+	return modellingPoints;
+}
+
 void CAPXMLFileHandler::AddProvenanceDetail(std::string const& comment)
 {
 	CAPXMLFile::ProvenanceDetail provenanceDetail;

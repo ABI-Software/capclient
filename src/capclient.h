@@ -130,9 +130,9 @@ public:
 	 *
 	 * @param	mode	The mode.
 	 */
-	void ChangeModellingMode(int mode)
+	void ChangeModellingMode(ModellingEnum mode)
 	{
-		modeller_->ChangeMode((ModellingEnum) mode);//FIX type unsafe
+		modeller_->ChangeMode(mode);
 		gui_->UpdateModeSelectionUI(mode);
 	}
 	

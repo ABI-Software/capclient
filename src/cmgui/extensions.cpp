@@ -251,6 +251,22 @@ Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext, double x,
 	return node;
 }
 
+Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double y, double z)
+{
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+	Cmiss_field_module_begin_change(field_module);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_node_template_id node_template1 = Cmiss_nodeset_create_node_template(nodeset);
+	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template1);
+	Cmiss_field_module_end_change(field_module);
+	
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_node_template_destroy(&node_template1);
+	Cmiss_field_module_destroy(&field_module);
+
+	return node;
+}
+
 void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName)
 {
 	const int element_node_count = 4;

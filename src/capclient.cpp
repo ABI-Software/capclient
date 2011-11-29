@@ -280,19 +280,19 @@ void CAPClient::OpenModel(const std::string& filename)
 	//TODO: Load cardiac annotations
 	// LoadCardiacAnnotations(cardiacAnnotations);
 	
-	std::vector<DataPoint> dataPoints = xmlFileHandler.GetDataPoints();
+	ModellingPoints modellingPoints = xmlFileHandler.GetModellingPoints();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	dbg("number of exnodeFilenames = " + toString(exnodeFileNames.size()));
 	if (exnodeFileNames.empty())
 	{
-		if(!dataPoints.empty())
+		if(!modellingPoints.empty())
 		{
 			// This means no output element is defined
 			InitializeHeartModelTemplate();
 			CreateModeller();
 			
-			dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(dataPoints.size()));
-			modeller_->SetDataPoints(dataPoints);
+			dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(modellingPoints.size()));
+			gui_->SetModellingPoints(modellingPoints);
 			// FIXME memory is prematurely released when ok button is pressed from the following window
 			// Suppress this feature for now
 			//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
@@ -338,10 +338,9 @@ void CAPClient::OpenModel(const std::string& filename)
 	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
 	gui_->SetHeartModelTransformation(m);
+	gui_->SetModellingPoints(modellingPoints);
 
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
-
-	//--modeller_->SetDataPoints(dataPoints);
 
 	UpdateMII();
 	

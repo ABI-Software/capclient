@@ -3,6 +3,9 @@
 #ifndef MODELLINGPOINT_H_
 #define MODELLINGPOINT_H_
 
+#include <vector>
+#include <map>
+
 extern "C"
 {
 #include <api/cmiss_region.h>
@@ -110,6 +113,16 @@ namespace cap
 		double weight_; /**< The weight */
 		double time_;   /**< The time */
 	};
+
+	/**
+	 * Defines an alias representing the modelling points.
+	 */
+	typedef std::map<int, ModellingPoint> ModellingPointsMap;
+
+	/**
+	 * Defines an alias representing the modelling points.
+	 */
+	typedef std::vector<ModellingPoint> ModellingPoints;
 
 }
 

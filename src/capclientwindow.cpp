@@ -37,8 +37,8 @@ extern "C"
 #include "UserCommentDialog.h"
 #include "CAPBinaryVolumeParameterDialog.h"
 #include "cmgui/extensions.h"
-#include "material.h"
 #include "cmgui/callbacks.h"
+#include "material.h"
 #include "ui/htmlwindow.h"
 #include "textureslice.h"
 
@@ -794,7 +794,7 @@ void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 	dbg(std::string("MODE = ") + choice_Mode->GetStringSelection().c_str());
 
 	int selectionIndex = choice_Mode->GetSelection();
-	mainApp_->ChangeModellingMode(selectionIndex);
+	mainApp_->ChangeModellingMode(static_cast<ModellingEnum>(selectionIndex));
 }
 
 void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
@@ -908,6 +908,97 @@ void CAPClientWindow::ResetModeChoice()
 		choice_Mode->Delete(i);
 	}
 	choice_Mode->SetSelection(0);
+}
+
+void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
+{
+	ModellingPoints::const_iterator cit = modellingPoints.begin();
+	ModellingPoints apex;
+	ModellingPoints base;
+	ModellingPoints rvInserts;
+	ModellingPoints basePlanePoints;
+	ModellingPoints guidePoints;
+	for (; cit != modellingPoints.end(); ++cit)
+	{
+		ModellingPoint mp = *cit;
+		const std::string& modelling_mode = ModellingEnumStrings.find(mp.GetModellingPointType())->second;
+		Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
+
+		switch (mp.GetModellingPointType())
+		{
+		case APEX:
+			apex.push_back(mp);
+			break;
+		case BASE:
+			base.push_back(mp);
+			break;
+		case RV:
+			rvInserts.push_back(mp);
+			break;
+		case BASEPLANE:
+			basePlanePoints.push_back(mp);
+			break;
+		case GUIDEPOINT:
+			guidePoints.push_back(mp);
+			break;
+		default:
+			dbg("Unknown modelling point type, not setting.");
+		}
+	}
+
+	cit = apex.begin();
+	for (; cit != apex.end(); ++cit)
+	{
+		ModellingPoint mp = *cit;
+		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+	}
+	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+
+	cit = base.begin();
+	for (; cit != base.end(); ++cit)
+	{
+		ModellingPoint mp = *cit;
+		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+	}
+	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+
+	cit = rvInserts.begin();
+	for (; cit != rvInserts.end(); ++cit)
+	{
+		ModellingPoint mp = *cit;
+		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+	}
+	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+
+	cit = basePlanePoints.begin();
+	for (; cit != basePlanePoints.end(); ++cit)
+	{
+		ModellingPoint mp = *cit;
+		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+	}
+	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+
+	cit = guidePoints.begin();
+	for (; cit != guidePoints.end(); ++cit)
+	{
+		ModellingPoint mp = *cit;
+		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+	}
+	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+}
+
+void CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& position, double time)
+{
+	const std::string& modelling_mode = ModellingEnumStrings.find(type)->second;
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, modelling_mode.c_str());
+	Cmiss_region_destroy(&root_region);
+	Cmiss_node_id node = Cmiss_region_create_node(region, position.x, position.y, position.z);
+	int node_id = Cmiss_node_get_identifier(node);
+	mainApp_->ChangeModellingMode(type);
+	mainApp_->AddModellingPoint(region, node_id, position, time);
+	Cmiss_region_destroy(&region);
+	Cmiss_node_destroy(&node);
 }
 
 void CAPClientWindow::StartModellingAction()

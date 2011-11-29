@@ -31,16 +31,6 @@ class Modeller;
 typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 
 /**
- * Defines an alias representing the modelling points.
- */
-typedef std::map<int, ModellingPoint> ModellingPointsMap;
-
-/**
- * Defines an alias representing the modelling points.
- */
-typedef std::vector<ModellingPoint> ModellingPoints;
-
-/**
  * Modelling mode.  This is an abstract base class for the modelling modes. Implementation of
  * FSM using the State Pattern.
  */
