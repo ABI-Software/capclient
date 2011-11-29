@@ -469,38 +469,33 @@ void Modeller::ChangeMode(ModellingMode* newMode)
 
 std::vector<ModellingPoint> Modeller::GetModellingPoints() const
 {
-	std::vector<ModellingPoint> modellingPoints;
+	ModellingPoints modellingPoints;
+	ModellingPoints::const_iterator cit;
 	
-	typedef std::vector<ModellingPoint> Vector;
-	const ModellingPointsMap& bps = modellingModeBasePlane_.GetBasePlanePoints();
+	ModellingPoints apex = modellingModeApex_.GetModellingPoints();
+	cit = apex.begin();
+	for (; cit != apex.end(); ++cit)
+		modellingPoints.push_back(*cit);
 
-	if (!bps.empty())
-	{
-		// This means the user has reached the guide points modelling stage
-		// i.e the model has been initialised.
+	ModellingPoints base = modellingModeBase_.GetModellingPoints();
+	cit = base.begin();
+	for (; cit != base.end(); ++cit)
+		modellingPoints.push_back(*cit);
 
-		dbg("Warning: Modeller::GetDataPoints()  not adding apex modelling point!!");
-		modellingPoints.push_back(modellingModeApex_.GetApex());
-		modellingPoints.push_back(modellingModeBase_.GetBase());
+	ModellingPoints rvInserts = modellingModeRV_.GetModellingPoints();
+	cit = rvInserts.begin();
+	for (; cit != rvInserts.end(); ++cit)
+		modellingPoints.push_back(*cit);
 
-		//--typedef std::map<Cmiss_node*, DataPoint> Map;
-		//--const ModellingPointsMap& rvInsert = modellingModeRV_.GetRVInsertPoints();
+	ModellingPoints basePlanePts = modellingModeBasePlane_.GetModellingPoints();
+	cit = basePlanePts.begin();
+	for (; cit != basePlanePts.end(); ++cit)
+		modellingPoints.push_back(*cit);
 
-		//--std::transform(rvInsert.begin(), rvInsert.end(), std::back_inserter(dataPoints),
-		//--		boost::bind(&ModellingPointsMap::value_type::second, _1));
-
-		//--std::copy(bps.begin(), bps.end(), std::back_inserter(dataPoints));
-		//--Vector const& gps = modellingModeGuidePoints_.GetGuidePoints();
-		//--std::copy(gps.begin(), gps.end(), std::back_inserter(dataPoints));
-	}
-	else
-	{
-		// this means the model has not been initialised.
-		// return an empty vector
-		// TODO might make more sense to just return the data points that have been put on
-		// even if the model has not been initialised (i.e guide point mode has not been reached)
-		modellingPoints.clear(); // this is actually redundant but left here for clarity
-	}
+	ModellingPoints guidePts = modellingModeGuidePoints_.GetModellingPoints();
+	cit = guidePts.begin();
+	for (; cit != guidePts.end(); ++cit)
+		modellingPoints.push_back(*cit);
 
 	return modellingPoints;
 }
