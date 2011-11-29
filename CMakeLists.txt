@@ -132,6 +132,7 @@ SET( APP_SRCS
 	src/labelledtexture.cpp
 	src/capclientwindow.cpp
 	src/capclientwindowheartmodel.cpp
+	src/standardheartdefinitions.cpp
 	src/PlatformInfo.cpp
 	src/capclient.cpp
 	src/textureslice.cpp

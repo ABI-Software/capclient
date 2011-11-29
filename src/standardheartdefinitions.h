@@ -2,6 +2,8 @@
 #ifndef _STANDARDHEARTDEFINITIONS_H
 #define _STANDARDHEARTDEFINITIONS_H
 
+#include <map>
+
 namespace cap
 {
 
@@ -19,16 +21,29 @@ enum SurfaceType
 /**
  * Enum describing points on the heart.
  */
-enum ModellingPointType
+enum ModellingEnum
 {
 	APEX,
 	BASE,
 	RV,
 	BASEPLANE,
 	GUIDEPOINT,
-	UNDEFINED_DATA_POINT_TYPE,
-	MAX_PATA_POINT_TYPE
+	UNDEFINED_MODELLING_ENUM
 };
+
+/**
+ * Defines an alias representing the modelling enum map.
+ */
+typedef std::map<ModellingEnum, std::string> ModellingEnumMap;
+
+/**
+ * Initialises the modelling enum strings.
+ *
+ * @return	A map of modelling enum to string.
+ */
+ModellingEnumMap InitModellingEnumStrings();
+
+static const ModellingEnumMap ModellingEnumStrings = InitModellingEnumStrings(); /**< The modelling enum strings */
 
 }
 

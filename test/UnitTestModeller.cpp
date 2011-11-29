@@ -91,7 +91,7 @@ TEST(Modeller, AddApexPoints)
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), coord1, 0.0);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), coord2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::BASE, modeller.GetCurrentMode());
+	EXPECT_EQ(BASE, modeller.GetCurrentMode());
 	Cmiss_node_destroy(&node1);
 	Cmiss_node_destroy(&node2);
 	Cmiss_region_destroy(&region);
@@ -120,7 +120,7 @@ TEST(Modeller, AddBasePoints)
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), coord2, 0.0);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), coord3, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::RV, modeller.GetCurrentMode());
+	EXPECT_EQ(RV, modeller.GetCurrentMode());
 
 	Cmiss_node_destroy(&node1);
 	Cmiss_node_destroy(&node2);
@@ -154,11 +154,11 @@ TEST(Modeller, AddRVPoints)
 	Point3D coord3(9, 8, 7);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), coord3, 0.0);
 	EXPECT_FALSE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::RV, modeller.GetCurrentMode());
+	EXPECT_EQ(RV, modeller.GetCurrentMode());
 	Point3D coord4(9, 10, 7);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), coord4, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
+	EXPECT_EQ(BASEPLANE, modeller.GetCurrentMode());
 
 	Cmiss_node_destroy(&node1);
 	Cmiss_node_destroy(&node2);
@@ -205,11 +205,11 @@ TEST(Modeller, AddBasePlanePoints)
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), rv1, 0.0);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), rv2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
+	EXPECT_EQ(BASEPLANE, modeller.GetCurrentMode());
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node5), bp1, 0.25);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node6), bp2, 0.25);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
+	EXPECT_EQ(GUIDEPOINT, modeller.GetCurrentMode());
 
 	modeller.AlignModel();
 
@@ -254,13 +254,13 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 
 	CAPClient mcc;
 	Modeller modeller(&mcc);
-	modeller.ChangeMode(Modeller::BASEPLANE);
+	modeller.ChangeMode(BASEPLANE);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), bp1, 0.2);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), bp2, 0.2);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), bp1, 0.4);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.42);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
+	EXPECT_EQ(GUIDEPOINT, modeller.GetCurrentMode());
 
 
 	Cmiss_node_destroy(&node1);
@@ -314,13 +314,13 @@ TEST(Modeller, AlignModel)
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), rv1, 0.0);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), rv2, 0.0);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::BASEPLANE, modeller.GetCurrentMode());
+	EXPECT_EQ(BASEPLANE, modeller.GetCurrentMode());
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node5), bp1, 0.5);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node6), bp2, 0.5);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node7), bp3, 0.8);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node8), bp4, 0.9);
 	EXPECT_TRUE(modeller.OnAccept());
-	EXPECT_EQ(Modeller::GUIDEPOINT, modeller.GetCurrentMode());
+	EXPECT_EQ(GUIDEPOINT, modeller.GetCurrentMode());
 
 	modeller.AlignModel();
 

@@ -21,7 +21,7 @@ extern "C" {
 namespace cap
 {
 
-DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, ModellingPointType dataPointType, double time, double weight)
+DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, ModellingEnum dataPointType, double time, double weight)
 	: cmissNode_(Cmiss_node_access(node))
 	, coordinate_(coord)
 	, time_(time)
@@ -103,12 +103,12 @@ void DataPoint::SetVisible(bool visibility)
 	//--Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
 }
 
-ModellingPointType DataPoint::GetDataPointType() const
+ModellingEnum DataPoint::GetDataPointType() const
 {
 	return dataPointType_;
 }
 
-void DataPoint::SetDataPointType(ModellingPointType type)
+void DataPoint::SetDataPointType(ModellingEnum type)
 {
 	dataPointType_ = type;
 }

@@ -19,20 +19,31 @@
 namespace cap
 {
 
+/**
+ * Capxml file.
+ */
 class CAPXMLFile
 {
 public:
+
+	/**
+	 * Value.
+	 */
 	struct Value
 	{
 		double value;
 		std::string variable; // lambda, mu, theta or x, y, z
 	};
 
+	/**
+	 * Point.
+	 */
 	struct Point
 	{
 		std::map<std::string, Value> values;
 		SurfaceType surface;
-		ModellingPointType type;
+		ModellingEnum type;
+		double time;
 	};
 
 //	struct ContourFile
@@ -41,6 +52,9 @@ public:
 //		int number;
 //	};
 
+	/**
+	 * Image.
+	 */
 	struct Image
 	{
 		std::vector<Point> points;
@@ -54,12 +68,18 @@ public:
 		boost::shared_ptr<std::pair<Vector3D, Vector3D> > imageOrientation;
 	};
 
+	/**
+	 * Exnode.
+	 */
 	struct Exnode
 	{
 		std::string exnode;
 		int frame;
 	};
 
+	/**
+	 * Provenance detail.
+	 */
 	struct ProvenanceDetail
 	{
 		std::string date;
@@ -74,39 +94,61 @@ public:
 		std::string comment;
 	};
 
+	/**
+	 * Contour point.
+	 */
 	struct ContourPoint
 	{
 		double x,y;
 	};
-	
+
+	/**
+	 * Defines an alias representing the transformation matrix.
+	 */
 	typedef gtMatrix TransformationMatrix;
-	
+
+	/**
+	 * Contour.
+	 */
 	struct Contour
 	{
 		size_t number;
 		std::vector<ContourPoint> contourPoints;
 		TransformationMatrix transformationMatrix;
 	};
-	
+
+	/**
+	 * Image contours.
+	 */
 	struct ImageContours
 	{
 		std::string sopiuid;
 		std::vector<Contour> contours;
 	};
-	
+
+	/**
+	 * Study contours.
+	 */
 	struct StudyContours
 	{
 		std::string studyiuid;
 		std::vector<ImageContours> listOfImageContours;
 	};
-	
+
+	/**
+	 * Input.
+	 */
 	struct Input
 	{
 		std::vector<Image> images;
+		std::vector<Point> points;
 		StudyContours studyContours;
 		CardiacAnnotation cardiacAnnotation;
 	};
 
+	/**
+	 * Output.
+	 */
 	struct Output
 	{
 		double focalLength;
@@ -116,112 +158,229 @@ public:
 		std::string elemFileName;
 	};
 
+	/**
+	 * Documentation.
+	 */
 	struct Documentation
 	{
 		std::vector<ProvenanceDetail> provenanceDetails;
 	};
-	
+
+	/**
+	 * Constructor.
+	 *
+	 * @param	filename	Filename of the file.
+	 */
 	explicit CAPXMLFile(const std::string& filename);
+
+	/**
+	 * Destructor.
+	 */
 	~CAPXMLFile();// need this so compiler wont generate dtor
-	
+
+	/**
+	 * Reads the file.
+	 */
 	void ReadFile();
+
+	/**
+	 * Writes a file.
+	 *
+	 * @param	filename	Filename of the file.
+	 */
 	void WriteFile(std::string const & filename) const;
-	
+
+	/**
+	 * Adds an image.
+	 *
+	 * @param	image	The image.
+	 */
 	void AddImage(Image const& image);
 	void AddPointToImage(std::string const& imageSopiuid, Point const& point);
+
+	/**
+	 * Adds a point.
+	 *
+	 * @param	point	The point.
+	 */
+	void AddPoint(const Point& point);
 //	void AddContourFileToImage(std::string const& imageSopiuid, ContourFile const& contourFile);
-	
+
+	/**
+	 * Adds an exnode.
+	 *
+	 * @param	exnode	The exnode.
+	 */
 	void AddExnode(Exnode const& exnode);
 
+	/**
+	 * Gets the exnode file names.
+	 *
+	 * @return	The exnode file names.
+	 */
 	std::vector<std::string> GetExnodeFileNames() const;
 
+	/**
+	 * Gets the exelem file name.
+	 *
+	 * @return	The exelem file name.
+	 */
 	std::string const& GetExelemFileName() const;
 
+	/**
+	 * Gets the transformation matrix.
+	 *
+	 * @param [in,out]	mat	The mat.
+	 */
 	void GetTransformationMatrix(gtMatrix& mat) const;
 
+	/**
+	 * Gets the focal length.
+	 *
+	 * @return	The focal length.
+	 */
 	double GetFocalLength() const;
 
 //	std::vector<Image> const& GetImages() const
 //	{
 //		return input_.images;
 //	}
-	
+
+	/**
+	 * Clears the input and output.
+	 */
 	void ClearInputAndOutput()
 	{
 		input_.images.clear();
+		input_.points.clear();
 //		input_.cardiacAnnotation = CardiacAnnotation();
 //		input_.studyContours = StudyContours(); contour does not change
 		output_.exnodes.clear();
 		output_.elemFileName = "";
 	}
-	
+
+	/**
+	 * Gets the name.
+	 *
+	 * @return	The name.
+	 */
 	std::string const& GetName() const
 	{
 		return name_;
 	}
-	
+
+	/**
+	 * Sets a name.
+	 *
+	 * @param	name	The name.
+	 */
 	void SetName(std::string const& name)
 	{
 		name_ = name;
 	}
-	
+
+	/**
+	 * Gets the filename.
+	 *
+	 * @return	The filename.
+	 */
 	std::string const& GetFilename() const
 	{
 		return filename_;
 	}
-	
+
+	/**
+	 * Sets a filename.
+	 *
+	 * @param	filename	Filename of the file.
+	 */
 	void SetFilename(std::string const& filename)
 	{
 		filename_ = filename;
 	}
-	
+
+	/**
+	 * Gets the chamber.
+	 *
+	 * @return	The chamber.
+	 */
 	std::string const& GetChamber() const
 	{
 		return chamber_;
 	}
-	
+
+	/**
+	 * Sets a chamber.
+	 *
+	 * @param	chamber	The chamber.
+	 */
 	void SetChamber(std::string const& chamber)
 	{
 		chamber_ = chamber;
 	}
-	
+
+	/**
+	 * Gets the study instance uid.
+	 *
+	 * @return	The study instance uid.
+	 */
 	std::string const& GetStudyInstanceUID() const
 	{
 		return studyIUid_;
 	}
-	
+
+	/**
+	 * Sets a study instance uid.
+	 *
+	 * @param	uid	The uid.
+	 */
 	void SetStudyInstanceUID(std::string const& uid)
 	{
 		studyIUid_ = uid;
 	}
-	
+
+	/**
+	 * Sets a cardiac annotation.
+	 *
+	 * @param	anno	The anno.
+	 */
 	void SetCardiacAnnotation(CardiacAnnotation const& anno)
 	{
 		input_.cardiacAnnotation = anno;
 	}
 	
 private:
-	
+
+	/**
+	 * Gets the input.
+	 *
+	 * @return	The input.
+	 */
 	Input& GetInput()
 	{
 		return input_;
 	}
-	
+
+	/**
+	 * Gets the output.
+	 *
+	 * @return	The output.
+	 */
 	Output& GetOutput()
 	{
 		return output_;
 	}
 	
-	std::string filename_;
-	std::string chamber_; // LV
-	std::string name_; // 
-	std::string studyIUid_; //
+	std::string filename_;  /**< Filename of the file */
+	std::string chamber_;   /**< The chamber LV */
+	std::string name_;  /**< The name */
+	std::string studyIUid_; /**< The study i uid */
 
-	Input input_;
-	Output output_;
-	Documentation documentation_;
+	Input input_;   /**< The input */
+	Output output_; /**< The output */
+	Documentation documentation_;   /**< The documentation */
 	
-	friend class CAPXMLFileHandler;
+	friend class CAPXMLFileHandler; /**< The capxml file handler */
 };
 
 } // end namespace cap

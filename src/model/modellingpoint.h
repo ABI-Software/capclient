@@ -10,6 +10,7 @@ extern "C"
 }
 
 #include "math/algebra.h"
+#include "standardheartdefinitions.h"
 
 namespace cap
 {
@@ -30,11 +31,13 @@ namespace cap
 		/**
 		 * Constructor.
 		 *
-		 * @param	region  	The region.
-		 * @param	node_id 	Identifier for the node.
-		 * @param	position	The position.
+		 * @param	modellingPointType	Type of the modelling point.
+		 * @param	region			  	The region.
+		 * @param	node_id			  	Identifier for the node.
+		 * @param	position		  	The position.
+		 * @param	time			  	(optional) the time.
 		 */
-		ModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time = -1.0);
+		ModellingPoint(ModellingEnum modellingPointType, Cmiss_region_id region, int node_id, const Point3D& position, double time = -1.0);
 
 		/**
 		 * Destructor.
@@ -92,7 +95,15 @@ namespace cap
 		 */
 		double GetTime() const { return time_; }
 
+		/**
+		 * Gets the modelling point type.
+		 *
+		 * @return	The modelling point type.
+		 */
+		ModellingEnum GetModellingPointType() const { return modellingPointType_; }
+
 	protected:
+		ModellingEnum modellingPointType_; /**< Type of the modelling point */
 		Cmiss_region_id region_;	/**< The region */
 		int node_id_;   /**< Identifier for the node */
 		Point3D position_;  /**< The position */

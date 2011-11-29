@@ -51,7 +51,7 @@ void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 	//slice
 	xmlChar* typeCStr = xmlGetProp(cur, (xmlChar const*)"type"); 
 //	std::cout << "type = " << typeCStr << '\n';
-	ModellingPointType type;
+	ModellingEnum type;
 	std::string typeStr((char*)typeCStr);
 	if (typeStr == "apex")
 	{
@@ -491,6 +491,9 @@ void ConstructPointSubtree(CAPXMLFile::Point const &point, xmlNodePtr imageNode)
 		throw std::logic_error("Invalid point type");
 	}
 	xmlNewProp(pointNode, BAD_CAST "type", typeStr);
+	std::stringstream timeStrStream;
+	timeStrStream << point.time;
+	xmlNewProp(pointNode, BAD_CAST "time", timeStrStream.str().c_str());
 	
 	std::for_each(point.values.begin(), point.values.end(), 
 				boost::bind(ConstructValueNode, _1, pointNode));
@@ -599,7 +602,7 @@ void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 	}
 
 	std::for_each(image.points.begin(), image.points.end(), 
-			boost::bind(ConstructPointSubtree, _1, imageNode));
+		boost::bind(ConstructPointSubtree, _1, imageNode));
 	
 }
 
@@ -743,7 +746,10 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	//CAPXMLInput
 	xmlNodePtr inputNode = xmlNewChild(root_node, NULL , BAD_CAST "Input", NULL);	
 	std::for_each(input_.images.begin(), input_.images.end(),
-			boost::bind(ConstructImageSubtree, _1, inputNode));
+		boost::bind(ConstructImageSubtree, _1, inputNode));
+	std::for_each(input_.points.begin(), input_.points.end(), 
+		boost::bind(ConstructPointSubtree, _1, inputNode));
+
 	ContructStudyContoursSubtree(input_.studyContours, inputNode);
 	if (!input_.cardiacAnnotation.imageAnnotations.empty())
 	{
@@ -811,6 +817,11 @@ void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& p
 		throw std::invalid_argument("No image with the requested uid : " + imageSopiuid);
 	}
 	itr->points.push_back(point);
+}
+
+void CAPXMLFile::AddPoint(const Point& point)
+{
+	input_.points.push_back(point);
 }
 
 void CAPXMLFile::AddExnode(Exnode const& exnode)

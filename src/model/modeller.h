@@ -35,25 +35,6 @@ class Modeller {
 public:
 
 	/**
-	 * Values that represent ModellingModeEnum.
-	 */
-	enum ModellingModeEnum
-	{
-		APEX,
-		BASE,
-		RV,
-		BASEPLANE,
-		GUIDEPOINT
-	};
-
-	/**
-	 * Defines an alias representing the modelling mode enum map.
-	 */
-	typedef std::map<Modeller::ModellingModeEnum, std::string> ModellingModeEnumMap;
-
-	static const ModellingModeEnumMap ModellingModeStrings; /**< The modelling mode strings */
-
-	/**
 	 * Constructor.
 	 *
 	 * @param	mainApp	An interface to the main application that allows limited interaction.
@@ -173,16 +154,16 @@ public:
 	 *
 	 * @param	mode	The mode.
 	 */
-	void ChangeMode(ModellingModeEnum mode);
+	void ChangeMode(ModellingEnum mode);
 
 	/**
 	 * Gets the current mode.
 	 *
 	 * @return	The current mode.
 	 */
-	ModellingModeEnum GetCurrentMode() const
+	ModellingEnum GetCurrentMode() const
 	{
-		ModellingModeEnum mode;
+		ModellingEnum mode;
 		if (currentModellingMode_ == &modellingModeApex_)
 		{
 			mode = APEX;
@@ -223,16 +204,16 @@ private:
 	 *
 	 * @return	A Modelling mode enum map of enums to strings.
 	 */
-	static ModellingModeEnumMap InitModellingModeStrings()
-	{
-		ModellingModeEnumMap m;
-		m[APEX] = std::string("APEX");
-		m[BASE] = std::string("BASE");
-		m[RV] = std::string("RV");
-		m[BASEPLANE] = std::string("BASEPLANE");
-		m[GUIDEPOINT] = std::string("GUIDEPOINT");
-		return m;
-	}
+	//static ModellingModeEnumMap InitModellingModeStrings()
+	//{
+	//	ModellingModeEnumMap m;
+	//	m[APEX] = std::string("APEX");
+	//	m[BASE] = std::string("BASE");
+	//	m[RV] = std::string("RV");
+	//	m[BASEPLANE] = std::string("BASEPLANE");
+	//	m[GUIDEPOINT] = std::string("GUIDEPOINT");
+	//	return m;
+	//}
 
 	/**
 	 * Updates the time varying data points.
