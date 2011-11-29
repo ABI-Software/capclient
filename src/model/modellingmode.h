@@ -89,7 +89,7 @@ public:
 	 * @param	time			   	The time.
 	 */
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
-
+	virtual void MoveModellingPoint(int node_id, const Point3D& position, double time) {}
 	/**
 	 * Removes the data point.
 	 *
@@ -121,6 +121,7 @@ public:
 	ModellingMode* OnAccept(Modeller& modeller);
 	//virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
+	void MoveModellingPoint(int node_id, const Point3D& position, double time);
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	

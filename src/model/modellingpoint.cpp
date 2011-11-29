@@ -7,6 +7,8 @@ extern "C"
 #include <api/cmiss_field_module.h>
 }
 
+#include "utils/debug.h"
+
 namespace cap
 {
 
@@ -30,11 +32,13 @@ ModellingPoint::ModellingPoint(Cmiss_region_id region, int node_id, const Point3
 
 ModellingPoint::~ModellingPoint(void)
 {
+	//dbg(" ==== ModellingPoint::~ModellingPoint(void)");
 	Cmiss_region_destroy(&region_);
 }
 
 ModellingPoint::ModellingPoint(const ModellingPoint& other)
 {
+	dbg(" ==== ModellingPoint::~ModellingPoint(const ModellingPoint& other)");
 	this->region_ = Cmiss_region_access(other.region_);
 	this->node_id_ = other.node_id_;
 	this->position_ = other.position_;
@@ -44,6 +48,7 @@ ModellingPoint::ModellingPoint(const ModellingPoint& other)
 
 ModellingPoint & ModellingPoint::operator =(const cap::ModellingPoint &rhs)
 {
+	dbg(" ==== ModellingPoint::operator =(const cap::ModellingPoint &rhs)");
 	if (this != &rhs)
 	{
 		this->region_ = Cmiss_region_access(rhs.region_);

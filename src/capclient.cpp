@@ -400,9 +400,11 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	
 	dbg("Warning: CAPClient::SaveModel - not working with modelling points.");
 	//std::vector<DataPoint> const& dataPoints; // -- = modeller_->GetDataPoints();
-	std::vector<DataPoint> dataPoints; // -- = modeller_->GetDataPoints();
+	std::vector<ModellingPoint> modellingPoints = modeller_->GetModellingPoints(); // -- = modeller_->GetDataPoints();
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
-	//--xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
+	//xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
+	xmlFileHandler.AddLabelledSlices(labelledSlices_);
+	xmlFileHandler.AddModellingPoints(modellingPoints);
 	xmlFileHandler.AddProvenanceDetail(userComment);
 	
 	std::string modelName = FileSystem::GetFileNameWOE(dirname);

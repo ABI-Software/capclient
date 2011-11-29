@@ -9,9 +9,10 @@
 #define CAPXMLFILEHANDLER_H_
 
 #include "SliceInfo.h"
-#include "labelledslice.h"
 #include <string>
 
+#include "labelledslice.h"
+#include "model/modellingpoint.h"
 namespace cap
 {
 
@@ -42,6 +43,8 @@ public:
 	void ConstructCAPXMLFile(const LabelledSlices& labelledSlices, 
 							std::vector<DataPoint> const& dataPoints,
 							HeartModel const& model);
+	void AddLabelledSlices(const LabelledSlices& labelledSlices);
+	void AddModellingPoints(const std::vector<ModellingPoint>& modellingPoints);
 	
 	/**
 	 *  Translate the infomation stored in CAPXMLFile into the form to be
@@ -72,6 +75,11 @@ public:
 	 * @param	comment	The comment.
 	 */
 	void AddProvenanceDetail(std::string const& comment);
+
+	/**
+	 * Clears the xmlFile of all input and output information.
+	 */
+	void Clear();
 	
 private:
 	CAPXMLFile& xmlFile_;   /**< The xml file */

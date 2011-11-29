@@ -87,20 +87,36 @@ ModellingMode* ModellingModeApex::OnAccept(Modeller& modeller)
 
 void ModellingModeApex::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 {
+	dbg("Add = " + toString(node_id));
 	if (!apex_.empty())
 	{
-		ModellingPointsMap::iterator itr = apex_.begin();
-		for (;itr != apex_.end(); ++itr)
+		ModellingPointsMap::iterator itr = apex_.find(node_id);//begin();
+		if (itr == apex_.end())
 		{
-			itr->second.Remove();
+			for (itr = apex_.begin();itr != apex_.end(); ++itr)
+			{
+				itr->second.Remove();
+			}
+			apex_.clear();
 		}
-		apex_.clear();
+		else
+		{
+			MoveModellingPoint(node_id, position, time);
+			return;
+		}
 	}
 
 	ModellingPoint modellingPoint(region, node_id, position);
 	modellingPoint.SetVisible(true);
 
 	apex_[node_id] = modellingPoint;
+}
+
+void ModellingModeApex::MoveModellingPoint(int node_id, const Point3D& position, double time)
+{
+	ModellingPointsMap::iterator itr = apex_.find(node_id);
+	if (itr != apex_.end())
+		itr->second.SetPosition(position);
 }
 
 void ModellingModeApex::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
