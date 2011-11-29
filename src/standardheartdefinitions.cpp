@@ -1,8 +1,6 @@
 
 #include "standardheartdefinitions.h"
 
-#include <string>
-
 namespace cap
 {
 

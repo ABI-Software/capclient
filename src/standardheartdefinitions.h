@@ -3,6 +3,7 @@
 #define _STANDARDHEARTDEFINITIONS_H
 
 #include <map>
+#include <string>
 
 namespace cap
 {
