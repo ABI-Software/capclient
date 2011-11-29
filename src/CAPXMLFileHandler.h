@@ -71,6 +71,13 @@ public:
 	std::vector<DataPoint> GetDataPoints() const;
 
 	/**
+	 * Gets the modelling points.
+	 *
+	 * @return	The modelling points.
+	 */
+	ModellingPoints GetModellingPoints() const;
+
+	/**
 	 * Adds a provenance detail. 
 	 *
 	 * @param	comment	The comment.

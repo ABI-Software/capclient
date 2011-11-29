@@ -28,6 +28,7 @@ extern "C"
 
 #include "standardheartdefinitions.h"
 #include "math/algebra.h"
+#include "model/modellingpoint.h"
 
 namespace cap
 {
@@ -415,6 +416,14 @@ public:
 	 */
 	void SetTime(double time);
 
+	/**
+	 * Set the modelling points.  This function will create the modelling points in the context and
+	 * set them on the modeller as well.  To be used when loading in models/modelling points.
+	 *
+	 * @param	modellingPoints	The modelling points.
+	 */
+	void SetModellingPoints(ModellingPoints modellingPoints);
+
 private:
 
 	/**
@@ -511,6 +520,18 @@ private:
 	 * Create the materials used for colouring visual entities.
 	 */
 	void CreateMaterials();
+
+	/**
+	 * Creates a modelling point.  This function creates a modelling point in the current context
+	 * with the given values.  This is to facilitate the creation of nodes in the correct region and
+	 * acting as a manual node tool for creating and defining nodes/modelling points.  The created
+	 * modelling point is added to the corresponding modelling mode for it's type.
+	 *
+	 * @param	type		The type of modelling point to create.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
+	void CreateModellingPoint(ModellingEnum type, const Point3D& position, double time);
 
 	/**
 	 * Creates the status text strings field renditions.  In this function
