@@ -303,6 +303,12 @@ void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 			ReadImage(image, doc, cur);
 			input.images.push_back(image);
 		}
+		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Point"))
+		{
+			CAPXMLFile::Point point;
+			ReadPoint(point, cur);
+			input.points.push_back(point);
+		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"StudyContours"))
 		{
 			ReadStudyContours(input.studyContours, cur);
@@ -350,7 +356,8 @@ void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
 		{
 			xmlChar *filename = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
 //			std::cout << "Exelem = " << (char*) filename << '\n';
-			output.elemFileName = (char*)filename;
+			if (filename)
+				output.elemFileName = (char*)filename;
 			xmlFree(filename);
 //			std::cout << "Exelem done\n";
 		}
@@ -493,7 +500,7 @@ void ConstructPointSubtree(CAPXMLFile::Point const &point, xmlNodePtr imageNode)
 	xmlNewProp(pointNode, BAD_CAST "type", typeStr);
 	std::stringstream timeStrStream;
 	timeStrStream << point.time;
-	xmlNewProp(pointNode, BAD_CAST "time", timeStrStream.str().c_str());
+	xmlNewProp(pointNode, BAD_CAST "time", BAD_CAST timeStrStream.str().c_str());
 	
 	std::for_each(point.values.begin(), point.values.end(), 
 				boost::bind(ConstructValueNode, _1, pointNode));
