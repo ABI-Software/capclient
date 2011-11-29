@@ -63,6 +63,11 @@ TEST(CAPXMLFile, WriteXML)
 	xmlFile.ReadFile();
 	ASSERT_EQ("SampleAnalysisUsingXsd", xmlFile.name_);
 
+	CAPXMLFile::Point p;
+	p.time = 0.56777;
+	p.type = BASEPLANE;
+	//p.values = std::map<std::string
+	xmlFile.AddPoint(p);
 	xmlFile.WriteFile("dummy");
 	// add tests here
 
@@ -74,7 +79,8 @@ TEST(CAPXMLFile, WriteXML)
 	EXPECT_EQ(xmlFile.output_.interval, xmlFile2.output_.interval);
 	EXPECT_EQ(xmlFile.name_, xmlFile2.name_);
 	EXPECT_EQ(xmlFile.studyIUid_, xmlFile2.studyIUid_);
-	
+	EXPECT_EQ(xmlFile.input_.points.size(), xmlFile2.input_.points.size());
+
 	CAPXMLFile::Image& image = xmlFile.GetInput().images.at(0);
 	CAPXMLFile::Image& image2 = xmlFile2.GetInput().images.at(0);
 	
@@ -95,7 +101,7 @@ TEST(CAPXMLFile, WriteXML)
 	CAPXMLFile::ProvenanceDetail& pd2 = xmlFile2.documentation_.provenanceDetails[0];
 	EXPECT_EQ(pd.comment, pd2.comment);
 	
-	EXPECT_EQ(0, remove("dummy"));
+	//EXPECT_EQ(0, remove("dummy"));
 }
 
 TEST(CAPXMLFile, AddImage)

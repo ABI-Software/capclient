@@ -24,7 +24,8 @@ ModellingPoint::ModellingPoint()
 }
 
 ModellingPoint::ModellingPoint(ModellingEnum modellingPointType, Cmiss_region_id region, int node_id, const Point3D& position, double time)
-	: region_(Cmiss_region_access(region))
+	: modellingPointType_(modellingPointType)
+	, region_(Cmiss_region_access(region))
 	, node_id_(node_id)
 	, position_(position)
 	, weight_(1.0f)
