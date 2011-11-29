@@ -106,7 +106,7 @@ void ModellingModeApex::AddModellingPoint(Cmiss_region_id region, int node_id, c
 		}
 	}
 
-	ModellingPoint modellingPoint(region, node_id, position);
+	ModellingPoint modellingPoint(APEX, region, node_id, position);
 	modellingPoint.SetVisible(true);
 
 	apex_[node_id] = modellingPoint;
@@ -178,7 +178,7 @@ void ModellingModeBase::AddModellingPoint(Cmiss_region_id region, int node_id, c
 		base_.clear();
 	}
 
-	ModellingPoint modellingPoint(region, node_id, position);
+	ModellingPoint modellingPoint(BASE, region, node_id, position);
 	modellingPoint.SetVisible(true);
 
 	base_[node_id] = modellingPoint;
@@ -250,7 +250,7 @@ ModellingMode* ModellingModeRV::OnAccept(Modeller& modeller)
 
 void ModellingModeRV::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 {
-	ModellingPoint modellingPoint(region, node_id, position, time);
+	ModellingPoint modellingPoint(RV, region, node_id, position, time);
 	modellingPoint.SetVisible(true);
 
 	rvInserts_[node_id] = modellingPoint;
@@ -327,7 +327,7 @@ ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 
 void ModellingModeBasePlane::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 {
-	ModellingPoint modellingPoint(region, node_id, position, time);
+	ModellingPoint modellingPoint(BASEPLANE, region, node_id, position, time);
 	modellingPoint.SetVisible(true);
 
 	basePlanePoints_[node_id] = modellingPoint;

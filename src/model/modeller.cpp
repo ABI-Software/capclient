@@ -34,8 +34,6 @@
 namespace cap
 {
 
-const Modeller::ModellingModeEnumMap Modeller::ModellingModeStrings = Modeller::InitModellingModeStrings();
-
 Modeller::Modeller(IModeller *mainApp)
 	: mainApp_(mainApp)
 	, modellingModeApex_()
@@ -435,7 +433,7 @@ void Modeller::SmoothAlongTime()
 	}
 }
 
-void Modeller::ChangeMode(ModellingModeEnum mode)
+void Modeller::ChangeMode(ModellingEnum mode)
 {
 	ModellingMode* newMode;
 	switch (mode)
@@ -456,7 +454,7 @@ void Modeller::ChangeMode(ModellingModeEnum mode)
 		newMode = GetModellingModeGuidePoints();
 		break;
 	default :
-		std::cout << __func__ << ": Error (Invalid mode)" << std::endl;
+		dbg("Modeller::ChangeMode: Error (Invalid mode)");
 	}
 	assert(newMode);
 	ChangeMode(newMode);
@@ -522,16 +520,16 @@ void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
 	}
 	
 	std::sort(dataPoints.begin(), dataPoints.end(),
-			boost::bind( std::less<ModellingPointType>(),
+			boost::bind( std::less<ModellingEnum>(),
 					boost::bind(&DataPoint::GetDataPointType, _1),
 					boost::bind(&DataPoint::GetDataPointType, _2)));
 
 	currentModellingMode_ = GetModellingModeApex();
-	ModellingModeEnum currentModeEnum = APEX;
+	ModellingEnum currentModeEnum = APEX;
 	BOOST_FOREACH(DataPoint& dataPoint, dataPoints)
 	{
 		// type unsafe but much less verbose than switch cases
-		ModellingModeEnum mode = static_cast<ModellingModeEnum>(dataPoint.GetDataPointType());
+		ModellingEnum mode = static_cast<ModellingEnum>(dataPoint.GetDataPointType());
 		if (mode != currentModeEnum)
 		{
 			// Change mode and call OnAccept on the currentModellingMode_

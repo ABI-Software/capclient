@@ -107,10 +107,10 @@ public:
 	{
 		if (modeller_->OnAccept())
 		{
-			Modeller::ModellingModeEnum mode = modeller_->GetCurrentMode();
+			ModellingEnum mode = modeller_->GetCurrentMode();
 			//== std::cout << "Current Mode = " << ModeStrings[mode] << '\n'; 
 			gui_->UpdateModeSelectionUI(mode);
-			if (mode == Modeller::GUIDEPOINT)
+			if (mode == GUIDEPOINT)
 			{
 				if (!gui_->IsInitialisedHeartModel())
 				{
@@ -132,7 +132,7 @@ public:
 	 */
 	void ChangeModellingMode(int mode)
 	{
-		modeller_->ChangeMode((Modeller::ModellingModeEnum) mode);//FIX type unsafe
+		modeller_->ChangeMode((ModellingEnum) mode);//FIX type unsafe
 		gui_->UpdateModeSelectionUI(mode);
 	}
 	
@@ -439,7 +439,7 @@ private:
 		if (!modeller_)
 		{
 			modeller_ = new Modeller(this); // initialise modeller and all the data points
-			gui_->UpdateModeSelectionUI(Modeller::APEX);
+			gui_->UpdateModeSelectionUI(APEX);
 		}
 	}
 	

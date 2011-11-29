@@ -85,6 +85,7 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
+	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFileHandler.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
@@ -93,6 +94,7 @@ LIST(APPEND UNIT_TESTS Xml)
 
 SET(ImageSet_SRC
 	UnitTestImageSet.cpp
+	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 )
 LIST(APPEND UNIT_TESTS ImageSet)
 
@@ -105,6 +107,7 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/capclientwindowheartmodel.cpp
 	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
+	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 )
@@ -140,6 +143,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		UnitTestImageBrowser.cpp
 		${CAPCLIENT_ROOT_DIR}/src/cmgui/sceneviewerpanel.cpp
 		${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
+		${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 		${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
 		${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
 		${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp

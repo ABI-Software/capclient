@@ -1,3 +1,4 @@
+
 #include "modellingpoint.h"
 
 #include <sstream>
@@ -13,7 +14,8 @@ namespace cap
 {
 
 ModellingPoint::ModellingPoint()
-	: region_(0)
+	: modellingPointType_(UNDEFINED_MODELLING_ENUM)
+	, region_(0)
 	, node_id_(-1)
 	, position_()
 	, weight_(1.0f)
@@ -21,7 +23,7 @@ ModellingPoint::ModellingPoint()
 {
 }
 
-ModellingPoint::ModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
+ModellingPoint::ModellingPoint(ModellingEnum modellingPointType, Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	: region_(Cmiss_region_access(region))
 	, node_id_(node_id)
 	, position_(position)
@@ -32,13 +34,12 @@ ModellingPoint::ModellingPoint(Cmiss_region_id region, int node_id, const Point3
 
 ModellingPoint::~ModellingPoint(void)
 {
-	//dbg(" ==== ModellingPoint::~ModellingPoint(void)");
 	Cmiss_region_destroy(&region_);
 }
 
 ModellingPoint::ModellingPoint(const ModellingPoint& other)
 {
-	dbg(" ==== ModellingPoint::~ModellingPoint(const ModellingPoint& other)");
+	this->modellingPointType_ = other.modellingPointType_;
 	this->region_ = Cmiss_region_access(other.region_);
 	this->node_id_ = other.node_id_;
 	this->position_ = other.position_;
@@ -48,9 +49,9 @@ ModellingPoint::ModellingPoint(const ModellingPoint& other)
 
 ModellingPoint & ModellingPoint::operator =(const cap::ModellingPoint &rhs)
 {
-	dbg(" ==== ModellingPoint::operator =(const cap::ModellingPoint &rhs)");
 	if (this != &rhs)
 	{
+		this->modellingPointType_ = rhs.modellingPointType_;
 		this->region_ = Cmiss_region_access(rhs.region_);
 		this->node_id_ = rhs.node_id_;
 		this->position_ = rhs.position_;

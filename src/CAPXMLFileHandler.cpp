@@ -278,6 +278,24 @@ void CAPXMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
 
 void CAPXMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& modellingPoints)
 {
+	std::vector<ModellingPoint>::const_iterator it = modellingPoints.begin();
+	for(;it != modellingPoints.end(); ++it)
+	{
+		CAPXMLFile::Point p;
+		p.surface = UNDEFINED_SURFACE_TYPE;
+		p.type = it->GetModellingPointType();
+		const Point3D& position = it->GetPosition();
+		CAPXMLFile::Value x = {position.x, "x"};
+		p.values["x"] = x; //REVISE
+		CAPXMLFile::Value y = {position.y, "y"};
+		p.values["y"] = y;
+		CAPXMLFile::Value z = {position.z, "z"};
+		p.values["z"] = z;
+		
+		p.time = it->GetTime();
+
+		xmlFile_.AddPoint(p);
+	}
 }
 
 namespace

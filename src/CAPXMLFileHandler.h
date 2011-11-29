@@ -13,6 +13,7 @@
 
 #include "labelledslice.h"
 #include "model/modellingpoint.h"
+
 namespace cap
 {
 

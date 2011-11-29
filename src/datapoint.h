@@ -24,7 +24,7 @@ class DataPoint
 {
 public:
 	
-	DataPoint(Cmiss_node* node, const Point3D& coord, ModellingPointType dataPointType, double time, double weight = 1.0f);
+	DataPoint(Cmiss_node* node, const Point3D& coord, ModellingEnum dataPointType, double time, double weight = 1.0f);
 	
 	DataPoint(const DataPoint& other);
 		
@@ -44,9 +44,9 @@ public:
 	
 	void SetVisible(bool visibility);
 	
-	ModellingPointType GetDataPointType() const;
+	ModellingEnum GetDataPointType() const;
 	
-	void SetDataPointType(ModellingPointType type);
+	void SetDataPointType(ModellingEnum type);
 	
 	//HACK
 	SurfaceType GetSurfaceType() const;
@@ -67,7 +67,7 @@ private:
 	double weight_;
 	double time_;
 	SurfaceType surfaceType_;
-	ModellingPointType dataPointType_;
+	ModellingEnum dataPointType_;
 	double startTime_, endTime_; // these can't be inferred from time only
 };
 
