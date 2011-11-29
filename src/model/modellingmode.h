@@ -36,6 +36,11 @@ typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 typedef std::map<int, ModellingPoint> ModellingPointsMap;
 
 /**
+ * Defines an alias representing the modelling points.
+ */
+typedef std::vector<ModellingPoint> ModellingPoints;
+
+/**
  * Modelling mode.  This is an abstract base class for the modelling modes. Implementation of
  * FSM using the State Pattern.
  */
@@ -90,6 +95,7 @@ public:
 	 */
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
 	virtual void MoveModellingPoint(int node_id, const Point3D& position, double time) {}
+
 	/**
 	 * Removes the data point.
 	 *
@@ -97,6 +103,8 @@ public:
 	 * @param	time			   	The time.
 	 */
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time) = 0;
+
+	virtual ModellingPoints GetModellingPoints() const = 0;
 
 	/**
 	 * Perform entry action.
@@ -125,6 +133,7 @@ public:
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
+	ModellingPoints GetModellingPoints() const;
 	const ModellingPoint& GetApex() const; //REVISE design:
 	// Probably its more extensible to provide a uniform interface (virtual GetDataPoints) on all Modes.
 	// However it is unlikely that new modes will be added in the future so probably its ok.
@@ -150,6 +159,7 @@ public:
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
+	ModellingPoints GetModellingPoints() const;
 	const ModellingPoint& GetBase() const;
 	
 	virtual void PerformEntryAction();
@@ -175,6 +185,7 @@ public:
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
+	ModellingPoints GetModellingPoints() const;
 	const ModellingPointsMap& GetRVInsertPoints() const;
 	
 	virtual void PerformEntryAction();
@@ -198,6 +209,7 @@ public:
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
+	ModellingPoints GetModellingPoints() const;
 	const ModellingPointsMap& GetBasePlanePoints() const;
 	
 	virtual void PerformEntryAction();
@@ -223,6 +235,7 @@ public:
 	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
 	
+	ModellingPoints GetModellingPoints() const;
 	std::vector<ModellingPointsMap> GetGuidePoints() const;
 	//const std::vector< std::vector<double> >& GetTimeVaryingDataPoints() const { return timeVaryingDataPoints_; }
 	const std::vector<int>& GetFramesWithDataPoints() const { return framesWithDataPoints_; }

@@ -132,6 +132,15 @@ void ModellingModeApex::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 	apex_.clear();
 }
 
+ModellingPoints ModellingModeApex::GetModellingPoints() const
+{
+	ModellingPoints mps;
+	std::transform(apex_.begin(), apex_.end(), std::back_inserter(mps),
+		boost::bind(&ModellingPointsMap::value_type::second, _1));
+
+	return mps;
+}
+
 const ModellingPoint& ModellingModeApex::GetApex() const
 {
 	assert(apex_.size() == 1);
@@ -210,6 +219,15 @@ void ModellingModeBase::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 	base_.clear();
 }
 
+ModellingPoints ModellingModeBase::GetModellingPoints() const
+{
+	ModellingPoints mps;
+	std::transform(base_.begin(), base_.end(), std::back_inserter(mps),
+		boost::bind(&ModellingPointsMap::value_type::second, _1));
+
+	return mps;
+}
+
 const ModellingPoint& ModellingModeBase::GetBase() const
 {
 	assert(base_.size()==1);
@@ -281,6 +299,15 @@ void ModellingModeRV::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 	ModellingPointsMap::iterator itr = rvInserts_.find(1);
 	assert(itr != rvInserts_.end());
 	rvInserts_.erase(itr);
+}
+
+ModellingPoints ModellingModeRV::GetModellingPoints() const
+{
+	ModellingPoints mps;
+	std::transform(rvInserts_.begin(), rvInserts_.end(), std::back_inserter(mps),
+		boost::bind(&ModellingPointsMap::value_type::second, _1));
+
+	return mps;
 }
 
 const ModellingPointsMap& ModellingModeRV::GetRVInsertPoints() const
@@ -362,6 +389,15 @@ void ModellingModeBasePlane::RemoveDataPoint(Cmiss_node* dataPointID, double tim
 	//assert(itr != basePlanePoints_.end());
 	////--std::cout << "Removing BP : " << itr->GetSliceName() << ", time = " << itr->GetTime() << '\n';//debug
 	//basePlanePoints_.erase(itr);
+}
+
+ModellingPoints ModellingModeBasePlane::GetModellingPoints() const
+{
+	ModellingPoints mps;
+	std::transform(basePlanePoints_.begin(), basePlanePoints_.end(), std::back_inserter(mps),
+		boost::bind(&ModellingPointsMap::value_type::second, _1));
+
+	return mps;
 }
 
 const ModellingPointsMap& ModellingModeBasePlane::GetBasePlanePoints() const
@@ -462,6 +498,15 @@ void ModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, double t
 	//vectorOfModellingPoints_[frameNumber].erase(itr);
 	//framesWithDataPoints_[frameNumber]--;
 	//FitModel(vectorOfModellingPoints_[frameNumber], frameNumber);
+}
+
+ModellingPoints ModellingModeGuidePoints::GetModellingPoints() const
+{
+	ModellingPoints mps;
+	//std::transform(apex_.begin(), apex_.end(), std::back_inserter(mps),
+	//	boost::bind(&ModellingPointsMap::value_type::second, _1));
+
+	return mps;
 }
 
 std::vector<ModellingPointsMap> ModellingModeGuidePoints::GetGuidePoints() const
