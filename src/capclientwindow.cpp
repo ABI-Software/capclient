@@ -313,7 +313,7 @@ void CAPClientWindow::CreateMaterials()
 	Cmiss_graphics_material_id green = Cmiss_graphics_module_create_material(gm);
 	Cmiss_graphics_material_set_properties(green, "green", ambient, diffuse, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id green_sel = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(green_sel, "green_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_set_properties(green_sel, "green_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id green_surface = Cmiss_graphics_module_create_material(gm);
 	Cmiss_graphics_material_set_properties(green_surface, "green_surface", ambient, diffuse, emission, specular, 0.1, 0.5);
 
@@ -325,7 +325,7 @@ void CAPClientWindow::CreateMaterials()
 	Cmiss_graphics_material_id red = Cmiss_graphics_module_create_material(gm);
 	Cmiss_graphics_material_set_properties(red, "red", ambient, diffuse, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id red_sel = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(red_sel, "red_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_set_properties(red_sel, "red_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id red_surface = Cmiss_graphics_module_create_material(gm);
 	Cmiss_graphics_material_set_properties(red_surface, "red_surface", ambient, diffuse, emission, specular, 0.1, 0.5);
 
@@ -337,7 +337,7 @@ void CAPClientWindow::CreateMaterials()
 	specular[0] = 1.0;specular[1] = 0.38;specular[2] = 0.8;
 	Cmiss_graphics_material_set_properties(pink, "pink", ambient, diffuse, emission, specular, 0.3, 1.0);
 	Cmiss_graphics_material_id pink_sel = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(pink_sel, "pink_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_set_properties(pink_sel, "pink_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 
 	Cmiss_graphics_material_id orange = Cmiss_graphics_module_create_material(gm);
 	ambient[0] = 1.0;ambient[1] = 0.4;ambient[2] = 0.0;
@@ -347,7 +347,7 @@ void CAPClientWindow::CreateMaterials()
 	specular[0] = 1.0;specular[1] = 0.38;specular[2] = 0.0;
 	Cmiss_graphics_material_set_properties(orange, "orange", ambient, diffuse, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id orange_sel = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(orange_sel, "orange_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_set_properties(orange_sel, "orange_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 
 	//gfx create material light_blue normal_mode ambient 0.54 0.84 1 diffuse 0.28 0.46 1 emission 0.25 0.46 0.75 specular 0.46 0.73 1 alpha 1 shininess 0.2;
 	Cmiss_graphics_material_id light_blue = Cmiss_graphics_module_create_material(gm);
@@ -358,7 +358,7 @@ void CAPClientWindow::CreateMaterials()
 	specular[0] = 0.46;specular[1] = 0.73;specular[2] = 1.0;
 	Cmiss_graphics_material_set_properties(light_blue, "light_blue", ambient, diffuse, emission, specular, 0.3, 1.0);
 	Cmiss_graphics_material_id light_blue_sel = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(light_blue_sel, "light_blue_sel", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+	Cmiss_graphics_material_set_properties(light_blue_sel, "light_blue_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 
 	Cmiss_graphics_material_destroy(&green_surface);
 	Cmiss_graphics_material_destroy(&red_surface);
@@ -1196,6 +1196,7 @@ void CAPClientWindow::EndCurrentModellingMode()
 		cmguiPanel_->SetInteractiveTool("transform_tool");
 		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
 		cmguiPanel_->RemoveCallback(input_callback_modelling, static_cast<void *>(this));
+		cmguiPanel_->RemoveCallback(input_callback_modelling_setup, static_cast<void *>(this));
 		SetStatusTextString("currentmode", "Transform mode");
 		button_PlaneShift->Enable(true);
 	}

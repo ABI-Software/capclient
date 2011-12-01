@@ -74,21 +74,22 @@ void CAPClientWindow::SetHeartModelFocalLength(double focalLength)
 
 void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 {
-	const Vector3D& normal = heartModel_->TransformToLocalCoordinateRC(basePlane.normal);
-	const Point3D& position = heartModel_->TransformToLocalCoordinateRC(basePlane.position);
+	const Vector3D& normal = basePlane.normal;//--heartModel_->TransformToLocalCoordinateRC(basePlane.normal);
+	const Point3D& position = basePlane.position;//--heartModel_->TransformToLocalCoordinateRC(basePlane.position);
 	const int numberOfComponents = 3; // lambda, mu and theta
 	
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
 	Cmiss_field_module_begin_change(field_module);
 	Cmiss_field_id coords_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-	Cmiss_field_id coords_rc = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rc");
+	Cmiss_field_id coords_patient = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
 
 	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
 	Cmiss_field_cache_set_time(cache, time);
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 
 	dbg("Plane : (" + toString(time) + ") " + toString(basePlane.normal) + ", " + toString(basePlane.position));
-	// EPI nodes [0-19], ENDO nodes [20-39]
+	// EPI nodes [0-19], ENDO nodes [20-39], node identifiers are 1-based.
+	// This method follows the CIM method of calculating the model position from the base plane.
 	for (int k = 0; k < 40; k += 20)
 	{
 		double mu[4];
@@ -96,11 +97,13 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 		{
 			Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + i + 1);
 			Cmiss_field_cache_set_node(cache, node);
-			double loc[3], loc_ps[3];
+			double loc[3], loc_ps[3], loc_pat[3];
 			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-			mu[i] = loc_ps[1];
-			Cmiss_field_evaluate_real(coords_rc, cache, 3, loc);
-			Point3D point(loc[0],loc[1],loc[2]);
+			mu[i] = loc_ps[1] = 0.0;
+			Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+			Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
+			Point3D point(loc_pat[0],loc_pat[1],loc_pat[2]);
 			Point3D prevPoint;
 			double initial = DotProduct(normal, point - position);
 			//do while on the same side and less than pi
@@ -109,15 +112,14 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 				loc_ps[1] += M_PI/180.0;  //one degree increments for mu parameter
 				Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 				mu[i] = loc_ps[1];
-				Cmiss_field_evaluate_real(coords_rc, cache, 3, loc);
+				Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
 				prevPoint = point;
-				point = Point3D(loc[0],loc[1],loc[2]);
+				point = Point3D(loc_pat[0],loc_pat[1],loc_pat[2]);
 			}
 			while((initial*DotProduct(normal, point - position) > 0.0) && (mu[i] < M_PI));
 			
-			//Cmiss_field_evaluate_real(coords_rc, cache, 3, loc);
-			//Point3D lastpoint(loc[0],loc[1],loc[2]);
-
+			// We have stepped over the base plane (or we have reached pi), now interpolate between the 
+			// current point and the previous point
 			double z1 = DotProduct(normal, prevPoint-position);
 			double z2 = DotProduct(normal, point-position);
 			if((z1*z2) < 0.0) 
@@ -130,20 +132,29 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 				loc[0] = point.x;
 				loc[1] = point.y;
 				loc[2] = point.z;
-				Cmiss_field_assign_real(coords_rc, cache, 3, loc);
+				Cmiss_field_assign_real(coords_patient, cache, 3, loc);
 			}
 
+			// Just making sure we keep mu inside it's bounds.
 			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 			mu[i] = loc_ps[1];
+			if (mu[i] > M_PI)
+			{
+				mu[i] = M_PI;
+				loc_ps[1] = M_PI;
+			}
+			Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 			Cmiss_node_destroy(&node);
 			
 		}
-		dbg("mu [" + toString(0) + "] = " + toString(mu[0]));
+
+		// Set the remaining mu paramater of the nodes equidistant between mu[i] and 0.0
 		for (int j=1;j<5;j++)
 		{
 			for (int i=0;i<4;i++)
 			{
 				Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + (j * 4) + i + 1);
+				Cmiss_field_cache_set_node(cache, node);
 				double loc_ps[3];
 				Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 				loc_ps[1] = mu[i]/4.0 * (4.0- static_cast<double>(j));
@@ -153,7 +164,7 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 		}
 	}
 	Cmiss_field_destroy(&coords_ps);
-	Cmiss_field_destroy(&coords_rc);
+	Cmiss_field_destroy(&coords_patient);
 	Cmiss_field_module_end_change(field_module);
 
 	Cmiss_field_cache_destroy(&cache);
@@ -212,26 +223,39 @@ void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
 	Cmiss_field_module_begin_change(field_module);
-	std::stringstream ss_mx;
-	ss_mx << "constant ";
-	for (int j = 0; j < 3; j++)
+	//std::stringstream ss_mx;
+	//ss_mx << "constant ";
+	//for (int j = 0; j < 3; j++)
+	//{
+	//	for (int i = 0; i < 3; i++)
+	//	{
+	//		ss_mx << transform[i][j] << " ";
+	//	}
+	//}
+
+	std::stringstream ss_proj;
+	ss_proj << "constant ";
+	for (int i = 0; i < 4; i++)
 	{
-		for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 4; j++)
 		{
-			ss_mx << transform[i][j] << " ";
+			ss_proj << transform[j][i] << " ";
 		}
 	}
 
-	std::stringstream ss_tr;
-	ss_tr << "constant " << transform[3][0] << " " << transform[3][1] << " " << transform[3][2];
-	Cmiss_field_module_define_field(field_module, "local_to_global_mx", ss_mx.str().c_str());
-	Cmiss_field_module_define_field(field_module, "local_to_global_tr", ss_tr.str().c_str());
+	//std::stringstream ss_tr;
+	//ss_tr << "constant " << transform[3][0] << " " << transform[3][1] << " " << transform[3][2];
+
+	//dbg("local to gl   mx: " + ss_mx.str());
+	//dbg("local to gl proj: " + ss_proj.str());
+	//Cmiss_field_module_define_field(field_module, "local_to_global_mx", ss_mx.str().c_str());
+	//Cmiss_field_module_define_field(field_module, "local_to_global_tr", ss_tr.str().c_str());
 	Cmiss_field_module_define_field(field_module, "d_ds1", "node_value fe_field coordinates d/ds1");
 	Cmiss_field_module_define_field(field_module, "d_ds2", "node_value fe_field coordinates d/ds2");
 	Cmiss_field_module_define_field(field_module, "d2_ds1ds2", "node_value fe_field coordinates d2/ds1ds2");
 	Cmiss_field_module_define_field(field_module, "coordinates_rc", "coordinate_transformation field coordinates");
-	Cmiss_field_module_define_field(field_module, "temp1", "matrix_multiply num 3 fields local_to_global_mx coordinates_rc");
-	Cmiss_field_module_define_field(field_module, "patient_rc_coordinates", "add fields temp1 local_to_global_tr");
+	Cmiss_field_module_define_field(field_module, "projection_mx", ss_proj.str().c_str());
+	Cmiss_field_module_define_field(field_module, "patient_rc_coordinates", "projection field coordinates_rc projection_matrix projection_mx");
 
 	Cmiss_field_module_end_change(field_module);
 

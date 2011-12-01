@@ -307,6 +307,9 @@ ModellingPoints ModellingModeRV::GetModellingPoints() const
 	std::transform(rvInserts_.begin(), rvInserts_.end(), std::back_inserter(mps),
 		boost::bind(&ModellingPointsMap::value_type::second, _1));
 
+	ModellingPointTimeLessThan lessThan;
+	std::sort(mps.begin(), mps.end(), lessThan);
+
 	return mps;
 }
 
@@ -344,6 +347,11 @@ ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 	}
 	
 	dbg("Warning: ModellingModeBasePlane::OnAccept : need to implement sorting for modelling points.");
+	ModellingPoints mps = GetModellingPoints();
+	ModellingPoints::const_iterator cit = mps.begin();
+	while (cit != mps.end())
+	{
+	}
 	//--DataPointTimeLessThan lessThan; // need lambda functions !
 	//--std::sort(basePlanePoints_.begin(), basePlanePoints_.end(), lessThan);
 
@@ -397,6 +405,9 @@ ModellingPoints ModellingModeBasePlane::GetModellingPoints() const
 	std::transform(basePlanePoints_.begin(), basePlanePoints_.end(), std::back_inserter(mps),
 		boost::bind(&ModellingPointsMap::value_type::second, _1));
 
+	ModellingPointTimeLessThan lessThan;
+	std::sort(mps.begin(), mps.end(), lessThan);
+
 	return mps;
 }
 
@@ -448,6 +459,10 @@ ModellingMode* ModellingModeGuidePoints::OnAccept(Modeller& modeller)
 
 void ModellingModeGuidePoints::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 {
+	ModellingPoint modellingPoint(GUIDEPOINT, region, node_id, position, time);
+	modellingPoint.SetVisible(true);
+
+	guidePoints_[node_id] = modellingPoint;
 }
 
 //void ModellingModeGuidePoints::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
@@ -503,8 +518,11 @@ void ModellingModeGuidePoints::RemoveDataPoint(Cmiss_node* dataPointID, double t
 ModellingPoints ModellingModeGuidePoints::GetModellingPoints() const
 {
 	ModellingPoints mps;
-	//std::transform(apex_.begin(), apex_.end(), std::back_inserter(mps),
-	//	boost::bind(&ModellingPointsMap::value_type::second, _1));
+	std::transform(guidePoints_.begin(), guidePoints_.end(), std::back_inserter(mps),
+		boost::bind(&ModellingPointsMap::value_type::second, _1));
+
+	ModellingPointTimeLessThan lessThan;
+	std::sort(mps.begin(), mps.end(), lessThan);
 
 	return mps;
 }

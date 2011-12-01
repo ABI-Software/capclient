@@ -7,6 +7,9 @@
 
 #include "CAPXMLFile.h"
 
+#include <iostream>
+#include <sstream>
+
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <boost/lexical_cast.hpp>
@@ -38,7 +41,7 @@ namespace
 
 void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 {
-	// point has 2 attributes - surface and type
+	// point has 2 or 3 attributes - surface, type and time
 	//frame
 	xmlChar* surface = xmlGetProp(cur, (xmlChar const*)"surface"); 
 //	std::cout << "surface = " << surface << '\n';
@@ -46,6 +49,19 @@ void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 	{
 		point.surface = (std::string("epi") == (char*)surface) ? EPICARDIUM : ENDOCARDIUM;
 		xmlFree(surface);
+	}
+
+	// time is not present in CAPClient v 1.0.0 xml files.
+	point.time = -1.0;
+	xmlChar* time = xmlGetProp(cur, (xmlChar const*)"time"); 
+	if (time)
+	{
+		std::string time_str = reinterpret_cast<char *>(time);
+		std::istringstream i(time_str);
+		double time_value;
+		if (i >> time_value)
+			point.time = time_value;
+		xmlFree(time);
 	}
 	
 	//slice

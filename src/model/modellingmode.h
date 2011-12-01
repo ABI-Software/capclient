@@ -94,6 +94,11 @@ public:
 	 */
 	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time) = 0;
 
+	/**
+	 * Gets the modelling points.  The modelling points are sorted in ascending modelling point time.
+	 *
+	 * @return	The modelling points.
+	 */
 	virtual ModellingPoints GetModellingPoints() const = 0;
 
 	/**
@@ -235,7 +240,7 @@ public:
 	virtual void PerformExitAction();
 	
 private:
-	
+	ModellingPointsMap guidePoints_;	/**< The guide points */
 	std::vector<ModellingPointsMap> vectorOfModellingPoints_;
 	std::vector<int> framesWithDataPoints_;
 };

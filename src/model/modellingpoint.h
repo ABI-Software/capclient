@@ -124,6 +124,21 @@ namespace cap
 	 */
 	typedef std::vector<ModellingPoint> ModellingPoints;
 
+	/**
+	 * Modelling point time less than.  Used for sorting ModellingPoints with respect to time.
+	 */
+	struct ModellingPointTimeLessThan
+	{
+		/**
+		 * bool casting operator.
+		 */
+		bool operator() (const ModellingPoint& i, const ModellingPoint& j)  const
+		{
+			return (i.GetTime() < j.GetTime());
+		}
+	};
+
+
 }
 
 #endif /* MODELLINGPOINT_H_ */

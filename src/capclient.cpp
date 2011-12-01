@@ -288,11 +288,12 @@ void CAPClient::OpenModel(const std::string& filename)
 		if(!modellingPoints.empty())
 		{
 			// This means no output element is defined
-			InitializeHeartModelTemplate();
-			CreateModeller();
-			
-			dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(modellingPoints.size()));
+			//--InitializeHeartModelTemplate();
+			StartModelling();
+
+			// Setting the modelling points should put the CAPClient into the correct state
 			gui_->SetModellingPoints(modellingPoints);
+			dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(modellingPoints.size()));
 			// FIXME memory is prematurely released when ok button is pressed from the following window
 			// Suppress this feature for now
 			//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
@@ -301,13 +302,13 @@ void CAPClient::OpenModel(const std::string& filename)
 			//HACK : uncommenting the following will enable models to be constructed from model files with
 			// only the input element defined.
 			
-			ModellingEnum mode = modeller_->GetCurrentMode();
-			gui_->UpdateModeSelectionUI(mode);
-			dbg( "Mode = " + toString(mode));
-			if (mode == GUIDEPOINT)
-			{
-				EnterModelLoadedState();
-			}
+			//--ModellingEnum mode = modeller_->GetCurrentMode();
+			//--gui_->UpdateModeSelectionUI(mode);
+			//--dbg( "Mode = " + toString(mode));
+			//--if (mode == GUIDEPOINT)
+			//--{
+			//--	EnterModelLoadedState();
+			//--}
 		}
 		
 		return;

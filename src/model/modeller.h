@@ -242,6 +242,13 @@ private:
 	void FitModel(DataPoints& dataPoints, int frameNumber);
 
 	/**
+	 * Fit the model.  For the given time fit the model to the current guide points.
+	 *
+	 * @param	time	The time.
+	 */
+	void FitModel(double time);
+
+	/**
 	 * Change modelling mode.
 	 *
 	 * @param [in,out]	newMode	If non-null, the new mode.
