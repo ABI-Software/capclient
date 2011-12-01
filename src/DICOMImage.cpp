@@ -173,8 +173,8 @@ void DICOMImage::ReadDICOMFile()
 		gdcm::Attribute<0x0008,0x0033> at_ct;
 		at_ct.SetFromDataElement(contentTime);
 		contentTime_ = at_ct.GetValue();
-		dbg("content time : " + toString(contentTime_));
-		cout << "content time : " << contentTime_ << endl;
+		//dbg("content time : " + toString(contentTime_));
+		//cout << "content time : " << contentTime_ << endl;
 	}
 	else
 	{
@@ -364,6 +364,8 @@ void DICOMImage::ReadDICOMFile()
 		cout << "Instance Number (0020,0013) not found\n";
 		instanceNumber_ = -1;
 	}
+
+	dbg("dicom info: " + filename_ + ", " + sopInstanceUID_ + ", " + seriesInstanceUID_);
 	
 //	cout << "Exiting " << __func__ << '\n';
 }

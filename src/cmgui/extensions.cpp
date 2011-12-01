@@ -150,7 +150,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 			material = "pink";
 
 		//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-		std::string node_command = "coordinate coordinates LOCAL glyph sphere general size \"6*6*6\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label coordinates;";
+		std::string node_command = "coordinate coordinates LOCAL glyph sphere general size \"6*6*6\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_selected label " + label;
 		Cmiss_graphic_define(node_graphic, node_command.c_str());
 		//if (r)
 		//{
