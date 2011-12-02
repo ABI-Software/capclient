@@ -43,6 +43,16 @@ namespace cap
 			gui_->SetHeartModelLambdaParamsAtTime(lambdaParams, time);
 		}
 
+		int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const
+		{
+			return gui_->ComputeHeartModelXi(position, time, xi);
+		}
+
+		Point3D ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const
+		{
+			return gui_->ConvertToHeartModelProlateSpheriodalCoordinate(position_rc);
+		}
+
 		unsigned int GetMinimumNumberOfFrames() const
 		{
 			return 25;

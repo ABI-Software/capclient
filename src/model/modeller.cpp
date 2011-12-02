@@ -96,16 +96,19 @@ Modeller::~Modeller()
 void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 {
 	currentModellingMode_->AddModellingPoint(region, node_id, position, time);
+	FitModel(time);
 }
 
 void Modeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
 {
 	currentModellingMode_->MoveDataPoint(dataPointID, coord, time);
+	FitModel(time);
 }
 
 void Modeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
 	currentModellingMode_->RemoveDataPoint(dataPointID, time);
+	FitModel(time);
 }
 
 bool Modeller::OnAccept()
@@ -400,6 +403,7 @@ void Modeller::SmoothAlongTime()
 	//--ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
+		dbg("Not updated to the current situation do so ...");
 		// For each global parameter in the per frame model
 		clock_t before = clock();
 			
@@ -549,12 +553,12 @@ void Modeller::InitialiseModelLambdaParams()
 	{
 		//--heartModel_.GetNumberOfModelFrames();
 		timeVaryingDataPoints_[i].resize(numFrames/*--heartModel_.GetNumberOfModelFrames()*/);
-		
+		const std::vector<double>& prior = timeSmoother_.GetPrior(i);
 //		std::cout << std::endl;
 		for(int j = 0; j < numFrames/*--heartModel_.GetNumberOfModelFrames()*/;j++)
 		{
 			double xi = static_cast<double>(j)/numFrames;//--(double)j/heartModel_.GetNumberOfModelFrames();
-			const std::vector<double>& prior = timeSmoother_.GetPrior(i);
+			
 			double lambda = timeSmoother_.ComputeLambda(xi, prior);
 //			std::cout << "(" << xi << ", " << lambda << ") ";
 			timeVaryingDataPoints_[i][j] = lambda;
@@ -585,39 +589,55 @@ void Modeller::FitModel(double time)
 {
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
-		//ModellingPoints mps = 
+		// 0. Get the modelling points for the current time
+		ModellingPoints mps = modellingModeGuidePoints_.GetModellingPoints();
+		ModellingPoints::const_iterator cit = mps.begin();
+		ModellingPoints currentModellingPoints;
+		while (cit != mps.end() && ((cit->GetTime() - time) < 1e-06))
+		{
+			if (fabs(cit->GetTime() - time) < 1e-06)
+			{
+				currentModellingPoints.push_back(*cit);
+			}
+			++cit;
+		}
+
+		if (currentModellingPoints.size() == 0)
+			return;
+
 		dbg("**** FIX, Modeller::FitModel not yet updated to Cmgui 2.8.0 ****");
+		dbg("**** size : " + toString(currentModellingPoints.size()));
 		// Compute P 
 		// 1. find xi coords for each data point
-		ModellingPoints::iterator itr;//-- = dataPoints.begin();
-		ModellingPoints::const_iterator end;//-- = dataPoints.end();
+		ModellingPoints::iterator itr = currentModellingPoints.begin();//-- = dataPoints.begin();
 		int frameNumber = 0;
 		std::vector<Point3D> xi_vector;
 		std::vector<int> element_id_vector;
-		Vector* dataLambda = solverFactory_->CreateVector(0);//--dataPoints.size()); // for rhs
+		Vector* dataLambda = solverFactory_->CreateVector(currentModellingPoints.size());//--dataPoints.size()); // for rhs
 
-		for (int i = 0; itr!=end; ++itr, ++i)
+		for (int i = 0; itr!=currentModellingPoints.end(); ++itr, ++i)
 		{
 			Point3D xi;
-			int elem_id = 0;//--heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (double)frameNumber/heartModel_.GetNumberOfModelFrames());
-		//	if(!itr->second.GetSurfaceType())
+			int elem_id = mainApp_->ComputeHeartModelXi(itr->GetPosition(), time, xi);
+			//--int elem_id = 0;//--heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (double)frameNumber/heartModel_.GetNumberOfModelFrames());
+			if(!itr->GetHeartSurfaceType())
 			{
 				if (xi.z < 0.5)
 				{
 					xi.z = 0.0f; // projected on endocardium
-					//--itr->second.SetSurfaceType(ENDOCARDIUM);
+					itr->SetHeartSurfaceType(ENDOCARDIUM);
 				}
 				else
 				{
 					xi.z = 1.0f; // projected on epicardium
-					//--itr->second.SetSurfaceType(EPICARDIUM);
+					itr->SetHeartSurfaceType(EPICARDIUM);
 				}
 			}
 			xi_vector.push_back(xi);
 			element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
 			
 			Point3D dataPointLocal;//-- = heartModel_.TransformToLocalCoordinateRC(itr->second.GetCoordinate());
-			Point3D dataPointPS;//-- = heartModel_.TransformToProlateSpheroidal(dataPointLocal);
+			Point3D dataPointPS = mainApp_->ConvertToHeartModelProlateSpheriodalCoordinate(itr->GetPosition());//-- = heartModel_.TransformToProlateSpheroidal(dataPointLocal);
 			(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 		}
 		
@@ -653,9 +673,9 @@ void Modeller::FitModel(double time)
 		}
 		
 		// 3. construct P
-		SparseMatrix* P = solverFactory_->CreateSparseMatrix(0/*--dataPoints.size()*/, 512, entries); //FIX
+		//--SparseMatrix* P = solverFactory_->CreateSparseMatrix(currentModellingPoints.size(), 512, entries); //FIX
 		
-		aMatrix_->UpdateData(*P);
+		/*--aMatrix_->UpdateData(*P);
 		
 		// Compute RHS - GtPt(dataLamba - priorLambda)
 
@@ -667,7 +687,7 @@ void Modeller::FitModel(double time)
 		Vector* p = P->mult(*lambda);
 	//	std::cout << "p = " << *p << endl;
 		
-		// transform to local --> one above
+		// transform to local --> done above
 		// transform to PS --> done above
 		// dataLambda = dataPoints in the same order as P (* weight) TODO : implement weight!
 		
@@ -688,10 +708,9 @@ void Modeller::FitModel(double time)
 		solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
 		clock_t after = clock();
-		std::cout << solverFactory_->GetName() << " CG time = " << (after - before) << std::endl;
-		std::cout << "Frame number = " << frameNumber << std::endl;
+		dbg(solverFactory_->GetName() + " CG time = " + toString(after - before));
+		dbg("Frame number = " + toString(frameNumber));
 
-		        
 		*x += *prior_;
 	//	std::cout << "x = " << *x << std::endl;
 	//	std::cout << "prior_ = " << *prior_ << endl;
@@ -715,6 +734,7 @@ void Modeller::FitModel(double time)
 		delete temp;
 		delete rhs;
 		delete x;
+		*/
 	}
 }
 

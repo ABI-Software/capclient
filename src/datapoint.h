@@ -49,9 +49,9 @@ public:
 	void SetDataPointType(ModellingEnum type);
 	
 	//HACK
-	SurfaceType GetSurfaceType() const;
+	HeartSurfaceEnum GetSurfaceType() const;
 	
-	void SetSurfaceType(SurfaceType type);
+	void SetSurfaceType(HeartSurfaceEnum type);
 	
 	std::string GetSliceName() const; // returns the name of the slice this date point belongs to
 	
@@ -66,7 +66,7 @@ private:
 	Point3D coordinate_;
 	double weight_;
 	double time_;
-	SurfaceType surfaceType_;
+	HeartSurfaceEnum surfaceType_;
 	ModellingEnum dataPointType_;
 	double startTime_, endTime_; // these can't be inferred from time only
 };

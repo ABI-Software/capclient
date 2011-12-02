@@ -12,6 +12,7 @@ extern "C"
 #include <api/cmiss_graphic.h>
 #include <api/cmiss_rendition.h>
 #include <api/cmiss_field.h>
+#include <api/cmiss_field_time.h>
 #include <api/cmiss_field_group.h>
 #include <api/cmiss_field_finite_element.h>
 #include <api/cmiss_node.h>
@@ -20,6 +21,10 @@ extern "C"
 #include <api/cmiss_graphics_filter.h>
 #include <api/cmiss_scene.h>
 #include <api/cmiss_graphics_material.h>
+#include <api/cmiss_field_arithmetic_operators.h>
+#include <api/cmiss_field_logical_operators.h>
+#include <api/cmiss_field_composite.h>
+#include <api/cmiss_field_conditional.h>
 }
 
 #include "DICOMImage.h"
@@ -133,10 +138,18 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 		r = Cmiss_field_module_define_field(field_module, "coordinates", "finite_element num 3 coordinate");
 		//std::string clear_command = "gfx modify g_element " + regionName + " general clear;";
-		r = Cmiss_field_module_define_field(field_module, "time", "time_value");
+		Cmiss_time_keeper_id time_keeper = Cmiss_context_get_default_time_keeper(cmissContext);
+		Cmiss_field_id time_value = Cmiss_field_module_create_time_value(field_module, time_keeper);
+		Cmiss_field_id visibility_value = Cmiss_field_module_create_finite_element(field_module, 1);
+		r = Cmiss_field_set_name(visibility_value, "visibility_value");
+		Cmiss_field_id diff = Cmiss_field_module_create_subtract(field_module, visibility_value, time_value);
+		Cmiss_field_id abs = Cmiss_field_module_create_abs(field_module, diff);
+		double err_values[] = {1e-06};
+		Cmiss_field_id err = Cmiss_field_module_create_constant(field_module, 1, err_values);
+		Cmiss_field_id visibility_control_time = Cmiss_field_module_create_less_than(field_module, abs, err);
 		r = Cmiss_field_module_define_field(field_module, "visibility_control_field", "constant 1");
 		std::string label = regionName + "_label";
-		std::string label_command = "string_constant \'    " + regionName + "\'";
+		std::string label_command = "string_constant \"     " + regionName + "\"";
 		r = Cmiss_field_module_define_field(field_module, label.c_str(), label_command.c_str());
 		//r = Cmiss_field_module_define_field(field_module, "invisible_control_field", "constant 0");
 		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
@@ -160,6 +173,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		//{
 		//	r = Cmiss_context_execute_command(cmissContext, node_command.c_str());
 		//}
+		Cmiss_field_destroy(&visibility_value);
 		Cmiss_graphic_destroy(&node_graphic);
 		Cmiss_rendition_destroy(&rendition);
 		Cmiss_field_module_destroy(&field_module);

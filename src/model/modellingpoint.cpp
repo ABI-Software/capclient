@@ -15,6 +15,7 @@ namespace cap
 
 ModellingPoint::ModellingPoint()
 	: modellingPointType_(UNDEFINED_MODELLING_ENUM)
+	, heartSurfaceType_(UNDEFINED_HEART_SURFACE_TYPE)
 	, region_(0)
 	, node_id_(-1)
 	, position_()
@@ -25,6 +26,7 @@ ModellingPoint::ModellingPoint()
 
 ModellingPoint::ModellingPoint(ModellingEnum modellingPointType, Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	: modellingPointType_(modellingPointType)
+	, heartSurfaceType_(UNDEFINED_HEART_SURFACE_TYPE)
 	, region_(Cmiss_region_access(region))
 	, node_id_(node_id)
 	, position_(position)

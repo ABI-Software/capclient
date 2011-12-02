@@ -45,6 +45,16 @@ void CAPClient::SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambd
 	gui_->SetHeartModelLambdaParamsAtTime(lambdaParams, time);
 }
 
+int CAPClient::ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const
+{
+	return gui_->ComputeHeartModelXi(position, time, xi);
+}
+
+Point3D CAPClient::ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const
+{
+	return gui_->ConvertToHeartModelProlateSpheriodalCoordinate(position_rc);
+}
+
 int CAPClient::GetNumberOfHeartModelFrames() const
 {
 	return GetMinimumNumberOfFrames();

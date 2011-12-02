@@ -169,6 +169,27 @@ public:
 	void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time);
 
 	/**
+	 * Calculates the heart model xi for the given position and time and returns the element id of
+	 * the nearest element to the given point.
+	 *
+	 * @param	position  	The position.
+	 * @param	time	  	The time.
+	 * @param [in,out]	xi	The xi.
+	 *
+	 * @return	The element id, -1 on failure.
+	 */
+	int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const;
+
+	/**
+	 * Converts a position_rc to a heart model prolate spheriodal coordinate.
+	 *
+	 * @param	position_rc	The position in a rectanglar cartesion coordinate system.
+	 *
+	 * @return	The position in a prolate shperiodal coordinate system.
+	 */
+	Point3D ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const;
+
+	/**
 	 * Implement pure virtual function from IImageBrowser interface 
 	 * so that labelledSlices, labelledTextures and cardiac annotations 
 	 * can be passed to this class.

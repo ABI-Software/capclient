@@ -349,8 +349,22 @@ ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 	dbg("Warning: ModellingModeBasePlane::OnAccept : need to implement sorting for modelling points.");
 	ModellingPoints mps = GetModellingPoints();
 	ModellingPoints::const_iterator cit = mps.begin();
+	std::map<int, int> timeLayoutMap;
 	while (cit != mps.end())
 	{
+		int time = static_cast<int>(100000 * cit->GetTime());
+		timeLayoutMap[time]++;
+		++cit;
+	}
+
+	std::map<int, int>::const_iterator const_it = timeLayoutMap.begin();
+	for (; const_it != timeLayoutMap.end(); ++const_it)
+	{
+		if (const_it->second < 2)
+		{
+			dbg("ModellingModeBasePlane::OnAccept: Each time value needs at least two base plane points.");
+			return 0;
+		}
 	}
 	//--DataPointTimeLessThan lessThan; // need lambda functions !
 	//--std::sort(basePlanePoints_.begin(), basePlanePoints_.end(), lessThan);

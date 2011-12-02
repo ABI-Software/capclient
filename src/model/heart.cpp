@@ -818,7 +818,7 @@ int HeartModel::MapToModelFrameNumber(double time) const
 	return std::min(frame, numberOfModelFrames_);
 }
 
-double HeartModel::ComputeVolume(SurfaceType surface, double time) const
+double HeartModel::ComputeVolume(HeartSurfaceEnum surface, double time) const
 {
 	dbg("*** Missing update : HeartModel::ComputeVolume");
 

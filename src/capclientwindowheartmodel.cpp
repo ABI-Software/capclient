@@ -10,6 +10,7 @@ extern "C"
 #include <api/cmiss_status.h>
 #include <api/cmiss_context.h>
 #include <api/cmiss_field.h>
+#include <api/cmiss_field_finite_element.h>
 #include <api/cmiss_region.h>
 #include <api/cmiss_stream.h>
 #include <api/cmiss_rendition.h>
@@ -17,6 +18,7 @@ extern "C"
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_element.h>
 #include <api/cmiss_node.h>
+#include <api/cmiss_field_composite.h>
 }
 
 #ifdef UnitTestModeller
@@ -187,7 +189,7 @@ void CAPClientWindow::SetHeartModelLambdaParamsAtTime(const std::vector<double>&
 	Cmiss_field_cache_set_time(cache, time);
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 
-	for (int i = 0; i < 40; i ++) // node index starts at 1
+	for (int i = 0; i < 40; i++) // node index starts at 1
 	{
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
 		Cmiss_field_cache_set_node(cache, node);
@@ -217,6 +219,47 @@ void CAPClientWindow::SetHeartModelLambdaParamsAtTime(const std::vector<double>&
 	Cmiss_field_cache_destroy(&cache);
 	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_field_module_destroy(&field_module);
+}
+
+int CAPClientWindow::ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const
+{
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_begin_change(field_module);
+	Cmiss_field_id patient_rc_coordinates = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_cache_set_time(cache, time);
+	double values[3];
+	values[0] = position.x;
+	values[1] = position.y;
+	values[2] = position.z;
+	Cmiss_field_id const_position = Cmiss_field_module_create_constant(field_module, 3, values);
+	Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
+	Cmiss_field_id mesh_location_field = Cmiss_field_module_create_find_mesh_location(field_module, const_position, patient_rc_coordinates, mesh);
+	Cmiss_field_find_mesh_location_id find_mesh_location_field = Cmiss_field_cast_find_mesh_location(mesh_location_field);
+	int r = Cmiss_field_find_mesh_location_set_search_mode(find_mesh_location_field, CMISS_FIELD_FIND_MESH_LOCATION_SEARCH_MODE_FIND_NEAREST);
+	Cmiss_field_find_mesh_location_destroy(&find_mesh_location_field);
+
+	double xi_values[3];
+	Cmiss_element_id el = Cmiss_field_evaluate_mesh_location(mesh_location_field, cache, 3, xi_values);
+	xi.x = xi_values[0];
+	xi.y = xi_values[1];
+	xi.z = xi_values[2];
+	int element_id = Cmiss_element_get_identifier(el);
+	dbg("element : " + toString(element_id) + " xi [ " + toString(xi) + " ]");
+	Cmiss_element_destroy(&el);
+
+	Cmiss_field_module_end_change(field_module);
+
+	//Cmiss_region_destroy(&heart_region);
+	//Cmiss_element_iterator_destroy(&eit);
+	Cmiss_mesh_destroy(&mesh);
+	Cmiss_field_destroy(&mesh_location_field);
+	Cmiss_field_destroy(&const_position);
+	Cmiss_field_destroy(&patient_rc_coordinates);
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_field_module_destroy(&field_module);
+
+	return element_id;
 }
 
 void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
@@ -367,7 +410,27 @@ void CAPClientWindow::LoadHermiteHeartElements(std::string exelemFileName)
 	Cmiss_region_destroy(&root_region);
 }
 
-double CAPClientWindow::ComputeHeartVolume(SurfaceType surface, double time) const
+Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const
+{
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_begin_change(field_module);
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	double values[3] = {position_rc.x, position_rc.y, position_rc.z};
+	Cmiss_field_id const_field = Cmiss_field_module_create_constant(field_module, 3, values);
+	Cmiss_field_cache_set_field_real(cache, const_field, 3, values);
+	Cmiss_field_id coord_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	double values_ps[3];
+	int r = Cmiss_field_evaluate_real(coord_ps, cache, 3, values_ps);
+	Cmiss_field_destroy(&const_field);
+	Cmiss_field_destroy(&coord_ps);
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_field_module_end_change(field_module);
+	Cmiss_field_module_destroy(&field_module);
+
+	return Point3D(values_ps);
+}
+
+double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time) const
 {
 	//dbg("CAPClientWindow::ComputeHeartVolume");
 
