@@ -106,6 +106,13 @@ namespace cap
 		ModellingEnum GetModellingPointType() const { return modellingPointType_; }
 
 		/**
+		 * Gets the modelling point type as a string.
+		 *
+		 * @return	The modelling point type string.
+		 */
+		std::string GetModellingPointTypeString() const;
+
+		/**
 		 * Gets the heart surface type.
 		 *
 		 * @return	The heart surface type.
@@ -118,6 +125,13 @@ namespace cap
 		 * @param	type	The type.
 		 */
 		void SetHeartSurfaceType(HeartSurfaceEnum type) { heartSurfaceType_ = type; }
+
+		/**
+		 * Gets the node identifier.
+		 *
+		 * @return	The node identifier.
+		 */
+		int GetNodeIdentifier() const { return node_id_; }
 
 	protected:
 		ModellingEnum modellingPointType_; /**< Type of the modelling point */

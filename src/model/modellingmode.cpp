@@ -541,6 +541,23 @@ ModellingPoints ModellingModeGuidePoints::GetModellingPoints() const
 	return mps;
 }
 
+ModellingPoints ModellingModeGuidePoints::GetModellingPointsAtTime(double time) const
+{
+	ModellingPoints mps = GetModellingPoints();
+	ModellingPoints::const_iterator cit = mps.begin();
+	ModellingPoints modellingPointsAtTime;
+	while (cit != mps.end() && ((cit->GetTime() - time) < 1e-06))
+	{
+		if (fabs(cit->GetTime() - time) < 1e-06)
+		{
+			modellingPointsAtTime.push_back(*cit);
+		}
+		++cit;
+	}
+
+	return modellingPointsAtTime;
+}
+
 std::vector<ModellingPointsMap> ModellingModeGuidePoints::GetGuidePoints() const
 {
 	using boost::bind;

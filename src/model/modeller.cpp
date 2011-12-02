@@ -590,23 +590,11 @@ void Modeller::FitModel(double time)
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		// 0. Get the modelling points for the current time
-		ModellingPoints mps = modellingModeGuidePoints_.GetModellingPoints();
-		ModellingPoints::const_iterator cit = mps.begin();
-		ModellingPoints currentModellingPoints;
-		while (cit != mps.end() && ((cit->GetTime() - time) < 1e-06))
-		{
-			if (fabs(cit->GetTime() - time) < 1e-06)
-			{
-				currentModellingPoints.push_back(*cit);
-			}
-			++cit;
-		}
+		ModellingPoints currentModellingPoints = modellingModeGuidePoints_.GetModellingPointsAtTime(time);
 
 		if (currentModellingPoints.size() == 0)
 			return;
 
-		dbg("**** FIX, Modeller::FitModel not yet updated to Cmgui 2.8.0 ****");
-		dbg("**** size : " + toString(currentModellingPoints.size()));
 		// Compute P 
 		// 1. find xi coords for each data point
 		ModellingPoints::iterator itr = currentModellingPoints.begin();//-- = dataPoints.begin();
@@ -620,7 +608,7 @@ void Modeller::FitModel(double time)
 			Point3D xi;
 			int elem_id = mainApp_->ComputeHeartModelXi(itr->GetPosition(), time, xi);
 			//--int elem_id = 0;//--heartModel_.ComputeXi(itr->second.GetCoordinate(), xi, (double)frameNumber/heartModel_.GetNumberOfModelFrames());
-			if(!itr->GetHeartSurfaceType())
+			if(itr->GetHeartSurfaceType() == UNDEFINED_HEART_SURFACE_TYPE)
 			{
 				if (xi.z < 0.5)
 				{
@@ -637,14 +625,11 @@ void Modeller::FitModel(double time)
 			element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
 			
 			Point3D dataPointLocal;//-- = heartModel_.TransformToLocalCoordinateRC(itr->second.GetCoordinate());
-			Point3D dataPointPS = mainApp_->ConvertToHeartModelProlateSpheriodalCoordinate(itr->GetPosition());//-- = heartModel_.TransformToProlateSpheroidal(dataPointLocal);
+			Point3D dataPointPS = mainApp_->ConvertToHeartModelProlateSpheriodalCoordinate(itr->GetNodeIdentifier(), itr->GetModellingPointTypeString());//-- = heartModel_.TransformToProlateSpheroidal(dataPointLocal);
 			(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 		}
 		
-		//debug
-#ifndef NDEBUG
-		std::cout << "dataLambda = " << *dataLambda << std::endl;
-#endif
+		dbg("dataLambda = " + toString(*dataLambda));
 		
 		// 2. evaluate basis at the xi coords
 		//    use this function as a temporary soln until Cmgui supports this
@@ -673,9 +658,9 @@ void Modeller::FitModel(double time)
 		}
 		
 		// 3. construct P
-		//--SparseMatrix* P = solverFactory_->CreateSparseMatrix(currentModellingPoints.size(), 512, entries); //FIX
+		SparseMatrix* P = solverFactory_->CreateSparseMatrix(currentModellingPoints.size(), 512, entries); //FIX
 		
-		/*--aMatrix_->UpdateData(*P);
+		aMatrix_->UpdateData(*P);
 		
 		// Compute RHS - GtPt(dataLamba - priorLambda)
 
@@ -722,6 +707,7 @@ void Modeller::FitModel(double time)
 #define UPDATE_CMGUI
 #ifdef UPDATE_CMGUI
 		//--heartModel_.SetLambdaForFrame(hermiteLambdaParams, frameNumber); //Hermite
+		mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
 		
 		UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
 #endif
@@ -734,7 +720,7 @@ void Modeller::FitModel(double time)
 		delete temp;
 		delete rhs;
 		delete x;
-		*/
+		
 	}
 }
 

@@ -299,13 +299,14 @@ public:
 	int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const;
 
 	/**
-	 * Converts a position_rc to a heart model prolate spheriodal coordinate.
+	 * Converts a nodes rc position into a heart model prolate spheriodal coordinate.
 	 *
-	 * @param	position_rc	The position in a rectanglar cartesion coordinate system.
+	 * @param	node_id	   	The node identifier.
+	 * @param	region_name	Name of the region.
 	 *
 	 * @return	The position in a prolate shperiodal coordinate system.
 	 */
-	Point3D ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const;
+	Point3D ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const;
 
 	/**
 	 * Sets the heart prolate spheriod focal length.

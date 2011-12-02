@@ -20,7 +20,7 @@ namespace cap
 		void SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane, double time);
 		void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time);
 		int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const;
-		Point3D ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const;
+		Point3D ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const;
 
 		void SetHeartModelTransformation(const gtMatrix& transform);
 		void LoadTemplateHeartModel(unsigned int numberOfModelFrames);

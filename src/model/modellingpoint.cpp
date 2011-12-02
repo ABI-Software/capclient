@@ -87,5 +87,10 @@ void ModellingPoint::Remove()
 	Cmiss_field_module_destroy(&field_module);
 }
 
+std::string  ModellingPoint::GetModellingPointTypeString() const
+{
+	return ModellingEnumStrings.find(modellingPointType_)->second;
+}
+
 }
 

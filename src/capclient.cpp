@@ -50,9 +50,9 @@ int CAPClient::ComputeHeartModelXi(const Point3D& position, double time, Point3D
 	return gui_->ComputeHeartModelXi(position, time, xi);
 }
 
-Point3D CAPClient::ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const
+Point3D CAPClient::ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const
 {
-	return gui_->ConvertToHeartModelProlateSpheriodalCoordinate(position_rc);
+	return gui_->ConvertToHeartModelProlateSpheriodalCoordinate(node_id, region_name);
 }
 
 int CAPClient::GetNumberOfHeartModelFrames() const

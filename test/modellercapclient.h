@@ -48,9 +48,9 @@ namespace cap
 			return gui_->ComputeHeartModelXi(position, time, xi);
 		}
 
-		Point3D ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const
+		Point3D ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const
 		{
-			return gui_->ConvertToHeartModelProlateSpheriodalCoordinate(position_rc);
+			return gui_->ConvertToHeartModelProlateSpheriodalCoordinate(node_id, region_name);
 		}
 
 		unsigned int GetMinimumNumberOfFrames() const
