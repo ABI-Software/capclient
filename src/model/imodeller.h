@@ -58,13 +58,14 @@ namespace cap
 		virtual int GetNumberOfHeartModelFrames() const = 0;
 
 		/**
-		 * Converts a position_rc to a heart model prolate spheriodal coordinate.
+		 * Converts a nodes rc position into a heart model prolate spheriodal coordinate.
 		 *
-		 * @param	position_rc	The position in a rectanglar cartesion coordinate system.
+		 * @param	node_id	   	The node identifier.
+		 * @param	region_name	Name of the region.
 		 *
 		 * @return	The position in a prolate shperiodal coordinate system.
 		 */
-		virtual Point3D ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const = 0;
+		virtual Point3D ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const = 0;
 
 		/**
 		 * Calculates the heart model xi.

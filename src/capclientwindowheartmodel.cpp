@@ -19,6 +19,7 @@ extern "C"
 #include <api/cmiss_element.h>
 #include <api/cmiss_node.h>
 #include <api/cmiss_field_composite.h>
+#include <api/cmiss_field_matrix_operators.h>
 }
 
 #ifdef UnitTestModeller
@@ -245,7 +246,7 @@ int CAPClientWindow::ComputeHeartModelXi(const Point3D& position, double time, P
 	xi.y = xi_values[1];
 	xi.z = xi_values[2];
 	int element_id = Cmiss_element_get_identifier(el);
-	dbg("element : " + toString(element_id) + " xi [ " + toString(xi) + " ]");
+	//dbg("element : " + toString(element_id) + " xi [ " + toString(xi) + " ]");
 	Cmiss_element_destroy(&el);
 
 	Cmiss_field_module_end_change(field_module);
@@ -410,19 +411,55 @@ void CAPClientWindow::LoadHermiteHeartElements(std::string exelemFileName)
 	Cmiss_region_destroy(&root_region);
 }
 
-Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const
+Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const
 {
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, region_name);
 	Cmiss_field_module_begin_change(field_module);
 	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
-	double values[3] = {position_rc.x, position_rc.y, position_rc.z};
-	Cmiss_field_id const_field = Cmiss_field_module_create_constant(field_module, 3, values);
-	Cmiss_field_cache_set_field_real(cache, const_field, 3, values);
-	Cmiss_field_id coord_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	Cmiss_field_id inv_projection_mx = Cmiss_field_module_find_field_by_name(field_module, "inv_projection_mx");
+	Cmiss_field_id coordinates = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	//Cmiss_field_get_attribute_integer(coordinates, CMISS_FIELD_ATT
+	Cmiss_field_id coordinates_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates_ps");
+	if (!inv_projection_mx)
+	{
+		// Create the field pipeline
+		Cmiss_field_module_id field_module_heart = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
+		Cmiss_field_module_begin_change(field_module_heart);
+		Cmiss_field_cache_id cache_heart = Cmiss_field_module_create_cache(field_module_heart);
+
+		Cmiss_field_id projection_mx_heart = Cmiss_field_module_find_field_by_name(field_module_heart, "projection_mx");
+		double proj_mx_values[16];
+		Cmiss_field_evaluate_real(projection_mx_heart, cache_heart, 16, proj_mx_values);
+		Cmiss_field_id projection_mx = Cmiss_field_module_create_constant(field_module, 16, proj_mx_values);
+		inv_projection_mx = Cmiss_field_module_create_matrix_invert(field_module, projection_mx);
+		Cmiss_field_set_name(inv_projection_mx, "inv_projection_mx");
+		Cmiss_field_id heart_template_rc = Cmiss_field_module_create_projection(field_module, coordinates, inv_projection_mx);
+		Cmiss_field_set_name(heart_template_rc, "heart_rc");
+		std::string command = "coordinate_system prolate_spheroidal focus " + toString(heartModel_->GetFocalLength()) + " coordinate_transformation field heart_rc";
+		coordinates_ps = Cmiss_field_module_create_field(field_module, "coordinates_ps", command.c_str());
+		Cmiss_field_set_attribute_integer(coordinates_ps, CMISS_FIELD_ATTRIBUTE_IS_MANAGED, 1);
+
+		Cmiss_field_destroy(&projection_mx_heart);
+		Cmiss_field_destroy(&projection_mx);
+		Cmiss_field_destroy(&heart_template_rc);
+
+		Cmiss_field_cache_destroy(&cache_heart);
+		Cmiss_field_module_end_change(field_module_heart);
+		Cmiss_field_module_destroy(&field_module_heart);
+	}
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id);
+	Cmiss_nodeset_destroy(&nodeset);
+
+	Cmiss_field_cache_set_node(cache, node);
+	Cmiss_node_destroy(&node);
 	double values_ps[3];
-	int r = Cmiss_field_evaluate_real(coord_ps, cache, 3, values_ps);
-	Cmiss_field_destroy(&const_field);
-	Cmiss_field_destroy(&coord_ps);
+	Cmiss_field_evaluate_real(coordinates_ps, cache, 3, values_ps);
+
+	Cmiss_field_destroy(&inv_projection_mx);
+	Cmiss_field_destroy(&coordinates);
+	Cmiss_field_destroy(&coordinates_ps);
+
 	Cmiss_field_cache_destroy(&cache);
 	Cmiss_field_module_end_change(field_module);
 	Cmiss_field_module_destroy(&field_module);

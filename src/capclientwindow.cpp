@@ -921,7 +921,7 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 	for (; cit != modellingPoints.end(); ++cit)
 	{
 		ModellingPoint mp = *cit;
-		const std::string& modelling_mode = ModellingEnumStrings.find(mp.GetModellingPointType())->second;
+		const std::string& modelling_mode = mp.GetModellingPointTypeString();//ModellingEnumStrings.find(mp.GetModellingPointType())->second;
 		Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
 
 		switch (mp.GetModellingPointType())
