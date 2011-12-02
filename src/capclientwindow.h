@@ -287,6 +287,27 @@ public:
 	void SetHeartModelTransformation(const gtMatrix& transform);
 
 	/**
+	 * Calculates the heart model xi.  This function finds the nearest element of the heart model
+	 * and returns the xi coordinates of the element at which the given point is nearest to.
+	 *
+	 * @param	position  	The position.
+	 * @param	time	  	The time.
+	 * @param [in,out]	xi	The xi.
+	 *
+	 * @return	The element id of the nearest element, returns -1 if no element was found.
+	 */
+	int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const;
+
+	/**
+	 * Converts a position_rc to a heart model prolate spheriodal coordinate.
+	 *
+	 * @param	position_rc	The position in a rectanglar cartesion coordinate system.
+	 *
+	 * @return	The position in a prolate shperiodal coordinate system.
+	 */
+	Point3D ConvertToHeartModelProlateSpheriodalCoordinate(const Point3D& position_rc) const;
+
+	/**
 	 * Sets the heart prolate spheriod focal length.
 	 *
 	 * @param	focalLength	focal length for the prolate spheriod coordinate system.
@@ -324,7 +345,7 @@ public:
 	 *
 	 * @return	The calculated heart volume.
 	 */
-	double ComputeHeartVolume(SurfaceType surface, double time) const;
+	double ComputeHeartVolume(HeartSurfaceEnum surface, double time) const;
 
 	/**
 	 * Loads a heart model from the list of exnode files.  Each exnode file is listed with it's full

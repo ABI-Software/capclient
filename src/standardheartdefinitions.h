@@ -11,12 +11,11 @@ namespace cap
 /**
  * Enum describing the external surfaces of the heart.
  */
-enum SurfaceType
+enum HeartSurfaceEnum
 {
 	EPICARDIUM,
 	ENDOCARDIUM,
-	UNDEFINED_SURFACE_TYPE,
-	MAX_SURFACE_TYPE
+	UNDEFINED_HEART_SURFACE_TYPE
 };
 
 /**

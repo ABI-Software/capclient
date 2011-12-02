@@ -282,7 +282,7 @@ void CAPXMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& mo
 	for(;it != modellingPoints.end(); ++it)
 	{
 		CAPXMLFile::Point p;
-		p.surface = UNDEFINED_SURFACE_TYPE;
+		p.surface = UNDEFINED_HEART_SURFACE_TYPE;
 		p.type = it->GetModellingPointType();
 		const Point3D& position = it->GetPosition();
 		CAPXMLFile::Value x = {position.x, "x"};

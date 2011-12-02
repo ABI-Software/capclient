@@ -264,7 +264,7 @@ public:
 	 *
 	 * @return	The calculated volume.
 	 */
-	double ComputeVolume(SurfaceType surface, double time) const;
+	double ComputeVolume(HeartSurfaceEnum surface, double time) const;
 
 	/**
 	 * Gets the exnode file names.

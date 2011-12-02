@@ -26,7 +26,7 @@ DataPoint::DataPoint(Cmiss_node* node, const Point3D& coord, ModellingEnum dataP
 	, coordinate_(coord)
 	, time_(time)
 	, weight_(weight)
-	, surfaceType_(UNDEFINED_SURFACE_TYPE)
+	, surfaceType_(UNDEFINED_HEART_SURFACE_TYPE)
 	, dataPointType_(dataPointType)
 	, startTime_(time)
 	, endTime_(time)
@@ -113,12 +113,12 @@ void DataPoint::SetDataPointType(ModellingEnum type)
 	dataPointType_ = type;
 }
 
-SurfaceType DataPoint::GetSurfaceType() const
+HeartSurfaceEnum DataPoint::GetSurfaceType() const
 {
 	return surfaceType_;
 }
 
-void DataPoint::SetSurfaceType(SurfaceType type)
+void DataPoint::SetSurfaceType(HeartSurfaceEnum type)
 {
 	surfaceType_ = type;
 }

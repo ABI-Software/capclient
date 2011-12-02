@@ -41,7 +41,7 @@ public:
 	struct Point
 	{
 		std::map<std::string, Value> values;
-		SurfaceType surface;
+		HeartSurfaceEnum surface;
 		ModellingEnum type;
 		double time;
 	};

@@ -95,16 +95,16 @@ public:
 private:
 	void EvaluateHermiteBasis(double bf[], const double xi[]) const
 	{
-	  bf[0] = 1.0 - 3.0 * xi[0] * xi[0] + 2.0 * xi[0] * xi[0] * xi[0];
-	  bf[1] = 1.0 * xi[0] - 2.0 * xi[0] * xi[0] + xi[0] * xi[0] * xi[0];
-	  bf[2] = 3.0 * xi[0] * xi[0] - 2.0 * xi[0] * xi[0] * xi[0];
-	  bf[3] = -1.0 * xi[0] * xi[0] + xi[0] * xi[0] * xi[0];
+		bf[0] = 1.0 - 3.0 * xi[0] * xi[0] + 2.0 * xi[0] * xi[0] * xi[0];
+		bf[1] = 1.0 * xi[0] - 2.0 * xi[0] * xi[0] + xi[0] * xi[0] * xi[0];
+		bf[2] = 3.0 * xi[0] * xi[0] - 2.0 * xi[0] * xi[0] * xi[0];
+		bf[3] = -1.0 * xi[0] * xi[0] + xi[0] * xi[0] * xi[0];
 	}
 	
 	void EvaluateLinearBasis(double bf[], const double xi[]) const
 	{
-	  bf[0] = 1.0 - xi[0];
-	  bf[1] = xi[0];
+		bf[0] = 1.0 - xi[0];
+		bf[1] = xi[0];
 	}
 };
 

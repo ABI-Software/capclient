@@ -105,8 +105,23 @@ namespace cap
 		 */
 		ModellingEnum GetModellingPointType() const { return modellingPointType_; }
 
+		/**
+		 * Gets the heart surface type.
+		 *
+		 * @return	The heart surface type.
+		 */
+		HeartSurfaceEnum GetHeartSurfaceType() const { return heartSurfaceType_; }
+
+		/**
+		 * Sets the heart surface type.
+		 *
+		 * @param	type	The type.
+		 */
+		void SetHeartSurfaceType(HeartSurfaceEnum type) { heartSurfaceType_ = type; }
+
 	protected:
 		ModellingEnum modellingPointType_; /**< Type of the modelling point */
+		HeartSurfaceEnum heartSurfaceType_; /**< Type of the heart surface */
 		Cmiss_region_id region_;	/**< The region */
 		int node_id_;   /**< Identifier for the node */
 		Point3D position_;  /**< The position */

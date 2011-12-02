@@ -473,7 +473,7 @@ void ConstructPointSubtree(CAPXMLFile::Point const &point, xmlNodePtr imageNode)
 {
 	xmlNodePtr pointNode = xmlNewChild(imageNode, NULL, BAD_CAST "Point", NULL);
 	
-	if (point.surface != UNDEFINED_SURFACE_TYPE) // surface is optional
+	if (point.surface != UNDEFINED_HEART_SURFACE_TYPE) // surface is optional
 	{
 		xmlChar* surfaceStr  = NULL;
 		if (point.surface == EPICARDIUM)
