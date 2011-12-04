@@ -232,6 +232,7 @@ public:
 	
 	ModellingPoints GetModellingPoints() const;
 	ModellingPoints GetModellingPointsAtTime(double time) const;
+	std::vector<int> GetFramesWithModellingPoints(int numFrames) const;
 	std::vector<ModellingPointsMap> GetGuidePoints() const;
 	//const std::vector< std::vector<double> >& GetTimeVaryingDataPoints() const { return timeVaryingDataPoints_; }
 	const std::vector<int>& GetFramesWithDataPoints() const { return framesWithDataPoints_; }

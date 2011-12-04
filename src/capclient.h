@@ -260,19 +260,29 @@ public:
 	}
 
 	/**
-	 * Adds a data point.
+	 * Adds a modelling point.
 	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	position		   	The position.
-	 * @param	time			   	The time.
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
 	 */
-	//void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position, double time)
-	//{
-	//	modeller_->AddDataPoint(dataPointID, position, time);
-	//}
 	void AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 	{
 		modeller_->AddModellingPoint(region, node_id, position, time);
+	}
+
+	/**
+	 * Move modelling point.
+	 *
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
+	void MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
+	{
+		modeller_->MoveModellingPoint(region, node_id, position, time);
 	}
 
 	/**
@@ -282,10 +292,10 @@ public:
 	 * @param	newPosition		   	The new position.
 	 * @param	time			   	The time.
 	 */
-	void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition, double time)
-	{
-		modeller_->MoveDataPoint(dataPointID, newPosition, time);
-	}
+	//void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition, double time)
+	//{
+	//	modeller_->MoveDataPoint(dataPointID, newPosition, time);
+	//}
 
 	/**
 	 * Removes the data point.
@@ -327,7 +337,7 @@ public:
 		{
 			return;//FIXME
 		}
-		modeller_->SmoothAlongTime();
+		//--modeller_->SmoothAlongTime();
 		
 		dbg("ED Volume(EPI) = " + toString(gui_->ComputeHeartVolume(EPICARDIUM, 0)));
 		dbg("ED Volume(ENDO) = " + toString(gui_->ComputeHeartVolume(ENDOCARDIUM, 0)));

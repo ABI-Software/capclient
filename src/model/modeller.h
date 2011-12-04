@@ -47,15 +47,24 @@ public:
 	~Modeller();
 
 	/**
-	 * Adds a data point.
+	 * Adds a modelling point.
 	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	coord			   	The coordinate.
-	 * @param	time			   	The time.
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
 	 */
-	//void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 	void AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time);
 
+	/**
+	 * Move modellin point.
+	 *
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
+	void MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time);
 	/**
 	 * Move data point.
 	 *
@@ -63,7 +72,7 @@ public:
 	 * @param	coord			   	The coordinate.
 	 * @param	time			   	The time.
 	 */
-	void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+	//void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 
 	/**
 	 * Removes the data point.

@@ -83,6 +83,15 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 Cmiss_field_module_id Cmiss_context_get_first_non_empty_selection_field_module(Cmiss_context_id cmissContext);
 
 /**
+ * Cmiss field module get first selected node.
+ *
+ * @param	field_module	The field module.
+ *
+ * @return	An accessed node to the first node in the node selection group, 0 otherwise.
+ */
+Cmiss_node_id Cmiss_field_module_get_first_selected_node(Cmiss_field_module_id field_module);
+
+/**
  * Cmiss context create node.
  *
  * @param	cmissContext	Context to use.

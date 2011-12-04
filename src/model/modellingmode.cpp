@@ -558,6 +558,21 @@ ModellingPoints ModellingModeGuidePoints::GetModellingPointsAtTime(double time) 
 	return modellingPointsAtTime;
 }
 
+std::vector<int> ModellingModeGuidePoints::GetFramesWithModellingPoints(int numFrames) const
+{
+	std::vector<int> frames;
+	frames.resize(numFrames);
+	for (int i = 0; i < numFrames; i++)
+	{
+		if (GetModellingPointsAtTime(i/numFrames).size() > 0)
+			frames[i] = 1;
+		else
+			frames[i] = 0;
+	}
+
+	return frames;
+}
+
 std::vector<ModellingPointsMap> ModellingModeGuidePoints::GetGuidePoints() const
 {
 	using boost::bind;
