@@ -22,14 +22,26 @@ private:
 	FileSystem();
 
 public:
+
 	/**
-	 * Gets all the names of the files in the given directory.
+	 * Gets all the names of the files in the given directory.  This list excludes any file names
+	 * starting with a '.'.  @see GetAllFileNamesRecursive
 	 *
 	 * @param	dirname	Pathname of the directory.
 	 *
 	 * @return	all file names.
 	 */
 	static const std::vector<std::string> GetAllFileNames(const std::string& dirname);
+
+	/**
+	 * Gets all file names recursively.  This list excludes directories, only files that are marked
+	 * as a regular file. @see GetAllFileNames
+	 *
+	 * @param	dirname	Pathname of the directory to start from.
+	 *
+	 * @return	all file names found in a recursive search.
+	 */
+	static const std::vector<std::string> GetAllFileNamesRecursive(const std::string& dirname);
 
 	/**
 	 * Creates a directory.

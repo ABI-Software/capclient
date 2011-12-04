@@ -132,7 +132,7 @@ void ImageBrowser::ReadInDICOMFiles()
 	// for now we assume the archive has already been unzipped
 	// and archiveFilename points to the containing dir
 	const std::string& dirname = archiveFilename_;
-	std::vector<std::string> const& filenames = FileSystem::GetAllFileNames(dirname);
+	std::vector<std::string> const& filenames = FileSystem::GetAllFileNamesRecursive(dirname);
 	
 	gui_->CreateProgressDialog("Please wait", "Analysing DICOM headers", filenames.size());
 	int count = 0;
