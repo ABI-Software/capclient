@@ -81,6 +81,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, previousSaveLocation_("")
 	, initialised_xmlUserCommentDialog_(false)
 	, modellingStoppedCine_(false)
+	, modellingActive_(false)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
@@ -466,10 +467,10 @@ double CAPClientWindow::GetCurrentTime() const
 //	mainApp_->AddDataPoint(dataPointID, position, GetCurrentTime());
 //}
 
-void CAPClientWindow::MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition)
-{
-	mainApp_->MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
-}
+//void CAPClientWindow::MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition)
+//{
+//	mainApp_->MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
+//}
 
 void CAPClientWindow::RemoveDataPoint(Cmiss_node* dataPointID)
 {
@@ -517,8 +518,8 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 void CAPClientWindow::Terminate(wxCloseEvent& event)
 {
 	cout << "CAPClientWindow::" << __func__ << endl;
-	int answer = wxYES; //wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
-	                    //        wxYES_NO, this);
+	int answer = wxYES; //--wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
+	                    //--        wxYES_NO, this);
 	if (answer == wxYES)
 	{
 //		Destroy();
@@ -613,12 +614,13 @@ void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 	int selection = event.GetInt();
 	wxString name = checkListBox_Slice->GetString(selection);
 	bool visibility = checkListBox_Slice->IsChecked(selection);
+	bool mii_visibility = checkBox_MII->IsChecked();
 
 	TextureSliceMap::const_iterator cit = textureSliceMap_.find(std::string(name.c_str()));
 	if (cit != textureSliceMap_.end())
 	{
 		SetVisibilityForRegion(cmissContext_, cit->first, visibility);
-		SetMIIVisibility(cit->first, visibility);
+		SetMIIVisibility(cit->first, visibility && mii_visibility);
 	}
 }
 
@@ -1009,6 +1011,7 @@ void CAPClientWindow::StartModellingAction()
 	Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
 	std::string command = "group " + modelling_mode + " coordinate_field coordinates edit create define constrain_to_surfaces";
 	cmguiPanel_->SetInteractiveTool("node_tool", command);
+	modellingActive_ = true;
 	if (button_Play->GetLabel() == wxT("Stop"))
 	{
 		//StopCine();
@@ -1020,6 +1023,10 @@ void CAPClientWindow::StartModellingAction()
 
 void CAPClientWindow::EndModellingAction()
 {
+	if (modellingActive_)
+		mainApp_->SmoothAlongTime();
+
+	modellingActive_ = false;
 	if (modellingStoppedCine_)
 	{
 		modellingStoppedCine_ = false;
@@ -1429,22 +1436,15 @@ void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
 
 void CAPClientWindow::AddCurrentlySelectedNode()
 {
-	//Modeller::ModellingEnum currentMode = static_cast<Modeller::ModellingEnum>(choice_Mode->GetSelection());
-	//const std::string& modelling_mode = Modeller::ModellingModeStrings.find(currentMode)->second;
-	//Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	//Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, modelling_mode.c_str());
 	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
-	Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
-	//Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
-	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
 
-	Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
 	// We are assuming here that only one node is selected.  If the node tool is set so that
 	// only single selection is possible then we are golden, if not...
-	Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
+	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
 	if (selected_node)
 	{
+		Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
 		Cmiss_field_cache_set_node(field_cache, selected_node);
 		double values[3];
@@ -1457,35 +1457,59 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 		mainApp_->AddModellingPoint(region, node_id, coords, GetCurrentTime());
 		Cmiss_field_destroy(&coordinate_field);
 		Cmiss_node_destroy(&selected_node);
+		Cmiss_region_destroy(&region);
+		Cmiss_field_cache_destroy(&field_cache);
 	}
 
-	//Cmiss_region_destroy(&root_region);
-	Cmiss_region_destroy(&region);
-	Cmiss_field_cache_destroy(&field_cache);
-	Cmiss_node_iterator_destroy(&it);
-	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_field_module_destroy(&field_module);
 }
 
-Cmiss_node_id CAPClientWindow::GetCurrentlySelectedNode() const
+void CAPClientWindow::MoveCurrentlySelectedNode()
 {
-	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_Mode->GetSelection());
-	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
-	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
-
-	Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
+	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
 	// We are assuming here that only one node is selected.  If the node tool is set so that
 	// only single selection is possible then we are golden, if not...
-	Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
+	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
+	if (selected_node)
+	{
+		Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 
-	Cmiss_node_iterator_destroy(&it);
-	Cmiss_nodeset_destroy(&nodeset);
+		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+		Cmiss_field_cache_set_node(field_cache, selected_node);
+		double values[3];
+		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
+
+		Point3D coords(values);
+		int node_id = Cmiss_node_get_identifier(selected_node);
+		mainApp_->MoveModellingPoint(region, node_id, coords, GetCurrentTime());
+		Cmiss_field_destroy(&coordinate_field);
+		Cmiss_node_destroy(&selected_node);
+		Cmiss_region_destroy(&region);
+		Cmiss_field_cache_destroy(&field_cache);
+	}
 	Cmiss_field_module_destroy(&field_module);
-
-	return selected_node;
 }
 
+//Cmiss_node_id CAPClientWindow::GetCurrentlySelectedNode() const
+//{
+//	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_Mode->GetSelection());
+//	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
+//	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+//	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
+//
+//	Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
+//	// We are assuming here that only one node is selected.  If the node tool is set so that
+//	// only single selection is possible then we are golden, if not...
+//	Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
+//
+//	Cmiss_node_iterator_destroy(&it);
+//	Cmiss_nodeset_destroy(&nodeset);
+//	Cmiss_field_module_destroy(&field_module);
+//
+//	return selected_node;
+//}
+//
 Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
 {
 	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_Mode->GetSelection());
@@ -1501,8 +1525,7 @@ Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
 	Cmiss_field_destroy(&coordinate_field);
 	Cmiss_field_module_destroy(&field_module);
 
-	Point3D coords;
-	coords.x = values[0]; coords.y = values[1]; coords.z = values[2];
+	Point3D coords(values);
 
 	return coords;
 }

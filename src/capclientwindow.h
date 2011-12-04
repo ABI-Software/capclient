@@ -365,9 +365,10 @@ public:
 	Cmiss_node_id GetCurrentlySelectedNode() const;
 
 	/**
-	 * Adds currently selected node.  If no node is currenly selected then do nothing.
+	 * Adds currently selected node.  If no node is currently selected then do nothing.
 	 */
 	void AddCurrentlySelectedNode();
+	void MoveCurrentlySelectedNode();
 
 	/**
 	 * Gets a nodes rectanglar cartesian coordinates.  This function
@@ -417,7 +418,7 @@ public:
 	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
 	 * @param	newPosition		   	The new position.
 	 */
-	void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition);
+	//void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition);
 
 	/**
 	 * Removes the data point described by dataPointID.
@@ -629,6 +630,7 @@ private:
 	std::string previousSaveLocation_; /**< The previous save location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
 	bool modellingStoppedCine_; /**< true if cine was playing when modelling started, false otherwise */
+	bool modellingActive_;  /**< true if modelling active, that is adding, moving or deleting a modelling point, false otherwise */
 	StatusTextStringsFieldMap statusTextStringsFieldMap_;   /**< The status text strings field map */
 };
 

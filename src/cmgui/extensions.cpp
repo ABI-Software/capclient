@@ -211,6 +211,19 @@ Cmiss_field_module_id Cmiss_context_get_first_non_empty_selection_field_module(C
 	return field_module;
 }
 
+Cmiss_node_id Cmiss_field_module_get_first_selected_node(Cmiss_field_module_id field_module)
+{
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
+
+	Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
+	Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
+
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_node_iterator_destroy(&it);
+
+	return selected_node;
+}
+
 void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string& regionName, Cmiss_graphics_material_id material)
 {
 	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext);

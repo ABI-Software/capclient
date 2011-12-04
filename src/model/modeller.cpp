@@ -99,11 +99,17 @@ void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D co
 	FitModel(time);
 }
 
-void Modeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
+void Modeller::MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 {
-	currentModellingMode_->MoveDataPoint(dataPointID, coord, time);
+	currentModellingMode_->MoveModellingPoint(node_id, position, time);
 	FitModel(time);
 }
+
+//void Modeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
+//{
+//	currentModellingMode_->MoveDataPoint(dataPointID, coord, time);
+//	FitModel(time);
+//}
 
 void Modeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
 {
@@ -411,7 +417,7 @@ void Modeller::SmoothAlongTime()
 #ifdef SMOOTH_ALONG_TIME
 		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
 		//--const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
-		const std::vector<int>& framesWithDataPoints = modellingModeGuidePoints_.GetFramesWithDataPoints();
+		const std::vector<int>& framesWithDataPoints = modellingModeGuidePoints_.GetFramesWithModellingPoints(numFrames);//--GetFramesWithDataPoints();
 		for (int i=0; i < 134; i++) // FIX magic number
 		{
 	//		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
@@ -429,7 +435,7 @@ void Modeller::SmoothAlongTime()
 #endif
 		
 		clock_t after = clock();
-		dbg(solverFactory_->GetName() + " Smoothing time = " + toString(after - before));
+		dbg(solverFactory_->GetName() + " Smoothing time = " + toString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
 		
 		// feed the results back to Cmgui
 		UpdateTimeVaryingModel();
@@ -629,7 +635,7 @@ void Modeller::FitModel(double time)
 			(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 		}
 		
-		dbg("dataLambda = " + toString(*dataLambda));
+		//dbg("dataLambda = " + toString(*dataLambda));
 		
 		// 2. evaluate basis at the xi coords
 		//    use this function as a temporary soln until Cmgui supports this
@@ -693,8 +699,7 @@ void Modeller::FitModel(double time)
 		solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
 		clock_t after = clock();
-		dbg(solverFactory_->GetName() + " CG time = " + toString(after - before));
-		dbg("Frame number = " + toString(frameNumber));
+		dbg(solverFactory_->GetName() + " CG time = " + toString((after - before) / static_cast<double>(CLOCKS_PER_SEC)) + " sec , frame #" + toString(frameNumber));
 
 		*x += *prior_;
 	//	std::cout << "x = " << *x << std::endl;

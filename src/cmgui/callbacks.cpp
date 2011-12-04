@@ -122,7 +122,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	//	
 	//	//		cout << "Move coord = " << coords << endl;
 	//	gui->MoveDataPoint(selectedNode, coords);
-	//--	gui->MoveCurrentlySelectedNode();
+		gui->MoveCurrentlySelectedNode();
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
 	{
