@@ -91,29 +91,6 @@ int CAPApp::OnExit()
 	return r;
 }
 
-//void CAPApp::OnInitCmdLine(wxCmdLineParser& parser)
-//{
-//	dbg(__func__);
-//	parser.SetDesc(g_cmdLineDesc);
-//	// must refuse '/' as parameter starter or cannot use "/path" style paths
-//	parser.SetSwitchChars(wxT("-"));
-//}
-
-//bool CAPApp::OnCmdLineParsed(wxCmdLineParser& parser)
-//{
-//	dbg(__func__);
-//	server_mode_ = parser.Found(wxT("s"));
-//	
-//	// to get at your unnamed parameters use
-//	wxArrayString files;
-//	for (unsigned int i = 0; i < parser.GetParamCount(); i++)
-//	{
-//		files.Add(parser.GetParam(i));
-//	}
-//	
-//	return true;
-//}
-
 }
 
 IMPLEMENT_APP(cap::CAPApp);
