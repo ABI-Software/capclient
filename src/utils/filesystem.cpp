@@ -54,11 +54,7 @@ FileSystem::FileSystem()
 
 const std::vector<std::string> FileSystem::GetAllFileNames(const std::string& dirname)
 {
-	// It is better to construct the list here rather than in the constructor 
-	// since the contents of the dir can change at any time between the constructor and here
-	// (by other processes)
-	
-	//should we use boost FileSystem?
+	//should we use boost FileSystem? No, we don't want the extra dependency.
 	std::vector<std::string> filenames;
 	
 	DIR *dir;
@@ -66,7 +62,7 @@ const std::vector<std::string> FileSystem::GetAllFileNames(const std::string& di
 	dir = opendir(dirname.c_str());
 	if (!dir)
 	{
-		cout << "Error: can't open the directory: " << dirname << endl; //-- TODO: Add logging output window
+		dbg("Error: can't open the directory: " + dirname); //-- TODO: Add logging output window
 	}
 	else
 	{
@@ -75,6 +71,42 @@ const std::vector<std::string> FileSystem::GetAllFileNames(const std::string& di
 			if (filename[0] != '.' && IsFile(dirname + "/" + filename)) //takes care of ".", ".." and all other files that start with a . (e.g .DS_Store)
 			{
 				filenames.push_back(filename);
+			}
+		}
+		
+		closedir(dir);
+	}
+	
+	return filenames;
+}
+
+const std::vector<std::string> FileSystem::GetAllFileNamesRecursive(const std::string& dirpath)
+{
+	std::vector<std::string> filenames;
+	
+	DIR *dir;
+	struct dirent *ent;
+	dir = opendir(dirpath.c_str());
+	if (!dir)
+	{
+		dbg("Error: can't open the directory: " + dirpath); //-- TODO: Add logging output window
+	}
+	else
+	{
+		while ((ent = readdir(dir)) != 0) {
+			string entityname(ent->d_name);
+			if (entityname[0] != '.' && IsFile(dirpath + "/" + entityname)) //takes care of ".", ".." and all other files that start with a . (e.g .DS_Store)
+			{
+				filenames.push_back(entityname);
+			}
+			else if (entityname[0] != '.' && IsDirectory(dirpath + "/" + entityname))
+			{
+				std::vector<std::string> subfiles = GetAllFileNamesRecursive(dirpath + "/" + entityname);
+				std::vector<std::string>::const_iterator cit = subfiles.begin();
+				for (; cit != subfiles.end(); ++cit)
+				{
+					filenames.push_back(entityname + "/" + *cit);
+				}
 			}
 		}
 		

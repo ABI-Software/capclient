@@ -57,10 +57,23 @@ TEST(FileSystemTest, GetAllFileNames)
 	std::vector<std::string> names = cap::FileSystem::GetAllFileNames(FILESYSTEM_TESTDIR);
 
 	std::sort(names.begin(), names.end());
-	EXPECT_EQ(3, names.size());
+	ASSERT_EQ(3, names.size());
 	EXPECT_EQ(std::string("file1.txt"), names.at(0));
 	EXPECT_EQ(std::string("file2.txt"), names.at(1));
 	EXPECT_EQ(std::string("file3.txt"), names.at(2));
+}
+
+TEST(FileSystemTest, GetAllFileNamesRecursive)
+{
+	std::vector<std::string> names = cap::FileSystem::GetAllFileNamesRecursive(FILESYSTEM_TESTDIR);
+
+	std::sort(names.begin(), names.end());
+	ASSERT_EQ(5, names.size());
+	EXPECT_EQ(std::string("file1.txt"), names.at(0));
+	EXPECT_EQ(std::string("file2.txt"), names.at(1));
+	EXPECT_EQ(std::string("file3.txt"), names.at(2));
+	EXPECT_EQ(std::string("subdir/subfile1.txt"), names.at(3));
+	EXPECT_EQ(std::string("subdir/subfile2.txt"), names.at(4));
 }
 
 TEST(FileSystemTest, MakeDirectory)
