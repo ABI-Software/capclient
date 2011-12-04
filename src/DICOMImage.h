@@ -179,12 +179,22 @@ public:
 	 * @return	null if it fails, else the image plane from dicom header information.
 	 */
 	ImagePlane* GetImagePlane();
-	
+
+	/**
+	 * Gets the series number.
+	 *
+	 * @return	The series number.
+	 */
 	int GetSeriesNumber() const
 	{
 		return seriesNumber_;
 	}
-	
+
+	/**
+	 * Gets the image width px.
+	 *
+	 * @return	The image width px.
+	 */
 	size_t GetImageWidthPx() const
 	{
 		return width_;
