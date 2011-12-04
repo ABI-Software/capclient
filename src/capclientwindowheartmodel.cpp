@@ -20,6 +20,7 @@ extern "C"
 #include <api/cmiss_node.h>
 #include <api/cmiss_field_composite.h>
 #include <api/cmiss_field_matrix_operators.h>
+#include <api/cmiss_time_keeper.h>
 }
 
 #ifdef UnitTestModeller
@@ -479,6 +480,10 @@ double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time
 	Point3D temp;
 	double vol_sum = 0;
 	Point3D origin(0,0,0);
+
+	
+	if (time < 0.0)
+		time = Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 
 	// initialise arrays
 	for (int ne=0;ne<numElements;ne++)

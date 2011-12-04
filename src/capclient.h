@@ -339,8 +339,8 @@ public:
 		}
 		//--modeller_->SmoothAlongTime();
 		
-		dbg("ED Volume(EPI) = " + toString(gui_->ComputeHeartVolume(EPICARDIUM, 0)));
-		dbg("ED Volume(ENDO) = " + toString(gui_->ComputeHeartVolume(ENDOCARDIUM, 0)));
+		dbg("ED Volume(EPI) = " + toString(gui_->ComputeHeartVolume(EPICARDIUM)));
+		dbg("ED Volume(ENDO) = " + toString(gui_->ComputeHeartVolume(ENDOCARDIUM)));
 	}
 
 	/**

@@ -32,6 +32,7 @@ namespace cap
 			: mainApp_(mainApp)
 			, heartModel_(0)
 			, cmissContext_(Cmiss_context_create("UnitTestModeller"))
+			, timeKeeper_(0)
 		{
 		}
 
@@ -46,6 +47,7 @@ namespace cap
 		CAPClient *mainApp_;
 		HeartModel *heartModel_;
 		Cmiss_context_id cmissContext_;
+		Cmiss_time_keeper_id timeKeeper_;
 	};
 
 }
