@@ -259,6 +259,9 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node2), bp2, 0.2);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node3), bp1, 0.4);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.42);
+	EXPECT_FALSE(modeller.OnAccept());
+	EXPECT_EQ(BASEPLANE, modeller.GetCurrentMode());
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.40);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(GUIDEPOINT, modeller.GetCurrentMode());
 
@@ -318,7 +321,7 @@ TEST(Modeller, AlignModel)
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node5), bp1, 0.5);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node6), bp2, 0.5);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node7), bp3, 0.8);
-	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node8), bp4, 0.9);
+	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node8), bp4, 0.8);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(GUIDEPOINT, modeller.GetCurrentMode());
 
