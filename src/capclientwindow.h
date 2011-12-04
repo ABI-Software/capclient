@@ -339,14 +339,14 @@ public:
 	void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
 
 	/**
-	 * Calculates the heart volume.
+	 * Calculates the heart volume at the given time.  If no time is given then the heart volume is
+	 * calculated for the current time.
 	 *
 	 * @param	surface	The surface (EPI or ENDO).
-	 * @param	time   	The time.
 	 *
 	 * @return	The calculated heart volume.
 	 */
-	double ComputeHeartVolume(HeartSurfaceEnum surface, double time) const;
+	double ComputeHeartVolume(HeartSurfaceEnum surface, double time = -1.0) const;
 
 	/**
 	 * Loads a heart model from the list of exnode files.  Each exnode file is listed with it's full
