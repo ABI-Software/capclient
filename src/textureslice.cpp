@@ -19,7 +19,7 @@ TextureSlice::TextureSlice(boost::shared_ptr<Material> material, std::vector<Cmi
 
 TextureSlice::~TextureSlice()
 {
-	dbg("TextureSlice::~TextureSlice()");
+	dbg(" ---- TextureSlice::~TextureSlice()");
 	std::vector<Cmiss_field_image_id>::iterator it = fieldImages_.begin();
 	for (; it != fieldImages_.end(); it++)
 		Cmiss_field_image_destroy(&(*it));

@@ -532,6 +532,16 @@ void CAPClientWindow::Terminate(wxCloseEvent& event)
 void CAPClientWindow::ClearTextureSlices()
 {
 	dbg("=== Danger texture removal not implemented ===");
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	TextureSliceMap::iterator it = textureSliceMap_.begin();
+	while (it != textureSliceMap_.end())
+	{
+		Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, it->first.c_str());
+		textureSliceMap_.erase(it++);
+		Cmiss_region_remove_child(root_region, child_region);
+		Cmiss_region_destroy(&child_region);
+	}
+	Cmiss_region_destroy(&root_region);
 }
 
 void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)

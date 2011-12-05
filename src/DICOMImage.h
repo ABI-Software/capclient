@@ -10,19 +10,17 @@
 
 #include <string>
 #include <vector>
-#include <boost/tr1/memory.hpp>
-#include <boost/utility.hpp>
-#include <boost/bind.hpp>
+//#include <boost/utility.hpp>
+//#include <boost/bind.hpp>
 
 #include "math/algebra.h"
 #include "CAPContour.h"
 
-//struct Cmiss_texture;
-
 namespace cap
 {
+
 /**
- * Dicom image. 
+ * @brief Dicom image.   This class is a non-copyable container for the DICOM header information.
  */
 class DICOMImage : boost::noncopyable
 {
@@ -34,13 +32,11 @@ public:
 	 * @param	filename	Filename of the file.
 	 */
 	explicit DICOMImage(const std::string& filename);
-	~DICOMImage()
-	{
-		if (plane_)
-		{
-			delete plane_;
-		}
-	}
+
+	/**
+	 * Destructor.
+	 */
+	~DICOMImage();
 
 	/**
 	 * Gets the filename.
@@ -199,20 +195,31 @@ public:
 	{
 		return width_;
 	}
+
+	/**
+	 * Gets the image height in px.
+	 *
+	 * @return	The image height in px.
+	 */
+	size_t GetImageHeightPx() const
+	{
+		return height_;
+	}
 	
 	/**
 	 * Get the image width in millimeters.
 	 */
-	double GetImageWidthMm(void);
+	double GetImageWidthMm(void)
+	{
+		return width_*pixelSizeX_;
+	}
 
 	/**
 	 * Get the image height in millimeters.
 	 */
-	double GetImageHeightMm(void);
-
-	size_t GetImageHeightPx() const
+	double GetImageHeightMm(void)
 	{
-		return height_;
+		return height_*pixelSizeY_;
 	}
 
 	/**
@@ -345,12 +352,6 @@ public:
 		contours_.push_back(con);
 	}
 	
-//	void SetContourVisibility(bool visibility)
-//	{
-//		std::for_each(contours_.begin(), contours_.end(), 
-//				boost::bind(&CAPContour::SetVisibility, _1, visibility));
-//	}
-
 	/**
 	 * Gets the pixel size x coordinate.
 	 *
@@ -393,41 +394,43 @@ private:
 	
 //	double timeInCardiacCycle;
 	
-	std::string studyInstanceUID_;
-	std::string sopInstanceUID_;
-	std::string seriesInstanceUID_;
-	std::string seriesDescription_;
-	std::string sequenceName_;
-	std::string contentTime_;
-	double triggerTime_;
-	int seriesNumber_;
+	std::string studyInstanceUID_; /**< The study insert dtance uid */
+	std::string sopInstanceUID_;	/**< The sop instance uid */
+	std::string seriesInstanceUID_; /**< The series instance uid */
+	std::string seriesDescription_; /**< Information describing the series */
+	std::string sequenceName_;  /**< Name of the sequence */
+	std::string contentTime_;   /**< Time of the content */
+	double triggerTime_;	/**< Time of the trigger */
+	int seriesNumber_;  /**< The series number */
 	Point3D position3D_; /**< image position, location in mm from the origin of the RCS */
 	Vector3D orientation1_; /**< values from the row (X) direction cosine */
 	Vector3D orientation2_; /**< values from the column (Y) direction cosine */
 	
-	Point3D shiftedPosition_;
-	Vector3D modifiedOrientation1_;
-	Vector3D modifiedOrientation2_;
+	Point3D shiftedPosition_;   /**< The shifted position */
+	Vector3D modifiedOrientation1_; /**< The modified orientation 1 */
+	Vector3D modifiedOrientation2_; /**< The modified orientation 2 */
 
-	int instanceNumber_;
+	int instanceNumber_;	/**< The instance number */
 	
-	std::string patientName_;
-	std::string patientId_;
-	std::string scanDate_;
-	std::string dateOfBirth_;
-	std::string gender_;
-	std::string age_;
+	std::string patientName_;   /**< Name of the patient */
+	std::string patientId_; /**< Identifier for the patient */
+	std::string scanDate_;  /**< Date of the scan */
+	std::string dateOfBirth_;   /**< Date of the birth */
+	std::string gender_;	/**< The gender */
+	std::string age_;   /**< The age */
 	
-	ImagePlane* plane_;
-//	Cmiss_texture* texture_;
+	ImagePlane* plane_; /**< The image plane */
 	std::vector<ContourPtr> contours_; //FIXME fix what???
 	
-	bool isShifted_;
-	bool isRotated_;
+	bool isShifted_;	/**< true if this object is shifted */
+	bool isRotated_;	/**< true if this object is rotated */
 };
 
 //class DICOMImage;
 
+/**
+ * Defines an alias representing the dicom pointer.
+ */
 typedef boost::shared_ptr<DICOMImage> DICOMPtr;
 
 } // end namespace cap

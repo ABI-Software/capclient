@@ -22,7 +22,7 @@ namespace cap
 {
 
 /** 
- * Wrapper class around the Cmiss_graphics_material.  The graphics material is
+ * @brief Wrapper class around the Cmiss_graphics_material.  The graphics material is
  * used as a texture, by setting an image field into the material the image can
  * be displayed in a surface.  The surface needs to set it's material to make the
  * image visible.
