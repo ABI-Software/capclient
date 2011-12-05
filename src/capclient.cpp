@@ -268,6 +268,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 
 void CAPClient::OpenModel(const std::string& filename)
 {
+	// Clear out anything old.
 	cardiacAnnotationPtr_.reset(0);
 
 	CAPXMLFile xmlFile(filename);

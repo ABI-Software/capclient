@@ -360,8 +360,6 @@ void ImageBrowser::UpdateSeriesInfoPanel(DICOMPtr const& dicomPtr)
 	ss << std::setprecision(5) << position.z;
 	string const &posStr(ss.str());
 	gui_->SetInfoField("ImagePosition", posStr);
-	
-	// std::pair<Vector3D,Vector3D> const& orientation = dicomPtr->GetImageOrientation(); /**< Was this intended to be used somewhere? */
 }
 
 void ImageBrowser::ChangePreviewImage(int frameNumber)

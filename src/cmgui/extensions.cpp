@@ -226,7 +226,7 @@ Cmiss_node_id Cmiss_field_module_get_first_selected_node(Cmiss_field_module_id f
 
 void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string& regionName, Cmiss_graphics_material_id material)
 {
-	Cmiss_region* root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	//Got to find the child region first!!
 	dbg("Subregion name = " + regionName);
 	Cmiss_region_id region = 0;
@@ -335,9 +335,8 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 		, CMISS_BASIS_FUNCTION_LINEAR_LAGRANGE);
 	const int cube_local_node_indexes[element_node_count] = { 1, 2, 3, 4};
 	Cmiss_element_template_define_field_simple_nodal(element_template, coordinates_field,
-													 /*component_number*/-1, cubic_basis, element_node_count, cube_local_node_indexes);
+		 /*component_number*/-1, cubic_basis, element_node_count, cube_local_node_indexes);
 	Cmiss_element_basis_destroy(&cubic_basis);
-	//std::cout << "Cmiss_element : " << result << std::endl;
 	
 	/* create element */
 	for (int i = 1; i <= element_node_count; i++)

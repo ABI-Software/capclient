@@ -5,6 +5,7 @@
 
 #include "abstractlabelled.h"
 #include "labelledslice.h"
+#include "utils/debug.h"
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -23,7 +24,7 @@ LabelledSlice::LabelledSlice(const std::string& label, std::vector<DICOMPtr> dic
 
 LabelledSlice::~LabelledSlice()
 {
-
+	dbg(" ---- LabelledSlice::~LabelledSlice()");
 }
 
 }

@@ -32,14 +32,8 @@ DICOMImage::DICOMImage(const std::string& filename)
 {
 }
 
-double DICOMImage::GetImageWidthMm()
+DICOMImage::~DICOMImage()
 {
-	return 0.0;
-}
-
-double DICOMImage::GetImageHeightMm()
-{
-	return 0.0;
 }
 
 class TestApp : public wxApp

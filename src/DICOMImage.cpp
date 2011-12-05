@@ -37,12 +37,21 @@ namespace cap
 using namespace std;
 
 DICOMImage::DICOMImage(const string& filename)
-	: filename_(filename),
-	  plane_(0),
-	  isShifted_(false),
-	  isRotated_(false)
+	: filename_(filename)
+	, plane_(0)
+	, isShifted_(false)
+	, isRotated_(false)
 {
 	ReadDICOMFile();
+}
+
+DICOMImage::~DICOMImage()
+{
+	dbg("DICOMImage::~DICOMImage()");
+	if (plane_)
+	{
+		delete plane_;
+	}
 }
 
 void DICOMImage::ReadDICOMFile()
@@ -424,16 +433,6 @@ ImagePlane* DICOMImage::GetImagePlane()
 		ComputeImagePlane();
 
 	return plane_;
-}
-
-double DICOMImage::GetImageWidthMm()
-{
-	return width_*pixelSizeX_;
-}
-
-double DICOMImage::GetImageHeightMm()
-{
-	return height_*pixelSizeY_;
 }
 
 } // end namespace cap

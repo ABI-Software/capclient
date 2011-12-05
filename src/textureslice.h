@@ -15,7 +15,8 @@ extern "C"
 namespace cap
 {
 /**
- * Texture slice. 
+ * @brief Texture slice.  A texture slice lives in the CAPClientWindow it is partnered to the
+ * LabelledSlices which live in the CAPClient.
  */
 class TextureSlice
 {

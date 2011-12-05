@@ -61,7 +61,6 @@ Material::~Material()
 	dbg(std::string(__func__) + ": " + std::string(name));
 	Cmiss_deallocate(name);
 	Cmiss_graphics_material_destroy(&material_);
-	// TODO need to find out how to destroy material and texture properly
 }
 
 void Material::SetBrightness(float brightness)
