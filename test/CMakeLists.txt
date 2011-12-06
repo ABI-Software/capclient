@@ -135,7 +135,7 @@ SET(FileSystem_SRC
 
 LIST(APPEND UNIT_TESTS UtilsTime)
 SET(UtilsTime_SRC
-	UnitTestUtilsTime.cpp
+	unittestutilstime.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/time.cpp
 )
 
