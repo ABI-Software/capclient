@@ -71,12 +71,13 @@ INCLUDE_DIRECTORIES(
 SET(UNIT_TESTS)
 SET(GUI_TESTS)
 
+LIST(APPEND UNIT_TESTS Math)
 SET(Math_SRC
 	UnitTestCAPMath.cpp
 	UnitTestTotalLeastSquares.cpp
 )
-LIST(APPEND UNIT_TESTS Math)
 
+LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
 	UnitTestCAPXMLFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
@@ -91,14 +92,14 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFileHandler.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
-LIST(APPEND UNIT_TESTS Xml)
 
+LIST(APPEND UNIT_TESTS ImageSet)
 SET(ImageSet_SRC
 	UnitTestImageSet.cpp
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 )
-LIST(APPEND UNIT_TESTS ImageSet)
 
+LIST(APPEND UNIT_TESTS Modeller)
 SET(Modeller_SRC
 	UnitTestModeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
@@ -112,26 +113,31 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 )
-LIST(APPEND UNIT_TESTS Modeller)
 
+LIST(APPEND UNIT_TESTS CAPAnnotationFile)
 SET(CAPAnnotationFile_SRC
 	UnitTestCAPAnnotationFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
-LIST(APPEND UNIT_TESTS CAPAnnotationFile)
 
+LIST(APPEND UNIT_TESTS AnnotationEditor)
 SET(AnnotationEditor_SRC
 	UnitTestAnnotationEditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/AnnotationEditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
 )
-LIST(APPEND UNIT_TESTS AnnotationEditor)
 
+LIST(APPEND UNIT_TESTS FileSystem)
 SET(FileSystem_SRC
 	UnitTestFileSystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 )
-LIST(APPEND UNIT_TESTS FileSystem)
+
+LIST(APPEND UNIT_TESTS UtilsTime)
+SET(UtilsTime_SRC
+	UnitTestUtilsTime.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/time.cpp
+)
 
 LIST(APPEND UNIT_TESTS DICOMImage)
 Set(DICOMImage_SRC
