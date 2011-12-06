@@ -2,6 +2,9 @@
 
 #include "time.h"
 
+#include <iostream>
+#include <sstream>
+
 #if defined(_MSC_VER)
 
 #define WINDOWS_LEAN_AND_MEAN
@@ -14,11 +17,17 @@ std::string TimeNow()
 	if (GetTimeFormatA(LOCALE_USER_DEFAULT, 0, 0, "HH':'mm':'ss", buffer, MAX_LEN) == 0)
 		return "Error in NowTime()";
 
-	char result[100] = {0};
+	//char result[100] = {0};
 	static DWORD first = GetTickCount();
-	std::sprintf(result, "%s.%03ld", buffer, (long)(GetTickCount() - first) % 1000);
+	std::stringstream oss;
+	oss << buffer;
+	oss << ".";
+	oss << std::ios::fixed;
+	oss.precision(3);
+	oss << (GetTickCount() - first) % 1000;
+	//std::sprintf(result, "%s.%03ld", buffer, (long)(GetTickCount() - first) % 1000);
 
-	return result;
+	return oss.str();
 }
 
 #else
@@ -34,10 +43,16 @@ std::string TimeNow()
 	strftime(buffer, sizeof(buffer), "%X", localtime_r(&t, &r));
 	struct timeval tv;
 	gettimeofday(&tv, 0);
-	char result[100] = {0};
-	std::sprintf(result, "%s.%03ld", buffer, (long)tv.tv_usec / 1000);
 
-	return result;
+	std::stringstream oss;
+	oss << buffer;
+	oss << std::ios::fixed;
+	oss.precision(3);
+	oss << (long)tv.tv_usec / 1000;
+	//char result[100] = {0};
+	//std::sprintf(result, "%s.%03ld", buffer, (long)tv.tv_usec / 1000);
+
+	return oss.str();
 }
 
 #endif /* _MSC_VER */
