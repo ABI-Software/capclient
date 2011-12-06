@@ -89,6 +89,7 @@ SET( APP_HDRS
 	src/labelledslice.h
 	src/labelledtexture.h
 	src/capclient.h
+	src/logwindow.h
 	src/capclientwindow.h
 	src/PlatformInfo.h
 	src/SliceInfo.h
@@ -123,6 +124,7 @@ SET( APP_SRCS
 	src/cmgui/sceneviewerpanel.cpp
 	src/DICOMImage.cpp
 	src/datapoint.cpp
+	src/logwindow.cpp
 	src/utils/filesystem.cpp
 	src/imagebrowser.cpp
 	src/imagebrowserwindow.cpp
@@ -149,6 +151,7 @@ SET( APP_XRC
 	src/ui/ImageBrowserWindowUI.xrc
 	src/ui/UserCommentDialogUI.xrc
 	src/ui/CAPClientWindowUI.xrc
+	src/ui/logdialogui.xrc
 	)
 
 SET(MISSING_DEPENDENCY)
@@ -199,7 +202,7 @@ ENDIF( CMAKE_COMPILER_IS_GNUCXX)
 
 # Convert the xrc files into .cpp and .h files in the
 # current build directory tree.
-XRC_TO_CPP("${APP_XRC}" UI_SRCS_AND_HDRS)
+XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${APP_XRC}" UI_SRCS_AND_HDRS)
 
 SET(CAPCLIENT_VERSION_STRING ${CAPCLIENT_VERSION_MAJOR}.${CAPCLIENT_VERSION_MINOR}.${CAPCLIENT_VERSION_PATCH})
 # Configure capclientconfig header file.
