@@ -59,13 +59,13 @@ CONFIGURE_FILE(unittestconfigure.h.cmake unittestconfigure.h)
 
 INCLUDE_DIRECTORIES(
 	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/src
 	${GTEST_INCLUDE_DIRS}
 	${CAPCLIENT_ROOT_DIR}/src
 	${CAPCLIENT_ROOT_DIR}/test
 	${CMGUI_INCLUDE_DIRS}
 	${GDCM_INCLUDE_DIRS}
 	${GMM_INCLUDE_DIRS}
-#	${CAPCLIENT_BINARY_DIR}/src
 )
 
 SET(UNIT_TESTS)
@@ -140,27 +140,38 @@ Set(DICOMImage_SRC
 )
 IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	LIST(APPEND GUI_TESTS ImageBrowser)
+	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${CAPCLIENT_ROOT_DIR}/src/ui/ImageBrowserWindowUI.xrc" ImageBrowser_UI_SRCS_AND_HDRS)
 	SET(ImageBrowser_SRC
 		UnitTestImageBrowser.cpp
 		${CAPCLIENT_ROOT_DIR}/src/cmgui/sceneviewerpanel.cpp
 		${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
 		${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 		${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
-		${CAPCLIENT_BINARY_DIR}/src/ui/ImageBrowserWindowUI.cpp
 		${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
 		${CAPCLIENT_ROOT_DIR}/src/material.cpp
 		${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 		${CAPCLIENT_ROOT_DIR}/src/labelledtexture.cpp
 		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+		${ImageBrowser_UI_SRCS_AND_HDRS}
 	)
 
 	LIST(APPEND GUI_TESTS SelfDeletion)
-	XRC_TO_CPP("ui/selfdeletionwindowui.xrc" SelfDeletion_UI_SRCS_AND_HDRS)
+	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "ui/selfdeletionwindowui.xrc" SelfDeletion_UI_SRCS_AND_HDRS)
 	SET(SelfDeletion_SRC
 		UnitTestSelfDeletion.cpp
 		selfdeletionwindow.cpp
 		${SelfDeletion_UI_SRCS_AND_HDRS}
 		)
+		
+	LIST(APPEND GUI_TESTS LogWindow)
+	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${CAPCLIENT_ROOT_DIR}/src/ui/logdialogui.xrc" LogWindow_UI_SRCS_ANS_HDRS)
+	message(STATUS "what: ${LogWindow_UI_SRCS_ANS_HDRS}")
+	SET(LogWindow_SRC
+		unittestlogwindow.cpp
+		${CAPCLIENT_ROOT_DIR}/src/logwindow.cpp
+		${LogWindow_UI_SRCS_ANS_HDRS}
+		)
+
 ENDIF()
 
 IF(MSVC)

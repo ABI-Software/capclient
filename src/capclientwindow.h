@@ -368,6 +368,10 @@ public:
 	 * Adds currently selected node.  If no node is currently selected then do nothing.
 	 */
 	void AddCurrentlySelectedNode();
+
+	/**
+	 * Move currently selected node.
+	 */
 	void MoveCurrentlySelectedNode();
 
 	/**

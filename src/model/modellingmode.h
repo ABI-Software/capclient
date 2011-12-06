@@ -31,7 +31,7 @@ class Modeller;
 typedef std::map<Cmiss_node*, DataPoint> DataPoints;
 
 /**
- * Modelling mode.  This is an abstract base class for the modelling modes. Implementation of
+ * @brief Modelling mode.  This is an abstract base class for the modelling modes. Implementation of
  * FSM using the State Pattern.
  */
 class ModellingMode
