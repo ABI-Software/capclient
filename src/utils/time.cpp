@@ -1,12 +1,11 @@
 
 
+#include "time.h"
 
 #if defined(_MSC_VER)
 
 #define WINDOWS_LEAN_AND_MEAN
 #include <windows.h>
-
-#include "time.h"
 
 std::string TimeNow()
 {
