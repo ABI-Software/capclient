@@ -74,6 +74,7 @@ SET( APP_HDRS
 	src/capclientconfig.h
 	src/utils/debug.h
 	src/DICOMImage.h
+	src/logmsg.h
 	src/datapoint.h
 	src/utils/filesystem.h
 	src/utils/time.h
@@ -120,6 +121,7 @@ SET( APP_SRCS
 	src/math/timesmoother.cpp
 	src/CAPXMLFile.cpp
 	src/CAPXMLFileHandler.cpp
+	src/logmsg.cpp
 	src/cmgui/callbacks.cpp
 	src/CmguiImageSliceGraphics.cpp
 	src/cmgui/sceneviewerpanel.cpp
