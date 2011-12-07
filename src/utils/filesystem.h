@@ -120,13 +120,15 @@ public:
 	static std::string CreateTemporaryEmptyFile(const std::string& directory = "");
 
 	/**
-	 * Given a string name this function will return the
-	 * filename for the current platform.  The filename 
-	 * includes the extension and starts from the last system 
-	 * directory marker.
+	 * Given a string name this function will return the filename for the current platform.  The
+	 * filename includes the extension and starts from the last system directory marker.
 	 * 
-	 * \param name a string to get the file name from.
-	 * \returns a string starting from the last system directory marker.
+	 * \param name a string to get the file name from. \returns a string starting from the last
+	 * system directory marker.
+	 *
+	 * @param	name	The name.
+	 *
+	 * @return	The file name.
 	 */
 	static std::string GetFileName(const std::string& name);
 	
@@ -142,6 +144,15 @@ public:
 	 * directory marker to the last extension marker.
 	 */
 	static std::string GetFileNameWOE(const std::string& name);
+
+	/**
+	 * Gets a path.
+	 *
+	 * @param	path	Full pathname of the file.
+	 *
+	 * @return	The path.
+	 */
+	static std::string GetPath(const std::string& path);
 };
 
 } // end namespace cap

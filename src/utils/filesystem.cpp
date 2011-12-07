@@ -210,6 +210,9 @@ std::string FileSystem::WriteCharBufferToString(unsigned char data[], unsigned i
 
 std::string FileSystem::GetFileName(const std::string& name)
 {
+	if (IsDirectory(name))
+		return "";
+	
 	std::string temp = name;
 	size_t found;
 	found = temp.find_first_of('\\');
@@ -221,12 +224,15 @@ std::string FileSystem::GetFileName(const std::string& name)
 	
 	if (temp.find_last_of(DIR_SEPERATOR) != std::string::npos)
 		return temp.substr(temp.find_last_of(DIR_SEPERATOR) + 1);
-	
+
 	return name;
 }
 
 std::string FileSystem::GetFileNameWOE(const std::string& name)
 {
+	if (IsDirectory(name))
+		return "";
+
 	char extension_marker = '.';
 	
 	std::string filename = name;
@@ -245,6 +251,33 @@ std::string FileSystem::GetFileNameWOE(const std::string& name)
 		return filename.erase(filename.find_last_of(extension_marker));
 	
 	return filename;
+}
+
+std::string FileSystem::GetPath(const std::string& path)
+{
+	if (IsDirectory(path))
+		return path;
+
+	std::string dirpath = path;
+	size_t found;
+	found = dirpath.find_first_of('\\');
+	while (found!=std::string::npos)
+	{
+		dirpath[found] = DIR_SEPERATOR;
+		found = dirpath.find_first_of('\\', found+1);
+	}
+
+	do
+	{
+		found = dirpath.find_last_of(DIR_SEPERATOR);
+		if (IsDirectory(dirpath.substr(0, found)))
+			return dirpath.substr(0, found);
+
+		dirpath = dirpath.substr(0, found);
+	}
+	while (found != std::string::npos);
+
+	return "";
 }
 
 } // end namespace cap

@@ -1,6 +1,9 @@
 
 #include <gtest/gtest.h>
 #include <algorithm>
+
+#include <wx/filefn.h>
+
 #include "unittestconfigure.h"
 #include "utils/filesystem.h"
 #include "hexified/globalsmoothtvmatrix.dat.h"
@@ -30,6 +33,9 @@ TEST(FileSystemTest, GetFileName)
 	EXPECT_EQ(std::string("where the heart is.juno"), result);
 	result = cap::FileSystem::GetFileName(testString7);
 	EXPECT_EQ(std::string("output.xml"), result);
+	std::string curdir = wxGetCwd();
+	result = cap::FileSystem::GetFileName(curdir);
+	EXPECT_EQ(std::string(""), result);
 	
 }
 
@@ -74,6 +80,25 @@ TEST(FileSystemTest, GetAllFileNamesRecursive)
 	EXPECT_EQ(std::string("file3.txt"), names.at(2));
 	EXPECT_EQ(std::string("subdir/subfile1.txt"), names.at(3));
 	EXPECT_EQ(std::string("subdir/subfile2.txt"), names.at(4));
+}
+
+TEST(FileSysteText, GetPath)
+{
+	std::string result;
+	std::string curdir = wxGetCwd();
+	result = cap::FileSystem::GetPath(curdir);
+	EXPECT_EQ(curdir, result);
+	result = cap::FileSystem::GetPath(curdir + "/this/bit/isnot/real");
+	std::string dirpath = curdir;
+	size_t found = dirpath.find_first_of('\\');
+	while (found != std::string::npos)
+	{
+		dirpath[found] = '/';
+		found = dirpath.find_first_of('\\', found+1);
+	}
+
+	EXPECT_EQ(dirpath, result);
+
 }
 
 TEST(FileSystemTest, MakeDirectory)
