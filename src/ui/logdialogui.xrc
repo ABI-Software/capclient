@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
-	<object class="wxDialog" name="LogDialogUI">
-		<style>wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER</style>
-		<size>847,508</size>
+	<object class="wxFrame" name="LogWindowUI">
+		<style>wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxTAB_TRAVERSAL</style>
+		<size>800,460</size>
 		<title>CAP Client Log</title>
 		<centered>1</centered>
 		<object class="wxStaticBoxSizer">
@@ -12,14 +12,15 @@
 				<option>2</option>
 				<flag>wxALL|wxEXPAND</flag>
 				<border>5</border>
-				<object class="wxHtmlWindow" name="html_log_">
-					<style>wxHW_SCROLLBAR_AUTO</style>
-					<size>800,450</size>
+				<object class="wxTextCtrl" name="text_log_">
+					<style>wxTE_MULTILINE|wxTE_READONLY|wxTE_RICH2</style>
+					<value></value>
+					<maxlength>0</maxlength>
 				</object>
 			</object>
 			<object class="sizeritem">
 				<option>0</option>
-				<flag>wxEXPAND | wxALL</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
 				<object class="wxPanel" name="m_panel7">
 					<style>wxTAB_TRAVERSAL</style>

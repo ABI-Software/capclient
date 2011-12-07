@@ -170,7 +170,8 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		)
 		
 	LIST(APPEND GUI_TESTS LogWindow)
-	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${CAPCLIENT_ROOT_DIR}/src/ui/logdialogui.xrc" LogWindow_UI_SRCS_ANS_HDRS)
+	LIST(APPEND XRC_LogWindow "${CAPCLIENT_ROOT_DIR}/src/ui/logdialogui.xrc" "ui/testlogwindowui.xrc")
+	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${XRC_LogWindow}" LogWindow_UI_SRCS_ANS_HDRS)
 	SET(LogWindow_SRC
 		unittestlogwindow.cpp
 		${CAPCLIENT_ROOT_DIR}/src/logwindow.cpp

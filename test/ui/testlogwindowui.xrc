@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
+	<object class="wxDialog" name="TestLogWindowUI">
+		<style>wxDEFAULT_DIALOG_STYLE</style>
+		<size>120,60</size>
+		<title>Test Log Window</title>
+		<centered>1</centered>
+		<object class="wxBoxSizer">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<option>0</option>
+				<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+				<border>5</border>
+				<object class="wxButton" name="button_show_">
+					<label>Show</label>
+					<default>0</default>
+				</object>
+			</object>
+		</object>
+	</object>
+</resource>

@@ -2,15 +2,23 @@
 
 #include "logwindow.h"
 
+#include <iostream>
+#include <fstream>
+
+#include "images/capicon.xpm"
 #include "utils/filesystem.h"
 
 namespace cap
 {
 	LogWindow* LogWindow::instance_ = 0;
+	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 
 	LogWindow::LogWindow()
 		: previousSaveLocation_("")
 	{
+		SetSize(800, 450);
+		SetIcon(wxICON(capicon));
+		text_log_->HideNativeCaret();
 		MakeConnections();
 	}
 
@@ -36,7 +44,7 @@ namespace cap
 			previousSaveLocation_ = wxGetCwd();
 
 		std::string filename = FileSystem::GetFileName(previousSaveLocation_);
-		std::string dirpath = "";//FileSystem::GetPath(previousSaveLocation_);
+		std::string dirpath = FileSystem::GetPath(previousSaveLocation_);
 
 		wxFileDialog dialog(this, "Select a file", dirpath, filename, "*.*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 		dialog.SetPath(previousSaveLocation_);
@@ -46,6 +54,9 @@ namespace cap
 		{
 			previousSaveLocation_ = dialog.GetPath();
 			std::cout << previousSaveLocation_ << std::endl;
+			std::ofstream file;
+			file.open(previousSaveLocation_.c_str(), std::ios::out);
+			file << text_log_->GetValue();
 		}
 	}
 
@@ -56,39 +67,51 @@ namespace cap
 
 	void LogWindow::LogMessage(const std::string& message)
 	{
-		html_log_->AppendToPage(message);
+		wxTextAttr red = wxTextAttr(wxColour("red"));
+		text_log_->SetStyle(0, 20, red);
+		text_log_->AppendText(message);
 	}
 
-	//std::ostringstream& Log(LogLevelEnum level)
-	//{
-	//	//Logger log;
-	//	//log.Log(level);
-	//	return //log.Log(level);
-	//}
+	void LogWindow::LogMessage(const std::string& time, LogLevelEnum level, const std::string& message)
+	{
+		long p1, p2;
+		wxTextAttr black = wxTextAttr(wxColour("black"));
+		wxTextAttr red = wxTextAttr(wxColour(205, 0, 0));
+		wxTextAttr green = wxTextAttr(wxColour(34, 139, 34));
+		wxTextAttr blue = wxTextAttr(wxColour(0, 0, 205));
+		wxTextAttr orange = wxTextAttr(wxColour(255, 140, 0));
+		wxTextAttr logLevelAttr = black;
+		p1 = text_log_->GetInsertionPoint();
+		text_log_->AppendText(time + "   ");
+		p2 = text_log_->GetInsertionPoint();
+		text_log_->SetStyle(p1, p2, green);
+		p1 = text_log_->GetInsertionPoint();
+		text_log_->AppendText(logLevelString(level) + ": ");
+		p2 = text_log_->GetInsertionPoint();
+		switch (level)
+		{
+		case LOGERROR:
+			logLevelAttr = red;
+			break;
+		case LOGWARNING:
+			logLevelAttr = orange;
+			break;
+		case LOGINFORMATION:
+			logLevelAttr = blue;
+			break;
+		}
+		text_log_->SetStyle(p1, p2, logLevelAttr);
+		p1 = text_log_->GetInsertionPoint();
+		text_log_->AppendText(message);
+		p2 = text_log_->GetInsertionPoint();
+		text_log_->SetStyle(p1, p2, black);
+
+	}
 
 	std::string logLevelString(LogLevelEnum level)
 	{
 		static const char* const buffer[] = {"ERROR", "WARNING", "INFORMATION", "DEBUG"};
 		return buffer[level];
 	}
-
-	//Logger::Logger()
-	//{
-	//}
-	//
-	//Logger::~Logger()
-	//{
-	//	oss_ << std::endl;
-	//	LogWindow::GetInstance()->LogMessage(oss_.str());
-	//}
-
-	//std::ostringstream& Logger::Log(LogLevelEnum level)
-	//{
-	//	oss_ << TimeNow();
-	//	oss_ << " " << logLevelString(level) << ": ";
-
-	//	return oss_;
-	//}
-
 
 }

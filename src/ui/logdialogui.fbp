@@ -21,7 +21,7 @@
         <property name="skip_python_events">1</property>
         <property name="use_enum">0</property>
         <property name="use_microsoft_bom">0</property>
-        <object class="Dialog" expanded="1">
+        <object class="Frame" expanded="1">
             <property name="bg"></property>
             <property name="center">wxBOTH</property>
             <property name="context_help"></property>
@@ -35,10 +35,10 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">LogDialogUI</property>
+            <property name="name">LogWindowUI</property>
             <property name="pos"></property>
-            <property name="size">847,508</property>
-            <property name="style">wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER</property>
+            <property name="size">800,460</property>
+            <property name="style">wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER</property>
             <property name="subclass"></property>
             <property name="title">CAP Client Log</property>
             <property name="tooltip"></property>
@@ -48,7 +48,8 @@
             <property name="validator_variable"></property>
             <property name="window_extra_style"></property>
             <property name="window_name"></property>
-            <property name="window_style"></property>
+            <property name="window_style">wxTAB_TRAVERSAL</property>
+            <property name="xrc_skip_sizer">1</property>
             <event name="OnActivate"></event>
             <event name="OnActivateApp"></event>
             <event name="OnChar"></event>
@@ -58,7 +59,6 @@
             <event name="OnHibernate"></event>
             <event name="OnIconize"></event>
             <event name="OnIdle"></event>
-            <event name="OnInitDialog"></event>
             <event name="OnKeyDown"></event>
             <event name="OnKeyUp"></event>
             <event name="OnKillFocus"></event>
@@ -91,7 +91,7 @@
                     <property name="border">5</property>
                     <property name="flag">wxALL|wxEXPAND</property>
                     <property name="proportion">2</property>
-                    <object class="wxHtmlWindow" expanded="1">
+                    <object class="wxTextCtrl" expanded="1">
                         <property name="bg"></property>
                         <property name="context_help"></property>
                         <property name="context_menu">1</property>
@@ -101,27 +101,26 @@
                         <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
                         <property name="maximum_size"></property>
+                        <property name="maxlength">0</property>
                         <property name="minimum_size"></property>
-                        <property name="name">html_log_</property>
+                        <property name="name">text_log_</property>
                         <property name="permission">protected</property>
                         <property name="pos"></property>
-                        <property name="size">800,450</property>
-                        <property name="style">wxHW_SCROLLBAR_AUTO</property>
+                        <property name="size"></property>
+                        <property name="style">wxTE_MULTILINE|wxTE_READONLY|wxTE_RICH2</property>
                         <property name="subclass"></property>
                         <property name="tooltip"></property>
                         <property name="validator_data_type"></property>
                         <property name="validator_style">wxFILTER_NONE</property>
                         <property name="validator_type">wxDefaultValidator</property>
                         <property name="validator_variable"></property>
+                        <property name="value"></property>
                         <property name="window_extra_style"></property>
                         <property name="window_name"></property>
                         <property name="window_style"></property>
                         <event name="OnChar"></event>
                         <event name="OnEnterWindow"></event>
                         <event name="OnEraseBackground"></event>
-                        <event name="OnHtmlCellClicked"></event>
-                        <event name="OnHtmlCellHover"></event>
-                        <event name="OnHtmlLinkClicked"></event>
                         <event name="OnKeyDown"></event>
                         <event name="OnKeyUp"></event>
                         <event name="OnKillFocus"></event>
@@ -141,12 +140,16 @@
                         <event name="OnRightUp"></event>
                         <event name="OnSetFocus"></event>
                         <event name="OnSize"></event>
+                        <event name="OnText"></event>
+                        <event name="OnTextEnter"></event>
+                        <event name="OnTextMaxLen"></event>
+                        <event name="OnTextURL"></event>
                         <event name="OnUpdateUI"></event>
                     </object>
                 </object>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
-                    <property name="flag">wxEXPAND | wxALL</property>
+                    <property name="flag">wxEXPAND</property>
                     <property name="proportion">0</property>
                     <object class="wxPanel" expanded="1">
                         <property name="bg"></property>

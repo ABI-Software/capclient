@@ -14,6 +14,7 @@
 
 #include "ui/logdialogui.h"
 #include "utils/time.h"
+#include "utils/debug.h"
 
 namespace cap
 {
@@ -26,9 +27,8 @@ namespace cap
 	};
 
 	std::string logLevelString(LogLevelEnum level);
-	//std::ostringstream& Log(LogLevelEnum level);
 
-	class LogWindow : public LogDialogUI
+	class LogWindow : public LogWindowUI
 	{
 	public:
 		~LogWindow();
@@ -45,6 +45,7 @@ namespace cap
 		}
 
 		void LogMessage(const std::string& message);
+		void LogMessage(const std::string& time, LogLevelEnum level, const std::string& message);
 
 	private:
 		LogWindow();
@@ -58,55 +59,53 @@ namespace cap
 		std::string previousSaveLocation_;
 	};
 
-	/*class Logger
-	{
-	public:
-		Logger();
-		virtual ~Logger();
-
-		std::ostringstream& Log(LogLevelEnum level = LOGINFORMATION);
-
-	private:
-		Logger(const Logger&);
-		Logger& operator =(const Logger&);
-
-	protected:
-		std::ostringstream& oss_;
-	};*/
-
 	class Log
 	{
 	public:
 		Log();
 		virtual ~Log();
 		std::ostringstream& Get(LogLevelEnum level = LOGINFORMATION);
+		static LogLevelEnum ReportingLevel() { return reportingLevel_; }
 
 	protected:
-		std::ostringstream os;
+		std::ostringstream oss_;
+		std::string time_;
+		LogLevelEnum level_;
+		static LogLevelEnum reportingLevel_;
+
 	private:
 		Log(const Log&);
 		Log& operator =(const Log&);
 	};
 
 	inline Log::Log()
+		: time_()
+		, level_()
 	{
+#if defined CAP_CLIENT_RELEASE_BUILD
+		reportingLevel_ = LOGINFORMATION;
+#endif
 	}
 
 	inline std::ostringstream& Log::Get(LogLevelEnum level)
 	{
-		os << TimeNow();
-		os << " " << logLevelString(level) << ": ";
+		time_ = TimeNow();
+		level_ = level;
 
-		return os;
+		return oss_;
 	}
 
 	inline Log::~Log()
 	{
-		os << std::endl;
-		LogWindow::GetInstance()->LogMessage(os.str());
-		//fprintf(stderr, "%s", os.str().c_str());
-		//fflush(stderr);
+		oss_ << std::endl;
+		LogWindow::GetInstance()->LogMessage(time_, level_, oss_.str());
+		dbgn(oss_.str());
 	}
+
+	#define LOG_MSG(level) \
+		if (level > Log::ReportingLevel()) ; \
+		else Log().Get(level)
+
 
 }
 
