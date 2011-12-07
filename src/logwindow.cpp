@@ -18,7 +18,6 @@ namespace cap
 	{
 		SetSize(800, 450);
 		SetIcon(wxICON(capicon));
-		text_log_->HideNativeCaret();
 		MakeConnections();
 	}
 
