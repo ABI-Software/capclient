@@ -33,7 +33,7 @@ TEST(FileSystemTest, GetFileName)
 	EXPECT_EQ(std::string("where the heart is.juno"), result);
 	result = cap::FileSystem::GetFileName(testString7);
 	EXPECT_EQ(std::string("output.xml"), result);
-	std::string curdir = wxGetCwd();
+	std::string curdir = wxGetCwd().c_str();
 	result = cap::FileSystem::GetFileName(curdir);
 	EXPECT_EQ(std::string(""), result);
 	
@@ -85,7 +85,7 @@ TEST(FileSystemTest, GetAllFileNamesRecursive)
 TEST(FileSysteText, GetPath)
 {
 	std::string result;
-	std::string curdir = wxGetCwd();
+	std::string curdir = wxGetCwd().c_str();
 	result = cap::FileSystem::GetPath(curdir);
 	EXPECT_EQ(curdir, result);
 	result = cap::FileSystem::GetPath(curdir + "/this/bit/isnot/real");
