@@ -13,7 +13,7 @@
 #include "ui/testlogwindowui.h"
 
 // Manual testing mode.
-#define ENABLE_GUI_INTERACTION
+//#define ENABLE_GUI_INTERACTION
 
 namespace cap
 {
@@ -45,8 +45,6 @@ namespace cap
 			wxXmlResource::Get()->InitAllHandlers();
 			wxXmlInit_logdialogui();
 
-			//LogWindow::GetInstance()->Log(LOGINFORMATION) << "Logging message";
-			//Logger::Log(LOGINFORMATION) << "seom test";
 			LOG_MSG(LOGINFORMATION) << "some test";
 
 			bool result = true;
@@ -58,6 +56,11 @@ namespace cap
 			result = w_->Show();
 #endif
 
+			LOG_MSG_RAW(LOGINFORMATION) << 1.1 << " ";
+			LOG_MSG_RAW(LOGINFORMATION) << 2.1 << " ";
+			LOG_MSG_RAW(LOGINFORMATION) << 3.1 << " ";
+			LOG_MSG_RAW(LOGINFORMATION) << 4.1 << std::endl;
+
 			for (int i = 0; i < 20; i++)
 				LOG_MSG(LOGWARNING) << "Another test " << i;
 
@@ -67,19 +70,17 @@ namespace cap
 			return result;
 		}
 
-		void CloseDialog()
-		{
-			w_->Destroy();
-		}
-
 		int OnExit()
 		{
-			dbg("TestApp::OnExit()");
 			int r = wxApp::OnExit();
 			LogWindow::GetInstance()->Destroy();
-			w_->Destroy();
+			delete LogWindow::GetInstance();
 			if (w_)
+			{
+				w_->Destroy();
 				delete w_;
+			}
+
 			return r;
 		}
 
@@ -99,7 +100,6 @@ TEST(LogWindow, Log)
 	
 	// you can create top level-windows here or in OnInit()
 	// do your testing here
-#define ENABLE_GUI_INTERACTION
 #if defined ENABLE_GUI_INTERACTION
 	wxTheApp->OnRun(); // Do/Don't start main loop
 #else

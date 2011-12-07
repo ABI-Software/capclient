@@ -11,7 +11,6 @@
 namespace cap
 {
 	LogWindow* LogWindow::instance_ = 0;
-	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 
 	LogWindow::LogWindow()
 		: previousSaveLocation_("")
@@ -66,8 +65,6 @@ namespace cap
 
 	void LogWindow::LogMessage(const std::string& message)
 	{
-		wxTextAttr red = wxTextAttr(wxColour("red"));
-		text_log_->SetStyle(0, 20, red);
 		text_log_->AppendText(message);
 	}
 

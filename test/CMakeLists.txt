@@ -175,6 +175,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	SET(LogWindow_SRC
 		unittestlogwindow.cpp
 		${CAPCLIENT_ROOT_DIR}/src/logwindow.cpp
+		${CAPCLIENT_ROOT_DIR}/src/logmsg.cpp
 		${CAPCLIENT_ROOT_DIR}/src/utils/time.cpp
 		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 		${LogWindow_UI_SRCS_ANS_HDRS}
