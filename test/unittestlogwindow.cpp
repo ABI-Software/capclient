@@ -10,12 +10,33 @@
 #include "utils/debug.h"
 
 #include "logwindow.h"
+#include "ui/testlogwindowui.h"
 
 // Manual testing mode.
 #define ENABLE_GUI_INTERACTION
 
 namespace cap
 {
+	class TestLogWindow : public TestLogWindowUI
+	{
+	public:
+		TestLogWindow()
+		{
+			Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(TestLogWindow::OnCloseWindow));
+			Connect(button_show_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(TestLogWindow::ShowLogWindow));
+		}
+
+		void ShowLogWindow(wxCommandEvent& event)
+		{
+			LogWindow::GetInstance()->Show();
+		}
+
+		void OnCloseWindow(wxCloseEvent& event)
+		{
+			wxExit();;
+		}
+	};
+
 	class TestApp : public wxApp
 	{
 	public:
@@ -26,26 +47,43 @@ namespace cap
 
 			//LogWindow::GetInstance()->Log(LOGINFORMATION) << "Logging message";
 			//Logger::Log(LOGINFORMATION) << "seom test";
-			Log().Get() << "some test";
+			LOG_MSG(LOGINFORMATION) << "some test";
 
+			bool result = true;
+			w_ = 0;
 #ifdef ENABLE_GUI_INTERACTION
-			LogWindow::GetInstance()->Show();
+			wxXmlInit_testlogwindowui();
+			w_ = new TestLogWindow();
+			SetTopWindow(w_);
+			result = w_->Show();
 #endif
 
-			Log().Get(LOGWARNING) << "Another test";
+			for (int i = 0; i < 20; i++)
+				LOG_MSG(LOGWARNING) << "Another test " << i;
 
-			return true;
+			LOG_MSG(LOGDEBUG) << " A debug test: ";
+
+			LOG_MSG(LOGERROR) << " And finally an error " << 3.1415973545;
+			return result;
+		}
+
+		void CloseDialog()
+		{
+			w_->Destroy();
 		}
 
 		int OnExit()
 		{
 			dbg("TestApp::OnExit()");
 			int r = wxApp::OnExit();
-			//delete sd_;
+			LogWindow::GetInstance()->Destroy();
+			w_->Destroy();
+			if (w_)
+				delete w_;
 			return r;
 		}
 
-		//SelfDeletion* sd_;
+		TestLogWindow* w_;
 	};
 }
 

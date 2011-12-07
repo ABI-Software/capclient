@@ -81,6 +81,8 @@ public:
 	~CAPClient()
 	{
 		dbg("CAPClient::~CAPClient()");
+		gui_->Destroy();
+		delete gui_;
 		delete modeller_;
 	}
 	

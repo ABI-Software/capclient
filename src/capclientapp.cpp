@@ -46,7 +46,7 @@ namespace cap
 bool HandleEula()
 {
 	EulaDialog eulaDialog;
-	//eulaDialog.Center();
+	eulaDialog.Center();
 	if (eulaDialog.ShowModal() != wxID_OK)
 	{
 		return false;
