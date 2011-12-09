@@ -16,6 +16,7 @@ extern "C"
 #include "capclient.h"
 #include "capclientwindow.h"
 #include "ui/euladialog.h"
+#include "logwindow.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -62,7 +63,7 @@ bool CAPApp::OnInit()
 	//_CrtSetBreakAlloc(12119);
 #endif
 	wxXmlResource::Get()->InitAllHandlers();
-	
+	wxXmlInit_logdialogui();
 	/**
 	 * TODO: reinstate the end user license agreement.
 	 */
@@ -70,12 +71,12 @@ bool CAPApp::OnInit()
 	//	return false;
 	
 	// Create the main application model
-	CAPClient* mainApp = CAPClient::GetCAPClientInstance();
+	cc_ = CAPClient::GetInstance();
 	
 	// We cannot initialise this from inside the CAPClientWindow constructor unfortunately.
 	wxXmlInit_CAPClientWindowUI();
-	CAPClientWindow *frame = new CAPClientWindow(mainApp);
-	mainApp->SetCAPClientWindow(frame);
+	CAPClientWindow *frame = new CAPClientWindow(cc_);
+	cc_->SetCAPClientWindow(frame);
 	SetTopWindow(frame);
 	
 	return frame->Show(true);
@@ -85,8 +86,11 @@ int CAPApp::OnExit()
 {
 	int r = wxApp::OnExit();
 	// Clean up anything started in OnInit();
-	CAPClient* mainApp = CAPClient::GetCAPClientInstance();
-	delete mainApp;
+	//CAPClient* mainApp = CAPClient::GetInstance();
+	delete cc_;
+
+	LogWindow::GetInstance()->Destroy();
+	delete LogWindow::GetInstance();
 
 	return r;
 }

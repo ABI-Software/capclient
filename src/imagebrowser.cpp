@@ -17,6 +17,8 @@ extern "C"
 #include "imagebrowser.h"
 #include "labelledtexture.h"
 #include "utils/debug.h"
+#include "logmsg.h"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -88,6 +90,7 @@ void ImageBrowser::ChooseImageDirectory()
 	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path);
 	if (!dirname.empty())
 	{
+		LOG_MSG(LOGINFORMATION) << "Loading images from '" << dirname << "'";
 		archiveFilename_ = std::string(dirname);
 		gui_->SetImageLocation(archiveFilename_);
 		LoadImages();
@@ -99,7 +102,7 @@ void ImageBrowser::LoadImages()
 	ReadInDICOMFiles();
 	if (dicomFileTable_.empty())
 	{
-		dbg("No valid DICOM files were found here");
+		LOG_MSG(LOGWARNING) << "No valid DICOM files were found here";
 		gui_->SetImageLocation("");
 	}
 	else

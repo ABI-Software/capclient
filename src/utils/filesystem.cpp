@@ -42,6 +42,7 @@ extern "C"
 #include "capclientconfig.h"
 #include "filesystem.h"
 #include "utils/debug.h"
+#include "logmsg.h"
 
 namespace cap
 {
@@ -62,7 +63,8 @@ const std::vector<std::string> FileSystem::GetAllFileNames(const std::string& di
 	dir = opendir(dirname.c_str());
 	if (!dir)
 	{
-		dbg("Error: can't open the directory: " + dirname); //-- TODO: Add logging output window
+		LOG_MSG(LOGERROR) << "can't open the directory '" << dirname << "'";
+		dbg("Error: can't open the directory: " + dirname);
 	}
 	else
 	{
@@ -89,7 +91,8 @@ const std::vector<std::string> FileSystem::GetAllFileNamesRecursive(const std::s
 	dir = opendir(dirpath.c_str());
 	if (!dir)
 	{
-		dbg("Error: can't open the directory: " + dirpath); //-- TODO: Add logging output window
+		LOG_MSG(LOGERROR) << "can't open the directory '" << dirpath << "'";
+		dbg("Error: can't open the directory: " + dirpath);
 	}
 	else
 	{

@@ -350,6 +350,8 @@ void CAPClient::OpenModel(const std::string& filename)
 	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
 	gui_->SetHeartModelTransformation(m);
+
+	StartModelling();
 	gui_->SetModellingPoints(modellingPoints);
 
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));

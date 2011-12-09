@@ -82,7 +82,7 @@ namespace cap
 		p2 = text_log_->GetInsertionPoint();
 		text_log_->SetStyle(p1, p2, green);
 		p1 = text_log_->GetInsertionPoint();
-		text_log_->AppendText(logLevelString(level) + ": ");
+		text_log_->AppendText(logLevelString(level) + ":   ");
 		p2 = text_log_->GetInsertionPoint();
 		switch (level)
 		{
