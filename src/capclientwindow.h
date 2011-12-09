@@ -608,6 +608,7 @@ private:
 	void OnExportModelToBinaryVolume(wxCommandEvent& event);
 	void OnViewAll(wxCommandEvent& event);
 	void OnViewStatusText(wxCommandEvent& event);
+	void OnViewLog(wxCommandEvent& event);
 	
 	/**
 	 * Make the connections for the widgets.

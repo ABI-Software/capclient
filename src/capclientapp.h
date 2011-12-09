@@ -6,6 +6,7 @@
 namespace cap
 {
 
+	class CAPClient;
 /**
  * @brief CAPAPP is the wxWidgets main application class and holds the main frame.
  */
@@ -24,6 +25,7 @@ public:
 	
 private:
 	bool server_mode_;
+	CAPClient *cc_;
 	
 };
 

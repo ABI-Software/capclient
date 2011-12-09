@@ -41,6 +41,8 @@ extern "C"
 #include "material.h"
 #include "ui/htmlwindow.h"
 #include "textureslice.h"
+#include "logwindow.h"
+#include "logmsg.h"
 
 
 #include "images/capicon.xpm"
@@ -152,6 +154,7 @@ void CAPClientWindow::MakeConnections()
 	Connect(XRCID("menuItem_currentMode"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_heartVolumeEPI"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_heartVolumeENDO"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
+	Connect(XRCID("menuItem_logWindow_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewLog));
 
 	// Widgets (buttons, sliders ...)
 	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
@@ -531,7 +534,6 @@ void CAPClientWindow::Terminate(wxCloseEvent& event)
 
 void CAPClientWindow::ClearTextureSlices()
 {
-	dbg("=== Danger texture removal not implemented ===");
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	TextureSliceMap::iterator it = textureSliceMap_.begin();
 	while (it != textureSliceMap_.end())
@@ -867,6 +869,11 @@ void CAPClientWindow::OnViewStatusText(wxCommandEvent& event)
 	{
 		SetStatusTextVisibility("heartvolumeendo", event.IsChecked());
 	}
+}
+
+void CAPClientWindow::OnViewLog(wxCommandEvent& event)
+{
+	LogWindow::GetInstance()->Show();
 }
 
 void CAPClientWindow::OnAbout(wxCommandEvent& event)

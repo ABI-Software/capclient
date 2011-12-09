@@ -66,7 +66,7 @@ public:
 	 * assignment operator are private.  This enables us to control the creation
 	 * of the CAPClient object.
 	 */
-	static CAPClient* GetCAPClientInstance()
+	static CAPClient* GetInstance()
 	{
 		if (instance_ == 0)
 		{

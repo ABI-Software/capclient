@@ -19,11 +19,17 @@ std::string TimeNow()
 
 	static DWORD first = GetTickCount();
 	std::stringstream oss;
+	oss.setf(std::ios::fixed, std::ios::floatfield);
+	oss.precision(1);
 	oss << buffer;
 	oss << ".";
 	oss << (GetTickCount() - first) % 1000;
 
-	return oss.str();
+	std::string out = oss.str();
+	while (out.size() < 11)
+		out.append("0");
+
+	return out;
 }
 
 #else

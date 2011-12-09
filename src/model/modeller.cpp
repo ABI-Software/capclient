@@ -25,6 +25,8 @@
 #include "math/vnlfactory.h"
 #include "math/algebra.h"
 #include "math/basis.h"
+#include "logmsg.h"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -227,6 +229,9 @@ void Modeller::AlignModel()
 		Vector3D zAxis = CrossProduct(xAxis,yAxis);
 		zAxis.Normalise();
 		yAxis.CrossProduct(zAxis,xAxis);
+		LOG_MSG(LOGINFORMATION) << "Model x axis vector" << xAxis;
+		LOG_MSG(LOGINFORMATION) << "Model y axis vector" << yAxis;
+		LOG_MSG(LOGINFORMATION) << "Model z axis vector" << zAxis;
 		dbg("Model coord x axis vector" + toString(xAxis));
 		dbg("Model coord y axis vector" + toString(yAxis));
 		dbg("Model coord z axis vector" + toString(zAxis));
@@ -264,11 +269,13 @@ void Modeller::AlignModel()
 		double lengthFromApexToBase = (apex.GetPosition() - base.GetPosition()).Length();
 		std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
 		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + toString(lengthFromApexToBase));
+		LOG_MSG(LOGINFORMATION) << "Length from Apex to Base = " << lengthFromApexToBase;
 		
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 		double focalLength = (apex.GetPosition() - origin).Length()  / cosh(1.0);
 		std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
 		dbg("Modeller::AlignModel() : new focal length = " + toString(focalLength));
+		LOG_MSG(LOGINFORMATION) << "Focal length = " << focalLength;
 		mainApp_->SetHeartModelFocalLength(focalLength);
 		//--heartModel_.SetFocalLength(focalLength);
 		

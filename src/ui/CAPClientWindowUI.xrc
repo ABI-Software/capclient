@@ -59,6 +59,11 @@
 					<help></help>
 					<checkable>1</checkable>
 				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="menuItem_logWindow_">
+					<label>View Log</label>
+					<help></help>
+				</object>
 			</object>
 			<object class="wxMenu" name="menu_Help">
 				<label>_Help</label>
