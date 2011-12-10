@@ -16,6 +16,16 @@ char testString5[] = "/never/work.today/ok";
 char testString6[] = "/home/is\\where the heart is.juno";
 char testString7[] = "D:\\work\\cardiacatlas\\capclient\\build\\output.xml";
 
+#include "logmsg.h"
+
+std::string TimeNow() { return ""; }
+
+namespace cap
+{
+	Log::~Log() {}
+	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
+}
+
 TEST(FileSystemTest, GetFileName)
 {
 	std::string result;

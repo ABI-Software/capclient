@@ -21,6 +21,15 @@ extern "C"
 #include "modellercapclientwindow.h"
 #include "modellercapclient.h"
 #include "utils/debug.h"
+#include "logmsg.h"
+
+std::string TimeNow() { return ""; }
+
+namespace cap
+{
+	Log::~Log() {}
+	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
+}
 
 TEST(CAPModellerTest, ModellingModeApex)
 {

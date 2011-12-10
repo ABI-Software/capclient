@@ -12,9 +12,14 @@
 
 #include "imagebrowser.h"
 #include "iimagebrowser.h"
+#include "logmsg.h"
+
+std::string TimeNow() { return ""; }
 
 namespace cap
 {
+	Log::~Log() {}
+	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 
 class FakeCAPClient : public IImageBrowser
 {

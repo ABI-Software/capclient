@@ -6,6 +6,10 @@
  */
 
 #include <boost/foreach.hpp>
+
+#include <iostream>
+#include <sstream>
+
 #include <gtest/gtest.h>
 #include <stdexcept>
 #include <cstdio>
@@ -15,10 +19,19 @@
 #undef private
 #include "CAPXMLFileHandler.h"
 #include "datapoint.h"
+#include "logmsg.h"
 
 namespace
 {
 	std::string test_file("SampleAnalysisUsingXsd.xml");
+}
+
+std::string TimeNow() { return ""; }
+
+namespace cap
+{
+	Log::~Log() {}
+	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 }
 
 TEST(CAPXMLFile, ReadXML)
