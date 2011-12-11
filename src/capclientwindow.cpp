@@ -27,6 +27,7 @@ extern "C"
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_element.h>
 #include <api/cmiss_graphics_material.h>
+#include <api/cmiss_time_sequence.h>
 }
 
 #include "utils/debug.h"
@@ -102,6 +103,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	this->Centre();
 	MakeConnections();
 	CreateMaterials();
+	CreateFonts();
 	EnterInitState();
 }
 
@@ -377,6 +379,11 @@ void CAPClientWindow::CreateMaterials()
 	Cmiss_graphics_material_destroy(&pink);
 	Cmiss_graphics_material_destroy(&orange);
 	Cmiss_graphics_module_destroy(&gm);
+}
+
+void CAPClientWindow::CreateFonts()
+{
+	Cmiss_context_execute_command(cmissContext_, "gfx def font node_label_font \"16 default normal bold\"");
 }
 
 void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
@@ -1460,9 +1467,18 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
 	if (selected_node)
 	{
+		double currentTime = GetCurrentTime();
 		Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+		Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
+		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+		Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
+		int r = Cmiss_node_template_define_field(node_template, visibility_value_field);
+		LOG_MSG(LOGDEBUG) << "tmpl define:  " << (r == CMISS_OK);
+		r = Cmiss_node_merge(selected_node, node_template);
+		LOG_MSG(LOGDEBUG) << "node merge:  " << (r == CMISS_OK);
+		
 		Cmiss_field_cache_set_node(field_cache, selected_node);
 		double values[3];
 		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
@@ -1471,11 +1487,17 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 		coords.x = values[0]; coords.y = values[1]; coords.z = values[2];
 
 		int node_id = Cmiss_node_get_identifier(selected_node);
-		mainApp_->AddModellingPoint(region, node_id, coords, GetCurrentTime());
+
+		Cmiss_field_destroy(&visibility_value_field);
+		Cmiss_nodeset_destroy(&nodeset);
+		Cmiss_node_template_destroy(&node_template);
 		Cmiss_field_destroy(&coordinate_field);
 		Cmiss_node_destroy(&selected_node);
-		Cmiss_region_destroy(&region);
 		Cmiss_field_cache_destroy(&field_cache);
+
+		mainApp_->AddModellingPoint(region, node_id, coords, currentTime);
+
+		Cmiss_region_destroy(&region);
 	}
 
 	Cmiss_field_module_destroy(&field_module);

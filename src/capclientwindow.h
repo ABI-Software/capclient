@@ -544,9 +544,14 @@ private:
 	void ResetModeChoice();
 
 	/**
-	 * Create the materials used for colouring visual entities.
+	 * Create the materials used by Cmgui for colouring visual entities.
 	 */
 	void CreateMaterials();
+
+	/**
+	 * Creates the fonts used by Cmgui.
+	 */
+	void CreateFonts();
 
 	/**
 	 * Creates a modelling point.  This function creates a modelling point in the current context
