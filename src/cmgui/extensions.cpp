@@ -136,45 +136,62 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 	{
 		region = Cmiss_region_create_child(root_region, regionName.c_str());
 		Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
-		r = Cmiss_field_module_define_field(field_module, "coordinates", "finite_element num 3 coordinate");
-		//std::string clear_command = "gfx modify g_element " + regionName + " general clear;";
+		Cmiss_field_id coordinate_field = Cmiss_field_module_create_finite_element(field_module, 3);
+		Cmiss_field_set_name(coordinate_field, "coordinates");
+		double values[] = {-1e-08};
+		Cmiss_field_id const_zero = Cmiss_field_module_create_constant(field_module, 1, values);
+		values[0] = 0.0;
+		Cmiss_field_id visibility_control_constant = Cmiss_field_module_create_constant(field_module, 1, values);
+		Cmiss_field_set_name(visibility_control_constant, "visibility_control_constant_field");
 		Cmiss_time_keeper_id time_keeper = Cmiss_context_get_default_time_keeper(cmissContext);
 		Cmiss_field_id time_value = Cmiss_field_module_create_time_value(field_module, time_keeper);
 		Cmiss_field_id visibility_value = Cmiss_field_module_create_finite_element(field_module, 1);
-		r = Cmiss_field_set_name(visibility_value, "visibility_value");
+		r = Cmiss_field_set_name(visibility_value, "visibility_value_field");
 		Cmiss_field_id diff = Cmiss_field_module_create_subtract(field_module, visibility_value, time_value);
 		Cmiss_field_id abs = Cmiss_field_module_create_abs(field_module, diff);
-		double err_values[] = {1e-06};
+		double err_values[] = {0.01};
 		Cmiss_field_id err = Cmiss_field_module_create_constant(field_module, 1, err_values);
 		Cmiss_field_id visibility_control_time = Cmiss_field_module_create_less_than(field_module, abs, err);
-		r = Cmiss_field_module_define_field(field_module, "visibility_control_field", "constant 1");
+		//r = Cmiss_field_module_define_field(field_module, "visibility_control_field", "constant 1");
+		Cmiss_field_id positive_time = Cmiss_field_module_create_greater_than(field_module, visibility_value, const_zero);
+		Cmiss_field_set_name(positive_time, "positive_time");
+		Cmiss_field_id if_field = Cmiss_field_module_create_if(field_module, positive_time, visibility_control_time, visibility_control_constant);
+		Cmiss_field_set_name(if_field, "if_field");
 		std::string label = regionName + "_label";
-		std::string label_command = "string_constant \"     " + regionName + "\"";
+		std::string label_command = "string_constant \"  " + regionName + "\"";
 		r = Cmiss_field_module_define_field(field_module, label.c_str(), label_command.c_str());
 		//r = Cmiss_field_module_define_field(field_module, "invisible_control_field", "constant 0");
 		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
-		Cmiss_graphic_id node_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_NODE_POINTS);
-		std::string material = "default";
-		if (regionName == "APEX" || regionName == "BASE")
-			material = "light_blue";
-		else if (regionName == "RV")
-			material = "orange";
-		else if (regionName == "BASEPLANE")
-			material = "pink";
+		{
+			Cmiss_graphic_id node_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_NODE_POINTS);
+			Cmiss_graphic_set_coordinate_field(node_graphic, coordinate_field);
+			std::string material = "default";
+			if (regionName == "APEX" || regionName == "BASE")
+				material = "light_blue";
+			else if (regionName == "RV")
+				material = "orange";
+			else if (regionName == "BASEPLANE")
+				material = "pink";
 
-		//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-		std::string node_command = "coordinate coordinates LOCAL glyph sphere general size \"6*6*6\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_selected label " + label;
-		Cmiss_graphic_define(node_graphic, node_command.c_str());
-		//if (r)
-		//{
-		//	r = Cmiss_context_execute_command(cmissContext, clear_command.c_str());
-		//}
-		//if (r)
-		//{
-		//	r = Cmiss_context_execute_command(cmissContext, node_command.c_str());
-		//}
+			//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
+			std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" visibility if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label positive_time";// + label;
+			Cmiss_graphic_define(node_graphic, node_command.c_str());
+			Cmiss_graphic_destroy(&node_graphic);
+		}
+
+		Cmiss_field_destroy(&if_field);
+		Cmiss_field_destroy(&const_zero);
+		Cmiss_field_destroy(&positive_time);
+		Cmiss_field_destroy(&coordinate_field);
+		Cmiss_field_destroy(&visibility_control_constant);
+		Cmiss_field_destroy(&time_value);
+		Cmiss_field_destroy(&diff);
+		Cmiss_field_destroy(&abs);
+		Cmiss_field_destroy(&err);
 		Cmiss_field_destroy(&visibility_value);
-		Cmiss_graphic_destroy(&node_graphic);
+		Cmiss_field_destroy(&visibility_control_time);
+
+		Cmiss_time_keeper_destroy(&time_keeper);
 		Cmiss_rendition_destroy(&rendition);
 		Cmiss_field_module_destroy(&field_module);
 	}
@@ -282,13 +299,19 @@ Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double 
 {
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 	Cmiss_field_module_begin_change(field_module);
+	Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
-	Cmiss_node_template_id node_template1 = Cmiss_nodeset_create_node_template(nodeset);
-	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template1);
+	Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
+	Cmiss_node_template_define_field(node_template, coordinate_field);
+	Cmiss_node_template_define_field(node_template, visibility_value_field);
+	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template);
 	Cmiss_field_module_end_change(field_module);
 	
+	Cmiss_field_destroy(&coordinate_field);
+	Cmiss_field_destroy(&visibility_value_field);
 	Cmiss_nodeset_destroy(&nodeset);
-	Cmiss_node_template_destroy(&node_template1);
+	Cmiss_node_template_destroy(&node_template);
 	Cmiss_field_module_destroy(&field_module);
 
 	return node;

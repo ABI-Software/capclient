@@ -26,7 +26,7 @@ std::string TimeNow()
 	oss << (GetTickCount() - first) % 1000;
 
 	std::string out = oss.str();
-	while (out.size() < 11)
+	while (out.size() < 12)
 		out.append("0");
 
 	return out;

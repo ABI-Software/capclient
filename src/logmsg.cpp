@@ -11,10 +11,6 @@ namespace cap
 
 	Log::~Log()
 	{
-#ifndef CAP_CLIENT_RELEASE_BUILD
-		if (level_ > LOGINFORMATION)
-			dbgn(oss_.str());
-#endif
 		if (rawMsg_)
 			LogWindow::GetInstance()->LogMessage(oss_.str());
 		else
@@ -22,8 +18,17 @@ namespace cap
 			oss_ << std::endl;
 			LogWindow::GetInstance()->LogMessage(time_, level_, oss_.str());
 		}
+#ifndef CAP_CLIENT_RELEASE_BUILD
+		if (level_ > LOGINFORMATION)
+			dbgn(oss_.str());
+#endif
 	}
 
+	std::string logLevelString(LogLevelEnum level)
+	{
+		static const char* const buffer[] = {"ERROR", "WARNING", "INFORMATION", "DEBUG"};
+		return buffer[level];
+	}
 
 }
 

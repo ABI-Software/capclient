@@ -101,13 +101,6 @@ namespace cap
 		text_log_->AppendText(message);
 		p2 = text_log_->GetInsertionPoint();
 		text_log_->SetStyle(p1, p2, black);
-
-	}
-
-	std::string logLevelString(LogLevelEnum level)
-	{
-		static const char* const buffer[] = {"ERROR", "WARNING", "INFORMATION", "DEBUG"};
-		return buffer[level];
 	}
 
 }

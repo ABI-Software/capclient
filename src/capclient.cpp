@@ -87,9 +87,12 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 			visibilities.push_back(false);
 		//-- TODO: contours
 	}
-	double halfShortAxisCount = shortAxisCount / 2.0;
-	int visibleShortAxis = static_cast<int>(halfShortAxisCount + 0.5) - 1; // visibility index is zero based
-	visibilities[visibleShortAxis] = true;
+	if (shortAxisCount > 0)
+	{
+		double halfShortAxisCount = shortAxisCount / 2.0;
+		int visibleShortAxis = static_cast<int>(halfShortAxisCount + 0.5) - 1; // visibility index is zero based
+		visibilities[visibleShortAxis] = true;
+	}
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
 	EnterImagesLoadedState();
