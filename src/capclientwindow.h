@@ -614,16 +614,25 @@ private:
 	void OnViewAll(wxCommandEvent& event);
 	void OnViewStatusText(wxCommandEvent& event);
 	void OnViewLog(wxCommandEvent& event);
+
+	/**
+	 * On idle events are used by Cmgui to update graphics.
+	 *
+	 * @param [in,out]	event	The event.
+	 */
+	void OnIdle(wxIdleEvent& event);
+
+	/**
+	 * Executes the close window action.
+	 *
+	 * @param [in,out]	event	The event.
+	 */
+	void OnCloseWindow(wxCloseEvent& event);
 	
 	/**
 	 * Make the connections for the widgets.
 	 */
 	void MakeConnections();
-	
-	/**
-	 * On idle events are used by Cmgui to update graphics.
-	 */
-	void OnIdle(wxIdleEvent& event);
 	
 	CAPClient* mainApp_; /**< handle to the model class for this window */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
