@@ -177,6 +177,7 @@ void CAPClientWindow::MakeConnections()
 	Connect(choice_Mode->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(CAPClientWindow::OnModellingModeChanged));
 	
 	Connect(wxEVT_IDLE, wxIdleEventHandler(CAPClientWindow::OnIdle), 0, this);
+	Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(CAPClientWindow::OnCloseWindow));
 	//Connect(wxEVT_QUIT, 
 }
 
@@ -303,6 +304,12 @@ void CAPClientWindow::OnIdle(wxIdleEvent& event)
 	{
 		event.RequestMore();
 	}
+}
+
+void CAPClientWindow::OnCloseWindow(wxCloseEvent& event)
+{
+	LOG_MSG(LOGDEBUG) << "CAPClientWindow::OnCloseWindow()";
+	wxExit();
 }
 
 void CAPClientWindow::CreateMaterials()
@@ -677,7 +684,7 @@ void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	int min = slider_Animation->GetMin();
 	int max = slider_Animation->GetMax();
 	
-	double time =  (double)(value - min) / (double)(max - min);
+	double time = (value - min) / static_cast<double>(max - min + 1);
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
 	ChangeAllTextures(time);
 }
@@ -689,7 +696,7 @@ void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 	int min = slider_AnimationSpeed->GetMin();
 	int max = slider_AnimationSpeed->GetMax();
 	
-	double speed = (double)(value - min) / (double)(max - min) * 2.0;
+	double speed = (value - min) / static_cast<double>(max - min + 1) * 2.0;
 	
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_SPEED, speed);
 }
@@ -706,7 +713,8 @@ void CAPClientWindow::SetTime(double time)
 	int min = slider_Animation->GetMin();
 	int max = slider_Animation->GetMax();
 
-	slider_Animation->SetValue(static_cast<int>(static_cast<double>(max-min)*time) + min + 0.5);
+	int value = static_cast<int>(static_cast<double>(max - min + 1)*time + min + 0.5);
+	slider_Animation->SetValue(value);
 	ChangeAllTextures(time);
 }
 
