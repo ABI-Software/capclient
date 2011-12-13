@@ -18,6 +18,7 @@ extern "C"
 #include "labelledslice.h"
 #include "imagebrowser.h"
 #include "utils/debug.h"
+#include "utils/misc.h"
 #include "logmsg.h"
 
 #ifdef _MSC_VER
@@ -145,9 +146,9 @@ void ImageBrowser::ReadInDICOMFiles()
 	{
 		//		std::cout << filename <<'\n';
 		// Skip files that are known not to be dicom files
-		if (boost::iends_with(filename, ".exnode") ||
-			boost::iends_with(filename, ".exelem") ||
-			boost::iends_with(filename, ".xml"))
+		if (EndsWith(filename, ".exnode") ||
+			EndsWith(filename, ".exelem") ||
+			EndsWith(filename, ".xml"))
 		{
 			continue;
 		}

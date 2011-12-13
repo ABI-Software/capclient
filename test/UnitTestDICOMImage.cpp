@@ -31,7 +31,7 @@ namespace cap
 
 }
 
-TEST(DICOMImageTest, GetFilename)
+TEST(DICOMImage, GetFilename)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
@@ -39,7 +39,7 @@ TEST(DICOMImageTest, GetFilename)
 	ASSERT_STREQ(filename.c_str(), di.GetFilename().c_str());
 }
 
-TEST(DICOMImageTest, ReadFailure)
+TEST(DICOMImage, ReadFailure)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/8487476634.dcm";
@@ -53,15 +53,32 @@ TEST(DICOMImageTest, ReadFailure)
 		using namespace cap;
 		LOG_MSG(LOGWARNING) << "Read failed : " << e.what();
 	}
-	catch (...)
-	{
-		using namespace cap;
-		LOG_MSG(LOGWARNING) << "Read failed : " << filename;
-	}
 	ASSERT_STREQ(filename.c_str(), di.GetFilename().c_str());
 }
 
-TEST(DICOMImageTest, GetImageOrientation)
+TEST(DICOMImage, NoImageOrientation)
+{
+	std::string base(DICOMIMAGE_IMAGEDIR);
+	std::string filename = base + "/68691111.dcm";
+	cap::DICOMImage di(filename);
+
+	bool exceptionthrown = false;
+	try
+	{
+		di.ReadFile();
+	}
+	catch (std::exception &e)
+	{
+		using namespace cap;
+		LOG_MSG(LOGWARNING) << "Read failed : " << e.what();
+		exceptionthrown = true;
+	}
+	EXPECT_EQ(true, exceptionthrown);
+	ASSERT_STREQ(filename.c_str(), di.GetFilename().c_str());
+	
+}
+
+TEST(DICOMImage, GetImageOrientation)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
@@ -77,7 +94,7 @@ TEST(DICOMImageTest, GetImageOrientation)
 	EXPECT_NEAR(-0.89337138, orient.second.z, 1e-07);
 }
 
-TEST(DICOMImageTest, GetImagePosition)
+TEST(DICOMImage, GetImagePosition)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
@@ -90,7 +107,7 @@ TEST(DICOMImageTest, GetImagePosition)
 	EXPECT_NEAR(125.92049, pt.z, 1e-07);
 }
 
-TEST(DICOMImageTest, GetSize)
+TEST(DICOMImage, GetSize)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
@@ -112,7 +129,7 @@ TEST(DICOMImageTest, GetSize)
 	//EXPECT_NEAR(pixSizeY*imHePx, di.GetImageHeightMm(), 1e-07);
 }
 
-TEST(DICOMImageTest, GetDetails)
+TEST(DICOMImage, GetDetails)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
@@ -135,7 +152,7 @@ TEST(DICOMImageTest, GetDetails)
 	EXPECT_NEAR(167.5, di.GetTriggerTime(), 1e-07);
 }
 
-TEST(DICOMImageTest, GetContours)
+TEST(DICOMImage, GetContours)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
@@ -143,7 +160,7 @@ TEST(DICOMImageTest, GetContours)
 	di.ReadFile();
 }
 
-TEST(DICOMImageTest, AddContour)
+TEST(DICOMImage, AddContour)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
@@ -151,7 +168,7 @@ TEST(DICOMImageTest, AddContour)
 	di.ReadFile();
 }
 
-TEST(DICOMImageTest, ImagePlane)
+TEST(DICOMImage, ImagePlane)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
