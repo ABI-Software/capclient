@@ -8,7 +8,7 @@
 #ifndef IMAGESLICE_H_
 #define IMAGESLICE_H_
 
-#include "DICOMImage.h"
+#include "dicomimage.h"
 #include <vector>
 #include <boost/noncopyable.hpp>
 

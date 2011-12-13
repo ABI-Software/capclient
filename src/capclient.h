@@ -32,7 +32,7 @@ extern "C"
 #include "capclientconfig.h"
 #include "capclientwindow.h"
 #include "SliceInfo.h"
-#include "DICOMImage.h"
+#include "dicomimage.h"
 #include "ImageSetBuilder.h"
 #include "ImageSet.h"
 #include "imagebrowser.h"
@@ -136,8 +136,6 @@ public:
 		modeller_->ChangeMode(mode);
 		gui_->UpdateModeSelectionUI(mode);
 	}
-	
-	virtual void LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno);
 
 	/**
 	 * Sets a template to patient transformation.  This function implements the pure virtual

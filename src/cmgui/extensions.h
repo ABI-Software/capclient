@@ -15,7 +15,7 @@ extern "C"
 #include <api/cmiss_node.h>
 }
 
-#include "DICOMImage.h"
+#include "dicomimage.h"
 #include "math/algebra.h"
 
 class wxPanel;

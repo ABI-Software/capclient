@@ -25,7 +25,7 @@ extern "C"
 }
 
 #include "math/algebra.h"
-#include "DICOMImage.h"
+#include "dicomimage.h"
 #include "utils/filesystem.h"
 #include "SliceInfo.h"
 #include "iimagebrowser.h"

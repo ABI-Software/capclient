@@ -27,21 +27,10 @@ namespace cap
 	{
 	public:
 		virtual ~FakeCAPClient() {}
-		virtual void LoadImagesFromImageBrowserWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
-		{}
-		void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno){}
 		void LoadCardiacAnnotations(const CardiacAnnotation &){}
 		void LoadLabelledImages(const LabelledSlices &){}
 		void SetImageLocation(const std::string& location){}
 	};
-
-	DICOMImage::DICOMImage(const std::string& filename)
-	{
-	}
-
-	DICOMImage::~DICOMImage()
-	{
-	}
 
 	class TestApp : public wxApp
 	{
@@ -69,8 +58,8 @@ TEST(ImageBrowser, CreateUsingFactory)
 	ImageBrowser* ib = ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client);
 	
 	wxTheApp->OnRun(); // Do/Don't start main loop
+	delete ib;
 	wxTheApp->OnExit();
 	wxEntryCleanup();
-	delete ib;
 }
 

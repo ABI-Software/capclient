@@ -12,10 +12,8 @@ extern "C"
 	#include <api/cmiss_field.h>
 }
 
-#include "DICOMImage.h"
-#include "abstractlabelled.h"
+#include "dicomimage.h"
 #include "labelledslice.h"
-#include "labelledtexture.h"
 
 #include "capclientwindow.h"
 #include "cmgui/extensions.h"

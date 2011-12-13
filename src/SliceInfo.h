@@ -17,7 +17,7 @@
 
 #include "capclientconfig.h"
 #include "standardheartdefinitions.h"
-#include "DICOMImage.h"
+#include "dicomimage.h"
 
 extern "C"
 {

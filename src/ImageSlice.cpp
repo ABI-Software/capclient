@@ -7,7 +7,7 @@
 
 #include "ImageSlice.h"
 
-#include "DICOMImage.h"
+#include "dicomimage.h"
 #include "ImageSliceGraphics.h"
 
 #include <iostream>
