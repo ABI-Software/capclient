@@ -74,7 +74,7 @@ SET( APP_HDRS
 	src/cmgui/sceneviewerpanel.h
 	src/capclientconfig.h
 	src/utils/debug.h
-	src/DICOMImage.h
+	src/dicomimage.h
 	src/logmsg.h
 	src/datapoint.h
 	src/utils/filesystem.h
@@ -126,7 +126,7 @@ SET( APP_SRCS
 	src/cmgui/callbacks.cpp
 	src/CmguiImageSliceGraphics.cpp
 	src/cmgui/sceneviewerpanel.cpp
-	src/DICOMImage.cpp
+	src/dicomimage.cpp
 	src/datapoint.cpp
 	src/logwindow.cpp
 	src/utils/filesystem.cpp
