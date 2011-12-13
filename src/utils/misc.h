@@ -5,6 +5,9 @@
 
 #include <string>
 
-std::string TimeNow();
+namespace cap
+{
+	std::string TimeNow();
+}
 
 #endif /* UTILS_TIME_H_ */

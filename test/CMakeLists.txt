@@ -133,8 +133,8 @@ SET(FileSystem_SRC
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 )
 
-LIST(APPEND UNIT_TESTS UtilsTime)
-SET(UtilsTime_SRC
+LIST(APPEND UNIT_TESTS UtilsMisc)
+SET(UtilsMisc_SRC
 	unittestutilsmisc.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 )

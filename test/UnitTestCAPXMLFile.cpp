@@ -26,10 +26,10 @@ namespace
 	std::string test_file("SampleAnalysisUsingXsd.xml");
 }
 
-std::string TimeNow() { return ""; }
 
 namespace cap
 {
+	std::string TimeNow() { return ""; }
 	Log::~Log() {}
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 }

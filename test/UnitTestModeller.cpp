@@ -23,10 +23,10 @@ extern "C"
 #include "utils/debug.h"
 #include "logmsg.h"
 
-std::string TimeNow() { return ""; }
 
 namespace cap
 {
+	std::string TimeNow() { return ""; }
 	Log::~Log() {}
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 }

@@ -18,10 +18,10 @@ char testString7[] = "D:\\work\\cardiacatlas\\capclient\\build\\output.xml";
 
 #include "logmsg.h"
 
-std::string TimeNow() { return ""; }
 
 namespace cap
 {
+	std::string TimeNow() { return ""; }
 	Log::~Log() {}
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 }
