@@ -10,6 +10,8 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 
+#include "unittestconfigure.h"
+
 #include "imagebrowser.h"
 #include "iimagebrowser.h"
 #include "logmsg.h"
@@ -64,9 +66,9 @@ TEST(ImageBrowser, CreateUsingFactory)
 	
 	// you can create top level-windows here or in OnInit()
 	// do your testing here
-	ImageBrowser* ib = ImageBrowser::CreateImageBrowser("dirname", &client);
+	ImageBrowser* ib = ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client);
 	
-	//wxTheApp->OnRun(); // Don't start main loop
+	wxTheApp->OnRun(); // Do/Don't start main loop
 	wxTheApp->OnExit();
 	wxEntryCleanup();
 	delete ib;
