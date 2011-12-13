@@ -6,6 +6,8 @@
 #endif
 #include <wx/xrc/xmlres.h>
 
+#include <boost/algorithm/string/predicate.hpp>
+
 extern "C"
 {
 #include <api/cmiss_region.h>
@@ -142,18 +144,28 @@ void ImageBrowser::ReadInDICOMFiles()
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
 		//		std::cout << filename <<'\n';
+		// Skip files that are known not to be dicom files
+		if (boost::iends_with(filename, ".exnode") ||
+			boost::iends_with(filename, ".exelem") ||
+			boost::iends_with(filename, ".xml"))
+		{
+			continue;
+		}
 		std::string fullpath = dirname + "/" + filename;
 		//		std::cout << fullpath <<'\n';
 		try
 		{
 			DICOMPtr dicomFile(new DICOMImage(fullpath));
+			dicomFile->ReadFile();
 			dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
 		}
-		catch (std::exception&)
+		catch (std::exception& e)
 		{
 			// This is not a DICOM file
-			std::cout << "Invalid DICOM file : " << filename << std::endl;
-			LOG_MSG(LOGWARNING) << "Invalid DICOM file : " << filename;
+			std::string msg = "Invalid DICOM file : '" + filename + "'";
+			std::cout << msg << std::endl;
+			LOG_MSG(LOGERROR) << msg;
+			//gui_->CreateMessageBox(msg, "DICOM File : Read Failed");
 		}
 		
 		count++;

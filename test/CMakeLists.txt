@@ -80,7 +80,7 @@ SET(Math_SRC
 LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
 	UnitTestCAPXMLFile.cpp
-	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
+	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
 	${CAPCLIENT_ROOT_DIR}/src/PlatformInfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
@@ -142,8 +142,9 @@ SET(UtilsTime_SRC
 LIST(APPEND UNIT_TESTS DICOMImage)
 Set(DICOMImage_SRC
 	UnitTestDICOMImage.cpp
-	${CAPCLIENT_ROOT_DIR}/src/DICOMImage.cpp
-)
+	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
+	)
+
 IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	LIST(APPEND GUI_TESTS ImageBrowser)
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${CAPCLIENT_ROOT_DIR}/src/ui/ImageBrowserWindowUI.xrc" ImageBrowser_UI_SRCS_AND_HDRS)

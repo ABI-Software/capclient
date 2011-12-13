@@ -5,6 +5,31 @@
 #include "unittestconfigure.h"
 #include "dicomimage.h"
 #include "math/algebra.h"
+#include "logmsg.h"
+#include "utils/debug.h"
+
+std::string TimeNow() { return ""; }
+
+namespace cap
+{
+	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
+
+	Log::~Log()
+	{
+		if (rawMsg_)
+			std::cout << oss_.str();
+		else
+		{
+			oss_ << std::endl;
+			std::cout << oss_.str();
+		}
+#ifndef CAP_CLIENT_RELEASE_BUILD
+		if (level_ > LOGINFORMATION)
+			dbgn(oss_.str());
+#endif
+	}
+
+}
 
 TEST(DICOMImageTest, GetFilename)
 {
@@ -14,11 +39,34 @@ TEST(DICOMImageTest, GetFilename)
 	ASSERT_STREQ(filename.c_str(), di.GetFilename().c_str());
 }
 
+TEST(DICOMImageTest, ReadFailure)
+{
+	std::string base(DICOMIMAGE_IMAGEDIR);
+	std::string filename = base + "/8487476634.dcm";
+	cap::DICOMImage di(filename);
+	try
+	{
+		di.ReadFile();
+	}
+	catch (std::exception &e)
+	{
+		using namespace cap;
+		LOG_MSG(LOGWARNING) << "Read failed : " << e.what();
+	}
+	catch (...)
+	{
+		using namespace cap;
+		LOG_MSG(LOGWARNING) << "Read failed : " << filename;
+	}
+	ASSERT_STREQ(filename.c_str(), di.GetFilename().c_str());
+}
+
 TEST(DICOMImageTest, GetImageOrientation)
 {
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
 	cap::DICOMImage di(filename);
+	di.ReadFile();
 	std::pair<cap::Vector3D,cap::Vector3D> orient = di.GetImageOrientation();
 
 	EXPECT_NEAR(0.77604642, orient.first.x, 1e-07);
@@ -34,6 +82,7 @@ TEST(DICOMImageTest, GetImagePosition)
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
 	cap::DICOMImage di(filename);
+	di.ReadFile();
 
 	cap::Point3D pt = di.GetImagePosition();
 	EXPECT_NEAR(7.2672908, pt.x, 1e-07);
@@ -46,6 +95,7 @@ TEST(DICOMImageTest, GetSize)
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
 	cap::DICOMImage di(filename);
+	di.ReadFile();
 	
 	double pixSizeX = di.GetPixelSizeX();
 	double pixSizeY = di.GetPixelSizeX();
@@ -67,6 +117,7 @@ TEST(DICOMImageTest, GetDetails)
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
 	cap::DICOMImage di(filename);
+	di.ReadFile();
 
 	EXPECT_STREQ("042Y", di.GetAge().c_str());
 	EXPECT_STREQ("19620112", di.GetDateOfBirth().c_str());
@@ -89,6 +140,7 @@ TEST(DICOMImageTest, GetContours)
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
 	cap::DICOMImage di(filename);
+	di.ReadFile();
 }
 
 TEST(DICOMImageTest, AddContour)
@@ -96,6 +148,7 @@ TEST(DICOMImageTest, AddContour)
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
 	cap::DICOMImage di(filename);
+	di.ReadFile();
 }
 
 TEST(DICOMImageTest, ImagePlane)
@@ -103,6 +156,7 @@ TEST(DICOMImageTest, ImagePlane)
 	std::string base(DICOMIMAGE_IMAGEDIR);
 	std::string filename = base + "/68691116.dcm";
 	cap::DICOMImage di(filename);
+	di.ReadFile();
 
 	cap::ImagePlane *plane = di.GetImagePlane();
 	std::cout << plane->tlc << std::endl;
