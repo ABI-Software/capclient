@@ -47,6 +47,7 @@ ImageBrowser::~ImageBrowser()
 		Cmiss_field_image_id tex = value.second;
 		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
 	}
+	client_ = 0;
 }
 
 void ImageBrowser::UpdatePatientInfoPanel(DICOMPtr const& image)
@@ -153,6 +154,7 @@ void ImageBrowser::ReadInDICOMFiles()
 		{
 			// This is not a DICOM file
 			std::cout << "Invalid DICOM file : " << filename << std::endl;
+			LOG_MSG(LOGWARNING) << "Invalid DICOM file : " << filename;
 		}
 		
 		count++;
@@ -404,16 +406,13 @@ void ImageBrowser::OnOrderByRadioBox(int event)
 
 void ImageBrowser::OnCancelButtonClicked()
 {
-	//TODO Cleanup textures - REVISE design
-	// Should probably use reference counted smart pointer for Cmiss_texture
-	// Since the ownership is shared between ImageSlice and this (ImageBrowserWindow)
-	
-	//BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-	//{
-	//	Cmiss_field_image_id tex = value.second;
-	//	Cmiss_field_image_destroy(&tex);
-	//}
-	
+	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	{
+		Cmiss_field_image_id tex = value.second;
+		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
+	}
+	textureTable_.clear();
+
 	if (gui_)
 	{
 		gui_->Destroy();
