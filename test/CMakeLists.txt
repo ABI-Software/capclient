@@ -150,7 +150,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	LIST(APPEND GUI_TESTS ImageBrowser)
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${CAPCLIENT_ROOT_DIR}/src/ui/ImageBrowserWindowUI.xrc" ImageBrowser_UI_SRCS_AND_HDRS)
 	SET(ImageBrowser_SRC
-		UnitTestImageBrowser.cpp
+		unittestimagebrowser.cpp
 		${CAPCLIENT_ROOT_DIR}/src/cmgui/sceneviewerpanel.cpp
 		${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
 		${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
