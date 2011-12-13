@@ -306,7 +306,7 @@ namespace
 boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::string const& path)
 {
 	boost::unordered_map<std::string, DICOMPtr> hashTable;
-	std::vector<std::string> const& filenames = FileSystem::GetAllFileNamesRecursive(path);
+	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
 		// Skip files that are known not to be dicom files

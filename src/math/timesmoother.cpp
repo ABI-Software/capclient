@@ -47,12 +47,12 @@ TimeSmoother::TimeSmoother()
 	pImpl(new TimeSmootherImpl)
 {
 	//read in S
-	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
-	FileSystem::WriteCharBufferToFile(tmpFileName, globalsmoothtvmatrix_dat, globalsmoothtvmatrix_dat_len);
+	std::string tmpFileName = CreateTemporaryEmptyFile();
+	WriteCharBufferToFile(tmpFileName, globalsmoothtvmatrix_dat, globalsmoothtvmatrix_dat_len);
 	Harwell_Boeing_load(tmpFileName, pImpl->S);
-	FileSystem::RemoveFile(tmpFileName);
+	RemoveFile(tmpFileName);
 
-	std::string prior = FileSystem::WriteCharBufferToString(timevaryingprior_dat, timevaryingprior_dat_len);
+	std::string prior = WriteCharBufferToString(timevaryingprior_dat, timevaryingprior_dat_len);
 	std::stringstream ss(std::stringstream::in | std::stringstream::out);
 	ss << prior;
 
