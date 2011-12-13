@@ -23,34 +23,34 @@ namespace cap
 	Log::~Log() {}
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 
-class FakeCAPClient : public IImageBrowser
-{
-public:
-	virtual ~FakeCAPClient() {}
-	virtual void LoadImagesFromImageBrowserWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
-	{}
-	void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno){}
-	void LoadCardiacAnnotations(const CardiacAnnotation &){}
-	void LoadLabelledImages(const LabelledSlices &){}
-	void SetImageLocation(const std::string& location){}
-};
-
-DICOMImage::DICOMImage(const std::string& filename)
-{
-}
-
-DICOMImage::~DICOMImage()
-{
-}
-
-class TestApp : public wxApp
-{
-	bool OnInit()
+	class FakeCAPClient : public IImageBrowser
 	{
-		wxXmlResource::Get()->InitAllHandlers();
-		return true;
+	public:
+		virtual ~FakeCAPClient() {}
+		virtual void LoadImagesFromImageBrowserWindow(SlicesWithImages const& slices, CardiacAnnotation const& anno)
+		{}
+		void LoadLabelledImagesFromImageBrowser(const std::vector<LabelledSlice>& labelledSlices, const std::vector<LabelledTexture>& labelledTextures, const CardiacAnnotation& anno){}
+		void LoadCardiacAnnotations(const CardiacAnnotation &){}
+		void LoadLabelledImages(const LabelledSlices &){}
+		void SetImageLocation(const std::string& location){}
+	};
+
+	DICOMImage::DICOMImage(const std::string& filename)
+	{
 	}
-};
+
+	DICOMImage::~DICOMImage()
+	{
+	}
+
+	class TestApp : public wxApp
+	{
+		bool OnInit()
+		{
+			wxXmlResource::Get()->InitAllHandlers();
+			return true;
+		}
+	};
 
 } // namespace cap
 
