@@ -19,7 +19,6 @@
 
 namespace cap
 {
-	std::string TimeNow() { return ""; }
 	Log::~Log() {}
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 

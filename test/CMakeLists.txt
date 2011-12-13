@@ -159,6 +159,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
 		${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+		${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 		${ImageBrowser_UI_SRCS_AND_HDRS}
 	)
 
