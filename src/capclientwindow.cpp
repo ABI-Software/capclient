@@ -406,19 +406,19 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 	Cmiss_field_module_begin_change(field_module);
 	Cmiss_field_id currentmode_field = Cmiss_field_module_create_field(field_module, "currentmode", "string_constant 'no mode'");
 	Cmiss_graphic_id currentmode_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
-	Cmiss_graphic_define(currentmode_graphic, "normalised_window_fit_left glyph none general label currentmode centre -0.95,-0.9,0.0 font default material default;");
+	Cmiss_graphic_define(currentmode_graphic, "normalised_window_fit_left glyph none general label currentmode centre 0.95,0.9,0.0 font default material default;");
 	Cmiss_graphic_set_visibility_flag(currentmode_graphic, 0);
 	statusTextStringsFieldMap_["currentmode"] = std::make_pair(currentmode_field, currentmode_graphic);
 
 	Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'ED Volume(EPI) = --'");
 	Cmiss_graphic_id heartvolumeepi_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
-	Cmiss_graphic_define(heartvolumeepi_graphic, "glyph none general label heartvolumeepi centre -0.95,0.9,0.0 no_select normalised_window_fit_left font default material default;");
+	Cmiss_graphic_define(heartvolumeepi_graphic, "glyph none general label heartvolumeepi centre 0.95,-0.9,0.0 no_select normalised_window_fit_left font default material default;");
 	Cmiss_graphic_set_visibility_flag(heartvolumeepi_graphic, 0);
 	statusTextStringsFieldMap_["heartvolumeepi"] = std::make_pair(heartvolumeepi_field, heartvolumeepi_graphic);
 
 	Cmiss_field_id heartvolumeendo_field = Cmiss_field_module_create_field(field_module, "heartvolumeendo", "string_constant 'ED Volume(ENDO) = --'");
 	Cmiss_graphic_id heartvolumeendo_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
-	Cmiss_graphic_define(heartvolumeendo_graphic, "glyph none label heartvolumeendo centre -0.95,0.85,0.0 no_select normalised_window_fit_left font default material default;");
+	Cmiss_graphic_define(heartvolumeendo_graphic, "glyph none label heartvolumeendo centre 0.95,-0.85,0.0 no_select normalised_window_fit_left font default material default;");
 	Cmiss_graphic_set_visibility_flag(heartvolumeendo_graphic, 0);
 	statusTextStringsFieldMap_["heartvolumeendo"] = std::make_pair(heartvolumeendo_field, heartvolumeendo_graphic);
 	Cmiss_field_module_end_change(field_module);
