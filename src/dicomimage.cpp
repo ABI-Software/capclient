@@ -25,6 +25,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include "utils/debug.h"
+#include "logmsg.h"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -42,7 +44,6 @@ DICOMImage::DICOMImage(const string& filename)
 	, isShifted_(false)
 	, isRotated_(false)
 {
-	ReadDICOMFile();
 }
 
 DICOMImage::~DICOMImage()
@@ -54,7 +55,7 @@ DICOMImage::~DICOMImage()
 	}
 }
 
-void DICOMImage::ReadDICOMFile()
+void DICOMImage::ReadFile()
 {
 	// study instance uid (0020,000d)
 	// sop instance uid (0008,0018) 
@@ -74,7 +75,7 @@ void DICOMImage::ReadDICOMFile()
 	//cout << "DICOM filename = " << filename_ << '\n';
 	if( !r.Read() )
 	{
-		cout << "Can't read file: " << filename_ << endl;
+		LOG_MSG(LOGERROR) << "DICOM file read failed : " << filename_;
 		throw std::exception();
 	}
 	
@@ -123,7 +124,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Series number not found\n";
+		LOG_MSG(LOGERROR) << "Series number not found: " << filename_;
 		throw std::exception();
 	}
 	
@@ -139,7 +140,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Series description not found\n";
+		LOG_MSG(LOGWARNING) << "Series description not found: " << filename_;
 		seriesDescription_ = "";
 	}
 	
@@ -155,7 +156,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Sequence Name not found in the DICOM header \n";
+		LOG_MSG(LOGWARNING) << "Sequence Name not found: " << filename_;
 		sequenceName_ = "";
 	}
 	
@@ -202,7 +203,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Rows not found.\n";
+		LOG_MSG(LOGERROR) << "Rows not found: " << filename_;
 		throw std::exception();
 	}
 
@@ -237,7 +238,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Image Position not found.\n";
+		LOG_MSG(LOGERROR) << "Image Position not found: " << filename_;
 		throw std::exception();
 	}
 
@@ -249,14 +250,20 @@ void DICOMImage::ReadDICOMFile()
 		orientation1_ = Vector3D(at_ori[0],at_ori[1],at_ori[2]);
 		orientation2_ = Vector3D(at_ori[3],at_ori[4],at_ori[5]);
 	}
-	else
+	else if (ds.FindDataElement(gdcm::Tag(0x0020,0x0035)))
 	{
-		std::cout << "(0x20,0x37) Image Orientation - Patient is missing. We will compute the orientation from (0x20,0x35) instead.\n";
+		LOG_MSG(LOGINFORMATION) << "(0x20,0x37) Image Orientation - Patient is missing. We will compute the orientation from (0x20,0x35) instead.";
+
 		const gdcm::DataElement& orientation = ds.GetDataElement(gdcm::Tag(0x0020,0x0035));
 		gdcm::Attribute<0x0020,0x0035> at_ori; //test
 		at_ori.SetFromDataElement(orientation);
 		orientation1_ = Vector3D(-at_ori[0],at_ori[1],-at_ori[2]);
 		orientation2_ = Vector3D(-at_ori[3],at_ori[4],-at_ori[5]);
+	}
+	else
+	{
+		LOG_MSG(LOGERROR) << "Image Orientation not found: " << filename_;
+		throw std::exception();
 	}
 	
 	if (ds.FindDataElement(gdcm::Tag(0x0028,0x0030)))
@@ -270,7 +277,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Pixel Spacing not found\n";
+		LOG_MSG(LOGERROR) << "Pixel Spacing not found: " << filename_;
 		throw std::exception();
 	}
 	
@@ -284,7 +291,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Patient Name not found\n";
+		LOG_MSG(LOGWARNING) << "Patient Name not found: " << filename_;
 		patientName_ = "N/A";
 	}
 	
@@ -298,7 +305,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Patient ID Not found\n";
+		LOG_MSG(LOGWARNING) << "Patient ID not found: " << filename_;
 		patientId_ = "N/A";
 	}
 	
@@ -312,7 +319,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Scan Date Not found\n";
+		LOG_MSG(LOGWARNING) << "Scan Date not found: " << filename_;
 		scanDate_ = "N/A";
 	}
 	
@@ -328,7 +335,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Date of Birth Not found\n";
+		LOG_MSG(LOGWARNING) << "Date of Birth not found: " << filename_;
 		dateOfBirth_ = "N/A";
 	}
 	
@@ -342,7 +349,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Gender Not found\n";
+		LOG_MSG(LOGWARNING) << "Gender not found: " << filename_;
 		gender_ = "N/A";
 	}
 	
@@ -356,7 +363,7 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Patient's age (0010,1010) not found\n";
+		LOG_MSG(LOGWARNING) << "Patient's age (0010,1010) not found: " << filename_;
 		age_ = "N/A";
 	}
 	
@@ -370,11 +377,11 @@ void DICOMImage::ReadDICOMFile()
 	}
 	else
 	{
-		cout << "Instance Number (0020,0013) not found\n";
+		LOG_MSG(LOGWARNING) << "Instance Number (0020,0013) not found: " << filename_;
 		instanceNumber_ = -1;
 	}
 
-	dbg("dicom info: " + filename_ + ", " + sopInstanceUID_ + ", " + seriesInstanceUID_);
+	//dbg("dicom info: " + filename_ + ", " + sopInstanceUID_ + ", " + seriesInstanceUID_);
 	
 //	cout << "Exiting " << __func__ << '\n';
 }

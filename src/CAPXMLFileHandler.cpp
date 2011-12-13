@@ -41,6 +41,8 @@ extern "C"
 #include "utils/filesystem.h"
 #include "PlatformInfo.h"
 #include "CAPContour.h"
+#include "logmsg.h"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -318,12 +320,14 @@ boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::st
 		std::string fullpath = path + filename;
 		try
 		{
-			DICOMPtr image  = boost::make_shared<DICOMImage>(fullpath);
+			DICOMPtr image(new DICOMImage(fullpath));
+			image->ReadFile();
 			hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
 		}
 		catch (std::exception& e)
 		{
 			std::cout << __func__ << ": Invalid DICOM file - " << filename << ", " << e.what() << std::endl;
+			LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << fullpath << "' (" << e.what() << ")";
 		}
 	}
 

@@ -372,18 +372,18 @@ public:
 		return pixelSizeY_;
 	}
 	
+	/**
+	 * Read in the DICOM image extracting information from the image
+	 * attributes.
+	 */
+	void ReadFile();
+	
 private:
 	/**
 	 * Compute the image found from information extracted from the 
 	 * DICOM header.
 	 */
 	void ComputeImagePlane();
-	
-	/**
-	 * Read in the DICOM image extracting information from the image
-	 * attributes.
-	 */
-	void ReadDICOMFile();
 	
 	std::string filename_;  /**< Filename of the file */
 	unsigned int width_;	/**< The width */
@@ -425,8 +425,6 @@ private:
 	bool isShifted_;	/**< true if this object is shifted */
 	bool isRotated_;	/**< true if this object is rotated */
 };
-
-//class DICOMImage;
 
 /**
  * Defines an alias representing the dicom pointer.
