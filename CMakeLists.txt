@@ -77,7 +77,7 @@ SET( APP_HDRS
 	src/logmsg.h
 	src/datapoint.h
 	src/utils/filesystem.h
-	src/utils/time.h
+	src/utils/misc.h
 	src/math/gmmfactory.h
 	src/IAnnotationWindow.h
 	src/imagebrowserwindow.h
@@ -128,7 +128,7 @@ SET( APP_SRCS
 	src/datapoint.cpp
 	src/logwindow.cpp
 	src/utils/filesystem.cpp
-	src/utils/time.cpp
+	src/utils/misc.cpp
 	src/imagebrowser.cpp
 	src/imagebrowserwindow.cpp
 	src/ImageSet.cpp
