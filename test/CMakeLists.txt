@@ -83,6 +83,7 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
 	${CAPCLIENT_ROOT_DIR}/src/PlatformInfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp

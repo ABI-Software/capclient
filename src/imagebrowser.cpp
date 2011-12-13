@@ -6,8 +6,6 @@
 #endif
 #include <wx/xrc/xmlres.h>
 
-#include <boost/algorithm/string/predicate.hpp>
-
 extern "C"
 {
 #include <api/cmiss_region.h>

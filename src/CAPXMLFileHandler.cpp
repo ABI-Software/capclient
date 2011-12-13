@@ -13,7 +13,6 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -42,6 +41,7 @@ extern "C"
 #include "PlatformInfo.h"
 #include "CAPContour.h"
 #include "logmsg.h"
+#include "utils/misc.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -310,9 +310,9 @@ boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::st
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
 		// Skip files that are known not to be dicom files
-		if (boost::iends_with(filename, ".exnode") ||
-			boost::iends_with(filename, ".exelem") ||
-			boost::iends_with(filename, ".xml"))
+		if (EndsWith(filename, ".exnode") ||
+			EndsWith(filename, ".exelem") ||
+			EndsWith(filename, ".xml"))
 		{
 			continue;
 		}
