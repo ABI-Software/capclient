@@ -38,7 +38,7 @@ extern "C"
 #include "imagebrowserwindow.h"
 
 #include "cmgui/extensions.h"
-#include "DICOMImage.h"
+#include "dicomimage.h"
 #include "material.h"
 #include "imagebrowser.h"
 #include "utils/debug.h"
@@ -73,7 +73,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
 	SetAnnotationString(" ");
-	Cmiss_rendition_execute_command(rendition, "point glyph none general size \"2*2*2\" label annotation centre 0.95,0.9,0.0 select_on material default selected_material default normalised_window_fit_left;");
+	Cmiss_rendition_execute_command(rendition, "point glyph none general size \"2*2*2\" label annotation centre 0.90,0.95,0.0 select_on material default selected_material default normalised_window_fit_left;");
 
 	Cmiss_region_destroy(&root_region);
 	Cmiss_graphics_module_destroy(&graphics_module);

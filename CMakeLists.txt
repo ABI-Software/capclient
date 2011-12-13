@@ -47,7 +47,6 @@ SET(CAP_CLIENT_EXECUTABLE capclient)
 # Read in the source, header and gui files
 #INCLUDE(header_files.cmake)
 SET( APP_HDRS
-	src/abstractlabelled.h
 	src/cmgui/extensions.h
 	src/AnnotationEditor.h
 	src/AnnotationWindow.h
@@ -90,7 +89,6 @@ SET( APP_HDRS
 	src/ImageSliceGraphics.h
 	src/IsoSurfaceCapture.h
 	src/labelledslice.h
-	src/labelledtexture.h
 	src/capclient.h
 	src/logwindow.h
 	src/capclientwindow.h
@@ -136,7 +134,6 @@ SET( APP_SRCS
 	src/ImageSet.cpp
 	src/ImageSlice.cpp
 	src/labelledslice.cpp
-	src/labelledtexture.cpp
 	src/capclientwindow.cpp
 	src/capclientwindowheartmodel.cpp
 	src/standardheartdefinitions.cpp

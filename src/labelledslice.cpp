@@ -1,11 +1,11 @@
 
 #include <string>
 
-#include "DICOMImage.h"
+#include "dicomimage.h"
 
-#include "abstractlabelled.h"
 #include "labelledslice.h"
-#include "utils/debug.h"
+#include "logmsg.h"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -16,7 +16,7 @@ namespace cap
 {
 
 LabelledSlice::LabelledSlice(const std::string& label, std::vector<DICOMPtr> dicoms)
-	: AbstractLabelled(label)
+	: label_(label)
 	, dicomImages_(dicoms)
 {
 
@@ -24,7 +24,7 @@ LabelledSlice::LabelledSlice(const std::string& label, std::vector<DICOMPtr> dic
 
 LabelledSlice::~LabelledSlice()
 {
-	dbg(" ---- LabelledSlice::~LabelledSlice()");
+	LOG_MSG(LOGDEBUG) << " ---- LabelledSlice::~LabelledSlice() " << label_;
 }
 
 }

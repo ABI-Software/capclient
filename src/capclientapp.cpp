@@ -9,10 +9,8 @@ extern "C"
 }
 
 #include "capclientconfig.h"
-#include "DICOMImage.h"
-#include "abstractlabelled.h"
+#include "dicomimage.h"
 #include "labelledslice.h"
-#include "labelledtexture.h"
 #include "capclient.h"
 #include "capclientwindow.h"
 #include "ui/euladialog.h"

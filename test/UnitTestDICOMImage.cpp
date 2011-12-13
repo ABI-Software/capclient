@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "unittestconfigure.h"
-#include "DICOMImage.h"
+#include "dicomimage.h"
 #include "math/algebra.h"
 
 TEST(DICOMImageTest, GetFilename)

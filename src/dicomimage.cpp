@@ -6,7 +6,7 @@
  */
 #include "capclientconfig.h"
 
-#include "DICOMImage.h"
+#include "dicomimage.h"
 
 #ifdef NDEBUG //HACK!
 #undef NDEBUG // HACK to get around the fact that gdcm only gets compiled without NDEBUG during the cmgui build process
