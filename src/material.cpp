@@ -46,8 +46,8 @@ Material::Material(const std::string& materialName, Cmiss_graphics_module_id gra
 	Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 1);
 
 	// Initialize shaders that are used for adjusting brightness and contrast
-	std::string vertex_program = FileSystem::WriteCharBufferToString(vert_prog, vert_prog_len);
-	std::string fragment_program = FileSystem::WriteCharBufferToString(frag_prog, frag_prog_len);
+	std::string vertex_program = WriteCharBufferToString(vert_prog, vert_prog_len);
+	std::string fragment_program = WriteCharBufferToString(frag_prog, frag_prog_len);
 
 	std::string buffer = "vertex_program_string \"" + vertex_program + "\" fragment_program_string \"" + fragment_program + "\"";
 	Cmiss_graphics_material_execute_command(material_, buffer.c_str());

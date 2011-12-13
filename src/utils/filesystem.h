@@ -13,16 +13,6 @@
 
 namespace cap
 {
-/**
- * File system.  This class implements some cross platform file system utilities.
- */
-class FileSystem
-{
-private:
-	FileSystem();
-
-public:
-
 	/**
 	 * Gets all the names of the files in the given directory.  This list excludes any file names
 	 * starting with a '.'.  @see GetAllFileNamesRecursive
@@ -31,7 +21,7 @@ public:
 	 *
 	 * @return	all file names.
 	 */
-	static const std::vector<std::string> GetAllFileNames(const std::string& dirname);
+	const std::vector<std::string> GetAllFileNames(const std::string& dirname);
 
 	/**
 	 * Gets all file names recursively.  This list excludes directories, only files that are marked
@@ -41,7 +31,7 @@ public:
 	 *
 	 * @return	all file names found in a recursive search.
 	 */
-	static const std::vector<std::string> GetAllFileNamesRecursive(const std::string& dirname);
+	const std::vector<std::string> GetAllFileNamesRecursive(const std::string& dirname);
 
 	/**
 	 * Creates a directory.
@@ -50,7 +40,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool MakeDirectory(const std::string& dirname);
+	bool MakeDirectory(const std::string& dirname);
 
 	/**
 	 * Removes the file described by filename from the system.
@@ -59,7 +49,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool RemoveFile(const std::string& filename);
+	bool RemoveFile(const std::string& filename);
 
 	/**
 	 * Queries if a given file exists.
@@ -68,7 +58,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool IsFile(const std::string& filename);
+	bool IsFile(const std::string& filename);
 
 	/**
 	 * Queries if a given directory exists.
@@ -77,7 +67,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool IsDirectory(const std::string& dirname);
+	bool IsDirectory(const std::string& dirname);
 
 	/**
 	 * Writes a character buffer to file.
@@ -88,7 +78,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool WriteCharBufferToFile(const std::string& filename, 
+	bool WriteCharBufferToFile(const std::string& filename, 
 		unsigned char data[], unsigned int len);
 
 	/**
@@ -99,7 +89,7 @@ public:
 	 *
 	 * @return	A std::string containing the char buffer.
 	 */
-	static std::string WriteCharBufferToString(unsigned char data[], unsigned int len);
+	std::string WriteCharBufferToString(unsigned char data[], unsigned int len);
 
 	/**
 	 * Removes the directory described by dirname.
@@ -108,7 +98,7 @@ public:
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	static bool DeleteDirectory(const std::string& dirname);
+	bool DeleteDirectory(const std::string& dirname);
 
 	/**
 	 * Creates a temporary empty file and returns the filename in the returned string.
@@ -117,7 +107,7 @@ public:
 	 *
 	 * @return	The name of the empty file.
 	 */
-	static std::string CreateTemporaryEmptyFile(const std::string& directory = "");
+	std::string CreateTemporaryEmptyFile(const std::string& directory = "");
 
 	/**
 	 * Given a string name this function will return the filename for the current platform.  The
@@ -130,7 +120,7 @@ public:
 	 *
 	 * @return	The file name.
 	 */
-	static std::string GetFileName(const std::string& name);
+	std::string GetFileName(const std::string& name);
 	
 	/**
 	 * Given a string name this function will return the
@@ -143,7 +133,7 @@ public:
 	 * \returns a string starting from the last system 
 	 * directory marker to the last extension marker.
 	 */
-	static std::string GetFileNameWOE(const std::string& name);
+	std::string GetFileNameWOE(const std::string& name);
 
 	/**
 	 * Gets a path.
@@ -152,8 +142,7 @@ public:
 	 *
 	 * @return	The path.
 	 */
-	static std::string GetPath(const std::string& path);
-};
+	std::string GetPath(const std::string& path);
 
 } // end namespace cap
 #endif /* FILESYSTEM_H_ */

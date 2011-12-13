@@ -31,12 +31,12 @@ HtmlWindow::HtmlWindow(wxWindow *parent, wxWindowID id, const wxPoint& pos,
 	wxImage::AddHandler(new wxPNGHandler());
 #endif
 		SetBorders(0);
-		FileSystem::WriteCharBufferToFile("mri_icon.png", mri_icon_png, mri_icon_png_len);
-		FileSystem::WriteCharBufferToFile("abi_icon.png", abi_icon_png, abi_icon_png_len);
-		std::string page = FileSystem::WriteCharBufferToString(aboutcapclient_html, aboutcapclient_html_len);
+		WriteCharBufferToFile("mri_icon.png", mri_icon_png, mri_icon_png_len);
+		WriteCharBufferToFile("abi_icon.png", abi_icon_png, abi_icon_png_len);
+		std::string page = WriteCharBufferToString(aboutcapclient_html, aboutcapclient_html_len);
 		SetPage(page);
-		FileSystem::RemoveFile("mri_icon.png");
-		FileSystem::RemoveFile("abi_icon.png");
+		RemoveFile("mri_icon.png");
+		RemoveFile("abi_icon.png");
 }
  
 void HtmlWindow::OnLinkClicked(const wxHtmlLinkInfo& link)

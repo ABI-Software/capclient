@@ -425,7 +425,7 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	xmlFileHandler.AddModellingPoints(modellingPoints);
 	xmlFileHandler.AddProvenanceDetail(userComment);
 	
-	std::string modelName = FileSystem::GetFileNameWOE(dirname);
+	std::string modelName = GetFileNameWOE(dirname);
 	//std::string dirnameStl(dirname.c_str());
 	//size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
 	//std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);

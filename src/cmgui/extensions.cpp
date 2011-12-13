@@ -76,7 +76,7 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 {
 	//std::cout << "SceneViewerPanel::" << __func__ << std::endl;
 	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
-	std::string name = "tex_" + cap::FileSystem::GetFileNameWOE(dicom_image->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
+	std::string name = "tex_" + cap::GetFileNameWOE(dicom_image->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
 	Cmiss_field_set_name(temp_field, name.c_str());
 	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
 	Cmiss_field_destroy(&temp_field);

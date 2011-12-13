@@ -54,15 +54,15 @@ Modeller::Modeller(IModeller *mainApp)
 	dbg("Solver Library = " + factory.GetName());
 
 	// Read in S (smoothness matrix)
-	std::string tmpFileName = FileSystem::CreateTemporaryEmptyFile();
-	FileSystem::WriteCharBufferToFile(tmpFileName, globalsmoothperframematrix_dat, globalsmoothperframematrix_dat_len);
+	std::string tmpFileName = CreateTemporaryEmptyFile();
+	WriteCharBufferToFile(tmpFileName, globalsmoothperframematrix_dat, globalsmoothperframematrix_dat_len);
 	S_ = factory.CreateSparseMatrixFromFile(tmpFileName);
-	FileSystem::RemoveFile(tmpFileName);
+	RemoveFile(tmpFileName);
 	// Read in G (global to local parameter map)
-	tmpFileName = FileSystem::CreateTemporaryEmptyFile();
-	FileSystem::WriteCharBufferToFile(tmpFileName, globalmapbeziertohermite_dat, globalmapbeziertohermite_dat_len);
+	tmpFileName = CreateTemporaryEmptyFile();
+	WriteCharBufferToFile(tmpFileName, globalmapbeziertohermite_dat, globalmapbeziertohermite_dat_len);
 	G_ = factory.CreateSparseMatrixFromFile(tmpFileName);
-	FileSystem::RemoveFile(tmpFileName);
+	RemoveFile(tmpFileName);
 
 	dbg("Done reading S & G matrices");
 	
@@ -73,10 +73,10 @@ Modeller::Modeller(IModeller *mainApp)
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
 	dbg("Done creating GSmoothAMatrix");
 	
-	tmpFileName = FileSystem::CreateTemporaryEmptyFile();
-	FileSystem::WriteCharBufferToFile(tmpFileName, prior_dat, prior_dat_len);
+	tmpFileName = CreateTemporaryEmptyFile();
+	WriteCharBufferToFile(tmpFileName, prior_dat, prior_dat_len);
 	prior_ = factory.CreateVectorFromFile(tmpFileName);
-	FileSystem::RemoveFile(tmpFileName);
+	RemoveFile(tmpFileName);
 }
 
 Modeller::~Modeller()

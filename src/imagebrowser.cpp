@@ -85,7 +85,7 @@ void ImageBrowser::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 void ImageBrowser::ChooseImageDirectory()
 {
 	std::string path = gui_->GetImageLocation();
-	if (path.empty() || !FileSystem::IsDirectory(path))
+	if (path.empty() || !IsDirectory(path))
 		path = wxGetCwd();;
 	
 	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path);
@@ -136,7 +136,7 @@ void ImageBrowser::ReadInDICOMFiles()
 	// for now we assume the archive has already been unzipped
 	// and archiveFilename points to the containing dir
 	const std::string& dirname = archiveFilename_;
-	std::vector<std::string> const& filenames = FileSystem::GetAllFileNamesRecursive(dirname);
+	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(dirname);
 	
 	gui_->CreateProgressDialog("Please wait", "Analysing DICOM headers", filenames.size());
 	int count = 0;
@@ -389,7 +389,7 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	ChangeImageAnnotation(frameNumber);
 	
 	gui_->ViewAll();
-	std::string filename = FileSystem::GetFileName(dicomImages.at(frameNumber)->GetFilename());
+	std::string filename = GetFileName(dicomImages.at(frameNumber)->GetFilename());
 	gui_->SetAnnotationString("File name : " + filename);
 	double radius = std::max(width, height) / 2.0;
 	gui_->FitSceneViewer(radius);
