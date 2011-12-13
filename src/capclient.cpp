@@ -117,6 +117,7 @@ void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
 	}
 }
 
+/*
 void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno)
 {
 	//	// Reset the state of the CAPClientWindow
@@ -268,6 +269,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 	
 	EnterImagesLoadedState();
 }
+*/
 
 void CAPClient::OpenModel(const std::string& filename)
 {
