@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 
-#include "utils/time.h"
+#include "utils/misc.h"
 
 
 TEST(UtilsTimeTest, TimeNow)

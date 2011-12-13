@@ -135,8 +135,8 @@ SET(FileSystem_SRC
 
 LIST(APPEND UNIT_TESTS UtilsTime)
 SET(UtilsTime_SRC
-	unittestutilstime.cpp
-	${CAPCLIENT_ROOT_DIR}/src/utils/time.cpp
+	unittestutilsmisc.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 )
 
 LIST(APPEND UNIT_TESTS DICOMImage)
@@ -177,7 +177,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		unittestlogwindow.cpp
 		${CAPCLIENT_ROOT_DIR}/src/logwindow.cpp
 		${CAPCLIENT_ROOT_DIR}/src/logmsg.cpp
-		${CAPCLIENT_ROOT_DIR}/src/utils/time.cpp
+		${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 		${LogWindow_UI_SRCS_ANS_HDRS}
 		)
