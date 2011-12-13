@@ -89,6 +89,19 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	FindWindowById(XRCID("wxID_OK"))->Enable(false);
 }
 
+ImageBrowserWindow::~ImageBrowserWindow()
+{
+	dbg("===ImageBrowserWindow::~ImageBrowserWindow()");
+	if (material_)
+		delete material_;
+
+	delete cmguiPanel_;
+	Cmiss_context_destroy(&cmissContext_);
+	//Cmiss_context_execute_command(cmguiPanel_->GetCmissContext(),
+	//		("gfx destroy scene " + IMAGE_PREVIEW).c_str());
+	//TODO : destroy textures??
+}
+
 void ImageBrowserWindow::MakeConnections()
 {
 	Connect(wxID_EXIT, wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ImageBrowserWindow::OnCloseImageBrowserWindow));
@@ -125,16 +138,6 @@ void ImageBrowserWindow::CreateAnnotationTableColumns()
 	listCtrl_annotationTable->InsertColumn(columnIndex++, _("Label"), wxLIST_FORMAT_CENTRE, 100);
 	listCtrl_annotationTable->InsertColumn(columnIndex++, _("RID"), wxLIST_FORMAT_CENTRE, 100);
 	listCtrl_annotationTable->InsertColumn(columnIndex++, _("Scope"), wxLIST_FORMAT_CENTRE, 100);	
-}
-
-ImageBrowserWindow::~ImageBrowserWindow()
-{
-	dbg("===ImageBrowserWindow::~ImageBrowserWindow()");
-	delete cmguiPanel_;
-	Cmiss_context_destroy(&cmissContext_);
-	//Cmiss_context_execute_command(cmguiPanel_->GetCmissContext(),
-	//		("gfx destroy scene " + IMAGE_PREVIEW).c_str());
-	//TODO : destroy textures??
 }
 
 void ImageBrowserWindow::CreateProgressDialog(std::string const& title, std::string const& message, int max)
@@ -237,7 +240,7 @@ void ImageBrowserWindow::CreatePreviewScene()
 {
 	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
 	// boost::make_pair is faster than shared_ptr<Material>(new )
-	material_ = boost::make_shared<Material>(IMAGE_PREVIEW, gModule);
+	material_ = new Material(IMAGE_PREVIEW, gModule);//boost::make_shared<Material>(IMAGE_PREVIEW, gModule);
 	
 	CreatePlaneElement(cmissContext_, IMAGE_PREVIEW);
 	CreateTextureImageSurface(cmissContext_, IMAGE_PREVIEW, material_->GetCmissMaterial());

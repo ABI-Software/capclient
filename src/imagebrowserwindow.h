@@ -305,7 +305,7 @@ private:
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	SceneViewerPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
 	
-	boost::shared_ptr<Material> material_; /**< material. */
+	Material* material_; /**< material. */
 	
 	static const std::string IMAGE_PREVIEW; /**< Image preview string. */
 	
