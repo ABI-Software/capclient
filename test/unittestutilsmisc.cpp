@@ -6,7 +6,7 @@
 
 TEST(UtilsTimeTest, TimeNow)
 {
-	std::cout << TimeNow() << std::endl;
-	EXPECT_NE("Error in NowTime()", TimeNow());
+	std::cout << cap::TimeNow() << std::endl;
+	EXPECT_NE("Error in NowTime()", cap::TimeNow());
 }
 

@@ -159,7 +159,7 @@ void ImageBrowser::ReadInDICOMFiles()
 			dicomFile->ReadFile();
 			dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
 		}
-		catch (std::exception& e)
+		catch (std::exception&)
 		{
 			// This is not a DICOM file
 			std::string msg = "Invalid DICOM file : '" + filename + "'";

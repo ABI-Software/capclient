@@ -8,10 +8,10 @@
 #include "logmsg.h"
 #include "utils/debug.h"
 
-std::string TimeNow() { return ""; }
 
 namespace cap
 {
+	std::string TimeNow() { return ""; }
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 
 	Log::~Log()
