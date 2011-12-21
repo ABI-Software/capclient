@@ -44,6 +44,8 @@ namespace cap
 
 TEST(ImageBrowser, CreateUsingFactory)
 {
+	//_CrtDumpMemoryLeaks();
+	//_CrtSetBreakAlloc(22240);
 	int argc = 0;
 	char **argv = 0;
 	using namespace cap;
@@ -56,8 +58,7 @@ TEST(ImageBrowser, CreateUsingFactory)
 	// do your testing here
 	ImageBrowser* ib = ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client);
 	
-	wxTheApp->OnRun(); // Do/Don't start main loop
-	delete ib;
+	//wxTheApp->OnRun(); // Do/Don't start main loop
 	wxTheApp->OnExit();
 	wxEntryCleanup();
 }

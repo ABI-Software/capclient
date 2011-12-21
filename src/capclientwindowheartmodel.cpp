@@ -198,6 +198,8 @@ void CAPClientWindow::SetHeartModelLambdaParamsAtTime(const std::vector<double>&
 		double loc_ps[3];
 		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 		loc_ps[0] = lambdaParams[4 * i + 0];
+		if (i == 11)
+			dbg("node loc 12 : [" + toString(loc_ps[0]) + ", " + toString(loc_ps[1]) + ", " + toString(loc_ps[2]) + "]");
 		Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 		double loc_d_ds1[] = {0.0, 0.0, 0.0};
 		loc_d_ds1[0] = lambdaParams[4 * i + 1];
@@ -217,6 +219,7 @@ void CAPClientWindow::SetHeartModelLambdaParamsAtTime(const std::vector<double>&
 	Cmiss_field_destroy(&d_ds2);
 	Cmiss_field_destroy(&d2_ds1ds2);
 	Cmiss_field_module_end_change(field_module);
+	dbg("end node change");
 
 	Cmiss_field_cache_destroy(&cache);
 	Cmiss_nodeset_destroy(&nodeset);

@@ -432,23 +432,22 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 
 void CAPClientWindow::SetStatusTextString(std::string mode, std::string text) const
 {
-	StatusTextStringsFieldMap::const_iterator cit = statusTextStringsFieldMap_.find(mode);
-	if (cit != statusTextStringsFieldMap_.end())
+	if (text.size() > 0)
 	{
-		Cmiss_field_id field = cit->second.first;
+		StatusTextStringsFieldMap::const_iterator cit = statusTextStringsFieldMap_.find(mode);
+		if (cit != statusTextStringsFieldMap_.end())
+		{
+			Cmiss_field_id field = cit->second.first;
 
-		Cmiss_field_module_id field_module = Cmiss_field_get_field_module(field);
-		Cmiss_field_module_begin_change(field_module);
-		Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
-
-		if (text.size() > 0)
+			Cmiss_field_module_id field_module = Cmiss_field_get_field_module(field);
+			Cmiss_field_module_begin_change(field_module);
+			Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
 			Cmiss_field_assign_string(field, cache, text.c_str());
-		
+			Cmiss_field_module_end_change(field_module);
 
-		Cmiss_field_module_end_change(field_module);
-
-		Cmiss_field_cache_destroy(&cache);
-		Cmiss_field_module_destroy(&field_module);
+			Cmiss_field_cache_destroy(&cache);
+			Cmiss_field_module_destroy(&field_module);
+		}
 	}
 }
 
@@ -567,7 +566,9 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	CreatePlaneElement(cmissContext_, regionName);
 	// Set the material and field images into a TextureSlice.
 	boost::shared_ptr<Material> material = boost::make_shared<Material>(regionName, gModule);
-	CreateTextureImageSurface(cmissContext_, regionName, material->GetCmissMaterial());
+	Cmiss_graphics_material_id graphics_material = material->GetCmissMaterial();
+	CreateTextureImageSurface(cmissContext_, regionName, graphics_material);
+	Cmiss_graphics_material_destroy(&graphics_material);
 	std::vector<Cmiss_field_image_id> fieldImages = CreateFieldImages(labelledSlice);
 	
 	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDICOMImages())
@@ -592,7 +593,7 @@ std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const Label
 	std::vector<Cmiss_field_image_id> field_images;
 	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDICOMImages())
 	{
-		Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, dicom);
+		Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, dicom->GetFilename());
 		field_images.push_back(image_field);
 	}
 	Cmiss_field_module_destroy(&field_module);
@@ -603,7 +604,9 @@ std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const Label
 void CAPClientWindow::CreateScene(const std::string& regionName)
 {
 	CreatePlaneElement(cmissContext_, regionName);
-	CreateTextureImageSurface(cmissContext_, regionName, textureSliceMap_[regionName]->GetCmissMaterial());
+	Cmiss_graphics_material_id graphics_material = textureSliceMap_[regionName]->GetCmissMaterial();
+	CreateTextureImageSurface(cmissContext_, regionName, graphics_material);
+	Cmiss_graphics_material_destroy(&graphics_material);
 }
 
 void CAPClientWindow::ChangeTexture(const std::string& name, Cmiss_field_image_id fieldImage)
@@ -625,12 +628,12 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 		checkListBox_Slice->Append(wxString(sliceName.c_str(), wxConvUTF8));
 		bool visible = visibilities.at(index);
 		/* default selection */
-		if ( visible )
+		//if (visible)
 		{
-			checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1),1);
+			checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1), visible);
 		}
 		SetVisibilityForRegion(cmissContext_, sliceName, visible);
-		index ++;
+		index++;
 	}
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);
 }

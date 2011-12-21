@@ -24,7 +24,7 @@ LabelledSlice::LabelledSlice(const std::string& label, std::vector<DICOMPtr> dic
 
 LabelledSlice::~LabelledSlice()
 {
-	LOG_MSG(LOGDEBUG) << " ---- LabelledSlice::~LabelledSlice() " << label_;
+	LOG_MSG(LOGDEBUG) << "LabelledSlice::~LabelledSlice() " << label_;
 }
 
 }
