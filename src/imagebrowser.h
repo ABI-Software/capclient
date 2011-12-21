@@ -281,6 +281,11 @@ private:
 		SERIES_NUMBER,
 		SERIES_NUMBER_AND_IMAGE_POSITION
 	};
+
+	/**
+	 * Destroys the field image handles.
+	 */
+	void DestroyFieldImageHandles();
 	
 	/**
 	 * Static variable to be set when wxXmlInit_ImageBrowserWindowUI

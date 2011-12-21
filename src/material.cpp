@@ -28,6 +28,7 @@ extern "C"
 #include "hexified/frag.prog.h"
 #include "utils/debug.h"
 #include "utils/filesystem.h"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -61,6 +62,20 @@ Material::~Material()
 	dbg(std::string(__func__) + ": " + std::string(name));
 	Cmiss_deallocate(name);
 	Cmiss_graphics_material_destroy(&material_);
+}
+
+Material& Material::operator=(Material& other)
+{
+	this->material_ = other.material_;
+	Cmiss_graphics_material_access(material_);
+
+	return *this;
+}
+
+Material::Material(const Material& rhs)
+{
+	this->material_ = rhs.material_;
+	Cmiss_graphics_material_access(material_);
 }
 
 void Material::SetBrightness(float brightness)

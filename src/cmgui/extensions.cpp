@@ -4,6 +4,7 @@
 extern "C"
 {
 #include <configure/cmgui_configure.h>
+#include <api/cmiss_status.h>
 #include <api/cmiss_stream.h>
 #include <api/cmiss_field_image.h>
 #include <api/cmiss_context.h>
@@ -27,11 +28,11 @@ extern "C"
 #include <api/cmiss_field_conditional.h>
 }
 
-#include "dicomimage.h"
 #include "utils/filesystem.h"
 
 #include "cmgui/extensions.h"
 #include "utils/debug.h"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -67,37 +68,43 @@ Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissCo
 	Cmiss_graphics_filter_destroy(&graphics_filter);
 	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_scene_destroy(&scene);
-	//Cmiss_scene_viewer_package_destroy(&package); // identifier not found
+	//Cmiss_scene_viewer_package_destroy(&package); // scene viewer package does not need destroying
 	
 	return sceneViewer;
 }
 
-Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const cap::DICOMPtr& dicom_image)
+Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const std::string& filename)
 {
 	//std::cout << "SceneViewerPanel::" << __func__ << std::endl;
 	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
-	std::string name = "tex_" + cap::GetFileNameWOE(dicom_image->GetFilename()); //-- GetNextNameInSeries(field_module, "tex_");
+	std::string name = "tex_" + cap::GetFileNameWOE(filename); //-- GetNextNameInSeries(field_module, "tex_");
 	Cmiss_field_set_name(temp_field, name.c_str());
 	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
 	Cmiss_field_destroy(&temp_field);
 	Cmiss_stream_information_id stream_information = Cmiss_field_image_create_stream_information(field_image);
-	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-	Cmiss_stream_information_image_id image_stream_information = Cmiss_stream_information_cast_image(stream_information);
+	//--Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
 	
 	/* Read image data from a file */
-	Cmiss_stream_resource_id stream = Cmiss_stream_information_create_resource_file(stream_information, dicom_image->GetFilename().c_str());
-	Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 0.0);
-	Cmiss_field_image_read(field_image, stream_information);
-	Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
-	
-	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
-	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
-	Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_DEPTH_PIXELS, 1);
+	Cmiss_stream_resource_id stream = Cmiss_stream_information_create_resource_file(stream_information, filename.c_str());
+	//--Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 0.0);
+	int r = Cmiss_field_image_read(field_image, stream_information);
+	if (r == CMISS_OK)
+	{
+		Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
+		
+		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
+		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
+		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_DEPTH_PIXELS, 1);
+	}
+	else
+	{
+		dbg("Cmiss_field_module_create_image_texture failed to read image from stream." + filename);
+		Cmiss_field_image_destroy(&field_image);
+	}
 	
 	Cmiss_stream_resource_destroy(&stream);
-	Cmiss_stream_information_image_destroy(&image_stream_information);
+	//--Cmiss_stream_information_region_destroy(&stream_information_region);
 	Cmiss_stream_information_destroy(&stream_information);
-	Cmiss_stream_information_region_destroy(&stream_information_region);
 	
 	return field_image;
 }
@@ -330,8 +337,8 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_field_set_attribute_integer(coordinates_field, CMISS_FIELD_ATTRIBUTE_IS_COORDINATE, 1);
 	Cmiss_field_set_attribute_integer(coordinates_field, CMISS_FIELD_ATTRIBUTE_IS_MANAGED, 1);
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
-	Cmiss_node_template_id node_template1 = Cmiss_nodeset_create_node_template(nodeset);
-	Cmiss_node_template_define_field(node_template1, coordinates_field);
+	Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
+	Cmiss_node_template_define_field(node_template, coordinates_field);
 	double node_coordinates[element_node_count][3] =
 	{
 		{ 0, 0, 0 },
@@ -342,13 +349,13 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 	for (int i = 0; i < element_node_count; i++)
 	{
-		Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, i+1, node_template1);
+		Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, i+1, node_template);
 		Cmiss_field_cache_set_node(field_cache, node);
 		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
 		Cmiss_node_destroy(&node);
 	}
 	Cmiss_field_cache_destroy(&field_cache);
-	Cmiss_node_template_destroy(&node_template1);
+	Cmiss_node_template_destroy(&node_template);
 	
 	Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, /*dimension*/2);
 	Cmiss_element_template_id element_template = Cmiss_mesh_create_element_template(mesh);
@@ -406,7 +413,11 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
 		Cmiss_node_destroy(&node);
 	}
+
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_destroy(&coordinates_field);
 	Cmiss_field_cache_destroy(&field_cache);
+	Cmiss_field_module_destroy(&field_module);
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 }
@@ -439,7 +450,11 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
 		Cmiss_node_destroy(&node);
 	}
+
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_destroy(&coordinates_field);
 	Cmiss_field_cache_destroy(&field_cache);
+	Cmiss_field_module_destroy(&field_module);
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 }
@@ -470,7 +485,11 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
 		Cmiss_node_destroy(&node);
 	}
+
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_destroy(&coordinates_field);
 	Cmiss_field_cache_destroy(&field_cache);
+	Cmiss_field_module_destroy(&field_module);
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 }
@@ -502,6 +521,11 @@ void SetVisibilityForRegion(Cmiss_context_id cmissContext, const std::string& re
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
 	Cmiss_rendition_set_visibility_flag(rendition, visibility ? 1 : 0);
+
+	Cmiss_region_destroy(&root_region);
+	Cmiss_region_destroy(&region);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_rendition_destroy(&rendition);
 }
 
 

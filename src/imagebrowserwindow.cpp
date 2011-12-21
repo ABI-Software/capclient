@@ -33,6 +33,7 @@ extern "C"
 #include <api/cmiss_field_module.h>
 #include <api/cmiss_rendition.h>
 #include <api/cmiss_region.h>
+#include <api/cmiss_graphics_material.h>
 }
 
 #include "imagebrowserwindow.h"
@@ -63,10 +64,11 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	: browser_(browser)
 	, cmissContext_(Cmiss_context_create(IMAGE_PREVIEW.c_str()))
 	, cmguiPanel_(0)
+	, material_(0)
 {
+	progressDialogPtr_.reset(0);
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	cmguiPanel_ = new SceneViewerPanel(cmissContext_, IMAGE_PREVIEW, panel_cmgui);
-	
 	SetIcon(wxICON(capicon));
 
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
@@ -91,15 +93,12 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 
 ImageBrowserWindow::~ImageBrowserWindow()
 {
-	dbg("===ImageBrowserWindow::~ImageBrowserWindow()");
+	dbg("ImageBrowserWindow::~ImageBrowserWindow()");
 	if (material_)
 		delete material_;
 
 	delete cmguiPanel_;
 	Cmiss_context_destroy(&cmissContext_);
-	//Cmiss_context_execute_command(cmguiPanel_->GetCmissContext(),
-	//		("gfx destroy scene " + IMAGE_PREVIEW).c_str());
-	//TODO : destroy textures??
 }
 
 void ImageBrowserWindow::MakeConnections()
@@ -207,7 +206,7 @@ void ImageBrowserWindow::PopulateAnnotationTableRow(int rowNumber, std::string c
 void ImageBrowserWindow::SetAnimationSliderMax(size_t max)
 {
 	
-	assert(slider_previewSelection);	
+	assert(slider_previewSelection);
 	if (max == 1)
 	{
 		// special case where a slice contains only 1 image
@@ -243,15 +242,19 @@ void ImageBrowserWindow::CreatePreviewScene()
 	material_ = new Material(IMAGE_PREVIEW, gModule);//boost::make_shared<Material>(IMAGE_PREVIEW, gModule);
 	
 	CreatePlaneElement(cmissContext_, IMAGE_PREVIEW);
-	CreateTextureImageSurface(cmissContext_, IMAGE_PREVIEW, material_->GetCmissMaterial());
+	Cmiss_graphics_material_id graphics_material = material_->GetCmissMaterial();
+	CreateTextureImageSurface(cmissContext_, IMAGE_PREVIEW, graphics_material);
 	cmguiPanel_->SetTumbleRate(0.0);
 	cmguiPanel_->ViewAll();
+
+	Cmiss_graphics_material_destroy(&graphics_material);
+	Cmiss_graphics_module_destroy(&gModule);
 }
 
 Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(DICOMPtr dicom)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, IMAGE_PREVIEW);
-	Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, dicom);
+	Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, dicom->GetFilename());
 	Cmiss_field_module_destroy(&field_module);
 	
 	return image_field;

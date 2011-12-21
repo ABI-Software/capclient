@@ -45,6 +45,22 @@ public:
 	 * \param graphics_module the graphics module to create the material in.
 	 */
 	Material(const std::string& materialName, Cmiss_graphics_module_id graphics_module);
+
+	/**
+	 * Copy constructor.
+	 *
+	 * @param	rhs	The right hand side.
+	 */
+	Material(const Material& rhs);
+
+	/**
+	 * Assignment operator.
+	 *
+	 * @param [in,out]	other	The other.
+	 *
+	 * @return	A shallow copy of this object.
+	 */
+	Material& operator=(Material& other);
 	
 	/**
 	 * Destructor, destroy references to cmiss ids.

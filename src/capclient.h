@@ -337,7 +337,7 @@ public:
 		{
 			return;//FIXME
 		}
-		//--modeller_->SmoothAlongTime();
+		modeller_->SmoothAlongTime();
 		
 		dbg("ED Volume(EPI) = " + toString(gui_->ComputeHeartVolume(EPICARDIUM)));
 		dbg("ED Volume(ENDO) = " + toString(gui_->ComputeHeartVolume(ENDOCARDIUM)));

@@ -35,6 +35,7 @@ ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowser *cl
 	, sortingMode_(SERIES_NUMBER)
 	, client_(client)
 	, frameNumberCurrentlyOnDisplay_(0)
+	, textureTable_()
 	, archiveFilename_(archiveFilename)
 {
 }
@@ -42,12 +43,10 @@ ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowser *cl
 ImageBrowser::~ImageBrowser()
 {
 	dbg("ImageBrowser::~ImageBrowser()");
-	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-	{
-		Cmiss_field_image_id tex = value.second;
-		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
-	}
+	DestroyFieldImageHandles();
+	dicomFileTable_.clear();
 	client_ = 0;
+	dbg("ImageBrowser::~ImageBrowser() end");
 }
 
 void ImageBrowser::UpdatePatientInfoPanel(DICOMPtr const& image)
@@ -188,6 +187,26 @@ size_t ImageBrowser::GetSliceMapImageCount() const
 	return count;
 }
 
+void ImageBrowser::DestroyFieldImageHandles()
+{
+	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	{
+		Cmiss_field_image_id tex = value.second;
+		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
+	}
+	textureTable_.clear();
+	TextureMap::iterator it = textureMap_.begin();
+	for(; it != textureMap_.end(); ++it)
+	{
+		std::vector<Cmiss_field_image_id>::iterator it2 = it->second.begin();
+		for (;it2 != it->second.end(); ++it2)
+		{
+			Cmiss_field_image_destroy(&(*it2));
+		}
+	}
+	textureMap_.clear();
+}
+
 void ImageBrowser::CreateTexturesFromDICOMFiles()
 {
 	using namespace std;
@@ -203,7 +222,13 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 		std::vector<Cmiss_field_image_id> image_field_stack;
 		BOOST_FOREACH(DICOMPtr const& dicomPtr, slice.second)
 		{
+			// Returns an accessed image field
 			Cmiss_field_image_id image_field = gui_->CreateFieldImage(dicomPtr);
+			//Cmiss_field_image_destroy(&image_field);
+			// The returned field does not increase the access count for the image field
+			Cmiss_field_id temp_field = Cmiss_field_image_base_cast(image_field);
+			// Add an access for the texture map
+			Cmiss_field_access(temp_field);
 			image_field_stack.push_back(image_field);
 			textureTable_.insert(make_pair(dicomPtr->GetFilename(), image_field));
 			count++;
@@ -216,7 +241,6 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 	}
 	gui_->UpdateProgressDialog(GetSliceMapImageCount());
 	gui_->DestroyProgressDialog();
-	return;
 }
 
 void ImageBrowser::PopulateImageTable()
@@ -416,12 +440,12 @@ void ImageBrowser::OnOrderByRadioBox(int event)
 
 void ImageBrowser::OnCancelButtonClicked()
 {
-	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-	{
-		Cmiss_field_image_id tex = value.second;
-		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
-	}
-	textureTable_.clear();
+	//BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	//{
+	//	Cmiss_field_image_id tex = value.second;
+	//	Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
+	//}
+	//textureTable_.clear();
 
 	if (gui_)
 	{

@@ -31,15 +31,14 @@ class wxPanel;
 Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissContext,  const std::string& sceneName, wxPanel* panel);
 
 /**
- * Create a texture from list of images.  The dicom given is 
- * read in to the existing field_image.  That is the field_image 
- * has already been created but it does not yet have an image 
- * read into it.
+ * Create a field image in the field module given defined by the filename.
  * 
- * \param field_module the field module to create the image field in.
- * \param dicom_image the dicom image to read into the image field.
+ * @param	field_module	The field module.
+ * @param	filename		Filename of the file.
+ *
+ * @return	The field image that is the created texture.
  */
-Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module,const cap::DICOMPtr& dicom_image);
+Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module,const std::string& filename);
 
 /**
  * Get the field module for the given region.  The receiver of the field

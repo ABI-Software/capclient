@@ -442,6 +442,12 @@ ModellingModeGuidePoints::~ModellingModeGuidePoints()
 
 void ModellingModeGuidePoints::PerformEntryAction()
 {
+	ModellingPointsMap::iterator it = guidePoints_.begin();
+	for (; it != guidePoints_.end(); ++it)
+	{
+		it->second.SetVisible(true);
+	}
+
 	std::vector<ModellingPointsMap>::iterator vectorIter = vectorOfModellingPoints_.begin();
 	for (;vectorIter != vectorOfModellingPoints_.end(); ++vectorIter)
 	{
@@ -455,6 +461,12 @@ void ModellingModeGuidePoints::PerformEntryAction()
 
 void ModellingModeGuidePoints::PerformExitAction()
 {
+	ModellingPointsMap::iterator it = guidePoints_.begin();
+	for (; it != guidePoints_.end(); ++it)
+	{
+		it->second.SetVisible(false);
+	}
+
 	std::vector<ModellingPointsMap>::iterator vectorIter = vectorOfModellingPoints_.begin();
 	for (;vectorIter != vectorOfModellingPoints_.end(); ++vectorIter)
 	{

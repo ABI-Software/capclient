@@ -652,7 +652,7 @@ void Modeller::FitModel(double time)
 		std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
 		std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
 
-		for (int xiIndex = 0; itr_xi!=end_xi; ++itr_xi, ++xiIndex)
+		for (int xiIndex = 0; itr_xi != end_xi; ++itr_xi, ++xiIndex)
 		{
 			double temp[3];
 			temp[0] = itr_xi->x;
@@ -706,7 +706,7 @@ void Modeller::FitModel(double time)
 		solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
 		clock_t after = clock();
-		dbg(solverFactory_->GetName() + " CG time = " + toString((after - before) / static_cast<double>(CLOCKS_PER_SEC)) + " sec , frame #" + toString(frameNumber));
+		//dbg(solverFactory_->GetName() + " CG time = " + toString((after - before) / static_cast<double>(CLOCKS_PER_SEC)) + " sec , frame #" + toString(frameNumber));
 
 		*x += *prior_;
 	//	std::cout << "x = " << *x << std::endl;
