@@ -11,11 +11,11 @@
 #include <vector>
 
 extern "C" {
-#include <api/cmiss_field.h>
-#include <api/cmiss_region.h>
-#include <api/cmiss_field_module.h>
-#include <api/cmiss_graphic.h>
-#include <api/cmiss_rendition.h>
+#include <zn/cmiss_field.h>
+#include <zn/cmiss_region.h>
+#include <zn/cmiss_field_module.h>
+#include <zn/cmiss_graphic.h>
+#include <zn/cmiss_rendition.h>
 }
 
 #include "model/heart.h"

@@ -13,7 +13,7 @@
 
 extern "C"
 {
-#include <api/cmiss_region.h>
+#include <zn/cmiss_region.h>
 }
 
 #include "datapoint.h"

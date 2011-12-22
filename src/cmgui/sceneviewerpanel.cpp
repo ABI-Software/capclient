@@ -12,18 +12,18 @@
 
 extern "C"
 {
-#include <configure/cmgui_configure.h>
-#include <api/cmiss_status.h>
-#include <api/cmiss_field_image.h>
-#include <api/cmiss_scene_viewer.h>
-#include <api/cmiss_stream.h>
-#include <api/cmiss_interactive_tool.h>
-#include <api/cmiss_rendition.h>
-#include <api/cmiss_graphic.h>
-#include <api/cmiss_field_module.h>
-#include <api/cmiss_field.h>
-//#include <api/cmiss_node.h>
-#include <api/cmiss_field_finite_element.h>
+#include <zn/cmgui_configure.h>
+#include <zn/cmiss_status.h>
+#include <zn/cmiss_field_image.h>
+#include <zn/cmiss_scene_viewer.h>
+#include <zn/cmiss_stream.h>
+#include <zn/cmiss_interactive_tool.h>
+#include <zn/cmiss_rendition.h>
+#include <zn/cmiss_graphic.h>
+#include <zn/cmiss_field_module.h>
+#include <zn/cmiss_field.h>
+//#include <zn/cmiss_node.h>
+#include <zn/cmiss_field_finite_element.h>
 }
 
 //#include "utils/debug.h" /* Uncomment this to enable debug messages */

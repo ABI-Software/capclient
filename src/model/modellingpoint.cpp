@@ -5,9 +5,9 @@
 
 extern "C"
 {
-#include <api/cmiss_status.h>
-#include <api/cmiss_field.h>
-#include <api/cmiss_field_module.h>
+#include <zn/cmiss_status.h>
+#include <zn/cmiss_field.h>
+#include <zn/cmiss_field_module.h>
 }
 
 #include "logmsg.h"

@@ -18,10 +18,10 @@
 
 extern "C"
 {
-#include <api/cmiss_context.h>
-#include <api/cmiss_field_image.h>
-#include <api/cmiss_graphic.h>
-#include <api/cmiss_node.h>
+#include <zn/cmiss_context.h>
+#include <zn/cmiss_field_image.h>
+#include <zn/cmiss_graphic.h>
+#include <zn/cmiss_node.h>
 }
 
 #include "ui/CAPClientWindowUI.h"

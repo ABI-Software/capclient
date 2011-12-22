@@ -9,7 +9,7 @@
 #define DATAPOINT_H_
 
 extern "C" {
-#include "api/cmiss_node.h"
+#include <zn/cmiss_node.h>
 }
 
 #include "SliceInfo.h"

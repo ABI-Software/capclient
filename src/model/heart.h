@@ -14,8 +14,8 @@
 
 extern "C"
 {
-#include <configure/cmgui_configure.h>
-#include <api/cmiss_context.h>
+#include <zn/cmgui_configure.h>
+#include <zn/cmiss_context.h>
 }
 
 #include "capclientconfig.h"

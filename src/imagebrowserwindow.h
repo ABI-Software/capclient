@@ -24,8 +24,8 @@
 
 extern "C"
 {
-#include <api/cmiss_field_module.h>
-#include <api/cmiss_scene_viewer.h>
+#include <zn/cmiss_field_module.h>
+#include <zn/cmiss_scene_viewer.h>
 }
 
 #include "ui/ImageBrowserWindowUI.h"

@@ -8,9 +8,9 @@
 
 extern "C"
 {
-#include <api/cmiss_region.h>
-#include <api/cmiss_field.h>
-#include <api/cmiss_field_image.h>
+#include <zn/cmiss_region.h>
+#include <zn/cmiss_field.h>
+#include <zn/cmiss_field_image.h>
 }
 
 #include "labelledslice.h"

@@ -10,25 +10,17 @@ SET(CAPCLIENT_VERSION_PATCH 0)
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 INCLUDE(Macros)
 
-DEFINE_ARCHITECTURE_DIR()
-# Try and find CMISS_ROOT variable so we can prime the 
-# finding of the Cmgui and GDCM libraries.  Otherwise
-# they can be set directly or entered when using a gui tool.
-IF(CMISS_ROOT)
-	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
-	SET(GDCM_DIR "${CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
-ELSEIF(EXISTS $ENV{CMISS_ROOT})
-	SET(Cmgui_DIR "$ENV{CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
-	SET(GDCM_DIR "$ENV{CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
-ENDIF(CMISS_ROOT)
 # Set up some variables that control the build.  The following variables also appear in 
 # a CMake gui application.
 CACHE_VAR_WITH_DEFAULT(CAP_INSTALL_PREFIX "/usr/local/" PATH "Install path prefix, prepended onto install directories.")
 SET(CMAKE_INSTALL_PREFIX ${CAP_INSTALL_PREFIX} CACHE INTERNAL "Internalise CMAKE_INSTALL_PREFIX, manipulate via CAP_INSTALL_PREFIX." FORCE)
 MARK_AS_ADVANCED(CAP_INSTALL_PREFIX)
 
-CACHE_VAR_WITH_DEFAULT( CAP_BUILD_TYPE "Debug" STRING "Choose the type of build, options are: Debug, Release, MinSizeRel, RelWithDebugInfo.")
-SET( CMAKE_BUILD_TYPE ${CAP_BUILD_TYPE} CACHE INTERNAL "Internalise CMAKE_BUILD_TYPE, manipulate via CAP_BUILD_TYPE." FORCE)
+CACHE_VAR_WITH_DEFAULT(CAP_BUILD_TYPE "Debug" STRING "Choose the type of build, options are: Debug, Release, MinSizeRel, RelWithDebugInfo.")
+SET(CMAKE_BUILD_TYPE ${CAP_BUILD_TYPE} CACHE INTERNAL "Internalise CMAKE_BUILD_TYPE, manipulate via CAP_BUILD_TYPE." FORCE)
+
+CACHE_VAR_WITH_DEFAULT(CAP_GTEST_ROOT "/usr/local" PATH "Root directory of the gtest libraries and header files.")
+CACHE_VAR_WITH_DEFAULT(CAP_CMGUI_CONFIG_DIR "/usr/local/lib/cmake" PATH "The directory that contains the cmgui-config.cmake file.")
 
 OPTION_WITH_DEFAULT(CAP_ENABLE_UNIT_TESTS "Enable CAPClient Unit Tests." OFF)
 OPTION_WITH_DEFAULT(CAP_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests." OFF)
@@ -45,7 +37,6 @@ ENDIF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 SET(CAP_CLIENT_EXECUTABLE capclient)
 
 # Read in the source, header and gui files
-#INCLUDE(header_files.cmake)
 SET( APP_HDRS
 	src/cmgui/extensions.h
 	src/AnnotationEditor.h
@@ -103,7 +94,6 @@ SET( APP_HDRS
 	src/textureslice.h
 	)
 
-#INCLUDE(source_files.cmake)
 SET( APP_SRCS
 	src/cmgui/extensions.cpp
 	src/AnnotationEditor.cpp
@@ -147,7 +137,6 @@ IF(MSVC)
 	SET( APP_HDRS ${APP_HDRS} src/win32/dirent.h src/win32/linuxutils.h)
 ENDIF()
 
-#INCLUDE(xrc_files.cmake)
 SET( APP_XRC
 	src/ui/AnnotationWindowUI.xrc
 	src/ui/ImageBrowserWindowUI.xrc
@@ -157,24 +146,17 @@ SET( APP_XRC
 	)
 
 SET(MISSING_DEPENDENCY)
-# Find the Cmgui libraries, using a gui the Cmgui_DIR variable
-# can be set if needed.  Alternatively it can be set on the 
+# Find the Cmgui libraries, using a gui the CAP_CMGUI_CONFIG_DIR
+# variable can be set.  Alternatively it can be set on the 
 # command line when creating the CMake cache.
+SET(Cmgui_DIR ${CAP_CMGUI_CONFIG_DIR})
 FIND_PACKAGE(Cmgui)
 IF(NOT CMGUI_FOUND)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
 	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find cmgui-config.cmake.")
 ENDIF()
-FIND_PACKAGE(GDCM)
-IF(NOT GDCM_FOUND)
-	LIST(APPEND MISSING_DEPENDENCY 0)
-	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find GDCMConfig.cmake.")
-ENDIF()
-#INCLUDE(${GDCM_USE_FILE}) # don't use this it is bad.
-SET(GDCM_INCLUDE_DIRS "${GDCM_INSTALL_PREFIX}/include/gdcm-2.0")
-#Need to find boost headers too?
+# Need to find boost headers
 FIND_PATH(CAP_BOOST_INCLUDE_DIR boost/shared_ptr.hpp)
 IF(NOT EXISTS ${CAP_BOOST_INCLUDE_DIR}/boost/shared_ptr.hpp)
 	LIST(APPEND MISSING_DEPENDENCY 0)
@@ -189,6 +171,18 @@ IF(NOT EXISTS ${CAP_GMM_INCLUDE_DIR}/gmm/gmm.h)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
 	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find gmm/gmm.h.")
 ENDIF()
+# If we are testing find GTest also
+IF(CAP_ENABLE_UNIT_TESTS OR CAP_ENABLE_GUI_UNIT_TESTS)
+	SET(GTEST_ROOT ${CAP_GTEST_ROOT})
+	FIND_PACKAGE(GTest)
+	IF(NOT GTEST_FOUND)
+		LIST(APPEND MISSING_DEPENDENCY 0)
+		LIST(LENGTH MISSING_DEPENDENCY COUNT)
+		SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find gtest.")
+	ENDIF()
+ENDIF()
+
+
 LIST(LENGTH MISSING_DEPENDENCY COUNT)
 IF(${COUNT} GREATER 0)
 	MESSAGE(FATAL_ERROR "\n${COUNT} configuration errors found:${CAP_ERROR_MESSAGE}")
@@ -215,8 +209,6 @@ CONFIGURE_FILE(src/html/aboutcapclient.html.cmake src/aboutcapclient.html)
 # in a header file.
 SET(TXT2INCLUDE_TARGET txt2include)
 ADD_EXECUTABLE(${TXT2INCLUDE_TARGET} src/utils/txt2include.c)
-#GET_TARGET_PROPERTY(TXT2INCLUDE_EXE txt2include LOCATION)
-#INCLUDE(txt_files.cmake)
 SET(TXT_FILES
 	src/templates/vert.prog
 	src/templates/frag.prog
@@ -276,32 +268,6 @@ SET_TARGET_PROPERTIES(${CAP_CLIENT_EXECUTABLE} PROPERTIES DEBUG_POSTFIX "d" MINS
 # and for each of your dependant executable/library targets:
 TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIBRARIES})
 
-# these libraries are not pulled in by Cmgui or one of it's dependencies
-# is not reporting that it needs them
-IF(MSVC)
-	TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
-		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib"
-		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib"
-		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib"
-		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib"
-		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
-		optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib"
-		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib"
-		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib"
-		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib"
-		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib"
-		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib"
-		debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib")
-ELSE()
-	TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE}
-		"${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a"
-		"${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a"
-		"${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a"
-		"${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a"
-		"${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a"
-		"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a")
-ENDIF()
-
 # Unit Testing
 IF(CAP_ENABLE_UNIT_TESTS)
 	SET(CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -316,6 +282,9 @@ IF(CAP_PRINT_SUMMARY)
 	MESSAGE(STATUS "CMAKE_BUILD_TYPE is '${CMAKE_BUILD_TYPE}'")
 	MESSAGE(STATUS "Boost include dir: ${CAP_BOOST_INCLUDE_DIR}")
 	MESSAGE(STATUS "GMM++ include dir: ${CAP_GMM_INCLUDE_DIR}")
+	IF(CAP_ENABLE_UNIT_TESTS OR CAP_ENABLE_GUI_UNIT_TESTS)
+		MESSAGE(STATUS "GTest include dir: ${GTEST_INCLUDE_DIRS}")
+	ENDIF()
 	MESSAGE(STATUS "Enable unit tests: ${CAP_ENABLE_UNIT_TESTS}")
 	MESSAGE(STATUS "Enable gui tests: ${CAP_ENABLE_GUI_UNIT_TESTS}")
 	MESSAGE(STATUS "==================================================")
