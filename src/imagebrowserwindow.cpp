@@ -26,14 +26,14 @@
 
 extern "C"
 {
-#include <configure/cmgui_configure.h>
-#include <api/cmiss_graphics_module.h>
-#include <api/cmiss_scene.h>
-#include <api/cmiss_field.h>
-#include <api/cmiss_field_module.h>
-#include <api/cmiss_rendition.h>
-#include <api/cmiss_region.h>
-#include <api/cmiss_graphics_material.h>
+#include <zn/cmgui_configure.h>
+#include <zn/cmiss_graphics_module.h>
+#include <zn/cmiss_scene.h>
+#include <zn/cmiss_field.h>
+#include <zn/cmiss_field_module.h>
+#include <zn/cmiss_rendition.h>
+#include <zn/cmiss_region.h>
+#include <zn/cmiss_graphics_material.h>
 }
 
 #include "imagebrowserwindow.h"

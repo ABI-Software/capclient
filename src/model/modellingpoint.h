@@ -8,8 +8,8 @@
 
 extern "C"
 {
-#include <api/cmiss_region.h>
-#include <api/cmiss_node.h>
+#include <zn/cmiss_region.h>
+#include <zn/cmiss_node.h>
 }
 
 #include "math/algebra.h"

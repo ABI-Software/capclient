@@ -13,8 +13,8 @@
 
 extern "C" 
 {
-#include <api/cmiss_graphics_module.h>
-#include <api/cmiss_graphics_material.h>
+#include <zn/cmiss_graphics_module.h>
+#include <zn/cmiss_graphics_material.h>
 }
 
 

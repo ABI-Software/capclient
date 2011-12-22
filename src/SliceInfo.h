@@ -13,7 +13,7 @@
 #include <boost/tr1/memory.hpp>
 #include <boost/bind.hpp>
 
-#include <api/cmiss_graphics_material.h>
+#include <zn/cmiss_graphics_material.h>
 
 #include "capclientconfig.h"
 #include "standardheartdefinitions.h"

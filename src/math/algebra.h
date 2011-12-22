@@ -21,7 +21,7 @@
 
 extern "C"
 {
-#include <configure/cmgui_configure.h>
+#include <zn/cmgui_configure.h>
 }
 
 typedef float gtMatrix[4][4];

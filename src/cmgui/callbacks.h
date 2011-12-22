@@ -5,7 +5,7 @@
 
 extern "C"
 {
-#include <api/cmiss_time.h>
+#include <zn/cmiss_time.h>
 }
 
 struct Scene_viewer;

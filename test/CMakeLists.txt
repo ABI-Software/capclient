@@ -14,42 +14,37 @@ IF(NOT CAPCLIENT_ROOT_DIR)
 	# Making the assumption here that the test directory is not 
 	# going to be separated from the  rest of the CAP Client 
 	# files.
-	SET(CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
+	SET( CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." CACHE PATH "Location of the CAP Client src directory.")
 	SET(TXT2INCLUDE_TARGET txt2include)
 	ADD_EXECUTABLE(${TXT2INCLUDE_TARGET} ${CAPCLIENT_ROOT_DIR}/src/utils/txt2include.c)
 
 	# local testing option
-	OPTION_WITH_DEFAULT(CAPTEST_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests." OFF)
+	IF( NOT DEFINED CAPTEST_ENABLE_GUI_UNIT_TESTS )
+		SET( CAPTEST_ENABLE_GUI_UNIT_TESTS OFF )
+	ENDIF()
+
+	OPTION( CAPTEST_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests." ${CAPTEST_ENABLE_GUI_UNIT_TESTS} )
+
+	# Find dependent packages
+	FIND_PACKAGE(GTest REQUIRED)
+	FIND_PACKAGE(Cmgui REQUIRED)
+	FIND_PATH(CAPTEST_GMM_INCLUDE_DIR gmm/gmm.h)
+	IF(NOT EXISTS ${CAPTEST_GMM_INCLUDE_DIR}/gmm/gmm.h)
+		MESSAGE(FATAL_ERROR "Could not find required header 'gmm/gmm.h'.")
+	ENDIF()
+	FIND_PATH(CAPTEST_BOOST_INCLUDE_DIR boost/shared_ptr.hpp)
+	IF(NOT EXISTS ${CAPTEST_BOOST_INCLUDE_DIR}/boost/shared_ptr.hpp)
+		MESSAGE(FATAL_ERROR "Could not find required header 'boost/shared_ptr.hpp'.")
+	ENDIF()
 ELSE()
 	SET(CAPTEST_GMM_INCLUDE_DIR "${CAP_GMM_INCLUDE_DIR}")
+	SET(CAPTEST_BOOST_INCLUDE_DIR "${CAP_BOOST_INCLUDE_DIR}")
 ENDIF()
 
 SET(CMAKE_MODULE_PATH "${CAPCLIENT_ROOT_DIR}/cmake/")
 INCLUDE(Macros)
 
-DEFINE_ARCHITECTURE_DIR()
-# Try and find CMISS_ROOT variable so we can prime the 
-# finding of the Cmgui and GDCM libraries.  Otherwise
-# they can be set directly or entered when using a gui tool.
-IF(CMISS_ROOT)
-	SET(Cmgui_DIR "${CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
-	SET(GDCM_DIR "${CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
-ELSEIF(EXISTS $ENV{CMISS_ROOT})
-	SET(Cmgui_DIR "$ENV{CMISS_ROOT}/${ARCHITECTURE_DIR}/lib/cmake")
-	SET(GDCM_DIR "$ENV{CMISS_ROOT}/third_party/${ARCHITECTURE_DIR}/lib/gdcm-2.0")
-ENDIF(CMISS_ROOT)
-
-# Find dependent packages
-FIND_PACKAGE(GTest REQUIRED)
-FIND_PACKAGE(Cmgui REQUIRED)
-FIND_PACKAGE(GDCM REQUIRED)
-FIND_PATH(CAPTEST_GMM_INCLUDE_DIR gmm/gmm.h)
-IF(NOT CAPTEST_GMM_INCLUDE_DIR)
-	MESSAGE(FATAL_ERROR "Could not find required header 'gmm/gmm.h'.")
-ENDIF()
 SET(GMM_INCLUDE_DIRS "${CAPTEST_GMM_INCLUDE_DIR}")
-SET(GDCM_INCLUDE_DIRS "${GDCM_INSTALL_PREFIX}/include/gdcm-2.0")
-
 SET(FILESYSTEM_TESTDIR "${CMAKE_CURRENT_SOURCE_DIR}/testdir")
 SET(DICOMIMAGE_IMAGEDIR "${CMAKE_CURRENT_SOURCE_DIR}/imagedir")
 SET(SAMPLEANALYSISXML_FILE "${CMAKE_CURRENT_SOURCE_DIR}/SampleAnalysisUsingXsd.xml")
@@ -226,21 +221,13 @@ IF(MSVC)
 ENDIF()
 
 # copy XML files
-FILE(COPY SampleAnalysisUsingXsd.xml SampleAnnotationFile.xml DESTINATION ${PROJECT_BINARY_DIR})
+#FILE(COPY SampleAnalysisUsingXsd.xml SampleAnnotationFile.xml DESTINATION ${PROJECT_BINARY_DIR})
 
 FOREACH( TEST ${UNIT_TESTS} )
 	ADD_EXECUTABLE(UnitTest${TEST} ${${TEST}_SRC})
 	ADD_TEST(UnitTest${TEST} UnitTest${TEST})
 	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
 	SET_TARGET_PROPERTIES(UnitTest${TEST} PROPERTIES  COMPILE_DEFINITIONS "UnitTest${TEST}" )
-	IF(MSVC)
-		TARGET_LINK_LIBRARIES(UnitTest${TEST}
-			optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
-			debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib")
-	ELSE()
-		TARGET_LINK_LIBRARIES(UnitTest${TEST}
-			"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a")
-	ENDIF()
 ENDFOREACH()
 
 IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
@@ -248,14 +235,6 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		ADD_EXECUTABLE(GuiTest${TEST} ${${TEST}_SRC})
 		ADD_TEST(GuiTest${TEST} GuiTest${TEST})
 		TARGET_LINK_LIBRARIES(GuiTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
-		IF(MSVC)
-			TARGET_LINK_LIBRARIES(GuiTest${TEST}
-				optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCommon.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPER.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDICT.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmDSED.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmIOD.lib" optimized "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFF.lib"
-				debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCommond.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmCWRAPPERd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDICTd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmDSEDd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmIODd.lib" debug "${GDCM_INSTALL_PREFIX}/lib/gdcmMSFFd.lib")
-		ELSE()
-			TARGET_LINK_LIBRARIES(GuiTest${TEST}
-				"${GDCM_INSTALL_PREFIX}/lib/libgdcmCWRAPPER.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDICT.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmDSED.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmCommon.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmIOD.a" "${GDCM_INSTALL_PREFIX}/lib/libgdcmMSFF.a")
-		ENDIF()
 	ENDFOREACH()
 ENDIF()
 

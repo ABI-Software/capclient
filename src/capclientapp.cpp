@@ -5,7 +5,7 @@
 
 extern "C"
 {
-#include <api/cmiss_field_image.h>
+#include <zn/cmiss_field_image.h>
 }
 
 #include "capclientconfig.h"

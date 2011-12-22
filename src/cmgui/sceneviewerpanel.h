@@ -13,11 +13,11 @@
 #include <vector>
 
 extern "C" {
-#include <configure/cmgui_configure.h>
-#include <api/cmiss_scene_viewer.h>
-#include <api/cmiss_graphics_material.h>
-#include <api/cmiss_context.h>
-#include <api/cmiss_field_module.h>
+#include <zn/cmgui_configure.h>
+#include <zn/cmiss_scene_viewer.h>
+#include <zn/cmiss_graphics_material.h>
+#include <zn/cmiss_context.h>
+#include <zn/cmiss_field_module.h>
 }
 
 #include "math/algebra.h"

@@ -7,12 +7,12 @@
 
 extern "C"
 {
-#include <configure/cmgui_configure.h>
-#include <api/cmiss_context.h>
-#include <api/cmiss_scene_viewer.h>
-#include <api/cmiss_field_module.h>
-#include <api/cmiss_field_image.h>
-#include <api/cmiss_node.h>
+#include <zn/cmgui_configure.h>
+#include <zn/cmiss_context.h>
+#include <zn/cmiss_scene_viewer.h>
+#include <zn/cmiss_field_module.h>
+#include <zn/cmiss_field_image.h>
+#include <zn/cmiss_node.h>
 }
 
 #include "dicomimage.h"

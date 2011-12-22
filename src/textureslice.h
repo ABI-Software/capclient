@@ -6,8 +6,8 @@
 
 extern "C"
 {
-#include <api/cmiss_graphics_material.h>
-#include <api/cmiss_field_image.h>
+#include <zn/cmiss_graphics_material.h>
+#include <zn/cmiss_field_image.h>
 }
 
 #include "material.h"

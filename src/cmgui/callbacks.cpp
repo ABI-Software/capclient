@@ -2,14 +2,14 @@
 
 extern "C"
 {
-	#include <api/cmiss_region.h>
-	#include <api/cmiss_time_keeper.h>
-	#include <api/cmiss_time.h>
-	#include <api/cmiss_field_module.h>
-	#include <api/cmiss_field_image.h>
-	#include <api/cmiss_interactive_tool.h>
-	#include <api/cmiss_field_group.h>
-	#include <api/cmiss_field.h>
+	#include <zn/cmiss_region.h>
+	#include <zn/cmiss_time_keeper.h>
+	#include <zn/cmiss_time.h>
+	#include <zn/cmiss_field_module.h>
+	#include <zn/cmiss_field_image.h>
+	#include <zn/cmiss_interactive_tool.h>
+	#include <zn/cmiss_field_group.h>
+	#include <zn/cmiss_field.h>
 }
 
 #include "dicomimage.h"

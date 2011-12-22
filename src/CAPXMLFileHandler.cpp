@@ -25,8 +25,8 @@
 
 extern "C"
 {
-#include <api/cmiss_field_module.h>
-#include <api/cmiss_region.h>
+#include <zn/cmiss_field_module.h>
+#include <zn/cmiss_region.h>
 }
 
 #include "capclientconfig.h"

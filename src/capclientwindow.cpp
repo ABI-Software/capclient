@@ -15,19 +15,19 @@
 
 extern "C"
 {
-#include <configure/cmgui_configure.h>
-#include <api/cmiss_core.h>
-#include <api/cmiss_status.h>
-#include <api/cmiss_context.h>
-#include <api/cmiss_field.h>
-#include <api/cmiss_stream.h>
-#include <api/cmiss_rendition.h>
-#include <api/cmiss_interactive_tool.h>
-#include <api/cmiss_graphic.h>
-#include <api/cmiss_field_module.h>
-#include <api/cmiss_element.h>
-#include <api/cmiss_graphics_material.h>
-#include <api/cmiss_time_sequence.h>
+#include <zn/cmgui_configure.h>
+#include <zn/cmiss_core.h>
+#include <zn/cmiss_status.h>
+#include <zn/cmiss_context.h>
+#include <zn/cmiss_field.h>
+#include <zn/cmiss_stream.h>
+#include <zn/cmiss_rendition.h>
+#include <zn/cmiss_interactive_tool.h>
+#include <zn/cmiss_graphic.h>
+#include <zn/cmiss_field_module.h>
+#include <zn/cmiss_element.h>
+#include <zn/cmiss_graphics_material.h>
+#include <zn/cmiss_time_sequence.h>
 }
 
 #include "utils/debug.h"
