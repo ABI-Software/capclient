@@ -556,6 +556,16 @@ void CAPClientWindow::ClearTextureSlices()
 		Cmiss_region_remove_child(root_region, child_region);
 		Cmiss_region_destroy(&child_region);
 	}
+	Cmiss_region_id curr = Cmiss_region_get_first_child(root_region);
+	while (curr)
+	{
+		char *name = Cmiss_region_get_name(curr);
+		std::string tag = "Region list :";
+		dbg(tag + name);
+		Cmiss_deallocate(name);
+		Cmiss_region_destroy(&curr);
+		curr = Cmiss_region_get_next_sibling(curr);
+	}
 	Cmiss_region_destroy(&root_region);
 }
 
@@ -632,7 +642,7 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 		{
 			checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1), visible);
 		}
-		SetVisibilityForRegion(cmissContext_, sliceName, visible);
+		SetVisibilityForGraphicsInRegion(cmissContext_, sliceName, visible);
 		index++;
 	}
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);
@@ -648,7 +658,7 @@ void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 	TextureSliceMap::const_iterator cit = textureSliceMap_.find(std::string(name.c_str()));
 	if (cit != textureSliceMap_.end())
 	{
-		SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+		SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
 		SetMIIVisibility(cit->first, visibility && mii_visibility);
 	}
 }
@@ -739,7 +749,7 @@ void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 	for (unsigned int i = 0; cit != textureSliceMap_.end(); cit++, i++)
 	{
 		checkListBox_Slice->Check(i, visibility);
-		SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+		SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
 		SetMIIVisibility(cit->first, visibility);
 	}
 }
@@ -766,7 +776,7 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 		if (currentSelection != i)
 		{
 			checkListBox_Slice->Check(i, visibility);
-			SetVisibilityForRegion(cmissContext_, cit->first, visibility);
+			SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
 			SetMIIVisibility(cit->first, visibility);
 		}
 	}
@@ -1428,8 +1438,10 @@ void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 {
 	Cmiss_graphic_id iso_epi = miiMap_[name].first;
 	Cmiss_graphic_id iso_endo = miiMap_[name].second;
-	int r1 = Cmiss_graphic_set_visibility_flag(iso_epi, visible ? 1 : 0);
-	int r2 = Cmiss_graphic_set_visibility_flag(iso_endo, visible ? 1 : 0);
+	if (iso_epi)
+		Cmiss_graphic_set_visibility_flag(iso_epi, visible ? 1 : 0);
+	if (iso_endo)
+		Cmiss_graphic_set_visibility_flag(iso_endo, visible ? 1 : 0);
 }
 
 void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)

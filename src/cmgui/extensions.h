@@ -181,12 +181,12 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane);
 
 /**
- * Sets the visibility of the rendition for the given region.
+ * Sets the visibility of all the grphics in the given region.
  *
  * @param	cmissContext	the context to use.
  * @param	regionName  	Name of the region.
  * @param	visibility  	if true make rendition visible, else make rendition invisible.
  */
-void SetVisibilityForRegion(Cmiss_context_id cmissContext, const std::string& regionName, bool visibility);
+void SetVisibilityForGraphicsInRegion(Cmiss_context_id cmissContext, const std::string& regionName, bool visibility);
 
 #endif /* UTILITIES_H */

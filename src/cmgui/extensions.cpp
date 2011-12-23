@@ -1,10 +1,16 @@
 
+#include "cmgui/extensions.h"
+
+#include "utils/filesystem.h"
+#include "utils/debug.h"
+
 #include <sstream>
 
 extern "C"
 {
 #include <zn/cmgui_configure.h>
 #include <zn/cmiss_status.h>
+#include <zn/cmiss_core.h>
 #include <zn/cmiss_stream.h>
 #include <zn/cmiss_field_image.h>
 #include <zn/cmiss_context.h>
@@ -27,11 +33,6 @@ extern "C"
 #include <zn/cmiss_field_composite.h>
 #include <zn/cmiss_field_conditional.h>
 }
-
-#include "utils/filesystem.h"
-
-#include "cmgui/extensions.h"
-#include "utils/debug.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -377,6 +378,12 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	}
 	Cmiss_mesh_define_element(mesh, -1, element_template);
 	Cmiss_element_template_destroy(&element_template);
+	Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
+	Cmiss_graphic_id graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_LINES);
+	Cmiss_graphic_set_coordinate_field(graphic, coordinates_field);
+	Cmiss_graphic_define(graphic, "line_width 2");
+	Cmiss_graphic_destroy(&graphic);
+	Cmiss_rendition_destroy(&rendition);
 	Cmiss_field_module_end_change(field_module);
 	
 	Cmiss_field_module_destroy(&field_module);
@@ -513,14 +520,21 @@ std::string GetNextNameInSeries(Cmiss_field_module_id field_module, std::string 
 	return field_name;
 }
 
-void SetVisibilityForRegion(Cmiss_context_id cmissContext, const std::string& regionName, bool visibility)
+void SetVisibilityForGraphicsInRegion(Cmiss_context_id cmissContext, const std::string& regionName, bool visibility)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
 	assert(region);
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
-	Cmiss_rendition_set_visibility_flag(rendition, visibility ? 1 : 0);
+	Cmiss_graphic_id graphic = Cmiss_rendition_get_first_graphic(rendition);
+	while (graphic)
+	{
+		Cmiss_graphic_set_visibility_flag(graphic, visibility ? 1 : 0);
+		Cmiss_graphic_id new_graphic = Cmiss_rendition_get_next_graphic(rendition, graphic);
+		Cmiss_graphic_destroy(&graphic);
+		graphic = new_graphic;
+	}
 
 	Cmiss_region_destroy(&root_region);
 	Cmiss_region_destroy(&region);
