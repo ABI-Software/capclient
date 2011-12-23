@@ -141,6 +141,11 @@ Set(DICOMImage_SRC
 	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
 	)
 
+LIST(APPEND UNIT_TESTS FieldImage)
+Set(FieldImage_SRC
+	unittestfieldimage.cpp
+	)
+
 IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	LIST(APPEND GUI_TESTS ImageBrowser)
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${CAPCLIENT_ROOT_DIR}/src/ui/ImageBrowserWindowUI.xrc" ImageBrowser_UI_SRCS_AND_HDRS)
@@ -178,6 +183,17 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 		${LogWindow_UI_SRCS_ANS_HDRS}
 		)
+		
+	LIST(APPEND GUI_TESTS FieldImageView)
+	LIST(APPEND XRC_FieldImageView "ui/testfieldimageui.xrc")
+	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${XRC_FieldImageView}" FieldImageView_UI_SRCS_ANS_HDRS)
+	SET(FieldImageView_SRC
+		unittestfieldimageview.cpp
+		${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
+		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+		${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
+		${FieldImageView_UI_SRCS_ANS_HDRS}
+		)
 
 ENDIF()
 
@@ -214,6 +230,12 @@ IF(MSVC)
 			
 		SET(LogWindow_SRC
 			${LogWindow_SRC}
+			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+			)
+			
+		SET(FieldImageView_SRC
+			${FieldImageView_SRC}
 			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 			)
