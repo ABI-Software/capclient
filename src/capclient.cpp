@@ -77,6 +77,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 		std::string currentLabel = it->GetLabel();
 		sliceNames.push_back(currentLabel);
 		dbg("label : '" + currentLabel + "'");
+		// Count the number of "SA" labels
 		if (currentLabel.compare(0, 2, "SA") == 0)
 		{
 			shortAxisCount++;
@@ -84,9 +85,10 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 		if (currentLabel == "LA1")
 			visibilities.push_back(true);
 		else
-			visibilities.push_back(false);
+			visibilities.push_back(true);
 		//-- TODO: contours
 	}
+	// Set the middle short axis slice visible.
 	if (shortAxisCount > 0)
 	{
 		double halfShortAxisCount = shortAxisCount / 2.0;
