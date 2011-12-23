@@ -76,100 +76,112 @@ TEST(FieldImage, GetProperties)
 	char *prop = 0;
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:SeriesInstanceUID");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041", value.c_str());
 	}
-	EXPECT_STREQ("1.3.12.2.1107.5.2.6.22043.4.0.6868385327594041", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:SOPInstanceUID");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("1.3.12.2.1107.5.2.6.22043.4.0.6868460923122952", value.c_str());
 	}
-	EXPECT_STREQ("1.3.12.2.1107.5.2.6.22043.4.0.6868460923122952", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:StudyInstanceUID");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("1.3.12.2.1107.5.2.6.22043.4.0.6860603417842558", value.c_str());
 	}
-	EXPECT_STREQ("1.3.12.2.1107.5.2.6.22043.4.0.6860603417842558", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:Patient'sAge");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("042Y", value.c_str());
 	}
-	EXPECT_STREQ("042Y", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:Patient'sBirthDate");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("19620112", value.c_str());
 	}
-	EXPECT_STREQ("19620112", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:PatientID");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("20080926102825", value.c_str());
 	}
-	EXPECT_STREQ("20080926102825", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:Patient'sName");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("Anonymized-AA.", value.c_str());
 	}
-	EXPECT_STREQ("Anonymized-AA.", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:AcquisitionDate");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("20040313", value.c_str());
 	}
-	EXPECT_STREQ("20040313", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:SeriesDescription");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("Anonymized with DicomWorks", value.c_str());
 	}
-	EXPECT_STREQ("Anonymized with DicomWorks", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:Patient'sSex");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("M ", value.c_str());
 	}
-	EXPECT_STREQ("M ", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:InstanceNumber");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("11", value.c_str());
 	}
-	EXPECT_STREQ("11", value.c_str());
 
 	prop = Cmiss_field_image_get_property(field_image, "dcm:SequenceName");
+	EXPECT_FALSE(prop == 0);
 	if (prop)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
+		EXPECT_STREQ("*tfi2d1_29", value.c_str());
 	}
-	EXPECT_STREQ("*tfi2d1_29", value.c_str());
 
 	Cmiss_field_image_destroy(&field_image);
 	Cmiss_region_destroy(&root_region);
