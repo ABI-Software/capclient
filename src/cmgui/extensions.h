@@ -19,6 +19,14 @@ extern "C"
 #include "math/algebra.h"
 
 class wxPanel;
+
+/**
+ * Cmiss region list children.
+ *
+ * @param	region	The region.
+ */
+void Cmiss_region_list_children(Cmiss_region_id region);
+
 /**
  * Create the scene from the given context with the given name on the given panel.
  * The returned handle to the scene viewer must be destroyed.

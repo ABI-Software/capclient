@@ -85,7 +85,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 		if (currentLabel == "LA1")
 			visibilities.push_back(true);
 		else
-			visibilities.push_back(true);
+			visibilities.push_back(false);
 		//-- TODO: contours
 	}
 	// Set the middle short axis slice visible.
@@ -300,7 +300,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	
 	ModellingPoints modellingPoints = xmlFileHandler.GetModellingPoints();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
-	dbg("number of exnodeFilenames = " + toString(exnodeFileNames.size()));
+	dbg("number of exnodeFilenames = " + ToString(exnodeFileNames.size()));
 	if (exnodeFileNames.empty())
 	{
 		if(!modellingPoints.empty())
@@ -311,7 +311,7 @@ void CAPClient::OpenModel(const std::string& filename)
 
 			// Setting the modelling points should put the CAPClient into the correct state
 			gui_->SetModellingPoints(modellingPoints);
-			dbg("Mode = " + toString(modeller_->GetCurrentMode()) + ", num dataPoints = " + toString(modellingPoints.size()));
+			dbg("Mode = " + ToString(modeller_->GetCurrentMode()) + ", num dataPoints = " + ToString(modellingPoints.size()));
 			// FIXME memory is prematurely released when ok button is pressed from the following window
 			// Suppress this feature for now
 			//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
@@ -322,7 +322,7 @@ void CAPClient::OpenModel(const std::string& filename)
 			
 			//--ModellingEnum mode = modeller_->GetCurrentMode();
 			//--gui_->UpdateModeSelectionUI(mode);
-			//--dbg( "Mode = " + toString(mode));
+			//--dbg( "Mode = " + ToString(mode));
 			//--if (mode == GUIDEPOINT)
 			//--{
 			//--	EnterModelLoadedState();

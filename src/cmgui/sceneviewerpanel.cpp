@@ -98,12 +98,12 @@ void SceneViewerPanel::LookingHere() const
 	Cmiss_scene_viewer_get_viewing_volume(cmissSceneViewer_, &left, &right, &bottom, &top, &np, &fp);
 
 #if defined _CAP_DEBUG_H
-	dbg("dof : " + toString(dof) + ", " + toString(fd));
-	dbg("eye : " + toString(eyex) + ", " + toString(eyey) + ", " + toString(eyez));
-	dbg("loo : " + toString(lx) + ", " + toString(ly) + ", " + toString(lz));
-	dbg("up  : " + toString(upx) + ", " + toString(upy) + ", " + toString(upz));
-	dbg("va  : " + toString(va));
-	dbg("vvo : " + toString(left) + ", " + toString(right) + ", " + toString(bottom)+ ", " + toString(top) + ", " + toString(np) + ", " + toString(fp));
+	dbg("dof : " + ToString(dof) + ", " + ToString(fd));
+	dbg("eye : " + ToString(eyex) + ", " + ToString(eyey) + ", " + ToString(eyez));
+	dbg("loo : " + ToString(lx) + ", " + ToString(ly) + ", " + ToString(lz));
+	dbg("up  : " + ToString(upx) + ", " + ToString(upy) + ", " + ToString(upz));
+	dbg("va  : " + ToString(va));
+	dbg("vvo : " + ToString(left) + ", " + ToString(right) + ", " + ToString(bottom)+ ", " + ToString(top) + ", " + ToString(np) + ", " + ToString(fp));
 #endif
 }
 

@@ -1,7 +1,17 @@
 
-
-#include <iostream>
-#include <sstream>
+#ifdef UnitTestModeller
+#include "modellercapclientwindow.h"
+#include "modellercapclient.h"
+#else
+#include "capclientwindow.h"
+#include "capclient.h"
+#endif
+#include "cmgui/extensions.h"
+#include "hexified/heartmodel.exnode.h"
+#include "hexified/globalhermiteparam.exelem.h"
+#include "utils/misc.h"
+#include "utils/debug.h"
+#include "model/heart.h"
 
 extern "C"
 {
@@ -23,18 +33,8 @@ extern "C"
 #include <zn/cmiss_time_keeper.h>
 }
 
-#ifdef UnitTestModeller
-#include "modellercapclientwindow.h"
-#include "modellercapclient.h"
-#else
-#include "capclientwindow.h"
-#include "capclient.h"
-#endif
-#include "cmgui/extensions.h"
-#include "hexified/heartmodel.exnode.h"
-#include "hexified/globalhermiteparam.exelem.h"
-#include "utils/debug.h"
-#include "model/heart.h"
+#include <iostream>
+#include <sstream>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -91,7 +91,7 @@ void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane,
 	Cmiss_field_cache_set_time(cache, time);
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 
-	dbg("Plane : (" + toString(time) + ") " + toString(basePlane.normal) + ", " + toString(basePlane.position));
+	dbg("Plane : (" + ToString(time) + ") " + ToString(basePlane.normal) + ", " + ToString(basePlane.position));
 	// EPI nodes [0-19], ENDO nodes [20-39], node identifiers are 1-based.
 	// This method follows the CIM method of calculating the model position from the base plane.
 	for (int k = 0; k < 40; k += 20)
@@ -199,7 +199,7 @@ void CAPClientWindow::SetHeartModelLambdaParamsAtTime(const std::vector<double>&
 		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 		loc_ps[0] = lambdaParams[4 * i + 0];
 		if (i == 11)
-			dbg("node loc 12 : [" + toString(loc_ps[0]) + ", " + toString(loc_ps[1]) + ", " + toString(loc_ps[2]) + "]");
+			dbg("node loc 12 : [" + ToString(loc_ps[0]) + ", " + ToString(loc_ps[1]) + ", " + ToString(loc_ps[2]) + "]");
 		Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 		double loc_d_ds1[] = {0.0, 0.0, 0.0};
 		loc_d_ds1[0] = lambdaParams[4 * i + 1];
@@ -250,7 +250,7 @@ int CAPClientWindow::ComputeHeartModelXi(const Point3D& position, double time, P
 	xi.y = xi_values[1];
 	xi.z = xi_values[2];
 	int element_id = Cmiss_element_get_identifier(el);
-	//dbg("element : " + toString(element_id) + " xi [ " + toString(xi) + " ]");
+	//dbg("element : " + ToString(element_id) + " xi [ " + ToString(xi) + " ]");
 	Cmiss_element_destroy(&el);
 
 	Cmiss_field_module_end_change(field_module);
@@ -439,7 +439,7 @@ Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(int node
 		Cmiss_field_set_name(inv_projection_mx, "inv_projection_mx");
 		Cmiss_field_id heart_template_rc = Cmiss_field_module_create_projection(field_module, coordinates, inv_projection_mx);
 		Cmiss_field_set_name(heart_template_rc, "heart_rc");
-		std::string command = "coordinate_system prolate_spheroidal focus " + toString(heartModel_->GetFocalLength()) + " coordinate_transformation field heart_rc";
+		std::string command = "coordinate_system prolate_spheroidal focus " + ToString(heartModel_->GetFocalLength()) + " coordinate_transformation field heart_rc";
 		coordinates_ps = Cmiss_field_module_create_field(field_module, "coordinates_ps", command.c_str());
 		Cmiss_field_set_attribute_integer(coordinates_ps, CMISS_FIELD_ATTRIBUTE_IS_MANAGED, 1);
 
@@ -583,9 +583,9 @@ double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time
 	}
 
 	if (surface == ENDOCARDIUM)
-		SetStatusTextString("heartvolumeendo", "ED Volume(ENDO) = " + toString(vol_sum/6000.0) + " ml");
+		SetStatusTextString("heartvolumeendo", "ED Volume(ENDO) = " + ToString(vol_sum/6000.0) + " ml");
 	else
-		SetStatusTextString("heartvolumeepi", "ED Volume(EPI) = " + toString(vol_sum/6000.0) + " ml");
+		SetStatusTextString("heartvolumeepi", "ED Volume(EPI) = " + ToString(vol_sum/6000.0) + " ml");
 
 	return (vol_sum/6000.0);
 	// (6*1000), 6 times volume of tetrahedron & for ml
