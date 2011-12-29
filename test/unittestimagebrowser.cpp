@@ -17,6 +17,9 @@
 #include "logmsg.h"
 
 
+// Manual testing mode.
+#define ENABLE_GUI_INTERACTION
+
 namespace cap
 {
 	Log::~Log() {}
@@ -36,8 +39,11 @@ namespace cap
 		bool OnInit()
 		{
 			wxXmlResource::Get()->InitAllHandlers();
+			ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client_);
 			return true;
 		}
+
+		FakeCAPClient client_;
 	};
 
 } // namespace cap
@@ -56,7 +62,11 @@ TEST(ImageBrowser, CreateUsingFactory)
 	
 	// you can create top level-windows here or in OnInit()
 	// do your testing here
+#if defined ENABLE_GUI_INTERACTION
+	wxTheApp->OnRun(); // Do/Don't start main loop
+#else
 	ImageBrowser* ib = ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client);
+#endif
 	
 	//wxTheApp->OnRun(); // Do/Don't start main loop
 	wxTheApp->OnExit();
