@@ -5,10 +5,18 @@
  *      Author: jchu014
  */
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
+#include "model/heart.h"
+
+#include "cmgui/sceneviewerpanel.h"
+#include "math/algebra.h"
+#include "utils/misc.h"
+#include "utils/debug.h"
+
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 extern "C" {
 #include <zn/cmiss_field.h>
@@ -18,15 +26,10 @@ extern "C" {
 #include <zn/cmiss_rendition.h>
 }
 
-#include "model/heart.h"
-#include "cmgui/sceneviewerpanel.h"
-#include "math/algebra.h"
-#include "utils/debug.h"
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 namespace cap
 {
@@ -293,7 +296,7 @@ void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			dbgn(" " + toString(transform[i][j]));
+			dbgn(" " + ToString(transform[i][j]));
 			patientToGlobalTransform_[i][j] = transform[i][j];//REVISE use a wrapper class
 		}
 		dbg("");
@@ -935,7 +938,7 @@ double HeartModel::ComputeVolume(HeartSurfaceEnum surface, double time) const
 
 void HeartModel::SetFocalLength(double focalLength)
 {
-	dbg("*** Missing update : HeartModel::SetFocalLength " + toString(focalLength));
+	dbg("*** Missing update : HeartModel::SetFocalLength " + ToString(focalLength));
 	if (!pImpl_->field)
 	{
 		std::cout << __func__ << " : pImpl_->field is not defined yet\n"; 

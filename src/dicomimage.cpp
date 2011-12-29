@@ -66,8 +66,6 @@ void DICOMImage::ReadFile()
 	// image orientation (0020,0037) - (0020,0035)(old)
 	// pixel spacing (0028,0030)
 	// series description (0008,103e) 
-	// trigger time (0018,1060) 
-	// image trigger delay (0018, 1067) 
 	// (0018,1090) IS [28]         # 2,1 Cardiac Number of Images
 
 	gdcm::Reader r;
@@ -160,38 +158,6 @@ void DICOMImage::ReadFile()
 		sequenceName_ = "";
 	}
 	
-	// trigger time trigger time (0018,1060)
-	if (ds.FindDataElement(gdcm::Tag(0x0018,0x1060)))
-	{
-		const gdcm::DataElement& triggerTime = ds.GetDataElement(gdcm::Tag(0x0018,0x1060));
-		gdcm::Attribute<0x0018,0x1060> at_tt;
-		at_tt.SetFromDataElement(triggerTime);
-		triggerTime_ = at_tt.GetValue();
-//		cout << "Trigger Time : " << triggerTime_;
-//		cout << endl;
-	}
-	else
-	{
-		cout << "Trigger Time not found in the DICOM header \n";
-		triggerTime_ = -1;
-	}
-
-	// Content Time (0018,1067)
-	if (ds.FindDataElement(gdcm::Tag(0x0008,0x0033)))
-	{
-		const gdcm::DataElement& contentTime = ds.GetDataElement(gdcm::Tag(0x0008,0x0033));
-		gdcm::Attribute<0x0008,0x0033> at_ct;
-		at_ct.SetFromDataElement(contentTime);
-		contentTime_ = at_ct.GetValue();
-		//dbg("content time : " + toString(contentTime_));
-		//cout << "content time : " << contentTime_ << endl;
-	}
-	else
-	{
-		cout << "Image trigger delay not found in the DICOM header \n";
-		//triggerTime_ = -1;
-	}
-
 	if (ds.FindDataElement(gdcm::Tag(0x0028,0x0010)))
 	{
 		const gdcm::DataElement& rows = ds.GetDataElement(gdcm::Tag(0x0028,0x0010));
@@ -207,6 +173,7 @@ void DICOMImage::ReadFile()
 		throw std::exception();
 	}
 
+	if (ds.FindDataElement(gdcm::Tag(0x0028,0x0011)))
 	{
 		const gdcm::DataElement& cols = ds.GetDataElement(gdcm::Tag(0x0028,0x0011));
 		gdcm::Attribute<0x0028,0x0011> at_cols;

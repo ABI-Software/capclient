@@ -5,10 +5,13 @@
  *      Author: jchu014
  */
 
+#include "datapoint.h"
+
+#include "utils/misc.h"
+#include "utils/debug.h"
+
 #include <limits>
 
-#include "datapoint.h"
-#include "utils/debug.h"
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
@@ -99,7 +102,7 @@ void DataPoint::SetValidPeriod(double startTime, double endTime)
 
 void DataPoint::SetVisible(bool visibility)
 {
-	dbg(std::string(__func__) + ": StartTime = " + toString(startTime_) + " , endTime = " + toString(endTime_));
+	dbg(std::string(__func__) + ": StartTime = " + ToString(startTime_) + " , endTime = " + ToString(endTime_));
 	//--Cmiss_node_set_visibility_field(cmissNode_, startTime_, endTime_, visibility);
 }
 

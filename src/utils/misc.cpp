@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 namespace cap
 {
@@ -22,17 +23,11 @@ namespace cap
 
 		static DWORD first = GetTickCount();
 		std::stringstream oss;
-		oss.setf(std::ios::fixed, std::ios::floatfield);
-		oss.precision(1);
-		oss << buffer;
-		oss << ".";
+		oss << buffer << ".";
+		oss << std::setfill('0') << std::setw(3);
 		oss << (GetTickCount() - first) % 1000;
 
-		std::string out = oss.str();
-		while (out.size() < 12)
-			out.append("0");
-
-		return out;
+		return oss.str();
 	}
 
 #else
@@ -51,8 +46,7 @@ namespace cap
 
 		std::stringstream oss;
 		oss << buffer;
-		oss << std::ios::fixed;
-		oss.precision(3);
+		oss << std::setfill('0') << std::setw(3);
 		oss << (long)tv.tv_usec / 1000;
 
 		return oss.str();

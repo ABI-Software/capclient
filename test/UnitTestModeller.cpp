@@ -386,7 +386,7 @@ TEST(Modeller, InterpolateBasePlane)
 	double time = 0.5;
 	Plane iPlane = modeller.InterpolateBasePlane(planes, time);
 
-	dbg("Interpolated : " + toString(iPlane.position) + ", " + toString(iPlane.normal));
+	dbg("Interpolated : " + ToString(iPlane.position) + ", " + ToString(iPlane.normal));
 	EXPECT_EQ(Point3D(0, 0.5, 0), iPlane.position);
 }
 

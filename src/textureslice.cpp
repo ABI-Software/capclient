@@ -1,5 +1,6 @@
 
 #include "textureslice.h"
+
 #include "utils/debug.h"
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -10,11 +11,11 @@
 namespace cap
 {
 
-TextureSlice::TextureSlice(boost::shared_ptr<Material> material, std::vector<Cmiss_field_image_id> fieldImages)
+TextureSlice::TextureSlice(Material *material, std::vector<Cmiss_field_image_id> fieldImages)
 	: material_(material)
 	, fieldImages_(fieldImages)
 {
-
+	dbg("TextureSlice::TextureSlice()");
 }
 
 TextureSlice::~TextureSlice()
@@ -25,6 +26,7 @@ TextureSlice::~TextureSlice()
 		Cmiss_field_image_destroy(&(*it));
 
 	fieldImages_.clear();
+	delete material_;
 }
 
 void TextureSlice::ChangeTexture(unsigned int index)

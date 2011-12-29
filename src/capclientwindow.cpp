@@ -110,10 +110,10 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 CAPClientWindow::~CAPClientWindow()
 {
 	dbg(__func__);
-	delete cmguiPanel_;
 	if (heartModel_)
 		delete heartModel_;
 
+	ClearTextureSlices();
 	if (heart_epi_surface_)
 		Cmiss_graphic_destroy(&heart_epi_surface_);
 	if (heart_endo_surface_)
@@ -135,6 +135,7 @@ CAPClientWindow::~CAPClientWindow()
 		miiMap_.erase(miiMap_it++);
 	}
 
+	delete cmguiPanel_;
 	Cmiss_time_keeper_destroy(&timeKeeper_);
 	Cmiss_time_notifier_destroy(&timeNotifier_);
 	Cmiss_context_destroy(&cmissContext_);
@@ -260,6 +261,7 @@ void CAPClientWindow::EnterImagesLoadedState()
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
 	
 	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
+	cmguiPanel_->ViewAll();
 }
 
 void CAPClientWindow::EnterModelLoadedState()
@@ -520,7 +522,6 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 	if (button_Play->GetLabel() == wxT("Play"))
 	{
 		// start stuff
-		//cmguiPanel_->LookingHere();
 		PlayCine();
 	}
 	else
@@ -552,19 +553,10 @@ void CAPClientWindow::ClearTextureSlices()
 	while (it != textureSliceMap_.end())
 	{
 		Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, it->first.c_str());
+		delete it->second;
 		textureSliceMap_.erase(it++);
 		Cmiss_region_remove_child(root_region, child_region);
 		Cmiss_region_destroy(&child_region);
-	}
-	Cmiss_region_id curr = Cmiss_region_get_first_child(root_region);
-	while (curr)
-	{
-		char *name = Cmiss_region_get_name(curr);
-		std::string tag = "Region list :";
-		dbg(tag + name);
-		Cmiss_deallocate(name);
-		Cmiss_region_destroy(&curr);
-		curr = Cmiss_region_get_next_sibling(curr);
 	}
 	Cmiss_region_destroy(&root_region);
 }
@@ -575,7 +567,7 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
 	CreatePlaneElement(cmissContext_, regionName);
 	// Set the material and field images into a TextureSlice.
-	boost::shared_ptr<Material> material = boost::make_shared<Material>(regionName, gModule);
+	Material *material = new Material(regionName, gModule);
 	Cmiss_graphics_material_id graphics_material = material->GetCmissMaterial();
 	CreateTextureImageSurface(cmissContext_, regionName, graphics_material);
 	Cmiss_graphics_material_destroy(&graphics_material);
@@ -586,9 +578,9 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 		ImagePlane* plane = dicom->GetImagePlane();
 		RepositionPlaneElement(cmissContext_, regionName, plane);
 	}
-	textureSliceMap_.insert(std::make_pair(regionName, boost::make_shared<TextureSlice>(material, fieldImages)));
+	textureSliceMap_.insert(std::make_pair(regionName, new TextureSlice(material, fieldImages)));
 	ChangeTexture(regionName, fieldImages.at(0));
-	cmguiPanel_->ViewAll();
+	//--cmguiPanel_->ViewAll();
 }
 
 void CAPClientWindow::RepositionImagePlane(const std::string& regionName, const ImagePlane* plane)

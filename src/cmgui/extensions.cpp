@@ -42,6 +42,25 @@ extern "C"
 
 class wxPanel;
 
+void Cmiss_region_list_children(Cmiss_region_id region)
+{
+	Cmiss_region_id curr = Cmiss_region_get_first_child(region);
+	dbgn("Region list : [");
+	while (curr)
+	{
+		char *name = Cmiss_region_get_name(curr);
+		dbgn(name);
+		Cmiss_deallocate(name);
+		Cmiss_region_id new_curr = Cmiss_region_get_next_sibling(curr);
+		Cmiss_region_destroy(&curr);
+		curr = new_curr;
+		if (curr)
+			dbgn(", ");
+	}
+	dbg("]");
+	//Cmiss_region_destroy(&region);
+}
+
 Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissContext,  const std::string& sceneName, wxPanel* panel)
 {
 	assert(panel);
@@ -91,7 +110,7 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 	int r = Cmiss_field_image_read(field_image, stream_information);
 	if (r == CMISS_OK)
 	{
-		Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
+		//--Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
 		
 		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
 		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
@@ -378,7 +397,9 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	}
 	Cmiss_mesh_define_element(mesh, -1, element_template);
 	Cmiss_element_template_destroy(&element_template);
+	int r = Cmiss_field_module_define_all_faces(field_module);
 	Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
+	//r = Cmiss_rendition_execute_command(rendition, "lines coordinate coordinates");
 	Cmiss_graphic_id graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_LINES);
 	Cmiss_graphic_set_coordinate_field(graphic, coordinates_field);
 	Cmiss_graphic_define(graphic, "line_width 2");
@@ -536,10 +557,10 @@ void SetVisibilityForGraphicsInRegion(Cmiss_context_id cmissContext, const std::
 		graphic = new_graphic;
 	}
 
-	Cmiss_region_destroy(&root_region);
-	Cmiss_region_destroy(&region);
-	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_rendition_destroy(&rendition);
+	Cmiss_graphics_module_destroy(&graphics_module);
+	Cmiss_region_destroy(&region);
+	Cmiss_region_destroy(&root_region);
 }
 
 

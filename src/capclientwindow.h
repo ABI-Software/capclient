@@ -42,7 +42,7 @@ class HeartModel;
 /**
  * Defines an alias representing the texture slice map.
  */
-typedef std::map< std::string, boost::shared_ptr<TextureSlice> > TextureSliceMap;
+typedef std::map< std::string, TextureSlice* > TextureSliceMap;
 
 /**
  * Defines an alias representing the cmiss field graphic pair.

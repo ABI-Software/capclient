@@ -16,22 +16,6 @@
 #endif
 
 /**
- * A template function to convert the given object
- * into a string representation.
- *
- * @param	t	The t.
- *
- * @return	A string representation of this object.
- */
-template <class T>
-std::string toString(const T & t)
-{
-	std::ostringstream oss; // create a stream
-	oss << t;              // insert value to stream 
-	return oss.str();      // return as a string
-}
-
-/**
  * Print debug message, uses printf on *nix based systems
  * and OutputDebugString on windows if using Visual Studio.
  *

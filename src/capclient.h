@@ -8,23 +8,6 @@
 #ifndef MAINAPP_H_
 #define MAINAPP_H_
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-
-#include <boost/foreach.hpp>
-#include <boost/scoped_ptr.hpp>
-
-extern "C"
-{
-#include <zn/cmiss_region.h>
-#include <zn/cmiss_time_keeper.h>
-#include <zn/cmiss_time.h>
-#include <zn/cmiss_field_module.h>
-}
 
 #include "iimagebrowser.h"
 #include "math/algebra.h"
@@ -43,7 +26,26 @@ extern "C"
 #include "CAPXMLFileHandler.h"
 #include "model/heart.h"
 #include "IsoSurfaceCapture.h"
+#include "utils/misc.h"
 #include "utils/debug.h"
+
+extern "C"
+{
+#include <zn/cmiss_region.h>
+#include <zn/cmiss_time_keeper.h>
+#include <zn/cmiss_time.h>
+#include <zn/cmiss_field_module.h>
+}
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <algorithm>
+#include <functional>
+
+#include <boost/foreach.hpp>
+#include <boost/scoped_ptr.hpp>
 
 //class Cmiss_node;
 class wxPanel;
@@ -339,8 +341,8 @@ public:
 		}
 		modeller_->SmoothAlongTime();
 		
-		dbg("ED Volume(EPI) = " + toString(gui_->ComputeHeartVolume(EPICARDIUM)));
-		dbg("ED Volume(ENDO) = " + toString(gui_->ComputeHeartVolume(ENDOCARDIUM)));
+		dbg("ED Volume(EPI) = " + ToString(gui_->ComputeHeartVolume(EPICARDIUM)));
+		dbg("ED Volume(ENDO) = " + ToString(gui_->ComputeHeartVolume(ENDOCARDIUM)));
 	}
 
 	/**

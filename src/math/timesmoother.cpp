@@ -70,7 +70,7 @@ TimeSmoother::TimeSmoother()
 	}
 	
 	//Debug
-	//dbg(toString(pImpl->Priors));
+	//dbg(ToString(pImpl->Priors));
 }
 
 TimeSmoother::~TimeSmoother()

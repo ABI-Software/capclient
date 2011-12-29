@@ -193,8 +193,8 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& bas
 	}
 	
 	// make sure plane normal is always pointing toward the apex
-	dbg("plane normal : " + toString(plane.normal));
-	dbg("xAxis : " + toString(xAxis));
+	dbg("plane normal : " + ToString(plane.normal));
+	dbg("xAxis : " + ToString(xAxis));
 	if (DotProduct(plane.normal, xAxis) < 0)
 	{
 		plane.normal *= -1; 
@@ -232,9 +232,9 @@ void Modeller::AlignModel()
 		LOG_MSG(LOGINFORMATION) << "Model x axis vector" << xAxis;
 		LOG_MSG(LOGINFORMATION) << "Model y axis vector" << yAxis;
 		LOG_MSG(LOGINFORMATION) << "Model z axis vector" << zAxis;
-		dbg("Model coord x axis vector" + toString(xAxis));
-		dbg("Model coord y axis vector" + toString(yAxis));
-		dbg("Model coord z axis vector" + toString(zAxis));
+		dbg("Model coord x axis vector" + ToString(xAxis));
+		dbg("Model coord y axis vector" + ToString(yAxis));
+		dbg("Model coord z axis vector" + ToString(zAxis));
 		std::cout << "Model coord x axis vector" << xAxis << std::endl;
 		std::cout << "Model coord y axis vector" << yAxis << std::endl;
 		std::cout << "Model coord z axis vector" << zAxis << std::endl;
@@ -268,13 +268,13 @@ void Modeller::AlignModel()
 		// TODO properly Compute FocalLength
 		double lengthFromApexToBase = (apex.GetPosition() - base.GetPosition()).Length();
 		std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
-		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + toString(lengthFromApexToBase));
+		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + ToString(lengthFromApexToBase));
 		LOG_MSG(LOGINFORMATION) << "Length from Apex to Base = " << lengthFromApexToBase;
 		
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 		double focalLength = (apex.GetPosition() - origin).Length()  / cosh(1.0);
 		std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
-		dbg("Modeller::AlignModel() : new focal length = " + toString(focalLength));
+		dbg("Modeller::AlignModel() : new focal length = " + ToString(focalLength));
 		LOG_MSG(LOGINFORMATION) << "Focal length = " << focalLength;
 		mainApp_->SetHeartModelFocalLength(focalLength);
 		//--heartModel_.SetFocalLength(focalLength);
@@ -288,7 +288,7 @@ void Modeller::AlignModel()
 
 		while (itrSrc!=basePlanePoints.end())
 		{
-			//--dbg("bp points : " + toString(itrSrc->GetTime()) + ", " + toString(itrSrc->GetCoordinate()));
+			//--dbg("bp points : " + ToString(itrSrc->GetTime()) + ", " + ToString(itrSrc->GetCoordinate()));
 			double frameTime = itrSrc->second.GetTime();
 			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<ModellingPoint> basePlanePointsInOneFrame;
@@ -308,7 +308,7 @@ void Modeller::AlignModel()
 		std::map<double, Plane>::const_iterator cit = planes.begin();
 		for (; cit != planes.end(); cit++)
 		{
-			dbg("planes map : " + toString(cit->first) + ", " + toString(cit->second.position));
+			dbg("planes map : " + ToString(cit->first) + ", " + ToString(cit->second.position));
 		}
 		
 		for(int i = 0; i < numberOfModelFrames; i++)
@@ -442,7 +442,7 @@ void Modeller::SmoothAlongTime()
 #endif
 		
 		clock_t after = clock();
-		dbg(solverFactory_->GetName() + " Smoothing time = " + toString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
+		dbg(solverFactory_->GetName() + " Smoothing time = " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
 		
 		// feed the results back to Cmgui
 		UpdateTimeVaryingModel();
@@ -642,7 +642,7 @@ void Modeller::FitModel(double time)
 			(*dataLambda)[i] = dataPointPS.x; // x = lambda, y = mu, z = theta 
 		}
 		
-		//dbg("dataLambda = " + toString(*dataLambda));
+		//dbg("dataLambda = " + ToString(*dataLambda));
 		
 		// 2. evaluate basis at the xi coords
 		//    use this function as a temporary soln until Cmgui supports this
@@ -706,7 +706,7 @@ void Modeller::FitModel(double time)
 		solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
 		clock_t after = clock();
-		//dbg(solverFactory_->GetName() + " CG time = " + toString((after - before) / static_cast<double>(CLOCKS_PER_SEC)) + " sec , frame #" + toString(frameNumber));
+		//dbg(solverFactory_->GetName() + " CG time = " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)) + " sec , frame #" + ToString(frameNumber));
 
 		*x += *prior_;
 	//	std::cout << "x = " << *x << std::endl;

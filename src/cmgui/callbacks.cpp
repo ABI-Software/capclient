@@ -38,14 +38,14 @@ int input_callback_modelling_setup(Cmiss_scene_viewer_id scene_viewer,
 {
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
-	//dbg("input_callback() : input_type = " + toString(event_type));
+	//dbg("input_callback() : input_type = " + ToString(event_type));
 
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
 
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_KEY_PRESS)
 	{
 		int keyCode = Cmiss_scene_viewer_input_get_key_code(input);
-		// dbg("key code : " + toString(keyCode));
+		// dbg("key code : " + ToString(keyCode));
 		if (keyCode == KEYCODE_E)
 		{
 			gui->EndCurrentModellingMode();
@@ -85,7 +85,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 {
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
-	//dbg("input_callback() : input_type = " + toString(event_type));
+	//dbg("input_callback() : input_type = " + ToString(event_type));
 
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
 
@@ -180,7 +180,7 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 int time_callback(Cmiss_time_notifier_id time, double current_time, void *capclientwindow_void)
 {
 	//DEBUG
-	//dbg("Time_call_back time = " + toString(current_time));
+	//dbg("Time_call_back time = " + ToString(current_time));
 	
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
 	gui->SetTime(current_time);
