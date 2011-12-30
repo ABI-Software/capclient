@@ -30,6 +30,8 @@ extern "C"
 #include "math/algebra.h"
 #include "model/modellingpoint.h"
 
+class wxProgressDialog;
+
 namespace cap
 {
 
@@ -451,6 +453,27 @@ public:
 	 */
 	void SetModellingPoints(ModellingPoints modellingPoints);
 
+	/**
+	 * Creates the progress dialog.
+	 *
+	 * @param	title  	The title.
+	 * @param	message	The message.
+	 * @param	max	   	The maximum.
+	 */
+	void CreateProgressDialog(std::string const& title, std::string const& message, int max);
+
+	/**
+	 * Updates the progress dialog described by count.
+	 *
+	 * @param	count	Number of.
+	 */
+	void UpdateProgressDialog(int count);
+
+	/**
+	 * Destroys the progress dialog.
+	 */
+	void DestroyProgressDialog();
+
 private:
 
 	/**
@@ -651,6 +674,8 @@ private:
 	bool modellingStoppedCine_; /**< true if cine was playing when modelling started, false otherwise */
 	bool modellingActive_;  /**< true if modelling active, that is adding, moving or deleting a modelling point, false otherwise */
 	StatusTextStringsFieldMap statusTextStringsFieldMap_;   /**< The status text strings field map */
+
+	wxProgressDialog *progressDialog_; /**< Progess dialog pointer. */
 };
 
 } // end namespace cap

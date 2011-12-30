@@ -8,6 +8,10 @@
 
 #include "dicomimage.h"
 
+
+#include "utils/debug.h"
+#include "logmsg.h"
+
 #ifdef NDEBUG //HACK!
 #undef NDEBUG // HACK to get around the fact that gdcm only gets compiled without NDEBUG during the cmgui build process
 #include "gdcmReader.h"
@@ -18,14 +22,16 @@
 #include "gdcmAttribute.h"
 #endif
 
+extern "C" {
+#include <zn/cmiss_status.h>
+#include <zn/cmiss_core.h>
+}
+
 #include "math.h"
 
 #include <string>
 #include <ostream>
 #include <boost/algorithm/string.hpp>
-
-#include "utils/debug.h"
-#include "logmsg.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -48,11 +54,133 @@ DICOMImage::DICOMImage(const string& filename)
 
 DICOMImage::~DICOMImage()
 {
-	dbg("DICOMImage::~DICOMImage()");
+	//dbg("DICOMImage::~DICOMImage()");
 	if (plane_)
 	{
 		delete plane_;
 	}
+}
+
+void DICOMImage::AssignTagValue(const std::string& tag, const std::string& value)
+{
+	if (tag == "dcm:SOPInstanceUID")
+		sopInstanceUID_ = value;
+	else if (tag == "dcm:StudyInstanceUID")
+		studyInstanceUID_ = value;
+	else if (tag == "dcm:SeriesInstanceUID")
+		seriesInstanceUID_ = value;
+	else if (tag == "dcm:SeriesDescription")
+		seriesDescription_ = value;
+	else if (tag == "dcm:SeriesNumber")
+		seriesNumber_ = FromString<int>(value);
+	else if (tag == "dcm:SequenceName")
+		sequenceName_ = value;
+	else if (tag == "dcm:Rows")
+		height_ = FromString<int>(value);
+	else if (tag == "dcm:Columns")
+		width_ = FromString<int>(value);
+	else if (tag == "dcm:ImagePosition(Patient)")
+	{
+		std::vector<double> values = FromString<double>(value, '\\');
+		position3D_ = Point3D(values[0], values[1], values[2]);
+	}
+	else if (tag == "dcm:ImageOrientation(Patient)")
+	{
+		std::vector<double> values = FromString<double>(value, '\\');
+		orientation1_ = Vector3D(values[0], values[1], values[2]);
+		orientation2_ = Vector3D(values[3], values[4], values[5]);
+	}
+	else if (tag == "dcm:PixelSpacing")
+	{
+		std::vector<double> values = FromString<double>(value, '\\');
+		pixelSizeX_ = values[0];
+		pixelSizeY_ = values[1];
+	}
+	else if (tag == "dcm:InstanceNumber")
+		instanceNumber_ = FromString<int>(value);
+	else if (tag == "dcm:Patient'sName")
+		patientName_ = value;
+	else if (tag == "dcm:PatientID")
+		patientId_ = value;
+	else if (tag == "dcm:AcquisitionDate")
+		scanDate_ = value;
+	else if (tag == "dcm:Patient'sBirthDate")
+		dateOfBirth_ = value;
+	else if (tag == "dcm:Patient'sSex")
+		gender_ = value;
+	else if (tag == "dcm:Patient'sAge")
+		age_ = value;
+	else
+	{
+		LOG_MSG(LOGERROR) << "Unknown dcm tag: '" << tag << "' - not assigned";
+	}
+}
+
+bool DICOMImage::Analyze(Cmiss_field_image_id field_image)
+{
+	bool success = true;
+	// SOP instance UID (0x0008,0x0018)
+	// Study Instance UID (0x0020,0x000d)
+	// Series Instance UID (0x0020,0x000e)
+	// Series Description (0x0008,0x103e)
+	// Series Number (0x0020,0x0011)
+	// Sequence Name (0x0018,0x0024)
+	// Rows (0x0028,0x0010)
+	// Columns (0x0028,0x0011)
+	// Image Position (Patient) (0x0020,0x0032)
+	// Image Orientation (Patient) (0x0020,0x0037)
+	// Image Orientation (0x0020,0x0035) <- old, used if newer value is not present
+	// Pixel Spacing (0x0028,0x0030)
+	// Instance Number (0x0020,0x0013)
+	// Patient's Name (0x0010,0x0010)
+	// Patient ID (0x0010,0x0020)
+	// Acquisition Date (0x0008,0x0022)
+	// Patient's Birth Date (0x0010,0x0030)
+	// Patient's Sex (0x0010,0x0040)
+	// Patient's Age (0x0010,0x1010)
+	static const std::string tags[] = {"dcm:SOPInstanceUID", "dcm:StudyInstanceUID", "dcm:SeriesInstanceUID", "dcm:SeriesDescription"
+		, "dcm:SeriesNumber", "dcm:SequenceName", "dcm:Rows", "dcm:Columns", "dcm:ImagePosition(Patient)"
+		, "dcm:ImageOrientation(Patient)", "dcm:PixelSpacing", "dcm:InstanceNumber", "dcm:Patient'sName"
+		, "dcm:PatientID", "dcm:AcquisitionDate", "dcm:Patient'sBirthDate", "dcm:Patient'sSex", "dcm:Patient'sAge"};
+	int numTags = sizeof(tags) / sizeof(std::string);
+
+	for (int i = 0; i < numTags && success; i++)
+	{
+		char *prop = Cmiss_field_image_get_property(field_image, tags[i].c_str());
+		if (prop == 0)
+		{
+			if (tags[i] == "dcm:ImageOrientation(Patient)")
+			{
+				prop = Cmiss_field_image_get_property(field_image, "dcm:ImageOrientation");
+				if (prop == 0)
+				{
+					success = false;
+					LOG_MSG(LOGERROR) << "DICOM header analysis failed : " << filename_;
+					LOG_MSG(LOGERROR) << "DICOM header no tag : dcm:ImageOrientation";
+				}
+				else
+				{
+					std::string value = prop;
+					Cmiss_deallocate(prop);
+					AssignTagValue(tags[i], value);
+				}
+			}
+			else
+			{
+				success = false;
+				LOG_MSG(LOGERROR) << "DICOM header analysis failed : " << filename_;
+				LOG_MSG(LOGERROR) << "DICOM header no tag : " << tags[i];
+			}
+		}
+		else
+		{
+			std::string value = prop;
+			Cmiss_deallocate(prop);
+			AssignTagValue(tags[i], value);
+		}
+	}
+
+	return success;
 }
 
 void DICOMImage::ReadFile()
@@ -80,7 +208,7 @@ void DICOMImage::ReadFile()
 	gdcm::DataSet const& ds = r.GetFile().GetDataSet();
 	
 	{
-		// SOP instance UID (0008,0018) 
+		// SOP instance UID (0x0008,0x0018)
 		const gdcm::DataElement& sopiuid = ds.GetDataElement(gdcm::Tag(0x0008,0x0018));
 		gdcm::Attribute<0x0008,0x0018> at_sopiuid;
 		at_sopiuid.SetFromDataElement(sopiuid);
@@ -93,7 +221,7 @@ void DICOMImage::ReadFile()
 	}
 	
 	{
-		// Study Instance UID (0020,000d)
+		// Study Instance UID (0x0020,0x000d)
 		const gdcm::DataElement& studyiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000d));
 		gdcm::Attribute<0x0020,0x000d> at_studyiuid;
 		at_studyiuid.SetFromDataElement(studyiuid);
@@ -102,7 +230,7 @@ void DICOMImage::ReadFile()
 	}
 	
 	{
-		// Series Instance UID (0020,000E)
+		// Series Instance UID (0x0020,0x000E)
 		const gdcm::DataElement& seriesiuid = ds.GetDataElement(gdcm::Tag(0x0020,0x000e));
 		gdcm::Attribute<0x0020,0x000e> at_seriesiuid;
 		at_seriesiuid.SetFromDataElement(seriesiuid);
@@ -110,7 +238,7 @@ void DICOMImage::ReadFile()
 		boost::trim_right_if(seriesInstanceUID_, !boost::is_digit());
 	}
 	
-	// series number (0020,0011)
+	// Series Number (0x0020,0x0011)
 	if (ds.FindDataElement(gdcm::Tag(0x0020,0x0011)))
 	{
 		const gdcm::DataElement& seriesNum = ds.GetDataElement(gdcm::Tag(0x0020,0x0011));
@@ -126,7 +254,7 @@ void DICOMImage::ReadFile()
 		throw std::exception();
 	}
 	
-	// series description (0008,103e)
+	// Series Description (0x0008,0x103e)
 	if (ds.FindDataElement(gdcm::Tag(0x0008,0x103E)))
 	{
 		const gdcm::DataElement& seriesDesc = ds.GetDataElement(gdcm::Tag(0x0008,0x103E));
@@ -142,7 +270,7 @@ void DICOMImage::ReadFile()
 		seriesDescription_ = "";
 	}
 	
-	// sequence name (0018,0024)
+	// Sequence Name (0x0018,0x0024)
 	if (ds.FindDataElement(gdcm::Tag(0x0018,0x0024)))
 	{
 		const gdcm::DataElement& seqName = ds.GetDataElement(gdcm::Tag(0x0018,0x0024));
@@ -248,7 +376,7 @@ void DICOMImage::ReadFile()
 		throw std::exception();
 	}
 	
-	//patient name (0010,0010) 
+	//Patient Name (0x0010,0x0010)
 	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0010)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0010));
@@ -262,7 +390,7 @@ void DICOMImage::ReadFile()
 		patientName_ = "N/A";
 	}
 	
-	//patient id (0010,0020)
+	//Patient Id (0x0010,0x0020)
 	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0020)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0020));
@@ -276,7 +404,7 @@ void DICOMImage::ReadFile()
 		patientId_ = "N/A";
 	}
 	
-	//acquisition date (0008,0022) 
+	//Acquisition Date (0x0008,0x0022) 
 	if (ds.FindDataElement(gdcm::Tag(0x0008,0x0022)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0008,0x0022));
@@ -292,7 +420,7 @@ void DICOMImage::ReadFile()
 	
 //	cout << "acquisition time\n";
 	
-	//date of birth (0010,0030)
+	//Date Of Birth (0x0010,0x0030)
 	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0030)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0030));
@@ -306,7 +434,7 @@ void DICOMImage::ReadFile()
 		dateOfBirth_ = "N/A";
 	}
 	
-	//gender (0010,0040)
+	//Gender (0x0010,0x0040)
 	if (ds.FindDataElement(gdcm::Tag(0x0010,0x0040)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x0040));
@@ -320,7 +448,7 @@ void DICOMImage::ReadFile()
 		gender_ = "N/A";
 	}
 	
-	//age (0010,1010)
+	//Age (0x0010,0x1010)
 	if (ds.FindDataElement(gdcm::Tag(0x0010,0x1010)))
 	{
 		const gdcm::DataElement& de = ds.GetDataElement(gdcm::Tag(0x0010,0x1010));

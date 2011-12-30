@@ -8,13 +8,16 @@
 #ifndef DICOMIMAGE_H_
 #define DICOMIMAGE_H_
 
-#include <string>
-#include <vector>
-//#include <boost/utility.hpp>
-//#include <boost/bind.hpp>
-
 #include "math/algebra.h"
 #include "CAPContour.h"
+
+extern "C" {
+#include <zn/cmiss_field_image.h>
+}
+
+#include <string>
+#include <vector>
+
 
 namespace cap
 {
@@ -96,16 +99,6 @@ public:
 	std::string const& GetSequenceName() const
 	{
 		return sequenceName_;
-	}
-
-	/**
-	 * Gets the trigger time.
-	 *
-	 * @return	The trigger time.
-	 */
-	double GetTriggerTime() const
-	{
-		return triggerTime_;
 	}
 
 	/**
@@ -263,16 +256,6 @@ public:
 	}
 
 	/**
-	 * Gets the content time.
-	 *
-	 * @return	The content time.
-	 */
-	const std::string& GetContentTime() const
-	{
-		return contentTime_;
-	}
-
-	/**
 	 * Query if this image is shifted.
 	 *
 	 * @return	true if shifted, false if not.
@@ -371,37 +354,74 @@ public:
 	{
 		return pixelSizeY_;
 	}
+
+	/**
+	 * Analyzes the image field for DICOM attributes.  This function will succeed 
+	 * only if all the attributes listed below are present.  If 'Image Orientation (Patient)'
+	 * fails then 'Image Orientation' will be used as a backup.
+	 * 
+	 * Header attributes sought:
+	 * SOP instance UID (0x0008,0x0018)
+	 * Study Instance UID (0x0020,0x000d)
+	 * Series Instance UID (0x0020,0x000e)
+	 * Series Description (0x0008,0x103e)
+	 * Series Number (0x0020,0x0011)
+	 * Sequence Name (0x0018,0x0024)
+	 * Rows (0x0028,0x0010)
+	 * Columns (0x0028,0x0011)
+	 * Image Position (0x0020,0x0032)
+	 * Image Orientation (Patient) (0x0020,0x0037)
+	 * Image Orientation (0x0020,0x0035) &lt;- old, used if newer value is not present
+	 * Pixel Spacing (0x0028,0x0030)
+	 * Instance Number (0x0020,0x0013)
+	 * Patient Name (0x0010,0x0010)
+	 * Patient Id (0x0010,0x0020)
+	 * Acquisition Date (0x0008,0x0022)
+	 * Patient's Birth Date (0x0010,0x0030)
+	 * Patient's Sex (0x0010,0x0040)
+	 * Patient's Age (0x0010,0x1010)
+	 *
+	 * @param	field_image	The field image.
+	 *
+	 * @return	true if it succeeds, false if it fails.
+	 */
+	bool Analyze(Cmiss_field_image_id field_image);
+	
+private:
 	
 	/**
 	 * Read in the DICOM image extracting information from the image
 	 * attributes.
 	 */
 	void ReadFile();
-	
-private:
+
 	/**
-	 * Compute the image found from information extracted from the 
+	 * Compute the image plane using information extracted from the 
 	 * DICOM header.
 	 */
 	void ComputeImagePlane();
+
+	/**
+	 * Assign the given value to the class variable corresponding to the given tag.  Uses FromString
+	 * to convert the string value to the appropriate type.
+	 *
+	 * @param	tag  	The tag.
+	 * @param	value	The value.
+	 */
+	void AssignTagValue(const std::string& tag, const std::string& value);
 	
 	std::string filename_;  /**< Filename of the file */
 	unsigned int width_;	/**< The width */
 	unsigned int height_;   /**< The height */
-//	double thickness_;
 	double pixelSizeX_; /**< The pixel size x coordinate */
 	double pixelSizeY_;	/**< The pixel size y coordinate */
 	
-//	double timeInCardiacCycle;
-	
-	std::string studyInstanceUID_; /**< The study insert dtance uid */
+	std::string studyInstanceUID_; /**< The study instance uid */
 	std::string sopInstanceUID_;	/**< The sop instance uid */
 	std::string seriesInstanceUID_; /**< The series instance uid */
 	std::string seriesDescription_; /**< Information describing the series */
-	std::string sequenceName_;  /**< Name of the sequence */
-	std::string contentTime_;   /**< Time of the content */
-	double triggerTime_;	/**< Time of the trigger */
 	int seriesNumber_;  /**< The series number */
+	std::string sequenceName_;  /**< Name of the sequence */
 	Point3D position3D_; /**< image position, location in mm from the origin of the RCS */
 	Vector3D orientation1_; /**< values from the row (X) direction cosine */
 	Vector3D orientation2_; /**< values from the column (Y) direction cosine */

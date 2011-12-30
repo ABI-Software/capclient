@@ -242,12 +242,6 @@ private:
 	void PopulateImageTable();
 	
 	/**
-	 * Reads the DICOM header of the files found in the given directory
-	 * and populates dicomFileTable_.
-	 */
-	void ReadInDICOMFiles();
-	
-	/**
 	 * Create textures from the dicom files found, stores the output in
 	 * the slice map.
 	 */
@@ -283,9 +277,14 @@ private:
 	};
 
 	/**
-	 * Destroys the field image handles.
+	 * Destroys the field image handles in the textrue table and then clears the table.
 	 */
-	void DestroyFieldImageHandles();
+	void ClearTextureTable();
+
+	/**
+	 * Destroys the field image handles in the textrue map and then clears the map.
+	 */
+	void ClearTextureMap();
 	
 	/**
 	 * Static variable to be set when wxXmlInit_ImageBrowserWindowUI

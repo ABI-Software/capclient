@@ -10,6 +10,7 @@
 #include <wx/menu.h>
 #include <wx/menuitem.h>
 #include <wx/button.h>
+#include <wx/progdlg.h>
 
 #include <boost/foreach.hpp>
 
@@ -85,6 +86,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, initialised_xmlUserCommentDialog_(false)
 	, modellingStoppedCine_(false)
 	, modellingActive_(false)
+	, progressDialog_(0)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
@@ -432,6 +434,30 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 	Cmiss_rendition_destroy(&rendition);
 }
 
+void CAPClientWindow::CreateProgressDialog(std::string const& title, std::string const& message, int max)
+{
+	if (progressDialog_ != 0)
+		DestroyProgressDialog();
+
+	progressDialog_ = new wxProgressDialog(wxString(title.c_str(),wxConvUTF8), wxString(message.c_str(),wxConvUTF8), max, this);
+}
+
+void CAPClientWindow::UpdateProgressDialog(int count)
+{
+	if (progressDialog_ != 0)
+		progressDialog_->Update(count);
+}
+
+void CAPClientWindow::DestroyProgressDialog()
+{
+	if (progressDialog_ != 0)
+	{
+		progressDialog_->Destroy();
+		delete progressDialog_;
+		progressDialog_ = 0;
+	}
+}
+
 void CAPClientWindow::SetStatusTextString(std::string mode, std::string text) const
 {
 	if (text.size() > 0)
@@ -634,7 +660,7 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 		{
 			checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1), visible);
 		}
-		SetVisibilityForGraphicsInRegion(cmissContext_, sliceName, visible);
+		//SetVisibilityForGraphicsInRegion(cmissContext_, sliceName, visible);
 		index++;
 	}
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);

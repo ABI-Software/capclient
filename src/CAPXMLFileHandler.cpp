@@ -25,6 +25,8 @@
 
 extern "C"
 {
+#include <zn/cmiss_status.h>
+#include <zn/cmiss_context.h>
 #include <zn/cmiss_field_module.h>
 #include <zn/cmiss_region.h>
 }
@@ -42,6 +44,7 @@ extern "C"
 #include "CAPContour.h"
 #include "logmsg.h"
 #include "utils/misc.h"
+#include "cmgui/extensions.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -303,36 +306,48 @@ void CAPXMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& mo
 namespace
 {
 
-boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::string const& path)
-{
-	boost::unordered_map<std::string, DICOMPtr> hashTable;
-	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
-	BOOST_FOREACH(std::string const& filename, filenames)
+	boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::string const& path)
 	{
-		// Skip files that are known not to be dicom files
-		if (EndsWith(filename, ".exnode") ||
-			EndsWith(filename, ".exelem") ||
-			EndsWith(filename, ".xml"))
+		boost::unordered_map<std::string, DICOMPtr> hashTable;
+		std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
+		Cmiss_context_id context = Cmiss_context_create("temp");
+		Cmiss_region_id region = Cmiss_context_get_default_region(context);
+		Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+	
+		BOOST_FOREACH(std::string const& filename, filenames)
 		{
-			continue;
+			// Skip files that are known not to be dicom files
+			if (EndsWith(filename, ".exnode") ||
+				EndsWith(filename, ".exelem") ||
+				EndsWith(filename, ".xml"))
+			{
+				continue;
+			}
+			
+			std::string fullpath = path + filename;
+			Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, fullpath);
+			if (image_field != 0)
+			{
+				DICOMPtr image(new DICOMImage(fullpath));
+				if (image->Analyze(image_field))
+					hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
+				else
+					Cmiss_field_image_destroy(&image_field);
+			}
+			if (image_field != 0)
+				Cmiss_field_image_destroy(&image_field);
+			else
+			{
+				std::cout << __func__ << ": Invalid DICOM file - '" << filename << "'" << std::endl;
+				LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << fullpath << "'";
+			}
 		}
-		
-		std::string fullpath = path + filename;
-		try
-		{
-			DICOMPtr image(new DICOMImage(fullpath));
-			image->ReadFile();
-			hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
-		}
-		catch (std::exception& e)
-		{
-			std::cout << __func__ << ": Invalid DICOM file - " << filename << ", " << e.what() << std::endl;
-			LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << fullpath << "' (" << e.what() << ")";
-		}
-	}
+		Cmiss_field_module_destroy(&field_module);
+		Cmiss_region_destroy(&region);
+		Cmiss_context_destroy(&context);
 
-	return hashTable;
-}
+		return hashTable;
+	}
 
 } // unnamed namespace
 

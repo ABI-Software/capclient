@@ -139,16 +139,16 @@ public:
 	 * @return	The list of labels from image table.
 	 */
 	std::vector<std::pair<std::string, long int> > GetListOfLabelsFromImageTable() const;
-	
+
 	/**
-	 * Create a field image from the given dicom pointer.  The name of the
-	 * texture is the next unique name in the series 'tex_<number>'.  The image field
-	 * returned must be destroyed by the receiver.
-	 * 
-	 * \param dicom the dicom pointer to create the field image from.
-	 * \returns an accessed cmiss_field_image.
+	 * Create a field image from the given filename.  The name of the texture is 'tex_' + the file
+	 * name.  The image field returned must be destroyed by the receiver.
+	 *
+	 * @param	filename	Filename of the file.
+	 *
+	 * @return	An accessed field image id.
 	 */
-	Cmiss_field_image_id CreateFieldImage(DICOMPtr dicom);
+	Cmiss_field_image_id CreateFieldImage(const std::string& filename);
 	
 	/**
 	 * Resize the texture frame in the preview panel to the supplied

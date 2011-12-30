@@ -75,7 +75,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext_);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, root_region);
 	SetAnnotationString(" ");
-	Cmiss_rendition_execute_command(rendition, "point glyph none general size \"2*2*2\" label annotation centre 0.90,0.95,0.0 select_on material default selected_material default normalised_window_fit_left;");
+	Cmiss_rendition_execute_command(rendition, "point glyph none general size \"2*2*2\" label annotation centre 0.95,0.95,0.0 select_on material default selected_material default normalised_window_fit_left;");
 
 	Cmiss_region_destroy(&root_region);
 	Cmiss_graphics_module_destroy(&graphics_module);
@@ -251,10 +251,10 @@ void ImageBrowserWindow::CreatePreviewScene()
 	Cmiss_graphics_module_destroy(&gModule);
 }
 
-Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(DICOMPtr dicom)
+Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(const std::string& filename)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, IMAGE_PREVIEW);
-	Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, dicom->GetFilename());
+	Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, filename);
 	Cmiss_field_module_destroy(&field_module);
 	
 	return image_field;

@@ -43,7 +43,8 @@ ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowser *cl
 ImageBrowser::~ImageBrowser()
 {
 	dbg("ImageBrowser::~ImageBrowser()");
-	DestroyFieldImageHandles();
+	ClearTextureMap();
+	ClearTextureTable();
 	dicomFileTable_.clear();
 	client_ = 0;
 	dbg("ImageBrowser::~ImageBrowser() end");
@@ -85,7 +86,7 @@ void ImageBrowser::ChooseImageDirectory()
 {
 	std::string path = gui_->GetImageLocation();
 	if (path.empty() || !IsDirectory(path))
-		path = wxGetCwd();;
+		path = wxGetCwd();
 	
 	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path);
 	if (!dirname.empty())
@@ -99,7 +100,7 @@ void ImageBrowser::ChooseImageDirectory()
 
 void ImageBrowser::LoadImages()
 {
-	ReadInDICOMFiles();
+	CreateTexturesFromDICOMFiles();
 	if (dicomFileTable_.empty())
 	{
 		LOG_MSG(LOGWARNING) << "No valid DICOM files were found here";
@@ -108,7 +109,6 @@ void ImageBrowser::LoadImages()
 	else
 	{
 		SortDICOMFiles();
-		CreateTexturesFromDICOMFiles();
 		PopulateImageTable();
 	}
 }
@@ -128,54 +128,6 @@ void ImageBrowser::Initialize()
 	}
 }
 
-void ImageBrowser::ReadInDICOMFiles()
-{
-	//	std::string dirname = TEST_DIR;
-	// TODO unzip archive file
-	// for now we assume the archive has already been unzipped
-	// and archiveFilename points to the containing dir
-	const std::string& dirname = archiveFilename_;
-	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(dirname);
-	
-	gui_->CreateProgressDialog("Please wait", "Analysing DICOM headers", filenames.size());
-	int count = 0;
-	BOOST_FOREACH(std::string const& filename, filenames)
-	{
-		//		std::cout << filename <<'\n';
-		// Skip files that are known not to be dicom files
-		if (EndsWith(filename, ".exnode") ||
-			EndsWith(filename, ".exelem") ||
-			EndsWith(filename, ".xml"))
-		{
-			continue;
-		}
-		std::string fullpath = dirname + "/" + filename;
-		//		std::cout << fullpath <<'\n';
-		try
-		{
-			DICOMPtr dicomFile(new DICOMImage(fullpath));
-			dicomFile->ReadFile();
-			dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
-		}
-		catch (std::exception&)
-		{
-			// This is not a DICOM file
-			std::string msg = "Invalid DICOM file : '" + filename + "'";
-			std::cout << msg << std::endl;
-			LOG_MSG(LOGERROR) << msg;
-			//gui_->CreateMessageBox(msg, "DICOM File : Read Failed");
-		}
-		
-		count++;
-		if (!(count % 10))
-		{
-			gui_->UpdateProgressDialog(count);
-		}
-	}
-	gui_->UpdateProgressDialog(filenames.size());
-	gui_->DestroyProgressDialog(); // REVISE interface 
-}
-
 size_t ImageBrowser::GetSliceMapImageCount() const
 {
 	size_t count = 0;
@@ -187,14 +139,8 @@ size_t ImageBrowser::GetSliceMapImageCount() const
 	return count;
 }
 
-void ImageBrowser::DestroyFieldImageHandles()
+void ImageBrowser::ClearTextureMap()
 {
-	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-	{
-		Cmiss_field_image_id tex = value.second;
-		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
-	}
-	textureTable_.clear();
 	TextureMap::iterator it = textureMap_.begin();
 	for(; it != textureMap_.end(); ++it)
 	{
@@ -207,39 +153,87 @@ void ImageBrowser::DestroyFieldImageHandles()
 	textureMap_.clear();
 }
 
+void ImageBrowser::ClearTextureTable()
+{
+	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
+	{
+		Cmiss_field_image_id tex = value.second;
+		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
+	}
+	textureTable_.clear();
+}
+
 void ImageBrowser::CreateTexturesFromDICOMFiles()
 {
 	using namespace std;
 	
 	// load some images and display
-	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", GetSliceMapImageCount());
+	const std::string& dirname = archiveFilename_;
+	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(dirname);
+	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", filenames.size());
 	
-	textureTable_.clear();
-	textureMap_.clear();
-	int count = 0;
-	BOOST_FOREACH(SliceMap::value_type& slice, sliceMap_)
+	ClearTextureTable();
+	ClearTextureMap();
+	std::vector<std::string>::const_iterator cit = filenames.begin();
+	for(int count = 0; cit != filenames.end(); ++cit, count++)
 	{
-		std::vector<Cmiss_field_image_id> image_field_stack;
-		BOOST_FOREACH(DICOMPtr const& dicomPtr, slice.second)
+		std::string filename = *cit;
+		// Skip known non-dicom image extensions
+		if (EndsWith(filename, ".exnode") ||
+			EndsWith(filename, ".exelem") ||
+			EndsWith(filename, ".xml"))
 		{
-			// Returns an accessed image field
-			Cmiss_field_image_id image_field = gui_->CreateFieldImage(dicomPtr);
-			//Cmiss_field_image_destroy(&image_field);
-			// The returned field does not increase the access count for the image field
-			Cmiss_field_id temp_field = Cmiss_field_image_base_cast(image_field);
-			// Add an access for the texture map
-			Cmiss_field_access(temp_field);
-			image_field_stack.push_back(image_field);
-			textureTable_.insert(make_pair(dicomPtr->GetFilename(), image_field));
-			count++;
-			if (!(count % 5))
+			continue;
+		}
+		std::string fullpath = dirname + "/" + filename;
+		// Returns an accessed image field
+		Cmiss_field_image_id image_field = gui_->CreateFieldImage(fullpath);
+		if (image_field != 0)
+		{
+			DICOMPtr dicomFile(new DICOMImage(fullpath));
+			if (dicomFile->Analyze(image_field))
 			{
-				gui_->UpdateProgressDialog(count);
+				// The returned field does not increase the access count for the image field
+				//--Cmiss_field_id temp_field = Cmiss_field_image_base_cast(image_field);
+				//--Cmiss_field_access(temp_field);
+				dbg("Image analyze success");
+				textureTable_.insert(make_pair(fullpath, image_field));
+				dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
+			}
+			else
+			{
+				Cmiss_field_image_destroy(&image_field);
 			}
 		}
-		textureMap_.insert(make_pair(slice.first, image_field_stack));
+
+		if (!(count % 5))
+		{
+			gui_->UpdateProgressDialog(count);
+		}
 	}
-	gui_->UpdateProgressDialog(GetSliceMapImageCount());
+	//BOOST_FOREACH(SliceMap::value_type& slice, sliceMap_)
+	//{
+	//	std::vector<Cmiss_field_image_id> image_field_stack;
+	//	BOOST_FOREACH(DICOMPtr const& dicomPtr, slice.second)
+	//	{
+	//		// Returns an accessed image field
+	//		Cmiss_field_image_id image_field = gui_->CreateFieldImage(dicomPtr);
+	//		//Cmiss_field_image_destroy(&image_field);
+	//		// The returned field does not increase the access count for the image field
+	//		Cmiss_field_id temp_field = Cmiss_field_image_base_cast(image_field);
+	//		// Add an access for the texture map
+	//		Cmiss_field_access(temp_field);
+	//		image_field_stack.push_back(image_field);
+	//		textureTable_.insert(make_pair(dicomPtr->GetFilename(), image_field));
+	//		count++;
+	//		if (!(count % 5))
+	//		{
+	//			gui_->UpdateProgressDialog(count);
+	//		}
+	//	}
+	//	textureMap_.insert(make_pair(slice.first, image_field_stack));
+	//}
+	gui_->UpdateProgressDialog(filenames.size()-1);
 	gui_->DestroyProgressDialog();
 }
 
@@ -321,7 +315,7 @@ void ImageBrowser::SortDICOMFiles()
 		}
 	}
 	// Sort the dicom images in a slice/series by the instance Number
-	textureMap_.clear();
+	ClearTextureMap();
 	BOOST_FOREACH(SliceMap::value_type& slice, sliceMap_)
 	{
 		std::vector<DICOMPtr>& images = slice.second;
@@ -339,6 +333,10 @@ void ImageBrowser::SortDICOMFiles()
 			const std::string& filename = (*itr)->GetFilename();
 			Cmiss_field_image_id field_image = textureTable_[filename];
 			field_images.push_back(field_image);
+			// The returned field does not increase the access count for the image field
+			Cmiss_field_id temp_field = Cmiss_field_image_base_cast(field_image);
+			// Add an access for the texture map
+			Cmiss_field_access(temp_field);
 		}
 		textureMap_.insert(make_pair(slice.first, field_images));
 	}
@@ -440,13 +438,6 @@ void ImageBrowser::OnOrderByRadioBox(int event)
 
 void ImageBrowser::OnCancelButtonClicked()
 {
-	//BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
-	//{
-	//	Cmiss_field_image_id tex = value.second;
-	//	Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
-	//}
-	//textureTable_.clear();
-
 	if (gui_)
 	{
 		gui_->Destroy();

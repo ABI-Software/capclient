@@ -62,14 +62,15 @@ int CAPClient::GetNumberOfHeartModelFrames() const
 
 void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 {
+	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", labelledSlices.size());
 	gui_->ClearTextureSlices();
 	labelledSlices_ = labelledSlices;
 	unsigned int shortAxisCount = 0;
 	// read (or reread) in dicoms to create image textures (again) for this context.
-	LabelledSlices::const_iterator it;
+	LabelledSlices::const_iterator it = labelledSlices.begin();
 	std::vector<std::string> sliceNames;
 	std::vector<bool> visibilities;
-	for (it = labelledSlices.begin(); it != labelledSlices.end(); it++)
+	for (int count = 0; it != labelledSlices.end(); ++it, count++)
 	{
 		// I want the gui to deal with this labelled slice.  The gui needs to create a scene create field images
 		// create a texture for displaying field images and position the surface in the scene to the correct place.
@@ -87,6 +88,10 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 		else
 			visibilities.push_back(false);
 		//-- TODO: contours
+		if (!(count % 5))
+		{
+			gui_->UpdateProgressDialog(count);
+		}
 	}
 	// Set the middle short axis slice visible.
 	if (shortAxisCount > 0)
@@ -98,6 +103,8 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
 	EnterImagesLoadedState();
+	gui_->DestroyProgressDialog();
+
 }
 
 void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
@@ -283,7 +290,9 @@ void CAPClient::OpenModel(const std::string& filename)
 	xmlFile.ReadFile();
 	
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
+	gui_->CreateProgressDialog("Please wait", "Searching for DICOM images", 10);
 	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices();
+	gui_->UpdateProgressDialog(10);
 	//--const SlicesWithImages& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
 	//--SlicesWithImages slicesWithImages;
 	if (labelledSlices.empty())

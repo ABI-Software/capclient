@@ -79,6 +79,7 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/PlatformInfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
+	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
@@ -134,12 +135,6 @@ SET(UtilsMisc_SRC
 	unittestutilsmisc.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 )
-
-LIST(APPEND UNIT_TESTS DICOMImage)
-Set(DICOMImage_SRC
-	UnitTestDICOMImage.cpp
-	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
-	)
 
 LIST(APPEND UNIT_TESTS FieldImage)
 Set(FieldImage_SRC

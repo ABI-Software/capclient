@@ -115,6 +115,16 @@ TEST(FieldImage, GetProperties)
 		EXPECT_STREQ("Anonymized with DicomWorks", value.c_str());
 	}
 
+	// Series Number (0x0020,0x0011)
+	prop = Cmiss_field_image_get_property(field_image, "dcm:SeriesNumber");
+	EXPECT_FALSE(prop == 0);
+	if (prop)
+	{
+		value = prop;
+		Cmiss_deallocate(prop);
+		EXPECT_STREQ("11", value.c_str());
+	}
+
 	// Acquisition Date (0x0008,0x0022)
 	prop = Cmiss_field_image_get_property(field_image, "dcm:AcquisitionDate");
 	EXPECT_FALSE(prop == 0);
