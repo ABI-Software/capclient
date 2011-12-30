@@ -118,7 +118,7 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 	}
 	else
 	{
-		dbg("Cmiss_field_module_create_image_texture failed to read image from stream." + filename);
+		dbg("Cmiss_field_module_create_image_texture failed to read image from stream : '" + filename + "'");
 		Cmiss_field_image_destroy(&field_image);
 	}
 	
@@ -545,7 +545,6 @@ void SetVisibilityForGraphicsInRegion(Cmiss_context_id cmissContext, const std::
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
-	assert(region);
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
 	Cmiss_graphic_id graphic = Cmiss_rendition_get_first_graphic(rendition);

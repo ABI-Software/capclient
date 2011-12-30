@@ -46,7 +46,13 @@ namespace cap
 			, viewer_(0)
 		{
 			SetSize(716, 483);
+
 			Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(TestFieldImage::OnCloseWindow));
+			Connect(wxEVT_IDLE, wxIdleEventHandler(TestFieldImage::OnIdle), 0, this);
+			Connect(slider_index->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(TestFieldImage::OnIndexChanged));
+
+			slider_index->SetMin(0);
+			slider_index->SetMax(1);
 			context_ = Cmiss_context_create("test");
 			Cmiss_context_enable_user_interface(context_, static_cast<void*>(wxTheApp));
 			viewer_ = Cmiss_context_create_scene_viewer(context_, "view", panel_cmgui);
@@ -63,6 +69,7 @@ namespace cap
 			LoadImage("/68691116.dcm");
 			Cmiss_graphics_material_set_image_field(material_, 1, images_[0]);
 			Cmiss_scene_viewer_view_all(viewer_);
+			SetVisibilityForGraphicsInRegion(context_, "image", true);
 			char *property = Cmiss_field_image_get_property(images_[0], "dcm:FrameofReferenceUID");
 			if (property)
 			{
@@ -92,9 +99,23 @@ namespace cap
 			Cmiss_field_module_destroy(&field_module);
 		}
 
+		void OnIndexChanged(wxCommandEvent& event)
+		{
+			int value = event.GetInt();
+			SetVisibilityForGraphicsInRegion(context_, "image", value ? true : false);
+		}
+
 		void OnCloseWindow(wxCloseEvent& event)
 		{
 			wxExit();;
+		}
+
+		void OnIdle(wxIdleEvent& event)
+		{
+			if (Cmiss_context_process_idle_event(context_))
+			{
+				event.RequestMore();
+			}
 		}
 
 		Cmiss_context_id context_;

@@ -19,12 +19,12 @@ LabelledSlice::LabelledSlice(const std::string& label, std::vector<DICOMPtr> dic
 	: label_(label)
 	, dicomImages_(dicoms)
 {
-	LOG_MSG(LOGDEBUG) << "LabelledSlice::LabelledSlice() " << label_;
+	//LOG_MSG(LOGDEBUG) << "LabelledSlice::LabelledSlice() " << label_;
 }
 
 LabelledSlice::~LabelledSlice()
 {
-	LOG_MSG(LOGDEBUG) << "LabelledSlice::~LabelledSlice() " << label_;
+	//LOG_MSG(LOGDEBUG) << "LabelledSlice::~LabelledSlice() " << label_;
 }
 
 }

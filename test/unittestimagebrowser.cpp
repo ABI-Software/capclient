@@ -39,7 +39,9 @@ namespace cap
 		bool OnInit()
 		{
 			wxXmlResource::Get()->InitAllHandlers();
+#if defined ENABLE_GUI_INTERACTION
 			ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client_);
+#endif
 			return true;
 		}
 
@@ -68,7 +70,6 @@ TEST(ImageBrowser, CreateUsingFactory)
 	ImageBrowser* ib = ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client);
 #endif
 	
-	//wxTheApp->OnRun(); // Do/Don't start main loop
 	wxTheApp->OnExit();
 	wxEntryCleanup();
 }
