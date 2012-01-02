@@ -158,7 +158,7 @@ void ImageBrowser::ClearTextureTable()
 	BOOST_FOREACH(TextureTable::value_type& value, textureTable_)
 	{
 		Cmiss_field_image_id tex = value.second;
-		Cmiss_field_image_destroy(&tex); /** TODO: fix undefined reference */
+		Cmiss_field_image_destroy(&tex);
 	}
 	textureTable_.clear();
 }
@@ -196,7 +196,6 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 				// The returned field does not increase the access count for the image field
 				//--Cmiss_field_id temp_field = Cmiss_field_image_base_cast(image_field);
 				//--Cmiss_field_access(temp_field);
-				dbg("Image analyze success");
 				textureTable_.insert(make_pair(fullpath, image_field));
 				dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
 			}
@@ -211,28 +210,7 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 			gui_->UpdateProgressDialog(count);
 		}
 	}
-	//BOOST_FOREACH(SliceMap::value_type& slice, sliceMap_)
-	//{
-	//	std::vector<Cmiss_field_image_id> image_field_stack;
-	//	BOOST_FOREACH(DICOMPtr const& dicomPtr, slice.second)
-	//	{
-	//		// Returns an accessed image field
-	//		Cmiss_field_image_id image_field = gui_->CreateFieldImage(dicomPtr);
-	//		//Cmiss_field_image_destroy(&image_field);
-	//		// The returned field does not increase the access count for the image field
-	//		Cmiss_field_id temp_field = Cmiss_field_image_base_cast(image_field);
-	//		// Add an access for the texture map
-	//		Cmiss_field_access(temp_field);
-	//		image_field_stack.push_back(image_field);
-	//		textureTable_.insert(make_pair(dicomPtr->GetFilename(), image_field));
-	//		count++;
-	//		if (!(count % 5))
-	//		{
-	//			gui_->UpdateProgressDialog(count);
-	//		}
-	//	}
-	//	textureMap_.insert(make_pair(slice.first, image_field_stack));
-	//}
+
 	gui_->UpdateProgressDialog(filenames.size()-1);
 	gui_->DestroyProgressDialog();
 }
@@ -441,6 +419,7 @@ void ImageBrowser::OnCancelButtonClicked()
 	if (gui_)
 	{
 		gui_->Destroy();
+		delete gui_;
 		gui_ = 0;
 	}
 
@@ -505,13 +484,20 @@ void ImageBrowser::OnOKButtonClicked()
 		std::cout << "Empty image set.\n";
 		return;
 	}
+
+	std::string imageLocation = gui_->GetImageLocation();
+
+	gui_->Destroy();
+	delete gui_;
+	gui_ = 0;
+
+	ClearTextureMap();
+	ClearTextureTable();
 	
 	client_->LoadLabelledImages(labelledSlices);
 	client_->LoadCardiacAnnotations(cardiacAnnotation_);
-	client_->SetImageLocation(gui_->GetImageLocation());
+	client_->SetImageLocation(imageLocation);
 
-	gui_->Destroy();
-	gui_ = 0;
 	delete this;
 }
 

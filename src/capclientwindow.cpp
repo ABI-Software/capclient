@@ -646,7 +646,6 @@ void CAPClientWindow::ChangeTexture(const std::string& name, Cmiss_field_image_i
 
 void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, std::vector<bool> const& visibilities)
 {
-	std::cout << __func__ << '\n';
 	checkListBox_Slice->Clear();
 	
 	size_t index = 0;
@@ -655,14 +654,11 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 		dbg("Slice name = " + sliceName);
 		checkListBox_Slice->Append(wxString(sliceName.c_str(), wxConvUTF8));
 		bool visible = visibilities.at(index);
-		/* default selection */
-		//if (visible)
-		{
-			checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1), visible);
-		}
-		//SetVisibilityForGraphicsInRegion(cmissContext_, sliceName, visible);
+		checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1), visible);
+		SetVisibilityForGraphicsInRegion(cmissContext_, sliceName, visible);
 		index++;
 	}
+
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);
 }
 
