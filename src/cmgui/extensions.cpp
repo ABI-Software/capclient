@@ -95,22 +95,19 @@ Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissCo
 
 Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const std::string& filename)
 {
-	//std::cout << "SceneViewerPanel::" << __func__ << std::endl;
 	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
-	std::string name = "tex_" + cap::GetFileNameWOE(filename); //-- GetNextNameInSeries(field_module, "tex_");
+	std::string name = "tex_" + cap::GetFileNameWOE(filename);
 	Cmiss_field_set_name(temp_field, name.c_str());
 	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
 	Cmiss_field_destroy(&temp_field);
 	Cmiss_stream_information_id stream_information = Cmiss_field_image_create_stream_information(field_image);
-	//--Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
 	
 	/* Read image data from a file */
 	Cmiss_stream_resource_id stream = Cmiss_stream_information_create_resource_file(stream_information, filename.c_str());
-	//--Cmiss_stream_information_region_set_attribute_real(stream_information_region, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 0.0);
 	int r = Cmiss_field_image_read(field_image, stream_information);
 	if (r == CMISS_OK)
 	{
-		//--Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
+		Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
 		
 		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
 		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
@@ -123,7 +120,6 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 	}
 	
 	Cmiss_stream_resource_destroy(&stream);
-	//--Cmiss_stream_information_region_destroy(&stream_information_region);
 	Cmiss_stream_information_destroy(&stream_information);
 	
 	return field_image;
@@ -397,14 +393,6 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	}
 	Cmiss_mesh_define_element(mesh, -1, element_template);
 	Cmiss_element_template_destroy(&element_template);
-	int r = Cmiss_field_module_define_all_faces(field_module);
-	Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
-	//r = Cmiss_rendition_execute_command(rendition, "lines coordinate coordinates");
-	Cmiss_graphic_id graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_LINES);
-	Cmiss_graphic_set_coordinate_field(graphic, coordinates_field);
-	Cmiss_graphic_define(graphic, "line_width 2");
-	Cmiss_graphic_destroy(&graphic);
-	Cmiss_rendition_destroy(&rendition);
 	Cmiss_field_module_end_change(field_module);
 	
 	Cmiss_field_module_destroy(&field_module);
