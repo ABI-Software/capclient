@@ -65,7 +65,9 @@ ModellingPoint::~ModellingPoint(void)
 ModellingPoint::ModellingPoint(const ModellingPoint& other)
 {
 	this->modellingPointType_ = other.modellingPointType_;
-	this->region_ = Cmiss_region_access(other.region_);
+	this->region_ = 0;
+	if (other.region_ != 0)
+		this->region_ = Cmiss_region_access(other.region_);
 	this->node_id_ = other.node_id_;
 	this->position_ = other.position_;
 	this->weight_ = other.weight_;

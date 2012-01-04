@@ -25,6 +25,7 @@ public:
 	virtual void LoadLabelledImages(const LabelledSlices& labelledSlices) = 0;
 	virtual void LoadCardiacAnnotations(const CardiacAnnotation& anno) = 0;
 	virtual void SetImageLocation(const std::string& location) = 0;
+	virtual void ResetModel() = 0;
 };
 
 } // end namespace cap

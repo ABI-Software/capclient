@@ -63,7 +63,7 @@ int CAPClient::GetNumberOfHeartModelFrames() const
 void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 {
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", labelledSlices.size());
-	gui_->ClearTextureSlices();
+	gui_->RemoveTextureSlices();
 	labelledSlices_ = labelledSlices;
 	unsigned int shortAxisCount = 0;
 	// read (or reread) in dicoms to create image textures (again) for this context.
@@ -303,6 +303,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	
 	// TODO: Hide CAPClient icon in scene viewer
 	// TODO: clean up existing
+	gui_->RemoveHeartModel();
 	LoadLabelledImages(labelledSlices);
 	//TODO: Load cardiac annotations
 	// LoadCardiacAnnotations(cardiacAnnotations);
@@ -316,7 +317,7 @@ void CAPClient::OpenModel(const std::string& filename)
 		{
 			// This means no output element is defined
 			//--InitializeHeartModelTemplate();
-			StartModelling();
+			StartModelling(true);
 
 			// Setting the modelling points should put the CAPClient into the correct state
 			gui_->SetModellingPoints(modellingPoints);
@@ -363,11 +364,11 @@ void CAPClient::OpenModel(const std::string& filename)
 	std::string fullExelemFileName = modelFilePath + "/" + exelemFileName;
 
 	gui_->CreateHeartModel();
-	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
+	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->SetHeartModelTransformation(m);
 
-	StartModelling();
+	StartModelling(true);
 	gui_->SetModellingPoints(modellingPoints);
 
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
@@ -375,6 +376,8 @@ void CAPClient::OpenModel(const std::string& filename)
 	UpdateMII();
 	
 	EnterModelLoadedState();
+	// Set the gui into modelling mode because version 1.0.0 project files don't list 
+	//modelling points, they are implicit in the heart model transform.
 	gui_->UpdateModeSelectionUI(GUIDEPOINT);
 }
 
@@ -411,7 +414,6 @@ void CAPClient::OpenAnnotation(const std::string& filename, const std::string& i
 void CAPClient::OpenImages()
 {
 	ImageBrowser::CreateImageBrowser(previousImageLocation_, this);
-	std::cout << "CAPClient::OpenImages show window" << std::endl;
 }
 
 void CAPClient::SaveModel(const std::string& dirname, const std::string& userComment)

@@ -47,10 +47,47 @@ namespace cap
 
 void CAPClientWindow::CreateHeartModel()
 {
-	if (heartModel_)
-		delete heartModel_;
+	RemoveHeartModel();
 
 	heartModel_ = new HeartModel(cmissContext_);
+}
+
+void CAPClientWindow::RemoveHeartModel()
+{
+	if (heartModel_ != 0)
+	{
+		delete heartModel_;
+		heartModel_ = 0;
+		RemoveHeartSurfaces();
+		RemoveMIIGraphics();
+	}
+}
+
+void CAPClientWindow::RemoveHeartSurfaces()
+{
+	Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
+	if (heart_epi_surface_)
+	{
+		Cmiss_rendition_remove_graphic(rendition, heart_epi_surface_);
+		Cmiss_graphic_destroy(&heart_epi_surface_);
+	}
+	if (heart_endo_surface_)
+	{
+		Cmiss_rendition_remove_graphic(rendition, heart_endo_surface_);
+		Cmiss_graphic_destroy(&heart_endo_surface_);
+	}
+	Cmiss_rendition_destroy(&rendition);
+}
+
+void CAPClientWindow::RemoveMIIGraphics()
+{
+	MIIGraphicMap::iterator miiMap_it = miiMap_.begin();
+	while (miiMap_it != miiMap_.end())
+	{
+		Cmiss_graphic_destroy(&(miiMap_it->second.first));
+		Cmiss_graphic_destroy(&(miiMap_it->second.second));
+		miiMap_.erase(miiMap_it++);
+	}
 }
 
 void CAPClientWindow::InitialiseHeartModel()

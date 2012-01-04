@@ -375,13 +375,27 @@ public:
 		previousImageLocation_ = location;
 	}
 
+	void ResetModel()
+	{
+		RemoveModeller();
+		gui_->RemoveHeartModel();
+	}
+
 	/**
 	 * Checks to make sure the modeller is ready to start modelling.
+	 *
+	 * @param	restart	(optional) If true delete the current modeller, false by defualt.
 	 */
-	void StartModelling()
+	void StartModelling(bool restart = false)
 	{
+		if (restart)
+			RemoveModeller();
+
 		if (!modeller_)
-			CreateModeller();
+		{
+			modeller_ = new Modeller(this); // initialise modeller and all the data points
+			gui_->UpdateModeSelectionUI(APEX);
+		}
 	}
 
 private:
@@ -422,14 +436,18 @@ private:
 	}
 
 	/**
-	 * Terminates this object.
+	 * Deletes the modeller.
 	 */
-	void Terminate()
+	void RemoveModeller()
 	{
-		// ???????
-		delete this;
+		if (modeller_)
+		{
+			delete modeller_;
+			gui_->UpdateModeSelectionUI(APEX);
+			modeller_ = 0;
+		}
 	}
-	
+
 	/**
 	 * Popluate the slice list in the gui.
 	 */
@@ -464,18 +482,6 @@ private:
 	 */
 	void InitializeHeartModelTemplate();
 
-	/**
-	 * Creates the modeller.
-	 */
-	void CreateModeller()
-	{
-		if (!modeller_)
-		{
-			modeller_ = new Modeller(this); // initialise modeller and all the data points
-			gui_->UpdateModeSelectionUI(APEX);
-		}
-	}
-	
 	/**
 	 * Private default constructor - This class should be instantiated from the static factory method.
 	 */
