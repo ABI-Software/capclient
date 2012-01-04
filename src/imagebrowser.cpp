@@ -193,9 +193,6 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 			DICOMPtr dicomFile(new DICOMImage(fullpath));
 			if (dicomFile->Analyze(image_field))
 			{
-				// The returned field does not increase the access count for the image field
-				//--Cmiss_field_id temp_field = Cmiss_field_image_base_cast(image_field);
-				//--Cmiss_field_access(temp_field);
 				textureTable_.insert(make_pair(fullpath, image_field));
 				dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
 			}
@@ -393,7 +390,6 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	gui_->SetAnnotationString("File name : " + filename);
 	double radius = std::max(width, height) / 2.0;
 	gui_->FitSceneViewer(radius);
-	//gui_->RefreshPreviewPanel();
 }
 
 void ImageBrowser::OnOrderByRadioBox(int event)
@@ -494,6 +490,7 @@ void ImageBrowser::OnOKButtonClicked()
 	ClearTextureMap();
 	ClearTextureTable();
 	
+	client_->ResetModel();
 	client_->LoadLabelledImages(labelledSlices);
 	client_->LoadCardiacAnnotations(cardiacAnnotation_);
 	client_->SetImageLocation(imageLocation);

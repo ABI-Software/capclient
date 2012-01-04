@@ -32,6 +32,7 @@ namespace cap
 		void LoadCardiacAnnotations(const CardiacAnnotation &){}
 		void LoadLabelledImages(const LabelledSlices &){}
 		void SetImageLocation(const std::string& location){}
+		void ResetModel() {}
 	};
 
 	class TestApp : public wxApp

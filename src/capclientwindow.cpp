@@ -115,27 +115,10 @@ CAPClientWindow::~CAPClientWindow()
 	if (heartModel_)
 		delete heartModel_;
 
-	ClearTextureSlices();
-	if (heart_epi_surface_)
-		Cmiss_graphic_destroy(&heart_epi_surface_);
-	if (heart_endo_surface_)
-		Cmiss_graphic_destroy(&heart_endo_surface_);
-
-	StatusTextStringsFieldMap::iterator it = statusTextStringsFieldMap_.begin();
-	while (it != statusTextStringsFieldMap_.end())
-	{
-
-		Cmiss_field_destroy(&(it->second.first));
-		Cmiss_graphic_destroy(&(it->second.second));
-		statusTextStringsFieldMap_.erase(it++);
-	}
-	MIIGraphicMap::iterator miiMap_it = miiMap_.begin();
-	while (miiMap_it != miiMap_.end())
-	{
-		Cmiss_graphic_destroy(&(miiMap_it->second.first));
-		Cmiss_graphic_destroy(&(miiMap_it->second.second));
-		miiMap_.erase(miiMap_it++);
-	}
+	RemoveTextureSlices();
+	RemoveHeartSurfaces();
+	RemoveStatusTextStrings();
+	RemoveMIIGraphics();
 
 	delete cmguiPanel_;
 	Cmiss_time_keeper_destroy(&timeKeeper_);
@@ -572,13 +555,29 @@ void CAPClientWindow::Terminate(wxCloseEvent& event)
 	}
 }
 
-void CAPClientWindow::ClearTextureSlices()
+void CAPClientWindow::RemoveStatusTextStrings()
+{
+	StatusTextStringsFieldMap::iterator it = statusTextStringsFieldMap_.begin();
+	while (it != statusTextStringsFieldMap_.end())
+	{
+
+		Cmiss_field_destroy(&(it->second.first));
+		Cmiss_graphic_destroy(&(it->second.second));
+		statusTextStringsFieldMap_.erase(it++);
+	}
+}
+
+void CAPClientWindow::RemoveTextureSlices()
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	TextureSliceMap::iterator it = textureSliceMap_.begin();
 	while (it != textureSliceMap_.end())
 	{
 		Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, it->first.c_str());
+		// We must destroy the surface graphic in the region to release the handle on the material
+		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, it->first.c_str());
+		Cmiss_rendition_remove_all_graphics(rendition);
+		Cmiss_rendition_destroy(&rendition);
 		delete it->second;
 		textureSliceMap_.erase(it++);
 		Cmiss_region_remove_child(root_region, child_region);
@@ -606,7 +605,6 @@ void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
 	}
 	textureSliceMap_.insert(std::make_pair(regionName, new TextureSlice(material, fieldImages)));
 	ChangeTexture(regionName, fieldImages.at(0));
-	//--cmguiPanel_->ViewAll();
 }
 
 void CAPClientWindow::RepositionImagePlane(const std::string& regionName, const ImagePlane* plane)
@@ -758,13 +756,14 @@ void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 		visibility = true;
 		button_HideShowAll->SetLabel(wxT("Hide All"));
 	}
+	bool mii_visibility = checkBox_MII->IsChecked();
 
 	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
 	for (unsigned int i = 0; cit != textureSliceMap_.end(); cit++, i++)
 	{
 		checkListBox_Slice->Check(i, visibility);
 		SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
-		SetMIIVisibility(cit->first, visibility);
+		SetMIIVisibility(cit->first, visibility && mii_visibility);
 	}
 }
 
@@ -782,6 +781,7 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 		visibility = true;
 		button_HideShowOthers->SetLabel(wxT("Hide Others"));
 	}
+	bool mii_visibility = checkBox_MII->IsChecked();
 
 	int currentSelection = checkListBox_Slice->GetSelection();
 	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
@@ -791,7 +791,7 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 		{
 			checkListBox_Slice->Check(i, visibility);
 			SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
-			SetMIIVisibility(cit->first, visibility);
+			SetMIIVisibility(cit->first, visibility && mii_visibility);
 		}
 	}
 }
@@ -1452,9 +1452,9 @@ void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 {
 	Cmiss_graphic_id iso_epi = miiMap_[name].first;
 	Cmiss_graphic_id iso_endo = miiMap_[name].second;
-	if (iso_epi)
+	if (iso_epi != 0)
 		Cmiss_graphic_set_visibility_flag(iso_epi, visible ? 1 : 0);
-	if (iso_endo)
+	if (iso_endo != 0)
 		Cmiss_graphic_set_visibility_flag(iso_endo, visible ? 1 : 0);
 }
 
@@ -1511,10 +1511,8 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 		Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
 		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 		Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
-		int r = Cmiss_node_template_define_field(node_template, visibility_value_field);
-		LOG_MSG(LOGDEBUG) << "tmpl define:  " << (r == CMISS_OK);
-		r = Cmiss_node_merge(selected_node, node_template);
-		LOG_MSG(LOGDEBUG) << "node merge:  " << (r == CMISS_OK);
+		Cmiss_node_template_define_field(node_template, visibility_value_field);
+		Cmiss_node_merge(selected_node, node_template);
 		
 		Cmiss_field_cache_set_node(field_cache, selected_node);
 		double values[3];

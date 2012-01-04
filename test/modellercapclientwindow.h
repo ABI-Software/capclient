@@ -4,6 +4,11 @@
 #define MODELLER_CAPCLIENTWINDOW_H_
 
 #include "model/heart.h"
+extern "C"
+{
+#include "zn/cmiss_graphic.h"
+}
+typedef std::map<std::string, std::pair<Cmiss_graphic_id, Cmiss_graphic_id> > MIIGraphicMap;
 
 namespace cap
 {
@@ -15,6 +20,10 @@ namespace cap
 	public:
 		void SetStatusTextString(std::string mode, std::string text) const {}
 		void CreateHeartModel();
+		void RemoveHeartModel();
+		void RemoveHeartSurfaces();
+		void RemoveMIIGraphics();
+		void RemoveSurfaces();
 		void InitialiseHeartModel();
 		void SetHeartModelFocalLength(double focalLength);
 		void SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane, double time);
@@ -33,6 +42,8 @@ namespace cap
 			, heartModel_(0)
 			, cmissContext_(Cmiss_context_create("UnitTestModeller"))
 			, timeKeeper_(0)
+			, heart_epi_surface_(0)
+			, heart_endo_surface_(0)
 		{
 		}
 
@@ -48,6 +59,9 @@ namespace cap
 		HeartModel *heartModel_;
 		Cmiss_context_id cmissContext_;
 		Cmiss_time_keeper_id timeKeeper_;
+		Cmiss_graphic_id heart_epi_surface_;
+		Cmiss_graphic_id heart_endo_surface_;
+		MIIGraphicMap miiMap_;
 	};
 
 }

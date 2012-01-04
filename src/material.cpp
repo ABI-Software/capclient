@@ -61,14 +61,14 @@ Material::~Material()
 	char *name = Cmiss_graphics_material_get_name(material_);
 	dbg(std::string(__func__) + ": " + std::string(name));
 	Cmiss_deallocate(name);
+	Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 0);
 	Cmiss_graphics_material_destroy(&material_);
 }
 
 Material& Material::operator=(Material& other)
 {
 	dbg("Material::operator=(Material& other)");
-	this->material_ = other.material_;
-	Cmiss_graphics_material_access(material_);
+	this->material_ = Cmiss_graphics_material_access(other.material_);
 
 	return *this;
 }
@@ -76,8 +76,16 @@ Material& Material::operator=(Material& other)
 Material::Material(const Material& rhs)
 {
 	dbg("Material::Material(const Material& rhs)");
-	this->material_ = rhs.material_;
-	Cmiss_graphics_material_access(material_);
+	this->material_ = Cmiss_graphics_material_access(rhs.material_);
+}
+
+std::string Material::GetName() const
+{
+	char *name = Cmiss_graphics_material_get_name(material_);
+	std::string strName = std::string(name);
+	Cmiss_deallocate(name);
+
+	return strName;
 }
 
 void Material::SetBrightness(float brightness)

@@ -104,9 +104,9 @@ public:
 
 	/**
 	 * Clears the texture slices.  This requires the deletion of the fields and
-	 * regions that the texture slices is created in.
+	 * regions that the texture slices are created in.
 	 */
-	void ClearTextureSlices();
+	void RemoveTextureSlices();
 
 	/**
 	 * Play cine.
@@ -258,6 +258,11 @@ public:
 	 * Creates the heart model.  If the heart model exists it will be deleted and a new one created.
 	 */
 	void CreateHeartModel();
+
+	/**
+	 * Deletes the heart model.
+	 */
+	void RemoveHeartModel();
 
 	/**
 	 * Initialises the heart model.  If there are no images set then the heart model will not be
@@ -575,6 +580,22 @@ private:
 	 * Creates the fonts used by Cmgui.
 	 */
 	void CreateFonts();
+
+	/**
+	 * Removes the mii graphics.
+	 */
+	void RemoveMIIGraphics();
+
+	/**
+	 * Removes the status text strings.
+	 */
+	void RemoveStatusTextStrings();
+
+	/**
+	 * Removes the heart surfaces.
+	 */
+	void RemoveHeartSurfaces();
+
 
 	/**
 	 * Creates a modelling point.  This function creates a modelling point in the current context

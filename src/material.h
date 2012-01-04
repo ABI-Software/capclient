@@ -66,6 +66,13 @@ public:
 	 * Destructor, destroy references to cmiss ids.
 	 */
 	~Material();
+
+	/**
+	 * Gets the name of the material.
+	 *
+	 * @return	The name.
+	 */
+	std::string GetName() const;
 	
 	/**
 	 * Set the brightness.  The value of the brightness must be between 
