@@ -414,14 +414,15 @@ private:
 		
 		// Also clean up cmgui objects such as scene, regions, materials ..etc
 		cardiacAnnotationPtr_.reset(0);
-
-		mainWindowState_ = INIT_STATE;
 	}
 
 	/**
 	 * Enter images loaded state.
 	 */
-	void EnterImagesLoadedState();
+	void EnterImagesLoadedState()
+	{
+		gui_->EnterImagesLoadedState();
+	}
 
 	/**
 	 * Enter model loaded state.
@@ -431,8 +432,6 @@ private:
 		gui_->EnterModelLoadedState();
 		
 		gui_->SetModelVisibility(true);
-		
-		mainWindowState_ = MODEL_LOADED_STATE;
 	}
 
 	/**
@@ -489,7 +488,6 @@ private:
 		: gui_(0)
 		, labelledSlices_(LabelledSlices())
 		, modeller_(0)
-		, mainWindowState_(INIT_STATE)
 		, cardiacAnnotationPtr_(0)
 		, previousImageLocation_("")
 	{
@@ -502,18 +500,8 @@ private:
 	
 	Modeller* modeller_; /**< The modeller */
 
-	/**
-	 * Values that represent CAPClientWindowState. 
-	 */
-	enum CAPClientWindowState
-	{
-		INIT_STATE,
-		IMAGES_LOADED_STATE,
-		MODEL_LOADED_STATE
-	};
-
-	CAPClientWindowState mainWindowState_;  /**< State of the main window */
 	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_; /**< The cardiac annotation pointer */
+
 	Point3D previousPosition_;  /**< The previous position */
 	std::string previousImageLocation_; /**< The previous image location */
 };
