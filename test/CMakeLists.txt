@@ -72,6 +72,13 @@ SET(Math_SRC
 	UnitTestTotalLeastSquares.cpp
 )
 
+LIST(APPEND UNIT_TESTS Heart)
+SET(Heart_SRC
+	unittestheart.cpp
+	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
+	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
+	)
+
 LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
 	UnitTestCAPXMLFile.cpp
