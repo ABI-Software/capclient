@@ -41,7 +41,6 @@ namespace cap
 Material::Material(const std::string& materialName, Cmiss_graphics_module_id graphics_module)
 	: material_(0)
 {
-	dbg("Material::Material - " + materialName);
 	material_ = Cmiss_graphics_module_create_material(graphics_module);
 	Cmiss_graphics_material_set_name(material_, materialName.c_str());
 	Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 1);
@@ -58,16 +57,12 @@ Material::Material(const std::string& materialName, Cmiss_graphics_module_id gra
 
 Material::~Material()
 {
-	char *name = Cmiss_graphics_material_get_name(material_);
-	dbg(std::string(__func__) + ": " + std::string(name));
-	Cmiss_deallocate(name);
 	Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 0);
 	Cmiss_graphics_material_destroy(&material_);
 }
 
 Material& Material::operator=(Material& other)
 {
-	dbg("Material::operator=(Material& other)");
 	this->material_ = Cmiss_graphics_material_access(other.material_);
 
 	return *this;
@@ -75,7 +70,6 @@ Material& Material::operator=(Material& other)
 
 Material::Material(const Material& rhs)
 {
-	dbg("Material::Material(const Material& rhs)");
 	this->material_ = Cmiss_graphics_material_access(rhs.material_);
 }
 
