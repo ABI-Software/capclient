@@ -99,20 +99,6 @@ void CAPClientWindow::RemoveMIIGraphics()
 	}
 }
 
-void CAPClientWindow::InitialiseHeartModel()
-{
-	unsigned int minNumberOfFrames = mainApp_->GetMinimumNumberOfFrames();
-	
-	if (minNumberOfFrames == 0) // Make sure some images have been loaded.
-		return;
-
-	assert(heartModel_ == 0);
-	heartModel_ = new HeartModel(cmissContext_);
-	heartModel_->SetNumberOfModelFrames(minNumberOfFrames);
-	LoadTemplateHeartModel(minNumberOfFrames);
-	//--SetHeartModelTransformation(heartModel_->GetLocalToGlobalTransformation());
-}
-
 void CAPClientWindow::SetHeartModelFocalLength(double focalLength)
 {
 	std::stringstream ss;
