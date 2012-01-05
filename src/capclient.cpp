@@ -418,15 +418,6 @@ void CAPClient::OpenImages()
 
 void CAPClient::SaveModel(const std::string& dirname, const std::string& userComment)
 {
-	// Need to write the model files first 
-	// FIXME : this is brittle code. shoule be less dependent on the order of execution
-	if (mainWindowState_ == MODEL_LOADED_STATE)
-	{
-		std::cout << __func__ << " - Model name: " << dirname.c_str() << '\n';
-		//--assert(heartModelPtr_);
-		//--heartModelPtr_->WriteToFile(dirname.c_str());
-	}
-	
 	CAPXMLFile xmlFile(dirname);
 	
 	dbg("Warning: CAPClient::SaveModel - not working with modelling points.");
@@ -452,12 +443,6 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	}
 	
 	xmlFile.WriteFile(xmlFilename);
-}
-
-void CAPClient::EnterImagesLoadedState()
-{
-	gui_->EnterImagesLoadedState();
-	mainWindowState_ = IMAGES_LOADED_STATE;
 }
 
 void CAPClient::InitializeMII()
