@@ -183,10 +183,8 @@ void CAPClientWindow::UpdateUI()
 	if (numberOfLogicalFrames > 1)
 		imageFrameCountDependent = true;
 
-	// Widget dependent on the heart model
-	bool heartModelDependent = false;
-	if (heartModel_ != 0)
-		heartModelDependent = true;
+	// Widgets dependent on the heart model
+	bool heartModelDependent = IsInitialisedHeartModel();
 
 	slider_Animation->Enable(imageDependent && imageFrameCountDependent);
 	slider_AnimationSpeed->Enable(imageDependent && imageFrameCountDependent);
