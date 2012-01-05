@@ -77,7 +77,6 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 		gui_->CreateTextureSlice(*it);
 		std::string currentLabel = it->GetLabel();
 		sliceNames.push_back(currentLabel);
-		dbg("label : '" + currentLabel + "'");
 		// Count the number of "SA" labels
 		if (currentLabel.compare(0, 2, "SA") == 0)
 		{
@@ -87,7 +86,6 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 			visibilities.push_back(true);
 		else
 			visibilities.push_back(false);
-		//-- TODO: contours
 		if (!(count % 5))
 		{
 			gui_->UpdateProgressDialog(count);
@@ -102,7 +100,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 	}
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
-	EnterImagesLoadedState();
+	//EnterImagesLoadedState();
 	gui_->DestroyProgressDialog();
 
 }
@@ -276,7 +274,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 	}
 	Cmiss_region_destroy(&root_region);
 	
-	EnterImagesLoadedState();
+	//--EnterImagesLoadedState();
 }
 */
 
@@ -286,7 +284,6 @@ void CAPClient::OpenModel(const std::string& filename)
 	cardiacAnnotationPtr_.reset(0);
 
 	CAPXMLFile xmlFile(filename);
-	dbg("Start reading xml file");
 	xmlFile.ReadFile();
 	
 	CAPXMLFileHandler xmlFileHandler(xmlFile);
@@ -321,7 +318,7 @@ void CAPClient::OpenModel(const std::string& filename)
 
 			// Setting the modelling points should put the CAPClient into the correct state
 			gui_->SetModellingPoints(modellingPoints);
-			dbg("Mode = " + ToString(modeller_->GetCurrentMode()) + ", num dataPoints = " + ToString(modellingPoints.size()));
+			//dbg("Mode = " + ToString(modeller_->GetCurrentMode()) + ", num dataPoints = " + ToString(modellingPoints.size()));
 			// FIXME memory is prematurely released when ok button is pressed from the following window
 			// Suppress this feature for now
 			//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
@@ -375,7 +372,7 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	UpdateMII();
 	
-	EnterModelLoadedState();
+	//EnterModelLoadedState();
 	// Set the gui into modelling mode because version 1.0.0 project files don't list 
 	//modelling points, they are implicit in the heart model transform.
 	gui_->UpdateModeSelectionUI(GUIDEPOINT);

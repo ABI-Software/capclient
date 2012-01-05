@@ -121,7 +121,7 @@ public:
 					InitializeHeartModelTemplate();
 					modeller_->AlignModel();
 					modeller_->UpdateTimeVaryingModel();
-					EnterModelLoadedState();
+					//EnterModelLoadedState();
 				}
 				UpdateMII();
 			}
@@ -406,35 +406,6 @@ private:
 	void Initialize();
 
 	/**
-	 * Enter initial state.
-	 */
-	void EnterInitState() 
-	{
-		gui_->EnterInitState();
-		
-		// Also clean up cmgui objects such as scene, regions, materials ..etc
-		cardiacAnnotationPtr_.reset(0);
-	}
-
-	/**
-	 * Enter images loaded state.
-	 */
-	void EnterImagesLoadedState()
-	{
-		gui_->EnterImagesLoadedState();
-	}
-
-	/**
-	 * Enter model loaded state.
-	 */
-	void EnterModelLoadedState()
-	{
-		gui_->EnterModelLoadedState();
-		
-		gui_->SetModelVisibility(true);
-	}
-
-	/**
 	 * Deletes the modeller.
 	 */
 	void RemoveModeller()
@@ -446,11 +417,6 @@ private:
 			modeller_ = 0;
 		}
 	}
-
-	/**
-	 * Popluate the slice list in the gui.
-	 */
-	void PopulateSliceList();
 
 	/**
 	 * Initializes the mii.  This method only makes sense 

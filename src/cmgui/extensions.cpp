@@ -271,7 +271,6 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	//Got to find the child region first!!
-	dbg("Subregion name = " + regionName);
 	Cmiss_region_id region = 0;
 	if(!(region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str())))
 	{
@@ -284,7 +283,6 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 	Cmiss_field_id coordinates = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
 	Cmiss_field_id xi = Cmiss_field_module_find_field_by_name(field_module, "xi");
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
-	//Cmiss_graphics_material_id sel_material = Cmiss_graphics_module_create_material(graphics_module);
 	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
 	Cmiss_graphic_id surface = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
 
