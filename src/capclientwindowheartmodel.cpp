@@ -518,7 +518,7 @@ double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time
 	Point3D b[numElements][nx];
 	Point3D p[numElements*nx*ny];
 	Point3D temp;
-	double vol_sum = 0;
+	double vol_sum = 0.0;
 	Point3D origin(0,0,0);
 
 	
@@ -535,87 +535,87 @@ double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time
 	}
 
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
-	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-	Cmiss_field_id rc_coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
-	//struct CM_element_information identifier;
-	//identifier.type = CM_ELEMENT;
-	Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
-	Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh);
-	Cmiss_element_id element = Cmiss_element_iterator_next(element_iterator);
-	//do for all elements
-	while (element != 0)
+	if (field_module != 0)
 	{
-		//calculate vertex coordinates for element subdivision
-		for (int i=0;i<nx;i++)
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+		Cmiss_field_id rc_coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
+		Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
+		Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh);
+		Cmiss_element_id element = Cmiss_element_iterator_next(element_iterator);
+		//do for all elements
+		while (element != 0)
 		{
-			for (int j=0;j<ny;j++)
+			//calculate vertex coordinates for element subdivision
+			for (int i=0;i<nx;i++)
 			{
-				//calculate lamda mu and theta at this point
-				//--double values[3], xi[3];
-				double xi[3], values[3];
-				xi[0] = (double) i/(nx-1);
-				xi[1] = (double) j/(ny-1);
-				xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
+				for (int j=0;j<ny;j++)
+				{
+					//calculate lamda mu and theta at this point
+					double xi[3], values[3];
+					xi[0] = (double) i/(nx-1);
+					xi[1] = (double) j/(ny-1);
+					xi[2] = (surface == ENDOCARDIUM) ? 0.0f : 1.0f;
 
-				Cmiss_field_cache_set_mesh_location(field_cache, element, 3, xi);
+					Cmiss_field_cache_set_mesh_location(field_cache, element, 3, xi);
 
-				Cmiss_field_evaluate_real(rc_coordinate_field, field_cache, 3, values);
+					Cmiss_field_evaluate_real(rc_coordinate_field, field_cache, 3, values);
 
-				p[(j*nx+i)] = Point3D(values);
-			} // j
-		} // I
-		
-		//do for all quads
-		//note vertices must be ordered ccw viewed from outside
-		for(int i=0;i<nx-1;i++){
-			for(int j=0;j<ny-1;j++){
-				int n1 = j*(nx) + i ;
-				int n2 = n1 + 1;
-				int n3 = n2 + (nx);
-				double vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
-				vol_sum += vol;
+					p[(j*nx+i)] = Point3D(values);
+				} // j
+			} // I
+			
+			//do for all quads
+			//note vertices must be ordered ccw viewed from outside
+			for(int i=0;i<nx-1;i++){
+				for(int j=0;j<ny-1;j++){
+					int n1 = j*(nx) + i ;
+					int n2 = n1 + 1;
+					int n3 = n2 + (nx);
+					double vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
+					vol_sum += vol;
 
-				n1 = n1;
-				n2 = n3;
-				n3 = n2-1;
-				vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
-				vol_sum += vol;
-			} /* j */
-		} /* i */
-		//store the base ring
-		int ne = Cmiss_element_get_identifier(element);
-		if( ne < 4)
-		{
-			for(int k=0;k<nx;k++)
+					n1 = n1;
+					n2 = n3;
+					n3 = n2-1;
+					vol = ComputeVolumeOfTetrahedron(p[n1],p[n2],p[n3],origin);
+					vol_sum += vol;
+				} /* j */
+			} /* i */
+			//store the base ring
+			int ne = Cmiss_element_get_identifier(element);
+			if( ne < 4)
 			{
-				b[ne][k] = p[(ny-1)*nx + k];
+				for(int k=0;k<nx;k++)
+				{
+					b[ne][k] = p[(ny-1)*nx + k];
+				}
+			}
+			Cmiss_element_destroy(&element);
+			element = Cmiss_element_iterator_next(element_iterator);
+		}
+
+		Cmiss_element_iterator_destroy(&element_iterator);
+		Cmiss_field_cache_destroy(&field_cache);
+		Cmiss_field_destroy(&rc_coordinate_field);
+		Cmiss_field_module_destroy(&field_module);
+		/* now close the top */
+		/* find centroid of the top ring */
+		int num=0;
+		Point3D c(0,0,0);
+		for(int ne=0;ne<4;ne++){
+			for(int i=0;i<nx;i++){
+				c += b[ne][i];
+				num++;
 			}
 		}
-		Cmiss_element_destroy(&element);
-		element = Cmiss_element_iterator_next(element_iterator);
-	}
-
-	Cmiss_element_iterator_destroy(&element_iterator);
-	Cmiss_field_cache_destroy(&field_cache);
-	Cmiss_field_destroy(&rc_coordinate_field);
-	Cmiss_field_module_destroy(&field_module);
-	/* now close the top */
-	/* find centroid of the top ring */
-	int num=0;
-	Point3D c(0,0,0);
-	for(int ne=0;ne<4;ne++){
-		for(int i=0;i<nx;i++){
-			c += b[ne][i];
-			num++;
-		}
-	}
-	c *= (1/(double)num);
-	for(int ne=0;ne<4;ne++){
-		for(int i=0;i<nx-1;i++){
-			int n1 = i ;
-			int n2 = n1+1;
-			double vol = ComputeVolumeOfTetrahedron(b[ne][n1], b[ne][n2], c, origin);
-			vol_sum += vol;
+		c *= (1/(double)num);
+		for(int ne=0;ne<4;ne++){
+			for(int i=0;i<nx-1;i++){
+				int n1 = i ;
+				int n2 = n1+1;
+				double vol = ComputeVolumeOfTetrahedron(b[ne][n1], b[ne][n2], c, origin);
+				vol_sum += vol;
+			}
 		}
 	}
 
@@ -623,6 +623,8 @@ double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time
 		SetStatusTextString("heartvolumeendo", "ED Volume(ENDO) = " + ToString(vol_sum/6000.0) + " ml");
 	else
 		SetStatusTextString("heartvolumeepi", "ED Volume(EPI) = " + ToString(vol_sum/6000.0) + " ml");
+
+
 
 	return (vol_sum/6000.0);
 	// (6*1000), 6 times volume of tetrahedron & for ml
