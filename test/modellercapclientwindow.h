@@ -24,6 +24,7 @@ namespace cap
 		void RemoveHeartSurfaces();
 		void RemoveMIIGraphics();
 		void RemoveSurfaces();
+		void UpdateUI() {}
 		void InitialiseHeartModel();
 		void SetHeartModelFocalLength(double focalLength);
 		void SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane, double time);

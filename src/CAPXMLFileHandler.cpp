@@ -395,7 +395,6 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 				return labelledSlices;
 			}
 		}
-		dbg(image.label);
 		DICOMPtr dicomImage = dicomFileItr->second;
 		if (image.imagePosition)
 		{

@@ -50,6 +50,15 @@ void CAPClientWindow::CreateHeartModel()
 	RemoveHeartModel();
 
 	heartModel_ = new HeartModel(cmissContext_);
+
+	Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
+	heart_epi_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
+	int r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green_surface");
+	heart_endo_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
+	int r2 = Cmiss_graphic_define(heart_endo_surface_, "coordinate patient_rc_coordinates exterior face xi3_1 no_select material red_surface");
+	Cmiss_rendition_destroy(&rendition);
+
+	UpdateUI();
 }
 
 void CAPClientWindow::RemoveHeartModel()

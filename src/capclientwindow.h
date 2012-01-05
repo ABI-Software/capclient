@@ -171,21 +171,6 @@ public:
 	void EndCurrentModellingMode();
 
 	/**
-	 * Set the state of the widgets to the initial state.
-	 */
-	void EnterInitState();
-
-	/**
-	 * Set the state of the widgets to the images loaded state.
-	 */
-	void EnterImagesLoadedState();
-
-	/**
-	 * Set the state of the widgets to the model loaded state.
-	 */
-	void EnterModelLoadedState();
-
-	/**
 	 * Initializes the mii for the given slice.
 	 *
 	 * @param	sliceName	The name of the slice.
@@ -480,6 +465,11 @@ public:
 	void DestroyProgressDialog();
 
 private:
+
+	/**
+	 * Updates the user interface.
+	 */
+	void UpdateUI();
 
 	/**
 	 * Loads the hermite heart elements.  If the exelem file name

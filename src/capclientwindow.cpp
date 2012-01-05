@@ -106,12 +106,12 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	MakeConnections();
 	CreateMaterials();
 	CreateFonts();
-	EnterInitState();
+	UpdateUI();
 }
 
 CAPClientWindow::~CAPClientWindow()
 {
-	dbg(__func__);
+	dbg("CAPClientWindow::~CAPClientWindow()");
 	if (heartModel_)
 		delete heartModel_;
 
@@ -167,122 +167,66 @@ void CAPClientWindow::MakeConnections()
 	//Connect(wxEVT_QUIT, 
 }
 
-void CAPClientWindow::EnterInitState()
+void CAPClientWindow::UpdateUI()
 {
-	// TODO also set the state of the ui to the init state
-	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
-	
-	// Put the gui in the init state
-	slider_Animation->Enable(false);
-	slider_AnimationSpeed->Enable(false);
-	button_Play->Enable(false);
-	button_HideShowAll->Enable(false);
-	button_HideShowOthers->Enable(false);
-	checkBox_MII->Enable(false);
-	checkBox_MII->SetValue(false);
-	checkBox_Visibility->Enable(false);
-	checkBox_Visibility->SetValue(false);
-	choice_ModelDisplayMode->Enable(false);
-	slider_Contrast->Enable(false);
-	slider_Brightness->Enable(false);
-	choice_Mode->Enable(false);
-	button_Accept->Enable(false);
-	button_PlaneShift->Enable(false);
-	button_Model->Enable(false);
-
-	//wxMenu *fileMenu = menuBar_Main->GetMenu(0);
+	// Universal, not dependent on UI state
 	menuItem_OpenModel->Enable(true);
-	menuItem_Save->Enable(false);
-	menuItem_Export->Enable(false);
-	menuItem_ExportToBinaryVolume->Enable(false);
 
-//	objectList_->Clear();
+	// Widgets dependent on image slices
+	bool imageDependent = false;
+	if (textureSliceMap_.size() > 0)
+		imageDependent = true;
 
-//	this->Fit();
-//	this->Centre();
-	// HACK to make the cmgui scene viewer fit the enclosing wxPanel
-	//this->Maximize(true); 
-	//this->Maximize(false);
-}
+	// Widgets dependent on more than one image slice
+	unsigned int numberOfLogicalFrames = mainApp_->GetMinimumNumberOfFrames();
+	bool imageFrameCountDependent = false;
+	if (numberOfLogicalFrames > 1)
+		imageFrameCountDependent = true;
 
-void CAPClientWindow::EnterImagesLoadedState()
-{
-	// TODO also set the state of the ui to the init state
-	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
-	
-	slider_Animation->Enable(true);
-	slider_Animation->SetValue(0);
-	slider_AnimationSpeed->Enable(true);
-	if (mainApp_->GetMinimumNumberOfFrames() > 1)
-		button_Play->Enable(true);
-	button_HideShowAll->Enable(true);
-	button_HideShowOthers->Enable(true);
-	checkBox_MII->Enable(false);
-	checkBox_Visibility->Enable(false);
-	choice_ModelDisplayMode->Enable(false);
-	slider_Brightness->Enable(true);
-	slider_Contrast->Enable(true);
-	choice_Mode->Enable(true);
-	button_Accept->Enable(false);
-	button_PlaneShift->Enable(true);
-	button_Model->Enable(true);
+	// Widget dependent on the heart model
+	bool heartModelDependent = false;
+	if (heartModel_ != 0)
+		heartModelDependent = true;
 
-	menuItem_OpenModel->Enable(true);
-	menuItem_Save->Enable(true);
-	menuItem_Export->Enable(false);
-	menuItem_ExportToBinaryVolume->Enable(false);
+	slider_Animation->Enable(imageDependent && imageFrameCountDependent);
+	slider_AnimationSpeed->Enable(imageDependent && imageFrameCountDependent);
+	button_Play->Enable(imageDependent && imageFrameCountDependent);
+	button_HideShowAll->Enable(imageDependent);
+	button_HideShowOthers->Enable(imageDependent);
+	slider_Contrast->Enable(imageDependent);
+	slider_Brightness->Enable(imageDependent);
+	menuItem_Save->Enable(imageDependent);
+	button_PlaneShift->Enable(imageDependent);
 
-	StopCine();
-	// Initialize timer for animation
-	size_t numberOfLogicalFrames = mainApp_->GetMinimumNumberOfFrames();
-	if (timeNotifier_)
+	if (imageFrameCountDependent)
 	{
-		Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
-		Cmiss_time_notifier_destroy(&timeNotifier_);
+		if (timeNotifier_)
+		{
+			Cmiss_time_keeper_remove_time_notifier(timeKeeper_, timeNotifier_);
+			Cmiss_time_notifier_destroy(&timeNotifier_);
+		}
+		timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
+		Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
+		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MINIMUM_TIME, 0.0);
+		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
+		
+		SetAnimationSliderRange(0, numberOfLogicalFrames-1);
+		slider_Animation->SetValue(0);
 	}
-	timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
-	Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
-	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MINIMUM_TIME, 0.0);
-	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
-	
-	SetAnimationSliderRange(0, numberOfLogicalFrames-1);
-	cmguiPanel_->ViewAll();
-}
 
-void CAPClientWindow::EnterModelLoadedState()
-{
-	// TODO also set the state of the ui to the init state
-	// i.e uncheck mii & wireframe check boxes, init HideShowAll button etc
-	
-	slider_Animation->Enable(true);
-	slider_AnimationSpeed->Enable(true);
-	if (mainApp_->GetMinimumNumberOfFrames() > 1)
-		button_Play->Enable(true);
-	button_HideShowAll->Enable(true);
-	button_HideShowOthers->Enable(true);
-	checkBox_MII->Enable(true);
-	checkBox_MII->SetValue(false);
-	checkBox_Visibility->Enable(true);
-	checkBox_Visibility->SetValue(true);
-	choice_ModelDisplayMode->Enable(true);
-	slider_Brightness->Enable(true);
-	slider_Contrast->Enable(true);
-	choice_Mode->Enable(true);
+	// Widgets dependent on the heart model
+	checkBox_MII->Enable(heartModelDependent);
+	//checkBox_MII->SetValue(heartModelDependent);
+	checkBox_Visibility->Enable(heartModelDependent);
+	checkBox_Visibility->SetValue(heartModelDependent);
+	choice_ModelDisplayMode->Enable(heartModelDependent);
+	button_Model->Enable(heartModelDependent);
+	menuItem_Export->Enable(heartModelDependent);
+	menuItem_ExportToBinaryVolume->Enable(heartModelDependent);
+	choice_Mode->Enable(heartModelDependent);
 	button_Accept->Enable(false);
-	button_PlaneShift->Enable(true);
-	button_Model->Enable(true);
 
-	menuItem_OpenModel->Enable(true);
-	menuItem_Save->Enable(true);
-	menuItem_Export->Enable(true);
-	menuItem_ExportToBinaryVolume->Enable(true);
-
-	//Cmiss_context_execute_command(cmissContext_, "gfx modify g_element heart general clear;");
-
-	SetMIIVisibility(checkBox_MII->GetValue());
-	wxCommandEvent event;
-	OnModelDisplayModeChanged(event);
-	//GetWidgetByName<wxCheckBox>("Wireframe")->SetValue(true);
+	cmguiPanel_->ViewAll();
 }
 
 void CAPClientWindow::OnIdle(wxIdleEvent& event)
@@ -565,6 +509,11 @@ void CAPClientWindow::RemoveStatusTextStrings()
 		Cmiss_graphic_destroy(&(it->second.second));
 		statusTextStringsFieldMap_.erase(it++);
 	}
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, "statustext");
+	Cmiss_region_remove_child(root_region, child_region);
+	Cmiss_region_destroy(&child_region);
+	Cmiss_region_destroy(&root_region);
 }
 
 void CAPClientWindow::RemoveTextureSlices()
@@ -649,7 +598,6 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 	size_t index = 0;
 	BOOST_FOREACH(std::string const& sliceName, sliceNames)
 	{
-		dbg("Slice name = " + sliceName);
 		checkListBox_Slice->Append(wxString(sliceName.c_str(), wxConvUTF8));
 		bool visible = visibilities.at(index);
 		checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1), visible);
@@ -658,6 +606,7 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 	}
 
 	checkListBox_Slice->SetSelection(wxNOT_FOUND);
+	UpdateUI();
 }
 
 void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
@@ -855,21 +804,6 @@ void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 
 void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 {
-	if (!heart_epi_surface_)
-	{
-		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
-		heart_epi_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-		Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green_surface");
-		Cmiss_rendition_destroy(&rendition);
-	}
-	if (!heart_endo_surface_)
-	{
-		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext_, "heart");
-		heart_endo_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-		Cmiss_graphic_define(heart_endo_surface_, "coordinate patient_rc_coordinates exterior face xi3_1 no_select material red_surface");
-		Cmiss_rendition_destroy(&rendition);
-	}
-
 	if (choice_ModelDisplayMode->GetSelection() == HeartModel::WIREFRAME)
 	{
 		//r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_wireframe");
