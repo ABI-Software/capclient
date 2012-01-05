@@ -15,12 +15,10 @@ TextureSlice::TextureSlice(Material *material, std::vector<Cmiss_field_image_id>
 	: material_(material)
 	, fieldImages_(fieldImages)
 {
-	dbg("TextureSlice::TextureSlice()");
 }
 
 TextureSlice::~TextureSlice()
 {
-	dbg("TextureSlice::~TextureSlice()");
 	std::vector<Cmiss_field_image_id>::iterator it = fieldImages_.begin();
 	for (; it != fieldImages_.end(); it++)
 		Cmiss_field_image_destroy(&(*it));
