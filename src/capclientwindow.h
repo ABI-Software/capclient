@@ -250,12 +250,6 @@ public:
 	void RemoveHeartModel();
 
 	/**
-	 * Initialises the heart model.  If there are no images set then the heart model will not be
-	 * enabled.
-	 */
-	void InitialiseHeartModel();
-
-	/**
 	 * Query if this objects heart model is initialised .
 	 *
 	 * @return	true if heart model is initialised, false if not.
