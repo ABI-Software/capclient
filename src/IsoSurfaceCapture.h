@@ -119,7 +119,7 @@ public:
 		Point3D pointTLCTransformed = mInv * plane.tlc;
 		double d = DotProduct((pointTLCTransformed - Point3D(0,0,0)), normalTransformed);
 		
-		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[%f %f %f]\";",
+		sprintf((char*)str, "gfx define field /heart/slice_%s coordinate_system rectangular_cartesian dot_product fields coordinates_patient_rc \"[%f %f %f]\";",
 					fieldName.c_str(),
 					normalTransformed.x, normalTransformed.y, normalTransformed.z);
 		std::cout << str << std::endl;

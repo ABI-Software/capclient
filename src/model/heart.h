@@ -39,9 +39,8 @@ class HeartModel
 {
 	
 public:
-
 	/**
-	 * Values that represent RenderMode. 
+	 * Values that represent the types of RenderMode for the heart model.
 	 */
 	enum RenderMode
 	{
@@ -62,61 +61,44 @@ public:
 	~HeartModel();
 
 	/**
-	 * Defines an alias representing options for controlling the operation.
+	 * Initialises the heart model.  This must be called after the heart model has been loaded
+	 * either from the template or a project file.  The name passed to this function determines the
+	 * region where all the downstream fields are created.
+	 *
+	 * @param	name	The name of the model.
 	 */
-	typedef std::vector<double> parameters;
+	void Initialise(const std::string& name);
 
 	/**
-	 * Reads a model from files.
+	 * Sets the render mode for the heart model surfaces.  The mode are defined by RenderMode.
 	 *
-	 * @param	modelDirectory 	Pathname of the model directory.
-	 * @param	directoryPrefix	The directory prefix.
-	 *
-	 * @return	The model from files.
+	 * @param	mode	The mode.
 	 */
-	int ReadModelFromFiles(const std::string& modelDirectory, const std::string& directoryPrefix);
+	void SetRenderMode(RenderMode mode);
 
 	/**
-	 * Reads a model from files.
+	 * Sets a visibility.
 	 *
-	 * @param	dir_path	  	Pathname of the directory.
-	 * @param	modelFilenames	The model filenames.
-	 *
-	 * @return	The model from files.
+	 * @param	visible	true to show, false to hide.
 	 */
-	int ReadModelFromFiles(const std::string& dir_path, const std::vector<std::string>& modelFilenames);
+	void SetVisibility(bool visible);
 
 	/**
-	 * Writes to file.
+	 * Returns the lambda parameters from the model at the given time.
 	 *
-	 * @param	path	Full pathname of the file.
-	 */
-	void WriteToFile(const std::string& path);
-
-	/**
-	 * Gets a lambda.
-	 *
-	 * @param	frame	The frame.
+	 * @param	time	The time.
 	 *
 	 * @return	The lambda.
 	 */
-	const std::vector<double> GetLambda(int frame) const;
+	const std::vector<double> GetLambdaAtTime(double time) const;
 
 	/**
-	 * Sets a lambda.
+	 * Sets the lambda parameters for the given time.
 	 *
 	 * @param	lambdaParams	Options for controlling the lambda.
 	 * @param	time			(optional) the time.
 	 */
-	void SetLambda(const std::vector<double>& lambdaParams, double time = 0);
-
-	/**
-	 * Sets a lambda for frame.
-	 *
-	 * @param	lambdaParams	Options for controlling the lambda.
-	 * @param	frameNumber 	The frame number.
-	 */
-	void SetLambdaForFrame(const std::vector<double>& lambdaParams, int frameNumber);
+	void SetLambdaAtTime(const std::vector<double>& lambdaParams, double time = 0.0);
 
 	/**
 	 * Sets a mu from base plane for frame.
@@ -125,20 +107,8 @@ public:
 	 * @param	frameNumber	The frame number.
 	 */
 	//void SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber);
-	void SetMuFromBasePlaneForFrame(const Plane& basePlane, double time);
-
-	/**
-	 * Sets a theta.
-	 *
-	 * @param	frameNumber	The frame number.
-	 */
-	void SetTheta(int frameNumber);
+	void SetMuFromBasePlaneAtTime(const Plane& basePlane, double time);
 	
-//	const std::vector<double>& GetParameters() const;
-
-//	double CalculateVolume();
-//	double CalculateMass();
-
 	/**
 	 * Sets a local to global transformation.  The transformation
 	 * matrix defines a 4x4 rectangular cartesian coordinate 
@@ -164,12 +134,15 @@ public:
 		return patientToGlobalTransform_;
 	}
 	
-	/** Projects a point to the model and computes the xi coords and the element id
-	 *  @param dataPoint the coordinate of the point
-	 *  @param xi the computed xi coord. (output)
-	 *  return value : id of the element that the point is projected onto
+	/**   
+	 * Projects a point to the model and computes the xi coords and the element id
+	 * @param	position	the coordinate of the point
+	 * @param	time	The time of the model to use
+	 * @param xi the computed xi coord. (output)
+	 * 
+	 * @return Id of the element that the point is projected onto
 	 */ 
-	int ComputeXi(const Point3D& dataPoint, Point3D& xi, double time) const;
+	int ComputeXi(const Point3D& position, double time, Point3D& xi) const;
 
 	/**
 	 * Transform to prolate sheroidal.
@@ -181,7 +154,7 @@ public:
 	Point3D TransformToProlateSpheroidal(const Point3D& rc) const;
 
 	/**
-	 * Transform to local coordinate rectanglar cartesian.
+	 * Transform to patient rectanglar cartesian coordinate system.
 	 *
 	 * @param	global	The global.
 	 *
@@ -214,27 +187,6 @@ public:
 	 * @param	focalLength	Length of the focal.
 	 */
 	void SetFocalLength(double focalLength);
-	
-	// Member functions related to rendering
-
-	/**
-	 * Map to model frame time.  Maps the argument time to the closest frame in time and returns the
-	 * frame time.
-	 *
-	 * @param	time	The time.
-	 *
-	 * @return	Nearest frame time.
-	 */
-	double MapToModelFrameTime(double time) const;
-
-	/**
-	 * Map to model frame number.
-	 *
-	 * @param	time	The time.
-	 *
-	 * @return	.
-	 */
-	int MapToModelFrameNumber(double time) const;
 
 	/**
 	 * Gets the number of model frames.
@@ -266,44 +218,9 @@ public:
 	 */
 	double ComputeVolume(HeartSurfaceEnum surface, double time) const;
 
-	/**
-	 * Gets the exnode file names.
-	 *
-	 * @return	The exnode file names.
-	 */
-	const std::vector<std::string>& GetExnodeFileNames() const
-	{
-		return exnodeModelFileNames_;
-	}
-
-	/**
-	 * Gets the exelem file name.
-	 *
-	 * @return	The exelem file name.
-	 */
-	const std::string& GetExelemFileName() const
-	{
-		static std::string const exelemFileName("GlobalHermiteParam.exelem");
-		return exelemFileName;
-	}
-
 private:
 	
 	static const int NUMBER_OF_NODES = 40;  /**< Number of nodes */
-
-	/**
-	 * Reads model information from file.
-	 *
-	 * @param	modelInfoFilePath	Full pathname of the model information file.
-	 */
-	void ReadModelInfo(const std::string& modelInfoFilePath);
-
-	/**
-	 * Writes model information to file.
-	 *
-	 * @param	modelInfoFilePath	Full pathname of the model information file.
-	 */
-	void WriteModelInfo(const std::string& modelInfoFilePath);
 	
 	gtMatrix patientToGlobalTransform_; /**< The patient to global transform */
 	std::string modelName_; /**< Name of the model */

@@ -116,7 +116,6 @@ CAPClientWindow::~CAPClientWindow()
 		delete heartModel_;
 
 	RemoveTextureSlices();
-	RemoveHeartSurfaces();
 	RemoveStatusTextStrings();
 	RemoveMIIGraphics();
 
@@ -195,6 +194,7 @@ void CAPClientWindow::UpdateUI()
 	slider_Brightness->Enable(imageDependent);
 	menuItem_Save->Enable(imageDependent);
 	button_PlaneShift->Enable(imageDependent);
+	button_Model->Enable(imageDependent);
 
 	if (imageFrameCountDependent)
 	{
@@ -218,7 +218,6 @@ void CAPClientWindow::UpdateUI()
 	checkBox_Visibility->Enable(heartModelDependent);
 	checkBox_Visibility->SetValue(heartModelDependent);
 	choice_ModelDisplayMode->Enable(heartModelDependent);
-	button_Model->Enable(heartModelDependent);
 	menuItem_Export->Enable(heartModelDependent);
 	menuItem_ExportToBinaryVolume->Enable(heartModelDependent);
 	choice_Mode->Enable(heartModelDependent);
@@ -339,13 +338,13 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 	Cmiss_graphic_set_visibility_flag(currentmode_graphic, 0);
 	statusTextStringsFieldMap_["currentmode"] = std::make_pair(currentmode_field, currentmode_graphic);
 
-	Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'ED Volume(EPI) = --'");
+	Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'ED Volume(EPI) = -- ml'");
 	Cmiss_graphic_id heartvolumeepi_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
 	Cmiss_graphic_define(heartvolumeepi_graphic, "glyph none general label heartvolumeepi centre 0.95,-0.9,0.0 no_select normalised_window_fit_left font default material default;");
 	Cmiss_graphic_set_visibility_flag(heartvolumeepi_graphic, 0);
 	statusTextStringsFieldMap_["heartvolumeepi"] = std::make_pair(heartvolumeepi_field, heartvolumeepi_graphic);
 
-	Cmiss_field_id heartvolumeendo_field = Cmiss_field_module_create_field(field_module, "heartvolumeendo", "string_constant 'ED Volume(ENDO) = --'");
+	Cmiss_field_id heartvolumeendo_field = Cmiss_field_module_create_field(field_module, "heartvolumeendo", "string_constant 'ED Volume(ENDO) = -- ml'");
 	Cmiss_graphic_id heartvolumeendo_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
 	Cmiss_graphic_define(heartvolumeendo_graphic, "glyph none label heartvolumeendo centre 0.95,-0.85,0.0 no_select normalised_window_fit_left font default material default;");
 	Cmiss_graphic_set_visibility_flag(heartvolumeendo_graphic, 0);
@@ -802,25 +801,14 @@ void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 
 void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 {
+	// Convert the int from the display mode selection into an enum.
 	if (choice_ModelDisplayMode->GetSelection() == HeartModel::WIREFRAME)
 	{
-		//r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_wireframe");
-		//r2 = Cmiss_graphic_define(heart_endo_surface_, "render_wireframe");
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green_surface render_wireframe;");
-		
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red_surface render_wireframe;");
+		heartModel_->SetRenderMode(HeartModel::WIREFRAME);
 	}
 	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
 	{
-		//r1 = Cmiss_graphic_define(heart_epi_surface_, "coordinate patient_rc_coordinates exterior face xi3_0 no_select material green render_shaded");
-		//r2 = Cmiss_graphic_define(heart_endo_surface_, "render_shaded");
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_0 no_select material green_surface render_shaded;");
-		
-		Cmiss_context_execute_command(cmissContext_,
-			"gfx mod g_el heart surfaces coordinate patient_rc_coordinates exterior face xi3_1 no_select material red_surface render_shaded;");
+		heartModel_->SetRenderMode(HeartModel::SHADED);
 	}
 }
 
@@ -1293,10 +1281,10 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 
 	// Create slice_* name field which is the dot product of the patient_rc_coordinates and the image plane.
 	std::string field_name = "slice_" + sliceName;
-	Cmiss_field_id slice_field = Cmiss_field_module_create_field(field_module, field_name.c_str(), "coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[1 1 1]\";");
+	Cmiss_field_id slice_field = Cmiss_field_module_create_field(field_module, field_name.c_str(), "coordinate_system rectangular_cartesian dot_product fields coordinates_patient_rc \"[1 1 1]\";");
 
 	// Create iso surface of the slice_* and iso value
-	Cmiss_field_id patient_rc_coordinates = Cmiss_field_module_find_field_by_name(field_module, "patient_rc_coordinates");
+	Cmiss_field_id patient_rc_coordinates = Cmiss_field_module_find_field_by_name(field_module, "coordinates_patient_rc");
 	Cmiss_graphic_id iso_epi = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_ISO_SURFACES);
 	int r1 = Cmiss_graphic_set_coordinate_field(iso_epi, patient_rc_coordinates);
 	std::string command_epi = "exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select line_width 2 material red;";
@@ -1331,15 +1319,15 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	}
 	std::string field_name = "slice_" + sliceName;
 	std::stringstream field_command;
-	field_command << "coordinate_system rectangular_cartesian dot_product fields patient_rc_coordinates \"[";
+	field_command << "coordinate_system rectangular_cartesian dot_product fields coordinates_patient_rc \"[";
 	field_command << plane.x << " " << plane.y << " " << plane.z << "]\";";
 	int r1 = Cmiss_field_module_define_field(field_module, field_name.c_str(), field_command.str().c_str());
 
 	std::stringstream graphic_command_epi;
-	graphic_command_epi << "coordinate patient_rc_coordinates exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material red;";
+	graphic_command_epi << "coordinate coordinates_patient_rc exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material red;";
 	int r2 = Cmiss_graphic_define(iso_epi, graphic_command_epi.str().c_str());
 	std::stringstream graphic_command_endo;
-	graphic_command_endo << "coordinate patient_rc_coordinates exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material green;";
+	graphic_command_endo << "coordinate coordinates_patient_rc exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material green;";
 	int r3 = Cmiss_graphic_define(iso_endo, graphic_command_endo.str().c_str());
 
 	SetMIIVisibility(sliceName, IsMIIVisible(sliceName));
@@ -1362,8 +1350,8 @@ bool CAPClientWindow::IsMIIVisible(const std::string& sliceName)
 
 void CAPClientWindow::SetModelVisibility(bool visible)
 {
-	Cmiss_graphic_set_visibility_flag(heart_epi_surface_, visible ? 1 : 0);
-	Cmiss_graphic_set_visibility_flag(heart_endo_surface_, visible ? 1 : 0);
+	if (heartModel_ != 0)
+		heartModel_->SetVisibility(visible);
 }
 
 void CAPClientWindow::SetMIIVisibility(bool visible)

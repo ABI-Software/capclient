@@ -77,6 +77,8 @@ SET(Heart_SRC
 	unittestheart.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
+	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	)
 
 LIST(APPEND UNIT_TESTS Xml)
@@ -205,6 +207,12 @@ IF(MSVC)
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		)
 		
+	SET(Heart_SRC
+		${Heart_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+		)
+	
 	SET(FileSystem_SRC
 		${FileSystem_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c

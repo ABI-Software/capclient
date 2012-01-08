@@ -65,6 +65,7 @@ ModellingPoint::~ModellingPoint(void)
 ModellingPoint::ModellingPoint(const ModellingPoint& other)
 {
 	this->modellingPointType_ = other.modellingPointType_;
+	this->heartSurfaceType_ = other.heartSurfaceType_;
 	this->region_ = 0;
 	if (other.region_ != 0)
 		this->region_ = Cmiss_region_access(other.region_);
@@ -79,6 +80,7 @@ ModellingPoint & ModellingPoint::operator =(const cap::ModellingPoint &rhs)
 	if (this != &rhs)
 	{
 		this->modellingPointType_ = rhs.modellingPointType_;
+		this->heartSurfaceType_ = rhs.heartSurfaceType_;
 		this->region_ = Cmiss_region_access(rhs.region_);
 		this->node_id_ = rhs.node_id_;
 		this->position_ = rhs.position_;
