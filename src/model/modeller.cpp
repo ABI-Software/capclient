@@ -416,7 +416,6 @@ void Modeller::SmoothAlongTime()
 	//--ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
-		dbg("Not updated to the current situation do so ...");
 		// For each global parameter in the per frame model
 		clock_t before = clock();
 			

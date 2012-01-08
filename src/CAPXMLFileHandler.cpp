@@ -180,7 +180,7 @@ void CAPXMLFileHandler::ConstructCAPXMLFile(const LabelledSlices& labelledSlices
 	
 	// Output
 	CAPXMLFile::Output& output = xmlFile_.GetOutput();
-	output.elemFileName = heartModel.GetExelemFileName();
+	//--output.elemFileName = heartModel.GetExelemFileName();
 	output.focalLength = heartModel.GetFocalLength();
 	output.interval = 1.0/heartModel.GetNumberOfModelFrames();// 1.0 = 1 cardiac cycle (normalised) - FIX
 	gtMatrix const& gtTrans = heartModel.GetLocalToGlobalTransformation();
@@ -192,7 +192,8 @@ void CAPXMLFileHandler::ConstructCAPXMLFile(const LabelledSlices& labelledSlices
 			gtTrans[3][0] << " " << gtTrans[3][1] << " " << gtTrans[3][2] << " " << gtTrans[3][3];
 	output.transformationMatrix = transformMatrixStream.str();
 
-	std::vector<std::string> const& modelFiles = heartModel.GetExnodeFileNames();
+	//--std::vector<std::string> const& modelFiles = heartModel.GetExnodeFileNames();
+	std::vector<std::string> modelFiles;
 	// assume the model files are sorted by the frame number
 	for (size_t i = 0; i < modelFiles.size(); i++)
 	{
@@ -203,6 +204,7 @@ void CAPXMLFileHandler::ConstructCAPXMLFile(const LabelledSlices& labelledSlices
 		xmlFile_.AddExnode(exnode);
 	}
 }
+
 void CAPXMLFileHandler::Clear()
 {
 	xmlFile_.ClearInputAndOutput();

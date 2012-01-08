@@ -202,7 +202,7 @@ public:
 	void SetMIIVisibility(const std::string& name, bool visible);
 
 	/**
-	 * Sets a model visibility.
+	 * Sets the heart model visibility.
 	 *
 	 * @param	visible	true to visibility.
 	 */
@@ -262,7 +262,7 @@ public:
 	/**
 	 * Sets the heart transform.  This function applies a transformation
 	 * from a prolate spheriodal coordinate field named 'coordinates' to
-	 * a rectangular cartesian field named 'patient_rc_coordinates' that has 
+	 * a rectangular cartesian field named 'coordinates_patient_rc' that has 
 	 * been transformed using the given transformation matrix.
 	 * 
 	 * It is expected that the prolate spheriodal field 'coordinates'
@@ -574,12 +574,6 @@ private:
 	 * Removes the status text strings.
 	 */
 	void RemoveStatusTextStrings();
-
-	/**
-	 * Removes the heart surfaces.
-	 */
-	void RemoveHeartSurfaces();
-
 
 	/**
 	 * Creates a modelling point.  This function creates a modelling point in the current context
