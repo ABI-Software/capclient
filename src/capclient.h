@@ -83,9 +83,9 @@ public:
 	~CAPClient()
 	{
 		dbg("CAPClient::~CAPClient()");
+		delete modeller_;
 		gui_->Destroy();
 		delete gui_;
-		delete modeller_;
 	}
 	
 	/**
@@ -106,9 +106,12 @@ public:
 
 	/**
 	 * Process the data points entered for current mode.
+	 *
+	 * @return	true if it succeeds, false if it fails.
 	 */
-	void ProcessDataPointsEnteredForCurrentMode()
+	bool ProcessDataPointsEnteredForCurrentMode()
 	{
+		bool success = false;
 		if (modeller_->OnAccept())
 		{
 			ModellingEnum mode = modeller_->GetCurrentMode();
@@ -126,7 +129,10 @@ public:
 				}
 				UpdateMII();
 			}
+			success = true;
 		}
+
+		return success;
 	}
 
 	/**
@@ -380,23 +386,7 @@ public:
 	{
 		RemoveModeller();
 		gui_->RemoveHeartModel();
-	}
-
-	/**
-	 * Checks to make sure the modeller is ready to start modelling.
-	 *
-	 * @param	restart	(optional) If true delete the current modeller, false by defualt.
-	 */
-	void StartModelling(bool restart = false)
-	{
-		if (restart)
-			RemoveModeller();
-
-		if (!modeller_)
-		{
-			modeller_ = new Modeller(this); // initialise modeller and all the data points
-			gui_->UpdateModeSelectionUI(APEX);
-		}
+		modeller_ = new Modeller(this); // initialise modeller and all the data points
 	}
 
 private:
