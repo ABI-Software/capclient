@@ -928,7 +928,7 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 			guidePoints.push_back(mp);
 			break;
 		default:
-			dbg("Unknown modelling point type, not setting.");
+			LOG_MSG(LOGERROR) << "Undefined modelling point type, not setting.";
 		}
 	}
 
@@ -1285,8 +1285,11 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 
 void CAPClientWindow::OnAccept()
 {
-	wxCommandEvent cmd_event;
-	OnAcceptClicked(cmd_event);
+	if (button_Accept->IsEnabled())
+	{
+		wxCommandEvent cmd_event;
+		OnAcceptClicked(cmd_event);
+	}
 }
 
 void CAPClientWindow::InitializeMII(const std::string& sliceName)
