@@ -801,7 +801,7 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 
 void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 {
-	bool accepted = mainApp_->ProcessDataPointsEnteredForCurrentMode();
+	bool accepted = mainApp_->ProcessModellingPointsEnteredForCurrentMode();
 	if (!accepted)
 	{
 		int selectionIndex = choice_Mode->GetSelection();
@@ -939,7 +939,7 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 		ModellingPoint mp = *cit;
 		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
 	}
-	if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
+	if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 	{
 
 		cit = base.begin();
@@ -948,7 +948,7 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 			ModellingPoint mp = *cit;
 			CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
 		}
-		if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
+		if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 		{
 
 			cit = rvInserts.begin();
@@ -957,7 +957,7 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 				ModellingPoint mp = *cit;
 				CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
 			}
-			if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
+			if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 			{
 
 				cit = basePlanePoints.begin();
@@ -966,7 +966,7 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 					ModellingPoint mp = *cit;
 					CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
 				}
-				if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
+				if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 				{
 
 					cit = guidePoints.begin();

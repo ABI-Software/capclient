@@ -203,7 +203,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							
 							assert(modeller_);
 							//--modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
-							ProcessDataPointsEnteredForCurrentMode();
+							ProcessModellingPointsEnteredForCurrentMode();
 							Cmiss_region_destroy(&region);
 							apexDefined = true;
 						}
@@ -263,7 +263,7 @@ void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices,
 							
 							assert(modeller_);
 							//--modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
-							ProcessDataPointsEnteredForCurrentMode();
+							ProcessModellingPointsEnteredForCurrentMode();
 							Cmiss_region_destroy(&region);
 							baseDefined = true;
 						}
