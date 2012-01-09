@@ -137,10 +137,9 @@ void CAPClientWindow::MakeConnections()
 	Connect(XRCID("menuItem_Save"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
 	Connect(XRCID("menuItem_Export"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
 	Connect(XRCID("menuItem_ExportToBinaryVolume"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
-	Connect(XRCID("menuItem_viewAll"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewAll));
-	Connect(XRCID("menuItem_currentMode"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
-	Connect(XRCID("menuItem_heartVolumeEPI"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
-	Connect(XRCID("menuItem_heartVolumeENDO"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
+	Connect(XRCID("menuItem_viewAll_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewAll));
+	Connect(XRCID("menuItem_modellingMode_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
+	Connect(XRCID("menuItem_heartVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_logWindow_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewLog));
 
 	// Widgets (buttons, sliders ...)
@@ -332,11 +331,11 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(statustext_region);
 
 	Cmiss_field_module_begin_change(field_module);
-	Cmiss_field_id currentmode_field = Cmiss_field_module_create_field(field_module, "currentmode", "string_constant 'no mode'");
+	Cmiss_field_id currentmode_field = Cmiss_field_module_create_field(field_module, "modellingmode", "string_constant 'no mode'");
 	Cmiss_graphic_id currentmode_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
-	Cmiss_graphic_define(currentmode_graphic, "normalised_window_fit_left glyph none general label currentmode centre 0.95,0.9,0.0 font default material default;");
+	Cmiss_graphic_define(currentmode_graphic, "normalised_window_fit_left glyph none general label modellingmode centre 0.95,0.95,0.0 font default material default;");
 	Cmiss_graphic_set_visibility_flag(currentmode_graphic, 0);
-	statusTextStringsFieldMap_["currentmode"] = std::make_pair(currentmode_field, currentmode_graphic);
+	statusTextStringsFieldMap_["modellingmode"] = std::make_pair(currentmode_field, currentmode_graphic);
 
 	Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'ED Volume(EPI) = -- ml'");
 	Cmiss_graphic_id heartvolumeepi_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
@@ -819,16 +818,13 @@ void CAPClientWindow::OnViewAll(wxCommandEvent& event)
 
 void CAPClientWindow::OnViewStatusText(wxCommandEvent& event)
 {
-	if (XRCID("menuItem_currentMode") == event.GetId())
+	if (XRCID("menuItem_modellingMode_") == event.GetId())
 	{
-		SetStatusTextVisibility("currentmode", event.IsChecked());
+		SetStatusTextVisibility("modellingmode", event.IsChecked());
 	}
-	else if (XRCID("menuItem_heartVolumeEPI") == event.GetId())
+	else if (XRCID("menuItem_heartVolume_") == event.GetId())
 	{
 		SetStatusTextVisibility("heartvolumeepi", event.IsChecked());
-	}
-	else if (XRCID("menuItem_heartVolumeENDO") == event.GetId())
-	{
 		SetStatusTextVisibility("heartvolumeendo", event.IsChecked());
 	}
 }
@@ -1143,7 +1139,7 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 
 		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
 		cmguiPanel_->SetCallback(input_callback_image_shifting, static_cast<void *>(this));
-		SetStatusTextString("currentmode", "Plane shifting mode");
+		SetStatusTextString("modellingmode", "Plane shifting mode");
 	}
 	else
 	{
@@ -1166,7 +1162,7 @@ void CAPClientWindow::OnToggleModelling(wxCommandEvent& event)
 		// will never fire properly
 		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
 		cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this));
-		SetStatusTextString("currentmode", "Modelling mode");
+		SetStatusTextString("modellingmode", "Modelling mode");
 	}
 	else
 	{
@@ -1183,7 +1179,7 @@ void CAPClientWindow::EndCurrentModellingMode()
 		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
 		cmguiPanel_->RemoveCallback(input_callback_modelling, static_cast<void *>(this));
 		cmguiPanel_->RemoveCallback(input_callback_modelling_setup, static_cast<void *>(this));
-		SetStatusTextString("currentmode", "Transform mode");
+		SetStatusTextString("modellingmode", "Transform mode");
 		button_PlaneShift->Enable(true);
 	}
 	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
@@ -1192,7 +1188,7 @@ void CAPClientWindow::EndCurrentModellingMode()
 		cmguiPanel_->SetInteractiveTool("transform_tool");
 		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
 		cmguiPanel_->RemoveCallback(input_callback_image_shifting, static_cast<void *>(this));
-		SetStatusTextString("currentmode", "Transform mode");
+		SetStatusTextString("modellingmode", "Transform mode");
 		button_Model->Enable(true);
 		choice_Mode->Enable(true);
 		button_Accept->Enable(false);

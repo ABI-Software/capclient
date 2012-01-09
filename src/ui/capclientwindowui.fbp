@@ -257,8 +257,8 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">View &amp;All</property>
-                        <property name="name">menuItem_viewAll</property>
+                        <property name="label">&amp;All</property>
+                        <property name="name">menuItem_viewAll_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -272,8 +272,8 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_CHECK</property>
-                        <property name="label">Current Mode</property>
-                        <property name="name">menuItem_currentMode</property>
+                        <property name="label">Modelling Mode</property>
+                        <property name="name">menuItem_modellingMode_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -287,23 +287,8 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_CHECK</property>
-                        <property name="label">Heart Volume EPI</property>
-                        <property name="name">menuItem_heartVolumeEPI</property>
-                        <property name="permission">none</property>
-                        <property name="shortcut"></property>
-                        <property name="unchecked_bitmap"></property>
-                        <event name="OnMenuSelection"></event>
-                        <event name="OnUpdateUI"></event>
-                    </object>
-                    <object class="wxMenuItem" expanded="1">
-                        <property name="bitmap"></property>
-                        <property name="checked">0</property>
-                        <property name="enabled">1</property>
-                        <property name="help"></property>
-                        <property name="id">wxID_ANY</property>
-                        <property name="kind">wxITEM_CHECK</property>
-                        <property name="label">Heart Volume ENDO</property>
-                        <property name="name">menuItem_heartVolumeENDO</property>
+                        <property name="label">Heart Volume</property>
+                        <property name="name">menuItem_heartVolume_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -321,7 +306,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">View Log</property>
+                        <property name="label">Log</property>
                         <property name="name">menuItem_logWindow_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
@@ -1052,7 +1037,7 @@
                                     <object class="notebookpage" expanded="1">
                                         <property name="bitmap"></property>
                                         <property name="label">Viewer</property>
-                                        <property name="select">1</property>
+                                        <property name="select">0</property>
                                         <object class="wxPanel" expanded="1">
                                             <property name="bg"></property>
                                             <property name="context_help"></property>
@@ -1565,7 +1550,7 @@
                                     <object class="notebookpage" expanded="1">
                                         <property name="bitmap"></property>
                                         <property name="label">Modeller</property>
-                                        <property name="select">0</property>
+                                        <property name="select">1</property>
                                         <object class="wxPanel" expanded="1">
                                             <property name="bg"></property>
                                             <property name="context_help"></property>
