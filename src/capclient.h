@@ -105,11 +105,11 @@ public:
 	int GetNumberOfHeartModelFrames() const;
 
 	/**
-	 * Process the data points entered for current mode.
+	 * Process the modelling points entered for the current mode.
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	bool ProcessDataPointsEnteredForCurrentMode()
+	bool ProcessModellingPointsEnteredForCurrentMode()
 	{
 		bool success = false;
 		if (modeller_->OnAccept())
