@@ -304,7 +304,8 @@ void CAPClient::OpenModel(const std::string& filename)
 	LoadLabelledImages(labelledSlices);
 	//TODO: Load cardiac annotations
 	// LoadCardiacAnnotations(cardiacAnnotations);
-	
+	ResetModel();
+
 	ModellingPoints modellingPoints = xmlFileHandler.GetModellingPoints();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	dbg("number of exnodeFilenames = " + ToString(exnodeFileNames.size()));
@@ -313,29 +314,9 @@ void CAPClient::OpenModel(const std::string& filename)
 		if(!modellingPoints.empty())
 		{
 			// This means no output element is defined
-			//--InitializeHeartModelTemplate();
-			StartModelling(true);
-
 			// Setting the modelling points should put the CAPClient into the correct state
 			gui_->SetModellingPoints(modellingPoints);
-			//dbg("Mode = " + ToString(modeller_->GetCurrentMode()) + ", num dataPoints = " + ToString(modellingPoints.size()));
-			// FIXME memory is prematurely released when ok button is pressed from the following window
-			// Suppress this feature for now
-			//			ImageBrowserWindow *frame = new ImageBrowserWindow(slicesWithImages, cmguiManager_, *this);
-			//			frame->Show(true);
-			
-			//HACK : uncommenting the following will enable models to be constructed from model files with
-			// only the input element defined.
-			
-			//--ModellingEnum mode = modeller_->GetCurrentMode();
-			//--gui_->UpdateModeSelectionUI(mode);
-			//--dbg( "Mode = " + ToString(mode));
-			//--if (mode == GUIDEPOINT)
-			//--{
-			//--	EnterModelLoadedState();
-			//--}
 		}
-		
 		return;
 	}
 	
@@ -364,8 +345,6 @@ void CAPClient::OpenModel(const std::string& filename)
 	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
 	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->SetHeartModelTransformation(m);
-
-	StartModelling(true);
 	gui_->SetModellingPoints(modellingPoints);
 
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
@@ -375,7 +354,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	//EnterModelLoadedState();
 	// Set the gui into modelling mode because version 1.0.0 project files don't list 
 	//modelling points, they are implicit in the heart model transform.
-	gui_->UpdateModeSelectionUI(GUIDEPOINT);
+	ChangeModellingMode(GUIDEPOINT);
 }
 
 void CAPClient::OpenAnnotation(const std::string& filename, const std::string& imageDirname)

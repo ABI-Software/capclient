@@ -106,6 +106,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	MakeConnections();
 	CreateMaterials();
 	CreateFonts();
+	SetModellingCallbacks();
 	UpdateUI();
 }
 
@@ -114,6 +115,11 @@ CAPClientWindow::~CAPClientWindow()
 	dbg("CAPClientWindow::~CAPClientWindow()");
 	if (heartModel_)
 		delete heartModel_;
+
+	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
+		RemovePlaneShiftingCallbacks();
+	else
+		RemoveModellingCallbacks();
 
 	RemoveTextureSlices();
 	RemoveStatusTextStrings();
@@ -147,7 +153,6 @@ void CAPClientWindow::MakeConnections()
 	Connect(button_HideShowAll->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
 	Connect(button_HideShowOthers->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
 	Connect(button_PlaneShift->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlaneShift));
-	Connect(button_Model->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleModelling));
 	Connect(button_Accept->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
 	Connect(slider_Brightness->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
 	Connect(slider_Contrast->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
@@ -193,7 +198,9 @@ void CAPClientWindow::UpdateUI()
 	slider_Brightness->Enable(imageDependent);
 	menuItem_Save->Enable(imageDependent);
 	button_PlaneShift->Enable(imageDependent);
-	button_Model->Enable(imageDependent);
+
+	ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_Mode->GetSelection());
+	UpdateModeSelectionUI(modellingEnum);
 
 	if (imageFrameCountDependent)
 	{
@@ -219,10 +226,9 @@ void CAPClientWindow::UpdateUI()
 	choice_ModelDisplayMode->Enable(heartModelDependent);
 	menuItem_Export->Enable(heartModelDependent);
 	menuItem_ExportToBinaryVolume->Enable(heartModelDependent);
-	choice_Mode->Enable(heartModelDependent);
-	button_Accept->Enable(false);
 
-	cmguiPanel_->ViewAll();
+	if (modellingEnum == APEX)
+		cmguiPanel_->ViewAll();
 }
 
 void CAPClientWindow::OnIdle(wxIdleEvent& event)
@@ -622,15 +628,12 @@ void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 
 void CAPClientWindow::OnObjectCheckListSelected(wxListEvent& event)
 {
-	dbg("CAPClientWindow::OnObjectCheckListSelected");
 	int selection = event.GetInt();
 	wxString name = checkListBox_Slice->GetString(selection);
-	//called from OnObjectCheckListSelected
 	
 	const ImagePlane& plane = mainApp_->GetImagePlane(name.c_str());
 	
 	cmguiPanel_->SetViewingPlane(plane);
-	//gui_->RedrawNow();
 }
 
 void CAPClientWindow::SetAnimationSliderRange(int min, int max)
@@ -775,25 +778,42 @@ void CAPClientWindow::OnContrastSliderEvent(wxCommandEvent& event)
 		cit->second->SetContrast(contrast);
 }
 
-void CAPClientWindow::UpdateModeSelectionUI(size_t newMode)
+void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 {
 	ResetModeChoice();
-	for (size_t i = 1; i <= newMode; i++)
+	size_t newModeInt = static_cast<size_t>(newMode);
+	for (size_t i = 1; i <= newModeInt; i++)
 	{
 		choice_Mode->Append(wxString(ModeStrings[i],wxConvUTF8));
 	}
-	choice_Mode->SetSelection(newMode);
+	choice_Mode->SetSelection(newModeInt);
+	if (textureSliceMap_.size() > 0)
+	{
+		choice_Mode->Enable(true);
+		if (newMode == GUIDEPOINT)
+			button_Accept->Enable(false);
+		else
+			button_Accept->Enable(true);
+	}
+	else
+	{
+		choice_Mode->Enable(false);
+		button_Accept->Enable(false);
+	}
 }
 
 void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 {
-	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+	bool accepted = mainApp_->ProcessDataPointsEnteredForCurrentMode();
+	if (!accepted)
+	{
+		int selectionIndex = choice_Mode->GetSelection();
+		LOG_MSG(LOGERROR) << "Invalid modelling points for '" << ModeStrings[selectionIndex] << "'";
+	}
 }
 
 void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 {
-	dbg(std::string("MODE = ") + choice_Mode->GetStringSelection().c_str());
-
 	int selectionIndex = choice_Mode->GetSelection();
 	mainApp_->ChangeModellingMode(static_cast<ModellingEnum>(selectionIndex));
 }
@@ -865,14 +885,6 @@ void CAPClientWindow::OnAbout(wxCommandEvent& event)
 void CAPClientWindow::OnOpenImages(wxCommandEvent& event)
 {
 	mainApp_->OpenImages();
-	//cout << "CAPClientWindow::" << __func__ << endl;
-	//wxString defaultPath = wxGetCwd();;
-	
-	//const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
-	//if ( !dirname.empty() )
-	//{
-	//	cout << __func__ << " - Dir name: " << dirname.c_str() << endl;
-	//}
 }
 
 void CAPClientWindow::ResetModeChoice()
@@ -923,45 +935,66 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 		}
 	}
 
+	ModellingEnum modeFailed = UNDEFINED_MODELLING_ENUM;
 	cit = apex.begin();
 	for (; cit != apex.end(); ++cit)
 	{
 		ModellingPoint mp = *cit;
 		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
 	}
-	mainApp_->ProcessDataPointsEnteredForCurrentMode();
-
-	cit = base.begin();
-	for (; cit != base.end(); ++cit)
+	if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
 	{
-		ModellingPoint mp = *cit;
-		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
-	}
-	mainApp_->ProcessDataPointsEnteredForCurrentMode();
 
-	cit = rvInserts.begin();
-	for (; cit != rvInserts.end(); ++cit)
-	{
-		ModellingPoint mp = *cit;
-		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
-	}
-	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+		cit = base.begin();
+		for (; cit != base.end(); ++cit)
+		{
+			ModellingPoint mp = *cit;
+			CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+		}
+		if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
+		{
 
-	cit = basePlanePoints.begin();
-	for (; cit != basePlanePoints.end(); ++cit)
-	{
-		ModellingPoint mp = *cit;
-		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
-	}
-	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+			cit = rvInserts.begin();
+			for (; cit != rvInserts.end(); ++cit)
+			{
+				ModellingPoint mp = *cit;
+				CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+			}
+			if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
+			{
 
-	cit = guidePoints.begin();
-	for (; cit != guidePoints.end(); ++cit)
-	{
-		ModellingPoint mp = *cit;
-		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+				cit = basePlanePoints.begin();
+				for (; cit != basePlanePoints.end(); ++cit)
+				{
+					ModellingPoint mp = *cit;
+					CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+				}
+				if (mainApp_->ProcessDataPointsEnteredForCurrentMode())
+				{
+
+					cit = guidePoints.begin();
+					for (; cit != guidePoints.end(); ++cit)
+					{
+						ModellingPoint mp = *cit;
+						CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+					}
+				}
+				else
+					modeFailed = BASEPLANE;
+			}
+			else
+				modeFailed = RV;
+		}
+		else
+			modeFailed = BASE;
 	}
-	mainApp_->ProcessDataPointsEnteredForCurrentMode();
+	else
+		modeFailed = APEX;
+	
+	if (modeFailed != UNDEFINED_MODELLING_ENUM)
+	{
+		LOG_MSG(LOGERROR) << "Invalid modelling points for '" << ModeStrings[modeFailed] << "'";
+	}
 }
 
 void CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& position, double time)
@@ -972,7 +1005,7 @@ void CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& po
 	Cmiss_region_destroy(&root_region);
 	Cmiss_node_id node = Cmiss_region_create_node(region, position.x, position.y, position.z);
 	int node_id = Cmiss_node_get_identifier(node);
-	mainApp_->ChangeModellingMode(type);
+	//mainApp_->ChangeModellingMode(type);
 	mainApp_->AddModellingPoint(region, node_id, position, time);
 	Cmiss_region_destroy(&region);
 	Cmiss_node_destroy(&node);
@@ -1131,14 +1164,13 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 	if (button_PlaneShift->GetLabel() == wxT("Start Shifting"))
 	{
 		button_PlaneShift->SetLabel(wxT("End Shifting"));
-		button_Model->Enable(false);
 		choice_Mode->Enable(false);
 		button_Accept->Enable(false);
 
+		RemoveModellingCallbacks();
 		cmguiPanel_->SetInteractiveTool("element_tool", "no_select_elements no_select_lines select_faces");
+		SetPlaneShiftingCallbacks();
 
-		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
-		cmguiPanel_->SetCallback(input_callback_image_shifting, static_cast<void *>(this));
 		SetStatusTextString("modellingmode", "Plane shifting mode");
 	}
 	else
@@ -1147,51 +1179,46 @@ void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnToggleModelling(wxCommandEvent& event)
+void CAPClientWindow::SetPlaneShiftingCallbacks()
 {
-	if (button_Model->GetLabel() == wxT("Start Modelling"))
-	{
-		button_PlaneShift->Enable(false);
-		button_Accept->Enable(true);
-		button_Model->SetLabel(wxT("End Modelling"));
-		mainApp_->StartModelling();
-		
-		cmguiPanel_->SetCallback(input_callback_modelling_setup, static_cast<void *>(this), true);
+	cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
+	cmguiPanel_->SetCallback(input_callback_image_shifting, static_cast<void *>(this));
+	SetStatusTextString("modellingmode", "Plane Shifting mode");
+}
 
-		// Really important that this callback comes first, because otherwise the callback above
-		// will never fire properly
-		cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
-		cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this));
-		SetStatusTextString("modellingmode", "Modelling mode");
-	}
-	else
-	{
-		EndCurrentModellingMode();
-	}
+void CAPClientWindow::RemovePlaneShiftingCallbacks()
+{
+	cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
+	cmguiPanel_->RemoveCallback(input_callback_image_shifting, static_cast<void *>(this));
+}
+
+void CAPClientWindow::SetModellingCallbacks()
+{
+	cmguiPanel_->SetCallback(input_callback_modelling_setup, static_cast<void *>(this), true);
+
+	// Really important that this callback comes first, because otherwise the callback above
+	// will never fire properly
+	cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
+	cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this));
+	SetStatusTextString("modellingmode", "Modelling mode");
+}
+
+void CAPClientWindow::RemoveModellingCallbacks()
+{
+	cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
+	cmguiPanel_->RemoveCallback(input_callback_modelling, static_cast<void *>(this));
+	cmguiPanel_->RemoveCallback(input_callback_modelling_setup, static_cast<void *>(this));
 }
 
 void CAPClientWindow::EndCurrentModellingMode()
 {
-	if (button_Model->GetLabel() == wxT("End Modelling"))
-	{
-		button_Model->SetLabel(wxT("Start Modelling"));
-		cmguiPanel_->SetInteractiveTool("transform_tool");
-		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
-		cmguiPanel_->RemoveCallback(input_callback_modelling, static_cast<void *>(this));
-		cmguiPanel_->RemoveCallback(input_callback_modelling_setup, static_cast<void *>(this));
-		SetStatusTextString("modellingmode", "Transform mode");
-		button_PlaneShift->Enable(true);
-	}
 	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
 	{
 		button_PlaneShift->SetLabel(wxT("Start Shifting"));
-		cmguiPanel_->SetInteractiveTool("transform_tool");
-		cmguiPanel_->RemoveCallback(input_callback_ctrl_modifier_switch);
-		cmguiPanel_->RemoveCallback(input_callback_image_shifting, static_cast<void *>(this));
-		SetStatusTextString("modellingmode", "Transform mode");
-		button_Model->Enable(true);
-		choice_Mode->Enable(true);
-		button_Accept->Enable(false);
+		RemovePlaneShiftingCallbacks();
+		SetModellingCallbacks();
+		ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_Mode->GetSelection());
+		UpdateModeSelectionUI(modellingEnum);
 	}
 }
 

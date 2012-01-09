@@ -123,7 +123,7 @@ public:
 	 *
 	 * @param	mode	The mode.
 	 */
-	void UpdateModeSelectionUI(size_t mode);
+	void UpdateModeSelectionUI(ModellingEnum mode);
 
 	/**
 	 * Executes the accept action.  Callback API for cmgui to activate the
@@ -574,6 +574,26 @@ private:
 	 * Removes the status text strings.
 	 */
 	void RemoveStatusTextStrings();
+
+	/**
+	 * Sets the modelling callbacks.
+	 */
+	void SetModellingCallbacks();
+
+	/**
+	 * Removes the modelling callbacks.
+	 */
+	void RemoveModellingCallbacks();
+
+	/**
+	 * Sets the plane shifting callbacks.
+	 */
+	void SetPlaneShiftingCallbacks();
+
+	/**
+	 * Removes the plane shifting callbacks.
+	 */
+	void RemovePlaneShiftingCallbacks();
 
 	/**
 	 * Creates a modelling point.  This function creates a modelling point in the current context

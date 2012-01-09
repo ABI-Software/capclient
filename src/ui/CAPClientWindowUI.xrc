@@ -325,15 +325,6 @@
 													<orient>wxVERTICAL</orient>
 													<label>Modelling Mode</label>
 													<object class="sizeritem">
-														<option>0</option>
-														<flag>wxALL</flag>
-														<border>2</border>
-														<object class="wxButton" name="button_Model">
-															<label>Start Modelling</label>
-															<default>0</default>
-														</object>
-													</object>
-													<object class="sizeritem">
 														<option>1</option>
 														<flag>wxEXPAND</flag>
 														<border>0</border>
