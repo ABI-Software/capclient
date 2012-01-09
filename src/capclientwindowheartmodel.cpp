@@ -287,7 +287,7 @@ double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time
 
 	if (surface == ENDOCARDIUM)
 		SetStatusTextString("heartvolumeendo", "ED Volume(ENDO) = " + volume_str + " ml");
-	else
+	else if (surface == EPICARDIUM)
 		SetStatusTextString("heartvolumeepi", "ED Volume(EPI) = " + volume_str + " ml");
 
 	return volume;

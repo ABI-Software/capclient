@@ -100,7 +100,6 @@ void ModellingPoint::SetVisible(bool visibility)
 		std::stringstream ss;
 		ss << "constant " << (visibility ? 1 : 0);
 		int r = Cmiss_field_module_define_field(field_module, "visibility_control_constant_field", ss.str().c_str());
-		//LOG_MSG(LOGDEBUG) << "set visible const: " << (r == CMISS_OK) << " - " << ss.str();
 	}
 	else
 	{
@@ -109,12 +108,9 @@ void ModellingPoint::SetVisible(bool visibility)
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 		int r = Cmiss_field_cache_set_time(field_cache, time_);
-		//LOG_MSG(LOGDEBUG) << "set time: " << (r == CMISS_OK);
 		r = Cmiss_field_cache_set_node(field_cache, node);
-		//LOG_MSG(LOGDEBUG) << "set node: " << (r == CMISS_OK);
 		double time_values[] = {visibility ? time_ : -1.0};
 		r = Cmiss_field_assign_real(visibility_time_value, field_cache, 1, time_values);
-		//LOG_MSG(LOGDEBUG) << "assign: " << (r == CMISS_OK) << " - " << time_values[0];
 
 		Cmiss_field_destroy(&visibility_time_value);
 		Cmiss_nodeset_destroy(&nodeset);
@@ -134,6 +130,12 @@ void ModellingPoint::Remove()
 	Cmiss_node_destroy(&node);
 	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_field_module_destroy(&field_module);
+}
+
+void ModellingPoint::SetHeartSurfaceType(HeartSurfaceEnum type)
+{
+	heartSurfaceType_ = type;
+	//Cmiss_region_get_rendition
 }
 
 std::string  ModellingPoint::GetModellingPointTypeString() const

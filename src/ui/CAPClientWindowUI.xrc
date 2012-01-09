@@ -40,28 +40,23 @@
 			</object>
 			<object class="wxMenu" name="menu_View">
 				<label>_View</label>
-				<object class="wxMenuItem" name="menuItem_viewAll">
-					<label>View _All</label>
+				<object class="wxMenuItem" name="menuItem_viewAll_">
+					<label>_All</label>
 					<help></help>
 				</object>
-				<object class="wxMenuItem" name="menuItem_currentMode">
-					<label>Current Mode</label>
-					<help></help>
-					<checkable>1</checkable>
-				</object>
-				<object class="wxMenuItem" name="menuItem_heartVolumeEPI">
-					<label>Heart Volume EPI</label>
+				<object class="wxMenuItem" name="menuItem_modellingMode_">
+					<label>Modelling Mode</label>
 					<help></help>
 					<checkable>1</checkable>
 				</object>
-				<object class="wxMenuItem" name="menuItem_heartVolumeENDO">
-					<label>Heart Volume ENDO</label>
+				<object class="wxMenuItem" name="menuItem_heartVolume_">
+					<label>Heart Volume</label>
 					<help></help>
 					<checkable>1</checkable>
 				</object>
 				<object class="separator" />
 				<object class="wxMenuItem" name="menuItem_logWindow_">
-					<label>View Log</label>
+					<label>Log</label>
 					<help></help>
 				</object>
 			</object>
@@ -208,7 +203,7 @@
 								<size>-1,350</size>
 								<object class="notebookpage">
 									<label>Viewer</label>
-									<selected>1</selected>
+									<selected>0</selected>
 									<object class="wxPanel" name="notebook_1_pane_1">
 										<style>wxTAB_TRAVERSAL</style>
 										<object class="wxBoxSizer">
@@ -317,7 +312,7 @@
 								</object>
 								<object class="notebookpage">
 									<label>Modeller</label>
-									<selected>0</selected>
+									<selected>1</selected>
 									<object class="wxPanel" name="notebook_1_pane_2">
 										<style>wxTAB_TRAVERSAL</style>
 										<object class="wxBoxSizer">

@@ -592,7 +592,7 @@ private:
 	 * we create the rendition element for the status text string fields.  A point
 	 * glyph of type none is created for the status text field to use.  The point glyph
 	 * is set in normalised window fit left coordinates.  The names of the fields are
-	 *  #.	"currentmode"
+	 *  #.	"modellingmode"
 	 *  #.	"heartvolumeepi"
 	 *  #.	"heartvolumeendo"
 	 *  

@@ -124,7 +124,7 @@ namespace cap
 		 *
 		 * @param	type	The type.
 		 */
-		void SetHeartSurfaceType(HeartSurfaceEnum type) { heartSurfaceType_ = type; }
+		void SetHeartSurfaceType(HeartSurfaceEnum type);
 
 		/**
 		 * Gets the node identifier.
