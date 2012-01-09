@@ -113,9 +113,6 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 CAPClientWindow::~CAPClientWindow()
 {
 	dbg("CAPClientWindow::~CAPClientWindow()");
-	if (heartModel_)
-		delete heartModel_;
-
 	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
 		RemovePlaneShiftingCallbacks();
 	else
@@ -123,7 +120,7 @@ CAPClientWindow::~CAPClientWindow()
 
 	RemoveTextureSlices();
 	RemoveStatusTextStrings();
-	RemoveMIIGraphics();
+	RemoveHeartModel();
 
 	delete cmguiPanel_;
 	Cmiss_time_keeper_destroy(&timeKeeper_);

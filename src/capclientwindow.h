@@ -245,7 +245,8 @@ public:
 	void CreateHeartModel();
 
 	/**
-	 * Deletes the heart model.
+	 * Removes the heart model.  This function also removes the Model/Image intersection graphics as
+	 * well.
 	 */
 	void RemoveHeartModel();
 
