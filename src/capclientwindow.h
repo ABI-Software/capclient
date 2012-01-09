@@ -552,7 +552,7 @@ private:
 	std::string PromptForUserComment();
 
 	/**
-	 * Resets the mode choice.
+	 * Resets the mode choice.  Removes all but the APEX mode from the mode selection widget.
 	 */
 	void ResetModeChoice();
 
