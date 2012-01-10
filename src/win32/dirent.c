@@ -11,10 +11,10 @@
 #include <dirent.h>
 #include <errno.h>
 #include <io.h> /* _findfirst and _findnext set errno iff they return -1 */
-#ifdef _MSC_VER
-//#define _CRTDBG_MAP_ALLOC
-#endif
 #include <stdlib.h>
+#if defined (_MSC_VER)
+	#include <crtdbg.h>
+#endif /* defined (_MSC_VER) */
 #include <string.h>
 
 #ifdef __cplusplus
