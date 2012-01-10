@@ -9,10 +9,10 @@
 #define WINDOWS_LEAN_AND_MEAN
 #include <windows.h>
 
-#ifdef _MSC_VER
-//#define _CRTDBG_MAP_ALLOC
-#endif
 #include <stdlib.h>
+#if defined (_MSC_VER)
+	#include <crtdbg.h>
+#endif /* defined (_MSC_VER) */
 
 #include "win32/linuxutils.h"
 /* mkstemp extracted from libc/sysdeps/posix/tempname.c.  Copyright
