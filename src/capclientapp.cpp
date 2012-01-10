@@ -16,12 +16,6 @@ extern "C"
 #include "ui/euladialog.h"
 #include "logwindow.h"
 
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
-
 /**
  * \mainpage CAP Client
  * CAP Client provides a visualization tool to browse cardiac MR images and 3D CAP models. Main features include:

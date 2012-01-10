@@ -34,12 +34,6 @@ extern "C"
 #include <zn/cmiss_field_conditional.h>
 }
 
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
-
 class wxPanel;
 
 void Cmiss_region_list_children(Cmiss_region_id region)
