@@ -48,11 +48,6 @@ extern "C"
 
 
 #include "images/capicon.xpm"
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
 
 using namespace std;
 
@@ -1221,8 +1216,6 @@ void CAPClientWindow::EndCurrentModellingMode()
 
 void CAPClientWindow::OnExportModel(wxCommandEvent& event)
 {
-	//cout << "CAPClientWindow::" << __func__ << endl;
-	
 	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("");
@@ -1242,15 +1235,11 @@ void CAPClientWindow::OnExportModel(wxCommandEvent& event)
 		return;
 	}
 	
-	//mainApp_->OnExportModel(std::string(dirname.mb_str()));
-	return;
+	//--mainApp_->OnExportModel(std::string(dirname.mb_str()));
 }
 
 void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 {
-	//cout << "CAPClientWindow::" << __func__ << endl;
-	//cout << __func__ << "\n";
-	
 	CAPBinaryVolumeParameterDialog  dlg(this);
 	if ( dlg.ShowModal() != wxID_OK )
 	{
@@ -1279,8 +1268,7 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 		return;
 	}
 	
-	//mainApp_->OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
-	return;
+	//--mainApp_->OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
 }
 
 void CAPClientWindow::OnAccept()

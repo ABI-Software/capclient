@@ -1,7 +1,4 @@
 
-#ifdef _MSC_VER
-#define _CRTDBG_MAP_ALLOC
-#endif
 #include <io.h>
 #include <string.h>
 #include <errno.h>
@@ -12,12 +9,10 @@
 #define WINDOWS_LEAN_AND_MEAN
 #include <windows.h>
 
-#include <stdlib.h>
 #ifdef _MSC_VER
-#include <crtdbg.h>
-#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
-#define new DEBUG_NEW
+//#define _CRTDBG_MAP_ALLOC
 #endif
+#include <stdlib.h>
 
 #include "win32/linuxutils.h"
 /* mkstemp extracted from libc/sysdeps/posix/tempname.c.  Copyright
