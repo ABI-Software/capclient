@@ -53,7 +53,7 @@ int input_callback_modelling_setup(Cmiss_scene_viewer_id scene_viewer,
 		}
 		if (keyCode == KEYCODE_D)
 		{
-			// delete currently selected node.
+			gui->DeleteCurrentlySelectedNode();
 			return 0;
 		}
 	}
@@ -101,20 +101,6 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
 	{
-	//	// Move node		
-	//	if (!selectedNode)
-	//	{
-	//		dbg("GRAPHICS_BUFFER_MOTION_NOTIFY with NULL selectedNode");
-	//		//			frame->InitialiseModel();
-	//		return 0;
-	//	}
-	//	Point3D coords;
-	//	//		cout << "Mouse Drag node = " << Cmiss_node_get_identifier(selectedNode) << endl;
-	//	Cmiss_scene_viewer_id scene_viewer = gui->GetCmissSceneViewer();
-	//	Cmiss_move_node_to_screen_coords(scene_viewer, selectedNode, x, y, time, coords);
-	//	
-	//	//		cout << "Move coord = " << coords << endl;
-	//	gui->MoveDataPoint(selectedNode, coords);
 		gui->MoveCurrentlySelectedNode();
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)

@@ -18,9 +18,11 @@ extern "C"
 namespace cap
 {
 	/**
-	 * Modelling point.  This class encapsultates the points for modelling.  It holds a region
+	 * @brief Modelling point.  This class encapsultates the points for modelling.  It holds a region
 	 * handle to the region of the modelling point as well as a node id in that region from which
-	 * the position is derived from.
+	 * the position is derived from.  We use an external Remove() function to delete the node from
+	 * Cmgui rather than the destructor for this class.  If Remove() was put into the destructor then
+	 * we would have to add a create to the copy constructor and assignment operator.
 	 */
 	class ModellingPoint
 	{

@@ -26,11 +26,6 @@ namespace cap
 class Modeller;
 
 /**
- * Defines an alias representing the data points.
- */
-typedef std::map<Cmiss_node*, DataPoint> DataPoints;
-
-/**
  * @brief Modelling mode.  This is an abstract base class for the modelling modes. Implementation of
  * FSM using the State Pattern.
  */
@@ -58,15 +53,6 @@ public:
 	virtual ModellingMode* OnAccept(Modeller& modeller) = 0;
 
 	/**
-	 * Adds a data point.
-	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	coord			   	The coordinate.
-	 * @param	time			   	The time.
-	 */
-	//virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
-
-	/**
 	 * Adds a modelling point.
 	 *
 	 * @param	region  	The region.
@@ -77,141 +63,153 @@ public:
 	virtual void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time) = 0;
 
 	/**
-	 * Move data point.
+	 * Move modelling point.
 	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	coord			   	The coordinate.
-	 * @param	time			   	The time.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
 	 */
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time) = 0;
-	virtual void MoveModellingPoint(int node_id, const Point3D& position, double time) {}
+	virtual void MoveModellingPoint(int node_id, const Point3D& position, double time);
 
 	/**
-	 * Removes the data point.
+	 * Removes the modelling point.
 	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	time			   	The time.
+	 * @param	node_id	Identifier for the node.
+	 * @param	time   	The time.
 	 */
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time) = 0;
+	virtual void RemoveModellingPoint(int node_id, double time);
 
 	/**
 	 * Gets the modelling points.  The modelling points are sorted in ascending modelling point time.
 	 *
 	 * @return	The modelling points.
 	 */
-	virtual ModellingPoints GetModellingPoints() const = 0;
+	virtual ModellingPoints GetModellingPoints() const;
 
 	/**
 	 * Perform entry action.
 	 */
-	virtual void PerformEntryAction() = 0;
+	virtual void PerformEntryAction();
 
 	/**
 	 * Perform exit action.
 	 */
-	virtual void PerformExitAction() = 0;
+	virtual void PerformExitAction();
+
+protected:
+	ModellingPointsMap modellingPoints_;	/**< The modelling points */
 };
 
 /**
- * Modelling mode apex.
+ * @brief Modelling mode apex.
  */
 class ModellingModeApex : public ModellingMode
 {
 public:
-	ModellingModeApex() {}
-	~ModellingModeApex();
 
+	/**
+	 * Define our specialisation of the OnAccept method for the Apex modelling mode.  In this case
+	 * we want to ensure that there is only one modelling point.
+	 *
+	 * @param [in,out]	modeller	The modeller.
+	 *
+	 * @return	null if it fails, else the base modelling mode.
+	 */
 	ModellingMode* OnAccept(Modeller& modeller);
-	//virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
-	void MoveModellingPoint(int node_id, const Point3D& position, double time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
-	
-	ModellingPoints GetModellingPoints() const;
-	const ModellingPoint& GetApex() const; //REVISE design:
-	// Probably its more extensible to provide a uniform interface (virtual GetDataPoints) on all Modes.
-	// However it is unlikely that new modes will be added in the future so probably its ok.
 
-	virtual void PerformEntryAction();
-	virtual void PerformExitAction();
-	
-private:
-	ModellingPointsMap apex_;   /**< The apex, holds at most one item */
+	/**
+	 * Adds an APEX type of modelling point.
+	 *
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
+	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
 };
 
 /**
- * Modelling mode base.
+ * @brief Modelling mode base.
  */
 class ModellingModeBase : public ModellingMode
 {
 public:
-	ModellingModeBase() {}
-	
+
+	/**
+	 * Define our specialisation of the OnAccept method for the Base modelling mode.  In this case
+	 * we want to ensure that there is only one modelling point.
+	 *
+	 * @param [in,out]	modeller	The modeller.
+	 *
+	 * @return	null if it fails, else the rv modelling mode.
+	 */
 	ModellingMode* OnAccept(Modeller& modeller);
-	//virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+
+	/**
+	 * Adds a BASE type of modelling point.
+	 *
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
 	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
-	
-	ModellingPoints GetModellingPoints() const;
-	const ModellingPoint& GetBase() const;
-	
-	virtual void PerformEntryAction();
-	virtual void PerformExitAction();
-	
-private:
-	ModellingPointsMap base_;   /**< The base, holds at most one item */
 };
 
-class HeartModel;
-
 /**
- * Modelling mode rv.
+ * @brief Modelling mode rv.
  */
 class ModellingModeRV : public ModellingMode
 {
 public:
-	ModellingModeRV() {}
-	
+
+	/**
+	 * Define our specialisation of the OnAccept method for the RV modelling mode.  In this case
+	 * we want to ensure that there is exactly zero or two modelling points per time frame.
+	 *
+	 * @param [in,out]	modeller	The modeller.
+	 *
+	 * @return	null if it fails, else the base plane modelling mode.
+	 */
 	ModellingMode* OnAccept(Modeller& modeller);
-	//virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+
+	/**
+	 * Adds an RV type of modelling point.
+	 *
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
 	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
-	
-	ModellingPoints GetModellingPoints() const;
-	const ModellingPointsMap& GetRVInsertPoints() const;
-	
-	virtual void PerformEntryAction();
-	virtual void PerformExitAction();
-	
-private:
-	ModellingPointsMap rvInserts_;	/**< The rv inserts, holds n pairs of DataPoints ( n >= 1 ) */
 };
 
 /**
- * Modelling mode base plane.
+ * @brief Modelling mode base plane.
  */
 class ModellingModeBasePlane : public ModellingMode
 {
 public:
-	ModellingModeBasePlane() {}
-	
+
+	/**
+	 * Define our specialisation of the OnAccept method for the BASEPLANE modelling mode.  In this case
+	 * we want to ensure that there is exactly zero or two modelling points per time frame.
+	 *
+	 * @param [in,out]	modeller	The modeller.
+	 *
+	 * @return	null if it fails, else.
+	 */
 	ModellingMode* OnAccept(Modeller& modeller);
-	//virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
+
+	/**
+	 * Adds a BASEPLANE type of modelling point.
+	 *
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
 	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
-	
-	ModellingPoints GetModellingPoints() const;
-	const ModellingPointsMap& GetBasePlanePoints() const;
-	
-	virtual void PerformEntryAction();
-	virtual void PerformExitAction();
-	
-private:
-	ModellingPointsMap basePlanePoints_;	/**< The base plane points, holds n pairs of DataPoints ( n >= 1 ) */
 };
 
 class Vector;
@@ -221,30 +219,45 @@ class Vector;
 class ModellingModeGuidePoints : public ModellingMode
 {
 public:
-	ModellingModeGuidePoints();
-	~ModellingModeGuidePoints();
-	
-	ModellingMode* OnAccept(Modeller& modeller);
-	//virtual void AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
-	virtual void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
-	virtual void RemoveDataPoint(Cmiss_node* dataPointID, double time);
-	
-	ModellingPoints GetModellingPoints() const;
-	ModellingPoints GetModellingPointsAtTime(double time) const;
-	std::vector<int> GetFramesWithModellingPoints(int numFrames) const;
-	std::vector<ModellingPointsMap> GetGuidePoints() const;
-	//const std::vector< std::vector<double> >& GetTimeVaryingDataPoints() const { return timeVaryingDataPoints_; }
-	const std::vector<int>& GetFramesWithDataPoints() const { return framesWithDataPoints_; }
-	void Reset(unsigned int numFrames);
 
-	virtual void PerformEntryAction();
-	virtual void PerformExitAction();
-	
-private:
-	ModellingPointsMap guidePoints_;	/**< The guide points */
-	std::vector<ModellingPointsMap> vectorOfModellingPoints_;
-	std::vector<int> framesWithDataPoints_;
+	/**
+	 * Define our specialisation of the OnAccept method for the GUIDEPOINT modelling mode.  In this case
+	 * we always return 0.  There are no more modelling modes.
+	 *
+	 * @param [in,out]	modeller	The modeller.
+	 *
+	 * @return	null, always.
+	 */
+	ModellingMode* OnAccept(Modeller& modeller);
+
+	/**
+	 * Adds a GUIDEPOINT type of modelling point.
+	 *
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	position	The position.
+	 * @param	time		The time.
+	 */
+	void AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time);
+
+	/**
+	 * Gets the modelling points at the given time.  At the given time is taken to mean within 1e-06.
+	 *
+	 * @param	time	The time.
+	 *
+	 * @return	The modelling points at time.
+	 */
+	ModellingPoints GetModellingPointsAtTime(double time) const;
+
+	/**
+	 * Gets the frames with modelling points.  The frames with modelling points set the value 1 for
+	 * the frame if it has one or more modelling points in it otherwise it is set to 0.
+	 *
+	 * @param	numFrames	Number of frames.
+	 *
+	 * @return	The frames with modelling points.
+	 */
+	std::vector<int> GetFramesWithModellingPoints(int numFrames) const;
 };
 
 } // end namespace cap

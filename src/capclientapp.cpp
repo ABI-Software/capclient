@@ -52,7 +52,7 @@ bool CAPApp::OnInit()
 #ifdef _MSC_VER
 	//_CrtDumpMemoryLeaks();
 	//_CrtSetBreakAlloc(12123);
-	//_CrtSetBreakAlloc(12119);
+	//_CrtSetBreakAlloc(91387);
 #endif
 	wxXmlResource::Get()->InitAllHandlers();
 	wxXmlInit_logdialogui();

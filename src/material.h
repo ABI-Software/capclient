@@ -32,7 +32,7 @@ namespace cap
  * to just create one material and change the materials texture(field_image) than to
  * create a number of materials with their own texture(field_image).
  */
-class Material : boost::noncopyable
+class Material
 {
 public:
 	/**
@@ -45,22 +45,6 @@ public:
 	 * \param graphics_module the graphics module to create the material in.
 	 */
 	Material(const std::string& materialName, Cmiss_graphics_module_id graphics_module);
-
-	/**
-	 * Copy constructor.
-	 *
-	 * @param	rhs	The right hand side.
-	 */
-	Material(const Material& rhs);
-
-	/**
-	 * Assignment operator.
-	 *
-	 * @param [in,out]	other	The other.
-	 *
-	 * @return	A shallow copy of this object.
-	 */
-	Material& operator=(Material& other);
 	
 	/**
 	 * Destructor, destroy references to cmiss ids.
@@ -106,6 +90,23 @@ public:
 	Cmiss_graphics_material_id GetCmissMaterial() const;
 	
 private:
+
+	/**
+	 * Copy constructor.
+	 *
+	 * @param	rhs	The right hand side.
+	 */
+	Material(const Material& rhs);
+
+	/**
+	 * Assignment operator.
+	 *
+	 * @param [in,out]	other	The other.
+	 *
+	 * @return	A shallow copy of this object.
+	 */
+	Material& operator=(Material& other);
+
 	Cmiss_graphics_material_id material_; /**< Cmiss graphics material */
 };
 

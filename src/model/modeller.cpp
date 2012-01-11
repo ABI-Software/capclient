@@ -84,11 +84,6 @@ Modeller::~Modeller()
 	delete solverFactory_;
 }
 
-//void Modeller::AddDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
-//{
-//	currentModellingMode_->AddDataPoint(dataPointID, coord, time);
-//}
-
 void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 {
 	currentModellingMode_->AddModellingPoint(region, node_id, position, time);
@@ -101,15 +96,9 @@ void Modeller::MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D c
 	FitModel(time);
 }
 
-//void Modeller::MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time)
-//{
-//	currentModellingMode_->MoveDataPoint(dataPointID, coord, time);
-//	FitModel(time);
-//}
-
-void Modeller::RemoveDataPoint(Cmiss_node* dataPointID, double time)
+void Modeller::RemoveModellingPoint(Cmiss_region_id region, int node_id, double time)
 {
-	currentModellingMode_->RemoveDataPoint(dataPointID, time);
+	currentModellingMode_->RemoveModellingPoint(node_id, time);
 	FitModel(time);
 }
 
@@ -201,25 +190,27 @@ void Modeller::AlignModel()
 {
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
-		const ModellingPoint& apex = modellingModeApex_.GetApex();
-		const ModellingPoint& base = modellingModeBase_.GetBase();
-		const ModellingPointsMap& rvInserts = modellingModeRV_.GetRVInsertPoints();
-		const ModellingPointsMap& basePlanePoints = modellingModeBasePlane_.GetBasePlanePoints(); 
+		const ModellingPoints& apex = modellingModeApex_.GetModellingPoints();
+		const ModellingPoints& base = modellingModeBase_.GetModellingPoints();
+		const ModellingPoints& rvInserts = modellingModeRV_.GetModellingPoints();
+		const ModellingPoints& basePlanePoints = modellingModeBasePlane_.GetModellingPoints(); 
 	
-		Vector3D xAxis= apex.GetPosition() - base.GetPosition();
+		Point3D apexPosition = apex[0].GetPosition();
+		Point3D basePosition = base[0].GetPosition();
+		Vector3D xAxis= apexPosition - basePosition;
 		xAxis.Normalise();
 
-		ModellingPointsMap::const_iterator itr = rvInserts.begin();
-		ModellingPointsMap::const_iterator end = rvInserts.end();
+		ModellingPoints::const_iterator itr = rvInserts.begin();
+		ModellingPoints::const_iterator end = rvInserts.end();
 		Point3D sum;
 		for (;itr!=end;++itr)
 		{
-			sum += itr->second.GetPosition();
+			sum += itr->GetPosition();
 		}
 		
 		Point3D averageOfRVInserts = sum / rvInserts.size();
 		
-		Vector3D yAxis = averageOfRVInserts - base.GetPosition();
+		Vector3D yAxis = averageOfRVInserts - basePosition;
 		Vector3D zAxis = CrossProduct(xAxis,yAxis);
 		zAxis.Normalise();
 		yAxis.CrossProduct(zAxis,xAxis);
@@ -234,7 +225,7 @@ void Modeller::AlignModel()
 		std::cout << "Model coord z axis vector" << zAxis << std::endl;
 		
 		// Compute the position of the model coord origin. (1/3 of the way from base to apex)
-		Point3D origin = base.GetPosition() + (0.3333) * (apex.GetPosition() - base.GetPosition());
+		Point3D origin = basePosition + (0.3333) * (apexPosition - basePosition);
 		
 		// Transform heart model using the newly computed axes
 		gtMatrix transform;
@@ -260,13 +251,13 @@ void Modeller::AlignModel()
 		//--heartModel_.SetLocalToGlobalTransformation(transform);
 		
 		// TODO properly Compute FocalLength
-		double lengthFromApexToBase = (apex.GetPosition() - base.GetPosition()).Length();
+		double lengthFromApexToBase = (apexPosition - basePosition).Length();
 		std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
 		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + ToString(lengthFromApexToBase));
 		LOG_MSG(LOGINFORMATION) << "Length from Apex to Base = " << lengthFromApexToBase;
 		
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
-		double focalLength = (apex.GetPosition() - origin).Length()  / cosh(1.0);
+		double focalLength = (apexPosition - origin).Length()  / cosh(1.0);
 		std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
 		dbg("Modeller::AlignModel() : new focal length = " + ToString(focalLength));
 		LOG_MSG(LOGINFORMATION) << "Focal length = " << focalLength;
@@ -278,17 +269,17 @@ void Modeller::AlignModel()
 		double framePeriod = 1.0/numberOfModelFrames;
 		
 		std::map<double, Plane> planes; // value_type = (frame, plane) pair
-		ModellingPointsMap::const_iterator itrSrc = basePlanePoints.begin();
+		ModellingPoints::const_iterator itrSrc = basePlanePoints.begin();
 
-		while (itrSrc!=basePlanePoints.end())
+		while (itrSrc != basePlanePoints.end())
 		{
 			//--dbg("bp points : " + ToString(itrSrc->GetTime()) + ", " + ToString(itrSrc->GetCoordinate()));
-			double frameTime = itrSrc->second.GetTime();
+			double frameTime = itrSrc->GetTime();
 			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<ModellingPoint> basePlanePointsInOneFrame;
-			for (; itrSrc!=basePlanePoints.end() && itrSrc->second.GetTime() < timeOfNextFrame; ++itrSrc)
+			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 			{
-				basePlanePointsInOneFrame.push_back(itrSrc->second);
+				basePlanePointsInOneFrame.push_back(*itrSrc);
 			}
 			// Fit plane to the points
 			Plane plane = FitPlaneToBasePlanePoints(basePlanePointsInOneFrame, xAxis);
@@ -318,12 +309,7 @@ void Modeller::AlignModel()
 			//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 		}
 		
-	//	// REVISE
-	//	framesWithDataPoints_.clear();
-	//	framesWithDataPoints_.resize(numberOfModelFrames, 0);
 		InitialiseModelLambdaParams();
-
-		modellingModeGuidePoints_.Reset(numberOfModelFrames);
 	}
 	
 	
@@ -587,10 +573,6 @@ void Modeller::InitialiseModelLambdaParams()
 //#endif
 }
 
-void Modeller::FitModel(DataPoints& dataPoints, int frameNumber)
-{
-}
-
 void Modeller::FitModel(double time)
 {
 	if (GetCurrentMode() == GUIDEPOINT)
@@ -728,7 +710,6 @@ void Modeller::FitModel(double time)
 		
 	}
 }
-
 
 void Modeller::UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber)
 {
