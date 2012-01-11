@@ -495,48 +495,6 @@ std::vector<ModellingPoint> Modeller::GetModellingPoints() const
 	return modellingPoints;
 }
 
-void Modeller::SetDataPoints(std::vector<DataPoint>& dataPoints)
-{
-	dbg("Modeller::SetDataPoints - update for modelling points.");
-	if (dataPoints.empty()) //FIXME 
-	{
-		// This handles the case where no data points are defined
-		// e.g model files converted from CIM models
-		// FIXME - this does not work in cases where neither data points nor
-		//         model files are defined in the xml file.
-		InitialiseBezierLambdaParams();
-//		ChangeMode(GetModellingModeGuidePoints());
-		return;
-	}
-	
-	std::sort(dataPoints.begin(), dataPoints.end(),
-			boost::bind( std::less<ModellingEnum>(),
-					boost::bind(&DataPoint::GetDataPointType, _1),
-					boost::bind(&DataPoint::GetDataPointType, _2)));
-
-	currentModellingMode_ = GetModellingModeApex();
-	ModellingEnum currentModeEnum = APEX;
-	BOOST_FOREACH(DataPoint& dataPoint, dataPoints)
-	{
-		// type unsafe but much less verbose than switch cases
-		ModellingEnum mode = static_cast<ModellingEnum>(dataPoint.GetDataPointType());
-		if (mode != currentModeEnum)
-		{
-			// Change mode and call OnAccept on the currentModellingMode_
-			OnAccept();
-			currentModeEnum = mode;
-		}
-		//--AddModellingPoint(dataPoint.GetCmissNode(), dataPoint.GetCoordinate(), dataPoint.GetTime());
-	}
-	if (currentModeEnum == BASEPLANE) // no guide points defined
-	{
-		OnAccept();
-	}
-
-	SmoothAlongTime();
-//	std::cout << "Base is in " << modellingModeBase_.GetBase().GetSliceName() << '\n';
-}
-
 void Modeller::InitialiseBezierLambdaParams()
 {
 	//Initialise bezier global params for each model

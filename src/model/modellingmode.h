@@ -8,6 +8,9 @@
 #ifndef CAPMODELLINGMODE_H_
 #define CAPMODELLINGMODE_H_
 
+#include "model/modellingpoint.h"
+#include "math/timesmoother.h"
+
 #include <vector>
 #include <map>
 
@@ -15,10 +18,6 @@ extern "C"
 {
 #include <zn/cmiss_region.h>
 }
-
-#include "datapoint.h"
-#include "model/modellingpoint.h"
-#include "math/timesmoother.h"
 
 namespace cap
 {

@@ -8,13 +8,15 @@
 #ifndef CAPXMLFILE_H_
 #define CAPXMLFILE_H_
 
-#include "SliceInfo.h"
 #include "math/algebra.h"
 #include "CAPAnnotationFile.h" //REVISE
+#include "standardheartdefinitions.h"
 
 #include <string>
 #include <vector>
 #include <map>
+
+#include <boost/shared_ptr.hpp>
 
 namespace cap
 {

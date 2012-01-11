@@ -18,7 +18,6 @@
 #include "CAPXMLFile.h"
 #undef private
 #include "CAPXMLFileHandler.h"
-#include "datapoint.h"
 #include "logmsg.h"
 
 namespace
@@ -163,19 +162,6 @@ TEST(CAPXMLFile, GetInput)
 	{
 		std::cout << image.label << std::endl;
 	}
-}
-
-TEST(CAPXMLFileHandler, GetDataPoints)
-{
-	using namespace cap;
-
-	CAPXMLFile xmlFile(SAMPLEIMAGES_FILE);
-	xmlFile.ReadFile();
-	ASSERT_EQ("SampleImages", xmlFile.name_);
-
-	CAPXMLFileHandler fh(xmlFile);
-	std::vector<DataPoint> pts = fh.GetDataPoints();
-	EXPECT_EQ(0, pts.size());
 }
 
 // This test should be moved to a gui test.

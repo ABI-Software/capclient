@@ -122,7 +122,7 @@ TEST(FieldImage, GetProperties)
 	{
 		value = prop;
 		Cmiss_deallocate(prop);
-		EXPECT_STREQ("11", value.c_str());
+		EXPECT_STREQ("44", value.c_str());
 	}
 
 	// Acquisition Date (0x0008,0x0022)

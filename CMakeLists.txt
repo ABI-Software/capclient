@@ -60,13 +60,11 @@ SET( APP_HDRS
 	src/CAPXMLFile.h
 	src/CAPXMLFileHandler.h
 	src/cmgui/callbacks.h
-	src/CmguiImageSliceGraphics.h
 	src/cmgui/sceneviewerpanel.h
 	src/capclientconfig.h
 	src/utils/debug.h
 	src/dicomimage.h
 	src/logmsg.h
-	src/datapoint.h
 	src/utils/filesystem.h
 	src/utils/misc.h
 	src/math/gmmfactory.h
@@ -74,17 +72,12 @@ SET( APP_HDRS
 	src/imagebrowserwindow.h
 	src/iimagebrowser.h
 	src/imagebrowser.h
-	src/ImageSet.h
-	src/ImageSetBuilder.h
-	src/ImageSlice.h
-	src/ImageSliceGraphics.h
 	src/IsoSurfaceCapture.h
 	src/labelledslice.h
 	src/capclient.h
 	src/logwindow.h
 	src/capclientwindow.h
 	src/PlatformInfo.h
-	src/SliceInfo.h
 	src/math/solverlibraryfactory.h
 	src/standardheartdefinitions.h
 	src/UserCommentDialog.h
@@ -112,17 +105,13 @@ SET( APP_SRCS
 	src/CAPXMLFileHandler.cpp
 	src/logmsg.cpp
 	src/cmgui/callbacks.cpp
-	src/CmguiImageSliceGraphics.cpp
 	src/cmgui/sceneviewerpanel.cpp
 	src/dicomimage.cpp
-	src/datapoint.cpp
 	src/logwindow.cpp
 	src/utils/filesystem.cpp
 	src/utils/misc.cpp
 	src/imagebrowser.cpp
 	src/imagebrowserwindow.cpp
-	src/ImageSet.cpp
-	src/ImageSlice.cpp
 	src/labelledslice.cpp
 	src/capclientwindow.cpp
 	src/capclientwindowheartmodel.cpp
