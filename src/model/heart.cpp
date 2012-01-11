@@ -229,7 +229,6 @@ int HeartModel::ComputeXi(const Point3D& position, double time, Point3D& xi) con
 void HeartModel::SetLambdaAtTime(const std::vector<double>& lambdaParams, double time)
 {
 	Cmiss_field_module_id field_module = pImpl_->field_module_;
-	dbgn("begin node change - ");
 	Cmiss_field_module_begin_change(field_module);
 	Cmiss_field_id coords_ps = pImpl_->coordinates_ps_;
 	Cmiss_field_id d_ds1 = Cmiss_field_module_find_field_by_name(field_module, "d_ds1");
@@ -247,8 +246,8 @@ void HeartModel::SetLambdaAtTime(const std::vector<double>& lambdaParams, double
 		double loc_ps[3];
 		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 		loc_ps[0] = lambdaParams[4 * i + 0];
-		if (i == 11)
-			dbg("node loc 12 : [" + ToString(loc_ps[0]) + ", " + ToString(loc_ps[1]) + ", " + ToString(loc_ps[2]) + "]");
+		//if (i == 11)
+		//	dbg("node loc 12 : [" + ToString(loc_ps[0]) + ", " + ToString(loc_ps[1]) + ", " + ToString(loc_ps[2]) + "]");
 		Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 		double loc_d_ds1[] = {0.0, 0.0, 0.0};
 		loc_d_ds1[0] = lambdaParams[4 * i + 1];
@@ -265,7 +264,6 @@ void HeartModel::SetLambdaAtTime(const std::vector<double>& lambdaParams, double
 	Cmiss_field_destroy(&d_ds2);
 	Cmiss_field_destroy(&d2_ds1ds2);
 	Cmiss_field_module_end_change(field_module);
-	dbg("end node change");
 
 	Cmiss_field_cache_destroy(&cache);
 	Cmiss_nodeset_destroy(&nodeset);

@@ -341,6 +341,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->SetHeartModelTransformation(m);
 	gui_->SetModellingPoints(modellingPoints);
+	modeller_->InitialiseBezierLambdaParams();
 
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));
 

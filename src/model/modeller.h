@@ -147,9 +147,9 @@ public:
 	void SmoothAlongTime();
 
 	/**
-	 * Initialises the model lambda parameters.
+	 * Initialises the Bezier lambda parameters.
 	 */
-	void InitialiseModelLambdaParams();
+	void InitialiseBezierLambdaParams();
 
 	/**
 	 * Change mode.
