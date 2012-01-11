@@ -14,10 +14,7 @@
 
 #include "capclientconfig.h"
 #include "capclientwindow.h"
-#include "SliceInfo.h"
 #include "dicomimage.h"
-#include "ImageSetBuilder.h"
-#include "ImageSet.h"
 #include "imagebrowser.h"
 #include "imagebrowserwindow.h"
 #include "CAPXMLFile.h"
@@ -25,7 +22,7 @@
 #include "model/modeller.h"
 #include "CAPXMLFileHandler.h"
 #include "model/heart.h"
-#include "IsoSurfaceCapture.h"
+//--#include "IsoSurfaceCapture.h"
 #include "utils/misc.h"
 #include "utils/debug.h"
 
@@ -248,9 +245,10 @@ public:
 	 */
 	void OnExportModel(std::string const& dirname)
 	{
-		IsoSurfaceCapture* iso = 0;//new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
-		assert(iso);
-		iso->OnExportModel(dirname);
+		dbg("--- Error: reinstate OnExportModel ---");
+		//--IsoSurfaceCapture* iso = 0;//--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
+		//--assert(iso);
+		//--iso->OnExportModel(dirname);
 	}
 
 	/**
@@ -263,9 +261,10 @@ public:
 	 */
 	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
 	{
-		IsoSurfaceCapture* iso = 0; //new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
-		assert(iso);
-		iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
+		dbg("--- Error: reinstate OnExportModelToBinaryVolume ---");
+		//--IsoSurfaceCapture* iso = 0; //--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
+		//--assert(iso);
+		//--iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
 	}
 
 	/**

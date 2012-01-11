@@ -1,4 +1,10 @@
 
+#include "imagebrowser.h"
+#include "labelledslice.h"
+#include "utils/debug.h"
+#include "utils/misc.h"
+#include "logmsg.h"
+
 #include <wx/wxprec.h>
 #include <wx/listctrl.h>
 #ifndef WX_PRECOMP
@@ -13,11 +19,7 @@ extern "C"
 #include <zn/cmiss_field_image.h>
 }
 
-#include "labelledslice.h"
-#include "imagebrowser.h"
-#include "utils/debug.h"
-#include "utils/misc.h"
-#include "logmsg.h"
+#include <boost/bind.hpp>
 
 namespace cap
 {
@@ -419,7 +421,6 @@ void ImageBrowser::OnCancelButtonClicked()
 void ImageBrowser::OnOKButtonClicked()
 {
 	// construct the data structure of type SlicesWithImages to pass to the main window
-	SlicesWithImages slices;
 	LabelledSlices labelledSlices;
 	
 	std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
@@ -446,10 +447,8 @@ void ImageBrowser::OnOKButtonClicked()
 		{
 			throw std::logic_error("Invalid label : " + label);
 		}
-		SliceInfo sliceInfo(sliceName, sliceMap_[key], textureMap_[key]);
 		LabelledSlice labelledSlice(sliceName, sliceMap_[key]);
 		labelledSlices.push_back(labelledSlice);
-		slices.push_back(sliceInfo);
 	}
 	
 	if (longAxisCount >= 10)
@@ -465,15 +464,7 @@ void ImageBrowser::OnOKButtonClicked()
 		return;
 	}
 	
-	std::sort(slices.begin(), slices.end(), SliceInfoSortOrder());
 	std::sort(labelledSlices.begin(), labelledSlices.end(), LabelledSortOrder());
-	
-	std::cout << __func__ << " : slices.size() = " << slices.size() <<  '\n';
-	if (slices.empty())
-	{
-		std::cout << "Empty image set.\n";
-		return;
-	}
 
 	std::string imageLocation = gui_->GetImageLocation();
 

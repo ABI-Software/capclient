@@ -8,6 +8,8 @@
 #ifndef IMAGEBROWSEWINDOW_H_
 #define IMAGEBROWSEWINDOW_H_
 
+#include "cmgui/sceneviewerpanel.h"
+
 #include <boost/scoped_ptr.hpp>
 #include <boost/tr1/memory.hpp>
 #include <string>
@@ -15,6 +17,7 @@
 #include <map>
 
 #include <wx/wxprec.h>
+#include <wx/xrc/xmlres.h>
 #include <wx/notebook.h>
 #include <wx/listctrl.h>
 // For compilers that don't support precompilation, include "wx/wx.h";
@@ -29,8 +32,6 @@ extern "C"
 }
 
 #include "ui/ImageBrowserWindowUI.h"
-#include "SliceInfo.h"
-#include "cmgui/sceneviewerpanel.h"
 
 class wxListCtrl;
 class wxListEvent;

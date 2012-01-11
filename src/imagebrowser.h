@@ -8,6 +8,14 @@
 #ifndef IMAGEBROWSER_H_
 #define IMAGEBROWSER_H_
 
+#include "math/algebra.h"
+#include "dicomimage.h"
+#include "utils/filesystem.h"
+#include "iimagebrowser.h"
+#include "imagebrowserwindow.h"
+#include "cmgui/sceneviewerpanel.h"
+#include "CAPAnnotationFile.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -23,15 +31,6 @@ extern "C"
 {
 #include <zn/cmiss_field_image.h>
 }
-
-#include "math/algebra.h"
-#include "dicomimage.h"
-#include "utils/filesystem.h"
-#include "SliceInfo.h"
-#include "iimagebrowser.h"
-#include "imagebrowserwindow.h"
-#include "cmgui/sceneviewerpanel.h"
-#include "CAPAnnotationFile.h"
 
 namespace cap
 {

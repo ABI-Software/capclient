@@ -409,12 +409,12 @@ void ImageBrowserWindow::OnCloseImageBrowserWindow(wxCloseEvent& WXUNUSED(event)
 
 void ImageBrowserWindow::OnCaseSelected(wxCommandEvent& WXUNUSED(event))
 {
-	std::cout << "ImageBrowserWindow::OnCaseSelected" << std::endl;
+	dbg("ImageBrowserWindow::OnCaseSelected");
 }
 
 void ImageBrowserWindow::PutLabelOnSelectedSlice(std::string const& label)
 {
-	std::cout << "ImageBrowserWindow::" << __func__ << std::endl;
+	dbg("ImageBrowserWindow::PutLabelOnSelectedSlice");
 	long index = listCtrl_imageTable->GetNextItem(-1,
 						wxLIST_NEXT_ALL,
 						wxLIST_STATE_SELECTED);

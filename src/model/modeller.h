@@ -12,7 +12,6 @@
 //#include <boost/ptr_container/ptr_vector.hpp>
 #include <string> // no easy way to forward declare std::string cf) <iosfwd>
 
-#include "datapoint.h"
 #include "imodeller.h"
 
 struct Cmiss_node; //REVISE
@@ -123,13 +122,6 @@ public:
 	 * @return	The modelling points.
 	 */
 	std::vector<ModellingPoint> GetModellingPoints() const;
-
-	/**
-	 * Sets data points is used for feeding in data points read in from external files.
-	 *
-	 * @param [in,out]	allDataPoints	all data points.
-	 */
-	void SetDataPoints(std::vector<DataPoint>& allDataPoints);
 
 	/**
 	 * Align model.

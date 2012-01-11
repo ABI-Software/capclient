@@ -89,7 +89,6 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
-	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
@@ -111,7 +110,6 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
-	${CAPCLIENT_ROOT_DIR}/src/datapoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/capclientwindowheartmodel.cpp
 	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
