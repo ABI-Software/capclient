@@ -14,7 +14,7 @@
 #include "iimagebrowser.h"
 #include "imagebrowserwindow.h"
 #include "cmgui/sceneviewerpanel.h"
-#include "CAPAnnotationFile.h"
+#include "io/annotationfile.h"
 
 #include <string>
 #include <map>

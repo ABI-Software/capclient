@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include "AnnotationEditor.h"
 #include "IAnnotationWindow.h"
-#include "CAPAnnotationFile.h"
+#include "io/annotationfile.h"
 
 namespace cap
 {

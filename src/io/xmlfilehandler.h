@@ -1,5 +1,5 @@
 /*
- * CAPXMLFileHandler.h
+ * XMLFileHandler.h
  *
  *  Created on: Aug 13, 2010
  *      Author: jchu014
@@ -16,15 +16,15 @@
 namespace cap
 {
 
-class CAPXMLFile;
+class ModelFile;
 class DataPoint;
 class HeartModel;
 class SceneViewerPanel;
 
 /**
- * Capxml file handler. 
+ * @brief Xml file handler. 
  */
-class CAPXMLFileHandler
+class XMLFileHandler
 {
 public:
 
@@ -33,13 +33,24 @@ public:
 	 *
 	 * @param [in,out]	xmlFile	The xml file.
 	 */
-	CAPXMLFileHandler(CAPXMLFile& xmlFile);
-
-	void AddLabelledSlices(const LabelledSlices& labelledSlices);
-	void AddModellingPoints(const std::vector<ModellingPoint>& modellingPoints);
+	XMLFileHandler(ModelFile& xmlFile);
 
 	/**
-	 * Gets the labelled slices that are define in the CAPXMLFile.
+	 * Adds labelled slices.
+	 *
+	 * @param	labelledSlices	The labelled slices.
+	 */
+	void AddLabelledSlices(const LabelledSlices& labelledSlices);
+
+	/**
+	 * Adds modelling points.
+	 *
+	 * @param	modellingPoints	The modelling points.
+	 */
+	void AddModellingPoints(const ModellingPoints& modellingPoints);
+
+	/**
+	 * Gets the labelled slices.
 	 *
 	 * @return	The labelled slices.
 	 */
@@ -65,7 +76,7 @@ public:
 	void Clear();
 	
 private:
-	CAPXMLFile& xmlFile_;   /**< The xml file */
+	ModelFile& xmlFile_;   /**< The xml file */
 };
 
 } // namespace cap

@@ -420,7 +420,6 @@ void ImageBrowser::OnCancelButtonClicked()
 
 void ImageBrowser::OnOKButtonClicked()
 {
-	// construct the data structure of type SlicesWithImages to pass to the main window
 	LabelledSlices labelledSlices;
 	
 	std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
@@ -561,7 +560,7 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 		{
 			uidToSliceKeyMap.insert(
 				std::make_pair(dicomPtr->GetSopInstanceUID(),
-							   reinterpret_cast<long int>(&value)));
+					reinterpret_cast<long int>(&value)));
 		}
 	}
 	
@@ -573,7 +572,7 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 		uidToSliceKeyMap.find(sopiuid);
 		if (itr == uidToSliceKeyMap.end())
 		{
-			std::cout << "Can't find the sopiuid: " << sopiuid << '\n';
+			LOG_MSG(LOGDEBUG) << "Can't find the sopiuid: " << sopiuid;
 		}
 		long int sliceKeyPtr = itr->second;
 		
@@ -590,7 +589,7 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 			std::string const& imageLabel = annoLabel.label;
 			if (imageLabel == "Short Axis" || imageLabel == "Long Axis")
 			{	
-				std::cout << "uid: " << sopiuid << ", label = " << imageLabel << '\n';
+				LOG_MSG(LOGDEBUG) << "uid: " << sopiuid << ", label = " << imageLabel;
 			std::map<long int, std::string>::const_iterator itr = 
 			slicePtrToLabelMap.find(sliceKeyPtr);
 			

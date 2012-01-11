@@ -42,7 +42,7 @@ SET( APP_HDRS
 	src/AnnotationEditor.h
 	src/AnnotationWindow.h
 	src/Archiver.h
-	src/CAPAnnotationFile.h
+	src/io/annotationfile.h
 	src/math/basis.h
 	src/CAPBinaryVolumeParameterDialog.h
 	src/CAPContour.h
@@ -57,8 +57,8 @@ SET( APP_HDRS
 	src/model/modellingpoint.h
 	src/math/timesmoother.h
 	src/math/totalleastsquares.h
-	src/CAPXMLFile.h
-	src/CAPXMLFileHandler.h
+	src/io/modelfile.h
+	src/io/xmlfilehandler.h
 	src/cmgui/callbacks.h
 	src/cmgui/sceneviewerpanel.h
 	src/capclientconfig.h
@@ -92,7 +92,7 @@ SET( APP_SRCS
 	src/AnnotationEditor.cpp
 	src/AnnotationWindow.cpp
 	src/capclientapp.cpp
-	src/CAPAnnotationFile.cpp
+	src/io/annotationfile.cpp
 	src/CAPContour.cpp
 	src/ui/htmlwindow.cpp
 	src/material.cpp
@@ -101,8 +101,8 @@ SET( APP_SRCS
 	src/model/modellingmode.cpp
 	src/model/modellingpoint.cpp
 	src/math/timesmoother.cpp
-	src/CAPXMLFile.cpp
-	src/CAPXMLFileHandler.cpp
+	src/io/modelfile.cpp
+	src/io/xmlfilehandler.cpp
 	src/logmsg.cpp
 	src/cmgui/callbacks.cpp
 	src/cmgui/sceneviewerpanel.cpp

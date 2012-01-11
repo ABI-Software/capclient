@@ -6,7 +6,6 @@
  */
 
 #include "AnnotationWindow.h"
-//#include "CAPAnnotationFile.h"
 
 #include <wx/xrc/xmlres.h>
 

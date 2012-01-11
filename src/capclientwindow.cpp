@@ -77,7 +77,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, heartModel_(0)
 	, timeKeeper_(0)
 	, timeNotifier_(0)
-	, previousSaveLocation_("")
+	, previousWorkingLocation_("")
 	, initialised_xmlUserCommentDialog_(false)
 	, modellingStoppedCine_(false)
 	, modellingActive_(false)
@@ -1021,60 +1021,54 @@ void CAPClientWindow::EndModellingAction()
 
 void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
 {
-	//cout << "CAPClientWindow::" << __func__ << endl;
-	wxString defaultPath = wxGetCwd();
+	if (previousWorkingLocation_.length() == 0)
+		previousWorkingLocation_ = wxGetCwd();
+
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("xml");
 	wxString wildcard = wxT("");
 	int flags = wxOPEN;
 	
 	wxString filename = wxFileSelector(wxT("Choose a model file to open"),
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+		wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags);
 	if ( !filename.empty() )
 	{
 		// work with the file
-		cout << __func__ << " - File name: " << filename.c_str() << endl;
-
+		LOG_MSG(LOGINFORMATION) << "Opening model '" << filename << "'";
 		mainApp_->OpenModel(std::string(filename.mb_str()));
 	}
 }
 
 void CAPClientWindow::OnOpenAnnotation(wxCommandEvent& event)
 {
-	//cout << "CAPClientWindow::" << __func__ << endl;
-	wxString defaultPath = wxGetCwd();
+	if (previousWorkingLocation_.length() == 0)
+		previousWorkingLocation_ = wxGetCwd();
+
 	wxString defaultFilename = wxT("");
 	wxString defaultExtension = wxT("xml");
 	wxString wildcard = wxT("");
 	int flags = wxOPEN;
 	
 	wxString filename = wxFileSelector(wxT("Choose an annotation file to open"),
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if ( !filename.empty() )
+			wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags);
+	if (!filename.empty())
 	{
-	    // work with the file
-		cout << __func__ << " - File name: " << filename.c_str() << endl;
+		// work with the file
+		LOG_MSG(LOGINFORMATION) << "Opening Annotation '" << filename <<"'";
 
-		const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
+		const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), previousWorkingLocation_);
 		if ( !dirname.empty() )
 		{
-			std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
+			LOG_MSG(LOGINFORMATION) << "Loading images from '" << dirname << "'";
+			mainApp_->OpenAnnotation(filename.mb_str(), dirname.mb_str());
 		}
-		else
-		{
-			// User cancelled the operation
-			cout << "Invalid directory\n";
-			return;
-		}
-
-		// mainApp_->OpenAnnotation(std::string(filename.mb_str()), std::string(dirname.mb_str()));
 	}
 }
 
 void CAPClientWindow::OnSave(wxCommandEvent& event)
 {
-	if (previousSaveLocation_.length() == 0)
-		previousSaveLocation_ = wxGetCwd();
+	if (previousWorkingLocation_.length() == 0)
+		previousWorkingLocation_ = wxGetCwd();
 	
 	
 	if (!initialised_xmlUserCommentDialog_)
@@ -1083,18 +1077,18 @@ void CAPClientWindow::OnSave(wxCommandEvent& event)
 		wxXmlInit_UserCommentDialogUI();
 	}
 	UserCommentDialog userCommentDlg(this);
-	userCommentDlg.SetDirectory(previousSaveLocation_);
+	userCommentDlg.SetDirectory(previousWorkingLocation_);
 	userCommentDlg.Center();
 	if (userCommentDlg.ShowModal() != wxID_OK)
 	{
 		return; // Cancelled save
 	}
-	previousSaveLocation_ = userCommentDlg.GetDirectory();
+	previousWorkingLocation_ = userCommentDlg.GetDirectory();
 	std::string userComment = userCommentDlg.GetComment();
 	dbg("User comment = " + userComment);
-	dbg("Directory = " + previousSaveLocation_);
+	dbg("Directory = " + previousWorkingLocation_);
 	
-	mainApp_->SaveModel(previousSaveLocation_, userComment);
+	mainApp_->SaveModel(previousWorkingLocation_, userComment);
 }
 
 std::string CAPClientWindow::PromptForUserComment()
