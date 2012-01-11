@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "AnnotationEditor.h"
 #include "IAnnotationWindow.h"
-#include "CAPAnnotationFile.h"
+#include "io/annotationfile.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -48,7 +48,7 @@ protected:
 		win = new TestAnnotationWindow(editor);
 		editor.SetWindow(win);
 		
-		annoFilePtr.reset(new CAPAnnotationFile(test_file));
+		annoFilePtr.reset(new AnnotationFile(test_file));
 		annoFilePtr->ReadFile();
 
 		CardiacAnnotation anno(annoFilePtr->GetCardiacAnnotation());
@@ -60,7 +60,7 @@ protected:
 	
 	cap::AnnotationEditor editor;
 	cap::TestAnnotationWindow* win;
-	boost::scoped_ptr<cap::CAPAnnotationFile> annoFilePtr;
+	boost::scoped_ptr<cap::AnnotationFile> annoFilePtr;
 };
 
 TEST_F(AnnotationEditorTest, GetCardiacAnnotation)

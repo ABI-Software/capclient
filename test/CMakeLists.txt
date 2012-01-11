@@ -93,9 +93,9 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFile.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPXMLFileHandler.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/io/modelfile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/io/xmlfilehandler.cpp
+	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 )
 
 LIST(APPEND UNIT_TESTS ImageSet)
@@ -121,14 +121,14 @@ SET(Modeller_SRC
 LIST(APPEND UNIT_TESTS CAPAnnotationFile)
 SET(CAPAnnotationFile_SRC
 	UnitTestCAPAnnotationFile.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 )
 
 LIST(APPEND UNIT_TESTS AnnotationEditor)
 SET(AnnotationEditor_SRC
 	UnitTestAnnotationEditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/AnnotationEditor.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPAnnotationFile.cpp
+	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 )
 
 LIST(APPEND UNIT_TESTS FileSystem)

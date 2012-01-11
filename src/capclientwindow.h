@@ -664,7 +664,7 @@ private:
 	Cmiss_time_keeper_id timeKeeper_; /**< time keeper */
 	Cmiss_time_notifier_id timeNotifier_; /**< time notifier */
 
-	std::string previousSaveLocation_; /**< The previous save location */
+	std::string previousWorkingLocation_; /**< The previous working location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
 	bool modellingStoppedCine_; /**< true if cine was playing when modelling started, false otherwise */
 	bool modellingActive_;  /**< true if modelling active, that is adding, moving or deleting a modelling point, false otherwise */

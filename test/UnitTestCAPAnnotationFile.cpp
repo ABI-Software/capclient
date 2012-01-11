@@ -16,7 +16,7 @@
 //#include <stdexcept>
 //#include <cstdio>
 #define private public
-#include "CAPAnnotationFile.h"
+#include "io/annotationfile.h"
 #undef private
 
 namespace
@@ -24,11 +24,11 @@ namespace
 	std::string test_file("SampleAnnotationFile.xml");
 }
 
-TEST(CAPAnnotationFile, ReadXML)
+TEST(AnnotationFile, ReadXML)
 {
 	using namespace cap;
 	
-	CAPAnnotationFile anno(test_file);
+	AnnotationFile anno(test_file);
 	anno.ReadFile();
 	
 	EXPECT_EQ(anno.cardiacAnnotation_.imageAnnotations.size(), 234);
@@ -50,16 +50,16 @@ TEST(CAPAnnotationFile, ReadXML)
 	EXPECT_EQ(imageAnnotation.labels.at(0).label, "Fast Gradient Echo");
 }
 
-TEST(CAPAnnotationFile, WriteXML)
+TEST(AnnotationFile, WriteXML)
 {
 	using namespace cap;
 	
-	CAPAnnotationFile anno(test_file);
+	AnnotationFile anno(test_file);
 	anno.ReadFile();
 	
 	anno.WriteFile("dummy");
 	
-	CAPAnnotationFile anno2("dummy");
+	AnnotationFile anno2("dummy");
 	anno2.ReadFile();
 	
 	EXPECT_EQ(anno.cardiacAnnotation_.studyiuid, anno2.cardiacAnnotation_.studyiuid);

@@ -1,5 +1,5 @@
 /*
- * CAPXMLFileHandler.cpp
+ * XMLFileHandler.cpp
  *
  *  Created on: Aug 13, 2010
  *      Author: jchu014
@@ -33,8 +33,8 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "utils/debug.h"
-#include "CAPXMLFileHandler.h"
-#include "CAPXMLFile.h"
+#include "io/xmlfilehandler.h"
+#include "io/modelfile.h"
 #include "dicomimage.h"
 #include "model/heart.h"
 #include "cmgui/sceneviewerpanel.h"
@@ -48,20 +48,20 @@ extern "C"
 namespace cap
 {
 
-CAPXMLFileHandler::CAPXMLFileHandler(CAPXMLFile& xmlFile)
+XMLFileHandler::XMLFileHandler(ModelFile& xmlFile)
 	: xmlFile_(xmlFile)
 {}
 
-void CAPXMLFileHandler::Clear()
+void XMLFileHandler::Clear()
 {
 	xmlFile_.ClearInputAndOutput();
 }
 
-void CAPXMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
+void XMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
 {
 	if (labelledSlices.empty())
 	{
-		dbg("CAPXMLFileHandler::AddLabelledSlices : No dicom files to construct CAPXMLFile from");
+		dbg("XMLFileHandler::AddLabelledSlices : No dicom files to construct ModelFile from");
 		return;
 	}
 	
@@ -86,7 +86,7 @@ void CAPXMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
 		int frame = 0;
 		BOOST_FOREACH(DICOMPtr const& dicomFile, dicomFiles)
 		{
-			CAPXMLFile::Image image;
+			ModelFile::Image image;
 			image.sopiuid = dicomFile->GetSopInstanceUID();
 			image.seriesiuid = dicomFile->GetSeriesInstanceUID();
 			image.label = label;
@@ -94,7 +94,7 @@ void CAPXMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
 			image.slice = slice;
 			image.imageOrientation = boost::shared_ptr<Orientation>();
 			image.imagePosition = boost::shared_ptr<Point3D>();;
-			image.points = std::vector<CAPXMLFile::Point>();
+			image.points = std::vector<ModelFile::Point>();
 			// if the images have been shifted for mis-registraion correction,
 			// put the new position and orientation in each image element
 			// TODO : This is really a per-slice attribute rather than per image.
@@ -118,7 +118,7 @@ void CAPXMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
 //				size_t positionOfLastSlash = filename.find_last_of("/\\");
 //				std::string baseName = filename.substr(positionOfLastSlash + 1);
 //				int number = contour->GetContourNumber();
-//				CAPXMLFile::ContourFile contourFile = {baseName, number};
+//				ModelFile::ContourFile contourFile = {baseName, number};
 //				image.contourFiles.push_back(contourFile);
 //			}
 			
@@ -130,20 +130,20 @@ void CAPXMLFileHandler::AddLabelledSlices(const LabelledSlices& labelledSlices)
 	
 }
 
-void CAPXMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& modellingPoints)
+void XMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& modellingPoints)
 {
 	std::vector<ModellingPoint>::const_iterator it = modellingPoints.begin();
 	for(;it != modellingPoints.end(); ++it)
 	{
-		CAPXMLFile::Point p;
+		ModelFile::Point p;
 		p.surface = UNDEFINED_HEART_SURFACE_TYPE;
 		p.type = it->GetModellingPointType();
 		const Point3D& position = it->GetPosition();
-		CAPXMLFile::Value x = {position.x, "x"};
+		ModelFile::Value x = {position.x, "x"};
 		p.values["x"] = x; //REVISE
-		CAPXMLFile::Value y = {position.y, "y"};
+		ModelFile::Value y = {position.y, "y"};
 		p.values["y"] = y;
-		CAPXMLFile::Value z = {position.z, "z"};
+		ModelFile::Value z = {position.z, "z"};
 		p.values["z"] = z;
 		
 		p.time = it->GetTime();
@@ -200,7 +200,7 @@ namespace
 
 } // unnamed namespace
 
-LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
+LabelledSlices XMLFileHandler::GetLabelledSlices() const
 {
 	LabelledSlices labelledSlices;
 	const std::string& filename = xmlFile_.GetFilename();
@@ -215,8 +215,8 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 	typedef std::map<std::string, LabelledSlice > LabelledSliceMap;
 	LabelledSliceMap labelledSliceMap;
 
-	CAPXMLFile::Input& input = xmlFile_.GetInput();
-	BOOST_FOREACH(CAPXMLFile::Image const& image, input.images)
+	ModelFile::Input& input = xmlFile_.GetInput();
+	BOOST_FOREACH(ModelFile::Image const& image, input.images)
 	{
 		HashTable::const_iterator dicomFileItr = uidToFilenameMap.find(image.sopiuid);
 		while (dicomFileItr == uidToFilenameMap.end())
@@ -252,21 +252,21 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 		}
 
 		// Create Contour objects
-		CAPXMLFile::StudyContours const& studyContours = input.studyContours;
-		std::vector<CAPXMLFile::ImageContours>::const_iterator imageContours_itr =
+		ModelFile::StudyContours const& studyContours = input.studyContours;
+		std::vector<ModelFile::ImageContours>::const_iterator imageContours_itr =
 				std::find_if(studyContours.listOfImageContours.begin(),
 							studyContours.listOfImageContours.end(),
 							boost::bind(std::equal_to<std::string>(),
-									boost::bind(&CAPXMLFile::ImageContours::sopiuid, _1),
+									boost::bind(&ModelFile::ImageContours::sopiuid, _1),
 									image.sopiuid));
 		if (imageContours_itr != studyContours.listOfImageContours.end())
 		{
-			CAPXMLFile::ImageContours const& imageContours = *imageContours_itr;
-			BOOST_FOREACH(CAPXMLFile::Contour const& contour, imageContours.contours)
+			ModelFile::ImageContours const& imageContours = *imageContours_itr;
+			BOOST_FOREACH(ModelFile::Contour const& contour, imageContours.contours)
 			{
 				std::vector<Point3D> points;
 				points.reserve(contour.contourPoints.size());
-				BOOST_FOREACH(CAPXMLFile::ContourPoint const& contourPoint, contour.contourPoints)
+				BOOST_FOREACH(ModelFile::ContourPoint const& contourPoint, contour.contourPoints)
 				{
 					points.push_back(Point3D(contourPoint.x, contourPoint.y, 0));
 				}
@@ -301,14 +301,14 @@ LabelledSlices CAPXMLFileHandler::GetLabelledSlices() const
 	return labelledSlices;
 }
 
-ModellingPoints CAPXMLFileHandler::GetModellingPoints() const
+ModellingPoints XMLFileHandler::GetModellingPoints() const
 {
 	ModellingPoints modellingPoints;
-	CAPXMLFile::Input& input = xmlFile_.GetInput();
-	std::vector<CAPXMLFile::Point>::const_iterator cit = input.points.begin();
+	ModelFile::Input& input = xmlFile_.GetInput();
+	std::vector<ModelFile::Point>::const_iterator cit = input.points.begin();
 	for (; cit != input.points.end(); ++cit)
 	{
-		const CAPXMLFile::Point& p = *cit;
+		const ModelFile::Point& p = *cit;
 		double coords[3];
 		coords[0] = (*p.values.find("x")).second.value;
 		coords[1] = (*p.values.find("y")).second.value;
@@ -322,9 +322,9 @@ ModellingPoints CAPXMLFileHandler::GetModellingPoints() const
 	return modellingPoints;
 }
 
-void CAPXMLFileHandler::AddProvenanceDetail(std::string const& comment)
+void XMLFileHandler::AddProvenanceDetail(std::string const& comment)
 {
-	CAPXMLFile::ProvenanceDetail provenanceDetail;
+	ModelFile::ProvenanceDetail provenanceDetail;
 	
 	time_t rawtime;
 	struct tm * timeinfo;

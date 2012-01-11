@@ -1,11 +1,11 @@
 /*
- * CAPXMLFile.cpp
+ * ModelFile.cpp
  *
  *  Created on: Jun 3, 2010
  *      Author: jchu014
  */
 
-#include "CAPXMLFile.h"
+#include "io/modelfile.h"
 
 #include <iostream>
 #include <sstream>
@@ -34,7 +34,7 @@ namespace cap {
 namespace 
 {
 
-void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
+void ReadPoint(ModelFile::Point& point, xmlNodePtr cur)
 {
 	// point has 2 or 3 attributes - surface, type and time
 	//frame
@@ -92,7 +92,7 @@ void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Value"))
 		{	
-			CAPXMLFile::Value v;
+			ModelFile::Value v;
 			
 			//variable
 			xmlChar* variable = xmlGetProp(cur, (xmlChar const*)"variable"); 
@@ -114,7 +114,7 @@ void ReadPoint(CAPXMLFile::Point& point, xmlNodePtr cur)
 	}
 }
 
-void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
+void ReadImage(ModelFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 {
 	using boost::lexical_cast;
 	//frame
@@ -149,7 +149,7 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(child->name, (const xmlChar *)"Point"))
 		{
-			CAPXMLFile::Point p;
+			ModelFile::Point p;
 			ReadPoint(p, child);
 			image.points.push_back(p);
 		}
@@ -199,7 +199,7 @@ void ReadImage(CAPXMLFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
 	}
 }
 
-void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
+void ReadContour(ModelFile::Contour& contour, xmlNodePtr cur)
 {
 	xmlChar* number = xmlGetProp(cur, (xmlChar const*)"number");
 	contour.number = boost::lexical_cast<size_t>((char*)number);
@@ -210,7 +210,7 @@ void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar*)"ContourPoint"))
 		{
-			CAPXMLFile::ContourPoint p;
+			ModelFile::ContourPoint p;
 			xmlNodePtr child = cur->xmlChildrenNode;
 			while (child)
 			{
@@ -232,7 +232,7 @@ void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar*)"TransformationMatrix"))
 		{
-			CAPXMLFile::TransformationMatrix& t = contour.transformationMatrix;
+			ModelFile::TransformationMatrix& t = contour.transformationMatrix;
 			xmlNodePtr child = cur->xmlChildrenNode;
 			while (child)
 			{
@@ -255,7 +255,7 @@ void ReadContour(CAPXMLFile::Contour& contour, xmlNodePtr cur)
 	}
 }
 
-void ReadImageContours(CAPXMLFile::ImageContours& imageContours, xmlNodePtr cur)
+void ReadImageContours(ModelFile::ImageContours& imageContours, xmlNodePtr cur)
 {
 	// read attribute sopiuid
 	xmlChar* sopiuid = xmlGetProp(cur, (xmlChar const*)"sopiuid"); 
@@ -267,7 +267,7 @@ void ReadImageContours(CAPXMLFile::ImageContours& imageContours, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar*)"Contour"))
 		{
-			CAPXMLFile::Contour contour;
+			ModelFile::Contour contour;
 			ReadContour(contour, cur);
 			imageContours.contours.push_back(contour);
 		}
@@ -276,7 +276,7 @@ void ReadImageContours(CAPXMLFile::ImageContours& imageContours, xmlNodePtr cur)
 	}
 }
 
-void ReadStudyContours(CAPXMLFile::StudyContours& studyContours, xmlNodePtr cur)
+void ReadStudyContours(ModelFile::StudyContours& studyContours, xmlNodePtr cur)
 {
 	// Read in studyiuid
 	xmlChar* studyiuid = xmlGetProp(cur, (xmlChar const*)"studyiuid"); 
@@ -291,7 +291,7 @@ void ReadStudyContours(CAPXMLFile::StudyContours& studyContours, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"ImageContours"))
 		{
-			CAPXMLFile::ImageContours imageContours;
+			ModelFile::ImageContours imageContours;
 			ReadImageContours(imageContours, cur);
 			studyContours.listOfImageContours.push_back(imageContours);
 		}
@@ -300,7 +300,7 @@ void ReadStudyContours(CAPXMLFile::StudyContours& studyContours, xmlNodePtr cur)
 	}
 }
 
-void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
+void ReadInput(ModelFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 {
 	// CAPXMLInput has no attributes
 	// Read in images (children of input)
@@ -310,13 +310,13 @@ void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Image"))
 		{
-			CAPXMLFile::Image image;
+			ModelFile::Image image;
 			ReadImage(image, doc, cur);
 			input.images.push_back(image);
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"Point"))
 		{
-			CAPXMLFile::Point point;
+			ModelFile::Point point;
 			ReadPoint(point, cur);
 			input.points.push_back(point);
 		}
@@ -326,7 +326,7 @@ void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 		}
 		else if (!xmlStrcmp(cur->name, (const xmlChar *)"CardiacAnnotation"))
 		{
-			CAPAnnotationFile annoFile(""); // instantiate a dummy object to use its method
+			AnnotationFile annoFile(""); // instantiate a dummy object to use its method
 			annoFile.ReadCardiacAnnotation(input.cardiacAnnotation, cur);
 		}
 		cur = cur->next;
@@ -334,11 +334,11 @@ void ReadInput(CAPXMLFile::Input& input, xmlDocPtr doc, xmlNodePtr cur)
 	// Sort images by frame
 	std::sort(input.images.begin(), input.images.end(),
 			boost::bind(std::less<int>(),
-						boost::bind(&CAPXMLFile::Image::frame, _1),
-						boost::bind(&CAPXMLFile::Image::frame, _2)));
+						boost::bind(&ModelFile::Image::frame, _1),
+						boost::bind(&ModelFile::Image::frame, _2)));
 }
 
-void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
+void ReadOutput(ModelFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
 {
 	// CAPXMLOutput has no attributes
 	// Read in exnode filenames
@@ -349,7 +349,7 @@ void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Exnode"))
 		{
 //			std::cout << (char*)cur->name << std::endl;
-			CAPXMLFile::Exnode exnode;
+			ModelFile::Exnode exnode;
 			//exnode
 			xmlChar* exnodeFilename = xmlNodeGetContent(cur);
 //			std::cout << "exnode = " << exnode << '\n';
@@ -378,12 +378,12 @@ void ReadOutput(CAPXMLFile::Output& output, xmlDocPtr doc, xmlNodePtr cur)
 //	std::cout << "sorting" << std::endl;;
 	std::sort(output.exnodes.begin(), output.exnodes.end(),
 			boost::bind(std::less<int>(),
-				boost::bind(&CAPXMLFile::Exnode::frame, _1),
-				boost::bind(&CAPXMLFile::Exnode::frame, _2)));
+				boost::bind(&ModelFile::Exnode::frame, _1),
+				boost::bind(&ModelFile::Exnode::frame, _2)));
 //	std::cout << "sorted" << std::endl;
 }
 
-void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
+void ReadDocumentation(ModelFile::Documentation& documentation, xmlNodePtr cur)
 {
 	// Documentation has no attributes
 	// Read in Version and History
@@ -397,7 +397,7 @@ void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
 			//date
 			xmlChar* date = xmlGetProp(cur, (xmlChar const*)"date"); 
 //			std::cout << "date = " << date << '\n';
-			CAPXMLFile::ProvenanceDetail provenanceDetail;
+			ModelFile::ProvenanceDetail provenanceDetail;
 			provenanceDetail.date = (char*)(date);
 			xmlFree(date);
 			
@@ -454,9 +454,9 @@ void ReadDocumentation(CAPXMLFile::Documentation& documentation, xmlNodePtr cur)
 	}
 }
 
-void ConstructValueNode(std::pair<std::string, CAPXMLFile::Value> const &valuePair, xmlNodePtr pointNode)
+void ConstructValueNode(std::pair<std::string, ModelFile::Value> const &valuePair, xmlNodePtr pointNode)
 {
-	CAPXMLFile::Value const &value = valuePair.second;
+	ModelFile::Value const &value = valuePair.second;
 	xmlNodePtr valueNode = xmlNewChild(pointNode, NULL, BAD_CAST "Value", NULL);
 	
 	std::string valueStr = boost::lexical_cast<std::string>(value.value);
@@ -464,7 +464,7 @@ void ConstructValueNode(std::pair<std::string, CAPXMLFile::Value> const &valuePa
 	xmlNewProp(valueNode, BAD_CAST "variable", BAD_CAST value.variable.c_str());
 }
 
-void ConstructPointSubtree(CAPXMLFile::Point const &point, xmlNodePtr imageNode)
+void ConstructPointSubtree(ModelFile::Point const &point, xmlNodePtr imageNode)
 {
 	xmlNodePtr pointNode = xmlNewChild(imageNode, NULL, BAD_CAST "Point", NULL);
 	
@@ -518,7 +518,7 @@ void ConstructPointSubtree(CAPXMLFile::Point const &point, xmlNodePtr imageNode)
 	
 }
 
-void ConstructContourPointNode(CAPXMLFile::ContourPoint const& contourPoint, xmlNodePtr contourNode)
+void ConstructContourPointNode(ModelFile::ContourPoint const& contourPoint, xmlNodePtr contourNode)
 {
 	xmlNodePtr contourPointNode = xmlNewChild(contourNode, NULL, BAD_CAST "ContourPoint", NULL);
 	xmlNodePtr x = xmlNewChild(contourPointNode, NULL, BAD_CAST "x", NULL);
@@ -529,7 +529,7 @@ void ConstructContourPointNode(CAPXMLFile::ContourPoint const& contourPoint, xml
 	xmlNodeSetContent(y, BAD_CAST yStr.c_str());
 }
 
-void ConstructContourSubtree(CAPXMLFile::Contour const& contour, xmlNodePtr imageContoursNode)
+void ConstructContourSubtree(ModelFile::Contour const& contour, xmlNodePtr imageContoursNode)
 {
 	xmlNodePtr contourNode = xmlNewChild(imageContoursNode, NULL, BAD_CAST "Contour", NULL);
 	std::string number = boost::lexical_cast<std::string>(contour.number);
@@ -553,7 +553,7 @@ void ConstructContourSubtree(CAPXMLFile::Contour const& contour, xmlNodePtr imag
 		}
 	}
 }
-void ConstructImageContoursSubtree(CAPXMLFile::ImageContours const& imageContours, xmlNodePtr studyContoursNode)
+void ConstructImageContoursSubtree(ModelFile::ImageContours const& imageContours, xmlNodePtr studyContoursNode)
 {
 	xmlNodePtr imageContoursNode = xmlNewChild(studyContoursNode, NULL, BAD_CAST "ImageContours", NULL);
 	xmlNewProp(imageContoursNode, BAD_CAST "sopiuid", BAD_CAST imageContours.sopiuid.c_str());
@@ -562,7 +562,7 @@ void ConstructImageContoursSubtree(CAPXMLFile::ImageContours const& imageContour
 			boost::bind(ConstructContourSubtree, _1, imageContoursNode));
 }
 
-void ContructStudyContoursSubtree(CAPXMLFile::StudyContours const& studyContours, xmlNodePtr node)
+void ContructStudyContoursSubtree(ModelFile::StudyContours const& studyContours, xmlNodePtr node)
 {
 	if (studyContours.listOfImageContours.empty())
 	{
@@ -575,7 +575,7 @@ void ContructStudyContoursSubtree(CAPXMLFile::StudyContours const& studyContours
 			boost::bind(ConstructImageContoursSubtree, _1, studyContoursNode));	
 }
 
-void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
+void ConstructImageSubtree(ModelFile::Image const &image, xmlNodePtr input)
 {
 	xmlNodePtr imageNode = xmlNewChild(input, NULL, BAD_CAST "Image", NULL);
 	std::string frame = boost::lexical_cast<std::string>(image.frame);
@@ -624,14 +624,14 @@ void ConstructImageSubtree(CAPXMLFile::Image const &image, xmlNodePtr input)
 	
 }
 
-void ConstructExnodeNode(CAPXMLFile::Exnode const &exnode, xmlNodePtr output)
+void ConstructExnodeNode(ModelFile::Exnode const &exnode, xmlNodePtr output)
 {
 	xmlNodePtr frameNode = xmlNewChild(output, NULL, BAD_CAST "Exnode", BAD_CAST exnode.exnode.c_str());
 	std::string frameStr(boost::lexical_cast<std::string>(exnode.frame));
 	xmlNewProp(frameNode, BAD_CAST "frame", BAD_CAST frameStr.c_str());
 }
 
-void ConstructProvenanceDetailNode(CAPXMLFile::ProvenanceDetail const& provenanceDetail, xmlNodePtr documentation)
+void ConstructProvenanceDetailNode(ModelFile::ProvenanceDetail const& provenanceDetail, xmlNodePtr documentation)
 {
 	xmlNodePtr pdNode = xmlNewChild(documentation, NULL, BAD_CAST "provenanceDetail", NULL);
 	xmlNewProp(pdNode, BAD_CAST "date", BAD_CAST provenanceDetail.date.c_str());
@@ -648,17 +648,17 @@ void ConstructProvenanceDetailNode(CAPXMLFile::ProvenanceDetail const& provenanc
 
 } // end unnamed namespace
 
-CAPXMLFile::CAPXMLFile(std::string const & filename)
+ModelFile::ModelFile(std::string const & filename)
 	: filename_(filename)
 {
 	output_.focalLength = 0.0;
 	output_.interval = 0.0;
 }
 
-CAPXMLFile::~CAPXMLFile()
+ModelFile::~ModelFile()
 {}
 
-void CAPXMLFile::ReadFile()
+void ModelFile::ReadFile()
 {
 	xmlDocPtr doc; 
 	xmlNodePtr cur;
@@ -742,7 +742,7 @@ void CAPXMLFile::ReadFile()
 #if defined(LIBXML_TREE_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 
 
-void CAPXMLFile::WriteFile(std::string const& filename) const
+void ModelFile::WriteFile(std::string const& filename) const
 {
 	LIBXML_TEST_VERSION
 	
@@ -773,7 +773,7 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 	{
 		xmlNodePtr cardiacAnnotationNode = xmlNewChild(inputNode, NULL, BAD_CAST "CardiacAnnotation", NULL);
 		xmlNewProp(cardiacAnnotationNode, BAD_CAST "studyiuid", BAD_CAST input_.cardiacAnnotation.studyiuid.c_str());
-		CAPAnnotationFile annoFile("");
+		AnnotationFile annoFile("");
 		annoFile.ConstructCardiacAnnotation(input_.cardiacAnnotation, cardiacAnnotationNode);
 	}
 
@@ -818,12 +818,12 @@ void CAPXMLFile::WriteFile(std::string const& filename) const
 }
 
 
-void CAPXMLFile::AddImage(Image const& image)
+void ModelFile::AddImage(Image const& image)
 {
 	input_.images.push_back(image);
 }
 
-void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& point)
+void ModelFile::AddPointToImage(std::string const& imageSopiuid, Point const& point)
 {
 	using boost::bind;
 	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
@@ -837,22 +837,22 @@ void CAPXMLFile::AddPointToImage(std::string const& imageSopiuid, Point const& p
 	itr->points.push_back(point);
 }
 
-void CAPXMLFile::AddPoint(const Point& point)
+void ModelFile::AddPoint(const Point& point)
 {
 	input_.points.push_back(point);
 }
 
-void CAPXMLFile::AddExnode(Exnode const& exnode)
+void ModelFile::AddExnode(Exnode const& exnode)
 {
 	output_.exnodes.push_back(exnode);
 }
 
-std::string const& CAPXMLFile::GetExelemFileName() const
+std::string const& ModelFile::GetExelemFileName() const
 {
 	return output_.elemFileName;
 }
 
-std::vector<std::string> CAPXMLFile::GetExnodeFileNames() const
+std::vector<std::string> ModelFile::GetExnodeFileNames() const
 {
 	std::vector<std::string> names;
 	// frames are sorted when they are read in from file.
@@ -861,12 +861,12 @@ std::vector<std::string> CAPXMLFile::GetExnodeFileNames() const
 	return names;
 }
 
-double CAPXMLFile::GetFocalLength() const
+double ModelFile::GetFocalLength() const
 {
 	return output_.focalLength;
 }
 
-void CAPXMLFile::GetTransformationMatrix(gtMatrix& mat) const
+void ModelFile::GetTransformationMatrix(gtMatrix& mat) const
 {
 	std::stringstream matrixStream(output_.transformationMatrix);
 	matrixStream >>

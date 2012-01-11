@@ -278,15 +278,14 @@ void CAPClient::OpenModel(const std::string& filename)
 	// Clear out anything old.
 	cardiacAnnotationPtr_.reset(0);
 
-	CAPXMLFile xmlFile(filename);
+	ModelFile xmlFile(filename);
 	xmlFile.ReadFile();
 	
-	CAPXMLFileHandler xmlFileHandler(xmlFile);
+	XMLFileHandler xmlFileHandler(xmlFile);
 	gui_->CreateProgressDialog("Please wait", "Searching for DICOM images", 10);
 	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices();
 	gui_->UpdateProgressDialog(10);
-	//--const SlicesWithImages& slicesWithImages = xmlFileHandler.GetSlicesWithImages(cmguiManager_);
-	//--SlicesWithImages slicesWithImages;
+
 	if (labelledSlices.empty())
 	{
 		dbg("Can't locate image files");
@@ -303,7 +302,6 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	ModellingPoints modellingPoints = xmlFileHandler.GetModellingPoints();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
-	dbg("number of exnodeFilenames = " + ToString(exnodeFileNames.size()));
 	if (exnodeFileNames.empty())
 	{
 		if(!modellingPoints.empty())
@@ -320,7 +318,6 @@ void CAPClient::OpenModel(const std::string& filename)
 	std::string xmlFilename = filename;
 	size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
 	std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
-	dbg("modelFilePath = " + modelFilePath);
 	
 	int numberOfModelFrames = exnodeFileNames.size();
 	assert(numberOfModelFrames == GetMinimumNumberOfFrames());
@@ -359,7 +356,7 @@ void CAPClient::OpenAnnotation(const std::string& filename, const std::string& i
 	dbg(std::string(__func__) + " - File name: " + filename);
 	dbg(std::string(__func__) + " - Dir name: " + imageDirname);
 	
-	CAPAnnotationFile annotationFile(filename);
+	AnnotationFile annotationFile(filename);
 	dbg("Start reading xml file");
 	annotationFile.ReadFile();
 	
@@ -390,12 +387,12 @@ void CAPClient::OpenImages()
 
 void CAPClient::SaveModel(const std::string& dirname, const std::string& userComment)
 {
-	CAPXMLFile xmlFile(dirname);
+	ModelFile xmlFile(dirname);
 	
 	dbg("Warning: CAPClient::SaveModel - not working with modelling points.");
 	//std::vector<DataPoint> const& dataPoints; // -- = modeller_->GetDataPoints();
 	std::vector<ModellingPoint> modellingPoints = modeller_->GetModellingPoints(); // -- = modeller_->GetDataPoints();
-	CAPXMLFileHandler xmlFileHandler(xmlFile);
+	XMLFileHandler xmlFileHandler(xmlFile);
 	//xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
 	xmlFileHandler.AddLabelledSlices(labelledSlices_);
 	xmlFileHandler.AddModellingPoints(modellingPoints);

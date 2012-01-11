@@ -1,5 +1,5 @@
 /*
- * CAPXMLFile.h
+ * ModelFile.h
  *
  *  Created on: May 25, 2010
  *      Author: jchu014
@@ -9,7 +9,7 @@
 #define CAPXMLFILE_H_
 
 #include "math/algebra.h"
-#include "CAPAnnotationFile.h" //REVISE
+#include "io/annotationfile.h"
 #include "standardheartdefinitions.h"
 
 #include <string>
@@ -24,7 +24,7 @@ namespace cap
 /**
  * Capxml file.
  */
-class CAPXMLFile
+class ModelFile
 {
 public:
 
@@ -173,12 +173,12 @@ public:
 	 *
 	 * @param	filename	Filename of the file.
 	 */
-	explicit CAPXMLFile(const std::string& filename);
+	explicit ModelFile(const std::string& filename);
 
 	/**
 	 * Destructor.
 	 */
-	~CAPXMLFile();// need this so compiler wont generate dtor
+	~ModelFile();// need this so compiler wont generate dtor
 
 	/**
 	 * Reads the file.
@@ -382,7 +382,7 @@ private:
 	Output output_; /**< The output */
 	Documentation documentation_;   /**< The documentation */
 	
-	friend class CAPXMLFileHandler; /**< The capxml file handler */
+	friend class XMLFileHandler; /**< The capxml file handler */
 };
 
 } // end namespace cap
