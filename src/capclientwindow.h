@@ -345,21 +345,19 @@ public:
 	void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);
 
 	/**
-	 * Gets the currently selected node.
-	 *
-	 * @return	The currently selected node.
-	 */
-	Cmiss_node_id GetCurrentlySelectedNode() const;
-
-	/**
 	 * Adds currently selected node.  If no node is currently selected then do nothing.
 	 */
 	void AddCurrentlySelectedNode();
 
 	/**
-	 * Move currently selected node.
+	 * Move currently selected node.  If no node is currently selected then do nothing.
 	 */
 	void MoveCurrentlySelectedNode();
+
+	/**
+	 * Delete currently selected node.  If no node is currently selected then do nothing.
+	 */
+	void DeleteCurrentlySelectedNode();
 
 	/**
 	 * Gets a nodes rectanglar cartesian coordinates.  This function
@@ -394,29 +392,6 @@ public:
 	 * @param	frameNumber	The frame number.
 	 */
 	void UpdateFrameNumber(int frameNumber);
-
-	/**
-	 * Adds a data point to 'position'.
-	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	position		   	The position.
-	 */
-	//void AddDataPoint(Cmiss_node* dataPointID, Point3D const& position);
-
-	/**
-	 * Move data point.
-	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	newPosition		   	The new position.
-	 */
-	//void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition);
-
-	/**
-	 * Removes the data point described by dataPointID.
-	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 */
-	void RemoveDataPoint(Cmiss_node* dataPointID);
 
 	/**
 	 * Smooth along time.

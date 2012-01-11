@@ -427,21 +427,6 @@ double CAPClientWindow::GetCurrentTime() const
 	return Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 }
 
-//void CAPClientWindow::AddDataPoint(Cmiss_node* dataPointID, Point3D const& position)
-//{
-//	mainApp_->AddDataPoint(dataPointID, position, GetCurrentTime());
-//}
-
-//void CAPClientWindow::MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition)
-//{
-//	mainApp_->MoveDataPoint(dataPointID, newPosition, GetCurrentTime());
-//}
-
-void CAPClientWindow::RemoveDataPoint(Cmiss_node* dataPointID)
-{
-	mainApp_->RemoveDataPoint(dataPointID, GetCurrentTime());
-}
-
 void CAPClientWindow::SmoothAlongTime()
 {
 	mainApp_->SmoothAlongTime();
@@ -1433,7 +1418,7 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 	// We are assuming here that only one node is selected.  If the node tool is set so that
 	// only single selection is possible then we are golden, if not...
 	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
-	if (selected_node)
+	if (selected_node != 0)
 	{
 		double currentTime = GetCurrentTime();
 		Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
@@ -1475,8 +1460,9 @@ void CAPClientWindow::MoveCurrentlySelectedNode()
 	// We are assuming here that only one node is selected.  If the node tool is set so that
 	// only single selection is possible then we are golden, if not...
 	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
-	if (selected_node)
+	if (selected_node != 0)
 	{
+		double currentTime = GetCurrentTime();
 		Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 
@@ -1487,7 +1473,7 @@ void CAPClientWindow::MoveCurrentlySelectedNode()
 
 		Point3D coords(values);
 		int node_id = Cmiss_node_get_identifier(selected_node);
-		mainApp_->MoveModellingPoint(region, node_id, coords, GetCurrentTime());
+		mainApp_->MoveModellingPoint(region, node_id, coords, currentTime);
 		Cmiss_field_destroy(&coordinate_field);
 		Cmiss_node_destroy(&selected_node);
 		Cmiss_region_destroy(&region);
@@ -1496,25 +1482,26 @@ void CAPClientWindow::MoveCurrentlySelectedNode()
 	Cmiss_field_module_destroy(&field_module);
 }
 
-//Cmiss_node_id CAPClientWindow::GetCurrentlySelectedNode() const
-//{
-//	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_Mode->GetSelection());
-//	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
-//	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
-//	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
-//
-//	Cmiss_node_iterator_id it = Cmiss_nodeset_create_node_iterator(nodeset);
-//	// We are assuming here that only one node is selected.  If the node tool is set so that
-//	// only single selection is possible then we are golden, if not...
-//	Cmiss_node_id selected_node = Cmiss_node_iterator_next(it);
-//
-//	Cmiss_node_iterator_destroy(&it);
-//	Cmiss_nodeset_destroy(&nodeset);
-//	Cmiss_field_module_destroy(&field_module);
-//
-//	return selected_node;
-//}
-//
+void CAPClientWindow::DeleteCurrentlySelectedNode()
+{
+	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
+	// We are assuming here that only one node is selected.  If the node tool is set so that
+	// only single selection is possible then we are golden, if not...
+	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
+	if (selected_node != 0)
+	{
+		double currentTime = GetCurrentTime();
+		Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
+		int node_id = Cmiss_node_get_identifier(selected_node);
+
+		mainApp_->RemoveModellingPoint(region, node_id, currentTime);
+
+		Cmiss_node_destroy(&selected_node);
+		Cmiss_region_destroy(&region);
+	}
+	Cmiss_field_module_destroy(&field_module);
+}
+
 Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
 {
 	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_Mode->GetSelection());

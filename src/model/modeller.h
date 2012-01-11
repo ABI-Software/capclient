@@ -57,7 +57,7 @@ public:
 	void AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time);
 
 	/**
-	 * Move modellin point.
+	 * Move modelling point.
 	 *
 	 * @param	region  	The region.
 	 * @param	node_id 	Identifier for the node.
@@ -65,22 +65,15 @@ public:
 	 * @param	time		The time.
 	 */
 	void MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time);
-	/**
-	 * Move data point.
-	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	coord			   	The coordinate.
-	 * @param	time			   	The time.
-	 */
-	//void MoveDataPoint(Cmiss_node* dataPointID, const Point3D& coord, double time);
 
 	/**
-	 * Removes the data point.
+	 * Removes the modelling point.
 	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	time			   	The time.
+	 * @param	region 	The region.
+	 * @param	node_id	Identifier for the node.
+	 * @param	time   	The time.
 	 */
-	void RemoveDataPoint(Cmiss_node* dataPointID, double time);
+	void RemoveModellingPoint(Cmiss_region_id region, int node_id, double time);
 
 	/**
 	 * Executes the accept action.
@@ -208,21 +201,6 @@ public:
 
 
 private:
-	/**
-	 * Initialises the modelling mode strings.
-	 *
-	 * @return	A Modelling mode enum map of enums to strings.
-	 */
-	//static ModellingModeEnumMap InitModellingModeStrings()
-	//{
-	//	ModellingModeEnumMap m;
-	//	m[APEX] = std::string("APEX");
-	//	m[BASE] = std::string("BASE");
-	//	m[RV] = std::string("RV");
-	//	m[BASEPLANE] = std::string("BASEPLANE");
-	//	m[GUIDEPOINT] = std::string("GUIDEPOINT");
-	//	return m;
-	//}
 
 	/**
 	 * Updates the time varying data points.
@@ -240,15 +218,7 @@ private:
 	 *
 	 * @return	The fitted plane.
 	 */
-	Plane FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& basePlanePoints, const Vector3D& xAxis) const;
-
-	/**
-	 * Fit model.
-	 *
-	 * @param [in,out]	dataPoints	The data points.
-	 * @param	frameNumber		  	The frame number.
-	 */
-	void FitModel(DataPoints& dataPoints, int frameNumber);
+	Plane FitPlaneToBasePlanePoints(const ModellingPoints& basePlanePoints, const Vector3D& xAxis) const;
 
 	/**
 	 * Fit the model.  For the given time fit the model to the current guide points.

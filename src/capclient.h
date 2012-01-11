@@ -295,26 +295,14 @@ public:
 	}
 
 	/**
-	 * Move data point.
-	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	newPosition		   	The new position.
-	 * @param	time			   	The time.
-	 */
-	//void MoveDataPoint(Cmiss_node* dataPointID, Point3D const& newPosition, double time)
-	//{
-	//	modeller_->MoveDataPoint(dataPointID, newPosition, time);
-	//}
-
-	/**
 	 * Removes the data point.
 	 *
 	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
 	 * @param	time			   	The time.
 	 */
-	void RemoveDataPoint(Cmiss_node* dataPointID, double time) 
+	void RemoveModellingPoint(Cmiss_region_id region, int node_id, double time) 
 	{
-		modeller_->RemoveDataPoint(dataPointID, time);
+		modeller_->RemoveModellingPoint(region, node_id, time);
 	}
 	
 	/**
