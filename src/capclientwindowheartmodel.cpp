@@ -261,8 +261,6 @@ Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(int node
 	Cmiss_field_module_end_change(field_module);
 	Cmiss_field_module_destroy(&field_module);
 
-	dbg("[" + ToString(values_ps[0]) + ", " + ToString(values_ps[1]) + ", " + ToString(values_ps[2]) + "]");
-
 	return Point3D(values_ps);
 }
 

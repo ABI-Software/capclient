@@ -48,7 +48,6 @@ DICOMImage::DICOMImage(const string& filename)
 
 DICOMImage::~DICOMImage()
 {
-	//dbg("DICOMImage::~DICOMImage()");
 	if (plane_)
 	{
 		delete plane_;
@@ -469,10 +468,6 @@ void DICOMImage::ReadFile()
 		LOG_MSG(LOGWARNING) << "Instance Number (0020,0013) not found: " << filename_;
 		instanceNumber_ = -1;
 	}
-
-	//dbg("dicom info: " + filename_ + ", " + sopInstanceUID_ + ", " + seriesInstanceUID_);
-	
-//	cout << "Exiting " << __func__ << '\n';
 }
 
 void DICOMImage::ComputeImagePlane()
