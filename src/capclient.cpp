@@ -2,6 +2,7 @@
 
 #include "capclient.h"
 #include "utils/debug.h"
+#include "logmsg.h"
 
 namespace cap
 {
@@ -95,9 +96,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 	}
 	gui_->PopulateSliceList(sliceNames, visibilities);
 	
-	//EnterImagesLoadedState();
 	gui_->DestroyProgressDialog();
-
 }
 
 void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
@@ -118,160 +117,6 @@ void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
 		}
 	}
 }
-
-/*
-void CAPClient::LoadImagesFromImageBrowserWindow(const SlicesWithImages& slices, const CardiacAnnotation& anno)
-{
-	//	// Reset the state of the CAPClientWindow
-	//	EnterInitState(); // this re-registers the input call back -REVISE
-	
-	//-- Gone LoadImages(slices);
-	//InitializeHeartModelTemplate(slices);
-	
-	// Create DataPoints if corresponding annotations exist in the CardiacAnnotation
-	assert(!anno.imageAnnotations.empty());
-	
-	cardiacAnnotationPtr_.reset(new CardiacAnnotation(anno));
-	
-	// The following code should only execute when reading a pre-defined annotation file
-	Cmiss_context_id cmiss_context = 0;//--gui_->GetCmissContext();
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmiss_context);
-	bool apexDefined = false;
-	bool baseDefined = false;
-	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
-	{
-		BOOST_FOREACH(ROI const& roi, imageAnno.rOIs)
-		{
-			BOOST_FOREACH(Label const& label, roi.labels)
-			{
-				if (label.label == "Apex of Heart")
-				{
-					if (apexDefined)
-					{
-						continue;
-					}
-					// create DataPoint		
-					std::string const& sopiuid = imageAnno.sopiuid;
-					BOOST_FOREACH(SliceInfo const& slice, slices)
-					{
-						// Find the slice that the image belongs to
-						if (slice.ContainsDICOMImage(sopiuid))
-						{
-							std::string const& regionName = slice.GetLabel();
-							std::cout << __func__ << " : regionName = " << regionName << '\n';
-							// Find the region for the slice
-							Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
-							
-							DICOMPtr const& dicom = slice.GetDICOMImages().at(0);
-							double delY = dicom->GetPixelSizeX();
-							double delX = dicom->GetPixelSizeY();
-							std::pair<Vector3D,Vector3D> const& ori = dicom->GetImageOrientation();
-							Vector3D const& ori1 = ori.first;
-							Vector3D const& ori2 = ori.second;
-							Point3D pos = dicom->GetImagePosition();
-							
-							//construct transformation matrix
-							gtMatrix m;
-							m[0][0] = ori1.x * delX; m[0][1] = ori2.x * delY; m[0][2] = 0; m[0][3] = pos.x;
-							m[1][0] = ori1.y * delX; m[1][1] = ori2.y * delY; m[1][2] = 0; m[1][3] = pos.y;
-							m[2][0] = ori1.z * delX; m[2][1] = ori2.z * delY; m[2][2] = 1; m[2][3] = pos.z;
-							m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1;
-							
-							// Convert 2D coords to 3D
-							Point3D beforeTrans(roi.points.at(0).x, roi.points.at(0).y, 0);
-							Point3D coordPoint3D = m * beforeTrans;
-							double coords[3];
-							coords[0] = coordPoint3D.x;
-							coords[1] = coordPoint3D.y;
-							coords[2] = coordPoint3D.z;
-							
-							double time = 0.0;
-							
-							if (!region)
-							{
-								std::cout << __func__ << " : Can't find subregion at path : " << regionName << '\n';
-								throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
-							}
-							Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
-							Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
-							Cmiss_node_id cmissNode = 0;//--Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
-							
-							assert(modeller_);
-							//--modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
-							ProcessModellingPointsEnteredForCurrentMode();
-							Cmiss_region_destroy(&region);
-							apexDefined = true;
-						}
-					}
-				}
-				else if (label.label == "Base of Heart")
-				{
-					if (baseDefined)
-					{
-						continue;
-					}
-					// create DataPoint		
-					std::string const& sopiuid = imageAnno.sopiuid;
-					BOOST_FOREACH(SliceInfo const& slice, slices)
-					{
-						// Find the slice that the image belongs to
-						if (slice.ContainsDICOMImage(sopiuid))
-						{
-							std::string const& regionName = slice.GetLabel();
-							std::cout << __func__ << " : regionName = " << regionName << '\n';
-							// Find the region for the slice
-							Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
-							
-							DICOMPtr const& dicom = slice.GetDICOMImages().at(0);
-							double delY = dicom->GetPixelSizeX();
-							double delX = dicom->GetPixelSizeY();
-							std::pair<Vector3D,Vector3D> const& ori = dicom->GetImageOrientation();
-							Vector3D const& ori1 = ori.first;
-							Vector3D const& ori2 = ori.second;
-							Point3D pos = dicom->GetImagePosition();
-							
-							//construct transformation matrix
-							gtMatrix m;
-							m[0][0] = ori1.x * delX; m[0][1] = ori2.x * delY; m[0][2] = 0; m[0][3] = pos.x;
-							m[1][0] = ori1.y * delX; m[1][1] = ori2.y * delY; m[1][2] = 0; m[1][3] = pos.y;
-							m[2][0] = ori1.z * delX; m[2][1] = ori2.z * delY; m[2][2] = 1; m[2][3] = pos.z;
-							m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1;
-							
-							// Convert 2D coords to 3D
-							Point3D beforeTrans(roi.points.at(0).x, roi.points.at(0).y, 0);
-							Point3D coordPoint3D = m * beforeTrans;
-							double coords[3];
-							coords[0] = coordPoint3D.x;
-							coords[1] = coordPoint3D.y;
-							coords[2] = coordPoint3D.z;
-							
-							double time = 0.0;
-							
-							if (!region)
-							{
-								std::cout << __func__ << " : Can't find subregion at path : " << regionName << '\n';
-							throw std::invalid_argument(std::string(__func__) + " : Can't find subregion at path : " + regionName);
-							}
-							Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
-							Cmiss_field_id field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rect");
-							Cmiss_node_id cmissNode = 0;//--Cmiss_create_data_point_at_coord(region, field, (double*) coords, time);
-							
-							assert(modeller_);
-							//--modeller_->AddDataPoint(cmissNode, coordPoint3D, time);
-							ProcessModellingPointsEnteredForCurrentMode();
-							Cmiss_region_destroy(&region);
-							baseDefined = true;
-						}
-					}
-				}
-			}
-		}
-	}
-	Cmiss_region_destroy(&root_region);
-	
-	//--EnterImagesLoadedState();
-}
-*/
 
 void CAPClient::OpenModel(const std::string& filename)
 {
@@ -350,34 +195,27 @@ void CAPClient::OpenModel(const std::string& filename)
 	ChangeModellingMode(GUIDEPOINT);
 }
 
-void CAPClient::OpenAnnotation(const std::string& filename, const std::string& imageDirname)
+void CAPClient::OpenAnnotation(const std::string& filename)
 {
 	// work with the file
 	dbg(std::string(__func__) + " - File name: " + filename);
-	dbg(std::string(__func__) + " - Dir name: " + imageDirname);
 	
 	AnnotationFile annotationFile(filename);
 	dbg("Start reading xml file");
 	annotationFile.ReadFile();
 	
-	// Create DICOMTable (filename -> DICOMImage map)
-	// Create TextureTable (filename -> Cmiss_texture* map)
-	
 	// check if a valid file 
 	if (annotationFile.GetCardiacAnnotation().imageAnnotations.empty())
 	{
-		dbg("Invalid Annotation File");
+		LOG_MSG(LOGWARNING) << "Invalid Annotation File - no image annotations";
 		return;
 	}
 	
-	//		EnterInitState();
 	//		cardiacAnnotationPtr_.reset(new CardiacAnnotation(annotationFile.GetCardiacAnnotation()));
 	
-	ImageBrowser *ib = ImageBrowser::CreateImageBrowser(imageDirname, this);
-	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
-	
+	ImageBrowser *ib = ImageBrowser::CreateImageBrowser(previousImageLocation_, this);
 	// Set annotations to the images in the ImageBrowserWindow.
-//--	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
+	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
 }
 
 void CAPClient::OpenImages()
