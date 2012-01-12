@@ -1055,13 +1055,7 @@ void CAPClientWindow::OnOpenAnnotation(wxCommandEvent& event)
 	{
 		// work with the file
 		LOG_MSG(LOGINFORMATION) << "Opening Annotation '" << filename <<"'";
-
-		const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), previousWorkingLocation_);
-		if ( !dirname.empty() )
-		{
-			LOG_MSG(LOGINFORMATION) << "Loading images from '" << dirname << "'";
-			mainApp_->OpenAnnotation(filename.mb_str(), dirname.mb_str());
-		}
+		mainApp_->OpenAnnotation(filename.mb_str());
 	}
 }
 

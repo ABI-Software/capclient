@@ -17,9 +17,6 @@ namespace cap
 {
 
 class ModelFile;
-class DataPoint;
-class HeartModel;
-class SceneViewerPanel;
 
 /**
  * @brief Xml file handler. 
@@ -33,7 +30,7 @@ public:
 	 *
 	 * @param [in,out]	xmlFile	The xml file.
 	 */
-	XMLFileHandler(ModelFile& xmlFile);
+	explicit XMLFileHandler(ModelFile& xmlFile);
 
 	/**
 	 * Adds labelled slices.

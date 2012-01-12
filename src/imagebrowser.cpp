@@ -327,26 +327,21 @@ void ImageBrowser::ChangeImageAnnotation(int image_index)
 				 boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
 	
 	
-	//std::cout << "Image Annotation for sop: " << sopiuid << '\n';
-	if (itr == cardiacAnnotation_.imageAnnotations.end())
+	if (itr != cardiacAnnotation_.imageAnnotations.end())
 	{
-		//std::cout << "No annotation\n";
-		return;
-	}
-	
-	int rowNumber = 0;
-	BOOST_FOREACH(Label const& label, itr->labels)
-	{
-		//std::cout << label.label << "\n";
-		gui_->PopulateAnnotationTableRow(rowNumber++, label.label, label.rid, label.scope);
-	}
-	
-	BOOST_FOREACH(ROI const& roi, itr->rOIs)
-	{
-		std::cout << "ROI:\n";
-		BOOST_FOREACH(Label const& label, roi.labels)
+		int rowNumber = 0;
+		BOOST_FOREACH(Label const& label, itr->labels)
 		{
-			std::cout << label.label << "\n";
+			gui_->PopulateAnnotationTableRow(rowNumber++, label.label, label.rid, label.scope);
+		}
+		
+		BOOST_FOREACH(ROI const& roi, itr->rOIs)
+		{
+			dbg("ROI:");
+			BOOST_FOREACH(Label const& label, roi.labels)
+			{
+				dbg(label.label);
+			}
 		}
 	}
 }
@@ -568,48 +563,49 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, cardiacAnnotation_.imageAnnotations)
 	{
 		std::string const& sopiuid = imageAnno.sopiuid;
-		std::map<std::string, long int>::const_iterator itr = 
-		uidToSliceKeyMap.find(sopiuid);
-		if (itr == uidToSliceKeyMap.end())
+		std::map<std::string, long int>::const_iterator itr = uidToSliceKeyMap.find(sopiuid);
+		if (itr != uidToSliceKeyMap.end())
 		{
-			LOG_MSG(LOGDEBUG) << "Can't find the sopiuid: " << sopiuid;
-		}
-		long int sliceKeyPtr = itr->second;
-		
-		std::vector<Label>::const_iterator labelItr = 
-		std::find_if(imageAnno.labels.begin(),
-					 imageAnno.labels.end(),
-					 boost::bind(&Label::label, _1) == "Cine Loop");
-		if (labelItr == imageAnno.labels.end())
-		{
-			continue;
-		}
-		BOOST_FOREACH(Label const& annoLabel, imageAnno.labels)
-		{
-			std::string const& imageLabel = annoLabel.label;
-			if (imageLabel == "Short Axis" || imageLabel == "Long Axis")
-			{	
-				LOG_MSG(LOGDEBUG) << "uid: " << sopiuid << ", label = " << imageLabel;
-			std::map<long int, std::string>::const_iterator itr = 
-			slicePtrToLabelMap.find(sliceKeyPtr);
+			long int sliceKeyPtr = itr->second;
 			
-			std::string sliceLabel;
-			if (itr != slicePtrToLabelMap.end() && itr->second != imageLabel)
+			std::vector<Label>::const_iterator labelItr = 
+			std::find_if(imageAnno.labels.begin(),
+						 imageAnno.labels.end(),
+						 boost::bind(&Label::label, _1) == "Cine Loop");
+			if (labelItr == imageAnno.labels.end())
 			{
-				//This means there is an image with a conflicting label in the
-				//same slice.
-				//This usually means the SortingMode is not properly set.
-				//Changing the SortingMode should get rid of this problem.
-				sliceLabel = "?";
+				continue;
 			}
-			else
+			BOOST_FOREACH(Label const& annoLabel, imageAnno.labels)
 			{
-				sliceLabel = imageLabel;
+				std::string const& imageLabel = annoLabel.label;
+				if (imageLabel == "Short Axis" || imageLabel == "Long Axis")
+				{
+					LOG_MSG(LOGDEBUG) << "uid: " << sopiuid << ", label = " << imageLabel;
+					std::map<long int, std::string>::const_iterator itr = slicePtrToLabelMap.find(sliceKeyPtr);
+					
+					std::string sliceLabel;
+					if (itr != slicePtrToLabelMap.end() && itr->second != imageLabel)
+					{
+						//This means there is an image with a conflicting label in the
+						//same slice.
+						//This usually means the SortingMode is not properly set.
+						//Changing the SortingMode should get rid of this problem.
+						sliceLabel = "?";
+					}
+					else
+					{
+						sliceLabel = imageLabel;
+					}
+					
+					slicePtrToLabelMap[sliceKeyPtr] = sliceLabel;
+					gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, sliceLabel);
+				}
 			}
-			
-			slicePtrToLabelMap[sliceKeyPtr] = sliceLabel;
-			gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, sliceLabel);
-			}
+		}
+		else
+		{
+			LOG_MSG(LOGWARNING) << "Can't find the image with sopiuid: " << sopiuid;
 		}
 	}
 }

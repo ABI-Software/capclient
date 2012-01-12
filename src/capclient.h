@@ -226,9 +226,8 @@ public:
 	 * Opens an annotation.
 	 *
 	 * @param	filename		Filename of the file.
-	 * @param	imageDirname	Pathname of the image directory.
 	 */
-	void OpenAnnotation(std::string const& filename, std::string const& imageDirname);
+	void OpenAnnotation(std::string const& filename);
 
 	/**
 	 * Saves a model.
