@@ -28,6 +28,16 @@ namespace cap
 			gui_->SetHeartModelFocalLength(focalLength);
 		}
 
+		const gtMatrix& GetTransfromationMx() const
+		{
+			return m_;
+		}
+		
+		double GetFocalLength() const
+		{
+			return fl_;
+		}
+
 		int GetNumberOfHeartModelFrames() const
 		{
 			return 25;

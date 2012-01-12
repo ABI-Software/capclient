@@ -130,7 +130,7 @@
                 <event name="OnUpdateUI"></event>
                 <object class="wxMenu" expanded="1">
                     <property name="label">&amp;File</property>
-                    <property name="name">menu_File</property>
+                    <property name="name">menu_file_</property>
                     <property name="permission">protected</property>
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
@@ -233,7 +233,7 @@
                 </object>
                 <object class="wxMenu" expanded="1">
                     <property name="label">&amp;View</property>
-                    <property name="name">menu_View</property>
+                    <property name="name">menu_view_</property>
                     <property name="permission">protected</property>
                     <object class="wxMenuItem" expanded="1">
                         <property name="bitmap"></property>
@@ -301,8 +301,150 @@
                     </object>
                 </object>
                 <object class="wxMenu" expanded="1">
+                    <property name="label">&amp;Slice list</property>
+                    <property name="name">menu_sliceList_</property>
+                    <property name="permission">protected</property>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Hide All</property>
+                        <property name="name">menuItem_hideShowAll_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Hide Others</property>
+                        <property name="name">menuItem_hideShowOthers_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                </object>
+                <object class="wxMenu" expanded="1">
+                    <property name="label">&amp;Modeller</property>
+                    <property name="name">menu_modeller_</property>
+                    <property name="permission">protected</property>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Play</property>
+                        <property name="name">menuItem_play_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="separator" expanded="1">
+                        <property name="name">m_separator6</property>
+                        <property name="permission">none</property>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_CHECK</property>
+                        <property name="label">Model Visibility</property>
+                        <property name="name">menuItem_visibility_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_CHECK</property>
+                        <property name="label">Model Image Intersection</property>
+                        <property name="name">menuItem_mII_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="separator" expanded="1">
+                        <property name="name">m_separator4</property>
+                        <property name="permission">none</property>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help">shorcutkey &apos;a&apos; when mouse is over model scene.</property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Accept Modelling Point(s)</property>
+                        <property name="name">menuItem_accept_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help">Shortcut key &apos;d&apos; when mouse is over model scene.</property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Delete Modelling Point</property>
+                        <property name="name">menuItem_deleteMP_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="separator" expanded="1">
+                        <property name="name">m_separator5</property>
+                        <property name="permission">none</property>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Start Shifting</property>
+                        <property name="name">menuItem_planeShift_</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                </object>
+                <object class="wxMenu" expanded="1">
                     <property name="label">&amp;Help</property>
-                    <property name="name">menu_Help</property>
+                    <property name="name">menu_help_</property>
                     <property name="permission">protected</property>
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
@@ -447,7 +589,7 @@
                                     <property name="id">wxID_ANY</property>
                                     <property name="maximum_size"></property>
                                     <property name="minimum_size">-1,-1</property>
-                                    <property name="name">panel_Cmgui</property>
+                                    <property name="name">panel_cmgui_</property>
                                     <property name="permission">protected</property>
                                     <property name="pos"></property>
                                     <property name="size">-1,-1</property>
@@ -507,11 +649,11 @@
                                             <property name="fg"></property>
                                             <property name="font"></property>
                                             <property name="hidden"></property>
-                                            <property name="id">ID_PLAY</property>
+                                            <property name="id">wxID_ANY</property>
                                             <property name="label">Play</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">button_Play</property>
+                                            <property name="name">button_play_</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -568,7 +710,7 @@
                                             <property name="maximum_size"></property>
                                             <property name="minValue">0</property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">slider_Animation</property>
+                                            <property name="name">slider_animation_</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -764,7 +906,7 @@
                                                 <property name="id">wxID_ANY</property>
                                                 <property name="maximum_size"></property>
                                                 <property name="minimum_size"></property>
-                                                <property name="name">checkListBox_Slice</property>
+                                                <property name="name">checkListBox_slice_</property>
                                                 <property name="permission">protected</property>
                                                 <property name="pos"></property>
                                                 <property name="size"></property>
@@ -842,7 +984,7 @@
                                                         <property name="label">Hide All</property>
                                                         <property name="maximum_size"></property>
                                                         <property name="minimum_size"></property>
-                                                        <property name="name">button_HideShowAll</property>
+                                                        <property name="name">button_hideShowAll_</property>
                                                         <property name="permission">protected</property>
                                                         <property name="pos"></property>
                                                         <property name="size"></property>
@@ -909,7 +1051,7 @@
                                                         <property name="label">Hide Others</property>
                                                         <property name="maximum_size"></property>
                                                         <property name="minimum_size"></property>
-                                                        <property name="name">button_HideShowOthers</property>
+                                                        <property name="name">button_hideShowOthers_</property>
                                                         <property name="permission">protected</property>
                                                         <property name="pos"></property>
                                                         <property name="size"></property>
@@ -1022,7 +1164,7 @@
                                     <object class="notebookpage" expanded="1">
                                         <property name="bitmap"></property>
                                         <property name="label">Viewer</property>
-                                        <property name="select">0</property>
+                                        <property name="select">1</property>
                                         <object class="wxPanel" expanded="1">
                                             <property name="bg"></property>
                                             <property name="context_help"></property>
@@ -1104,7 +1246,7 @@
                                                                 <property name="label">Visibility</property>
                                                                 <property name="maximum_size"></property>
                                                                 <property name="minimum_size"></property>
-                                                                <property name="name">checkBox_Visibility</property>
+                                                                <property name="name">checkBox_visibility_</property>
                                                                 <property name="permission">protected</property>
                                                                 <property name="pos"></property>
                                                                 <property name="size"></property>
@@ -1169,7 +1311,7 @@
                                                                         <property name="id">wxID_ANY</property>
                                                                         <property name="maximum_size"></property>
                                                                         <property name="minimum_size"></property>
-                                                                        <property name="name">choice_ModelDisplayMode</property>
+                                                                        <property name="name">choice_modelDisplayMode_</property>
                                                                         <property name="permission">protected</property>
                                                                         <property name="pos"></property>
                                                                         <property name="selection">0</property>
@@ -1228,7 +1370,7 @@
                                                                 <property name="label">Model Image Intersection</property>
                                                                 <property name="maximum_size"></property>
                                                                 <property name="minimum_size"></property>
-                                                                <property name="name">checkBox_MII</property>
+                                                                <property name="name">checkBox_mII_</property>
                                                                 <property name="permission">protected</property>
                                                                 <property name="pos"></property>
                                                                 <property name="size"></property>
@@ -1299,7 +1441,7 @@
                                                                 <property name="maximum_size"></property>
                                                                 <property name="minValue">0</property>
                                                                 <property name="minimum_size"></property>
-                                                                <property name="name">slider_Brightness</property>
+                                                                <property name="name">slider_brightness_</property>
                                                                 <property name="permission">protected</property>
                                                                 <property name="pos"></property>
                                                                 <property name="size"></property>
@@ -1376,7 +1518,7 @@
                                                                 <property name="maximum_size"></property>
                                                                 <property name="minValue">0</property>
                                                                 <property name="minimum_size"></property>
-                                                                <property name="name">slider_Contrast</property>
+                                                                <property name="name">slider_contrast_</property>
                                                                 <property name="permission">protected</property>
                                                                 <property name="pos"></property>
                                                                 <property name="size"></property>
@@ -1467,7 +1609,7 @@
                                                                 <property name="maximum_size"></property>
                                                                 <property name="minValue">0</property>
                                                                 <property name="minimum_size"></property>
-                                                                <property name="name">slider_AnimationSpeed</property>
+                                                                <property name="name">slider_animationSpeed_</property>
                                                                 <property name="permission">protected</property>
                                                                 <property name="pos"></property>
                                                                 <property name="size"></property>
@@ -1535,7 +1677,7 @@
                                     <object class="notebookpage" expanded="1">
                                         <property name="bitmap"></property>
                                         <property name="label">Modeller</property>
-                                        <property name="select">1</property>
+                                        <property name="select">0</property>
                                         <object class="wxPanel" expanded="1">
                                             <property name="bg"></property>
                                             <property name="context_help"></property>
@@ -1625,7 +1767,7 @@
                                                                         <property name="id">wxID_ANY</property>
                                                                         <property name="maximum_size"></property>
                                                                         <property name="minimum_size"></property>
-                                                                        <property name="name">choice_Mode</property>
+                                                                        <property name="name">choice_mode_</property>
                                                                         <property name="permission">protected</property>
                                                                         <property name="pos"></property>
                                                                         <property name="selection">0</property>
@@ -1682,7 +1824,7 @@
                                                                         <property name="label">Accept</property>
                                                                         <property name="maximum_size"></property>
                                                                         <property name="minimum_size"></property>
-                                                                        <property name="name">button_Accept</property>
+                                                                        <property name="name">button_accept_</property>
                                                                         <property name="permission">protected</property>
                                                                         <property name="pos"></property>
                                                                         <property name="size"></property>
@@ -1755,7 +1897,7 @@
                                                                 <property name="label">Start Shifting</property>
                                                                 <property name="maximum_size"></property>
                                                                 <property name="minimum_size"></property>
-                                                                <property name="name">button_PlaneShift</property>
+                                                                <property name="name">button_planeShift_</property>
                                                                 <property name="permission">protected</property>
                                                                 <property name="pos"></property>
                                                                 <property name="size"></property>

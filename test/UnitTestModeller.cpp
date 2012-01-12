@@ -291,10 +291,10 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.42);
 	EXPECT_FALSE(modeller.OnAccept());
 	EXPECT_EQ(BASEPLANE, modeller.GetCurrentMode());
+	// Moving node4 to new time.
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.40);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(GUIDEPOINT, modeller.GetCurrentMode());
-
 
 	Cmiss_node_destroy(&node1);
 	Cmiss_node_destroy(&node2);
@@ -313,31 +313,31 @@ TEST(Modeller, AlignModel)
 	mcc.gui_->LoadTemplateHeartModel(25);
 	Cmiss_region_id region = Cmiss_context_get_default_region(mcc.gui_->cmissContext_);
 
-	Cmiss_node_id node1 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 24.2506, -71.3943, -9.00449);
+	Cmiss_node_id node1 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 25.1651, -66.7366, -11.5065);
 	EXPECT_TRUE(node1 != 0);
-	Cmiss_node_id node2 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -20.4335, -22.5206, 38.4314);
+	Cmiss_node_id node2 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -14.4939, -17.1653, 28.9188);
 	EXPECT_TRUE(node2 != 0);
-	Cmiss_node_id node3 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 30.286, -18.3221, 1.32952);
+	Cmiss_node_id node3 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.328333, -40.9305, -6.57035);
 	EXPECT_TRUE(node3 != 0);
-	Cmiss_node_id node4 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -3.52178, -35.387, -20.3095);
+	Cmiss_node_id node4 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 8.43801, -63.0973, 38.1512);
 	EXPECT_TRUE(node4 != 0);
-	Cmiss_node_id node5 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -18.4984, -52.6508, 43.958);
+	Cmiss_node_id node5 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -6.03773, -8.1123, 14.9891);
 	EXPECT_TRUE(node5 != 0);
-	Cmiss_node_id node6 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -3.04825, -0.0334985, 8.7444);
+	Cmiss_node_id node6 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -19.2071, -27.9634, 38.2394);
 	EXPECT_TRUE(node6 != 0);
-	Cmiss_node_id node7 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -18.4984, -52.6508, 33.958);
-	EXPECT_TRUE(node7 != 0);
-	Cmiss_node_id node8 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -3.04825, -0.0334985, 0.7444);
-	EXPECT_TRUE(node8 != 0);
+	//Cmiss_node_id node7 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -18.4984, -52.6508, 33.958);
+	//EXPECT_TRUE(node7 != 0);
+	//Cmiss_node_id node8 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -3.04825, -0.0334985, 0.7444);
+	//EXPECT_TRUE(node8 != 0);
 
-	Point3D apex(24.2506, -71.3943, -9.00449);
-	Point3D base(-20.4335, -22.5206, 38.4314);
-	Point3D rv1(30.286, -18.3221, 1.32952);
-	Point3D rv2(-3.52178, -35.387, -20.3095);
-	Point3D bp1(-18.4984, -52.6508, 43.958);
-	Point3D bp2(-3.04825, -0.0334985, 8.7444);
-	Point3D bp3(-18.4984, -52.6508, 33.958);
-	Point3D bp4(-3.04825, -0.0334985, 0.7444);
+	Point3D apex(25.1651, -66.7366, -11.5065);
+	Point3D base( -14.4939, -17.1653, 28.9188);
+	Point3D rv1( 0.328333, -40.9305, -6.57035);
+	Point3D rv2( 8.43801, -63.0973, 38.1512);
+	Point3D bp1( -6.03773, -8.1123, 14.9891);
+	Point3D bp2( -19.2071, -27.9634, 38.2394);
+	//Point3D bp3(-18.4984, -52.6508, 33.958);
+	//Point3D bp4(-3.04825, -0.0334985, 0.7444);
 
 	Modeller modeller(&mcc);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node1), apex, 0.0);
@@ -350,12 +350,32 @@ TEST(Modeller, AlignModel)
 	EXPECT_EQ(BASEPLANE, modeller.GetCurrentMode());
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node5), bp1, 0.5);
 	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node6), bp2, 0.5);
-	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node7), bp3, 0.8);
-	modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node8), bp4, 0.8);
+	//modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node7), bp3, 0.8);
+	//modeller.AddModellingPoint(region, Cmiss_node_get_identifier(node8), bp4, 0.8);
 	EXPECT_TRUE(modeller.OnAccept());
 	EXPECT_EQ(GUIDEPOINT, modeller.GetCurrentMode());
 
 	modeller.AlignModel();
+	EXPECT_NEAR(32.5175, mcc.fl_, 1e-04);
+
+	// The results are compared against the output from version 1.0.0 of the 
+	// CAPClient software, hence the error target of 1e-05.
+	EXPECT_NEAR(0.526947, mcc.m_[0][0], 1e-05);
+	EXPECT_NEAR(-0.65865, mcc.m_[0][1], 1e-05);
+	EXPECT_NEAR(-0.537128, mcc.m_[0][2], 1e-05);
+	EXPECT_NEAR(0.0, mcc.m_[0][3], 1e-05);
+	EXPECT_NEAR(-0.179444, mcc.m_[1][0], 1e-05);
+	EXPECT_NEAR(-0.703966, mcc.m_[1][1], 1e-05);
+	EXPECT_NEAR(0.687192, mcc.m_[1][2], 1e-05);
+	EXPECT_NEAR(0.0, mcc.m_[1][3], 1e-05);
+	EXPECT_NEAR(-0.830739, mcc.m_[2][0], 1e-05);
+	EXPECT_NEAR(-0.265729, mcc.m_[2][1], 1e-05);
+	EXPECT_NEAR(-0.489143, mcc.m_[2][2], 1e-05);
+	EXPECT_NEAR(0.0, mcc.m_[2][3], 1e-05);
+	EXPECT_NEAR(-1.27556, mcc.m_[3][0], 1e-05);
+	EXPECT_NEAR(-33.6874, mcc.m_[3][1], 1e-04);
+	EXPECT_NEAR(15.445, mcc.m_[3][2], 1e-04);
+	EXPECT_NEAR(1.0, mcc.m_[3][3], 1e-06);
 
 	Cmiss_node_destroy(&node1);
 	Cmiss_node_destroy(&node2);
@@ -363,8 +383,8 @@ TEST(Modeller, AlignModel)
 	Cmiss_node_destroy(&node4);
 	Cmiss_node_destroy(&node5);
 	Cmiss_node_destroy(&node6);
-	Cmiss_node_destroy(&node7);
-	Cmiss_node_destroy(&node8);
+	//Cmiss_node_destroy(&node7);
+	//Cmiss_node_destroy(&node8);
 	Cmiss_region_destroy(&region);
 	//Cmiss_context_destroy(&context);
 }

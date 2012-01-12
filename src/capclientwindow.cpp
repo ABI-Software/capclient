@@ -88,11 +88,11 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	Cmiss_time_keeper_set_repeat_mode(timeKeeper_, CMISS_TIME_KEEPER_REPEAT_MODE_PLAY_LOOP);
 	Cmiss_time_keeper_set_frame_mode(timeKeeper_, CMISS_TIME_KEEPER_FRAME_MODE_PLAY_REAL_TIME);
 
-	cmguiPanel_ = new SceneViewerPanel(cmissContext_, "CAPClient", panel_Cmgui);
+	cmguiPanel_ = new SceneViewerPanel(cmissContext_, "CAPClient", panel_cmgui_);
 	SetIcon(wxICON(capicon));
 	
-	checkListBox_Slice->SetSelection(wxNOT_FOUND);
-	checkListBox_Slice->Clear();
+	checkListBox_slice_->SetSelection(wxNOT_FOUND);
+	checkListBox_slice_->Clear();
 	
 	CreateStatusTextStringsFieldRenditions();
 	
@@ -108,7 +108,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 CAPClientWindow::~CAPClientWindow()
 {
 	dbg("CAPClientWindow::~CAPClientWindow()");
-	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
+	if (button_planeShift_->GetLabel() == wxT("End Shifting"))
 		RemovePlaneShiftingCallbacks();
 	else
 		RemoveModellingCallbacks();
@@ -125,7 +125,6 @@ CAPClientWindow::~CAPClientWindow()
 
 void CAPClientWindow::MakeConnections()
 {
-	cout << "CAPClientWindow::" << __func__ << endl;
 	// Menus
 	Connect(XRCID("menuItem_about_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnAbout));
 	Connect(XRCID("menuItem_quit_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnQuit));
@@ -138,23 +137,31 @@ void CAPClientWindow::MakeConnections()
 	Connect(XRCID("menuItem_modellingMode_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_heartVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_logWindow_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewLog));
+	Connect(XRCID("menuItem_hideShowAll_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
+	Connect(XRCID("menuItem_hideShowOthers_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
+	Connect(XRCID("menuItem_planeShift_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnTogglePlaneShift));
+	Connect(XRCID("menuItem_play_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
+	Connect(XRCID("menuItem_visibility_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnWireframeCheckBox));
+	Connect(XRCID("menuItem_mII_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnMIICheckBox));
+	Connect(XRCID("menuItem_accept_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
+	Connect(XRCID("menuItem_deleteMP_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnDeleteModellingPointClicked));
 
 	// Widgets (buttons, sliders ...)
-	Connect(button_Play->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
-	Connect(button_HideShowAll->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
-	Connect(button_HideShowOthers->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
-	Connect(button_PlaneShift->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlaneShift));
-	Connect(button_Accept->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
-	Connect(slider_Brightness->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
-	Connect(slider_Contrast->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
-	Connect(slider_Animation->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderEvent));
-	Connect(slider_AnimationSpeed->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSpeedControlEvent));
-	Connect(checkListBox_Slice->GetId(), wxEVT_COMMAND_LISTBOX_SELECTED, wxListEventHandler(CAPClientWindow::OnObjectCheckListSelected));
-	Connect(checkListBox_Slice->GetId(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, wxListEventHandler(CAPClientWindow::OnObjectCheckListChecked));
-	Connect(checkBox_Visibility->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnWireframeCheckBox));
-	Connect(checkBox_MII->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnMIICheckBox));
-	Connect(choice_ModelDisplayMode->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(CAPClientWindow::OnModelDisplayModeChanged));
-	Connect(choice_Mode->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(CAPClientWindow::OnModellingModeChanged));
+	Connect(button_play_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlay));
+	Connect(button_hideShowAll_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
+	Connect(button_hideShowOthers_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
+	Connect(button_planeShift_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnTogglePlaneShift));
+	Connect(button_accept_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
+	Connect(slider_brightness_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
+	Connect(slider_contrast_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
+	Connect(slider_animation_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderEvent));
+	Connect(slider_animationSpeed_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSpeedControlEvent));
+	Connect(checkListBox_slice_->GetId(), wxEVT_COMMAND_LISTBOX_SELECTED, wxListEventHandler(CAPClientWindow::OnObjectCheckListSelected));
+	Connect(checkListBox_slice_->GetId(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, wxListEventHandler(CAPClientWindow::OnObjectCheckListChecked));
+	Connect(checkBox_visibility_->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnWireframeCheckBox));
+	Connect(checkBox_mII_->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnMIICheckBox));
+	Connect(choice_modelDisplayMode_->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(CAPClientWindow::OnModelDisplayModeChanged));
+	Connect(choice_mode_->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(CAPClientWindow::OnModellingModeChanged));
 	
 	Connect(wxEVT_IDLE, wxIdleEventHandler(CAPClientWindow::OnIdle), 0, this);
 	Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(CAPClientWindow::OnCloseWindow));
@@ -180,17 +187,21 @@ void CAPClientWindow::UpdateUI()
 	// Widgets dependent on the heart model
 	bool heartModelDependent = IsInitialisedHeartModel();
 
-	slider_Animation->Enable(imageDependent && imageFrameCountDependent);
-	slider_AnimationSpeed->Enable(imageDependent && imageFrameCountDependent);
-	button_Play->Enable(imageDependent && imageFrameCountDependent);
-	button_HideShowAll->Enable(imageDependent);
-	button_HideShowOthers->Enable(imageDependent);
-	slider_Contrast->Enable(imageDependent);
-	slider_Brightness->Enable(imageDependent);
+	slider_animation_->Enable(imageDependent && imageFrameCountDependent);
+	slider_animationSpeed_->Enable(imageDependent && imageFrameCountDependent);
+	button_play_->Enable(imageDependent && imageFrameCountDependent);
+	menuItem_play_->Enable(imageDependent && imageFrameCountDependent);
+	button_hideShowAll_->Enable(imageDependent);
+	menuItem_hideShowAll_->Enable(imageDependent);
+	button_hideShowOthers_->Enable(imageDependent);
+	menuItem_hideShowOthers_->Enable(imageDependent);
+	slider_contrast_->Enable(imageDependent);
+	slider_brightness_->Enable(imageDependent);
 	menuItem_save_->Enable(imageDependent);
-	button_PlaneShift->Enable(imageDependent);
+	button_planeShift_->Enable(imageDependent);
+	menuItem_planeShift_->Enable(imageDependent);
 
-	ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_Mode->GetSelection());
+	ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_mode_->GetSelection());
 	UpdateModeSelectionUI(modellingEnum);
 
 	if (imageFrameCountDependent)
@@ -206,14 +217,15 @@ void CAPClientWindow::UpdateUI()
 		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
 		
 		SetAnimationSliderRange(0, numberOfLogicalFrames-1);
-		slider_Animation->SetValue(0);
+		slider_animation_->SetValue(0);
 	}
 
 	// Widgets dependent on the heart model
-	checkBox_MII->Enable(heartModelDependent);
-	checkBox_Visibility->Enable(heartModelDependent);
-	checkBox_Visibility->SetValue(heartModelDependent);
-	choice_ModelDisplayMode->Enable(heartModelDependent);
+	checkBox_mII_->Enable(heartModelDependent);
+	menuItem_mII_->Enable(heartModelDependent);
+	checkBox_visibility_->Enable(heartModelDependent);
+	menuItem_visibility_->Enable(heartModelDependent);
+	choice_modelDisplayMode_->Enable(heartModelDependent);
 	menuItem_export_->Enable(heartModelDependent);
 	menuItem_exportToBinaryVolume_->Enable(heartModelDependent);
 
@@ -432,13 +444,15 @@ void CAPClientWindow::SmoothAlongTime()
 void CAPClientWindow::PlayCine()
 {
 	Cmiss_time_keeper_play(timeKeeper_, CMISS_TIME_KEEPER_PLAY_FORWARD);
-	button_Play->SetLabel(wxT("Stop"));
+	button_play_->SetLabel(wxT("Stop"));
+	menuItem_play_->SetText(wxT("Stop"));
 }
 
 void CAPClientWindow::StopCine()
 {
 	Cmiss_time_keeper_stop(timeKeeper_);
-	button_Play->SetLabel(wxT("Play"));
+	button_play_->SetLabel(wxT("Play"));
+	menuItem_play_->SetText(wxT("Play"));
 	//wxCommandEvent event;
 	//OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 }
@@ -448,7 +462,7 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 	dbg("CAPClientWindow::OnTogglePlay");
 	//--mainApp_->OnTogglePlay();
 
-	if (button_Play->GetLabel() == wxT("Play"))
+	if (button_play_->GetLabel() == wxT("Play"))
 	{
 		// start stuff
 		PlayCine();
@@ -569,28 +583,28 @@ void CAPClientWindow::ChangeTexture(const std::string& name, Cmiss_field_image_i
 
 void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNames, std::vector<bool> const& visibilities)
 {
-	checkListBox_Slice->Clear();
+	checkListBox_slice_->Clear();
 	
 	size_t index = 0;
 	BOOST_FOREACH(std::string const& sliceName, sliceNames)
 	{
-		checkListBox_Slice->Append(wxString(sliceName.c_str(), wxConvUTF8));
+		checkListBox_slice_->Append(wxString(sliceName.c_str(), wxConvUTF8));
 		bool visible = visibilities.at(index);
-		checkListBox_Slice->Check((checkListBox_Slice->GetCount()-1), visible);
+		checkListBox_slice_->Check((checkListBox_slice_->GetCount()-1), visible);
 		SetVisibilityForGraphicsInRegion(cmissContext_, sliceName, visible);
 		index++;
 	}
 
-	checkListBox_Slice->SetSelection(wxNOT_FOUND);
+	checkListBox_slice_->SetSelection(wxNOT_FOUND);
 	UpdateUI();
 }
 
 void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 {
 	int selection = event.GetInt();
-	wxString name = checkListBox_Slice->GetString(selection);
-	bool visibility = checkListBox_Slice->IsChecked(selection);
-	bool mii_visibility = checkBox_MII->IsChecked();
+	wxString name = checkListBox_slice_->GetString(selection);
+	bool visibility = checkListBox_slice_->IsChecked(selection);
+	bool mii_visibility = checkBox_mII_->IsChecked();
 
 	TextureSliceMap::const_iterator cit = textureSliceMap_.find(std::string(name.c_str()));
 	if (cit != textureSliceMap_.end())
@@ -603,7 +617,7 @@ void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 void CAPClientWindow::OnObjectCheckListSelected(wxListEvent& event)
 {
 	int selection = event.GetInt();
-	wxString name = checkListBox_Slice->GetString(selection);
+	wxString name = checkListBox_slice_->GetString(selection);
 	
 	const ImagePlane& plane = mainApp_->GetImagePlane(name.c_str());
 	
@@ -612,8 +626,8 @@ void CAPClientWindow::OnObjectCheckListSelected(wxListEvent& event)
 
 void CAPClientWindow::SetAnimationSliderRange(int min, int max)
 {
-	slider_Animation->SetMin(min);
-	slider_Animation->SetMax(max);
+	slider_animation_->SetMin(min);
+	slider_animation_->SetMax(max);
 }
 
 void CAPClientWindow::ChangeAllTextures(double time)
@@ -627,9 +641,9 @@ void CAPClientWindow::ChangeAllTextures(double time)
 
 void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 {
-	int value = slider_Animation->GetValue();
-	int min = slider_Animation->GetMin();
-	int max = slider_Animation->GetMax();
+	int value = slider_animation_->GetValue();
+	int min = slider_animation_->GetMin();
+	int max = slider_animation_->GetMax();
 	
 	double time = (value - min) / static_cast<double>(max - min + 1);
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
@@ -639,9 +653,9 @@ void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
 {
 	//std::cout << "CAPClientWindow::OnAnimationSpeedControlEvent" << std::endl;
-	int value = slider_AnimationSpeed->GetValue();
-	int min = slider_AnimationSpeed->GetMin();
-	int max = slider_AnimationSpeed->GetMax();
+	int value = slider_animationSpeed_->GetValue();
+	int min = slider_animationSpeed_->GetMin();
+	int max = slider_animationSpeed_->GetMax();
 	
 	double speed = (value - min) / static_cast<double>(max - min + 1) * 2.0;
 	
@@ -657,33 +671,35 @@ void CAPClientWindow::UpdateFrameNumber(int frameNumber)
 
 void CAPClientWindow::SetTime(double time)
 {
-	int min = slider_Animation->GetMin();
-	int max = slider_Animation->GetMax();
+	int min = slider_animation_->GetMin();
+	int max = slider_animation_->GetMax();
 
 	int value = static_cast<int>(static_cast<double>(max - min + 1)*time + min + 0.5);
-	slider_Animation->SetValue(value);
+	slider_animation_->SetValue(value);
 	ChangeAllTextures(time);
 }
 
 void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 {
 	bool visibility;
-	if (button_HideShowAll->GetLabel() == wxT("Hide All"))
+	if (button_hideShowAll_->GetLabel() == wxT("Hide All"))
 	{
 		visibility = false;
-		button_HideShowAll->SetLabel(wxT("Show All"));
+		button_hideShowAll_->SetLabel(wxT("Show All"));
+		menuItem_hideShowAll_->SetText(wxT("Show All"));
 	}
 	else
 	{
 		visibility = true;
-		button_HideShowAll->SetLabel(wxT("Hide All"));
+		button_hideShowAll_->SetLabel(wxT("Hide All"));
+		menuItem_hideShowAll_->SetText(wxT("Hide All"));
 	}
-	bool mii_visibility = checkBox_MII->IsChecked();
+	bool mii_visibility = checkBox_mII_->IsChecked();
 
 	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
 	for (unsigned int i = 0; cit != textureSliceMap_.end(); cit++, i++)
 	{
-		checkListBox_Slice->Check(i, visibility);
+		checkListBox_slice_->Check(i, visibility);
 		SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
 		SetMIIVisibility(cit->first, visibility && mii_visibility);
 	}
@@ -693,25 +709,27 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 {
 	bool visibility; // Of the non-selected items, if any.
 	
-	if (button_HideShowOthers->GetLabel() == wxT("Hide Others"))
+	if (button_hideShowOthers_->GetLabel() == wxT("Hide Others"))
 	{
 		visibility = false;
-		button_HideShowOthers->SetLabel(wxT("Show Others"));
+		button_hideShowOthers_->SetLabel(wxT("Show Others"));
+		menuItem_hideShowOthers_->SetText(wxT("Show Others"));
 	}
 	else
 	{
 		visibility = true;
-		button_HideShowOthers->SetLabel(wxT("Hide Others"));
+		button_hideShowOthers_->SetLabel(wxT("Hide Others"));
+		menuItem_hideShowOthers_->SetText(wxT("Hide Others"));
 	}
-	bool mii_visibility = checkBox_MII->IsChecked();
+	bool mii_visibility = checkBox_mII_->IsChecked();
 
-	int currentSelection = checkListBox_Slice->GetSelection();
+	int currentSelection = checkListBox_slice_->GetSelection();
 	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
 	for (unsigned int i = 0; cit != textureSliceMap_.end(); cit++, i++)
 	{
 		if (currentSelection != i)
 		{
-			checkListBox_Slice->Check(i, visibility);
+			checkListBox_slice_->Check(i, visibility);
 			SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
 			SetMIIVisibility(cit->first, visibility && mii_visibility);
 		}
@@ -720,19 +738,27 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 
 void CAPClientWindow::OnMIICheckBox(wxCommandEvent& event)
 {
+	if (checkBox_mII_->GetId() == event.GetId())
+		menuItem_mII_->Toggle();
+	else
+		checkBox_mII_->SetValue(event.IsChecked());
 	SetMIIVisibility(event.IsChecked());
 }
 
 void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
 {
+	if (checkBox_visibility_->GetId() == event.GetId())
+		menuItem_visibility_->Toggle();
+	else
+		checkBox_visibility_->SetValue(event.IsChecked());
 	SetModelVisibility(event.IsChecked());
 }
 
 void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 {
-	int value = slider_Brightness->GetValue();
-	int min = slider_Brightness->GetMin();
-	int max = slider_Brightness->GetMax();
+	int value = slider_brightness_->GetValue();
+	int min = slider_brightness_->GetMin();
+	int max = slider_brightness_->GetMax();
 	
 	float brightness = (float)(value - min) / (float)(max - min);
 	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
@@ -742,9 +768,9 @@ void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 
 void CAPClientWindow::OnContrastSliderEvent(wxCommandEvent& event)
 {
-	int value = slider_Contrast->GetValue();
-	int min = slider_Contrast->GetMin();
-	int max = slider_Contrast->GetMax();
+	int value = slider_contrast_->GetValue();
+	int min = slider_contrast_->GetMin();
+	int max = slider_contrast_->GetMax();
 	
 	float contrast = (float)(value - min) / (float)(max - min);
 	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
@@ -758,26 +784,28 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 	size_t newModeInt = static_cast<size_t>(newMode);
 	for (size_t i = 1; i <= newModeInt; i++)
 	{
-		choice_Mode->Append(wxString(ModeStrings[i],wxConvUTF8));
+		choice_mode_->Append(wxString(ModeStrings[i],wxConvUTF8));
 	}
-	choice_Mode->SetSelection(newModeInt);
+	choice_mode_->SetSelection(newModeInt);
 	std::string modellingMode = "Modelling mode: ";
 	modellingMode += ModeStrings[newModeInt];
 	if (textureSliceMap_.size() > 0)
 	{
-		choice_Mode->Enable(true);
+		choice_mode_->Enable(true);
 		if (newMode == GUIDEPOINT)
-			button_Accept->Enable(false);
+			button_accept_->Enable(false);
 		else
-			button_Accept->Enable(true);
+			button_accept_->Enable(true);
 	}
 	else
 	{
-		choice_Mode->Enable(false);
-		button_Accept->Enable(false);
+		choice_mode_->Enable(false);
+		button_accept_->Enable(false);
 		modellingMode += " (Disabled)";
 	}
 	SetStatusTextString("modellingmode", modellingMode);
+	menuItem_accept_->Enable(button_accept_->IsEnabled());
+	menuItem_deleteMP_->Enable(choice_mode_->IsEnabled());
 }
 
 void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
@@ -785,25 +813,30 @@ void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 	bool accepted = mainApp_->ProcessModellingPointsEnteredForCurrentMode();
 	if (!accepted)
 	{
-		int selectionIndex = choice_Mode->GetSelection();
+		int selectionIndex = choice_mode_->GetSelection();
 		LOG_MSG(LOGERROR) << "Invalid modelling points for '" << ModeStrings[selectionIndex] << "'";
 	}
 }
 
+void CAPClientWindow::OnDeleteModellingPointClicked(wxCommandEvent& event)
+{
+	DeleteCurrentlySelectedNode();
+}
+
 void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
 {
-	int selectionIndex = choice_Mode->GetSelection();
+	int selectionIndex = choice_mode_->GetSelection();
 	mainApp_->ChangeModellingMode(static_cast<ModellingEnum>(selectionIndex));
 }
 
 void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 {
 	// Convert the int from the display mode selection into an enum.
-	if (choice_ModelDisplayMode->GetSelection() == HeartModel::WIREFRAME)
+	if (choice_modelDisplayMode_->GetSelection() == HeartModel::WIREFRAME)
 	{
 		heartModel_->SetRenderMode(HeartModel::WIREFRAME);
 	}
-	else if (choice_ModelDisplayMode->GetSelection() == HeartModel::SHADED)
+	else if (choice_modelDisplayMode_->GetSelection() == HeartModel::SHADED)
 	{
 		heartModel_->SetRenderMode(HeartModel::SHADED);
 	}
@@ -863,13 +896,13 @@ void CAPClientWindow::OnAbout(wxCommandEvent& event)
 void CAPClientWindow::ResetModeChoice()
 {
 	// Resets the mode choice UI widget to Apex mode
-	int numberOfItems = choice_Mode->GetCount();
+	int numberOfItems = choice_mode_->GetCount();
 	for (int i = numberOfItems-1; i > 0; i--)
 	{
 		// Remove all items except Apex
-		choice_Mode->Delete(i);
+		choice_mode_->Delete(i);
 	}
-	choice_Mode->SetSelection(0);
+	choice_mode_->SetSelection(0);
 }
 
 void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
@@ -986,14 +1019,14 @@ void CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& po
 
 void CAPClientWindow::StartModellingAction()
 {
-	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_Mode->GetSelection());
+	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
 	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
 
 	Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
 	std::string command = "group " + modelling_mode + " coordinate_field coordinates edit create define constrain_to_surfaces";
 	cmguiPanel_->SetInteractiveTool("node_tool", command);
 	modellingActive_ = true;
-	if (button_Play->GetLabel() == wxT("Stop"))
+	if (button_play_->GetLabel() == wxT("Stop"))
 	{
 		//StopCine();
 		modellingStoppedCine_ = true;
@@ -1071,11 +1104,12 @@ void CAPClientWindow::OnQuit(wxCommandEvent& event)
 
 void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
 {
-	if (button_PlaneShift->GetLabel() == wxT("Start Shifting"))
+	if (button_planeShift_->GetLabel() == wxT("Start Shifting"))
 	{
-		button_PlaneShift->SetLabel(wxT("End Shifting"));
-		choice_Mode->Enable(false);
-		button_Accept->Enable(false);
+		button_planeShift_->SetLabel(wxT("End Shifting"));
+		menuItem_planeShift_->SetText(wxT("End Shifting"));
+		choice_mode_->Enable(false);
+		button_accept_->Enable(false);
 
 		RemoveModellingCallbacks();
 		cmguiPanel_->SetInteractiveTool("element_tool", "no_select_elements no_select_lines select_faces");
@@ -1121,12 +1155,13 @@ void CAPClientWindow::RemoveModellingCallbacks()
 
 void CAPClientWindow::EndCurrentModellingMode()
 {
-	if (button_PlaneShift->GetLabel() == wxT("End Shifting"))
+	if (button_planeShift_->GetLabel() == wxT("End Shifting"))
 	{
-		button_PlaneShift->SetLabel(wxT("Start Shifting"));
+		button_planeShift_->SetLabel(wxT("Start Shifting"));
+		menuItem_planeShift_->SetText(wxT("Start Shifting"));
 		RemovePlaneShiftingCallbacks();
 		SetModellingCallbacks();
-		ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_Mode->GetSelection());
+		ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_mode_->GetSelection());
 		UpdateModeSelectionUI(modellingEnum);
 	}
 }
@@ -1190,7 +1225,7 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 
 void CAPClientWindow::OnAccept()
 {
-	if (button_Accept->IsEnabled())
+	if (button_accept_->IsEnabled())
 	{
 		wxCommandEvent cmd_event;
 		OnAcceptClicked(cmd_event);
@@ -1265,11 +1300,11 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 
 bool CAPClientWindow::IsMIIVisible(const std::string& sliceName)
 {
-	for (unsigned int i = 0; i < checkListBox_Slice->GetCount(); i++)
+	for (unsigned int i = 0; i < checkListBox_slice_->GetCount(); i++)
 	{
-		if (checkListBox_Slice->GetString(i) == sliceName &&
-			checkListBox_Slice->IsChecked(i) &&
-			checkBox_MII->IsChecked())
+		if (checkListBox_slice_->GetString(i) == sliceName &&
+			checkListBox_slice_->IsChecked(i) &&
+			checkBox_mII_->IsChecked())
 			return true;
 	}
 
@@ -1286,10 +1321,10 @@ void CAPClientWindow::SetMIIVisibility(bool visible)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
 	Cmiss_field_module_begin_change(field_module);
-	for (unsigned int i = 0; i < checkListBox_Slice->GetCount(); i++)
+	for (unsigned int i = 0; i < checkListBox_slice_->GetCount(); i++)
 	{
-		bool sliceVisible = checkListBox_Slice->IsChecked(i);
-		std::string name = checkListBox_Slice->GetString(i).c_str();
+		bool sliceVisible = checkListBox_slice_->IsChecked(i);
+		std::string name = checkListBox_slice_->GetString(i).c_str();
 		SetMIIVisibility(name, visible && sliceVisible);
 	}
 	Cmiss_field_module_end_change(field_module);
@@ -1436,7 +1471,7 @@ void CAPClientWindow::DeleteCurrentlySelectedNode()
 
 Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
 {
-	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_Mode->GetSelection());
+	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
 	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
 	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
