@@ -593,24 +593,25 @@ private:
 	/*
 	 * Window widget event handlers.
 	 */
-	void Terminate(wxCloseEvent& event); /**< Widget event handle */
-	void OnTogglePlay(wxCommandEvent& event); /**< Widget event handle */
-	void OnObjectCheckListChecked(wxListEvent& event); /**< Widget event handle */
-	void OnObjectCheckListSelected(wxListEvent& event); /**< Widget event handle */
-	void OnToggleHideShowAll(wxCommandEvent& event); /**< Widget event handle */
-	void OnToggleHideShowOthers(wxCommandEvent& event); /**< Widget event handle */
-	void OnAnimationSliderEvent(wxCommandEvent& event); /**< Widget event handle */
-	void OnAnimationSpeedControlEvent(wxCommandEvent& event); /**< Widget event handle */
-	void OnMIICheckBox(wxCommandEvent& event); /**< Widget event handle */
-	void OnWireframeCheckBox(wxCommandEvent& event); /**< Widget event handle */
-	void OnBrightnessSliderEvent(wxCommandEvent& event); /**< Widget event handle */
-	void OnContrastSliderEvent(wxCommandEvent& event); /**< Widget event handle */
-	void OnAcceptClicked(wxCommandEvent& event); /**< Widget event handle */
-	void OnModellingModeChanged(wxCommandEvent& event); /**< Widget event handle */
-	void OnTogglePlaneShift(wxCommandEvent& event); /**< Widget event handle */
-	void OnToggleModelling(wxCommandEvent& event); /**< Widget event handle */
-	void OnModelDisplayModeChanged(wxCommandEvent& event); /**< Widget event handle */
-	
+	void Terminate(wxCloseEvent& event); /**< Widget event handler */
+	void OnTogglePlay(wxCommandEvent& event); /**< Widget event handler */
+	void OnObjectCheckListChecked(wxListEvent& event); /**< Widget event handler */
+	void OnObjectCheckListSelected(wxListEvent& event); /**< Widget event handler */
+	void OnToggleHideShowAll(wxCommandEvent& event); /**< Widget event handler */
+	void OnToggleHideShowOthers(wxCommandEvent& event); /**< Widget event handler */
+	void OnAnimationSliderEvent(wxCommandEvent& event); /**< Widget event handler */
+	void OnAnimationSpeedControlEvent(wxCommandEvent& event); /**< Widget event handler */
+	void OnMIICheckBox(wxCommandEvent& event); /**< Widget event handler */
+	void OnWireframeCheckBox(wxCommandEvent& event); /**< Widget event handler */
+	void OnBrightnessSliderEvent(wxCommandEvent& event); /**< Widget event handler */
+	void OnContrastSliderEvent(wxCommandEvent& event); /**< Widget event handler */
+	void OnAcceptClicked(wxCommandEvent& event); /**< Widget event handler */
+	void OnModellingModeChanged(wxCommandEvent& event); /**< Widget event handler */
+	void OnTogglePlaneShift(wxCommandEvent& event); /**< Widget event handler */
+	void OnToggleModelling(wxCommandEvent& event); /**< Widget event handler */
+	void OnModelDisplayModeChanged(wxCommandEvent& event); /**< Widget event handler */
+	void OnDeleteModellingPointClicked(wxCommandEvent& event); /**< Widget event handler */
+
 	/*
 	 * Menu event handlers.
 	 */

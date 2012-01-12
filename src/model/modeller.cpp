@@ -518,7 +518,10 @@ void Modeller::FitModel(double time)
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		clock_t beforeTotal = clock();
+//#define PRINT_FIT_TIMINGS  // Uncomment or define elsewhere to print fit times
+#ifdef PRINT_FIT_TIMINGS
 		dbgn("Fit Model times [");
+#endif
 		// 0. Get the modelling points for the current time
 		ModellingPoints currentModellingPoints = modellingModeGuidePoints_.GetModellingPointsAtTime(time);
 
@@ -615,7 +618,9 @@ void Modeller::FitModel(double time)
 
 		clock_t after = clock();
 
+#ifdef PRINT_FIT_TIMINGS
 		dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
+#endif
 		*x += *prior_;
 		
 		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
@@ -623,7 +628,9 @@ void Modeller::FitModel(double time)
 		mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
 		clock_t afterZn = clock();
 
+#ifdef PRINT_FIT_TIMINGS
 		dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
+#endif
 		
 		UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
 		
@@ -636,7 +643,9 @@ void Modeller::FitModel(double time)
 		delete x;
 
 		clock_t afterTotal = clock();
+#ifdef PRINT_FIT_TIMINGS
 		dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
+#endif
 		
 	}
 }
