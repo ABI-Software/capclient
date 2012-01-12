@@ -36,9 +36,9 @@ TEST(ModelFile, ReadXML)
 {
 	using namespace cap;
 	
-	ModelFile xmlFile(SAMPLEANALYSISXML_FILE);
+	ModelFile xmlFile;
 
-	xmlFile.ReadFile();
+	xmlFile.ReadFile(SAMPLEANALYSISXML_FILE);
 	ASSERT_EQ("SampleAnalysisUsingXsd", xmlFile.name_);
 	EXPECT_EQ( "LV", xmlFile.chamber_);
 	EXPECT_EQ(10.0, xmlFile.output_.focalLength);
@@ -69,9 +69,9 @@ TEST(ModelFile, WriteXML)
 {
 	using namespace cap;
 		
-	ModelFile xmlFile(SAMPLEANALYSISXML_FILE);
+	ModelFile xmlFile;
 
-	xmlFile.ReadFile();
+	xmlFile.ReadFile(SAMPLEANALYSISXML_FILE);
 	ASSERT_EQ("SampleAnalysisUsingXsd", xmlFile.name_);
 
 	ModelFile::Point p;
@@ -82,8 +82,8 @@ TEST(ModelFile, WriteXML)
 	xmlFile.WriteFile("dummy");
 	// add tests here
 
-	ModelFile xmlFile2("dummy");
-	xmlFile2.ReadFile();
+	ModelFile xmlFile2;
+	xmlFile2.ReadFile("dummy");
 	
 	EXPECT_EQ(xmlFile.chamber_, xmlFile2.chamber_);
 	EXPECT_EQ(xmlFile.output_.focalLength, xmlFile2.output_.focalLength);
@@ -119,7 +119,7 @@ TEST(ModelFile, AddImage)
 {
 	using namespace cap;
 		
-	ModelFile xmlFile("unused.file");
+	ModelFile xmlFile;
 
 	ModelFile::Image image;
 	image.sopiuid = "111";
@@ -140,9 +140,9 @@ TEST(ModelFile, GetInput)
 {
 	using namespace cap;
 	
-	ModelFile xmlFile(SAMPLEIMAGES_FILE);
+	ModelFile xmlFile;
 
-	xmlFile.ReadFile();
+	xmlFile.ReadFile(SAMPLEIMAGES_FILE);
 	ASSERT_EQ("SampleImages", xmlFile.name_);
 	EXPECT_EQ( "LV", xmlFile.chamber_);
 	EXPECT_EQ(1.0, xmlFile.output_.focalLength);

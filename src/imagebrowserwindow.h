@@ -127,6 +127,13 @@ public:
 	void DestroyProgressDialog();
 
 	/**
+	 * Sets the list of cases to the case widget.
+	 *
+	 * @param	cases	The cases.
+	 */
+	void SetCaseList(const std::vector<std::string>& cases);
+
+	/**
 	 * Creates a message box.
 	 *
 	 * @param	message	The message.
@@ -239,20 +246,6 @@ public:
 	 */
 	void SetAnnotationString(std::string text);
 
-	/**
-	 * Sets the image location for the image location widget.
-	 *
-	 * @param	dir	The dir.
-	 */
-	void SetImageLocation(const std::string& dir);
-
-	/**
-	 * Gets the image location.
-	 *
-	 * @return	The image location.
-	 */
-	std::string GetImageLocation() const;
-
 private:
 
 	/**
@@ -284,7 +277,7 @@ private:
 	 */
 	void MakeConnections();
 
-	/**
+	/*
 	 * Event handlers for the window.
 	 */
 	void OnImageTableItemSelected(wxListEvent& event); /**< event handler. */
@@ -299,8 +292,14 @@ private:
 	void OnCancelButtonClicked(wxCommandEvent& event); /**< event handler. */
 	void OnOrderByRadioBox(wxCommandEvent& event); /**< event handler. */
 	void OnCaseSelected(wxCommandEvent& event); /**< event handler. */
-	void OnChooseDirectory(wxCommandEvent& event); /**< event handler. */
-	void OnChooseArchive(wxCommandEvent& event); /**< event handler. */
+
+	/*
+	 * Menu event handlers
+	 */
+	void OnQuit(wxCommandEvent& event); /**< Menu event handler */
+	void OnOpenArchive(wxCommandEvent& event); /**< Menu event handler */
+	void OnOpenAnnotation(wxCommandEvent& event); /**< Menu event handler */
+	void OnOpenImages(wxCommandEvent& event); /**< Menu event handler */
 	
 	ImageBrowser *browser_; /**< the data for this window. */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */

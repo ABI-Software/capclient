@@ -122,30 +122,38 @@ public:
 	
 	/**
 	 * Factory function for creating an image browser.
-	 * 
-	 * \param archiveFilename a string with the directory where the user wants images read from.
-	 * \param client an interface pointer to the main application that allows limited access.
+	 *
+	 * @param	workingLocation	The working location.
+	 * @param [in,out]	client 	If non-null, the client interface pointer that allows limited access to the CAPClient class.
 	 */
-	static ImageBrowser* CreateImageBrowser(std::string const& archiveFilename, IImageBrowser *client)
+	static void CreateImageBrowser(std::string const& workingLocation, const CardiacAnnotation& annotation, IImageBrowser *client)
 	{
 		if (!wxXmlInitialised_)
 		{
 			wxXmlInitialised_ = true;
 			wxXmlInit_ImageBrowserWindowUI();
 		}
-		ImageBrowser* imageBrowser = new ImageBrowser(archiveFilename, client);
+		ImageBrowser* imageBrowser = new ImageBrowser(workingLocation, annotation, client);
 		ImageBrowserWindow* frame = new ImageBrowserWindow(imageBrowser);
 		frame->Show(true);
 		imageBrowser->SetImageBrowserWindow(frame);
 		imageBrowser->Initialize();
-		
-		return imageBrowser;
 	}
 
 	/**
 	 * Choose image directory.
 	 */
 	void ChooseImageDirectory();
+
+	/**
+	 * Choose annotation file.
+	 */
+	void ChooseAnnotationFile();
+
+	/**
+	 * Choose archive file.
+	 */
+	void ChooseArchiveFile();
 	
 	/**
 	 * Destructor for ImageBrowser
@@ -161,7 +169,7 @@ private:
 	 * \param manager a pointer to a cmgui manager from facilitating interactions with the cmgui libraries.
 	 * \param client an interface pointer to the main application that allows limited access.
 	 */
-	ImageBrowser(std::string const& archiveFilename, IImageBrowser *client);
+	ImageBrowser(std::string const& archiveFilename, const CardiacAnnotation& annotation, IImageBrowser *client);
 	
 	/**
 	 * Initialize the browser data and preview window.  Requires a valid ImageBrowserWindow
@@ -170,9 +178,11 @@ private:
 	void Initialize();
 
 	/**
-	 * Loads the images from the directory specified in archiveFilename_.
+	 * Loads the images from the directory specified in previousWorkingLocation_.
+	 *
+	 * @return	true if it succeeds, false if it fails.
 	 */
-	void LoadImages();
+	bool LoadImages();
 
 	/**
 	 * Set the image browser window pointer to give this model
@@ -298,10 +308,12 @@ private:
 	 */
 	ImageBrowserWindow* gui_; 
 	
+	std::string previousWorkingLocation_;   /**< The previous working location */
 	SortingMode sortingMode_; /**< class state variable to track the current sorting mode. */
 	
 	IImageBrowser *client_; /**< Pointer to CAPClient using an inteface class to restrict access. */
 	
+	std::map<std::string, std::string> caseListMap_; /**< Map of cases to sopiuid */
 	SliceMap sliceMap_; /**< A map of dicom images using image position for a key. */
 	TextureMap textureMap_; /**< A map of textures using image position for a key. */
 	
@@ -310,8 +322,6 @@ private:
 	
 	DICOMTable dicomFileTable_; /**< unsorted list of all dicom files. */
 	TextureTable textureTable_; /**< unsorted list of all textures. */
-	
-	std::string archiveFilename_; /**< The image archive file name, or a name for a directory of images. */
 	
 	CardiacAnnotation cardiacAnnotation_; /**< Annotation of something TODO: more... */
 };

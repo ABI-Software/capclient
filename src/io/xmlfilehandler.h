@@ -17,6 +17,7 @@ namespace cap
 {
 
 class ModelFile;
+struct CardiacAnnotation;
 
 /**
  * @brief Xml file handler. 
@@ -47,6 +48,21 @@ public:
 	void AddModellingPoints(const ModellingPoints& modellingPoints);
 
 	/**
+	 * Adds a provenance detail. 
+	 *
+	 * @param	comment	The comment.
+	 */
+	void AddProvenanceDetail(std::string const& comment);
+
+	/**
+	 * Adds a cardiac annotation.  If the LabelledSlices have already been added then any cardiac
+	 * annotations not in the current image set will be discarded.
+	 *
+	 * @param	annotation	The annotation.
+	 */
+	void AddCardiacAnnotation(const CardiacAnnotation& annotation);
+
+	/**
 	 * Gets the labelled slices.
 	 *
 	 * @return	The labelled slices.
@@ -61,11 +77,11 @@ public:
 	ModellingPoints GetModellingPoints() const;
 
 	/**
-	 * Adds a provenance detail. 
+	 * Gets the cardiac annotation.
 	 *
-	 * @param	comment	The comment.
+	 * @return	The cardiac annotation.
 	 */
-	void AddProvenanceDetail(std::string const& comment);
+	CardiacAnnotation GetCardiacAnnotation() const;
 
 	/**
 	 * Clears the xmlFile of all input and output information.

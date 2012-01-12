@@ -127,14 +127,13 @@ void CAPClientWindow::MakeConnections()
 {
 	cout << "CAPClientWindow::" << __func__ << endl;
 	// Menus
-	Connect(XRCID("menuItem_About"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnAbout));
-	Connect(XRCID("menuItem_Quit"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnQuit));
-	Connect(XRCID("menuItem_OpenImages"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImages));
-	Connect(XRCID("menuItem_OpenModel"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenModel));
-	Connect(XRCID("menuItem_OpenAnnotation"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenAnnotation));
-	Connect(XRCID("menuItem_Save"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
-	Connect(XRCID("menuItem_Export"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
-	Connect(XRCID("menuItem_ExportToBinaryVolume"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
+	Connect(XRCID("menuItem_about_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnAbout));
+	Connect(XRCID("menuItem_quit_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnQuit));
+	Connect(XRCID("menuItem_openModel_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenModel));
+	Connect(XRCID("menuItem_openImageBrowser_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImageBrowser));
+	Connect(XRCID("menuItem_save_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
+	Connect(XRCID("menuItem_export_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
+	Connect(XRCID("menuItem_exportToBinaryVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
 	Connect(XRCID("menuItem_viewAll_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewAll));
 	Connect(XRCID("menuItem_modellingMode_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_heartVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
@@ -165,7 +164,7 @@ void CAPClientWindow::MakeConnections()
 void CAPClientWindow::UpdateUI()
 {
 	// Universal, not dependent on UI state
-	menuItem_OpenModel->Enable(true);
+	menuItem_openModel_->Enable(true);
 
 	// Widgets dependent on image slices
 	bool imageDependent = false;
@@ -188,7 +187,7 @@ void CAPClientWindow::UpdateUI()
 	button_HideShowOthers->Enable(imageDependent);
 	slider_Contrast->Enable(imageDependent);
 	slider_Brightness->Enable(imageDependent);
-	menuItem_Save->Enable(imageDependent);
+	menuItem_save_->Enable(imageDependent);
 	button_PlaneShift->Enable(imageDependent);
 
 	ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_Mode->GetSelection());
@@ -212,12 +211,11 @@ void CAPClientWindow::UpdateUI()
 
 	// Widgets dependent on the heart model
 	checkBox_MII->Enable(heartModelDependent);
-	//checkBox_MII->SetValue(heartModelDependent);
 	checkBox_Visibility->Enable(heartModelDependent);
 	checkBox_Visibility->SetValue(heartModelDependent);
 	choice_ModelDisplayMode->Enable(heartModelDependent);
-	menuItem_Export->Enable(heartModelDependent);
-	menuItem_ExportToBinaryVolume->Enable(heartModelDependent);
+	menuItem_export_->Enable(heartModelDependent);
+	menuItem_exportToBinaryVolume_->Enable(heartModelDependent);
 
 	if (modellingEnum == APEX)
 		cmguiPanel_->ViewAll();
@@ -233,7 +231,6 @@ void CAPClientWindow::OnIdle(wxIdleEvent& event)
 
 void CAPClientWindow::OnCloseWindow(wxCloseEvent& event)
 {
-	LOG_MSG(LOGDEBUG) << "CAPClientWindow::OnCloseWindow()";
 	wxExit();
 }
 
@@ -764,6 +761,8 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 		choice_Mode->Append(wxString(ModeStrings[i],wxConvUTF8));
 	}
 	choice_Mode->SetSelection(newModeInt);
+	std::string modellingMode = "Modelling mode: ";
+	modellingMode += ModeStrings[newModeInt];
 	if (textureSliceMap_.size() > 0)
 	{
 		choice_Mode->Enable(true);
@@ -776,7 +775,9 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 	{
 		choice_Mode->Enable(false);
 		button_Accept->Enable(false);
+		modellingMode += " (Disabled)";
 	}
+	SetStatusTextString("modellingmode", modellingMode);
 }
 
 void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
@@ -857,11 +858,6 @@ void CAPClientWindow::OnAbout(wxCommandEvent& event)
 	
 	dlg.Center();
 	dlg.ShowModal();
-}
-
-void CAPClientWindow::OnOpenImages(wxCommandEvent& event)
-{
-	mainApp_->OpenImages();
 }
 
 void CAPClientWindow::ResetModeChoice()
@@ -1039,24 +1035,9 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnOpenAnnotation(wxCommandEvent& event)
+void CAPClientWindow::OnOpenImageBrowser(wxCommandEvent& event)
 {
-	if (previousWorkingLocation_.length() == 0)
-		previousWorkingLocation_ = wxGetCwd();
-
-	wxString defaultFilename = wxT("");
-	wxString defaultExtension = wxT("xml");
-	wxString wildcard = wxT("");
-	int flags = wxOPEN;
-	
-	wxString filename = wxFileSelector(wxT("Choose an annotation file to open"),
-			wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags);
-	if (!filename.empty())
-	{
-		// work with the file
-		LOG_MSG(LOGINFORMATION) << "Opening Annotation '" << filename <<"'";
-		mainApp_->OpenAnnotation(filename.mb_str());
-	}
+	mainApp_->OpenImageBrowser();
 }
 
 void CAPClientWindow::OnSave(wxCommandEvent& event)
@@ -1079,48 +1060,12 @@ void CAPClientWindow::OnSave(wxCommandEvent& event)
 	}
 	previousWorkingLocation_ = userCommentDlg.GetDirectory();
 	std::string userComment = userCommentDlg.GetComment();
-	dbg("User comment = " + userComment);
-	dbg("Directory = " + previousWorkingLocation_);
 	
 	mainApp_->SaveModel(previousWorkingLocation_, userComment);
 }
 
-std::string CAPClientWindow::PromptForUserComment()
-{
-	UserCommentDialog dialog(this);
-	dialog.Center();
-	std::string comment;
-	
-	while (true)
-	{
-		if (dialog.ShowModal() == wxID_OK)
-		{
-			comment = dialog.GetComment();
-			if (!comment.empty())
-			{
-				break;
-			}
-			
-			int answer = wxMessageBox(wxT("Please enter user comment"), wxT("Empty Comment"),
-											wxOK, this);
-		}
-		else
-		{
-			int answer = wxMessageBox(wxT("Cancel Save?"), wxT("Confirm"),
-											wxYES_NO, this);
-			if (answer == wxYES)
-			{
-				break;
-			}
-		}
-	}
-	
-	return comment;
-}
-
 void CAPClientWindow::OnQuit(wxCommandEvent& event)
 {
-	std::cout << "CAPClientWindow::" << __func__ << std::endl;
 	wxExit();
 }
 
@@ -1165,7 +1110,6 @@ void CAPClientWindow::SetModellingCallbacks()
 	// will never fire properly
 	cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
 	cmguiPanel_->SetCallback(input_callback_modelling, static_cast<void *>(this));
-	SetStatusTextString("modellingmode", "Modelling mode");
 }
 
 void CAPClientWindow::RemoveModellingCallbacks()

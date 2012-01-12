@@ -7,33 +7,29 @@
 			<label></label>
 			<object class="wxMenu" name="menu_File">
 				<label>_File</label>
-				<object class="wxMenuItem" name="menuItem_OpenImages">
-					<label>Open _Images</label>
-					<help></help>
-				</object>
-				<object class="wxMenuItem" name="menuItem_OpenModel">
+				<object class="wxMenuItem" name="menuItem_openModel_">
 					<label>Open _Model</label>
 					<help></help>
 				</object>
-				<object class="wxMenuItem" name="menuItem_OpenAnnotation">
-					<label>Open _Annotation</label>
+				<object class="wxMenuItem" name="menuItem_openImageBrowser_">
+					<label>Open Image Browser</label>
 					<help></help>
 				</object>
 				<object class="separator" />
-				<object class="wxMenuItem" name="menuItem_Save">
+				<object class="wxMenuItem" name="menuItem_save_">
 					<label>_Save Model</label>
 					<help></help>
 				</object>
-				<object class="wxMenuItem" name="menuItem_Export">
+				<object class="wxMenuItem" name="menuItem_export_">
 					<label>E_xport Model</label>
 					<help></help>
 				</object>
-				<object class="wxMenuItem" name="menuItem_ExportToBinaryVolume">
+				<object class="wxMenuItem" name="menuItem_exportToBinaryVolume_">
 					<label>E_xport Model to Binary Volume</label>
 					<help></help>
 				</object>
 				<object class="separator" />
-				<object class="wxMenuItem" name="menuItem_Quit">
+				<object class="wxMenuItem" name="menuItem_quit_">
 					<label>_Quit\tCtrl-Q</label>
 					<help></help>
 				</object>
@@ -62,7 +58,7 @@
 			</object>
 			<object class="wxMenu" name="menu_Help">
 				<label>_Help</label>
-				<object class="wxMenuItem" name="menuItem_About">
+				<object class="wxMenuItem" name="menuItem_about_">
 					<label>About...</label>
 					<help></help>
 				</object>

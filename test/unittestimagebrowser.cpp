@@ -41,7 +41,8 @@ namespace cap
 		{
 			wxXmlResource::Get()->InitAllHandlers();
 #if defined ENABLE_GUI_INTERACTION
-			ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client_);
+			CardiacAnnotation anno;
+			ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, anno, &client_);
 #endif
 			return true;
 		}
@@ -68,7 +69,8 @@ TEST(ImageBrowser, CreateUsingFactory)
 #if defined ENABLE_GUI_INTERACTION
 	wxTheApp->OnRun(); // Do/Don't start main loop
 #else
-	ImageBrowser* ib = ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, &client);
+	CardiacAnnotation anno;
+	ImageBrowser::CreateImageBrowser(DICOMIMAGE_IMAGEDIR, anno, &client);
 #endif
 	
 	wxTheApp->OnExit();
