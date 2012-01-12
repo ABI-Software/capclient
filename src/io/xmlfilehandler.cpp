@@ -5,6 +5,8 @@
  *      Author: jchu014
  */
 
+#include "io/xmlfilehandler.h"
+
 #include <wx/wx.h>
 #include <wx/dir.h> // FIXME move this out to a separate function/class
 
@@ -33,7 +35,6 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "utils/debug.h"
-#include "io/xmlfilehandler.h"
 #include "io/modelfile.h"
 #include "dicomimage.h"
 #include "model/heart.h"
@@ -320,6 +321,41 @@ ModellingPoints XMLFileHandler::GetModellingPoints() const
 	}
 
 	return modellingPoints;
+}
+
+void XMLFileHandler::AddCardiacAnnotation(const CardiacAnnotation& annotation)
+{
+	if (xmlFile_.GetInput().images.size() == 0)
+		xmlFile_.SetCardiacAnnotation(annotation);
+	else
+	{
+		std::vector<ModelFile::Image> images = xmlFile_.GetInput().images;
+		std::vector<ImageAnnotation> imageAnnotations = annotation.imageAnnotations;
+		std::map<std::string, ImageAnnotation> uidPresentMap;
+		std::vector<ImageAnnotation>::const_iterator cit = imageAnnotations.begin();
+		for (; cit != imageAnnotations.end(); ++cit)
+			uidPresentMap[cit->sopiuid] = *cit;
+		
+		
+		CardiacAnnotation minimalAnnotation;
+		minimalAnnotation.studyiuid = annotation.studyiuid;
+		
+		std::vector<ModelFile::Image>::const_iterator citImages = images.begin();
+		for (; citImages != images.end(); ++citImages)
+		{
+			std::map<std::string, ImageAnnotation>::const_iterator citAnno = 
+				uidPresentMap.find(citImages->sopiuid);
+			if (citAnno != uidPresentMap.end())
+				minimalAnnotation.imageAnnotations.push_back(citAnno->second);
+		}
+
+		xmlFile_.SetCardiacAnnotation(minimalAnnotation);
+	}
+}
+
+CardiacAnnotation XMLFileHandler::GetCardiacAnnotation() const
+{
+	return xmlFile_.GetCardiacAnnotation();
 }
 
 void XMLFileHandler::AddProvenanceDetail(std::string const& comment)

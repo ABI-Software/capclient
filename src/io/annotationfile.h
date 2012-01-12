@@ -66,8 +66,21 @@ struct ImageAnnotation
  */
 struct CardiacAnnotation
 {
-	std::string studyiuid;
-	std::vector<ImageAnnotation> imageAnnotations;
+	std::string studyiuid;  /**< The studyiuid */
+	std::vector<ImageAnnotation> imageAnnotations;  /**< The image annotations */
+
+	/**
+	 * Query if this object is valid.
+	 *
+	 * @return	true if valid, false if not.
+	 */
+	bool IsValid() const
+	{
+		if (imageAnnotations.size() > 0)
+			return true;
+
+		return false;
+	}
 };
 
 /**

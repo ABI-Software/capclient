@@ -520,13 +520,6 @@ private:
 	bool IsMIIVisible(const std::string& sliceName);
 
 	/**
-	 * Gets the prompt for user comment.
-	 *
-	 * @return	.
-	 */
-	std::string PromptForUserComment();
-
-	/**
 	 * Resets the mode choice.  Removes all but the APEX mode from the mode selection widget.
 	 */
 	void ResetModeChoice();
@@ -597,41 +590,40 @@ private:
 	 */
 	void CreateStatusTextStringsFieldRenditions();
 
-	/**
+	/*
 	 * Window widget event handlers.
 	 */
-	void Terminate(wxCloseEvent& event);
-	void OnTogglePlay(wxCommandEvent& event);
-	void OnObjectCheckListChecked(wxListEvent& event);
-	void OnObjectCheckListSelected(wxListEvent& event);
-	void OnToggleHideShowAll(wxCommandEvent& event);
-	void OnToggleHideShowOthers(wxCommandEvent& event);
-	void OnAnimationSliderEvent(wxCommandEvent& event);
-	void OnAnimationSpeedControlEvent(wxCommandEvent& event);
-	void OnMIICheckBox(wxCommandEvent& event);
-	void OnWireframeCheckBox(wxCommandEvent& event);
-	void OnBrightnessSliderEvent(wxCommandEvent& event);
-	void OnContrastSliderEvent(wxCommandEvent& event);
-	void OnAcceptClicked(wxCommandEvent& event);
-	void OnModellingModeChanged(wxCommandEvent& event);
-	void OnTogglePlaneShift(wxCommandEvent& event);
-	void OnToggleModelling(wxCommandEvent& event);
-	void OnModelDisplayModeChanged(wxCommandEvent& event);
+	void Terminate(wxCloseEvent& event); /**< Widget event handle */
+	void OnTogglePlay(wxCommandEvent& event); /**< Widget event handle */
+	void OnObjectCheckListChecked(wxListEvent& event); /**< Widget event handle */
+	void OnObjectCheckListSelected(wxListEvent& event); /**< Widget event handle */
+	void OnToggleHideShowAll(wxCommandEvent& event); /**< Widget event handle */
+	void OnToggleHideShowOthers(wxCommandEvent& event); /**< Widget event handle */
+	void OnAnimationSliderEvent(wxCommandEvent& event); /**< Widget event handle */
+	void OnAnimationSpeedControlEvent(wxCommandEvent& event); /**< Widget event handle */
+	void OnMIICheckBox(wxCommandEvent& event); /**< Widget event handle */
+	void OnWireframeCheckBox(wxCommandEvent& event); /**< Widget event handle */
+	void OnBrightnessSliderEvent(wxCommandEvent& event); /**< Widget event handle */
+	void OnContrastSliderEvent(wxCommandEvent& event); /**< Widget event handle */
+	void OnAcceptClicked(wxCommandEvent& event); /**< Widget event handle */
+	void OnModellingModeChanged(wxCommandEvent& event); /**< Widget event handle */
+	void OnTogglePlaneShift(wxCommandEvent& event); /**< Widget event handle */
+	void OnToggleModelling(wxCommandEvent& event); /**< Widget event handle */
+	void OnModelDisplayModeChanged(wxCommandEvent& event); /**< Widget event handle */
 	
-	/**
+	/*
 	 * Menu event handlers.
 	 */
-	void OnAbout(wxCommandEvent& event);
-	void OnOpenImages(wxCommandEvent& event);
-	void OnOpenModel(wxCommandEvent& event);
-	void OnOpenAnnotation(wxCommandEvent& event);
-	void OnSave(wxCommandEvent& event);
-	void OnQuit(wxCommandEvent& event);
-	void OnExportModel(wxCommandEvent& event);
-	void OnExportModelToBinaryVolume(wxCommandEvent& event);
-	void OnViewAll(wxCommandEvent& event);
-	void OnViewStatusText(wxCommandEvent& event);
-	void OnViewLog(wxCommandEvent& event);
+	void OnAbout(wxCommandEvent& event); /**< Menu event handler */
+	void OnOpenModel(wxCommandEvent& event); /**< Menu event handler */
+	void OnOpenImageBrowser(wxCommandEvent& event); /**< Menu event handler */
+	void OnSave(wxCommandEvent& event); /**< Menu event handler */
+	void OnQuit(wxCommandEvent& event); /**< Menu event handler */
+	void OnExportModel(wxCommandEvent& event); /**< Menu event handler */
+	void OnExportModelToBinaryVolume(wxCommandEvent& event); /**< Menu event handler */
+	void OnViewAll(wxCommandEvent& event); /**< Menu event handler */
+	void OnViewStatusText(wxCommandEvent& event); /**< Menu event handler */
+	void OnViewLog(wxCommandEvent& event); /**< Menu event handler */
 
 	/**
 	 * On idle events are used by Cmgui to update graphics.

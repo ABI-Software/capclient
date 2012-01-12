@@ -211,16 +211,16 @@ public:
 	void LoadCardiacAnnotations(const CardiacAnnotation& anno);
 
 	/**
-	 * Using the ImageBrowser class open some images.
-	 */
-	void OpenImages();
-
-	/**
 	 * Opens a model.
 	 *
 	 * @param	filename	Filename of the file.
 	 */
 	void OpenModel(const std::string& filename);
+
+	/**
+	 * Opens the image browser.
+	 */
+	void OpenImageBrowser();
 
 	/**
 	 * Opens an annotation.
@@ -431,7 +431,7 @@ private:
 		: gui_(0)
 		, labelledSlices_(LabelledSlices())
 		, modeller_(0)
-		, cardiacAnnotationPtr_(0)
+		, cardiacAnnotation_()
 		, previousImageLocation_("")
 	{
 	}
@@ -443,7 +443,7 @@ private:
 	
 	Modeller* modeller_; /**< The modeller */
 
-	boost::scoped_ptr<CardiacAnnotation> cardiacAnnotationPtr_; /**< The cardiac annotation pointer */
+	CardiacAnnotation cardiacAnnotation_; /**< Cardiac annotation */
 
 	Point3D previousPosition_;  /**< The previous position */
 	std::string previousImageLocation_; /**< The previous image location */

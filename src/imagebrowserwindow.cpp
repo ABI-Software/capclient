@@ -76,6 +76,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_rendition_destroy(&rendition);
 
+	choice_caseList->Enable(false);
 	Fit();
 	// This stops the window from getting too long in height 
 	// when there are many items in the Image Table
@@ -108,10 +109,13 @@ void ImageBrowserWindow::MakeConnections()
 	Connect(button_longAxis->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnLongAxisButtonEvent));
 	Connect(button_shortAxis->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnShortAxisButtonEvent));
 	Connect(button_none->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnNoneButtonEvent));
-	Connect(button_dir->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnChooseDirectory));
-	Connect(button_zip->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ImageBrowserWindow::OnChooseArchive));
 	Connect(radioBox_orderBy->GetId(), wxEVT_COMMAND_RADIOBOX_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOrderByRadioBox));
 	Connect(choice_caseList->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnCaseSelected));
+
+	Connect(XRCID("menuItem_quit_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnQuit));
+	Connect(XRCID("menuItem_openImages_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOpenImages));
+	Connect(XRCID("menuItem_openArchive_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOpenArchive));
+	Connect(XRCID("menuItem_openAnnotation_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOpenAnnotation));
 
 }
 
@@ -131,7 +135,7 @@ void ImageBrowserWindow::CreateAnnotationTableColumns()
 	long columnIndex = 0;
 	listCtrl_annotationTable->InsertColumn(columnIndex++, _("Label"), wxLIST_FORMAT_CENTRE, 100);
 	listCtrl_annotationTable->InsertColumn(columnIndex++, _("RID"), wxLIST_FORMAT_CENTRE, 100);
-	listCtrl_annotationTable->InsertColumn(columnIndex++, _("Scope"), wxLIST_FORMAT_CENTRE, 100);	
+	listCtrl_annotationTable->InsertColumn(columnIndex++, _("Scope"), wxLIST_FORMAT_CENTRE, 100);
 }
 
 void ImageBrowserWindow::CreateProgressDialog(std::string const& title, std::string const& message, int max)
@@ -303,25 +307,24 @@ void ImageBrowserWindow::FitSceneViewer(double radius)
 	cmguiPanel_->SetViewingVolume(radius);
 }
 
-void ImageBrowserWindow::SetImageLocation(const std::string& dir)
+void ImageBrowserWindow::OnQuit(wxCommandEvent& event)
 {
-	textCtrl_imageLocation->SetValue(dir);
+	browser_->OnCancelButtonClicked();
 }
 
-std::string ImageBrowserWindow::GetImageLocation() const
+void ImageBrowserWindow::OnOpenArchive(wxCommandEvent& event)
 {
-	return std::string(textCtrl_imageLocation->GetValue());
+	browser_->ChooseArchiveFile();
 }
 
-void ImageBrowserWindow::OnChooseDirectory(wxCommandEvent& event)
+void ImageBrowserWindow::OnOpenAnnotation(wxCommandEvent& event)
 {
-	dbg("ImageBrowserWindow::OnChooseDirectory");
+	browser_->ChooseAnnotationFile();
+}
+
+void ImageBrowserWindow::OnOpenImages(wxCommandEvent& event)
+{
 	browser_->ChooseImageDirectory();
-}
-
-void ImageBrowserWindow::OnChooseArchive(wxCommandEvent& event)
-{
-	dbg("ImageBrowserWindow::OnChooseArchive");
 }
 
 void ImageBrowserWindow::OnImageTableItemSelected(wxListEvent& event)
@@ -400,21 +403,31 @@ void ImageBrowserWindow::OnOrderByRadioBox(wxCommandEvent& event)
 
 void ImageBrowserWindow::OnCloseImageBrowserWindow(wxCloseEvent& WXUNUSED(event))
 {
-	// TODO DO clean up!!
-	dbg("ImageBrowserWindow::OnCloseImageBrowserWindow");
 	browser_->OnCancelButtonClicked();
-	//Destroy();
-	//	exit(0);
 }
 
 void ImageBrowserWindow::OnCaseSelected(wxCommandEvent& WXUNUSED(event))
 {
-	dbg("ImageBrowserWindow::OnCaseSelected");
+	dbg("ImageBrowserWindow::OnCaseSelected - Unfortunately case filtering is not yet completed.");
+}
+
+void ImageBrowserWindow::SetCaseList(const std::vector<std::string>& cases)
+{
+	choice_caseList->Clear();
+	choice_caseList->Enable(false);
+	std::vector<std::string>::const_iterator cit = cases.begin();
+	for (; cit != cases.end(); cit++)
+		choice_caseList->Append(*cit);
+
+	if (cases.size() > 0)
+	{
+		choice_caseList->SetSelection(0);
+		choice_caseList->Enable(true);
+	}
 }
 
 void ImageBrowserWindow::PutLabelOnSelectedSlice(std::string const& label)
 {
-	dbg("ImageBrowserWindow::PutLabelOnSelectedSlice");
 	long index = listCtrl_imageTable->GetNextItem(-1,
 						wxLIST_NEXT_ALL,
 						wxLIST_STATE_SELECTED);
@@ -448,8 +461,9 @@ void ImageBrowserWindow::SetImageTableRowLabelByUserData(long int userDataPtr, s
 		long ptr = listCtrl_imageTable->GetItemData(index);
 		if (ptr == userDataPtr)
 		{
-//			std::cout << __func__ << ": found matchig userData, row index = " << index <<'\n';
 			SetImageTableRowLabel(index, label);
+			if (IsAtLeastOneImageLabelled())
+				FindWindowById(XRCID("wxID_OK"))->Enable(true);
 			return;
 		}
 		index--;
@@ -483,7 +497,6 @@ std::vector<std::pair<std::string, long int> > ImageBrowserWindow::GetListOfLabe
 	while (index >= 0) // iterate from the bottom of the list ( to be compatible with CIM's setup)
 	{
 		std::string label = GetCellContentsString(index, LABEL_COLUMN_INDEX);
-		std::cout << "index = " << index << ", label = " << label << '\n';		
 		if (label.length())
 		{
 			long ptr = listCtrl_imageTable->GetItemData(index);

@@ -4,6 +4,29 @@
 		<style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
 		<title>Image Browser Window</title>
 		<centered>1</centered>
+		<object class="wxMenuBar" name="menubar_">
+			<label>MyMenuBar</label>
+			<object class="wxMenu" name="menu_file_">
+				<label>_File</label>
+				<object class="wxMenuItem" name="menuItem_openImages_">
+					<label>Open _Images</label>
+					<help>Open a directory structure containing images</help>
+				</object>
+				<object class="wxMenuItem" name="menuItem_openArchive_">
+					<label>Open _Archive</label>
+					<help>Open a compressed archive (.zip) file</help>
+				</object>
+				<object class="wxMenuItem" name="menuItem_openAnnotation_">
+					<label>Open A_nnotation</label>
+					<help>Open an external annotation file</help>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="menuItem_quit_">
+					<label>_Quit\tCtrl-Q</label>
+					<help></help>
+				</object>
+			</object>
+		</object>
 		<object class="wxBoxSizer">
 			<orient>wxVERTICAL</orient>
 			<object class="sizeritem">
@@ -20,54 +43,6 @@
 							<style>wxTAB_TRAVERSAL</style>
 							<object class="wxBoxSizer">
 								<orient>wxVERTICAL</orient>
-								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxALL|wxEXPAND</flag>
-									<border>5</border>
-									<object class="wxStaticBoxSizer">
-										<orient>wxVERTICAL</orient>
-										<label>Image directory/archive</label>
-										<object class="sizeritem">
-											<option>1</option>
-											<flag>wxEXPAND</flag>
-											<border>5</border>
-											<object class="wxBoxSizer">
-												<orient>wxHORIZONTAL</orient>
-												<object class="sizeritem">
-													<option>1</option>
-													<flag>wxALL</flag>
-													<border>5</border>
-													<object class="wxTextCtrl" name="textCtrl_imageLocation">
-														<value></value>
-														<maxlength>0</maxlength>
-													</object>
-												</object>
-												<object class="sizeritem">
-													<option>0</option>
-													<flag>wxALL</flag>
-													<border>5</border>
-													<object class="wxButton" name="button_dir">
-														<size>30,-1</size>
-														<tooltip>Chhose directory to load images from</tooltip>
-														<label>...</label>
-														<default>0</default>
-													</object>
-												</object>
-												<object class="sizeritem">
-													<option>0</option>
-													<flag>wxALL</flag>
-													<border>5</border>
-													<object class="wxButton" name="button_zip">
-														<size>30,-1</size>
-														<tooltip>Choose archive to load images from</tooltip>
-														<label>zip</label>
-														<default>0</default>
-													</object>
-												</object>
-											</object>
-										</object>
-									</object>
-								</object>
 								<object class="sizeritem">
 									<option>0</option>
 									<flag>wxEXPAND|wxALL</flag>
@@ -87,10 +62,7 @@
 													<border>5</border>
 													<object class="wxChoice" name="choice_caseList">
 														<selection>0</selection>
-														<content>
-															<item>Case1 2010/01/01</item>
-															<item>Case2 2010/01/02</item>
-														</content>
+														<content />
 													</object>
 												</object>
 											</object>

@@ -170,10 +170,8 @@ public:
 
 	/**
 	 * Constructor.
-	 *
-	 * @param	filename	Filename of the file.
 	 */
-	explicit ModelFile(const std::string& filename);
+	ModelFile();
 
 	/**
 	 * Destructor.
@@ -183,7 +181,7 @@ public:
 	/**
 	 * Reads the file.
 	 */
-	void ReadFile();
+	void ReadFile(const std::string& filename);
 
 	/**
 	 * Writes a file.
@@ -350,7 +348,17 @@ public:
 	{
 		input_.cardiacAnnotation = anno;
 	}
-	
+
+	/**
+	 * Gets the cardiac annotation.
+	 *
+	 * @return	The cardiac annotation.
+	 */
+	const CardiacAnnotation& GetCardiacAnnotation() const
+	{
+		return input_.cardiacAnnotation;
+	}
+
 private:
 
 	/**

@@ -26,24 +26,23 @@ namespace cap
 
 bool ImageBrowser::wxXmlInitialised_ = false;
 
-ImageBrowser::ImageBrowser(std::string const& archiveFilename, IImageBrowser *client)
+ImageBrowser::ImageBrowser(std::string const& workingLocation, const CardiacAnnotation& annotation, IImageBrowser *client)
 	: gui_(0)
+	, previousWorkingLocation_(workingLocation)
 	, sortingMode_(SERIES_NUMBER)
 	, client_(client)
 	, frameNumberCurrentlyOnDisplay_(0)
 	, textureTable_()
-	, archiveFilename_(archiveFilename)
+	, cardiacAnnotation_(annotation)
 {
 }
 
 ImageBrowser::~ImageBrowser()
 {
-	dbg("ImageBrowser::~ImageBrowser()");
 	ClearTextureMap();
 	ClearTextureTable();
 	dicomFileTable_.clear();
 	client_ = 0;
-	dbg("ImageBrowser::~ImageBrowser() end");
 }
 
 void ImageBrowser::UpdatePatientInfoPanel(DICOMPtr const& image)
@@ -64,7 +63,6 @@ void ImageBrowser::UpdatePatientInfoPanel(DICOMPtr const& image)
 
 void ImageBrowser::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 {
-	//	std::cout << __func__ << '\n';
 	const SliceKeyType& key = slice.first;
 	const std::vector<DICOMPtr>& images = slice.second;
 	assert(textureMap_.find(key) != textureMap_.end());
@@ -80,46 +78,79 @@ void ImageBrowser::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 
 void ImageBrowser::ChooseImageDirectory()
 {
-	std::string path = gui_->GetImageLocation();
+	std::string path = previousWorkingLocation_;
 	if (path.empty() || !IsDirectory(path))
 		path = wxGetCwd();
 	
 	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path);
 	if (!dirname.empty())
 	{
-		LOG_MSG(LOGINFORMATION) << "Loading images from '" << dirname << "'";
-		archiveFilename_ = std::string(dirname);
-		gui_->SetImageLocation(archiveFilename_);
-		LoadImages();
+		std::string restorePathOnFail = previousWorkingLocation_;
+		previousWorkingLocation_ = dirname.mb_str();
+		LOG_MSG(LOGINFORMATION) << "Loading images from '" << previousWorkingLocation_ << "'";
+		if (!LoadImages())
+			previousWorkingLocation_ = restorePathOnFail;
 	}
 }
 
-void ImageBrowser::LoadImages()
+void ImageBrowser::ChooseArchiveFile()
 {
+	dbg("ImageBrowser::ChooseArchiveFile()");
+}
+
+void ImageBrowser::ChooseAnnotationFile()
+{
+	if (previousWorkingLocation_.length() == 0)
+		previousWorkingLocation_ = wxGetCwd();
+
+	wxString defaultFilename = wxT("");
+	wxString defaultExtension = wxT("xml");
+	wxString wildcard = wxT("");
+	int flags = wxOPEN;
+	
+	wxString filename = wxFileSelector(wxT("Choose an annotation file to open"),
+			wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags);
+	if (!filename.empty())
+	{
+		// work with the file
+		LOG_MSG(LOGINFORMATION) << "Opening Annotation '" << filename <<"'";
+		AnnotationFile annotationFile(filename.mb_str());
+		annotationFile.ReadFile();
+		if (annotationFile.GetCardiacAnnotation().imageAnnotations.size() > 0)
+		{
+			SetAnnotation(annotationFile.GetCardiacAnnotation());
+			previousWorkingLocation_ = GetPath(filename.mb_str());
+		}
+		else
+		{
+			LOG_MSG(LOGWARNING) << "Invalid Annotation File - no image annotations found";
+		}
+	}
+}
+
+bool ImageBrowser::LoadImages()
+{
+	bool success = false;
 	CreateTexturesFromDICOMFiles();
 	if (dicomFileTable_.empty())
 	{
-		LOG_MSG(LOGWARNING) << "No valid DICOM files were found here";
-		gui_->SetImageLocation("");
+		LOG_MSG(LOGWARNING) << "No valid DICOM files were found at this location '" << previousWorkingLocation_ << "'";
 	}
 	else
 	{
 		SortDICOMFiles();
 		PopulateImageTable();
+		success = true;
 	}
+
+	return success;
 }
 
 void ImageBrowser::Initialize()
 {
 	assert(gui_);
-	if (archiveFilename_.empty())
+	if (!previousWorkingLocation_.empty())
 	{
-		ChooseImageDirectory();
-		archiveFilename_ = gui_->GetImageLocation();
-	}
-	else
-	{
-		gui_->SetImageLocation(archiveFilename_);
 		LoadImages();
 	}
 }
@@ -164,12 +195,15 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 	using namespace std;
 	
 	// load some images and display
-	const std::string& dirname = archiveFilename_;
+	const std::string& dirname = previousWorkingLocation_;
 	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(dirname);
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", filenames.size());
 	
+	std::map<std::string, bool> caseMap;
+	std::vector<std::string> caseList;
+	dicomFileTable_.clear();
 	ClearTextureTable();
-	ClearTextureMap();
+	caseListMap_.clear();
 	std::vector<std::string>::const_iterator cit = filenames.begin();
 	for(int count = 0; cit != filenames.end(); ++cit, count++)
 	{
@@ -189,7 +223,16 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 			DICOMPtr dicomFile(new DICOMImage(fullpath));
 			if (dicomFile->Analyze(image_field))
 			{
-				textureTable_.insert(make_pair(fullpath, image_field));
+				std::map<std::string, bool>::const_iterator cit = caseMap.find(dicomFile->GetStudyInstanceUID());
+				if (cit == caseMap.end())
+				{
+					caseMap[dicomFile->GetStudyInstanceUID()] = true;
+					std::string caseString = "Case " + ToString(caseMap.size()) + " " + dicomFile->GetScanDate();
+					caseList.push_back(caseString);
+					caseListMap_[caseString] = dicomFile->GetStudyInstanceUID();
+				}
+
+				textureTable_.insert(std::make_pair(fullpath, image_field));
 				dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
 			}
 			else
@@ -206,6 +249,7 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 
 	gui_->UpdateProgressDialog(filenames.size()-1);
 	gui_->DestroyProgressDialog();
+	gui_->SetCaseList(caseList);
 }
 
 void ImageBrowser::PopulateImageTable()
@@ -238,9 +282,12 @@ void ImageBrowser::PopulateImageTable()
 	// Set the selection to the first item in the list
 	gui_->SelectFirstRowInImageTable();
 	
-	DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
-	UpdatePatientInfoPanel(firstImage);
-	UpdateSeriesInfoPanel(firstImage);
+	if (!sliceMap_.empty())
+	{
+		DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
+		UpdatePatientInfoPanel(firstImage);
+		UpdateSeriesInfoPanel(firstImage);
+	}
 	
 	if (!cardiacAnnotation_.imageAnnotations.empty())
 	{
@@ -318,13 +365,12 @@ void ImageBrowser::ChangeImageAnnotation(int image_index)
 	gui_->ClearAnnotationTable();
 	gui_->CreateAnnotationTableColumns();
 	
-	std::string const& sopiuid = 
-	sliceMap_[sliceKeyCurrentlyOnDisplay_].at(image_index)->GetSopInstanceUID();
+	std::string const& sopiuid = sliceMap_[sliceKeyCurrentlyOnDisplay_].at(image_index)->GetSopInstanceUID();
 	
 	std::vector<ImageAnnotation>::const_iterator itr =
-	std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
-				 cardiacAnnotation_.imageAnnotations.end(),
-				 boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
+		std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
+			cardiacAnnotation_.imageAnnotations.end(),
+			boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
 	
 	
 	if (itr != cardiacAnnotation_.imageAnnotations.end())
@@ -340,7 +386,7 @@ void ImageBrowser::ChangeImageAnnotation(int image_index)
 			dbg("ROI:");
 			BOOST_FOREACH(Label const& label, roi.labels)
 			{
-				dbg(label.label);
+				dbg("    " + label.label);
 			}
 		}
 	}
@@ -460,27 +506,23 @@ void ImageBrowser::OnOKButtonClicked()
 	
 	std::sort(labelledSlices.begin(), labelledSlices.end(), LabelledSortOrder());
 
-	std::string imageLocation = gui_->GetImageLocation();
+	ClearTextureMap();
+	ClearTextureTable();
 
 	gui_->Destroy();
 	delete gui_;
 	gui_ = 0;
-
-	ClearTextureMap();
-	ClearTextureTable();
 	
 	client_->ResetModel();
 	client_->LoadLabelledImages(labelledSlices);
 	client_->LoadCardiacAnnotations(cardiacAnnotation_);
-	client_->SetImageLocation(imageLocation);
+	client_->SetImageLocation(previousWorkingLocation_);
 
 	delete this;
 }
 
 void ImageBrowser::OnNoneButtonEvent()
 {
-	gui_->PutLabelOnSelectedSlice("");
-	
 	// update CardiacAnnotation
 	std::vector<std::string> labelsToRemove;
 	labelsToRemove.push_back("Short Axis");
@@ -492,12 +534,12 @@ void ImageBrowser::OnNoneButtonEvent()
 	std::vector<Label> labelsToAdd;
 	
 	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+
+	gui_->PutLabelOnSelectedSlice("");
 }
 
 void ImageBrowser::OnLongAxisButtonEvent()
 {
-	gui_->PutLabelOnSelectedSlice("Long Axis");
-	
 	// update CardiacAnnotation
 	std::vector<std::string> labelsToRemove;
 	labelsToRemove.push_back("Short Axis");
@@ -511,12 +553,12 @@ void ImageBrowser::OnLongAxisButtonEvent()
 	labelsToAdd.push_back(short_axis);
 	
 	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+
+	gui_->PutLabelOnSelectedSlice("Long Axis");
 }
 
 void ImageBrowser::OnShortAxisButtonEvent()
 {
-	gui_->PutLabelOnSelectedSlice("Short Axis");
-	
 	// update CardiacAnnotation
 	std::vector<std::string> labelsToRemove;
 	labelsToRemove.push_back("Short Axis");
@@ -532,6 +574,8 @@ void ImageBrowser::OnShortAxisButtonEvent()
 	labelsToAdd.push_back(short_axis);
 	
 	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
+	
+	gui_->PutLabelOnSelectedSlice("Short Axis");
 }
 
 void ImageBrowser::OnImageTableItemSelected(long int userDataPtr)
@@ -569,9 +613,9 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 			long int sliceKeyPtr = itr->second;
 			
 			std::vector<Label>::const_iterator labelItr = 
-			std::find_if(imageAnno.labels.begin(),
-						 imageAnno.labels.end(),
-						 boost::bind(&Label::label, _1) == "Cine Loop");
+				std::find_if(imageAnno.labels.begin(),
+							 imageAnno.labels.end(),
+							 boost::bind(&Label::label, _1) == "Cine Loop");
 			if (labelItr == imageAnno.labels.end())
 			{
 				continue;

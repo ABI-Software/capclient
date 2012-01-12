@@ -128,7 +128,7 @@
                 <event name="OnSetFocus"></event>
                 <event name="OnSize"></event>
                 <event name="OnUpdateUI"></event>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">&amp;File</property>
                     <property name="name">menu_File</property>
                     <property name="permission">protected</property>
@@ -137,41 +137,26 @@
                         <property name="checked">0</property>
                         <property name="enabled">1</property>
                         <property name="help"></property>
-                        <property name="id">ID_OPENIMAGES</property>
-                        <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Open &amp;Images</property>
-                        <property name="name">menuItem_OpenImages</property>
-                        <property name="permission">protected</property>
-                        <property name="shortcut"></property>
-                        <property name="unchecked_bitmap"></property>
-                        <event name="OnMenuSelection"></event>
-                        <event name="OnUpdateUI"></event>
-                    </object>
-                    <object class="wxMenuItem" expanded="0">
-                        <property name="bitmap"></property>
-                        <property name="checked">0</property>
-                        <property name="enabled">1</property>
-                        <property name="help"></property>
-                        <property name="id">ID_OPENMODEL</property>
+                        <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">Open &amp;Model</property>
-                        <property name="name">menuItem_OpenModel</property>
+                        <property name="name">menuItem_openModel_</property>
                         <property name="permission">protected</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>
                         <event name="OnUpdateUI"></event>
                     </object>
-                    <object class="wxMenuItem" expanded="0">
+                    <object class="wxMenuItem" expanded="1">
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
                         <property name="enabled">1</property>
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Open &amp;Annotation</property>
-                        <property name="name">menuItem_OpenAnnotation</property>
-                        <property name="permission">protected</property>
+                        <property name="label">Open Image Browser</property>
+                        <property name="name">menuItem_openImageBrowser_</property>
+                        <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>
@@ -189,7 +174,7 @@
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">&amp;Save Model</property>
-                        <property name="name">menuItem_Save</property>
+                        <property name="name">menuItem_save_</property>
                         <property name="permission">protected</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -204,7 +189,7 @@
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">E&amp;xport Model</property>
-                        <property name="name">menuItem_Export</property>
+                        <property name="name">menuItem_export_</property>
                         <property name="permission">protected</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -219,7 +204,7 @@
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">E&amp;xport Model to Binary Volume</property>
-                        <property name="name">menuItem_ExportToBinaryVolume</property>
+                        <property name="name">menuItem_exportToBinaryVolume_</property>
                         <property name="permission">protected</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -238,7 +223,7 @@
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">&amp;Quit</property>
-                        <property name="name">menuItem_Quit</property>
+                        <property name="name">menuItem_quit_</property>
                         <property name="permission">protected</property>
                         <property name="shortcut">Ctrl-Q</property>
                         <property name="unchecked_bitmap"></property>
@@ -315,7 +300,7 @@
                         <event name="OnUpdateUI"></event>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">&amp;Help</property>
                     <property name="name">menu_Help</property>
                     <property name="permission">protected</property>
@@ -324,10 +309,10 @@
                         <property name="checked">0</property>
                         <property name="enabled">1</property>
                         <property name="help"></property>
-                        <property name="id">ID_ABOUT</property>
+                        <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">About...</property>
-                        <property name="name">menuItem_About</property>
+                        <property name="name">menuItem_about_</property>
                         <property name="permission">protected</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>

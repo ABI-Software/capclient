@@ -102,7 +102,7 @@ void CAPClient::LoadLabelledImages(const LabelledSlices& labelledSlices)
 void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
 {
 	assert(!anno.imageAnnotations.empty());
-	cardiacAnnotationPtr_.reset(new CardiacAnnotation(anno));
+	cardiacAnnotation_ = anno;
 
 	// Set some special nodes?
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, anno.imageAnnotations)
@@ -121,10 +121,9 @@ void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
 void CAPClient::OpenModel(const std::string& filename)
 {
 	// Clear out anything old.
-	cardiacAnnotationPtr_.reset(0);
 
-	ModelFile xmlFile(filename);
-	xmlFile.ReadFile();
+	ModelFile xmlFile;
+	xmlFile.ReadFile(filename);
 	
 	XMLFileHandler xmlFileHandler(xmlFile);
 	gui_->CreateProgressDialog("Please wait", "Searching for DICOM images", 10);
@@ -133,16 +132,22 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	if (labelledSlices.empty())
 	{
-		dbg("Can't locate image files");
+		LOG_MSG(LOGERROR) << "Can't locate image files - failed to load model '" << filename << "'";
 		return;
 	}
-	
+
+	// Extract the location of the image files from the first dicom image
+	std::vector<DICOMPtr> dicomImages = labelledSlices[0].GetDICOMImages();
+	if (dicomImages.size() > 0)
+	{
+		previousImageLocation_ = GetPath(dicomImages[0]->GetFilename());
+	}
+
+	cardiacAnnotation_ = xmlFileHandler.GetCardiacAnnotation();
+
 	// TODO: Hide CAPClient icon in scene viewer
-	// TODO: clean up existing
-	gui_->RemoveHeartModel();
+	LOG_MSG(LOGINFORMATION) << "Opening model '" << filename << "'";
 	LoadLabelledImages(labelledSlices);
-	//TODO: Load cardiac annotations
-	// LoadCardiacAnnotations(cardiacAnnotations);
 	ResetModel();
 
 	ModellingPoints modellingPoints = xmlFileHandler.GetModellingPoints();
@@ -195,58 +200,33 @@ void CAPClient::OpenModel(const std::string& filename)
 	ChangeModellingMode(GUIDEPOINT);
 }
 
-void CAPClient::OpenAnnotation(const std::string& filename)
+void CAPClient::OpenImageBrowser()
 {
-	// work with the file
-	dbg(std::string(__func__) + " - File name: " + filename);
-	
-	AnnotationFile annotationFile(filename);
-	dbg("Start reading xml file");
-	annotationFile.ReadFile();
-	
-	// check if a valid file 
-	if (annotationFile.GetCardiacAnnotation().imageAnnotations.empty())
-	{
-		LOG_MSG(LOGWARNING) << "Invalid Annotation File - no image annotations";
-		return;
-	}
-	
-	//		cardiacAnnotationPtr_.reset(new CardiacAnnotation(annotationFile.GetCardiacAnnotation()));
-	
-	ImageBrowser *ib = ImageBrowser::CreateImageBrowser(previousImageLocation_, this);
-	// Set annotations to the images in the ImageBrowserWindow.
-	ib->SetAnnotation(annotationFile.GetCardiacAnnotation());
-}
-
-void CAPClient::OpenImages()
-{
-	ImageBrowser::CreateImageBrowser(previousImageLocation_, this);
+	ImageBrowser::CreateImageBrowser(previousImageLocation_, cardiacAnnotation_, this);
 }
 
 void CAPClient::SaveModel(const std::string& dirname, const std::string& userComment)
 {
-	ModelFile xmlFile(dirname);
+	ModelFile xmlFile;
 	
-	dbg("Warning: CAPClient::SaveModel - not working with modelling points.");
-	//std::vector<DataPoint> const& dataPoints; // -- = modeller_->GetDataPoints();
-	std::vector<ModellingPoint> modellingPoints = modeller_->GetModellingPoints(); // -- = modeller_->GetDataPoints();
 	XMLFileHandler xmlFileHandler(xmlFile);
-	//xmlFileHandler.ConstructCAPXMLFile(labelledSlices_, dataPoints, *heartModelPtr_);
+
 	xmlFileHandler.AddLabelledSlices(labelledSlices_);
+	std::vector<ModellingPoint> modellingPoints = modeller_->GetModellingPoints();
 	xmlFileHandler.AddModellingPoints(modellingPoints);
 	xmlFileHandler.AddProvenanceDetail(userComment);
 	
-	std::string modelName = GetFileNameWOE(dirname);
-	//std::string dirnameStl(dirname.c_str());
-	//size_t positionOfLastSlash = dirnameStl.find_last_of("/\\");
-	//std::string modelName = dirnameStl.substr(positionOfLastSlash + 1);
+	std::string dirnameStr(dirname.c_str());
+	size_t positionOfLastSlash = dirnameStr.find_last_of("/\\");
+	std::string modelName = dirnameStr.substr(positionOfLastSlash + 1);
 	xmlFile.SetName(modelName);
 	std::string xmlFilename = dirname + '/' + modelName + ".xml";
 	dbg("xmlFilename = " + xmlFilename);
 	
-	if (cardiacAnnotationPtr_)
+	LOG_MSG(LOGINFORMATION) << "Saving model '" << xmlFilename << "'";
+	if (cardiacAnnotation_.IsValid())
 	{
-		xmlFile.SetCardiacAnnotation(*cardiacAnnotationPtr_);
+		xmlFile.SetCardiacAnnotation(cardiacAnnotation_);
 	}
 	
 	xmlFile.WriteFile(xmlFilename);

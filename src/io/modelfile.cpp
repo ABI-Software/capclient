@@ -648,8 +648,7 @@ void ConstructProvenanceDetailNode(ModelFile::ProvenanceDetail const& provenance
 
 } // end unnamed namespace
 
-ModelFile::ModelFile(std::string const & filename)
-	: filename_(filename)
+ModelFile::ModelFile()
 {
 	output_.focalLength = 0.0;
 	output_.interval = 0.0;
@@ -658,12 +657,12 @@ ModelFile::ModelFile(std::string const & filename)
 ModelFile::~ModelFile()
 {}
 
-void ModelFile::ReadFile()
+void ModelFile::ReadFile(const std::string& filename)
 {
 	xmlDocPtr doc; 
 	xmlNodePtr cur;
 	
-	doc = xmlParseFile(filename_.c_str()); 
+	doc = xmlParseFile(filename.c_str()); 
 	if (doc == NULL ) { 
 		std::cerr << "Document not parsed successfully. \n"; 
 		return; 
@@ -769,7 +768,7 @@ void ModelFile::WriteFile(std::string const& filename) const
 		boost::bind(ConstructPointSubtree, _1, inputNode));
 
 	ContructStudyContoursSubtree(input_.studyContours, inputNode);
-	if (!input_.cardiacAnnotation.imageAnnotations.empty())
+	if (input_.cardiacAnnotation.IsValid())
 	{
 		xmlNodePtr cardiacAnnotationNode = xmlNewChild(inputNode, NULL, BAD_CAST "CardiacAnnotation", NULL);
 		xmlNewProp(cardiacAnnotationNode, BAD_CAST "studyiuid", BAD_CAST input_.cardiacAnnotation.studyiuid.c_str());
