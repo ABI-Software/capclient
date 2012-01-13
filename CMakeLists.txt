@@ -39,6 +39,7 @@ SET(CAP_CLIENT_EXECUTABLE capclient)
 # Read in the source, header and gui files
 SET( APP_HDRS
 	src/cmgui/extensions.h
+	src/cmgui/utilities.h
 	src/AnnotationEditor.h
 	src/AnnotationWindow.h
 	src/Archiver.h
@@ -89,6 +90,7 @@ SET( APP_HDRS
 
 SET( APP_SRCS
 	src/cmgui/extensions.cpp
+	src/cmgui/utilities.cpp
 	src/AnnotationEditor.cpp
 	src/AnnotationWindow.cpp
 	src/capclientapp.cpp
