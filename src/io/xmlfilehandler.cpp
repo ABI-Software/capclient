@@ -225,8 +225,7 @@ LabelledSlices XMLFileHandler::GetLabelledSlices() const
 			//Can't locate the file. Ask the user to locate the dicom file.
 			dbg("No matching filename in the sopiuid to filename map");
 
-			wxString currentWorkingDir = wxGetCwd();
-			wxString defaultPath = currentWorkingDir.Append(wxT("/Data"));
+			wxString defaultPath = wxGetCwd();
 
 			const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
 			if ( !dirname.empty() )

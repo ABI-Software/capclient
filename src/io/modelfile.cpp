@@ -697,6 +697,8 @@ void ModelFile::ReadFile(const std::string& filename)
 		xmlFree(studyiuid);
 	}
 	
+	// Keep the filename around to use as the initial image search directory.
+	filename_ = filename;
 	// read CAPXMLInput
 	cur = cur->xmlChildrenNode;
 	
