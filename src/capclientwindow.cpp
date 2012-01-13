@@ -723,12 +723,18 @@ void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
 	}
 	bool mii_visibility = checkBox_mII_->IsChecked();
 
+	std::map<std::string, int> sliceListMap;
+	for (unsigned int i = 0; i < checkListBox_slice_->GetCount(); i++)
+		sliceListMap[checkListBox_slice_->GetString(i).mb_str()] = i;
+
 	int currentSelection = checkListBox_slice_->GetSelection();
+	std::string currentSelectionLabel = checkListBox_slice_->GetString(currentSelection).mb_str();
 	TextureSliceMap::const_iterator cit = textureSliceMap_.begin();
-	for (unsigned int i = 0; cit != textureSliceMap_.end(); cit++, i++)
+	for (; cit != textureSliceMap_.end(); ++cit)
 	{
-		if (currentSelection != i)
+		if (currentSelectionLabel != cit->first)
 		{
+			unsigned int i = sliceListMap[cit->first];
 			checkListBox_slice_->Check(i, visibility);
 			SetVisibilityForGraphicsInRegion(cmissContext_, cit->first, visibility);
 			SetMIIVisibility(cit->first, visibility && mii_visibility);
