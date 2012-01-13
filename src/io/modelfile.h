@@ -290,16 +290,6 @@ public:
 	}
 
 	/**
-	 * Sets a filename.
-	 *
-	 * @param	filename	Filename of the file.
-	 */
-	void SetFilename(std::string const& filename)
-	{
-		filename_ = filename;
-	}
-
-	/**
 	 * Gets the chamber.
 	 *
 	 * @return	The chamber.
