@@ -1,8 +1,8 @@
 
-#ifndef UTILITIES_H
-#define UTILITIES_H
+#ifndef CMGUI_EXTENSIONS_H
+#define CMGUI_EXTENSIONS_H
 /**
- * This file contains prototypes for utilites for the Cmgui library.
+ * This file contains prototypes for extensions for the Cmgui library.
  */
 
 extern "C"
@@ -15,8 +15,7 @@ extern "C"
 #include <zn/cmiss_node.h>
 }
 
-#include "dicomimage.h"
-#include "math/algebra.h"
+#include <string>
 
 class wxPanel;
 
@@ -177,18 +176,6 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, double width, double height);
 
 /**
- * Reposition a plane element in 3D rectangular cartesion space (square finite elemet type) 
- * defined in the given region with coordinates "coordinates". This will reposition the 
- * element only it is assumned that the element has already been created.  The corners
- * or the new plane are expected to be arrays of Reals with a length of three.
- * 
- * \param cmissContext the context to use.
- * \param regionName the name of the region to resize the square element in.
- * \param plane the plane describing the orientation of the image.
- */
-void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane);
-
-/**
  * Sets the visibility of all the grphics in the given region.
  *
  * @param	cmissContext	the context to use.
@@ -197,4 +184,4 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
  */
 void SetVisibilityForGraphicsInRegion(Cmiss_context_id cmissContext, const std::string& regionName, bool visibility);
 
-#endif /* UTILITIES_H */
+#endif /* CMGUI_EXTENSIONS_H */
