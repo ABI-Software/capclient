@@ -296,7 +296,7 @@ private:
 	/*
 	 * Menu event handlers
 	 */
-	void OnQuit(wxCommandEvent& event); /**< Menu event handler */
+	void OnClose(wxCommandEvent& event); /**< Menu event handler */
 	void OnOpenArchive(wxCommandEvent& event); /**< Menu event handler */
 	void OnOpenAnnotation(wxCommandEvent& event); /**< Menu event handler */
 	void OnOpenImages(wxCommandEvent& event); /**< Menu event handler */

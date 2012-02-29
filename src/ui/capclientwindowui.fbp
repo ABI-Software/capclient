@@ -142,7 +142,7 @@
                         <property name="label">Open &amp;Model</property>
                         <property name="name">menuItem_openModel_</property>
                         <property name="permission">protected</property>
-                        <property name="shortcut"></property>
+                        <property name="shortcut">Ctrl-O</property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>
                         <event name="OnUpdateUI"></event>
@@ -176,10 +176,14 @@
                         <property name="label">&amp;Save Model</property>
                         <property name="name">menuItem_save_</property>
                         <property name="permission">protected</property>
-                        <property name="shortcut"></property>
+                        <property name="shortcut">Ctrl-S</property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>
                         <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="separator" expanded="1">
+                        <property name="name">m_separator7</property>
+                        <property name="permission">none</property>
                     </object>
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
@@ -191,6 +195,21 @@
                         <property name="label">E&amp;xport Model</property>
                         <property name="name">menuItem_export_</property>
                         <property name="permission">protected</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection"></event>
+                        <event name="OnUpdateUI"></event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Export to Cmgui</property>
+                        <property name="name">menuItem_exportToCmgui_</property>
+                        <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>

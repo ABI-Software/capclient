@@ -449,6 +449,9 @@ void ImageBrowser::OnOrderByRadioBox(int event)
 
 void ImageBrowser::OnCancelButtonClicked()
 {
+	ClearTextureMap();
+	ClearTextureTable();
+
 	if (gui_)
 	{
 		gui_->Destroy();

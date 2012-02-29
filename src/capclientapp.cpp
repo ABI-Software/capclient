@@ -39,7 +39,7 @@ namespace cap
 bool HandleEula()
 {
 	EulaDialog eulaDialog;
-	eulaDialog.Center();
+	//eulaDialog.Center();
 	if (eulaDialog.ShowModal() != wxID_OK)
 	{
 		return false;
@@ -59,8 +59,8 @@ bool CAPApp::OnInit()
 	/**
 	 * TODO: reinstate the end user license agreement.
 	 */
-	//if (!HandleEula())
-	//	return false;
+	if (!HandleEula())
+		return false;
 	
 	// Create the main application model
 	cc_ = CAPClient::GetInstance();
