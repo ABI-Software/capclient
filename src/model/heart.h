@@ -176,11 +176,7 @@ public:
 	 *
 	 * @return	The focal length.
 	 */
-	double GetFocalLength() const
-	{
-		return focalLength_;
-	}
-
+	double GetFocalLength() const;
 	/**
 	 * Sets a focal lengh.
 	 *
@@ -226,8 +222,6 @@ private:
 	std::string modelName_; /**< Name of the model */
 	std::vector<std::string> exnodeModelFileNames_; /**< List of names of the exnode model files */
 	int numberOfModelFrames_;   /**< Number of model frames */
-	
-	double focalLength_;	/**< focal length for prolate spheriod coordinate system */
 	
 	class HeartModelImpl;
 	HeartModelImpl* pImpl_; /**< use PIMPL to hide Cmgui related implementation details (region, scene object , etc) */

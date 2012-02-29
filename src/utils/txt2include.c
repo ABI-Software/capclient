@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 	int c, e, p = 0, cols = 64, len;
 	long length = -1;
 	char *pname, *pp;//, *fn;
-	unsigned int revert = 1;
+	unsigned int revert = 0;
 
 	if (argc > 3)
 		return 1;

@@ -205,6 +205,15 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		${FieldImageView_UI_SRCS_ANS_HDRS}
 		)
 
+	LIST(APPEND GUI_TESTS EULADialog)
+	SET(EULADialog_SRC
+		${CAPCLIENT_ROOT_DIR}/src/ui/euladialog.h
+		${CAPCLIENT_ROOT_DIR}/src/ui/htmlwindow.h
+		${CAPCLIENT_ROOT_DIR}/src/ui/htmlwindow.cpp
+		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+		unittesteuladialog.cpp
+		)
+
 ENDIF()
 
 IF(MSVC)
@@ -252,6 +261,12 @@ IF(MSVC)
 			
 		SET(FieldImageView_SRC
 			${FieldImageView_SRC}
+			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+			)
+			
+		SET(EULADialog_SRC
+			${EULADialog_SRC}
 			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 			)

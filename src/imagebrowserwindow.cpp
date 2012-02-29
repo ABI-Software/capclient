@@ -112,7 +112,7 @@ void ImageBrowserWindow::MakeConnections()
 	Connect(radioBox_orderBy->GetId(), wxEVT_COMMAND_RADIOBOX_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOrderByRadioBox));
 	Connect(choice_caseList->GetId(), wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnCaseSelected));
 
-	Connect(XRCID("menuItem_quit_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnQuit));
+	Connect(XRCID("menuItem_close_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnClose));
 	Connect(XRCID("menuItem_openImages_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOpenImages));
 	Connect(XRCID("menuItem_openArchive_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOpenArchive));
 	Connect(XRCID("menuItem_openAnnotation_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ImageBrowserWindow::OnOpenAnnotation));
@@ -307,7 +307,7 @@ void ImageBrowserWindow::FitSceneViewer(double radius)
 	cmguiPanel_->SetViewingVolume(radius);
 }
 
-void ImageBrowserWindow::OnQuit(wxCommandEvent& event)
+void ImageBrowserWindow::OnClose(wxCommandEvent& event)
 {
 	browser_->OnCancelButtonClicked();
 }

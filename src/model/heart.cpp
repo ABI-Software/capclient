@@ -64,7 +64,6 @@ public:
 
 HeartModel::HeartModel(Cmiss_context_id context)
 	: modelName_("heart")
-	, focalLength_(42.0) // FIX magic number
 	, pImpl_(new HeartModel::HeartModelImpl(context))
 {
 }
@@ -474,12 +473,12 @@ double HeartModel::ComputeVolume(HeartSurfaceEnum surface, double time) const
 
 void HeartModel::SetFocalLength(double focalLength)
 {
-	// When Cmgui allows the getting and setting of the focal length for the prolate spheriodal coordinate system
-	// this will no longer be needed.
-	focalLength_ = focalLength;
-	std::stringstream ss;
-	ss << "coor pro focus " << focalLength;
-	Cmiss_field_module_define_field(pImpl_->field_module_, "coordinates", ss.str().c_str());
+	Cmiss_field_set_attribute_real(pImpl_->coordinates_ps_, CMISS_FIELD_ATTRIBUTE_COORDINATE_SYSTEM_FOCUS, focalLength);
+}
+
+double HeartModel::GetFocalLength() const
+{
+	return Cmiss_field_get_attribute_real(pImpl_->coordinates_ps_, CMISS_FIELD_ATTRIBUTE_COORDINATE_SYSTEM_FOCUS);
 }
 
 } // end namespace cap
