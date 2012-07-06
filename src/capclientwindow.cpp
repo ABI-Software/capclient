@@ -1017,7 +1017,7 @@ void CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& po
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, modelling_mode.c_str());
 	Cmiss_region_destroy(&root_region);
-	Cmiss_node_id node = Cmiss_region_create_node(region, position.x, position.y, position.z);
+    Cmiss_node_id node = Cmiss_region_create_node(region);
 	int node_id = Cmiss_node_get_identifier(node);
 	//mainApp_->ChangeModellingMode(type);
 	mainApp_->AddModellingPoint(region, node_id, position, time);

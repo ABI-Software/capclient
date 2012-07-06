@@ -110,9 +110,9 @@ TEST(Modeller, AddApexPoints)
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
 	Cmiss_region_id region = Cmiss_context_get_default_region(context);
 
-	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node1 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node1 != 0);
-	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node2 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node2 != 0);
 	using namespace cap;
     Modeller *modeller = new Modeller(0);
@@ -135,11 +135,11 @@ TEST(Modeller, AddBasePoints)
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
 	Cmiss_region_id region = Cmiss_context_get_default_region(context);
 
-	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node1 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node1 != 0);
-	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node2 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node2 != 0);
-	Cmiss_node_id node3 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node3 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node3 != 0);
 
 	using namespace cap;
@@ -168,13 +168,13 @@ TEST(Modeller, AddRVPoints)
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
 	Cmiss_region_id region = Cmiss_context_get_default_region(context);
 
-	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node1 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node1 != 0);
-	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node2 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node2 != 0);
-	Cmiss_node_id node3 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node3 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node3 != 0);
-	Cmiss_node_id node4 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node4 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node4 != 0);
 
     Modeller *modeller = new Modeller(0);
@@ -211,17 +211,17 @@ TEST(Modeller, AddBasePlanePoints)
 	mcc.gui_->CreateHeartModel();
 	mcc.gui_->LoadTemplateHeartModel(25);
 
-	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node1 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node1 != 0);
-	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node2 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node2 != 0);
-	Cmiss_node_id node3 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node3 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node3 != 0);
-	Cmiss_node_id node4 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node4 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node4 != 0);
-	Cmiss_node_id node5 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node5 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node5 != 0);
-	Cmiss_node_id node6 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node6 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node6 != 0);
 
 	Point3D apex(24.2506, -71.3943, -9.00449);
@@ -276,13 +276,13 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	using namespace cap;
 	Cmiss_context_id context = Cmiss_context_create("ModellerTest");
 	Cmiss_region_id region = Cmiss_context_get_default_region(context);
-	Cmiss_node_id node1 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node1 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node1 != 0);
-	Cmiss_node_id node2 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node2 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node2 != 0);
-	Cmiss_node_id node3 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node3 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node3 != 0);
-	Cmiss_node_id node4 = Cmiss_context_create_node(context, 0.0, 0.0, 0.0);
+    Cmiss_node_id node4 = Cmiss_context_create_node(context);
 	EXPECT_TRUE(node4 != 0);
 	Point3D bp1(-18.4984, -52.6508, 43.958);
 	Point3D bp2(-3.04825, -0.0334985, 8.7444);
@@ -319,22 +319,18 @@ TEST(Modeller, AlignModel)
 	mcc.gui_->LoadTemplateHeartModel(25);
 	Cmiss_region_id region = Cmiss_context_get_default_region(mcc.gui_->cmissContext_);
 
-	Cmiss_node_id node1 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 25.1651, -66.7366, -11.5065);
+    Cmiss_node_id node1 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
 	EXPECT_TRUE(node1 != 0);
-	Cmiss_node_id node2 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -14.4939, -17.1653, 28.9188);
+    Cmiss_node_id node2 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
 	EXPECT_TRUE(node2 != 0);
-	Cmiss_node_id node3 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.328333, -40.9305, -6.57035);
+    Cmiss_node_id node3 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
 	EXPECT_TRUE(node3 != 0);
-	Cmiss_node_id node4 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 8.43801, -63.0973, 38.1512);
+    Cmiss_node_id node4 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
 	EXPECT_TRUE(node4 != 0);
-	Cmiss_node_id node5 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -6.03773, -8.1123, 14.9891);
+    Cmiss_node_id node5 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
 	EXPECT_TRUE(node5 != 0);
-	Cmiss_node_id node6 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -19.2071, -27.9634, 38.2394);
+    Cmiss_node_id node6 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
 	EXPECT_TRUE(node6 != 0);
-	//Cmiss_node_id node7 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -18.4984, -52.6508, 33.958);
-	//EXPECT_TRUE(node7 != 0);
-	//Cmiss_node_id node8 = Cmiss_context_create_node(mcc.gui_->cmissContext_, -3.04825, -0.0334985, 0.7444);
-	//EXPECT_TRUE(node8 != 0);
 
 	Point3D apex(25.1651, -66.7366, -11.5065);
 	Point3D base( -14.4939, -17.1653, 28.9188);
@@ -342,8 +338,6 @@ TEST(Modeller, AlignModel)
 	Point3D rv2( 8.43801, -63.0973, 38.1512);
 	Point3D bp1( -6.03773, -8.1123, 14.9891);
 	Point3D bp2( -19.2071, -27.9634, 38.2394);
-	//Point3D bp3(-18.4984, -52.6508, 33.958);
-	//Point3D bp4(-3.04825, -0.0334985, 0.7444);
 
     Modeller *modeller = new Modeller(&mcc);
     modeller->AddModellingPoint(region, Cmiss_node_get_identifier(node1), apex, 0.0);
@@ -425,17 +419,17 @@ TEST(Modeller, VersionCompare1)
     mcc.gui_->LoadTemplateHeartModel(25);
     Cmiss_region_id region = Cmiss_context_get_default_region(mcc.gui_->cmissContext_);
 
-    Cmiss_node_id node1 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.0, 0.0, 0.0);
+    Cmiss_node_id node1 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
     EXPECT_TRUE(node1 != 0);
-    Cmiss_node_id node2 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.0, 0.0, 0.0);
+    Cmiss_node_id node2 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
     EXPECT_TRUE(node2 != 0);
-    Cmiss_node_id node3 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.0, 0.0, 0.0);
+    Cmiss_node_id node3 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
     EXPECT_TRUE(node3 != 0);
-    Cmiss_node_id node4 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.0, 0.0, 0.0);
+    Cmiss_node_id node4 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
     EXPECT_TRUE(node4 != 0);
-    Cmiss_node_id node5 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.0, 0.0, 0.0);
+    Cmiss_node_id node5 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
     EXPECT_TRUE(node5 != 0);
-    Cmiss_node_id node6 = Cmiss_context_create_node(mcc.gui_->cmissContext_, 0.0, 0.0, 0.0);
+    Cmiss_node_id node6 = Cmiss_context_create_node(mcc.gui_->cmissContext_);
     EXPECT_TRUE(node6 != 0);
 
     Point3D apex( 89.628687430877548, -78.206408494868128, -21.803196495260526);
