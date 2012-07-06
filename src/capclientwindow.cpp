@@ -1382,7 +1382,7 @@ void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
 	Cmiss_region_destroy(&region);
 }
 
-void CAPClientWindow::SetEndPosition(unsigned int x, unsigned int y)
+void CAPClientWindow::SetEndPosition(unsigned int /*x*/, unsigned int /*y*/)
 {
 }
 

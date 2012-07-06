@@ -30,7 +30,7 @@ public:
 		wxPanel *panel = new wxPanel(this, -1);
 		
 		wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-		wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+        //wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
 		
 		wxGridSizer * grid = new wxGridSizer(2);
 

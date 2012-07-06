@@ -29,7 +29,7 @@ const int KEYCODE_A = 65;
 const int KEYCODE_D = 68;
 const int KEYCODE_E = 69;
 
-int input_callback_modelling_setup(Cmiss_scene_viewer_id scene_viewer, 
+int input_callback_modelling_setup(Cmiss_scene_viewer_id /*scene_viewer*/,
 	struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
 {
 	Cmiss_scene_viewer_input_event_type event_type;
@@ -76,7 +76,7 @@ int input_callback_modelling_setup(Cmiss_scene_viewer_id scene_viewer,
 	return 1;
 }
 
-int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer, 
+int input_callback_modelling(Cmiss_scene_viewer_id /*scene_viewer*/,
 	struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
 {
 	Cmiss_scene_viewer_input_event_type event_type;
@@ -115,7 +115,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	return 1; // returning false means don't call the other input handlers;
 }
 
-int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer, 
+int input_callback_image_shifting(Cmiss_scene_viewer_id /*scene_viewer*/,
 	struct Cmiss_scene_viewer_input *input, void *capclientwindow_void)
 {
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
@@ -161,7 +161,7 @@ int input_callback_image_shifting(Cmiss_scene_viewer_id scene_viewer,
 	return 1; // returning false means don't call the other input handlers;
 }
 
-int time_callback(Cmiss_time_notifier_id time, double current_time, void *capclientwindow_void)
+int time_callback(Cmiss_time_notifier_id /*time*/, double current_time, void *capclientwindow_void)
 {
 	//DEBUG
 	//dbg("Time_call_back time = " + ToString(current_time));
@@ -174,8 +174,8 @@ int time_callback(Cmiss_time_notifier_id time, double current_time, void *capcli
 	return 1;
 }
 
-int input_callback_ctrl_modifier_switch(Cmiss_scene_viewer_id scene_viewer, 
-	struct Cmiss_scene_viewer_input *input, void *null_void)
+int input_callback_ctrl_modifier_switch(Cmiss_scene_viewer_id /*scene_viewer*/,
+    struct Cmiss_scene_viewer_input *input, void * /*null_void*/)
 {
 	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
 	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);

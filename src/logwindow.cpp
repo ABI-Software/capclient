@@ -31,12 +31,12 @@ namespace cap
 		Connect(button_save_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(LogWindow::OnSave));
 	}
 
-	void LogWindow::OnCloseWindow(wxCloseEvent& event)
+    void LogWindow::OnCloseWindow(wxCloseEvent& /*event*/)
 	{
 		Hide();
 	}
 
-	void LogWindow::OnSave(wxCommandEvent& event)
+    void LogWindow::OnSave(wxCommandEvent& /*event*/)
 	{
 		if (previousSaveLocation_.length() == 0)
 			previousSaveLocation_ = wxGetCwd();
@@ -57,7 +57,7 @@ namespace cap
 		}
 	}
 
-	void LogWindow::OnExit(wxCommandEvent& event)
+    void LogWindow::OnExit(wxCommandEvent& /*event*/)
 	{
 		Hide();
 	}
@@ -94,6 +94,9 @@ namespace cap
 		case LOGINFORMATION:
 			logLevelAttr = blue;
 			break;
+        case LOGDEBUG:
+        default:
+            break;
 		}
 		text_log_->SetStyle(p1, p2, logLevelAttr);
 		p1 = text_log_->GetInsertionPoint();

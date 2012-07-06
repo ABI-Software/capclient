@@ -43,7 +43,7 @@ TEST(Archiver, Unzip)
 			//wxFile file;
 			//file.Create((dirname + "/" + name).c_str(), true);
 			// read 'zip' to access the entry's data
-			unsigned long int buf_size = 0, numBytesRead = 0;
+            unsigned long int buf_size = 0;//, numBytesRead = 0;
 			unsigned long int num_allocated = 0;
 			char *buf = 0;
 			while (!zip.Eof()) {

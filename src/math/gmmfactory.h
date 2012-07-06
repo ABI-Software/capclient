@@ -182,12 +182,12 @@ public:
 	}
 	
 	// REVISE: Following two functions need to be defined since this class inherits from SparseMatrix (never really used.)
-	Vector* mult(const Vector& v) const
+    Vector* mult(const Vector& /*v*/) const
 	{
 		return 0;
 	}
 	
-	Vector* trans_mult(const Vector& v) const
+    Vector* trans_mult(const Vector& /*v*/) const
 	{
 		return 0;
 	}

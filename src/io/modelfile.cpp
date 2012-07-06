@@ -114,7 +114,7 @@ void ReadPoint(ModelFile::Point& point, xmlNodePtr cur)
 	}
 }
 
-void ReadImage(ModelFile::Image& image, xmlDocPtr doc, xmlNodePtr cur)
+void ReadImage(ModelFile::Image& image, xmlDocPtr /*doc*/, xmlNodePtr cur)
 {
 	using boost::lexical_cast;
 	//frame
@@ -702,7 +702,6 @@ void ModelFile::ReadFile(const std::string& filename)
 	// read CAPXMLInput
 	cur = cur->xmlChildrenNode;
 	
-	int i = 0;
 	while (cur) 
 	{
 		if (!xmlStrcmp(cur->name, (const xmlChar *)"Input"))
@@ -788,8 +787,8 @@ void ModelFile::WriteFile(std::string const& filename) const
 	std::string interval = boost::lexical_cast<std::string>(output_.interval);
 	xmlNewProp(outputNode, BAD_CAST "interval", BAD_CAST interval.c_str());
 	xmlNewProp(outputNode, BAD_CAST "transformation_matrix", BAD_CAST output_.transformationMatrix.c_str());
-	xmlNodePtr exelemNode = xmlNewChild(outputNode, NULL, BAD_CAST "Exelem",
-			BAD_CAST output_.elemFileName.c_str());
+//	xmlNodePtr exelemNode = xmlNewChild(outputNode, NULL, BAD_CAST "Exelem",
+//			BAD_CAST output_.elemFileName.c_str());
 	std::for_each(output_.exnodes.begin(), output_.exnodes.end(),
 			boost::bind(ConstructExnodeNode, _1, outputNode));
 	

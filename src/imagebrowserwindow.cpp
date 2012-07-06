@@ -308,22 +308,22 @@ void ImageBrowserWindow::FitSceneViewer(double radius)
 	cmguiPanel_->SetViewingVolume(radius);
 }
 
-void ImageBrowserWindow::OnClose(wxCommandEvent& event)
+void ImageBrowserWindow::OnClose(wxCommandEvent& /*event*/)
 {
 	browser_->OnCancelButtonClicked();
 }
 
-void ImageBrowserWindow::OnOpenArchive(wxCommandEvent& event)
+void ImageBrowserWindow::OnOpenArchive(wxCommandEvent& /*event*/)
 {
 	browser_->ChooseArchiveFile();
 }
 
-void ImageBrowserWindow::OnOpenAnnotation(wxCommandEvent& event)
+void ImageBrowserWindow::OnOpenAnnotation(wxCommandEvent& /*event*/)
 {
 	browser_->ChooseAnnotationFile();
 }
 
-void ImageBrowserWindow::OnOpenImages(wxCommandEvent& event)
+void ImageBrowserWindow::OnOpenImages(wxCommandEvent& /*event*/)
 {
 	browser_->ChooseImageDirectory();
 }

@@ -160,12 +160,12 @@ public:
 		P = &(static_cast<const VNLMatrix*>(&M)->GetImpl());
 	}
 	
-	Vector* mult(const Vector& v) const
+    Vector* mult(const Vector& /*v*/) const
 	{
 		return 0;
 	}
 	
-	Vector* trans_mult(const Vector& v) const
+    Vector* trans_mult(const Vector& /*v*/) const
 	{
 		return 0;
 	}
@@ -369,7 +369,7 @@ public:
 		return new VNLVector(*y);
 	}
 	
-	Preconditioner* CreateDiagonalPreconditioner(const SparseMatrix& m) const
+    Preconditioner* CreateDiagonalPreconditioner(const SparseMatrix& /*m*/) const
 	{
 //		return new GMMPreconditioner(
 //				static_cast<const VNLMatrix*>(&m)->GetImpl());
@@ -422,7 +422,7 @@ public:
 		return 0;
 	}
 	
-	void CG(const SparseMatrix& A, Vector& x, const Vector& rhs, const Preconditioner& pre, int maximumIteration, double tolerance) const
+    void CG(const SparseMatrix& A, Vector& x, const Vector& rhs, const Preconditioner& /*pre*/, int maximumIteration, double /*tolerance*/) const
 	{
 //		std::vector<double>& xImpl = static_cast<GMMVector*>(&x)->GetImpl();
 //		const std::vector<double>& rhsImpl = static_cast<const GMMVector*>(&rhs)->GetImpl();

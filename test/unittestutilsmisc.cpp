@@ -12,9 +12,9 @@ TEST(UtilsMisc, TimeNow)
 
 TEST(UtilsMisc, EndsWith)
 {
-	EXPECT_EQ(true, cap::EndsWith("yabbadabbadoo", "doo"));
-	EXPECT_EQ(true, cap::EndsWith("filename.exnode", ".exnode"));
-	EXPECT_EQ(false, cap::EndsWith("notgoingtomatch", "oranges"));
+    EXPECT_TRUE(cap::EndsWith("yabbadabbadoo", "doo"));
+    EXPECT_TRUE(cap::EndsWith("filename.exnode", ".exnode"));
+    EXPECT_FALSE(cap::EndsWith("notgoingtomatch", "oranges"));
 }
 
 TEST(UtilsMisc, ToString)

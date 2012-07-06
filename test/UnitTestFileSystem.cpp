@@ -115,11 +115,11 @@ TEST(FileSystemTest, MakeDirectory)
 {
 	using namespace cap;
 	bool res = cap::MakeDirectory(std::string(FILESYSTEM_TESTDIR) + "/created/programmatically");
-	EXPECT_EQ(false, res);
+    EXPECT_FALSE(res);
 	res = cap::MakeDirectory(std::string(FILESYSTEM_TESTDIR) + "/created magic");
-	EXPECT_EQ(true, res);
+    EXPECT_TRUE(res);
 	res = cap::MakeDirectory(std::string(FILESYSTEM_TESTDIR) + "/mine");
-	EXPECT_EQ(true, res);
+    EXPECT_TRUE(res);
 
 	// remove created directories
 	std::string base(FILESYSTEM_TESTDIR);
