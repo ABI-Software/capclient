@@ -242,7 +242,7 @@ public:
 	 *
 	 * @param	dirname	Pathname of the directory.
 	 */
-	void OnExportModel(std::string const& dirname)
+    void OnExportModel(std::string const& /*dirname*/)
 	{
 		dbg("--- Error: reinstate OnExportModel ---");
 		//--IsoSurfaceCapture* iso = 0;//--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
@@ -258,7 +258,7 @@ public:
 	 * @param	baseMargin	The base margin.
 	 * @param	spacing   	The spacing.
 	 */
-	void OnExportModelToBinaryVolume(std::string const& dirname, double apexMargin, double baseMargin, double spacing)
+    void OnExportModelToBinaryVolume(std::string const& /*dirname*/, double /*apexMargin*/, double /*baseMargin*/, double /*spacing*/)
 	{
 		dbg("--- Error: reinstate OnExportModelToBinaryVolume ---");
 		//--IsoSurfaceCapture* iso = 0; //--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());

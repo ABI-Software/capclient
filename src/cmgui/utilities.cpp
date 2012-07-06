@@ -25,8 +25,6 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 	Cmiss_field_id coordinates_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
-	double width = sqrt(DotProduct(plane->xside, plane->xside));
-	double height = sqrt(DotProduct(plane->yside, plane->yside));
 	double node_coordinates[element_node_count][3] =
 	{
 		{plane->blc.x, plane->blc.y, plane->blc.z},
