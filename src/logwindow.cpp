@@ -51,8 +51,7 @@ namespace cap
 		if (dialog.ShowModal() == wxID_OK)
 		{
 			previousSaveLocation_ = dialog.GetPath();
-			std::cout << previousSaveLocation_ << std::endl;
-			std::ofstream file;
+            std::ofstream file;
 			file.open(previousSaveLocation_.c_str(), std::ios::out);
 			file << text_log_->GetValue();
 		}

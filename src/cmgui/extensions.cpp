@@ -1,4 +1,5 @@
 
+#include "utils/misc.h"
 #include "cmgui/extensions.h"
 
 #include "utils/filesystem.h"
@@ -136,7 +137,7 @@ Cmiss_rendition_id Cmiss_context_get_rendition_for_region(Cmiss_context_id cmiss
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
-	Cmiss_rendition_id rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
+    Cmiss_rendition_id  rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
 
 	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_region_destroy(&root_region);
@@ -192,7 +193,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 				material = "pink";
 
 			//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-			std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" visibility if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label " + label;
+            std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label " + label;
 			Cmiss_graphic_define(node_graphic, node_command.c_str());
 			Cmiss_graphic_destroy(&node_graphic);
 		}
@@ -359,9 +360,9 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	for (int i = 0; i < element_node_count; i++)
 	{
 		Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, i+1, node_template);
-		Cmiss_field_cache_set_node(field_cache, node);
-		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
-		Cmiss_node_destroy(&node);
+        Cmiss_field_cache_set_node(field_cache, node);
+        Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
+        Cmiss_node_destroy(&node);
 	}
 	Cmiss_field_cache_destroy(&field_cache);
 	Cmiss_node_template_destroy(&node_template);
@@ -398,7 +399,6 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 
 void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, double width, double height)
 {
-	//std::cout << "SceneViewerPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
@@ -417,9 +417,9 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	for (int i = 0; i < element_node_count; i++)
 	{
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
-		Cmiss_field_cache_set_node(field_cache, node);
-		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
-		Cmiss_node_destroy(&node);
+        Cmiss_field_cache_set_node(field_cache, node);
+        Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
+        Cmiss_node_destroy(&node);
 	}
 
 	Cmiss_nodeset_destroy(&nodeset);

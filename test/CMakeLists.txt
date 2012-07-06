@@ -81,7 +81,8 @@ SET(Heart_SRC
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/cmgui/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
-	)
+        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
+        )
 
 LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
@@ -98,12 +99,7 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/io/modelfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/xmlfilehandler.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
-)
-
-LIST(APPEND UNIT_TESTS ImageSet)
-SET(ImageSet_SRC
-	UnitTestImageSet.cpp
-	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
+        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
 )
 
 LIST(APPEND UNIT_TESTS Modeller)
@@ -118,6 +114,7 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
 )
 
 LIST(APPEND UNIT_TESTS CAPAnnotationFile)
@@ -136,7 +133,8 @@ SET(AnnotationEditor_SRC
 LIST(APPEND UNIT_TESTS FileSystem)
 SET(FileSystem_SRC
 	UnitTestFileSystem.cpp
-	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+        ${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
 )
 
 LIST(APPEND UNIT_TESTS UtilsMisc)
@@ -279,7 +277,7 @@ ENDIF()
 FOREACH( TEST ${UNIT_TESTS} )
 	ADD_EXECUTABLE(UnitTest${TEST} ${${TEST}_SRC})
 	ADD_TEST(UnitTest${TEST} UnitTest${TEST})
-	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+	TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${GTEST_LIBRARIES} ${CMGUI_LIBRARIES})
 	SET_TARGET_PROPERTIES(UnitTest${TEST} PROPERTIES  COMPILE_DEFINITIONS "UnitTest${TEST}" )
 ENDFOREACH()
 

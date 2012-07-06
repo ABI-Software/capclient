@@ -126,18 +126,18 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 	}
 
 	// Wrap the end point add another set of nodes at time 1.0
-	{
-		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
-		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
-		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resource, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
+//	{
+//		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
+//		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+//		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
+//		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resource, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
 
-		Cmiss_region_read(root_region, stream_information);
+//		Cmiss_region_read(root_region, stream_information);
 
-		Cmiss_stream_resource_destroy(&stream_resource);
-		Cmiss_stream_information_destroy(&stream_information);
-		Cmiss_stream_information_region_destroy(&stream_information_region);
-	}
+//		Cmiss_stream_resource_destroy(&stream_resource);
+//		Cmiss_stream_information_destroy(&stream_information);
+//		Cmiss_stream_information_region_destroy(&stream_information_region);
+//	}
 
 	Cmiss_region_destroy(&root_region);
 	// The initialisation must take place after the loading of the model as this defines the region and the coordinates field.
@@ -246,12 +246,13 @@ Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(int node
 	}
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 	Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id);
-	Cmiss_nodeset_destroy(&nodeset);
+    Cmiss_field_cache_set_node(cache, node);
+    Cmiss_nodeset_destroy(&nodeset);
 
-	Cmiss_field_cache_set_node(cache, node);
+    double values_ps[3];
+    Cmiss_field_evaluate_real(coordinates_ps, cache, 3, values_ps);
+
 	Cmiss_node_destroy(&node);
-	double values_ps[3];
-	Cmiss_field_evaluate_real(coordinates_ps, cache, 3, values_ps);
 
 	Cmiss_field_destroy(&inv_projection_mx);
 	Cmiss_field_destroy(&coordinates);

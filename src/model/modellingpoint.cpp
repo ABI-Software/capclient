@@ -11,6 +11,7 @@ extern "C"
 }
 
 #include "logmsg.h"
+#include "utils/debug.h"
 
 namespace cap
 {
@@ -38,15 +39,13 @@ ModellingPoint::ModellingPoint(ModellingEnum modellingPointType, Cmiss_region_id
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
 	Cmiss_field_module_begin_change(field_module);
 	{
-		Cmiss_field_id visibility_time_value = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
+        Cmiss_field_id visibility_time_value = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
 		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-		int r = Cmiss_field_cache_set_node(field_cache, node);
-		//LOG_MSG(LOGDEBUG) << "constructor set node: " << (r == CMISS_OK);
 		double time_values[] = {time_};
-		r = Cmiss_field_assign_real(visibility_time_value, field_cache, 1, time_values);
-		//LOG_MSG(LOGDEBUG) << "constructor assign: " << (r == CMISS_OK) << " - " << time_values[0];
+        Cmiss_field_cache_set_node(field_cache, node);
+        Cmiss_field_assign_real(visibility_time_value, field_cache, 1, time_values);
 
 		Cmiss_field_destroy(&visibility_time_value);
 		Cmiss_nodeset_destroy(&nodeset);
@@ -91,6 +90,8 @@ ModellingPoint & ModellingPoint::operator =(const cap::ModellingPoint &rhs)
 	return *this;
 }
 
+#include <utils/debug.h>
+
 void ModellingPoint::SetVisible(bool visibility)
 {
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
@@ -99,7 +100,7 @@ void ModellingPoint::SetVisible(bool visibility)
 	{
 		std::stringstream ss;
 		ss << "constant " << (visibility ? 1 : 0);
-		int r = Cmiss_field_module_define_field(field_module, "visibility_control_constant_field", ss.str().c_str());
+        Cmiss_field_module_define_field(field_module, "visibility_control_constant_field", ss.str().c_str());
 	}
 	else
 	{
@@ -107,10 +108,10 @@ void ModellingPoint::SetVisible(bool visibility)
 		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-		int r = Cmiss_field_cache_set_time(field_cache, time_);
-		r = Cmiss_field_cache_set_node(field_cache, node);
-		double time_values[] = {visibility ? time_ : -1.0};
-		r = Cmiss_field_assign_real(visibility_time_value, field_cache, 1, time_values);
+        Cmiss_field_cache_set_time(field_cache, time_);
+        Cmiss_field_cache_set_node(field_cache, node);
+        double time_values[] = {visibility ? time_ : -1.0};
+        Cmiss_field_assign_real(visibility_time_value, field_cache, 1, time_values);
 
 		Cmiss_field_destroy(&visibility_time_value);
 		Cmiss_nodeset_destroy(&nodeset);

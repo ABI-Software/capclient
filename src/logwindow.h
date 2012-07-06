@@ -107,5 +107,5 @@ namespace cap
 
 }
 
-#endif LOGWINDOW_H_
+#endif /* LOGWINDOW_H_ */
 

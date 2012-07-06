@@ -220,9 +220,6 @@ void Modeller::AlignModel()
 		dbg("Model coord x axis vector" + ToString(xAxis));
 		dbg("Model coord y axis vector" + ToString(yAxis));
 		dbg("Model coord z axis vector" + ToString(zAxis));
-		std::cout << "Model coord x axis vector" << xAxis << std::endl;
-		std::cout << "Model coord y axis vector" << yAxis << std::endl;
-		std::cout << "Model coord z axis vector" << zAxis << std::endl;
 		
 		// Compute the position of the model coord origin. (1/3 of the way from base to apex)
 		Point3D origin = basePosition + (0.3333) * (apexPosition - basePosition);
@@ -252,13 +249,11 @@ void Modeller::AlignModel()
 		
 		// TODO properly Compute FocalLength
 		double lengthFromApexToBase = (apexPosition - basePosition).Length();
-		std::cout << __func__ << ": lengthFromApexToBase = " << lengthFromApexToBase << std::endl;
 		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + ToString(lengthFromApexToBase));
 		LOG_MSG(LOGINFORMATION) << "Length from Apex to Base = " << lengthFromApexToBase;
 		
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 		double focalLength = (apexPosition - origin).Length()  / cosh(1.0);
-		std::cout << __func__ << ": new focal length = " << focalLength << std::endl;
 		dbg("Modeller::AlignModel() : new focal length = " + ToString(focalLength));
 		LOG_MSG(LOGINFORMATION) << "Focal length = " << focalLength;
 		mainApp_->SetHeartModelFocalLength(focalLength);

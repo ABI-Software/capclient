@@ -10,11 +10,13 @@
 #include "IAnnotationWindow.h"
 #include "io/annotationfile.h"
 
+#include "unittestconfigure.h"
+
 #include <boost/scoped_ptr.hpp>
 
 namespace
 {
-	std::string test_file("SampleAnnotationFile.xml");
+    std::string test_file(SAMPLEANNOTATION_FILE);
 }
 
 namespace cap

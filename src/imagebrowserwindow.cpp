@@ -43,6 +43,7 @@ extern "C"
 #include "material.h"
 #include "imagebrowser.h"
 #include "utils/debug.h"
+#include "logmsg.h"
 
 namespace
 {
@@ -298,7 +299,7 @@ void ImageBrowserWindow::SetInfoField(std::string const& fieldName, std::string 
 		staticText_imagePosition->SetLabel(data.c_str());
 	else
 	{
-		std::cout << "Warning: ImageBrowserWindow::SetInfoField() Unknown fieldName - " << fieldName << std::endl;
+        LOG_MSG(LOGWARNING) << "Warning: ImageBrowserWindow::SetInfoField() Unknown fieldName - " << fieldName;
 	}
 }
 

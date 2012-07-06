@@ -96,7 +96,7 @@ void ReadPoint(ModelFile::Point& point, xmlNodePtr cur)
 			
 			//variable
 			xmlChar* variable = xmlGetProp(cur, (xmlChar const*)"variable"); 
-			std::cout << "variable = " << variable << '\n';
+            //std::cout << "variable = " << variable << '\n';
 			v.variable = (char*)variable;
 			xmlFree(variable);
 			
@@ -104,7 +104,7 @@ void ReadPoint(ModelFile::Point& point, xmlNodePtr cur)
 				
 			//value
 			xmlChar* value = xmlNodeGetContent(cur);
-			std::cout << "value = " << value  << '\n';
+            //std::cout << "value = " << value  << '\n';
 			v.value = lexical_cast<double>(value);
 			xmlFree(value);
 			
@@ -714,14 +714,14 @@ void ModelFile::ReadFile(const std::string& filename)
 			using boost::lexical_cast;
 
 			xmlChar* focalLengthStr = xmlGetProp(cur, (xmlChar const*)"focallength");
-			std::cout << "focalLengthStr = " << focalLengthStr << '\n';
+            //std::cout << "focalLengthStr = " << focalLengthStr << '\n';
 			//output_.focalLength = lexical_cast<double>(focalLengthStr);
 			std::stringstream ss((char*) focalLengthStr);
 			ss >> output_.focalLength;
 			xmlFree(focalLengthStr);
 
 			xmlChar* intervalStr = xmlGetProp(cur, (xmlChar const*)"interval");
-			std::cout << "intervalStr = " << intervalStr << '\n';
+            //std::cout << "intervalStr = " << intervalStr << '\n';
 			output_.interval = lexical_cast<double>(intervalStr);
 			xmlFree(intervalStr);
 

@@ -100,7 +100,16 @@ public:
 	 */
 	void SetLambdaAtTime(const std::vector<double>& lambdaParams, double time = 0.0);
 
-	/**
+    /**
+     * Returns the mu parameters from the model at the given time.
+     *
+     * @param	time	The time.
+     *
+     * @return	The mus.
+     */
+    const std::vector<double> GetMuAtTime(double time) const;
+
+    /**
 	 * Sets a mu from base plane for frame.
 	 *
 	 * @param	basePlane  	The base plane.

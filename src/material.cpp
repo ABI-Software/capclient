@@ -51,7 +51,7 @@ Material::Material(const std::string& materialName, Cmiss_graphics_module_id gra
 
 Material::~Material()
 {
-	Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 0);
+    Cmiss_graphics_material_set_attribute_integer(material_, CMISS_GRAPHICS_MATERIAL_ATTRIBUTE_IS_MANAGED, 0);
 	Cmiss_graphics_material_destroy(&material_);
 }
 

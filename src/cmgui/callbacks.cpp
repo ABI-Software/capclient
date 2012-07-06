@@ -18,6 +18,7 @@ extern "C"
 #include "capclientwindow.h"
 #include "cmgui/extensions.h"
 #include "utils/debug.h"
+#include "utils/misc.h"
 
 #include "cmgui/callbacks.h"
 
@@ -40,7 +41,7 @@ int input_callback_modelling_setup(Cmiss_scene_viewer_id scene_viewer,
 	if (event_type == CMISS_SCENE_VIEWER_INPUT_KEY_PRESS)
 	{
 		int keyCode = Cmiss_scene_viewer_input_get_key_code(input);
-		// dbg("key code : " + ToString(keyCode));
+        dbg("key code : " + cap::ToString(keyCode));
 		if (keyCode == KEYCODE_E)
 		{
 			gui->EndCurrentModellingMode();
@@ -90,6 +91,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	int modifier_flags_int = static_cast<int>(modifier_flags);
 	if (modifier_flags_int & CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL)
 	{
+        dbg("ctrl-ending modelling action");
 		gui->EndModellingAction();
 		return 1;
 	}
@@ -105,6 +107,7 @@ int input_callback_modelling(Cmiss_scene_viewer_id scene_viewer,
 	}
 	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
 	{
+        dbg("Ending modelling action");
 		gui->EndModellingAction();
 		//--gui->SmoothAlongTime();
 	}

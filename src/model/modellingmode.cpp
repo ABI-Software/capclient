@@ -7,6 +7,7 @@
 
 #include "model/modellingmode.h"
 
+#include "capglobal.h"
 #include "capclientconfig.h"
 #include "model/modeller.h"
 #include "math/solverlibraryfactory.h"
@@ -58,6 +59,7 @@ namespace cap
 
 	void ModellingMode::MoveModellingPoint(int node_id, const Point3D& position, double time)
 	{
+        USE_PARAMETER(time);
 		ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
 		if (itr != modellingPoints_.end())
 			itr->second.SetPosition(position);
@@ -65,7 +67,8 @@ namespace cap
 
 	void ModellingMode::RemoveModellingPoint(int node_id, double time)
 	{
-		ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
+        USE_PARAMETER(time);
+        ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
 		if (itr != modellingPoints_.end())
 		{
 			itr->second.Remove();
@@ -97,7 +100,8 @@ namespace cap
 
 	void ModellingModeApex::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	{
-		if (!modellingPoints_.empty())
+        USE_PARAMETER(time);
+        if (!modellingPoints_.empty())
 		{
 			ModellingPointsMap::iterator itr = modellingPoints_.begin();
 			while(itr != modellingPoints_.end())
@@ -129,7 +133,8 @@ namespace cap
 
 	void ModellingModeBase::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	{
-		if (!modellingPoints_.empty())
+        USE_PARAMETER(time);
+        if (!modellingPoints_.empty())
 		{
 			ModellingPointsMap::iterator itr = modellingPoints_.begin();
 			while(itr != modellingPoints_.end())
@@ -237,7 +242,8 @@ namespace cap
 
 	ModellingMode* ModellingModeGuidePoints::OnAccept(Modeller& modeller)
 	{
-		return 0;
+        USE_PARAMETER(modeller);
+        return 0;
 	}
 
 	void ModellingModeGuidePoints::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
@@ -271,7 +277,8 @@ namespace cap
 		frames.resize(numFrames);
 		for (int i = 0; i < numFrames; i++)
 		{
-			if (GetModellingPointsAtTime(i/numFrames).size() > 0)
+            double time = static_cast<double>(i)/numFrames;
+            if (GetModellingPointsAtTime(time).size() > 0)
 				frames[i] = 1;
 			else
 				frames[i] = 0;

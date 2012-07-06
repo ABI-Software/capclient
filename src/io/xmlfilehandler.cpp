@@ -188,7 +188,7 @@ namespace
 				Cmiss_field_image_destroy(&image_field);
 			else
 			{
-				std::cout << __func__ << ": Invalid DICOM file - '" << filename << "'" << std::endl;
+                //std::cout << __func__ << ": Invalid DICOM file - '" << filename << "'" << std::endl;
 				LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << fullpath << "'";
 			}
 		}
@@ -230,7 +230,7 @@ LabelledSlices XMLFileHandler::GetLabelledSlices() const
 			const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
 			if ( !dirname.empty() )
 			{
-				std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
+                //std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
 				wxString dirfname = dirname + wxT("/");
 				HashTable newMap = GenerateSopiuidToFilenameMap(std::string(dirfname.mb_str()));
 				uidToFilenameMap.insert(newMap.begin(), newMap.end());

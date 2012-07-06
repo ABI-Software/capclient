@@ -4,15 +4,19 @@
 
 extern "C"
 {
+#include <zn/cmiss_status.h>
 #include <zn/cmiss_region.h>
 #include <zn/cmiss_field.h>
 #include <zn/cmiss_field_module.h>
 //#include <zn/cmiss_node.h>
 }
 
+#include "utils/debug.h"
+#include "utils/misc.h"
+
 void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane)
 {
-	//std::cout << "SceneViewerPanel::ResizePlaneElement - " << regionName << " " << width << " " << height << std::endl;
+    //dbg("RepositionPlaneElement - " + regionName + " " + cap::ToString(plane->blc) + " " + cap::ToString(plane->trc));
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
@@ -33,9 +37,9 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 	for (int i = 0; i < element_node_count; i++)
 	{
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
-		Cmiss_field_cache_set_node(field_cache, node);
-		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
-		Cmiss_node_destroy(&node);
+        Cmiss_field_cache_set_node(field_cache, node);
+        Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
+        Cmiss_node_destroy(&node);
 	}
 
 	Cmiss_nodeset_destroy(&nodeset);
@@ -45,5 +49,4 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
 }
-
 

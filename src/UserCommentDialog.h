@@ -89,7 +89,7 @@ private:
 	 *
 	 * @param [in,out]	event	The event.
 	 */
-	void OnOKClicked(wxCommandEvent& event)
+    void OnOKClicked(wxCommandEvent& /* event */)
 	{
 		EndModal(wxID_OK);
 	}
@@ -99,7 +99,7 @@ private:
 	 *
 	 * @param [in,out]	event	The event.
 	 */
-	void OnCancelClicked(wxCommandEvent& event)
+    void OnCancelClicked(wxCommandEvent& /* event */)
 	{
 		EndModal(wxID_CANCEL);
 	}
@@ -111,7 +111,7 @@ private:
 	 *
 	 * @param [in,out]	event	The event.
 	 */
-	void OnDirectoryChooserClicked(wxCommandEvent& event)
+    void OnDirectoryChooserClicked(wxCommandEvent& /* event */)
 	{
 		wxDirDialog dirDlg(NULL, "Choose output directory", textCtrl_directory->GetValue(),
 			wxDD_DEFAULT_STYLE);

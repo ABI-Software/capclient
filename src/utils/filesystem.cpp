@@ -35,13 +35,13 @@ extern "C"
 
 #include "capclientconfig.h"
 #include "filesystem.h"
-#include "utils/debug.h"
 #include "logmsg.h"
+#include "utils/debug.h"
 
 namespace cap
 {
 
-	using namespace std;
+    using namespace std;
 
 	const std::vector<std::string> GetAllFileNames(const std::string& dirname)
 	{
@@ -54,7 +54,7 @@ namespace cap
 		if (!dir)
 		{
 			LOG_MSG(LOGERROR) << "can't open the directory '" << dirname << "'";
-			dbg("Error: can't open the directory: " + dirname);
+            dbg("Error: can't open the directory: " + dirname);
 		}
 		else
 		{
