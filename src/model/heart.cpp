@@ -140,9 +140,9 @@ void HeartModel::Initialise(const std::string& name)
 	{
 		// Match the initial state of the render type for the surface with that shown in the gui combo box.
 		pImpl_->epi_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-		int r1 = Cmiss_graphic_define(pImpl_->epi_surface_, "coordinate coordinates_patient_rc exterior face xi3_0 no_select material green_surface render_wireframe");
+        Cmiss_graphic_define(pImpl_->epi_surface_, "coordinate coordinates_patient_rc exterior face xi3_0 no_select material green_surface render_wireframe");
 		pImpl_->endo_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-		int r2 = Cmiss_graphic_define(pImpl_->endo_surface_, "coordinate coordinates_patient_rc exterior face xi3_1 no_select material red_surface render_wireframe");
+        Cmiss_graphic_define(pImpl_->endo_surface_, "coordinate coordinates_patient_rc exterior face xi3_1 no_select material red_surface render_wireframe");
 		Cmiss_rendition_destroy(&rendition);
 	}
 	else
@@ -203,7 +203,7 @@ int HeartModel::ComputeXi(const Point3D& position, double time, Point3D& xi) con
 	Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
 	Cmiss_field_id mesh_location_field = Cmiss_field_module_create_find_mesh_location(field_module, const_position, pImpl_->coordinates_patient_rc_, mesh);
 	Cmiss_field_find_mesh_location_id find_mesh_location_field = Cmiss_field_cast_find_mesh_location(mesh_location_field);
-	int r = Cmiss_field_find_mesh_location_set_search_mode(find_mesh_location_field, CMISS_FIELD_FIND_MESH_LOCATION_SEARCH_MODE_FIND_NEAREST);
+    Cmiss_field_find_mesh_location_set_search_mode(find_mesh_location_field, CMISS_FIELD_FIND_MESH_LOCATION_SEARCH_MODE_FIND_NEAREST);
 	Cmiss_field_find_mesh_location_destroy(&find_mesh_location_field);
 
 	double xi_values[3];
@@ -343,7 +343,7 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 	Cmiss_field_cache_set_time(cache, time);
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(pImpl_->field_module_, "cmiss_nodes");
 
-	dbg("Plane : (" + ToString(time) + ") " + ToString(basePlane.normal) + ", " + ToString(basePlane.position));
+    //dbg("Plane : (" + ToString(time) + ") " + ToString(basePlane.normal) + ", " + ToString(basePlane.position));
 	// EPI nodes [0-19], ENDO nodes [20-39], node identifiers are 1-based.
 	// This method follows the CIM method of calculating the model position from the base plane.
 	for (int k = 0; k < 40; k += 20)
@@ -354,11 +354,11 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 			Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + i + 1);
             Cmiss_field_cache_set_node(cache, node);
             double loc[3], loc_ps[3], loc_pat[3];
-            int r1 = Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+            Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
             mu[i] = loc_ps[1] = 0.0;
-            r1 = Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+            Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
             //r1 = Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-            r1 = Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
+            Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
 			Point3D point(loc_pat[0],loc_pat[1],loc_pat[2]);
 			Point3D prevPoint;
 			double initial = DotProduct(normal, point - position);
@@ -366,9 +366,9 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 			do
 			{
 				loc_ps[1] += M_PI/180.0;  //one degree increments for mu parameter
-                int r = Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+                Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 				mu[i] = loc_ps[1];
-                r = Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
+                Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
 				prevPoint = point;
 				point = Point3D(loc_pat[0],loc_pat[1],loc_pat[2]);
 			}
@@ -449,6 +449,7 @@ double HeartModel::ComputeVolume(HeartSurfaceEnum surface, double time) const
 	if (field_module != 0)
 	{
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+        Cmiss_field_cache_set_time(field_cache, time);
 		Cmiss_field_id rc_coordinate_field = pImpl_->coordinates_patient_rc_;
 		Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
 		Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh);
