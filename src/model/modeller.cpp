@@ -90,13 +90,13 @@ void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D co
 	FitModel(time);
 }
 
-void Modeller::MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
+void Modeller::MoveModellingPoint(Cmiss_region_id /*region*/, int node_id, Point3D const& position, double time)
 {
 	currentModellingMode_->MoveModellingPoint(node_id, position, time);
 	FitModel(time);
 }
 
-void Modeller::RemoveModellingPoint(Cmiss_region_id region, int node_id, double time)
+void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, double time)
 {
 	currentModellingMode_->RemoveModellingPoint(node_id, time);
 	FitModel(time);
@@ -512,10 +512,10 @@ void Modeller::FitModel(double time)
 {
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
-		clock_t beforeTotal = clock();
 //#define PRINT_FIT_TIMINGS  // Uncomment or define elsewhere to print fit times
 #ifdef PRINT_FIT_TIMINGS
-		dbgn("Fit Model times [");
+        clock_t beforeTotal = clock();
+        dbgn("Fit Model times [");
 #endif
 		// 0. Get the modelling points for the current time
 		ModellingPoints currentModellingPoints = modellingModeGuidePoints_.GetModellingPointsAtTime(time);
@@ -607,24 +607,27 @@ void Modeller::FitModel(double time)
 		
 		Vector* x = solverFactory_->CreateVector(134); //FIX magic number
 		
-		clock_t before = clock();
-		
+#ifdef PRINT_FIT_TIMINGS
+        clock_t before = clock();
+#endif
+
 		solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
-		clock_t after = clock();
-
 #ifdef PRINT_FIT_TIMINGS
-		dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
+        clock_t after = clock();
+        dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
 #endif
 		*x += *prior_;
 		
 		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
-		clock_t beforeZn = clock();
-		mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
-		clock_t afterZn = clock();
+#ifdef PRINT_FIT_TIMINGS
+        clock_t beforeZn = clock();
+#endif
+        mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
 
 #ifdef PRINT_FIT_TIMINGS
-		dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
+        clock_t afterZn = clock();
+        dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
 #endif
 		
 		UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
@@ -637,9 +640,9 @@ void Modeller::FitModel(double time)
 		delete rhs;
 		delete x;
 
-		clock_t afterTotal = clock();
 #ifdef PRINT_FIT_TIMINGS
-		dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
+        clock_t afterTotal = clock();
+        dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
 #endif
 		
 	}

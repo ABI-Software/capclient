@@ -18,7 +18,7 @@ namespace cap
 	class CAPClientWindow
 	{
 	public:
-		void SetStatusTextString(std::string mode, std::string text) const {}
+        void SetStatusTextString(std::string /*mode*/, std::string /*text*/) const {}
 		void CreateHeartModel();
 		void RemoveHeartModel();
 		void RemoveHeartSurfaces();

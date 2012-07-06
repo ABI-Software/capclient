@@ -13,7 +13,7 @@ TEST(TotalLeastSquares, FitPlaneUsingTLS)
 	};
 	
 	size_t n = sizeof(points)/ sizeof(Point3D);
-	Point3D* ptr = points;
+//	Point3D* ptr = points;
 	std::vector<Point3D> v(points, points+n);
 	
 	Plane p = FitPlaneUsingTLS(v);
@@ -39,7 +39,7 @@ TEST(TotalLeastSquares, FitPlaneUsingTLS_2)
 	};
 	
 	size_t n = sizeof(points)/ sizeof(Point3D);
-	Point3D* ptr = points;
+    //Point3D* ptr = points;
 	std::vector<Point3D> v(points, points+n);
 	
 	Plane p = FitPlaneUsingTLS(v);
@@ -108,7 +108,7 @@ TEST(TotalLeastSquares, ComputeCentroid)
 	};
 	
 	size_t n = sizeof(points)/ sizeof(Point3D);
-	Point3D* ptr = points;
+    //Point3D* ptr = points;
 	std::vector<Point3D> v(points, points+n);
 	
 	Point3D c = ComputeCentroid(v);
