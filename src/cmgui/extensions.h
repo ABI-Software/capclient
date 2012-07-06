@@ -101,25 +101,19 @@ Cmiss_node_id Cmiss_field_module_get_first_selected_node(Cmiss_field_module_id f
  * Cmiss context create node.
  *
  * @param	cmissContext	Context to use.
- * @param	x				The x coordinate.
- * @param	y				The y coordinate.
- * @param	z				The z coordinate.
  *
  * @return	an accessed node, or 0 on failure.
  */
-Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext, double x, double y, double z);
+Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext);
 
 /**
  * Cmiss region create node.  Create a node in the given region with the given coordinates.
  *
  * @param	region	The region.
- * @param	x	  	The x coordinate.
- * @param	y	  	The y coordinate.
- * @param	z	  	The z coordinate.
  *
  * @return	An accessed node, or 0 on failure.
  */
-Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double y, double z);
+Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region);
 
 /**
  * Cmiss graphics material set properties.

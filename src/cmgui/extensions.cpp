@@ -294,7 +294,7 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 	Cmiss_region_destroy(&root_region);
 }
 
-Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext, double x, double y, double z)
+Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(root_region);
@@ -312,7 +312,7 @@ Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext, double x,
 	return node;
 }
 
-Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double y, double z)
+Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region)
 {
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 	Cmiss_field_module_begin_change(field_module);
