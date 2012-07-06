@@ -111,8 +111,9 @@ SET( APP_SRCS
 	src/dicomimage.cpp
 	src/logwindow.cpp
 	src/utils/filesystem.cpp
-	src/utils/misc.cpp
-	src/imagebrowser.cpp
+        src/utils/misc.cpp
+        src/utils/debug.cpp
+        src/imagebrowser.cpp
 	src/imagebrowserwindow.cpp
 	src/labelledslice.cpp
 	src/capclientwindow.cpp
@@ -131,7 +132,7 @@ ENDIF()
 SET( APP_XRC
 	src/ui/AnnotationWindowUI.xrc
 	src/ui/ImageBrowserWindowUI.xrc
-	src/ui/UserCommentDialogUI.xrc
+        src/ui/UserCommentDialogUI.xrc
 	src/ui/CAPClientWindowUI.xrc
 	src/ui/logdialogui.xrc
 	)
@@ -140,19 +141,19 @@ SET(MISSING_DEPENDENCY)
 # Find the Cmgui libraries, using a gui the CAP_CMGUI_CONFIG_DIR
 # variable can be set.  Alternatively it can be set on the 
 # command line when creating the CMake cache.
-SET(Cmgui_DIR ${CAP_CMGUI_CONFIG_DIR})
+SET(Cmgui_DIR "${CAP_CMGUI_CONFIG_DIR}" CACHE INTERNAL "Internalise Cmgui_DIR, manipulate via CAP_CMGUI_CONFIG_DIR." FORCE)
 FIND_PACKAGE(Cmgui)
 IF(NOT CMGUI_FOUND)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find cmgui-config.cmake.")
+        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find cmgui-config.cmake.")
 ENDIF()
 # Need to find boost headers
 FIND_PATH(CAP_BOOST_INCLUDE_DIR boost/shared_ptr.hpp)
 IF(NOT EXISTS ${CAP_BOOST_INCLUDE_DIR}/boost/shared_ptr.hpp)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find boost/shared_ptr.hpp.")
+        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find boost/shared_ptr.hpp.")
 ENDIF()
 # CAP Client needs the gmm header files if they are not on the
 # system include path it needs to be set independently.
@@ -160,7 +161,7 @@ FIND_PATH(CAP_GMM_INCLUDE_DIR gmm/gmm.h)
 IF(NOT EXISTS ${CAP_GMM_INCLUDE_DIR}/gmm/gmm.h)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-	SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find gmm/gmm.h.")
+        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find gmm/gmm.h.")
 ENDIF()
 # If we are testing find GTest also
 IF(CAP_ENABLE_UNIT_TESTS OR CAP_ENABLE_GUI_UNIT_TESTS)
@@ -169,7 +170,7 @@ IF(CAP_ENABLE_UNIT_TESTS OR CAP_ENABLE_GUI_UNIT_TESTS)
 	IF(NOT GTEST_FOUND)
 		LIST(APPEND MISSING_DEPENDENCY 0)
 		LIST(LENGTH MISSING_DEPENDENCY COUNT)
-		SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t${COUNT}. Could not find gtest.")
+                SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find gtest.")
 	ENDIF()
 ENDIF()
 

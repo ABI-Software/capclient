@@ -15,7 +15,6 @@
 extern "C" {
 #include <zn/cmgui_configure.h>
 #include <zn/cmiss_scene_viewer.h>
-#include <zn/cmiss_graphics_material.h>
 #include <zn/cmiss_context.h>
 #include <zn/cmiss_field_module.h>
 }

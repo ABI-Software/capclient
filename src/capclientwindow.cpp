@@ -86,24 +86,24 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
 	timeKeeper_ = Cmiss_context_get_default_time_keeper(cmissContext_);
-	Cmiss_time_keeper_set_repeat_mode(timeKeeper_, CMISS_TIME_KEEPER_REPEAT_MODE_PLAY_LOOP);
-	Cmiss_time_keeper_set_frame_mode(timeKeeper_, CMISS_TIME_KEEPER_FRAME_MODE_PLAY_REAL_TIME);
+    Cmiss_time_keeper_set_repeat_mode(timeKeeper_, CMISS_TIME_KEEPER_REPEAT_MODE_PLAY_LOOP);
+    Cmiss_time_keeper_set_frame_mode(timeKeeper_, CMISS_TIME_KEEPER_FRAME_MODE_PLAY_REAL_TIME);
 
 	cmguiPanel_ = new SceneViewerPanel(cmissContext_, "CAPClient", panel_cmgui_);
-	SetIcon(wxICON(capicon));
-	
+    SetIcon(wxICON(capicon));
+
 	checkListBox_slice_->SetSelection(wxNOT_FOUND);
-	checkListBox_slice_->Clear();
-	
+    checkListBox_slice_->Clear();
+
 	CreateStatusTextStringsFieldRenditions();
-	
+
 	this->Fit();
-	this->Centre();
-	MakeConnections();
-	CreateMaterials();
-	CreateFonts();
-	SetModellingCallbacks();
-	UpdateUI();
+    this->Centre();
+    MakeConnections();
+    CreateMaterials();
+    CreateFonts();
+    SetModellingCallbacks();
+    UpdateUI();
 }
 
 CAPClientWindow::~CAPClientWindow()
@@ -242,7 +242,7 @@ void CAPClientWindow::OnIdle(wxIdleEvent& event)
 	}
 }
 
-void CAPClientWindow::OnCloseWindow(wxCloseEvent& event)
+void CAPClientWindow::OnCloseWindow(wxCloseEvent& /* event */)
 {
 	wxExit();
 }
@@ -258,8 +258,9 @@ void CAPClientWindow::CreateMaterials()
 	diffuse_sel[0] = 0.0;diffuse_sel[1] = 5.0;diffuse_sel[2] = 0.0;
 	emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
 	specular[0] = 0.2;specular[1] = 0.2;specular[2] = 0.2;
-	Cmiss_graphics_material_id green = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(green, "green", ambient, diffuse, emission, specular, 0.1, 1.0);
+    // Temporary workaround for bug https://tracker.physiomeproject.org/show_bug.cgi?id=3347
+    Cmiss_graphics_material_id green = Cmiss_graphics_module_create_material(gm);
+    Cmiss_graphics_material_set_properties(green, "green", ambient, diffuse, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id green_sel = Cmiss_graphics_module_create_material(gm);
 	Cmiss_graphics_material_set_properties(green_sel, "green_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id green_surface = Cmiss_graphics_module_create_material(gm);
@@ -270,8 +271,8 @@ void CAPClientWindow::CreateMaterials()
 	diffuse_sel[0] = 0.5;diffuse_sel[1] = 0.0;diffuse_sel[2] = 0.0;
 	emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
 	specular[0] = 0.2;specular[1] = 0.2;specular[2] = 0.2;
-	Cmiss_graphics_material_id red = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(red, "red", ambient, diffuse, emission, specular, 0.1, 1.0);
+    Cmiss_graphics_material_id red = Cmiss_graphics_module_create_material(gm);
+    Cmiss_graphics_material_set_properties(red, "red", ambient, diffuse, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id red_sel = Cmiss_graphics_module_create_material(gm);
 	Cmiss_graphics_material_set_properties(red_sel, "red_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id red_surface = Cmiss_graphics_module_create_material(gm);
@@ -325,7 +326,7 @@ void CAPClientWindow::CreateMaterials()
 
 void CAPClientWindow::CreateFonts()
 {
-	Cmiss_context_execute_command(cmissContext_, "gfx def font node_label_font \"16 default normal bold\"");
+    Cmiss_context_execute_command(cmissContext_, "gfx def font node_label_font \"16 default normal bold\"");
 }
 
 void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
@@ -458,7 +459,7 @@ void CAPClientWindow::StopCine()
 	//OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
 }
 
-void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
+void CAPClientWindow::OnTogglePlay(wxCommandEvent& /* event */)
 {
 	dbg("CAPClientWindow::OnTogglePlay");
 	//--mainApp_->OnTogglePlay();
@@ -476,7 +477,7 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::Terminate(wxCloseEvent& event)
+void CAPClientWindow::Terminate(wxCloseEvent& /* event */)
 {
 	cout << "CAPClientWindow::" << __func__ << endl;
 	int answer = wxYES; //--wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
@@ -640,7 +641,7 @@ void CAPClientWindow::ChangeAllTextures(double time)
 	}
 }
 
-void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
+void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& /* event */)
 {
 	int value = slider_animation_->GetValue();
 	int min = slider_animation_->GetMin();
@@ -651,7 +652,7 @@ void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& event)
 	ChangeAllTextures(time);
 }
 
-void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& event)
+void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& /* event */)
 {
 	//std::cout << "CAPClientWindow::OnAnimationSpeedControlEvent" << std::endl;
 	int value = slider_animationSpeed_->GetValue();
@@ -680,7 +681,7 @@ void CAPClientWindow::SetTime(double time)
 	ChangeAllTextures(time);
 }
 
-void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
+void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& /* event */)
 {
 	bool visibility;
 	if (button_hideShowAll_->GetLabel() == wxT("Hide All"))
@@ -706,7 +707,7 @@ void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& event)
+void CAPClientWindow::OnToggleHideShowOthers(wxCommandEvent& /* event */)
 {
 	bool visibility; // Of the non-selected items, if any.
 	
@@ -761,7 +762,7 @@ void CAPClientWindow::OnWireframeCheckBox(wxCommandEvent& event)
 	SetModelVisibility(event.IsChecked());
 }
 
-void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
+void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& /* event */)
 {
 	int value = slider_brightness_->GetValue();
 	int min = slider_brightness_->GetMin();
@@ -773,7 +774,7 @@ void CAPClientWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 		cit->second->SetBrightness(brightness);
 }
 
-void CAPClientWindow::OnContrastSliderEvent(wxCommandEvent& event)
+void CAPClientWindow::OnContrastSliderEvent(wxCommandEvent& /* event */)
 {
 	int value = slider_contrast_->GetValue();
 	int min = slider_contrast_->GetMin();
@@ -815,7 +816,7 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 	menuItem_deleteMP_->Enable(choice_mode_->IsEnabled());
 }
 
-void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
+void CAPClientWindow::OnAcceptClicked(wxCommandEvent& /* event */)
 {
 	bool accepted = mainApp_->ProcessModellingPointsEnteredForCurrentMode();
 	if (!accepted)
@@ -825,18 +826,18 @@ void CAPClientWindow::OnAcceptClicked(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnDeleteModellingPointClicked(wxCommandEvent& event)
+void CAPClientWindow::OnDeleteModellingPointClicked(wxCommandEvent& /* event */)
 {
 	DeleteCurrentlySelectedNode();
 }
 
-void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& event)
+void CAPClientWindow::OnModellingModeChanged(wxCommandEvent& /* event */)
 {
 	int selectionIndex = choice_mode_->GetSelection();
 	mainApp_->ChangeModellingMode(static_cast<ModellingEnum>(selectionIndex));
 }
 
-void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
+void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& /* event */)
 {
 	// Convert the int from the display mode selection into an enum.
 	if (choice_modelDisplayMode_->GetSelection() == HeartModel::WIREFRAME)
@@ -849,7 +850,7 @@ void CAPClientWindow::OnModelDisplayModeChanged(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnViewAll(wxCommandEvent& event)
+void CAPClientWindow::OnViewAll(wxCommandEvent& /* event */)
 {
 	cmguiPanel_->ViewAll();
 }
@@ -867,12 +868,12 @@ void CAPClientWindow::OnViewStatusText(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnViewLog(wxCommandEvent& event)
+void CAPClientWindow::OnViewLog(wxCommandEvent& /* event */)
 {
 	LogWindow::GetInstance()->Show();
 }
 
-void CAPClientWindow::OnAbout(wxCommandEvent& event)
+void CAPClientWindow::OnAbout(wxCommandEvent& /* event */)
 {
 	wxBoxSizer *topsizer;
 	wxHtmlWindow *html;
@@ -944,7 +945,7 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 			guidePoints.push_back(mp);
 			break;
 		default:
-			LOG_MSG(LOGERROR) << "Undefined modelling point type, not setting.";
+            LOG_MSG(LOGERROR) << "Undefined modelling point type, not setting.";
 		}
 	}
 
@@ -1055,7 +1056,7 @@ void CAPClientWindow::EndModellingAction()
 	}
 }
 
-void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
+void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
 {
 	if (previousWorkingLocation_.length() == 0)
 		previousWorkingLocation_ = wxGetCwd();
@@ -1075,12 +1076,12 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
 	}
 }
 
-void CAPClientWindow::OnOpenImageBrowser(wxCommandEvent& event)
+void CAPClientWindow::OnOpenImageBrowser(wxCommandEvent& /* event */)
 {
 	mainApp_->OpenImageBrowser();
 }
 
-void CAPClientWindow::OnSave(wxCommandEvent& event)
+void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 {
 	if (previousWorkingLocation_.length() == 0)
 		previousWorkingLocation_ = wxGetCwd();
@@ -1104,12 +1105,12 @@ void CAPClientWindow::OnSave(wxCommandEvent& event)
 	mainApp_->SaveModel(previousWorkingLocation_, userComment);
 }
 
-void CAPClientWindow::OnQuit(wxCommandEvent& event)
+void CAPClientWindow::OnQuit(wxCommandEvent& /* event */)
 {
 	wxExit();
 }
 
-void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& event)
+void CAPClientWindow::OnTogglePlaneShift(wxCommandEvent& /* event */)
 {
 	if (button_planeShift_->GetLabel() == wxT("Start Shifting"))
 	{
@@ -1173,7 +1174,7 @@ void CAPClientWindow::EndCurrentModellingMode()
 	}
 }
 
-void CAPClientWindow::OnExportModel(wxCommandEvent& event)
+void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
 {
 	wxString defaultPath = wxGetCwd();;
 	wxString defaultFilename = wxT("");
@@ -1190,14 +1191,14 @@ void CAPClientWindow::OnExportModel(wxCommandEvent& event)
 
 	if (!wxMkdir(dirname.c_str()))
 	{
-		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
+        LOG_MSG(LOGERROR) << __func__ << " - Error: can't create directory: " << dirname;
 		return;
 	}
 	
 	//--mainApp_->OnExportModel(std::string(dirname.mb_str()));
 }
 
-void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
+void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
 {
 	CAPBinaryVolumeParameterDialog  dlg(this);
 	if ( dlg.ShowModal() != wxID_OK )
@@ -1223,7 +1224,7 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& event)
 
 	if (!wxMkdir(dirname.c_str()))
 	{
-		std::cout << __func__ << " - Error: can't create directory: " << dirname << std::endl;
+        LOG_MSG(LOGERROR) << __func__ << " - Error: can't create directory: " << dirname;
 		return;
 	}
 	
@@ -1256,13 +1257,13 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 	// Create iso surface of the slice_* and iso value
 	Cmiss_field_id patient_rc_coordinates = Cmiss_field_module_find_field_by_name(field_module, "coordinates_patient_rc");
 	Cmiss_graphic_id iso_epi = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_ISO_SURFACES);
-	int r1 = Cmiss_graphic_set_coordinate_field(iso_epi, patient_rc_coordinates);
+    Cmiss_graphic_set_coordinate_field(iso_epi, patient_rc_coordinates);
 	std::string command_epi = "exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select line_width 2 material red;";
-	int r2 = Cmiss_graphic_define(iso_epi, command_epi.c_str());
+    Cmiss_graphic_define(iso_epi, command_epi.c_str());
 	Cmiss_graphic_id iso_endo = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_ISO_SURFACES);
-	int r3 = Cmiss_graphic_set_coordinate_field(iso_endo, patient_rc_coordinates);
+    Cmiss_graphic_set_coordinate_field(iso_endo, patient_rc_coordinates);
 	std::string command_endo = "exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_values 150.0 use_faces no_select line_width 2 material green;";
-	int r4 = Cmiss_graphic_define(iso_endo, command_endo.c_str());
+    Cmiss_graphic_define(iso_endo, command_endo.c_str());
 
 	// Save the iso field and graphic to the mii map.
 	miiMap_[sliceName] = std::make_pair(iso_epi, iso_endo);
@@ -1291,14 +1292,14 @@ void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& pl
 	std::stringstream field_command;
 	field_command << "coordinate_system rectangular_cartesian dot_product fields coordinates_patient_rc \"[";
 	field_command << plane.x << " " << plane.y << " " << plane.z << "]\";";
-	int r1 = Cmiss_field_module_define_field(field_module, field_name.c_str(), field_command.str().c_str());
+    Cmiss_field_module_define_field(field_module, field_name.c_str(), field_command.str().c_str());
 
 	std::stringstream graphic_command_epi;
 	graphic_command_epi << "coordinate coordinates_patient_rc exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material red;";
-	int r2 = Cmiss_graphic_define(iso_epi, graphic_command_epi.str().c_str());
+    Cmiss_graphic_define(iso_epi, graphic_command_epi.str().c_str());
 	std::stringstream graphic_command_endo;
 	graphic_command_endo << "coordinate coordinates_patient_rc exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material green;";
-	int r3 = Cmiss_graphic_define(iso_endo, graphic_command_endo.str().c_str());
+    Cmiss_graphic_define(iso_endo, graphic_command_endo.str().c_str());
 
 	SetMIIVisibility(sliceName, IsMIIVisible(sliceName));
 
@@ -1390,7 +1391,7 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
 
 	// We are assuming here that only one node is selected.  If the node tool is set so that
-	// only single selection is possible then we are golden, if not...
+    // only single selection is possible then we are golden, if not ...
 	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
 	if (selected_node != 0)
 	{
@@ -1404,9 +1405,10 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 		Cmiss_node_template_define_field(node_template, visibility_value_field);
 		Cmiss_node_merge(selected_node, node_template);
 		
-		Cmiss_field_cache_set_node(field_cache, selected_node);
-		double values[3];
-		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
+        Cmiss_field_cache_set_node(field_cache, selected_node);
+
+        double values[3];
+        Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
 
 		Point3D coords;
 		coords.x = values[0]; coords.y = values[1]; coords.z = values[2];
@@ -1441,9 +1443,10 @@ void CAPClientWindow::MoveCurrentlySelectedNode()
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 
 		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-		Cmiss_field_cache_set_node(field_cache, selected_node);
-		double values[3];
-		Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
+        Cmiss_field_cache_set_node(field_cache, selected_node);
+
+        double values[3];
+        Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
 
 		Point3D coords(values);
 		int node_id = Cmiss_node_get_identifier(selected_node);
@@ -1482,9 +1485,10 @@ Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
 	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
 	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-	Cmiss_field_cache_set_node(field_cache, node);
 	Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-	double values[3];
+
+    Cmiss_field_cache_set_node(field_cache, node);
+    double values[3];
 	Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
 
 	Cmiss_field_cache_destroy(&field_cache);
@@ -1492,6 +1496,8 @@ Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
 	Cmiss_field_module_destroy(&field_module);
 
 	Point3D coords(values);
+
+    dbg("GetNodeRCCoordinates: " + ToString(coords));
 
 	return coords;
 }

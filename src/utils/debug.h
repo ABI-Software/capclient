@@ -22,15 +22,7 @@
  * @see dbgn
  * @param	msg	The message to print out to console.
  */
-static void dbg(const std::string& msg)
-{
-#ifdef _MSC_VER
-	std::string out = msg + "\n";
-	OutputDebugString(out.c_str());
-#else
-	std::cout << msg << std::endl;
-#endif
-}
+void dbg(const std::string& msg);
 
 /**
  * Print debug message with no newline, uses printf on *nix 
@@ -40,14 +32,7 @@ static void dbg(const std::string& msg)
  * @see dbg
  * @param	msg	The message to print out to console.
  */
-static void dbgn(const std::string& msg)
-{
-#ifdef _MSC_VER
-	OutputDebugString(msg.c_str());
-#else
-	std::cout << msg;
-#endif
-}
+void dbgn(const std::string& msg);
 
 #endif
 

@@ -29,7 +29,7 @@ namespace cap
 			{
 				if (xmlStrcmp(number, BAD_CAST ""))
 				{
-					std::cout << "number = " << number <<'\n';
+                    //std::cout << "number = " << number <<'\n';
 					point.number = boost::lexical_cast<int>(number);
 				}
 				xmlFree(number);

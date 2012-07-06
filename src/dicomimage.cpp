@@ -508,12 +508,10 @@ void DICOMImage::ComputeImagePlane()
 
 	plane_->brc = plane_->blc + plane_->xside;
 
-#ifdef DEBUG
-	std::cout << plane_->trc << endl;
-	std::cout << plane_->tlc << endl;
-	std::cout << plane_->brc << endl;
-	std::cout << plane_->blc << endl;
-#endif
+    dbg(ToString(plane_->trc));
+    dbg(ToString(plane_->tlc));
+    dbg(ToString(plane_->brc));
+    dbg(ToString(plane_->blc));
 	
 	plane_->d = DotProduct((plane_->tlc - Point3D(0,0,0)) ,plane_->normal);
 }

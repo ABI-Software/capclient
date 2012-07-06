@@ -18,10 +18,11 @@
 #define private public
 #include "io/annotationfile.h"
 #undef private
+#include "unittestconfigure.h"
 
 namespace
 {
-	std::string test_file("SampleAnnotationFile.xml");
+    std::string test_file(SAMPLEANNOTATION_FILE);
 }
 
 TEST(AnnotationFile, ReadXML)

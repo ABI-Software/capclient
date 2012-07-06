@@ -19,6 +19,7 @@
 #undef private
 #include "io/xmlfilehandler.h"
 #include "logmsg.h"
+#include "utils/debug.h"
 
 namespace
 {
@@ -153,14 +154,14 @@ TEST(ModelFile, GetInput)
 	EXPECT_EQ(17, input.images.size());
 	BOOST_FOREACH(ModelFile::Image const& image, input.images)
 	{
-		std::cout << image.label << std::endl;
+        dbg(image.label);
 	}
 
 	ModelFile::Input& inputAgain = xmlFile.GetInput();
 	EXPECT_EQ(17, inputAgain.images.size());
 	BOOST_FOREACH(ModelFile::Image const& image, inputAgain.images)
 	{
-		std::cout << image.label << std::endl;
+        dbg(image.label);
 	}
 }
 

@@ -407,9 +407,9 @@ public:
 	{
 		vnl_sparse_matrix<double>* m = new vnl_sparse_matrix<double>;
 //		Harwell_Boeing_load(filename, *m);
-		std::cout << "calling readHBMatrix\n";
+        //std::cout << "calling readHBMatrix\n";
 		readHBMatrix(filename, *m);
-		std::cout << "done calling readHBMatrix\n";
+        //std::cout << "done calling readHBMatrix\n";
 		
 		return new VNLMatrix(*m);
 	}
@@ -432,7 +432,7 @@ public:
 //		gmm::iteration iter(tolerance, 0,maximumIteration);
 //		gmm::cg(*AConc, xImpl, rhsImpl, preImpl, iter);
 		
-		std::cout << __func__ << "\n";
+        //std::cout << __func__ << "\n";
 		vnl_vector<double>& xImpl = static_cast<VNLVector&>(x).GetImpl();
 		const vnl_vector<double>& rhsImpl = static_cast<const VNLVector*>(&rhs)->GetImpl();
 		const VNLGSmoothAMatrix& AConc = static_cast<const VNLGSmoothAMatrix&>(A);

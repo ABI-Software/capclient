@@ -151,11 +151,7 @@ std::vector<double> TimeSmoother::FitModel(int parameterIndex, const std::vector
 	// 5. Solve normal equation (direct solver) 
 	std::vector<double> x(gmm::mat_nrows(A));
 	gmm::lu_solve(A, x, rhs);
-	
-#ifndef NDEBUG
-//	std::cout << "delta x (" << parameterIndex << ") " << x << std::endl;
-#endif
-	
+		
 	std::transform(x.begin(), x.end(), prior.begin(), x.begin(), std::plus<double>());
 	return x;
 }

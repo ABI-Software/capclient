@@ -6,7 +6,7 @@
 TEST(UtilsMisc, TimeNow)
 {
 	std::string time = cap::TimeNow();
-	EXPECT_EQ(12, time.size());
+    EXPECT_EQ(11, time.size());
 	EXPECT_NE("Error in NowTime()", cap::TimeNow());
 }
 

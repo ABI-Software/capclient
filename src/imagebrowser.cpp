@@ -496,13 +496,13 @@ void ImageBrowser::OnOKButtonClicked()
 	
 	if (longAxisCount >= 10)
 	{
-		std::cout << "TOO MANY LONG AXES\n";
+        LOG_MSG(LOGERROR) << "TOO MANY LONG AXES";
 		gui_->CreateMessageBox("Too many long axes slices", "Invalid selection");
 		return;
 	}
 	if (shortAxisCount >= 30)
 	{
-		std::cout << "TOO MANY SHORT AXES\n";
+        LOG_MSG(LOGERROR) << "TOO MANY SHORT AXES";
 		gui_->CreateMessageBox("Too many short axes slices", "Invalid selection");
 		return;
 	}
