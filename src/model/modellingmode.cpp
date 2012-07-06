@@ -7,7 +7,6 @@
 
 #include "model/modellingmode.h"
 
-#include "capglobal.h"
 #include "capclientconfig.h"
 #include "model/modeller.h"
 #include "math/solverlibraryfactory.h"
@@ -57,17 +56,15 @@ namespace cap
 		}
 	}
 
-	void ModellingMode::MoveModellingPoint(int node_id, const Point3D& position, double time)
+    void ModellingMode::MoveModellingPoint(int node_id, const Point3D& position, double /*time*/)
 	{
-        USE_PARAMETER(time);
 		ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
 		if (itr != modellingPoints_.end())
 			itr->second.SetPosition(position);
 	}
 
-	void ModellingMode::RemoveModellingPoint(int node_id, double time)
+    void ModellingMode::RemoveModellingPoint(int node_id, double /*time*/)
 	{
-        USE_PARAMETER(time);
         ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
 		if (itr != modellingPoints_.end())
 		{
@@ -98,9 +95,8 @@ namespace cap
 		return modeller.GetModellingModeBase();
 	}
 
-	void ModellingModeApex::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
+    void ModellingModeApex::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double /*time*/)
 	{
-        USE_PARAMETER(time);
         if (!modellingPoints_.empty())
 		{
 			ModellingPointsMap::iterator itr = modellingPoints_.begin();
@@ -131,9 +127,8 @@ namespace cap
 		return modeller.GetModellingModeRV();
 	}
 
-	void ModellingModeBase::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
+    void ModellingModeBase::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double /*time*/)
 	{
-        USE_PARAMETER(time);
         if (!modellingPoints_.empty())
 		{
 			ModellingPointsMap::iterator itr = modellingPoints_.begin();
@@ -240,9 +235,8 @@ namespace cap
 
 	// ModellingModeGuidePoints
 
-	ModellingMode* ModellingModeGuidePoints::OnAccept(Modeller& modeller)
+    ModellingMode* ModellingModeGuidePoints::OnAccept(Modeller& /*modeller*/)
 	{
-        USE_PARAMETER(modeller);
         return 0;
 	}
 

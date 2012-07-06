@@ -1,5 +1,6 @@
 
 #include "debug.h"
+#include "capglobal.h"
 
 void dbg(const std::string& msg)
 {
@@ -11,7 +12,7 @@ void dbg(const std::string& msg)
     std::cout << msg << std::endl;
 #endif /* _MSC_VER */
 #else /* CAP_CLIENT_RELEASE_BUILD */
-    (void)msg;
+    USE_PARAMETER(msg);
 #endif /* CAP_CLIENT_RELEASE_BUILD */
 }
 
@@ -24,6 +25,6 @@ void dbgn(const std::string& msg)
     std::cout << msg;
 #endif /* _MSC_VER */
 #else /* CAP_CLIENT_RELEASE_BUILD */
-    (void)msg;
+    USE_PARAMETER(msg);
 #endif /* CAP_CLIENT_RELEASE_BUILD */
 }
