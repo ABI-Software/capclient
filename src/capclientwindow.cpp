@@ -1205,7 +1205,8 @@ void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
 		return;
 	}
 	
-	//--mainApp_->OnExportModel(std::string(dirname.mb_str()));
+    LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
+    //--mainApp_->OnExportModel(std::string(dirname.mb_str()));
 }
 
 void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
@@ -1238,6 +1239,7 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
 		return;
 	}
 	
+    LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
 	//--mainApp_->OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
 }
 
