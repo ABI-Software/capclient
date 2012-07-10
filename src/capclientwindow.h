@@ -668,7 +668,6 @@ private:
 
 	std::string previousWorkingLocation_; /**< The previous working location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
-	bool modellingStoppedCine_; /**< true if cine was playing when modelling started, false otherwise */
 	bool modellingActive_;  /**< true if modelling active, that is adding, moving or deleting a modelling point, false otherwise */
 	StatusTextStringsFieldMap statusTextStringsFieldMap_;   /**< The status text strings field map */
 

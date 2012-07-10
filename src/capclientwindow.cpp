@@ -80,7 +80,6 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, timeNotifier_(0)
 	, previousWorkingLocation_("")
 	, initialised_xmlUserCommentDialog_(false)
-	, modellingStoppedCine_(false)
 	, modellingActive_(false)
 	, progressDialog_(0)
 {
@@ -1044,26 +1043,18 @@ void CAPClientWindow::StartModellingAction()
 	std::string command = "group " + modelling_mode + " coordinate_field coordinates edit create define constrain_to_surfaces";
 	cmguiPanel_->SetInteractiveTool("node_tool", command);
 	modellingActive_ = true;
-	if (button_play_->GetLabel() == wxT("Stop"))
+    if (button_play_->GetLabel() == wxT("Stop")
+            && currentMode != APEX
+            && currentMode != BASE)
 	{
-		//StopCine();
-		modellingStoppedCine_ = true;
+        StopCine();
 	}
-	else
-		modellingStoppedCine_ = false;
 }
 
 void CAPClientWindow::EndModellingAction()
 {
 	if (modellingActive_)
 		mainApp_->SmoothAlongTime();
-
-	modellingActive_ = false;
-	if (modellingStoppedCine_)
-	{
-		modellingStoppedCine_ = false;
-		//PlayCine();
-	}
 }
 
 void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
