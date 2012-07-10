@@ -150,15 +150,15 @@ void CAPClient::OpenModel(const std::string& filename)
 	LoadLabelledImages(labelledSlices);
 	ResetModel();
 
-	ModellingPoints modellingPoints = xmlFileHandler.GetModellingPoints();
+    ModellingPointDetails modellingPointDetails = xmlFileHandler.GetModellingPointDetails();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	if (exnodeFileNames.empty())
 	{
-		if(!modellingPoints.empty())
+        if(!modellingPointDetails.empty())
 		{
 			// This means no output element is defined
 			// Setting the modelling points should put the CAPClient into the correct state
-			gui_->SetModellingPoints(modellingPoints);
+            gui_->ProcessModellingPointDetails(modellingPointDetails);
 		}
 		return;
 	}
@@ -187,7 +187,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	gui_->LoadHeartModel(fullExelemFileName, fullExnodeFileNames);
 	gui_->SetHeartModelFocalLength(xmlFile.GetFocalLength());
 	gui_->SetHeartModelTransformation(m);
-	gui_->SetModellingPoints(modellingPoints);
+    gui_->ProcessModellingPointDetails(modellingPointDetails);
 	modeller_->InitialiseBezierLambdaParams();
 
 	gui_->SetTitle(wxString(title.c_str(),wxConvUTF8));

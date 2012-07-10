@@ -381,10 +381,17 @@ public:
 	void StartModellingAction();
 
 	/**
-	 * Endt modelling action.  When ending the modelling action we reinstate the previous
+     * End modelling action.  When ending the modelling action we reinstate the previous
 	 * cine mode.
 	 */
 	void EndModellingAction();
+
+    /**
+     * Test to see if modelling is currently active.
+     *
+     * \returns true if modelling is active, false otherwise.
+     */
+    bool IsModellingActive() const { return modellingActive_; }
 
 	/**
 	 * Updates the frame number described by frameNumber.
@@ -406,12 +413,14 @@ public:
 	void SetTime(double time);
 
 	/**
-	 * Set the modelling points.  This function will create the modelling points in the context and
-	 * set them on the modeller as well.  To be used when loading in models/modelling points.
+     * Process the modelling point details.  This function will sort the
+     * modelling points into modelling order then process the details and
+     * create the modelling points in the context and set them on the
+     * modeller as well.  To be used when loading in models/modelling points.
 	 *
 	 * @param	modellingPoints	The modelling points.
 	 */
-	void SetModellingPoints(ModellingPoints modellingPoints);
+    void ProcessModellingPointDetails(ModellingPointDetails modellingPoints);
 
 	/**
 	 * Creates the progress dialog.
@@ -599,8 +608,9 @@ private:
 	void OnObjectCheckListSelected(wxListEvent& event); /**< Widget event handler */
 	void OnToggleHideShowAll(wxCommandEvent& event); /**< Widget event handler */
 	void OnToggleHideShowOthers(wxCommandEvent& event); /**< Widget event handler */
-	void OnAnimationSliderEvent(wxCommandEvent& event); /**< Widget event handler */
-	void OnAnimationSpeedControlEvent(wxCommandEvent& event); /**< Widget event handler */
+    void OnAnimationSliderEvent(wxCommandEvent& event); /**< Widget event handler */
+    void OnAnimationSliderChangedEvent(wxCommandEvent& event); /**< Widget event handler */
+    void OnAnimationSpeedControlEvent(wxCommandEvent& event); /**< Widget event handler */
 	void OnMIICheckBox(wxCommandEvent& event); /**< Widget event handler */
 	void OnWireframeCheckBox(wxCommandEvent& event); /**< Widget event handler */
 	void OnBrightnessSliderEvent(wxCommandEvent& event); /**< Widget event handler */

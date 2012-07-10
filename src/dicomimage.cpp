@@ -508,10 +508,10 @@ void DICOMImage::ComputeImagePlane()
 
 	plane_->brc = plane_->blc + plane_->xside;
 
-    dbg(ToString(plane_->trc));
-    dbg(ToString(plane_->tlc));
-    dbg(ToString(plane_->brc));
-    dbg(ToString(plane_->blc));
+//    dbg(ToString(plane_->trc));
+//    dbg(ToString(plane_->tlc));
+//    dbg(ToString(plane_->brc));
+//    dbg(ToString(plane_->blc));
 	
 	plane_->d = DotProduct((plane_->tlc - Point3D(0,0,0)) ,plane_->normal);
 }

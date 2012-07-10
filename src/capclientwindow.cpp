@@ -103,6 +103,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
     CreateMaterials();
     CreateFonts();
     SetModellingCallbacks();
+    CreateStatusBar(1);
     UpdateUI();
 }
 
@@ -155,8 +156,9 @@ void CAPClientWindow::MakeConnections()
 	Connect(button_accept_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(CAPClientWindow::OnAcceptClicked));
 	Connect(slider_brightness_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
 	Connect(slider_contrast_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
-	Connect(slider_animation_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderEvent));
-	Connect(slider_animationSpeed_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSpeedControlEvent));
+    Connect(slider_animation_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderEvent));
+    Connect(slider_animation_->GetId(), wxEVT_SCROLL_CHANGED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderChangedEvent));
+    Connect(slider_animationSpeed_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSpeedControlEvent));
 	Connect(checkListBox_slice_->GetId(), wxEVT_COMMAND_LISTBOX_SELECTED, wxListEventHandler(CAPClientWindow::OnObjectCheckListSelected));
 	Connect(checkListBox_slice_->GetId(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, wxListEventHandler(CAPClientWindow::OnObjectCheckListChecked));
 	Connect(checkBox_visibility_->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CAPClientWindow::OnWireframeCheckBox));
@@ -649,7 +651,14 @@ void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& /* event */)
 	
 	double time = (value - min) / static_cast<double>(max - min + 1);
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
-	ChangeAllTextures(time);
+    ComputeHeartVolume(EPICARDIUM, time);
+    ComputeHeartVolume(ENDOCARDIUM, time);
+    ChangeAllTextures(time);
+}
+
+void CAPClientWindow::OnAnimationSliderChangedEvent(wxCommandEvent& event)
+{
+    dbg("CAPClientWindow::OnAnimationSliderChangedEvent");
 }
 
 void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& /* event */)
@@ -659,8 +668,11 @@ void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& /* event */)
 	int min = slider_animationSpeed_->GetMin();
 	int max = slider_animationSpeed_->GetMax();
 	
-	double speed = (value - min) / static_cast<double>(max - min + 1) * 2.0;
+    // We don't want the speed controller to set a speed of min so we add one to
+    // the minium value possible.
+    double speed = (value + 1 - min) / static_cast<double>(max - min + 1) * 2.0;
 	
+    dbg("Setting controller speed " + ToString(speed) + " " + ToString(min));
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_SPEED, speed);
 }
 
@@ -678,6 +690,7 @@ void CAPClientWindow::SetTime(double time)
 
 	int value = static_cast<int>(static_cast<double>(max - min + 1)*time + min + 0.5);
 	slider_animation_->SetValue(value);
+    SetStatusText(wxT("time: " + ToString(time)));
 	ChangeAllTextures(time);
 }
 
@@ -913,21 +926,22 @@ void CAPClientWindow::ResetModeChoice()
 	choice_mode_->SetSelection(0);
 }
 
-void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
+void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modellingPoints)
 {
-	ModellingPoints::const_iterator cit = modellingPoints.begin();
-	ModellingPoints apex;
-	ModellingPoints base;
-	ModellingPoints rvInserts;
-	ModellingPoints basePlanePoints;
-	ModellingPoints guidePoints;
+    ModellingPointDetails::const_iterator cit = modellingPoints.begin();
+    ModellingPointDetails apex;
+    ModellingPointDetails base;
+    ModellingPointDetails rvInserts;
+    ModellingPointDetails basePlanePoints;
+    ModellingPointDetails guidePoints;
 	for (; cit != modellingPoints.end(); ++cit)
 	{
-		ModellingPoint mp = *cit;
+        ModellingPointDetail mp = *cit;
 		const std::string& modelling_mode = mp.GetModellingPointTypeString();//ModellingEnumStrings.find(mp.GetModellingPointType())->second;
 		Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
 
-		switch (mp.GetModellingPointType())
+        dbg(mp.GetModellingPointTypeString() + " : " + ToString(mp.position_));
+        switch (mp.modellingPointType_)
 		{
 		case APEX:
 			apex.push_back(mp);
@@ -953,8 +967,8 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 	cit = apex.begin();
 	for (; cit != apex.end(); ++cit)
 	{
-		ModellingPoint mp = *cit;
-		CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+        ModellingPointDetail mp = *cit;
+        CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
 	}
 	if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 	{
@@ -962,8 +976,8 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 		cit = base.begin();
 		for (; cit != base.end(); ++cit)
 		{
-			ModellingPoint mp = *cit;
-			CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+            ModellingPointDetail mp = *cit;
+            CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
 		}
 		if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 		{
@@ -971,8 +985,8 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 			cit = rvInserts.begin();
 			for (; cit != rvInserts.end(); ++cit)
 			{
-				ModellingPoint mp = *cit;
-				CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+                ModellingPointDetail mp = *cit;
+                CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
 			}
 			if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 			{
@@ -980,8 +994,8 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 				cit = basePlanePoints.begin();
 				for (; cit != basePlanePoints.end(); ++cit)
 				{
-					ModellingPoint mp = *cit;
-					CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+                    ModellingPointDetail mp = *cit;
+                    CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
 				}
 				if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 				{
@@ -989,8 +1003,8 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 					cit = guidePoints.begin();
 					for (; cit != guidePoints.end(); ++cit)
 					{
-						ModellingPoint mp = *cit;
-						CreateModellingPoint(mp.GetModellingPointType(), mp.GetPosition(), mp.GetTime());
+                        ModellingPointDetail mp = *cit;
+                        CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
 					}
 				}
 				else
@@ -1014,14 +1028,15 @@ void CAPClientWindow::SetModellingPoints(ModellingPoints modellingPoints)
 void CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& position, double time)
 {
 	const std::string& modelling_mode = ModellingEnumStrings.find(type)->second;
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+    Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, modelling_mode.c_str());
 	Cmiss_region_destroy(&root_region);
-    Cmiss_node_id node = Cmiss_region_create_node(region);
-	int node_id = Cmiss_node_get_identifier(node);
-	//mainApp_->ChangeModellingMode(type);
-	mainApp_->AddModellingPoint(region, node_id, position, time);
-	Cmiss_region_destroy(&region);
+    Cmiss_node_id node = Cmiss_region_create_node(region, position.x, position.y, position.z);
+    int node_id = Cmiss_node_get_identifier(node);
+
+    mainApp_->AddModellingPoint(region, node_id, position, time);
+
+    Cmiss_region_destroy(&region);
 	Cmiss_node_destroy(&node);
 }
 
