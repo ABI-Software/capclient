@@ -609,7 +609,6 @@ private:
 	void OnToggleHideShowAll(wxCommandEvent& event); /**< Widget event handler */
 	void OnToggleHideShowOthers(wxCommandEvent& event); /**< Widget event handler */
     void OnAnimationSliderEvent(wxCommandEvent& event); /**< Widget event handler */
-    void OnAnimationSliderChangedEvent(wxCommandEvent& event); /**< Widget event handler */
     void OnAnimationSpeedControlEvent(wxCommandEvent& event); /**< Widget event handler */
 	void OnMIICheckBox(wxCommandEvent& event); /**< Widget event handler */
 	void OnWireframeCheckBox(wxCommandEvent& event); /**< Widget event handler */
@@ -649,7 +648,7 @@ private:
 	 * @param [in,out]	event	The event.
 	 */
 	void OnCloseWindow(wxCloseEvent& event);
-	
+
 	/**
 	 * Make the connections for the widgets.
 	 */

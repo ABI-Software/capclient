@@ -157,7 +157,6 @@ void CAPClientWindow::MakeConnections()
 	Connect(slider_brightness_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnBrightnessSliderEvent));
 	Connect(slider_contrast_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnContrastSliderEvent));
     Connect(slider_animation_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderEvent));
-    Connect(slider_animation_->GetId(), wxEVT_SCROLL_CHANGED, wxCommandEventHandler(CAPClientWindow::OnAnimationSliderChangedEvent));
     Connect(slider_animationSpeed_->GetId(), wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(CAPClientWindow::OnAnimationSpeedControlEvent));
 	Connect(checkListBox_slice_->GetId(), wxEVT_COMMAND_LISTBOX_SELECTED, wxListEventHandler(CAPClientWindow::OnObjectCheckListSelected));
 	Connect(checkListBox_slice_->GetId(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, wxListEventHandler(CAPClientWindow::OnObjectCheckListChecked));
@@ -645,20 +644,14 @@ void CAPClientWindow::ChangeAllTextures(double time)
 
 void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& /* event */)
 {
-	int value = slider_animation_->GetValue();
-	int min = slider_animation_->GetMin();
-	int max = slider_animation_->GetMax();
-	
-	double time = (value - min) / static_cast<double>(max - min + 1);
-	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
-    ComputeHeartVolume(EPICARDIUM, time);
-    ComputeHeartVolume(ENDOCARDIUM, time);
-    ChangeAllTextures(time);
-}
+    int value = slider_animation_->GetValue();
+    int min = slider_animation_->GetMin();
+    int max = slider_animation_->GetMax();
 
-void CAPClientWindow::OnAnimationSliderChangedEvent(wxCommandEvent& event)
-{
-    dbg("CAPClientWindow::OnAnimationSliderChangedEvent");
+    double time = (value - min) / static_cast<double>(max - min + 1);
+    // This will trigger the cmgui time callback which will in turn call CAPClientWindow::SetTime
+    // to update the gui elements
+    Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, time);
 }
 
 void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& /* event */)
@@ -689,9 +682,11 @@ void CAPClientWindow::SetTime(double time)
 	int max = slider_animation_->GetMax();
 
 	int value = static_cast<int>(static_cast<double>(max - min + 1)*time + min + 0.5);
-	slider_animation_->SetValue(value);
-    SetStatusText(wxT("time: " + ToString(time)));
-	ChangeAllTextures(time);
+    slider_animation_->SetValue(value); // This doesn't trigger a slider event
+    ComputeHeartVolume(EPICARDIUM, time);
+    ComputeHeartVolume(ENDOCARDIUM, time);
+    SetStatusText(wxT("Time: " + ToString(time)));
+    ChangeAllTextures(time);
 }
 
 void CAPClientWindow::OnToggleHideShowAll(wxCommandEvent& /* event */)
