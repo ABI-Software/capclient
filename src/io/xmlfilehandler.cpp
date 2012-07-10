@@ -301,9 +301,9 @@ LabelledSlices XMLFileHandler::GetLabelledSlices() const
 	return labelledSlices;
 }
 
-ModellingPoints XMLFileHandler::GetModellingPoints() const
+ModellingPointDetails XMLFileHandler::GetModellingPointDetails() const
 {
-	ModellingPoints modellingPoints;
+    ModellingPointDetails modellingPointDetails;
 	ModelFile::Input& input = xmlFile_.GetInput();
 	std::vector<ModelFile::Point>::const_iterator cit = input.points.begin();
 	for (; cit != input.points.end(); ++cit)
@@ -315,11 +315,13 @@ ModellingPoints XMLFileHandler::GetModellingPoints() const
 		coords[2] = (*p.values.find("z")).second.value;
 
 		Point3D position(coords);
-		ModellingPoint mp(p.type, 0, -1, position, p.time);
-		modellingPoints.push_back(mp);
+        ModellingPointDetail mp(p.type, position, p.time);
+        dbg(mp.GetModellingPointTypeString() + " : " + ToString(mp.position_));
+
+        modellingPointDetails.push_back(mp);
 	}
 
-	return modellingPoints;
+    return modellingPointDetails;
 }
 
 void XMLFileHandler::AddCardiacAnnotation(const CardiacAnnotation& annotation)

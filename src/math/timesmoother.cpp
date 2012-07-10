@@ -111,7 +111,7 @@ std::vector<double> TimeSmoother::FitModel(int parameterIndex, const std::vector
 	
 	// 3. Construct A
 	// Note that G is the identity matrix. StS is read in from file.
-	gmm::dense_matrix<double> A(NUMBER_OF_PARAMETERS, NUMBER_OF_PARAMETERS), 
+    gmm::dense_matrix<double> A(NUMBER_OF_PARAMETERS, NUMBER_OF_PARAMETERS),
 				temp(NUMBER_OF_PARAMETERS, NUMBER_OF_PARAMETERS);
 	gmm::mult(gmm::transposed(P),P,temp);
 	gmm::add(pImpl->S,temp,A);

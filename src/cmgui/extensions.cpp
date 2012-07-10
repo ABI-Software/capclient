@@ -312,23 +312,28 @@ Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext)
 	return node;
 }
 
-Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region)
+Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double y, double z)
 {
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 	Cmiss_field_module_begin_change(field_module);
-	Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+    Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+    Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
 	Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 	Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
 	Cmiss_node_template_define_field(node_template, coordinate_field);
 	Cmiss_node_template_define_field(node_template, visibility_value_field);
 	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template);
-	Cmiss_field_module_end_change(field_module);
+    double position_values[3] = {x, y, z};
+    Cmiss_field_cache_set_node(field_cache, node);
+    Cmiss_field_assign_real(coordinate_field, field_cache, 3, position_values);
+    Cmiss_field_module_end_change(field_module);
 	
 	Cmiss_field_destroy(&coordinate_field);
 	Cmiss_field_destroy(&visibility_value_field);
 	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_node_template_destroy(&node_template);
+    Cmiss_field_cache_destroy(&field_cache);
 	Cmiss_field_module_destroy(&field_module);
 
 	return node;

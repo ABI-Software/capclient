@@ -81,33 +81,27 @@ int input_callback_modelling(Cmiss_scene_viewer_id /*scene_viewer*/,
 {
 	Cmiss_scene_viewer_input_event_type event_type;
 	Cmiss_scene_viewer_input_get_event_type(input, &event_type);
-	//dbg("input_callback() : input_type = " + ToString(event_type));
 
 	CAPClientWindow* gui = static_cast<CAPClientWindow*>(capclientwindow_void);
 
 	Cmiss_scene_viewer_input_modifier_flags modifier_flags;
 	Cmiss_scene_viewer_input_get_modifier_flags(input, &modifier_flags);
+    bool modellingActive = gui->IsModellingActive();
 
 	int modifier_flags_int = static_cast<int>(modifier_flags);
-	if (modifier_flags_int & CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL)
-	{
-        dbg("ctrl-ending modelling action");
-		gui->EndModellingAction();
-		return 1;
-	}
-	
-	//double time = gui->GetCurrentTime(); // TODO REVISE
-	if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS)
+    if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_PRESS
+            && !(modifier_flags_int & CMISS_SCENE_VIEWER_INPUT_MODIFIER_CONTROL))
 	{
 		gui->AddCurrentlySelectedNode();
 	}
-	else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY)
+    else if (event_type == CMISS_SCENE_VIEWER_INPUT_MOTION_NOTIFY
+             && modellingActive)
 	{
 		gui->MoveCurrentlySelectedNode();
 	}
-	else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE)
+    else if (event_type == CMISS_SCENE_VIEWER_INPUT_BUTTON_RELEASE
+             && modellingActive)
 	{
-        dbg("Ending modelling action");
 		gui->EndModellingAction();
 		//--gui->SmoothAlongTime();
 	}

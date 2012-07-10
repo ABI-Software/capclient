@@ -17,6 +17,25 @@ extern "C"
 
 namespace cap
 {
+    struct ModellingPointDetail
+    {
+        ModellingPointDetail(ModellingEnum type, Point3D position, double time)
+            : modellingPointType_(type)
+            , position_(position)
+            , time_(time)
+        {
+        }
+
+        std::string  GetModellingPointTypeString() const
+        {
+            return ModellingEnumStrings.find(modellingPointType_)->second;
+        }
+
+        ModellingEnum modellingPointType_; /**< Type of the modelling point */
+        Point3D position_;  /**< The position */
+        double time_;   /**< The time */
+    };
+
 	/**
 	 * @brief Modelling point.  This class encapsultates the points for modelling.  It holds a region
 	 * handle to the region of the modelling point as well as a node id in that region from which
@@ -150,12 +169,17 @@ namespace cap
 	 */
 	typedef std::map<int, ModellingPoint> ModellingPointsMap;
 
-	/**
-	 * Defines an alias representing the modelling points.
-	 */
-	typedef std::vector<ModellingPoint> ModellingPoints;
+    /**
+     * Defines an alias representing the modelling points.
+     */
+    typedef std::vector<ModellingPoint> ModellingPoints;
 
-	/**
+    /**
+     * Defines an alias representing a vector of modelling point details.
+     */
+    typedef std::vector<ModellingPointDetail> ModellingPointDetails;
+
+    /**
 	 * Modelling point time less than.  Used for sorting ModellingPoints with respect to time.
 	 */
 	struct ModellingPointTimeLessThan

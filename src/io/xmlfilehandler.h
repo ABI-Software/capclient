@@ -70,11 +70,11 @@ public:
 	LabelledSlices GetLabelledSlices() const;
 
 	/**
-	 * Gets the modelling points.
+     * Gets the details of the modelling points.
 	 *
-	 * @return	The modelling points.
+     * @return	The modelling point details.
 	 */
-	ModellingPoints GetModellingPoints() const;
+    ModellingPointDetails GetModellingPointDetails() const;
 
 	/**
 	 * Gets the cardiac annotation.

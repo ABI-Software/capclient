@@ -113,7 +113,7 @@ Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext);
  *
  * @return	An accessed node, or 0 on failure.
  */
-Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region);
+Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double y, double z);
 
 /**
  * Cmiss graphics material set properties.
