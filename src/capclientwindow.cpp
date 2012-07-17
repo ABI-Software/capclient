@@ -1091,7 +1091,7 @@ void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 	if (!initialised_xmlUserCommentDialog_)
 	{
 		initialised_xmlUserCommentDialog_ = true;
-		wxXmlInit_UserCommentDialogUI();
+        wxXmlInit_usercommentdialogui();
 	}
 	UserCommentDialog userCommentDlg(this);
 	userCommentDlg.SetDirectory(previousWorkingLocation_);

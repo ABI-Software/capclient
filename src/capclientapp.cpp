@@ -66,7 +66,7 @@ bool CAPApp::OnInit()
 	cc_ = CAPClient::GetInstance();
 	
 	// We cannot initialise this from inside the CAPClientWindow constructor unfortunately.
-	wxXmlInit_CAPClientWindowUI();
+    wxXmlInit_capclientwindowui();
 	CAPClientWindow *frame = new CAPClientWindow(cc_);
 	cc_->SetCAPClientWindow(frame);
 	SetTopWindow(frame);

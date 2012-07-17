@@ -31,7 +31,7 @@ extern "C"
 #include <zn/cmiss_scene_viewer.h>
 }
 
-#include "ui/ImageBrowserWindowUI.h"
+#include "ui/imagebrowserwindowui.h"
 
 class wxListCtrl;
 class wxListEvent;

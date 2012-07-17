@@ -130,10 +130,10 @@ IF(MSVC)
 ENDIF()
 
 SET( APP_XRC
-	src/ui/AnnotationWindowUI.xrc
-	src/ui/ImageBrowserWindowUI.xrc
-        src/ui/UserCommentDialogUI.xrc
-	src/ui/CAPClientWindowUI.xrc
+        src/ui/annotationwindowui.xrc
+        src/ui/imagebrowserwindowui.xrc
+        src/ui/usercommentdialogui.xrc
+        src/ui/capclientwindowui.xrc
 	src/ui/logdialogui.xrc
 	)
 

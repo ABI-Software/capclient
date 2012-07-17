@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "ui/UserCommentDialogUI.h"
+#include "ui/usercommentdialogui.h"
 #include "utils/debug.h"
 
 namespace cap
