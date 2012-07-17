@@ -6,7 +6,7 @@
 #include "capclientwindow.h"
 #include "capclient.h"
 #endif
-#include "cmgui/extensions.h"
+#include "zinc/extensions.h"
 #include "hexified/heartmodel.exnode.h"
 #include "hexified/globalhermiteparam.exelem.h"
 #include "utils/misc.h"
@@ -15,7 +15,7 @@
 
 extern "C"
 {
-#include <zn/cmgui_configure.h>
+#include <zn/zinc_configure.h>
 #include <zn/cmiss_core.h>
 #include <zn/cmiss_status.h>
 #include <zn/cmiss_context.h>

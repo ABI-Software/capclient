@@ -20,14 +20,14 @@ CACHE_VAR_WITH_DEFAULT(CAP_BUILD_TYPE "Debug" STRING "Choose the type of build, 
 SET(CMAKE_BUILD_TYPE ${CAP_BUILD_TYPE} CACHE INTERNAL "Internalise CMAKE_BUILD_TYPE, manipulate via CAP_BUILD_TYPE." FORCE)
 
 CACHE_VAR_WITH_DEFAULT(CAP_GTEST_ROOT "/usr/local" PATH "Root directory of the gtest libraries and header files.")
-CACHE_VAR_WITH_DEFAULT(CAP_CMGUI_CONFIG_DIR "/usr/local/lib/cmake" PATH "The directory that contains the cmgui-config.cmake file.")
+CACHE_VAR_WITH_DEFAULT(CAP_ZINC_CONFIG_DIR "/usr/local/lib/cmake" PATH "The directory that contains the zinc-config.cmake file.")
 
 OPTION_WITH_DEFAULT(CAP_ENABLE_UNIT_TESTS "Enable CAPClient Unit Tests." OFF)
 OPTION_WITH_DEFAULT(CAP_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests." OFF)
 OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary." ON)
 
 # wxWidgets 2.8.10 can only be built in 32-bit mode on Mac
-# Cmgui uses wxWidgets 2.8.10 so that too is only built in 
+# Zinc uses wxWidgets 2.8.10 so that too is only built in
 # 32-bit mode.  Therefore force the CAP Client to also be 
 # built in 32-bit mode on Mac.
 IF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
@@ -38,8 +38,8 @@ SET(CAP_CLIENT_EXECUTABLE capclient)
 
 # Read in the source, header and gui files
 SET( APP_HDRS
-	src/cmgui/extensions.h
-	src/cmgui/utilities.h
+        src/zinc/extensions.h
+        src/zinc/utilities.h
 	src/AnnotationEditor.h
 	src/AnnotationWindow.h
 	src/Archiver.h
@@ -60,8 +60,8 @@ SET( APP_HDRS
 	src/math/totalleastsquares.h
 	src/io/modelfile.h
 	src/io/xmlfilehandler.h
-	src/cmgui/callbacks.h
-	src/cmgui/sceneviewerpanel.h
+        src/zinc/callbacks.h
+        src/zinc/sceneviewerpanel.h
 	src/capclientconfig.h
 	src/utils/debug.h
 	src/dicomimage.h
@@ -89,8 +89,8 @@ SET( APP_HDRS
 	)
 
 SET( APP_SRCS
-	src/cmgui/extensions.cpp
-	src/cmgui/utilities.cpp
+        src/zinc/extensions.cpp
+        src/zinc/utilities.cpp
 	src/AnnotationEditor.cpp
 	src/AnnotationWindow.cpp
 	src/capclientapp.cpp
@@ -106,8 +106,8 @@ SET( APP_SRCS
 	src/io/modelfile.cpp
 	src/io/xmlfilehandler.cpp
 	src/logmsg.cpp
-	src/cmgui/callbacks.cpp
-	src/cmgui/sceneviewerpanel.cpp
+        src/zinc/callbacks.cpp
+        src/zinc/sceneviewerpanel.cpp
 	src/dicomimage.cpp
 	src/logwindow.cpp
 	src/utils/filesystem.cpp
@@ -138,15 +138,15 @@ SET( APP_XRC
 	)
 
 SET(MISSING_DEPENDENCY)
-# Find the Cmgui libraries, using a gui the CAP_CMGUI_CONFIG_DIR
+# Find the Zinc libraries, using a gui the CAP_ZINC_CONFIG_DIR
 # variable can be set.  Alternatively it can be set on the 
 # command line when creating the CMake cache.
-SET(Cmgui_DIR "${CAP_CMGUI_CONFIG_DIR}" CACHE INTERNAL "Internalise Cmgui_DIR, manipulate via CAP_CMGUI_CONFIG_DIR." FORCE)
-FIND_PACKAGE(Cmgui)
-IF(NOT CMGUI_FOUND)
+SET(Zinc_DIR "${CAP_ZINC_CONFIG_DIR}" CACHE INTERNAL "Internalise Zinc_DIR, manipulate via CAP_ZINC_CONFIG_DIR." FORCE)
+FIND_PACKAGE(Zinc)
+IF(NOT ZINC_FOUND)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find cmgui-config.cmake.")
+        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find zinc-config.cmake.")
 ENDIF()
 # Need to find boost headers
 FIND_PATH(CAP_BOOST_INCLUDE_DIR boost/shared_ptr.hpp)
@@ -241,12 +241,12 @@ IF(MSVC_IDE)
 ENDIF()
 
 # Must set the values defined in ZINC_DEFINITIONS
-FOREACH(DEF ${CMGUI_DEFINITIONS} ${PLATFORM_DEFS})
+FOREACH(DEF ${ZINC_DEFINITIONS} ${PLATFORM_DEFS})
 	ADD_DEFINITIONS(-D${DEF})
 ENDFOREACH()
 
-# Set the include directories, Cmgui does not know that it is dependent on gdcm??? 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/capclient ${CMGUI_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS} ${GMM_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
+# Set the include directories, Zinc does not know that it is dependent on gdcm???
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/capclient ${ZINC_INCLUDE_DIRS} ${GDCM_INCLUDE_DIRS} ${GMM_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS})# not needed when using GDCM_USE_FILE, urrgh.
 IF(MSVC)
 	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/win32)
 ENDIF()
@@ -258,7 +258,7 @@ ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} WIN32 ${APP_SRCS} ${APP_HDRS} ${UI_SRCS_
 SET_TARGET_PROPERTIES(${CAP_CLIENT_EXECUTABLE} PROPERTIES DEBUG_POSTFIX "d" MINSIZEREL_POSTFIX "msr" RELWITHDEBUGINFO_POSTFIX "rwdi" COMPILE_DEFINITIONS_RELEASE CAP_CLIENT_RELEASE_BUILD)
 
 # and for each of your dependant executable/library targets:
-TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${CMGUI_LIBRARIES})
+TARGET_LINK_LIBRARIES(${CAP_CLIENT_EXECUTABLE} ${ZINC_LIBRARIES})
 
 # Unit Testing
 IF(CAP_ENABLE_UNIT_TESTS)

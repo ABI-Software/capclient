@@ -8,7 +8,7 @@
 #ifndef IMAGEBROWSEWINDOW_H_
 #define IMAGEBROWSEWINDOW_H_
 
-#include "cmgui/sceneviewerpanel.h"
+#include "zinc/sceneviewerpanel.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/tr1/memory.hpp>

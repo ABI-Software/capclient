@@ -26,7 +26,7 @@
 
 extern "C"
 {
-#include <zn/cmgui_configure.h>
+#include <zn/zinc_configure.h>
 #include <zn/cmiss_graphics_module.h>
 #include <zn/cmiss_scene.h>
 #include <zn/cmiss_field.h>
@@ -38,7 +38,7 @@ extern "C"
 
 #include "imagebrowserwindow.h"
 
-#include "cmgui/extensions.h"
+#include "zinc/extensions.h"
 #include "dicomimage.h"
 #include "material.h"
 #include "imagebrowser.h"

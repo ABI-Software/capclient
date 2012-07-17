@@ -16,7 +16,7 @@
 
 extern "C"
 {
-#include <zn/cmgui_configure.h>
+#include <zn/zinc_configure.h>
 #include <zn/cmiss_core.h>
 #include <zn/cmiss_status.h>
 #include <zn/cmiss_context.h>
@@ -38,9 +38,9 @@ extern "C"
 #include "capclientwindow.h"
 #include "UserCommentDialog.h"
 #include "CAPBinaryVolumeParameterDialog.h"
-#include "cmgui/utilities.h"
-#include "cmgui/extensions.h"
-#include "cmgui/callbacks.h"
+#include "zinc/utilities.h"
+#include "zinc/extensions.h"
+#include "zinc/callbacks.h"
 #include "material.h"
 #include "ui/htmlwindow.h"
 #include "textureslice.h"
@@ -81,6 +81,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, previousWorkingLocation_("")
 	, initialised_xmlUserCommentDialog_(false)
 	, modellingActive_(false)
+    , zKeyDown_(false)
 	, progressDialog_(0)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
@@ -108,7 +109,6 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 
 CAPClientWindow::~CAPClientWindow()
 {
-	dbg("CAPClientWindow::~CAPClientWindow()");
 	if (button_planeShift_->GetLabel() == wxT("End Shifting"))
 		RemovePlaneShiftingCallbacks();
 	else
@@ -1106,6 +1106,65 @@ void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 	mainApp_->SaveModel(previousWorkingLocation_, userComment);
 }
 
+void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
+{
+    wxString defaultPath = wxGetCwd();;
+    wxString defaultFilename = wxT("");
+    wxString defaultExtension = wxT("");
+    wxString wildcard = wxT("");
+    int flags = wxSAVE;
+
+    wxString dirname = wxFileSelector(wxT("Export to binary files"),
+            defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+    if (dirname.empty())
+    {
+        return;
+    }
+
+    if (!wxMkdir(dirname.c_str()))
+    {
+        LOG_MSG(LOGERROR) << __func__ << " - Error: can't create directory: " << dirname;
+        return;
+    }
+
+    LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
+    //--mainApp_->OnExportModel(std::string(dirname.mb_str()));
+}
+
+void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
+{
+    CAPBinaryVolumeParameterDialog  dlg(this);
+    if ( dlg.ShowModal() != wxID_OK )
+    {
+        return;
+    }
+
+    double apexMargin, baseMargin, spacing;
+    dlg.GetParams(apexMargin, baseMargin, spacing);
+
+    wxString defaultPath = wxGetCwd();;
+    wxString defaultFilename = wxT("");
+    wxString defaultExtension = wxT("");
+    wxString wildcard = wxT("");
+    int flags = wxSAVE;
+
+    wxString dirname = wxFileSelector(wxT("Export to binary volume"),
+            defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+    if (dirname.empty())
+    {
+        return;
+    }
+
+    if (!wxMkdir(dirname.c_str()))
+    {
+        LOG_MSG(LOGERROR) << __func__ << " - Error: can't create directory: " << dirname;
+        return;
+    }
+
+    LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
+    //--mainApp_->OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
+}
+
 void CAPClientWindow::OnQuit(wxCommandEvent& /* event */)
 {
 	wxExit();
@@ -1148,7 +1207,6 @@ void CAPClientWindow::RemovePlaneShiftingCallbacks()
 void CAPClientWindow::SetModellingCallbacks()
 {
 	cmguiPanel_->SetCallback(input_callback_modelling_setup, static_cast<void *>(this), true);
-
 	// Really important that this callback comes first, because otherwise the callback above
 	// will never fire properly
 	cmguiPanel_->SetCallback(input_callback_ctrl_modifier_switch, 0, true);
@@ -1173,65 +1231,6 @@ void CAPClientWindow::EndCurrentModellingMode()
 		ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_mode_->GetSelection());
 		UpdateModeSelectionUI(modellingEnum);
 	}
-}
-
-void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
-{
-	wxString defaultPath = wxGetCwd();;
-	wxString defaultFilename = wxT("");
-	wxString defaultExtension = wxT("");
-	wxString wildcard = wxT("");
-	int flags = wxSAVE;
-	
-	wxString dirname = wxFileSelector(wxT("Export to binary files"),
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if (dirname.empty())
-	{
-		return;
-	}
-
-	if (!wxMkdir(dirname.c_str()))
-	{
-        LOG_MSG(LOGERROR) << __func__ << " - Error: can't create directory: " << dirname;
-		return;
-	}
-	
-    LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
-    //--mainApp_->OnExportModel(std::string(dirname.mb_str()));
-}
-
-void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
-{
-	CAPBinaryVolumeParameterDialog  dlg(this);
-	if ( dlg.ShowModal() != wxID_OK )
-	{
-		return;
-	}
-	
-	double apexMargin, baseMargin, spacing;
-	dlg.GetParams(apexMargin, baseMargin, spacing);
-	
-	wxString defaultPath = wxGetCwd();;
-	wxString defaultFilename = wxT("");
-	wxString defaultExtension = wxT("");
-	wxString wildcard = wxT("");
-	int flags = wxSAVE;
-	
-	wxString dirname = wxFileSelector(wxT("Export to binary volume"),
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
-	if (dirname.empty())
-	{
-		return;
-	}
-
-	if (!wxMkdir(dirname.c_str()))
-	{
-        LOG_MSG(LOGERROR) << __func__ << " - Error: can't create directory: " << dirname;
-		return;
-	}
-	
-    LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
-	//--mainApp_->OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
 }
 
 void CAPClientWindow::OnAccept()
@@ -1352,40 +1351,50 @@ void CAPClientWindow::SetMIIVisibility(const std::string& name, bool visible)
 		Cmiss_graphic_set_visibility_flag(iso_endo, visible ? 1 : 0);
 }
 
-void CAPClientWindow::SetInitialPosition(unsigned int x, unsigned int y)
+void CAPClientWindow::SetZKeyDown(bool down)
 {
-	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
-	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_dimension(field_module, 2);
-	if (Cmiss_mesh_get_size(mesh2d) > 0)
-	{
-		Point3D pt(static_cast<Real>(x), static_cast<Real>(y), 0.0);
-		mainApp_->SetPreviousPosition(pt);
-	}
-
-	Cmiss_field_module_destroy(&field_module);
-	Cmiss_mesh_destroy(&mesh2d);
+    zKeyDown_ = down;
 }
 
-void CAPClientWindow::UpdatePosition(unsigned int x, unsigned int y)
+void CAPClientWindow::SetInitialPosition(const Point3D& pos)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
-	Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
-	Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_dimension(field_module, 2);
-	if (Cmiss_mesh_get_size(mesh2d) > 0)
+    if (field_module)
+    {
+        Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_dimension(field_module, 2);
+        if (Cmiss_mesh_get_size(mesh2d) > 0)
+        {
+            Point3D posGlobal = cmguiPanel_->ConvertPanelToGlobal(pos);
+            mainApp_->SetImageShiftingNormalMode(zKeyDown_);
+            mainApp_->SetPreviousPosition(posGlobal);
+        }
+
+        Cmiss_mesh_destroy(&mesh2d);
+        Cmiss_field_module_destroy(&field_module);
+    }
+}
+
+void CAPClientWindow::UpdatePosition(const Point3D& pos)
+{
+	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
+    Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
+    Cmiss_mesh_id mesh2d = Cmiss_field_module_find_mesh_by_dimension(field_module, 2);
+
+    if (Cmiss_mesh_get_size(mesh2d) > 0)
 	{
 		char *name = Cmiss_region_get_name(region);
 		std::string regionName(name);
 		Cmiss_deallocate(name);
-		Point3D pt(static_cast<Real>(x), static_cast<Real>(y), 0.0);
-		mainApp_->UpdatePlanePosition(regionName, pt);
-	}
+        Point3D posGlobal = cmguiPanel_->ConvertPanelToGlobal(pos);
+        mainApp_->UpdatePlanePosition(regionName, posGlobal);
+    }
 
 	Cmiss_field_module_destroy(&field_module);
 	Cmiss_mesh_destroy(&mesh2d);
 	Cmiss_region_destroy(&region);
 }
 
-void CAPClientWindow::SetEndPosition(unsigned int /*x*/, unsigned int /*y*/)
+void CAPClientWindow::SetEndPosition(const Point3D& /* pos */)
 {
 }
 

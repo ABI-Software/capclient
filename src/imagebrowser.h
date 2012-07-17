@@ -13,7 +13,7 @@
 #include "utils/filesystem.h"
 #include "iimagebrowser.h"
 #include "imagebrowserwindow.h"
-#include "cmgui/sceneviewerpanel.h"
+#include "zinc/sceneviewerpanel.h"
 #include "io/annotationfile.h"
 
 #include <string>

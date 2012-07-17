@@ -13,7 +13,7 @@
 #include <vector>
 
 extern "C" {
-#include <zn/cmgui_configure.h>
+#include <zn/zinc_configure.h>
 #include <zn/cmiss_scene_viewer.h>
 #include <zn/cmiss_context.h>
 #include <zn/cmiss_field_module.h>
@@ -86,6 +86,12 @@ public:
 	 */
 	void LookingHere() const;
 
+    /**
+     * Convert given panel coordinates in pixels into global coordinates of the
+     * current scene.
+     */
+    Point3D ConvertPanelToGlobal(const Point3D& pixelCoordinates);
+
 	/**
 	 * Set the interactive tool spin on if true, otherwise turn free spin off.
 	 * 
@@ -124,6 +130,7 @@ public:
 
 private:
 	Cmiss_scene_viewer_id cmissSceneViewer_; /**< the scene viewer for this panel */
+    wxPanel *panel_; /**< the wxpanel for the scene */
 
 };
 

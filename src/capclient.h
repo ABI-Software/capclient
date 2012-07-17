@@ -79,7 +79,6 @@ public:
 	 */
 	~CAPClient()
 	{
-		dbg("CAPClient::~CAPClient()");
 		delete modeller_;
 		gui_->Destroy();
 		delete gui_;
@@ -339,7 +338,7 @@ public:
 	}
 
 	/**
-	 * Sets the previous position.
+     * Sets the previous position of the plane.
 	 *
 	 * @param	position	The position.
 	 */
@@ -347,6 +346,11 @@ public:
 	{
 		previousPosition_ = position;
 	}
+
+    void SetImageShiftingNormalMode(bool normalMode)
+    {
+        imageShiftingNormalMode_ = normalMode;
+    }
 
 	/**
 	 * Updates the plane position.  The plane position is updated according to
@@ -356,7 +360,7 @@ public:
 	 * @param	regionName	Name of the region.
 	 * @param	position  	The position.
 	 */
-	void UpdatePlanePosition(const std::string& regionName, const Point3D& position);
+    void UpdatePlanePosition(const std::string& regionName, const Point3D& position);
 
 	/**
 	 * Sets an image location.
@@ -433,6 +437,7 @@ private:
 		, modeller_(0)
 		, cardiacAnnotation_()
 		, previousImageLocation_("")
+        , imageShiftingNormalMode_(false)
 	{
 	}
 	
@@ -447,6 +452,7 @@ private:
 
 	Point3D previousPosition_;  /**< The previous position */
 	std::string previousImageLocation_; /**< The previous image location */
+    bool imageShiftingNormalMode_; /**< true if shifting images in the normal to the plane, false otherwise */
 };
 
 } // namespace cap

@@ -9,11 +9,11 @@
 
 extern "C"
 {
-#include <zn/cmgui_configure.h>
+#include <zn/zinc_configure.h>
 #include <zn/cmiss_context.h>
 }
 
-#include "cmgui/extensions.h"
+#include "zinc/extensions.h"
 #define private public
 #include "model/modeller.h"
 #undef private
