@@ -24,7 +24,7 @@ extern "C"
 #include <zn/cmiss_node.h>
 }
 
-#include "ui/CAPClientWindowUI.h"
+#include "ui/capclientwindowui.h"
 
 #include "standardheartdefinitions.h"
 #include "math/algebra.h"

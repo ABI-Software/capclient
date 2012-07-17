@@ -131,7 +131,7 @@ public:
 		if (!wxXmlInitialised_)
 		{
 			wxXmlInitialised_ = true;
-			wxXmlInit_ImageBrowserWindowUI();
+            wxXmlInit_imagebrowserwindowui();
 		}
 		ImageBrowser* imageBrowser = new ImageBrowser(workingLocation, annotation, client);
 		ImageBrowserWindow* frame = new ImageBrowserWindow(imageBrowser);
