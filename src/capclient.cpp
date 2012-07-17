@@ -294,14 +294,25 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 	{
 		ImagePlane *plane = it->GetDICOMImages().at(0)->GetImagePlane();
 		Vector3D posDiff = position - previousPosition_;
-		double projDistance = DotProduct(posDiff, plane->normal);
-		Vector3D delta = projDistance*plane->normal;
-		ImagePlane newLocation;
+        Vector3D proj;
+        if (imageShiftingNormalMode_)
+        {
+            // Project the movement onto the normal of the plane
+            proj = DotProduct(posDiff, plane->normal)*plane->normal;
+        }
+        else
+        {
+            // Project the movement onto the plane
+            proj = posDiff - DotProduct(posDiff, plane->normal)*plane->normal;
+        }
+
+        ImagePlane newLocation;
 		newLocation = *plane;
-		newLocation.blc = newLocation.blc + delta;
-		newLocation.brc = newLocation.brc + delta;
-		newLocation.tlc = newLocation.tlc + delta;
-		newLocation.trc = newLocation.trc + delta;
+        newLocation.blc = newLocation.blc - proj;
+        newLocation.brc = newLocation.brc - proj;
+        newLocation.tlc = newLocation.tlc - proj;
+        newLocation.trc = newLocation.trc - proj;
+
 		gui_->RepositionImagePlane(regionName, &newLocation);
 		BOOST_FOREACH(DICOMPtr dicom, it->GetDICOMImages())
 		{

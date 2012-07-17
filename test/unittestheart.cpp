@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "model/heart.h"
-#include "cmgui/extensions.h"
+#include "zinc/extensions.h"
 #include "logmsg.h"
 #include "utils/debug.h"
 

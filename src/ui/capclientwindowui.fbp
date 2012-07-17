@@ -9,7 +9,7 @@
         <property name="disconnect_python_events">0</property>
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
-        <property name="file">CAPClientWindowUI</property>
+        <property name="file">capclientwindowui</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
         <property name="internationalize">0</property>
@@ -139,7 +139,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Open &amp;Model</property>
+                        <property name="label">&amp;Open Model</property>
                         <property name="name">menuItem_openModel_</property>
                         <property name="permission">protected</property>
                         <property name="shortcut">Ctrl-O</property>
@@ -154,10 +154,10 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Open Image Browser</property>
+                        <property name="label">&amp;Open Image Browser</property>
                         <property name="name">menuItem_openImageBrowser_</property>
                         <property name="permission">none</property>
-                        <property name="shortcut"></property>
+                        <property name="shortcut">ctrl-b</property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>
                         <event name="OnUpdateUI"></event>
@@ -207,7 +207,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Export to Cmgui</property>
+                        <property name="label">E&amp;xport to Cmgui</property>
                         <property name="name">menuItem_exportToCmgui_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
@@ -264,7 +264,7 @@
                         <property name="label">&amp;All</property>
                         <property name="name">menuItem_viewAll_</property>
                         <property name="permission">none</property>
-                        <property name="shortcut"></property>
+                        <property name="shortcut">ctrl-v, a</property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>
                         <event name="OnUpdateUI"></event>
@@ -276,7 +276,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_CHECK</property>
-                        <property name="label">Modelling Mode</property>
+                        <property name="label">&amp;Modelling Mode</property>
                         <property name="name">menuItem_modellingMode_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
@@ -291,7 +291,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_CHECK</property>
-                        <property name="label">Heart Volume</property>
+                        <property name="label">&amp;Heart Volume</property>
                         <property name="name">menuItem_heartVolume_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
@@ -310,7 +310,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Log</property>
+                        <property name="label">&amp;Log</property>
                         <property name="name">menuItem_logWindow_</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
@@ -368,7 +368,7 @@
                         <property name="label">Play</property>
                         <property name="name">menuItem_play_</property>
                         <property name="permission">none</property>
-                        <property name="shortcut"></property>
+                        <property name="shortcut">ctrl-p</property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection"></event>
                         <event name="OnUpdateUI"></event>
@@ -475,7 +475,7 @@
                         <property name="label">About...</property>
                         <property name="name">menuItem_about_</property>
                         <property name="permission">protected</property>
-                        <property name="shortcut"></property>
+                        <property name="shortcut">F1</property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection">OnAbout</event>
                         <event name="OnUpdateUI"></event>

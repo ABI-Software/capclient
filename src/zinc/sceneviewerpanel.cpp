@@ -9,10 +9,11 @@
 #include <iostream>
 
 #include <wx/app.h>
+#include <wx/panel.h>
 
 extern "C"
 {
-#include <zn/cmgui_configure.h>
+#include <zn/zinc_configure.h>
 #include <zn/cmiss_status.h>
 #include <zn/cmiss_field_image.h>
 #include <zn/cmiss_scene_viewer.h>
@@ -26,15 +27,17 @@ extern "C"
 #include <zn/cmiss_field_finite_element.h>
 }
 
-//#include "utils/debug.h" /* Uncomment this to enable debug messages */
-#include "cmgui/sceneviewerpanel.h"
-#include "cmgui/extensions.h"
+#include "utils/debug.h"
+#include "utils/misc.h"
+#include "zinc/sceneviewerpanel.h"
+#include "zinc/extensions.h"
 
 namespace cap
 {
 
 SceneViewerPanel::SceneViewerPanel(Cmiss_context_id cmissContext, const std::string& name, wxPanel* panel)
 	: cmissSceneViewer_(Cmiss_context_create_scene_viewer(cmissContext, name, panel))
+    , panel_(panel)
 {
 	SetFreeSpin(false);
 
@@ -45,9 +48,6 @@ SceneViewerPanel::SceneViewerPanel(Cmiss_context_id cmissContext, const std::str
 	
 SceneViewerPanel::~SceneViewerPanel()
 {
-#if defined _CAP_DEBUG_H
-	dbg("SceneViewerPanel::~SceneViewerPanel()");
-#endif
 	Cmiss_scene_viewer_destroy(&cmissSceneViewer_);
 }
 
@@ -84,9 +84,58 @@ void SceneViewerPanel::SetInteractiveTool(const std::string& tool, const std::st
 	}
 }
 
+Point3D SceneViewerPanel::ConvertPanelToGlobal(const Point3D& pixelCoordinates)
+{
+    int width, height;
+    double eyex, eyey, eyez;
+    double lookatx, lookaty, lookatz;
+    double upx, upy, upz;
+    double left, right, top, bottom, near, far;
+//    double ndc_left, ndc_right, ndc_width, ndc_height;
+    panel_->GetSize(&width, &height);
+    Cmiss_scene_viewer_get_lookat_parameters(cmissSceneViewer_, &eyex, &eyey, &eyez, &lookatx, &lookaty, &lookatz, &upx, &upy, &upz);
+    Cmiss_scene_viewer_get_viewing_volume(cmissSceneViewer_, &left, &right, &bottom, &top, &near, &far);
+//    Cmiss_scene_viewer_get_NDC_info(cmissSceneViewer_, &ndc_left, &ndc_right, &ndc_width, &ndc_height);
+
+    Vector3D eye(eyex, eyey, eyez);
+    Vector3D lookat(lookatx, lookaty, lookatz);
+    Vector3D up(upx, upy, upz);
+
+    HomogeneousVector3D hclip((pixelCoordinates.x-width/2.0)/(width/2.0), (pixelCoordinates.y-height/2.0)/(height/2.0), 0.0, 1.0);
+    // Assuming that the projection mode is parallel and that it won't be changed.
+    // Ignoring the depth of field because it won't get involved.
+    Matrix4x4 pr(1.0/right, 0.0, 0.0, 0.0,
+                 0.0, 1.0/top, 0.0, 0.0,
+                 0.0, 0.0, -2.0/(far-near), -(far+near)/(far-near),
+                 0.0, 0.0, 0.0, 1.0);
+    pr.InvertAffine();
+    HomogeneousVector3D heye = pr * hclip;
+
+    Vector3D zaxis = lookat - eye;
+    zaxis.Normalise();
+    Vector3D xaxis = CrossProduct(up, zaxis);
+    xaxis.Normalise();
+    Vector3D yaxis = CrossProduct(zaxis, xaxis);
+    yaxis.Normalise();
+
+    Matrix3x3 mvrot(xaxis, yaxis, zaxis);
+    mvrot.Transpose();
+    Vector3D mvtr(-DotProduct(xaxis, eye), -DotProduct(yaxis, eye), -DotProduct(zaxis, eye));
+    Matrix4x4 mv;
+    mv.SetRotation(mvrot);
+    mv.SetTranslation(mvtr);
+    mv.InvertEuclidean();
+
+    HomogeneousVector3D hposition = mv * heye;
+
+    return hposition.ToPoint3D();
+}
+
 void SceneViewerPanel::LookingHere() const
 {
 	double dof, fd, eyex, eyey, eyez, lx, ly, lz, upx, upy, upz, va, left, right, bottom, top, np, fp;
+    int width, height;
+    panel_->GetSize(&width, &height);
 	Cmiss_scene_viewer_get_depth_of_field(cmissSceneViewer_, &dof, &fd);
 	Cmiss_scene_viewer_get_lookat_parameters(cmissSceneViewer_, &eyex, &eyey, &eyez, &lx, &ly, &lz, &upx, &upy, &upz);
 	Cmiss_scene_viewer_get_view_angle(cmissSceneViewer_, &va);
@@ -123,7 +172,7 @@ void SceneViewerPanel::SetViewingPlane(const ImagePlane& plane)
 	up.Normalise();
 	
 	//Hack :: perturb direction vector a little
-	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
+//	eye.x *= 1.01; //HACK 1.001 makes the iso lines partially visible
 	
 	if (Cmiss_scene_viewer_set_lookat_parameters_non_skew(
 		cmissSceneViewer_, eye.x, eye.y, eye.z,

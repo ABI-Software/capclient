@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <limits>
 
 #include <cmath>
 #ifndef M_PI
@@ -21,14 +22,19 @@
 
 extern "C"
 {
-#include <zn/cmgui_configure.h>
+#include <zn/zinc_configure.h>
 }
+
+#include "utils/debug.h"
+#include "utils/misc.h"
 
 typedef float gtMatrix[4][4];
 #ifdef FE_VALUE_IS_DOUBLE
 typedef double Real;
+const double determinatTolerance = 1e-10;
 #else
 typedef float Real;
+const double determinatTolerance = 1e-6;
 #endif //FE_VALUE_IS_DOUBLE
 
 namespace cap
@@ -86,7 +92,7 @@ inline std::ostream& operator<<(std::ostream &os, const Type3D &val)
 {
 	os << "( " << val.x << ", " << val.y << ", " << val.z << ") ";
 	return os;
-};
+}
 
 /**
  * Vector3D. 
@@ -121,7 +127,19 @@ public:
 		z = (vec1).x * (vec2).y - (vec1).y * (vec2).x;
 	}
 
-	// arithmetic operations
+    Real operator()(const int r) const
+    {
+        if (r == 1)
+            return x;
+        else if (r == 2)
+            return y;
+        else if (r == 3)
+            return z;
+
+        return std::numeric_limits<Real>::max();
+    }
+
+    // arithmetic operations
 	inline Vector3D operator +(const Vector3D& rkVector) const {
 		return Vector3D(x + rkVector.x, y + rkVector.y, z + rkVector.z);
 	}
@@ -137,6 +155,15 @@ public:
 	inline Real operator *(const Vector3D& rhs) const {
 		return x * rhs.x + y * rhs.y + z * rhs.z;
 	}
+
+    Vector3D& operator*=(double number)
+    {
+        x *= number;
+        y *= number;
+        z *= number;
+        return *this;
+    }
+
 };
 
 /**
@@ -145,11 +172,12 @@ public:
 class Point3D : public Type3D
 {
 public:
-	Point3D() : Type3D() {};
-	Point3D(Real x_, Real y_, Real z_) : Type3D(x_, y_, z_) {};
+    Point3D() : Type3D() {}
+    Point3D(Real x_, Real y_, Real z_) : Type3D(x_, y_, z_) {}
+    Point3D(const Vector3D& vec) : Type3D(vec.x, vec.y, vec.z) {}
 
 	explicit Point3D(Real p[]) //for compatibility with Cmgui
-		: Type3D(p[0], p[1], p[2]) {};
+        : Type3D(p[0], p[1], p[2]) {}
 	
 	/**
 	 * Convert the point to an array.  The array returned
@@ -174,12 +202,17 @@ public:
 	 *
 	 * @return	The result of the operation.
 	 */
-	Point3D operator+(const Vector3D& rhs) const
-	{
-		return Point3D(x+rhs.x, y+rhs.y, z+rhs.z);
-	}
-	
-	//For convenience
+    Point3D operator+(const Vector3D& rhs) const
+    {
+        return Point3D(x+rhs.x, y+rhs.y, z+rhs.z);
+    }
+
+    Point3D operator+(const Point3D& rhs) const
+    {
+        return Point3D(x+rhs.x, y+rhs.y, z+rhs.z);
+    }
+
+    //For convenience
 	Point3D operator-(const Vector3D& rhs) const
 	{
 		return Point3D(x-rhs.x, y-rhs.y, z-rhs.z);
@@ -194,6 +227,342 @@ public:
 	{
 			return Point3D(x/divider, y/divider, z/divider);
 	}
+
+    Point3D& operator*=(double number)
+    {
+        x *= number;
+        y *= number;
+        z *= number;
+        return *this;
+    }
+
+    Point3D& operator/=(double number)
+    {
+        x /= number;
+        y /= number;
+        z /= number;
+        return *this;
+    }
+
+    Point3D& operator+=(double number)
+    {
+        x += number;
+        y += number;
+        z += number;
+        return *this;
+    }
+
+    Point3D& operator+=(const Point3D& oth)
+    {
+        x += oth.x;
+        y += oth.y;
+        z += oth.z;
+        return *this;
+    }
+};
+
+class Matrix3x3
+{
+//    Vector3D col1, col2, col3;
+    Real m[9];
+
+public:
+    Matrix3x3() {Identity();}
+    Matrix3x3(const Real xx, const Real yx, const Real zx,
+              const Real xy, const Real yy, const Real zy,
+              const Real xz, const Real yz, const Real zz)
+//        : col1(xx, xy, xz)
+//        , col2(yx, yy, yz)
+//        , col3(zx, zy, zz)
+    {
+        m[0] = xx, m[1] = yx, m[2] = zx;
+        m[3] = xy, m[4] = yy, m[5] = zy;
+        m[6] = xz, m[7] = yz, m[8] = zz;
+    }
+
+    Matrix3x3(const Vector3D& column1, const Vector3D& column2, const Vector3D& column3)
+    {
+        m[0] = column1.x, m[3] = column1.y, m[6] = column1.z;
+        m[1] = column2.x, m[4] = column2.y, m[7] = column2.z;
+        m[2] = column3.x, m[5] = column3.y, m[8] = column3.z;
+    }
+
+    Matrix3x3& Identity()
+    {
+        //Matrix3x3 mx(Vector3D(1.0, 0.0, 0.0), Vector3D(0.0, 1.0, 0.0), Vector3D(0.0, 0.0, 1.0));
+        m[0] = m[4] = m[8] = 1.0;
+        m[1] = m[2] = m[3] = m[5] = m[6] = m[7] = 0.0;
+        return *this;
+    }
+
+    Matrix3x3& Invert()
+    {
+        Real tmp[9];
+        tmp[0] = m[4] * m[8] - m[5] * m[7];
+        tmp[1] = m[2] * m[7] - m[1] * m[8];
+        tmp[2] = m[1] * m[5] - m[2] * m[4];
+        tmp[3] = m[5] * m[6] - m[3] * m[8];
+        tmp[4] = m[0] * m[8] - m[2] * m[6];
+        tmp[5] = m[2] * m[3] - m[0] * m[5];
+        tmp[6] = m[3] * m[7] - m[4] * m[6];
+        tmp[7] = m[1] * m[6] - m[0] * m[7];
+        tmp[8] = m[0] * m[4] - m[1] * m[3];
+
+        Real determinant = m[0] * tmp[0] + m[1] * tmp[3] + m[2] * tmp[6];
+        if (fabs(determinant) <= determinatTolerance)
+        {
+            return Identity();
+        }
+
+        Real invDeterminant = 1.0 / determinant;
+        m[0] = invDeterminant * tmp[0];
+        m[1] = invDeterminant * tmp[1];
+        m[2] = invDeterminant * tmp[2];
+        m[3] = invDeterminant * tmp[3];
+        m[4] = invDeterminant * tmp[4];
+        m[5] = invDeterminant * tmp[5];
+        m[6] = invDeterminant * tmp[6];
+        m[7] = invDeterminant * tmp[7];
+        m[8] = invDeterminant * tmp[8];
+
+        return *this;
+    }
+
+    void Transpose()
+    {
+        std::swap(m[1], m[3]);
+        std::swap(m[2], m[6]);
+        std::swap(m[5], m[7]);
+//        Real tmp = col1.y; col1.y = col2.x; col2.x = tmp;
+//        tmp  = col1.z; col1.z = col3.x; col3.x = tmp;
+//        tmp = col2.z; col2.z = col3.y; col3.y = tmp;
+    }
+
+    Real operator()(const int r, const int c) const
+    {
+        if (0 < r && r < 4 && 0 < c && c < 4)
+            return m[(r-1)*3+c-1];
+//        if (c == 1)
+//            return col1(r);
+//        else if (c == 2)
+//            return col2(r);
+//        else if (c == 3)
+//            return col3(r);
+
+        return std::numeric_limits<Real>::max();
+    }
+
+    Real& operator[](const int index)
+    {
+        return m[index];
+    }
+
+    Real operator[](const int index) const
+    {
+        return m[index];
+    }
+
+    Matrix3x3 operator* (const Real d) const
+    {
+        Matrix3x3 mx(m[0]*d, m[1]*d, m[2]*d,
+                     m[3]*d, m[4]*d, m[5]*d,
+                     m[6]*d, m[7]*d, m[8]*d);
+        return mx;
+    }
+
+    Vector3D operator* (const Vector3D& vc) const
+    {
+        Real r1 = m[0]*vc.x + m[1]*vc.y + m[2]*vc.z;
+        Real r2 = m[3]*vc.x + m[4]*vc.y + m[5]*vc.z;
+        Real r3 = m[6]*vc.x + m[7]*vc.y + m[8]*vc.z;
+        return Vector3D(r1, r2, r3);
+    }
+
+    friend Matrix3x3 operator* (const Real d, const Matrix3x3& mx)
+    {
+        return mx*d;
+    }
+
+    friend Vector3D operator* (const Vector3D vc, const Matrix3x3& mx)
+    {
+//        Real r1 = mx.col1*vc;
+//        Real r2 = mx.col2*vc;
+//        Real r3 = mx.col3*vc;
+        Real r1 = mx[0]*vc.x + mx[3]*vc.y + mx[6]*vc.z;
+        Real r2 = mx[1]*vc.x + mx[4]*vc.y + mx[7]*vc.z;
+        Real r3 = mx[2]*vc.x + mx[5]*vc.y + mx[8]*vc.z;
+        return Vector3D(r1, r2, r3);
+    }
+
+    friend std::ostream& operator<<(std::ostream &os, const Matrix3x3 &val)
+    {
+        os << "[ " << val[0] << ", " << val[1] << ", " << val[2] << "] ";
+        os << "[ " << val[3] << ", " << val[4] << ", " << val[5] << "] ";
+        os << "[ " << val[6] << ", " << val[7] << ", " << val[8] << "] ";
+        return os;
+    }
+};
+
+class HomogeneousVector3D
+{
+public:
+    Real x, y, z, w;
+    HomogeneousVector3D()
+        : x(0.0)
+        , y(0.0)
+        , z(0.0)
+        , w(1.0)
+    {}
+
+    HomogeneousVector3D(Real x, Real y, Real z, Real w)
+        : x(x)
+        , y(y)
+        , z(z)
+        , w(w)
+    {}
+
+    HomogeneousVector3D(const cap::Vector3D& v)
+        : x(v.x)
+        , y(v.y)
+        , z(v.z)
+        , w(1.0)
+    {}
+
+    Point3D ToPoint3D()
+    {
+        return Point3D(x/w, y/w, z/w);
+    }
+
+    Real operator()(const int r)
+    {
+        if (r ==1)
+            return x;
+        else if (r == 2)
+            return y;
+        else if (r == 3)
+            return z;
+        else if (r == 4)
+            return w;
+
+        return std::numeric_limits<Real>::max();
+    }
+
+};
+
+class Matrix4x4
+{
+public:
+    Real m[16];
+
+    Matrix4x4(){Identity();}
+
+    Matrix4x4(Real xx, Real yx, Real zx, Real wx,
+              Real xy, Real yy, Real zy, Real wy,
+              Real xz, Real yz, Real zz, Real wz,
+              Real xw, Real yw, Real zw, Real ww)
+    {
+        m[0] = xx,  m[1] = yx,  m[2] = zx,  m[3] = wx;
+        m[4] = xy,  m[5] = yy,  m[6] = zy,  m[7] = wy;
+        m[8] = xz,  m[9] = yz,  m[10] = zz, m[11] = wz;
+        m[12] = xw, m[13] = yw, m[14] = zw, m[15] = ww;
+    }
+
+    Real& operator[](const int index)
+    {
+        return m[index];
+    }
+
+    Real operator[](const int index) const
+    {
+        return m[index];
+    }
+
+    Real operator()(const int r, const int c) const
+    {
+        if (0 < r && r < 5 && 0 < c && c < 5)
+            return m[(r-1)*4+c-1];
+
+        return std::numeric_limits<Real>::max();
+    }
+
+    HomogeneousVector3D operator *(const HomogeneousVector3D& h)
+    {
+        HomogeneousVector3D r;
+        r.x = m[0]*h.x+m[1]*h.y+m[2]*h.z+m[3]*h.w;
+        r.y = m[4]*h.x+m[5]*h.y+m[6]*h.z+m[7]*h.w;
+        r.z = m[8]*h.x+m[9]*h.y+m[10]*h.z+m[11]*h.w;
+        r.w = m[12]*h.x+m[13]*h.y+m[14]*h.z+m[15]*h.w;
+        return r;
+    }
+
+    Matrix4x4 operator* (const Matrix4x4& n) const
+    {
+        Matrix4x4 res(m[0]*n[0]  + m[1]*n[4]  + m[2]*n[8]  + m[3]*n[12],   m[0]*n[1]  + m[1]*n[5]  + m[2]*n[9]  + m[3]*n[13],   m[0]*n[2]  + m[1]*n[6]  + m[2]*n[10]  + m[3]*n[14],   m[0]*n[3]  + m[1]*n[7]  + m[2]*n[11]  + m[3]*n[15],
+                      m[4]*n[0]  + m[5]*n[4]  + m[6]*n[8]  + m[7]*n[12],   m[4]*n[1]  + m[5]*n[5]  + m[6]*n[9]  + m[7]*n[13],   m[4]*n[2]  + m[5]*n[6]  + m[6]*n[10]  + m[7]*n[14],   m[4]*n[3]  + m[5]*n[7]  + m[6]*n[11]  + m[7]*n[15],
+                      m[8]*n[0]  + m[9]*n[4]  + m[10]*n[8] + m[11]*n[12],  m[8]*n[1]  + m[9]*n[5]  + m[10]*n[9] + m[11]*n[13],  m[8]*n[2]  + m[9]*n[6]  + m[10]*n[10] + m[11]*n[14],  m[8]*n[3]  + m[9]*n[7]  + m[10]*n[11] + m[11]*n[15],
+                      m[12]*n[0] + m[13]*n[4] + m[14]*n[8] + m[15]*n[12],  m[12]*n[1] + m[13]*n[5] + m[14]*n[9] + m[15]*n[13],  m[12]*n[2] + m[13]*n[6] + m[14]*n[10] + m[15]*n[14],  m[12]*n[3] + m[13]*n[7] + m[14]*n[11] + m[15]*n[15]);
+
+        return res;
+    }
+
+    Matrix4x4& Identity()
+    {
+        m[0] = m[5] = m[10] = m[15] = 1.0;
+        m[1] = m[2] = m[3] = m[4] = 0.0;
+        m[6] = m[7] = m[8] = m[9] = 0.0;
+        m[11] = m[12] = m[13] = m[14] = 0.0;
+
+        return *this;
+    }
+
+    void InvertEuclidean()
+    {
+        cap::Matrix3x3 rot(m[0], m[1], m[2],
+                           m[4], m[5], m[6],
+                           m[8], m[9], m[10]);
+        rot.Transpose();
+        SetRotation(rot);
+        cap::Matrix3x3 mrot = -1.0*rot;
+        cap::Vector3D tr(m[3], m[7], m[11]);
+        cap::Vector3D mrottr = mrot * tr;
+        SetTranslation(mrottr);
+    }
+
+    void InvertAffine()
+    {
+        cap::Matrix3x3 rot(m[0], m[1], m[2],
+                           m[4], m[5], m[6],
+                           m[8], m[9], m[10]);
+        rot.Invert();
+        SetRotation(rot);
+        cap::Matrix3x3 mrot = -1.0*rot;
+        cap::Vector3D tr(m[3], m[7], m[11]);
+        cap::Vector3D mrottr = mrot * tr;
+        SetTranslation(mrottr);
+    }
+
+    void SetRotation(const cap::Matrix3x3& rot)
+    {
+        m[0] = rot(1,1), m[1] = rot(1,2), m[2] = rot(1,3);
+        m[4] = rot(2,1), m[5] = rot(2,2), m[6] = rot(2,3);
+        m[8] = rot(3,1), m[9] = rot(3,2), m[10] = rot(3,3);
+    }
+
+    void SetTranslation(const cap::Vector3D& vc)
+    {
+        m[3] = vc(1);
+        m[7] = vc(2);
+        m[11] = vc(3);
+    }
+
+    friend std::ostream& operator<<(std::ostream &os, const Matrix4x4 &val)
+    {
+        os << "[ " << val[0] << ", " << val[1] << ", " << val[2] << ", " << val[3] << "] ";
+        os << "[ " << val[4] << ", " << val[5] << ", " << val[6] << ", " << val[7] << "] ";
+        os << "[ " << val[8] << ", " << val[9] << ", " << val[10] << ", " << val[11] << "] ";
+        os << "[ " << val[12] << ", " << val[13] << ", " << val[14] << ", " << val[15] << "] ";
+        return os;
+    }
 };
 
 inline Point3D operator*(const gtMatrix& m, const Point3D& v) // includes translation
@@ -387,44 +756,44 @@ inline Vector3D CrossProduct(const Type3D& vec1, const Type3D& vec2)
 //	return fabs(vol);
 //}
 
-template <typename V>
+//template <typename V>
 inline
-double ComputeVolumeOfTetrahedron(const V& a, const V& b, const V& c, const V& d)
+double ComputeVolumeOfTetrahedron(const Point3D& a, const Point3D& b, const Point3D& c, const Point3D& d)
 
 {
 	double vol = DotProduct((a - d), CrossProduct((b - d), (c - d)));
 	return fabs(vol);
 }
 
-template <typename V>
-inline
-V& operator*=(V& v, double number)
-{
-	v.x *= number;
-	v.y *= number;
-	v.z *= number;
-	return v;
-}
+//template <typename V>
+//inline
+//V& operator*=(V& v, double number)
+//{
+//	v.x *= number;
+//	v.y *= number;
+//	v.z *= number;
+//	return v;
+//}
 
-template <typename V>
-inline
-V& operator/=(V& v, double number)
-{
-	v.x /= number;
-	v.y /= number;
-	v.z /= number;
-	return v;
-}
+//template <typename V>
+//inline
+//V& operator/=(V& v, double number)
+//{
+//	v.x /= number;
+//	v.y /= number;
+//	v.z /= number;
+//	return v;
+//}
 
-template <typename V>
-inline
-V& operator+=(V& v, const V& rhs)
-{
-	v.x += rhs.x;
-	v.y += rhs.y;
-	v.z += rhs.z;
-	return v;
-}
+//template <typename V>
+//inline
+//V& operator+=(V& v, const V& rhs)
+//{
+//	v.x += rhs.x;
+//	v.y += rhs.y;
+//	v.z += rhs.z;
+//	return v;
+//}
 
 struct Plane
 {

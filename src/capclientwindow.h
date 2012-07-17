@@ -136,26 +136,25 @@ public:
 	 * Sets the intial position for calculating plane shifting movement.
 	 * This function is part of the PlaneShiftingInterface.
 	 *
-	 * @param	x	The x coordinate (in pixels).
-	 * @param	y	The y coordinate (in pixels).
+     * @param	pos	The pos in the global coordinate frame (in pixels).
 	 */
-	void SetInitialPosition(unsigned int x, unsigned int y);
+    void SetInitialPosition(const Point3D& pos);
 
 	/**
 	 * Updates the position.  This function is part of the PlaneShiftingInterface.
 	 *
-	 * @param	x	The x coordinate.
-	 * @param	y	The y coordinate.
-	 */
-	void UpdatePosition(unsigned int x, unsigned int y);
+     * @param	pos	The pos in the global coordinate frame (in pixels).
+     */
+    void UpdatePosition(const Point3D& pos);
 
 	/**
 	 * Sets an end position.  This function is part of the PlaneShiftingInterface.
 	 *
-	 * @param	x	The x coordinate.
-	 * @param	y	The y coordinate.
-	 */
-	void SetEndPosition(unsigned int x, unsigned int y);
+     * @param	pos	The pos in the global coordinate frame (in pixels).
+     */
+    void SetEndPosition(const Point3D& pos);
+
+    void SetZKeyDown(bool down);
 
 	/**
 	 * Reposition image plane.
@@ -669,6 +668,7 @@ private:
 	std::string previousWorkingLocation_; /**< The previous working location */
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
 	bool modellingActive_;  /**< true if modelling active, that is adding, moving or deleting a modelling point, false otherwise */
+    bool zKeyDown_; /**< true if the z key is down, false otherwise */
 	StatusTextStringsFieldMap statusTextStringsFieldMap_;   /**< The status text strings field map */
 
 	wxProgressDialog *progressDialog_; /**< Progess dialog pointer. */

@@ -38,13 +38,13 @@ extern "C"
 #include "io/modelfile.h"
 #include "dicomimage.h"
 #include "model/heart.h"
-#include "cmgui/sceneviewerpanel.h"
+#include "zinc/sceneviewerpanel.h"
 #include "utils/filesystem.h"
 #include "PlatformInfo.h"
 #include "CAPContour.h"
 #include "logmsg.h"
 #include "utils/misc.h"
-#include "cmgui/extensions.h"
+#include "zinc/extensions.h"
 
 namespace cap
 {

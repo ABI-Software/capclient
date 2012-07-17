@@ -7,9 +7,9 @@
 
 #include "model/heart.h"
 
-//#include "cmgui/sceneviewerpanel.h"
+//#include "zinc/sceneviewerpanel.h"
 #include "math/algebra.h"
-#include "cmgui/extensions.h"
+#include "zinc/extensions.h"
 #include "utils/misc.h"
 #include "utils/debug.h"
 
