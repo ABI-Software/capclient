@@ -270,7 +270,7 @@ void Modeller::AlignModel()
 		{
 			//--dbg("bp points : " + ToString(itrSrc->GetTime()) + ", " + ToString(itrSrc->GetCoordinate()));
 			double frameTime = itrSrc->GetTime();
-			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
+            double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<ModellingPoint> basePlanePointsInOneFrame;
 			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 			{
@@ -514,8 +514,8 @@ void Modeller::FitModel(double time)
 	{
 //#define PRINT_FIT_TIMINGS  // Uncomment or define elsewhere to print fit times
 #ifdef PRINT_FIT_TIMINGS
-        clock_t beforeTotal = clock();
-        dbgn("Fit Model times [");
+		clock_t beforeTotal = clock();
+		dbgn("Fit Model times [");
 #endif
 		// 0. Get the modelling points for the current time
 		ModellingPoints currentModellingPoints = modellingModeGuidePoints_.GetModellingPointsAtTime(time);
@@ -526,7 +526,8 @@ void Modeller::FitModel(double time)
 		// Compute P 
 		// 1. find xi coords for each data point
 		ModellingPoints::iterator itr = currentModellingPoints.begin();
-		int frameNumber = 0;
+        int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+        int frameNumber = time*numFrames + 0.5;
 		std::vector<Point3D> xi_vector;
 		std::vector<int> element_id_vector;
 		// For rhs
@@ -536,25 +537,40 @@ void Modeller::FitModel(double time)
 		{
 			Point3D xi;
 			int elem_id = mainApp_->ComputeHeartModelXi(itr->GetPosition(), time, xi);
-			if(itr->GetHeartSurfaceType() == UNDEFINED_HEART_SURFACE_TYPE)
+            switch(itr->GetHeartSurfaceType())
 			{
+            case ENDOCARDIUM:
+            {
+                xi.z = 0.0f;
+                break;
+            }
+            case EPICARDIUM:
+            {
+                xi.z = 1.0f;
+                break;
+            }
+            case UNDEFINED_HEART_SURFACE_TYPE:
+            {
 				if (xi.z < 0.5)
 				{
 					xi.z = 0.0f; // projected on endocardium
-					itr->SetHeartSurfaceType(ENDOCARDIUM);
+					modellingModeGuidePoints_.SetHeartSurfaceType(itr->GetNodeIdentifier(), ENDOCARDIUM);
 				}
 				else
 				{
 					xi.z = 1.0f; // projected on epicardium
-					itr->SetHeartSurfaceType(EPICARDIUM);
+					modellingModeGuidePoints_.SetHeartSurfaceType(itr->GetNodeIdentifier(), EPICARDIUM);
 				}
+                break;
+            }
 			}
+
 			xi_vector.push_back(xi);
 			element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
 			
 			Point3D modellingPointPS = mainApp_->ConvertToHeartModelProlateSpheriodalCoordinate(itr->GetNodeIdentifier(), itr->GetModellingPointTypeString());
 			(*guidePointLambda)[i] = modellingPointPS.x; // x = lambda, y = mu, z = theta 
-		}
+        }
 		
 		// 2. evaluate basis at the xi coords
 		double psi[32]; //FIX 32?
@@ -608,26 +624,26 @@ void Modeller::FitModel(double time)
 		Vector* x = solverFactory_->CreateVector(134); //FIX magic number
 		
 #ifdef PRINT_FIT_TIMINGS
-        clock_t before = clock();
+		clock_t before = clock();
 #endif
 
 		solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
 
 #ifdef PRINT_FIT_TIMINGS
-        clock_t after = clock();
-        dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
+		clock_t after = clock();
+		dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
 #endif
 		*x += *prior_;
 		
 		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
 #ifdef PRINT_FIT_TIMINGS
-        clock_t beforeZn = clock();
+		clock_t beforeZn = clock();
 #endif
-        mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
+		mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
 
 #ifdef PRINT_FIT_TIMINGS
-        clock_t afterZn = clock();
-        dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
+		clock_t afterZn = clock();
+		dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
 #endif
 		
 		UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
@@ -641,8 +657,8 @@ void Modeller::FitModel(double time)
 		delete x;
 
 #ifdef PRINT_FIT_TIMINGS
-        clock_t afterTotal = clock();
-        dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
+		clock_t afterTotal = clock();
+		dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
 #endif
 		
 	}

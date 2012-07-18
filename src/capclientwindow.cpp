@@ -649,7 +649,6 @@ void CAPClientWindow::OnAnimationSliderEvent(wxCommandEvent& /* event */)
 
 void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& /* event */)
 {
-	//std::cout << "CAPClientWindow::OnAnimationSpeedControlEvent" << std::endl;
 	int value = slider_animationSpeed_->GetValue();
 	int min = slider_animationSpeed_->GetMin();
 	int max = slider_animationSpeed_->GetMax();
@@ -658,7 +657,6 @@ void CAPClientWindow::OnAnimationSpeedControlEvent(wxCommandEvent& /* event */)
     // the minium value possible.
     double speed = (value + 1 - min) / static_cast<double>(max - min + 1) * 2.0;
 	
-    dbg("Setting controller speed " + ToString(speed) + " " + ToString(min));
 	Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_SPEED, speed);
 }
 
@@ -1077,7 +1075,8 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
 		// work with the file
 		LOG_MSG(LOGINFORMATION) << "Opening model '" << filename << "'";
 		mainApp_->OpenModel(std::string(filename.mb_str()));
-	}
+        previousWorkingLocation_ = GetPath(filename.mb_str());
+    }
 }
 
 void CAPClientWindow::OnOpenImageBrowser(wxCommandEvent& /* event */)
@@ -1098,7 +1097,9 @@ void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 	}
 	UserCommentDialog userCommentDlg(this);
 	userCommentDlg.SetDirectory(previousWorkingLocation_);
-	userCommentDlg.Center();
+    userCommentDlg.SetComment(mainApp_->GetComment());
+
+    userCommentDlg.Center();
 	if (userCommentDlg.ShowModal() != wxID_OK)
 	{
 		return; // Cancelled save

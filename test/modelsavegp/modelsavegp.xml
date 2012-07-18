@@ -283,32 +283,32 @@
       <cap:Value variable="y">-17.006199380660043</cap:Value>
       <cap:Value variable="z">12.750568485371357</cap:Value>
     </cap:Point>
-    <cap:Point type="guide" time="0.107143">
-      <cap:Value variable="x">24.492331009067254</cap:Value>
-      <cap:Value variable="y">-18.012513234342251</cap:Value>
-      <cap:Value variable="z">-4.5762204120959016</cap:Value>
+    <cap:Point surface="endo" type="guide" time="0.107143">
+      <cap:Value variable="x">33.689397215118895</cap:Value>
+      <cap:Value variable="y">-25.75315504476621</cap:Value>
+      <cap:Value variable="z">2.7526799181649295</cap:Value>
     </cap:Point>
-    <cap:Point type="guide" time="0.107143">
-      <cap:Value variable="x">48.36067180685837</cap:Value>
-      <cap:Value variable="y">-36.10244189183404</cap:Value>
-      <cap:Value variable="z">40.163492081359614</cap:Value>
+    <cap:Point surface="epi" type="guide" time="0.107143">
+      <cap:Value variable="x">24.640758698968103</cap:Value>
+      <cap:Value variable="y">-17.90548342579913</cap:Value>
+      <cap:Value variable="z">-1.4732176849771967</cap:Value>
     </cap:Point>
-    <cap:Point type="guide" time="0.107143">
-      <cap:Value variable="x">30.876808431947545</cap:Value>
-      <cap:Value variable="y">-22.936239098447437</cap:Value>
-      <cap:Value variable="z">6.2985677397553239</cap:Value>
+    <cap:Point surface="endo" type="guide" time="0.107143">
+      <cap:Value variable="x">55.089627199566955</cap:Value>
+      <cap:Value variable="y">-42.099624506839582</cap:Value>
+      <cap:Value variable="z">41.230970147099562</cap:Value>
     </cap:Point>
-    <cap:Point type="guide" time="0.607143">
+    <cap:Point surface="endo" type="guide" time="0.607143">
       <cap:Value variable="x">42.024654429871148</cap:Value>
       <cap:Value variable="y">-29.831247673051948</cap:Value>
       <cap:Value variable="z">47.191662106628904</cap:Value>
     </cap:Point>
-    <cap:Point type="guide" time="0.607143">
+    <cap:Point surface="endo" type="guide" time="0.607143">
       <cap:Value variable="x">25.879252695913873</cap:Value>
       <cap:Value variable="y">-18.034129955452109</cap:Value>
       <cap:Value variable="z">11.271779639847272</cap:Value>
     </cap:Point>
-    <cap:Point type="guide" time="0.607143">
+    <cap:Point surface="epi" type="guide" time="0.607143">
       <cap:Value variable="x">19.027549748065415</cap:Value>
       <cap:Value variable="y">-12.642569817083292</cap:Value>
       <cap:Value variable="z">0.98459864001867892</cap:Value>
@@ -1326,10 +1326,10 @@
   </cap:Input>
   <cap:Output focallength="0.000000" interval="0" transformation_matrix=""/>
   <cap:Documentation>
-    <cap:provenanceDetail date="2012-07-09T17:34:13">
+    <cap:provenanceDetail date="2012-07-19T09:41:14">
       <cap:step>1</cap:step>
       <cap:platform>Linux</cap:platform>
-      <cap:operatingSystem>3.4.4-2-ARCH</cap:operatingSystem>
+      <cap:operatingSystem>3.4.4-3-ARCH</cap:operatingSystem>
       <cap:package>CAP</cap:package>
       <cap:program>CAP Client</cap:program>
       <cap:programVersion>2.0.0</cap:programVersion>

@@ -137,7 +137,7 @@ void XMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& model
 	for(;it != modellingPoints.end(); ++it)
 	{
 		ModelFile::Point p;
-		p.surface = UNDEFINED_HEART_SURFACE_TYPE;
+        p.surface = it->GetHeartSurfaceType();
 		p.type = it->GetModellingPointType();
 		const Point3D& position = it->GetPosition();
 		ModelFile::Value x = {position.x, "x"};
@@ -386,6 +386,15 @@ void XMLFileHandler::AddProvenanceDetail(std::string const& comment)
 	provenanceDetail.comment = comment;
 
 	xmlFile_.documentation_.provenanceDetails.push_back(provenanceDetail);
+}
+
+std::string XMLFileHandler::GetProvenanceDetail() const
+{
+    std::string comment = "";
+    if (xmlFile_.documentation_.provenanceDetails.size() > 0)
+        comment = xmlFile_.documentation_.provenanceDetails[0].comment;
+
+    return comment;
 }
 
 } // namespace cap

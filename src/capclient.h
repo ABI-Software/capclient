@@ -337,6 +337,15 @@ public:
 		dbg("ED Volume(ENDO) = " + ToString(gui_->ComputeHeartVolume(ENDOCARDIUM)));
 	}
 
+    /**
+     * Get the comment.
+     * @return The comment;
+     */
+    std::string GetComment() const
+    {
+        return comment_;
+    }
+
 	/**
      * Sets the previous position of the plane.
 	 *
@@ -436,6 +445,7 @@ private:
 		, labelledSlices_(LabelledSlices())
 		, modeller_(0)
 		, cardiacAnnotation_()
+        , comment_("")
 		, previousImageLocation_("")
         , imageShiftingNormalMode_(false)
 	{
@@ -449,6 +459,7 @@ private:
 	Modeller* modeller_; /**< The modeller */
 
 	CardiacAnnotation cardiacAnnotation_; /**< Cardiac annotation */
+    std::string comment_; /**< The comment provenance detail */
 
 	Point3D previousPosition_;  /**< The previous position */
 	std::string previousImageLocation_; /**< The previous image location */
