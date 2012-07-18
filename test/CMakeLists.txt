@@ -89,7 +89,7 @@ LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
 	UnitTestCAPXMLFile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
-	${CAPCLIENT_ROOT_DIR}/src/PlatformInfo.cpp
+        ${CAPCLIENT_ROOT_DIR}/src/platforminfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
         ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp

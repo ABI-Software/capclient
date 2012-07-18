@@ -1,5 +1,5 @@
 /*
- * PlatformInfo.h
+ * platforminfo.h
  *
  *  Created on: Sep 8, 2010
  *      Author: jchu014

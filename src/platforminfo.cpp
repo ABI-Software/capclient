@@ -1,11 +1,11 @@
 /*
- * PlatformInfo.cpp
+ * platforminfo.cpp
  *
  *  Created on: Sep 8, 2010
  *      Author: jchu014
  */
 
-#include "PlatformInfo.h"
+#include "platforminfo.h"
 
 namespace cap
 {
