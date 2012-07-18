@@ -447,23 +447,18 @@ void CAPClientWindow::PlayCine()
 {
 	Cmiss_time_keeper_play(timeKeeper_, CMISS_TIME_KEEPER_PLAY_FORWARD);
 	button_play_->SetLabel(wxT("Stop"));
-	menuItem_play_->SetText(wxT("Stop"));
+    menuItem_play_->SetText(wxT("Stop\tCtrl+P"));
 }
 
 void CAPClientWindow::StopCine()
 {
 	Cmiss_time_keeper_stop(timeKeeper_);
 	button_play_->SetLabel(wxT("Play"));
-	menuItem_play_->SetText(wxT("Play"));
-	//wxCommandEvent event;
-	//OnAnimationSliderEvent(event); //HACK snap the slider to nearest frame time
+    menuItem_play_->SetText(wxT("Play\tCtrl+P"));
 }
 
 void CAPClientWindow::OnTogglePlay(wxCommandEvent& /* event */)
 {
-	dbg("CAPClientWindow::OnTogglePlay");
-	//--mainApp_->OnTogglePlay();
-
 	if (button_play_->GetLabel() == wxT("Play"))
 	{
 		// start stuff
@@ -471,7 +466,6 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& /* event */)
 	}
 	else
 	{
-
 		// stop stuff
 		StopCine();
 	}
@@ -820,15 +814,21 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 	}
 	SetStatusTextString("modellingmode", modellingMode);
 	menuItem_accept_->Enable(button_accept_->IsEnabled());
-	menuItem_deleteMP_->Enable(choice_mode_->IsEnabled());
+    menuItem_deleteMP_->Enable(choice_mode_->IsEnabled() && IsNodeSelected(newMode));
+//	menuItem_deleteMP_->Enable(choice_mode_->IsEnabled());
 }
 
 void CAPClientWindow::OnAcceptClicked(wxCommandEvent& /* event */)
 {
-	bool accepted = mainApp_->ProcessModellingPointsEnteredForCurrentMode();
-	if (!accepted)
+    int selectionIndex = choice_mode_->GetSelection();
+    if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
+    {
+        // Clear selection
+        ClearSelection(static_cast<ModellingEnum>(selectionIndex));
+    }
+    else
 	{
-		int selectionIndex = choice_mode_->GetSelection();
+
 		LOG_MSG(LOGERROR) << "Invalid modelling points for '" << ModeStrings[selectionIndex] << "'";
 	}
 }
@@ -1054,7 +1054,10 @@ void CAPClientWindow::StartModellingAction()
 void CAPClientWindow::EndModellingAction()
 {
 	if (modellingActive_)
+    {
 		mainApp_->SmoothAlongTime();
+        modellingActive_ = false;
+    }
 }
 
 void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
@@ -1400,7 +1403,9 @@ void CAPClientWindow::SetEndPosition(const Point3D& /* pos */)
 
 void CAPClientWindow::AddCurrentlySelectedNode()
 {
-	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
+    ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
+    const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
+    Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
 
 	// We are assuming here that only one node is selected.  If the node tool is set so that
     // only single selection is possible then we are golden, if not ...
@@ -1435,6 +1440,7 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 		Cmiss_field_cache_destroy(&field_cache);
 
 		mainApp_->AddModellingPoint(region, node_id, coords, currentTime);
+        menuItem_deleteMP_->Enable(choice_mode_->IsEnabled() && IsNodeSelected(currentMode));
 
 		Cmiss_region_destroy(&region);
 	}
@@ -1444,8 +1450,10 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 
 void CAPClientWindow::MoveCurrentlySelectedNode()
 {
-	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
-	// We are assuming here that only one node is selected.  If the node tool is set so that
+    ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
+    const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
+    Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+    // We are assuming here that only one node is selected.  If the node tool is set so that
 	// only single selection is possible then we are golden, if not...
 	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
 	if (selected_node != 0)
@@ -1473,7 +1481,9 @@ void CAPClientWindow::MoveCurrentlySelectedNode()
 
 void CAPClientWindow::DeleteCurrentlySelectedNode()
 {
-	Cmiss_field_module_id field_module = Cmiss_context_get_first_non_empty_selection_field_module(cmissContext_);
+    ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
+    const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
+    Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
 	// We are assuming here that only one node is selected.  If the node tool is set so that
 	// only single selection is possible then we are golden, if not...
 	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
@@ -1484,11 +1494,39 @@ void CAPClientWindow::DeleteCurrentlySelectedNode()
 		int node_id = Cmiss_node_get_identifier(selected_node);
 
 		mainApp_->RemoveModellingPoint(region, node_id, currentTime);
+        menuItem_deleteMP_->Enable(choice_mode_->IsEnabled() && IsNodeSelected(currentMode));
 
 		Cmiss_node_destroy(&selected_node);
 		Cmiss_region_destroy(&region);
 	}
 	Cmiss_field_module_destroy(&field_module);
+}
+
+bool CAPClientWindow::IsNodeSelected(ModellingEnum currentMode) const
+{
+    bool selected = false;
+    const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
+    Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+    Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
+    selected = selected_node != 0;
+
+    Cmiss_field_module_destroy(&field_module);
+    Cmiss_node_destroy(&selected_node);
+
+    return selected;
+}
+
+void CAPClientWindow::ClearSelection(ModellingEnum currentMode)
+{
+    const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
+    Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+    Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
+    Cmiss_nodeset_group_id nodeset_group = Cmiss_nodeset_cast_group(nodeset);
+    Cmiss_nodeset_group_remove_all_nodes(nodeset_group);
+
+    Cmiss_nodeset_destroy(&nodeset);
+    Cmiss_nodeset_group_destroy(&nodeset_group);
+    Cmiss_field_module_destroy(&field_module);
 }
 
 Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const

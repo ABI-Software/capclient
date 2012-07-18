@@ -449,6 +449,20 @@ private:
 	 */
 	void UpdateUI();
 
+    /**
+     * Tests to see if any nodes are selected in the current mode.
+     *
+     * @param currentMode   currentMode the current mode to check for selection in.
+     * @return true if a node is selected, false otherwise
+     */
+    bool IsNodeSelected(ModellingEnum currentMode) const;
+
+    /**
+     * Clear the selection of nodes for the current mode.
+     * @param currentMode   currentMode the current mode to clear the selection in.
+     */
+    void ClearSelection(ModellingEnum currentMode);
+
 	/**
 	 * Loads the hermite heart elements.  If the exelem file name
 	 * is not given then the default elements for the heart model 
