@@ -81,7 +81,7 @@ SET( APP_HDRS
         src/platforminfo.h
 	src/math/solverlibraryfactory.h
 	src/standardheartdefinitions.h
-	src/UserCommentDialog.h
+        src/usercommentdialog.h
 	src/math/vnlfactory.h
 	src/VolumeGraph.h
 	src/capclientapp.h
