@@ -1,5 +1,5 @@
 /*
- * UserCommentDialog.h
+ * usercommentdialog.h
  *
  *  Created on: Sep 3, 2010
  *      Author: jchu014
