@@ -59,6 +59,15 @@ public:
 		textCtrl_directory->SetValue(dirname);
 	}
 
+    /**
+     * Sets the comment for the user comment widget.
+     * @param comment   The comment.
+     */
+    void SetComment(const std::string& comment)
+    {
+        text_userComment->SetValue(comment);
+    }
+
 	/**
 	 * Gets the directory from the directory control.
 	 *

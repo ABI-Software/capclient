@@ -150,6 +150,8 @@ void CAPClient::OpenModel(const std::string& filename)
 	LoadLabelledImages(labelledSlices);
 	ResetModel();
 
+    comment_ = xmlFileHandler.GetProvenanceDetail();
+
     ModellingPointDetails modellingPointDetails = xmlFileHandler.GetModellingPointDetails();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
 	if (exnodeFileNames.empty())

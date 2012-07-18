@@ -83,6 +83,12 @@ public:
 	 */
 	CardiacAnnotation GetCardiacAnnotation() const;
 
+    /**
+     * Gets the first comment provenance detail.
+     * @return The comment detail string
+     */
+    std::string GetProvenanceDetail() const;
+
 	/**
 	 * Clears the xmlFile of all input and output information.
 	 */

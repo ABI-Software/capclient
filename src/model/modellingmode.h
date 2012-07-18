@@ -257,6 +257,14 @@ public:
 	 * @return	The frames with modelling points.
 	 */
 	std::vector<int> GetFramesWithModellingPoints(int numFrames) const;
+
+    /**
+     * Set the heart surface type for the node.
+     *
+     * @param node_id   The node to set the surface type of.
+     * @param surface   The surface type to set.
+     */
+    void SetHeartSurfaceType(int node_id, HeartSurfaceEnum surface);
 };
 
 } // end namespace cap
