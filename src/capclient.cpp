@@ -293,6 +293,7 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 	if (it != labelledSlices_.end())
 	{
 		ImagePlane *plane = it->GetDICOMImages().at(0)->GetImagePlane();
+        Point3D currentLocation = it->GetDICOMImages().at(0)->GetImagePosition();
 		Vector3D posDiff = position - previousPosition_;
         Vector3D proj;
         if (imageShiftingNormalMode_)
@@ -306,22 +307,25 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
             proj = posDiff - DotProduct(posDiff, plane->normal)*plane->normal;
         }
 
-        ImagePlane newLocation;
-		newLocation = *plane;
-        newLocation.blc = newLocation.blc - proj;
-        newLocation.brc = newLocation.brc - proj;
-        newLocation.tlc = newLocation.tlc - proj;
-        newLocation.trc = newLocation.trc - proj;
+        ImagePlane newPlane;
+        newPlane = *plane;
+        newPlane.blc = newPlane.blc - proj;
+        newPlane.brc = newPlane.brc - proj;
+        newPlane.tlc = newPlane.tlc - proj;
+        newPlane.trc = newPlane.trc - proj;
 
-		gui_->RepositionImagePlane(regionName, &newLocation);
+        gui_->RepositionImagePlane(regionName, &newPlane);
+        Point3D newLocation = currentLocation - proj;
 		BOOST_FOREACH(DICOMPtr dicom, it->GetDICOMImages())
 		{
-			ImagePlane *dicomPlane = dicom->GetImagePlane();
-			*dicomPlane = newLocation;
+//            Point3D currentPos = dicom->GetImagePosition();
+            dicom->SetImagePosition(newLocation);
+//			ImagePlane *dicomPlane = dicom->GetImagePlane();
+//			*dicomPlane = newLocation;
 		}
 		SetPreviousPosition(position);
-		double d = DotProduct(newLocation.tlc, newLocation.normal);
-		gui_->UpdateMII(regionName, newLocation.normal, d);
+        double d = DotProduct(newLocation, plane->normal);
+        gui_->UpdateMII(regionName, plane->normal, d);
 	}
 
 }

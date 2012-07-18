@@ -78,7 +78,7 @@ SET( APP_HDRS
 	src/capclient.h
 	src/logwindow.h
 	src/capclientwindow.h
-	src/PlatformInfo.h
+        src/platforminfo.h
 	src/math/solverlibraryfactory.h
 	src/standardheartdefinitions.h
 	src/UserCommentDialog.h
@@ -119,7 +119,7 @@ SET( APP_SRCS
 	src/capclientwindow.cpp
 	src/capclientwindowheartmodel.cpp
 	src/standardheartdefinitions.cpp
-	src/PlatformInfo.cpp
+        src/platforminfo.cpp
 	src/capclient.cpp
 	src/textureslice.cpp
 	)
