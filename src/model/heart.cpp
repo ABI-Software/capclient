@@ -171,7 +171,11 @@ void HeartModel::SetVisibility(bool visible)
 
 bool HeartModel::IsVisible() const
 {
-    return Cmiss_graphic_get_visibility_flag(pImpl_->epi_surface_) == 1;
+    int vis = 0;
+    if (pImpl_->epi_surface_)
+        vis = Cmiss_graphic_get_visibility_flag(pImpl_->epi_surface_);
+
+    return vis == 1;
 }
 
 void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
