@@ -316,7 +316,6 @@ ModellingPointDetails XMLFileHandler::GetModellingPointDetails() const
 
 		Point3D position(coords);
         ModellingPointDetail mp(p.type, position, p.time);
-        dbg(mp.GetModellingPointTypeString() + " : " + ToString(mp.position_));
 
         modellingPointDetails.push_back(mp);
 	}

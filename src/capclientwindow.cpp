@@ -960,7 +960,6 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
 		const std::string& modelling_mode = mp.GetModellingPointTypeString();//ModellingEnumStrings.find(mp.GetModellingPointType())->second;
 		Cmiss_context_create_region_with_nodes(cmissContext_, modelling_mode);
 
-        dbg(mp.GetModellingPointTypeString() + " : " + ToString(mp.position_));
         switch (mp.modellingPointType_)
 		{
 		case APEX:
@@ -1447,11 +1446,13 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 		Cmiss_region_id region = Cmiss_field_module_get_region(field_module);
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 		Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-		Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
-		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+        Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
+        Cmiss_field_id spectrum_value_field = Cmiss_field_module_find_field_by_name(field_module, "spectrum_value_field");
+        Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 		Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
-		Cmiss_node_template_define_field(node_template, visibility_value_field);
-		Cmiss_node_merge(selected_node, node_template);
+        Cmiss_node_template_define_field(node_template, visibility_value_field);
+        Cmiss_node_template_define_field(node_template, spectrum_value_field);
+        Cmiss_node_merge(selected_node, node_template);
 		
         Cmiss_field_cache_set_node(field_cache, selected_node);
 
@@ -1463,8 +1464,9 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 
 		int node_id = Cmiss_node_get_identifier(selected_node);
 
-		Cmiss_field_destroy(&visibility_value_field);
-		Cmiss_nodeset_destroy(&nodeset);
+        Cmiss_field_destroy(&visibility_value_field);
+        Cmiss_field_destroy(&spectrum_value_field);
+        Cmiss_nodeset_destroy(&nodeset);
 		Cmiss_node_template_destroy(&node_template);
 		Cmiss_field_destroy(&coordinate_field);
 		Cmiss_node_destroy(&selected_node);
