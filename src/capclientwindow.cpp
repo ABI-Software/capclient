@@ -226,7 +226,9 @@ void CAPClientWindow::UpdateUI()
 	// Widgets dependent on the heart model
 	checkBox_mII_->Enable(heartModelDependent);
 	menuItem_mII_->Enable(heartModelDependent);
-	checkBox_visibility_->Enable(heartModelDependent);
+    checkBox_visibility_->Enable(heartModelDependent);
+    if (heartModelDependent)
+        checkBox_visibility_->SetValue(heartModel_->IsVisible());
 	menuItem_visibility_->Enable(heartModelDependent);
 	choice_modelDisplayMode_->Enable(heartModelDependent);
 	menuItem_export_->Enable(heartModelDependent);
@@ -1103,6 +1105,7 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
 		LOG_MSG(LOGINFORMATION) << "Opening model '" << filename << "'";
 		mainApp_->OpenModel(std::string(filename.mb_str()));
         previousWorkingLocation_ = GetPath(filename.mb_str());
+        UpdateUI();
     }
 }
 

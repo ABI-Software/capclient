@@ -83,6 +83,13 @@ public:
 	 */
 	void SetVisibility(bool visible);
 
+    /**
+     * Tests wether the heart model is visible or not.
+     *
+     * @return true if the heart model is visible, false otherwise
+     */
+    bool IsVisible() const;
+
 	/**
 	 * Returns the lambda parameters from the model at the given time.
 	 *
