@@ -55,6 +55,7 @@ void CAPClientWindow::RemoveHeartModel()
 		delete heartModel_;
 		heartModel_ = 0;
 		RemoveMIIGraphics();
+        UpdateUI();
 	}
 }
 
