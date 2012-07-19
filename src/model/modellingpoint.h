@@ -154,6 +154,30 @@ namespace cap
 		 */
 		int GetNodeIdentifier() const { return node_id_; }
 
+    private:
+        /**
+         * Set the node visibility.
+         *
+         * @param visibility    the visibility of the node to set.
+         */
+        void SetNodeVisibility(bool visibility);
+
+        /**
+         * Set the spectrum value into the spectrum_value_field.
+         *
+         * @param spectrumValue the value for the spectrum value field.
+         */
+        void SetSpectrumValue(double spectrumValue);
+
+        /**
+         * Get the value represented by heartSurfaceType_ as a double
+         * for the node spectrum.  Only the guidepoint type of modelling
+         * point cares about this value.
+         *
+         * @return the value for the heartSurfaceType_.
+         */
+        double GetSpectrumValue() const;
+
 	protected:
 		ModellingEnum modellingPointType_; /**< Type of the modelling point */
 		HeartSurfaceEnum heartSurfaceType_; /**< Type of the heart surface */

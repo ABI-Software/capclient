@@ -164,9 +164,11 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		Cmiss_field_set_name(visibility_control_constant, "visibility_control_constant_field");
 		Cmiss_time_keeper_id time_keeper = Cmiss_context_get_default_time_keeper(cmissContext);
 		Cmiss_field_id time_value = Cmiss_field_module_create_time_value(field_module, time_keeper);
-		Cmiss_field_id visibility_value = Cmiss_field_module_create_finite_element(field_module, 1);
-		r = Cmiss_field_set_name(visibility_value, "visibility_value_field");
-		Cmiss_field_id diff = Cmiss_field_module_create_subtract(field_module, visibility_value, time_value);
+        Cmiss_field_id visibility_value = Cmiss_field_module_create_finite_element(field_module, 1);
+        r = Cmiss_field_set_name(visibility_value, "visibility_value_field");
+        Cmiss_field_id spectrum_value = Cmiss_field_module_create_finite_element(field_module, 1);
+        r = Cmiss_field_set_name(spectrum_value, "spectrum_value_field");
+        Cmiss_field_id diff = Cmiss_field_module_create_subtract(field_module, visibility_value, time_value);
 		Cmiss_field_id abs = Cmiss_field_module_create_abs(field_module, diff);
 		double err_values[] = {0.01};
 		Cmiss_field_id err = Cmiss_field_module_create_constant(field_module, 1, err_values);
@@ -196,6 +198,8 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 
 			//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
             std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label " + label;
+            if (regionName == "GUIDEPOINT")
+                node_command += " spectrum guidepoint_spectrum data spectrum_value_field";
 			Cmiss_graphic_define(node_graphic, node_command.c_str());
 			Cmiss_graphic_destroy(&node_graphic);
 		}
@@ -320,20 +324,23 @@ Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double 
 	Cmiss_field_module_begin_change(field_module);
     Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
     Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-	Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
-	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+    Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
+    Cmiss_field_id spectrum_value_field = Cmiss_field_module_find_field_by_name(field_module, "spectrum_value_field");
+    Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 	Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
 	Cmiss_node_template_define_field(node_template, coordinate_field);
 	Cmiss_node_template_define_field(node_template, visibility_value_field);
-	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template);
+    Cmiss_node_template_define_field(node_template, spectrum_value_field);
+    Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template);
     double position_values[3] = {x, y, z};
     Cmiss_field_cache_set_node(field_cache, node);
     Cmiss_field_assign_real(coordinate_field, field_cache, 3, position_values);
     Cmiss_field_module_end_change(field_module);
 	
 	Cmiss_field_destroy(&coordinate_field);
-	Cmiss_field_destroy(&visibility_value_field);
-	Cmiss_nodeset_destroy(&nodeset);
+    Cmiss_field_destroy(&visibility_value_field);
+    Cmiss_field_destroy(&spectrum_value_field);
+    Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_node_template_destroy(&node_template);
     Cmiss_field_cache_destroy(&field_cache);
 	Cmiss_field_module_destroy(&field_module);
