@@ -29,6 +29,7 @@ extern "C"
 #include <zn/cmiss_element.h>
 #include <zn/cmiss_graphics_material.h>
 #include <zn/cmiss_time_sequence.h>
+#include <zn/cmiss_spectrum.h>
 }
 
 #include "utils/debug.h"
@@ -101,6 +102,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
     this->Centre();
     MakeConnections();
     CreateMaterials();
+    CreateSpectrum();
     CreateFonts();
     SetModellingCallbacks();
     CreateStatusBar(1);
@@ -247,18 +249,32 @@ void CAPClientWindow::OnCloseWindow(wxCloseEvent& /* event */)
 	wxExit();
 }
 
+void CAPClientWindow::CreateSpectrum()
+{
+    Cmiss_graphics_module_id gm = Cmiss_context_get_default_graphics_module(cmissContext_);
+
+    Cmiss_spectrum_id spectrum = Cmiss_graphics_module_create_spectrum(gm);
+    Cmiss_spectrum_set_name(spectrum, "guidepoint_spectrum");
+    Cmiss_spectrum_execute_command(spectrum, "clear overwrite_colour");
+    Cmiss_spectrum_execute_command(spectrum, "linear range 0 0.3 extend_below red colour_range 1 1 component 1");
+    Cmiss_spectrum_execute_command(spectrum, "linear range 0.4 0.6 white_to_blue colour_range 0 0 component 1");
+    Cmiss_spectrum_execute_command(spectrum, "linear range 0.7 1 extend_above green colour_range 1 1 component 1");
+    Cmiss_spectrum_destroy(&spectrum);
+    Cmiss_graphics_module_destroy(&gm);
+}
+
 void CAPClientWindow::CreateMaterials()
 {
 	//gfx create material green normal_mode ambient 0 0.5 0 diffuse 0 1 0 emission 0 0 0 specular 0.2 0.2 0.2 alpha 1 shininess 0.1;
 
 	Cmiss_graphics_module_id gm = Cmiss_context_get_default_graphics_module(cmissContext_);
 	double ambient[3], diffuse[3], diffuse_sel[3], emission[3], specular[3];
+
 	ambient[0] = 0.0;ambient[1] = 0.5;ambient[2] = 0.0;
 	diffuse[0] = 0.0;diffuse[1] = 1.0;diffuse[2] = 0.0;
 	diffuse_sel[0] = 0.0;diffuse_sel[1] = 5.0;diffuse_sel[2] = 0.0;
 	emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
 	specular[0] = 0.2;specular[1] = 0.2;specular[2] = 0.2;
-    // Temporary workaround for bug https://tracker.physiomeproject.org/show_bug.cgi?id=3347
     Cmiss_graphics_material_id green = Cmiss_graphics_module_create_material(gm);
     Cmiss_graphics_material_set_properties(green, "green", ambient, diffuse, emission, specular, 0.1, 1.0);
 	Cmiss_graphics_material_id green_sel = Cmiss_graphics_module_create_material(gm);
@@ -299,17 +315,27 @@ void CAPClientWindow::CreateMaterials()
 	Cmiss_graphics_material_set_properties(orange_sel, "orange_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 
 	//gfx create material light_blue normal_mode ambient 0.54 0.84 1 diffuse 0.28 0.46 1 emission 0.25 0.46 0.75 specular 0.46 0.73 1 alpha 1 shininess 0.2;
-	Cmiss_graphics_material_id light_blue = Cmiss_graphics_module_create_material(gm);
-	ambient[0] = 0.54;ambient[1] = 0.84;ambient[2] = 1.0;
-	diffuse[0] = 0.28;diffuse[1] = 0.46;diffuse[2] = 1.0;
-	diffuse_sel[0] = 0.14;diffuse_sel[1] = 0.23;diffuse_sel[2] = 0.5;
-	emission[0] = 0.25;emission[1] = 0.46;emission[2] = 0.75;
-	specular[0] = 0.46;specular[1] = 0.73;specular[2] = 1.0;
-	Cmiss_graphics_material_set_properties(light_blue, "light_blue", ambient, diffuse, emission, specular, 0.3, 1.0);
-	Cmiss_graphics_material_id light_blue_sel = Cmiss_graphics_module_create_material(gm);
-	Cmiss_graphics_material_set_properties(light_blue_sel, "light_blue_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+    Cmiss_graphics_material_id light_blue = Cmiss_graphics_module_create_material(gm);
+    ambient[0] = 0.54;ambient[1] = 0.84;ambient[2] = 1.0;
+    diffuse[0] = 0.28;diffuse[1] = 0.46;diffuse[2] = 1.0;
+    diffuse_sel[0] = 0.14;diffuse_sel[1] = 0.23;diffuse_sel[2] = 0.5;
+    emission[0] = 0.25;emission[1] = 0.46;emission[2] = 0.75;
+    specular[0] = 0.46;specular[1] = 0.73;specular[2] = 1.0;
+    Cmiss_graphics_material_set_properties(light_blue, "light_blue", ambient, diffuse, emission, specular, 0.3, 1.0);
+    Cmiss_graphics_material_id light_blue_sel = Cmiss_graphics_module_create_material(gm);
+    Cmiss_graphics_material_set_properties(light_blue_sel, "light_blue_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
 
-	Cmiss_graphics_material_destroy(&green_surface);
+    Cmiss_graphics_material_id yellow = Cmiss_graphics_module_create_material(gm);
+    ambient[0] = 0.94;ambient[1] = 0.94;ambient[2] = 0.0;
+    diffuse[0] = 0.8;diffuse[1] = 0.8;diffuse[2] = 0.0;
+    diffuse_sel[0] = 0.72;diffuse_sel[1] = 0.72;diffuse_sel[2] = 0.0;
+    emission[0] = 0.0;emission[1] = 0.0;emission[2] = 0.0;
+    specular[0] = 1.0;specular[1] = 1.0;specular[2] = 0.69;
+    Cmiss_graphics_material_set_properties(yellow, "yellow", ambient, diffuse, emission, specular, 0.02, 1.0);
+    Cmiss_graphics_material_id yellow_sel = Cmiss_graphics_module_create_material(gm);
+    Cmiss_graphics_material_set_properties(yellow_sel, "yellow_selected", ambient, diffuse_sel, emission, specular, 0.1, 1.0);
+
+    Cmiss_graphics_material_destroy(&green_surface);
 	Cmiss_graphics_material_destroy(&red_surface);
 	Cmiss_graphics_material_destroy(&green_sel);
 	Cmiss_graphics_material_destroy(&light_blue_sel);
@@ -998,6 +1024,7 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
                         ModellingPointDetail mp = *cit;
                         CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
 					}
+                    mainApp_->SmoothAlongTime();
 				}
 				else
 					modeFailed = BASEPLANE;

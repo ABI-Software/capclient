@@ -551,6 +551,11 @@ private:
 	 */
 	void CreateMaterials();
 
+    /**
+     * Create the spectrum for setting the type dependent colour of the guide points
+     */
+    void CreateSpectrum();
+
 	/**
 	 * Creates the fonts used by Cmgui.
 	 */
