@@ -650,6 +650,7 @@ private:
 	void OnSave(wxCommandEvent& event); /**< Menu event handler */
 	void OnQuit(wxCommandEvent& event); /**< Menu event handler */
     void OnExportModel(wxCommandEvent& event); /**< Menu event handler */
+    void OnExportHeartVolumes(wxCommandEvent& event); /**< Menu event handler */
     void OnExportToCmgui(wxCommandEvent& event); /**< Menu event handler */
     void OnExportModelToBinaryVolume(wxCommandEvent& event); /**< Menu event handler */
 	void OnViewAll(wxCommandEvent& event); /**< Menu event handler */

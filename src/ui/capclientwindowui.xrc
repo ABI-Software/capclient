@@ -25,6 +25,10 @@
 					<label>E_xport Model</label>
 					<help></help>
 				</object>
+				<object class="wxMenuItem" name="menuItem_exportHeartVolumes_">
+					<label>E_xport Heart Volumes</label>
+					<help></help>
+				</object>
 				<object class="wxMenuItem" name="menuItem_exportToCmgui_">
 					<label>E_xport to Cmgui</label>
 					<help></help>

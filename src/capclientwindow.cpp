@@ -135,8 +135,9 @@ void CAPClientWindow::MakeConnections()
 	Connect(XRCID("menuItem_openImageBrowser_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImageBrowser));
 	Connect(XRCID("menuItem_save_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
 	Connect(XRCID("menuItem_export_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
+    Connect(XRCID("menuItem_exportHeartVolumes_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportHeartVolumes));
     Connect(XRCID("menuItem_exportToCmgui_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportToCmgui));
-	Connect(XRCID("menuItem_exportToBinaryVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
+    Connect(XRCID("menuItem_exportToBinaryVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
 	Connect(XRCID("menuItem_viewAll_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewAll));
 	Connect(XRCID("menuItem_modellingMode_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_heartVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
@@ -233,6 +234,7 @@ void CAPClientWindow::UpdateUI()
 	menuItem_visibility_->Enable(heartModelDependent);
 	choice_modelDisplayMode_->Enable(heartModelDependent);
 	menuItem_export_->Enable(heartModelDependent);
+    menuItem_exportHeartVolumes_->Enable(heartModelDependent);
     menuItem_exportToCmgui_->Enable(heartModelDependent);
 	menuItem_exportToBinaryVolume_->Enable(heartModelDependent);
 
@@ -1104,7 +1106,7 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
 	{
 		// work with the file
 		LOG_MSG(LOGINFORMATION) << "Opening model '" << filename << "'";
-		mainApp_->OpenModel(std::string(filename.mb_str()));
+        mainApp_->OpenModel(filename.mb_str());
         previousWorkingLocation_ = GetPath(filename.mb_str());
         UpdateUI();
     }
@@ -1131,14 +1133,14 @@ void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
     userCommentDlg.SetComment(mainApp_->GetComment());
 
     userCommentDlg.Center();
-	if (userCommentDlg.ShowModal() != wxID_OK)
+    if (userCommentDlg.ShowModal() == wxID_OK)
 	{
-		return; // Cancelled save
-	}
-	previousWorkingLocation_ = userCommentDlg.GetDirectory();
-	std::string userComment = userCommentDlg.GetComment();
-	
-	mainApp_->SaveModel(previousWorkingLocation_, userComment);
+        previousWorkingLocation_ = userCommentDlg.GetDirectory();
+        std::string userComment = userCommentDlg.GetComment();
+
+        LOG_MSG(LOGINFORMATION) << "Saving model '" << previousWorkingLocation_ << "'";
+        mainApp_->SaveModel(previousWorkingLocation_, userComment);
+    }
 }
 
 void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
@@ -1164,6 +1166,25 @@ void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
 
     LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
     //--mainApp_->OnExportModel(std::string(dirname.mb_str()));
+}
+
+void CAPClientWindow::OnExportHeartVolumes(wxCommandEvent& /* event */)
+{
+    wxString defaultFilename = wxT("");
+    wxString defaultExtension = wxT("");
+    wxString wildcard = wxT("");
+    int flags = wxSAVE;
+    if (previousWorkingLocation_.length() == 0)
+        previousWorkingLocation_ = wxGetCwd();
+
+    wxString filename = wxFileSelector(wxT("Export heart model volumes"),
+            previousWorkingLocation_.c_str(), defaultFilename, defaultExtension, wildcard, flags);
+    if (!filename.empty())
+    {
+        mainApp_->OnExportHeartVolumes(filename.mb_str());
+        LOG_MSG(LOGINFORMATION) << "Exoprting heart model volumes '" << filename << "'";
+        previousWorkingLocation_ = GetPath(filename.mb_str());
+    }
 }
 
 void CAPClientWindow::OnExportToCmgui(wxCommandEvent& /* event */)
