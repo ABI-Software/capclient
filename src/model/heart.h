@@ -14,7 +14,7 @@
 
 extern "C"
 {
-#include <zn/zinc_configure.h>
+#include <zn/cmgui_configure.h>
 #include <zn/cmiss_context.h>
 }
 

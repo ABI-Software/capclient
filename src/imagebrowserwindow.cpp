@@ -26,7 +26,7 @@
 
 extern "C"
 {
-#include <zn/zinc_configure.h>
+#include <zn/cmgui_configure.h>
 #include <zn/cmiss_graphics_module.h>
 #include <zn/cmiss_scene.h>
 #include <zn/cmiss_field.h>

@@ -16,7 +16,7 @@
 
 extern "C"
 {
-#include <zn/zinc_configure.h>
+#include <zn/cmgui_configure.h>
 #include <zn/cmiss_core.h>
 #include <zn/cmiss_status.h>
 #include <zn/cmiss_context.h>
@@ -135,6 +135,7 @@ void CAPClientWindow::MakeConnections()
 	Connect(XRCID("menuItem_openImageBrowser_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImageBrowser));
 	Connect(XRCID("menuItem_save_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
 	Connect(XRCID("menuItem_export_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
+    Connect(XRCID("menuItem_exportToCmgui_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportToCmgui));
 	Connect(XRCID("menuItem_exportToBinaryVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
 	Connect(XRCID("menuItem_viewAll_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewAll));
 	Connect(XRCID("menuItem_modellingMode_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
@@ -1137,6 +1138,21 @@ void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 	std::string userComment = userCommentDlg.GetComment();
 	
 	mainApp_->SaveModel(previousWorkingLocation_, userComment);
+}
+
+void CAPClientWindow::OnExportToCmgui(wxCommandEvent& /* event */)
+{
+    if (previousWorkingLocation_.length() == 0)
+        previousWorkingLocation_ = wxGetCwd();
+
+    wxDirDialog dirDlg(NULL, "Choose output directory", previousWorkingLocation_,
+        wxDD_DEFAULT_STYLE);
+    if (dirDlg.ShowModal() == wxID_OK)
+    {
+        previousWorkingLocation_ = dirDlg.GetPath();
+        LOG_MSG(LOGINFORMATION) << "Exported Cmgui files to: " << previousWorkingLocation_;
+    }
+
 }
 
 void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
