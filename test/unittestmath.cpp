@@ -263,7 +263,8 @@ TEST(Matrix3x3Test, Transforms3)
     EXPECT_NEAR( 0.58640336580982466, axis3.y, 1e-8);
     EXPECT_NEAR( 0.54317441094382368, axis3.z, 1e-8);
 
-    EXPECT_NEAR(0, DotProduct(r, axis3), 1e-6);
+    EXPECT_NEAR(0, DotProduct(delta, axis3), 1e-6);
+    EXPECT_NEAR(0.749820, DotProduct(r, axis3), 1e-6);
 
     // init pos [462, 388] -> [-249.38398051994074, 225.30415661121398, 266.41129318957701]
 }
