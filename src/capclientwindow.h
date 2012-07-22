@@ -343,6 +343,8 @@ public:
 	 */
 	void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);
 
+    void WriteHeartModel(std::string dirname, unsigned int numberOfModelFrames);
+
 	/**
 	 * Adds currently selected node.  If no node is currently selected then do nothing.
 	 */

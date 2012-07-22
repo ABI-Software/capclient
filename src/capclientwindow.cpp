@@ -233,6 +233,7 @@ void CAPClientWindow::UpdateUI()
 	menuItem_visibility_->Enable(heartModelDependent);
 	choice_modelDisplayMode_->Enable(heartModelDependent);
 	menuItem_export_->Enable(heartModelDependent);
+    menuItem_exportToCmgui_->Enable(heartModelDependent);
 	menuItem_exportToBinaryVolume_->Enable(heartModelDependent);
 
 	if (modellingEnum == APEX)
@@ -1140,21 +1141,6 @@ void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 	mainApp_->SaveModel(previousWorkingLocation_, userComment);
 }
 
-void CAPClientWindow::OnExportToCmgui(wxCommandEvent& /* event */)
-{
-    if (previousWorkingLocation_.length() == 0)
-        previousWorkingLocation_ = wxGetCwd();
-
-    wxDirDialog dirDlg(NULL, "Choose output directory", previousWorkingLocation_,
-        wxDD_DEFAULT_STYLE);
-    if (dirDlg.ShowModal() == wxID_OK)
-    {
-        previousWorkingLocation_ = dirDlg.GetPath();
-        LOG_MSG(LOGINFORMATION) << "Exported Cmgui files to: " << previousWorkingLocation_;
-    }
-
-}
-
 void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
 {
     wxString defaultPath = wxGetCwd();;
@@ -1178,6 +1164,22 @@ void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
 
     LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
     //--mainApp_->OnExportModel(std::string(dirname.mb_str()));
+}
+
+void CAPClientWindow::OnExportToCmgui(wxCommandEvent& /* event */)
+{
+    if (previousWorkingLocation_.length() == 0)
+        previousWorkingLocation_ = wxGetCwd();
+
+    wxDirDialog dirDlg(NULL, "Choose output directory", previousWorkingLocation_,
+        wxDD_DEFAULT_STYLE);
+    if (dirDlg.ShowModal() == wxID_OK)
+    {
+        previousWorkingLocation_ = dirDlg.GetPath();
+        mainApp_->OnExportToCmgui(previousWorkingLocation_);
+        LOG_MSG(LOGINFORMATION) << "Exported Cmgui files to: " << previousWorkingLocation_;
+    }
+
 }
 
 void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
