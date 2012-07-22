@@ -392,7 +392,10 @@ void Modeller::SmoothAlongTime()
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		// For each global parameter in the per frame model
-		clock_t before = clock();
+//#define PRINT_SMOOTHING_TIME
+#ifdef PRINT_SMOOTHING_TIME
+        clock_t before = clock();
+#endif
 			
 #define SMOOTH_ALONG_TIME
 #ifdef SMOOTH_ALONG_TIME
@@ -414,10 +417,10 @@ void Modeller::SmoothAlongTime()
 			}
 		}
 #endif
-		
+#ifdef PRINT_SMOOTHING_TIME
 		clock_t after = clock();
 		dbg(solverFactory_->GetName() + " Smoothing time = " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
-		
+#endif
 		// feed the results back to Cmgui
 		UpdateTimeVaryingModel();
 	}

@@ -233,6 +233,17 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	xmlFile.WriteFile(xmlFilename);
 }
 
+void CAPClient::OnExportToCmgui(const std::string& dirname)
+{
+    dbg("CAPClient::OnExportToCmgui: " + dirname);
+    unsigned int numberOfModelFrames = GetMinimumNumberOfFrames();
+
+    if (numberOfModelFrames > 0)
+    {
+        gui_->WriteHeartModel(dirname, numberOfModelFrames);
+    }
+}
+
 void CAPClient::InitializeMII()
 {
 	LabelledSlices::const_iterator itr = labelledSlices_.begin();

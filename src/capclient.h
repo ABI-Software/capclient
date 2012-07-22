@@ -249,6 +249,8 @@ public:
 		//--iso->OnExportModel(dirname);
 	}
 
+    void OnExportToCmgui(const std::string& dirname);
+
 	/**
 	 * Executes the export model to binary volume action.
 	 *
@@ -329,12 +331,12 @@ public:
 	{
 		if (!modeller_)
 		{
-			return;//FIXME
+            return;
 		}
 		modeller_->SmoothAlongTime();
 		
-		dbg("ED Volume(EPI) = " + ToString(gui_->ComputeHeartVolume(EPICARDIUM)));
-		dbg("ED Volume(ENDO) = " + ToString(gui_->ComputeHeartVolume(ENDOCARDIUM)));
+        gui_->ComputeHeartVolume(EPICARDIUM);
+        gui_->ComputeHeartVolume(ENDOCARDIUM);
 	}
 
     /**

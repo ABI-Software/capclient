@@ -34,6 +34,7 @@ namespace cap
 		void SetHeartModelTransformation(const gtMatrix& transform);
 		void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
 		void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);
+        void WriteHeartModel(std::string dirname, unsigned int numberOfModelFrames);
 		void LoadHermiteHeartElements(std::string exelemFileName = "");
 		double ComputeHeartVolume(HeartSurfaceEnum surface, double time) const;
 
