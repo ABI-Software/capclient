@@ -425,7 +425,7 @@ void Modeller::SmoothAlongTime()
 
 void Modeller::ChangeMode(ModellingEnum mode)
 {
-	ModellingMode* newMode;
+    ModellingMode* newMode = 0;
 	switch (mode)
 	{
 	case APEX:

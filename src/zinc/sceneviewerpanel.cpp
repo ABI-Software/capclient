@@ -13,7 +13,7 @@
 
 extern "C"
 {
-#include <zn/zinc_configure.h>
+#include <zn/cmgui_configure.h>
 #include <zn/cmiss_status.h>
 #include <zn/cmiss_field_image.h>
 #include <zn/cmiss_scene_viewer.h>

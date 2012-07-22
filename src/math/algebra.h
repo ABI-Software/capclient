@@ -22,7 +22,7 @@
 
 extern "C"
 {
-#include <zn/zinc_configure.h>
+#include <zn/cmgui_configure.h>
 }
 
 #include "utils/debug.h"

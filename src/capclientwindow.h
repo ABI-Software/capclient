@@ -647,8 +647,9 @@ private:
 	void OnOpenImageBrowser(wxCommandEvent& event); /**< Menu event handler */
 	void OnSave(wxCommandEvent& event); /**< Menu event handler */
 	void OnQuit(wxCommandEvent& event); /**< Menu event handler */
-	void OnExportModel(wxCommandEvent& event); /**< Menu event handler */
-	void OnExportModelToBinaryVolume(wxCommandEvent& event); /**< Menu event handler */
+    void OnExportModel(wxCommandEvent& event); /**< Menu event handler */
+    void OnExportToCmgui(wxCommandEvent& event); /**< Menu event handler */
+    void OnExportModelToBinaryVolume(wxCommandEvent& event); /**< Menu event handler */
 	void OnViewAll(wxCommandEvent& event); /**< Menu event handler */
 	void OnViewStatusText(wxCommandEvent& event); /**< Menu event handler */
 	void OnViewLog(wxCommandEvent& event); /**< Menu event handler */

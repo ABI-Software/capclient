@@ -62,7 +62,7 @@ void ReadPoint(ModelFile::Point& point, xmlNodePtr cur)
 	//slice
 	xmlChar* typeCStr = xmlGetProp(cur, (xmlChar const*)"type"); 
 //	std::cout << "type = " << typeCStr << '\n';
-	ModellingEnum type;
+    ModellingEnum type = UNDEFINED_MODELLING_ENUM;
 	std::string typeStr((char*)typeCStr);
 	if (typeStr == "apex")
 	{

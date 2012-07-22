@@ -171,8 +171,7 @@ void CAPClient::OpenModel(const std::string& filename)
 	size_t positionOfLastSlash = xmlFilename.find_last_of("/\\");
 	std::string modelFilePath = xmlFilename.substr(0, positionOfLastSlash);
 	
-    unsigned int numberOfModelFrames = exnodeFileNames.size();
-	assert(numberOfModelFrames == GetMinimumNumberOfFrames());
+    assert(exnodeFileNames.size() == GetMinimumNumberOfFrames());
 	gtMatrix m;
 	xmlFile.GetTransformationMatrix(m);
 
