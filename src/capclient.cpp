@@ -149,7 +149,6 @@ void CAPClient::OpenModel(const std::string& filename)
 	cardiacAnnotation_ = xmlFileHandler.GetCardiacAnnotation();
 
 	// TODO: Hide CAPClient icon in scene viewer
-	LOG_MSG(LOGINFORMATION) << "Opening model '" << filename << "'";
 	LoadLabelledImages(labelledSlices);
 	ResetModel();
 
