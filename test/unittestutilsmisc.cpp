@@ -8,6 +8,8 @@ TEST(UtilsMisc, TimeNow)
 	std::string time = cap::TimeNow();
     EXPECT_EQ(11, time.size());
 	EXPECT_NE("Error in NowTime()", cap::TimeNow());
+    std::string out = "time now: " + cap::TimeNow() + "\n";
+    printf(out.c_str());
 }
 
 TEST(UtilsMisc, EndsWith)

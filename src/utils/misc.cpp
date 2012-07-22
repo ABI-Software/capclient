@@ -36,11 +36,14 @@ namespace cap
 
 	std::string TimeNow()
 	{
-		char buffer[11];
+        char buffer[25];
 		time_t t;
 		time(&t);
         tm r = tm();
-		strftime(buffer, sizeof(buffer), "%X", localtime_r(&t, &r));
+        size_t result = strftime(buffer, sizeof(buffer), "%T", localtime_r(&t, &r));
+        if (result == 0)
+            return "Error in NowTime()";
+
 		struct timeval tv;
 		gettimeofday(&tv, 0);
 
