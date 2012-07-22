@@ -4,6 +4,9 @@
 #include "utils/debug.h"
 #include "logmsg.h"
 
+#include <iostream>
+#include <fstream>
+
 namespace cap
 {
 
@@ -235,13 +238,28 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 
 void CAPClient::OnExportToCmgui(const std::string& dirname)
 {
-    dbg("CAPClient::OnExportToCmgui: " + dirname);
     unsigned int numberOfModelFrames = GetMinimumNumberOfFrames();
 
     if (numberOfModelFrames > 0)
     {
         gui_->WriteHeartModel(dirname, numberOfModelFrames);
     }
+}
+
+void CAPClient::OnExportHeartVolumes(const std::string& filename)
+{
+    unsigned int numberOfModelFrames = GetMinimumNumberOfFrames();
+
+    std::ofstream volume_file(filename.c_str());
+    volume_file << "time, epi volume (ml), endo volume (ml)" << std::endl;
+    for (unsigned int i = 0; i < numberOfModelFrames; i++)
+    {
+        double time = static_cast<double>(i)/numberOfModelFrames;
+        double epi = gui_->ComputeHeartVolume(EPICARDIUM, time);
+        double endo = gui_->ComputeHeartVolume(ENDOCARDIUM, time);
+        volume_file << time << "," << epi << "," << endo << std::endl;
+    }
+    volume_file.close();
 }
 
 void CAPClient::InitializeMII()

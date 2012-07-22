@@ -249,9 +249,21 @@ public:
 		//--iso->OnExportModel(dirname);
 	}
 
+    /**
+     * Executes the export to Cmgui action.
+     *
+     * @param dirname   Pathname of the directory.
+     */
     void OnExportToCmgui(const std::string& dirname);
 
-	/**
+    /**
+     * Executes the export heart volumes action.
+     *
+     * @param filename  Filename to save heart volumes to.
+     */
+    void OnExportHeartVolumes(const std::string& filename);
+
+    /**
 	 * Executes the export model to binary volume action.
 	 *
 	 * @param	dirname   	Pathname of the directory.
