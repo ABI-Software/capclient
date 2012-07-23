@@ -11,6 +11,7 @@
 #include "utils/debug.h"
 
 #include <wx/zipstrm.h>
+#include <wx/tarstrm.h>
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
 #include <boost/scoped_ptr.hpp>
@@ -28,7 +29,7 @@ TEST(Archiver, Unzip)
 
 	std::vector<std::string> imageFilenames;
 	std::vector<unsigned long int> imageFilenameSizes;
-	wxString dirname(ARCHIVER_ARCHIVEDIR);
+//	wxString dirname(ARCHIVER_ARCHIVEDIR);
 	while (entry.reset(zip.GetNextEntry()), entry.get() != NULL) {
 		// access meta-data
 		std::string name = entry->GetName().c_str();
@@ -36,7 +37,7 @@ TEST(Archiver, Unzip)
 		//std::cout << name << std::endl;
 		if (entry->IsDir())
 		{
-			wxMkdir(dirname + "/" +  name);
+//			wxMkdir(dirname + "/" +  name);
 		}
 		else
 		{
@@ -93,3 +94,30 @@ TEST(Archiver, Unzip)
 	EXPECT_EQ(146674, imageFilenameSizes[5]);
 }
 
+TEST(Archiver, Untar)
+{
+    using boost::scoped_ptr;
+    scoped_ptr<wxTarEntry> entry;
+
+//	wxFFileInputStream in(_T("test.zip"));
+    wxFFileInputStream in(_T(SAMPLETARARCHIVE_FILE));
+    wxTarInputStream tar(in);
+
+    std::vector<std::string> imageFilenames;
+//	std::vector<unsigned long int> imageFilenameSizes;
+//	wxString dirname(ARCHIVER_ARCHIVEDIR);
+    while (entry.reset(tar.GetNextEntry()), entry.get() != NULL)
+    {
+        // access meta-data
+        std::string name = entry->GetName().c_str();
+        imageFilenames.push_back(name);
+        std::cout << name << std::endl;
+        if (entry->IsDir())
+        {
+//			wxMkdir(dirname + "/" +  name);
+        }
+        else
+        {
+        }
+    }
+}

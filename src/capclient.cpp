@@ -226,7 +226,6 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	std::string xmlFilename = dirname + '/' + modelName + ".xml";
 	dbg("xmlFilename = " + xmlFilename);
 	
-	LOG_MSG(LOGINFORMATION) << "Saving model '" << xmlFilename << "'";
 	if (cardiacAnnotation_.IsValid())
 	{
 		xmlFile.SetCardiacAnnotation(cardiacAnnotation_);
