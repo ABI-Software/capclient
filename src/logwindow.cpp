@@ -45,7 +45,7 @@ namespace cap
 		std::string dirpath = GetPath(previousSaveLocation_);
 
         wxFileDialog dialog(this, "Select a file", dirpath.c_str(), filename.c_str(), "*.*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-		dialog.SetPath(previousSaveLocation_);
+        dialog.SetPath(previousSaveLocation_.c_str());
 		dialog.Center();
 
 		if (dialog.ShowModal() == wxID_OK)
