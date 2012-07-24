@@ -1193,7 +1193,7 @@ void CAPClientWindow::OnExportToCmgui(wxCommandEvent& /* event */)
     if (previousWorkingLocation_.length() == 0)
         previousWorkingLocation_ = wxGetCwd();
 
-    wxDirDialog dirDlg(NULL, "Choose output directory", previousWorkingLocation_,
+    wxDirDialog dirDlg(NULL, "Choose output directory", previousWorkingLocation_.c_str(),
         wxDD_DEFAULT_STYLE);
     if (dirDlg.ShowModal() == wxID_OK)
     {
@@ -1385,7 +1385,8 @@ bool CAPClientWindow::IsMIIVisible(const std::string& sliceName)
 {
 	for (unsigned int i = 0; i < checkListBox_slice_->GetCount(); i++)
 	{
-		if (checkListBox_slice_->GetString(i) == sliceName &&
+        std::string sliceString = checkListBox_slice_->GetString(i).mb_str();
+        if (sliceString == sliceName &&
 			checkListBox_slice_->IsChecked(i) &&
 			checkBox_mII_->IsChecked())
 			return true;
