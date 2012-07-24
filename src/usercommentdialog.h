@@ -56,7 +56,7 @@ public:
 	 */
 	void SetDirectory(const std::string& dirname)
 	{
-		textCtrl_directory->SetValue(dirname);
+        textCtrl_directory->SetValue(dirname.c_str());
 	}
 
     /**
@@ -65,7 +65,7 @@ public:
      */
     void SetComment(const std::string& comment)
     {
-        text_userComment->SetValue(comment);
+        text_userComment->SetValue(comment.c_str());
     }
 
 	/**

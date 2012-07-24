@@ -418,7 +418,7 @@ void ImageBrowserWindow::SetCaseList(const std::vector<std::string>& cases)
 	choice_caseList->Enable(false);
 	std::vector<std::string>::const_iterator cit = cases.begin();
 	for (; cit != cases.end(); cit++)
-		choice_caseList->Append(*cit);
+        choice_caseList->Append((*cit).c_str());
 
 	if (cases.size() > 0)
 	{
