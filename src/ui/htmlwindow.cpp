@@ -34,7 +34,7 @@ HtmlWindow::HtmlWindow(wxWindow *parent, wxWindowID id, const wxPoint& pos,
 		WriteCharBufferToFile("mri_icon.png", mri_icon_png, mri_icon_png_len);
 		WriteCharBufferToFile("abi_icon.png", abi_icon_png, abi_icon_png_len);
 		std::string page = WriteCharBufferToString(aboutcapclient_html, aboutcapclient_html_len);
-		SetPage(page);
+        SetPage(page.c_str());
 		RemoveFile("mri_icon.png");
 		RemoveFile("abi_icon.png");
 }

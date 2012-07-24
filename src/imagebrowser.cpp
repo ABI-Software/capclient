@@ -82,7 +82,7 @@ void ImageBrowser::ChooseImageDirectory()
 	if (path.empty() || !IsDirectory(path))
 		path = wxGetCwd();
 	
-	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path);
+    const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path.c_str());
 	if (!dirname.empty())
 	{
 		std::string restorePathOnFail = previousWorkingLocation_;

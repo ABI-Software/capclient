@@ -708,7 +708,8 @@ void CAPClientWindow::SetTime(double time)
     slider_animation_->SetValue(value); // This doesn't trigger a slider event
     ComputeHeartVolume(EPICARDIUM, time);
     ComputeHeartVolume(ENDOCARDIUM, time);
-    SetStatusText(wxT("Time: " + ToString(time)));
+    std::string timeIndex = "Time index: " + ToString(value);
+    SetStatusText(wxT(timeIndex.c_str()));
     ChangeAllTextures(time);
 }
 

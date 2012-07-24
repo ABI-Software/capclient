@@ -44,7 +44,7 @@ namespace cap
 		std::string filename = GetFileName(previousSaveLocation_);
 		std::string dirpath = GetPath(previousSaveLocation_);
 
-		wxFileDialog dialog(this, "Select a file", dirpath, filename, "*.*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+        wxFileDialog dialog(this, "Select a file", dirpath.c_str(), filename.c_str(), "*.*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 		dialog.SetPath(previousSaveLocation_);
 		dialog.Center();
 
@@ -64,7 +64,7 @@ namespace cap
 
 	void LogWindow::LogMessage(const std::string& message)
 	{
-		text_log_->AppendText(message);
+        text_log_->AppendText(message.c_str());
 	}
 
 	void LogWindow::LogMessage(const std::string& time, LogLevelEnum level, const std::string& message)
@@ -76,12 +76,14 @@ namespace cap
 		wxTextAttr blue = wxTextAttr(wxColour(0, 0, 205));
 		wxTextAttr orange = wxTextAttr(wxColour(255, 140, 0));
 		wxTextAttr logLevelAttr = black;
+        std::string timeWithSpaces = time + "   ";
+        std::string logLevelStringWithSpaces = logLevelString(level) + ":   ";
 		p1 = text_log_->GetInsertionPoint();
-		text_log_->AppendText(time + "   ");
+        text_log_->AppendText(timeWithSpaces.c_str());
 		p2 = text_log_->GetInsertionPoint();
 		text_log_->SetStyle(p1, p2, green);
 		p1 = text_log_->GetInsertionPoint();
-		text_log_->AppendText(logLevelString(level) + ":   ");
+        text_log_->AppendText(logLevelStringWithSpaces.c_str());
 		p2 = text_log_->GetInsertionPoint();
 		switch (level)
 		{
@@ -100,7 +102,7 @@ namespace cap
 		}
 		text_log_->SetStyle(p1, p2, logLevelAttr);
 		p1 = text_log_->GetInsertionPoint();
-		text_log_->AppendText(message);
+        text_log_->AppendText(message.c_str());
 		p2 = text_log_->GetInsertionPoint();
 		text_log_->SetStyle(p1, p2, black);
 	}
