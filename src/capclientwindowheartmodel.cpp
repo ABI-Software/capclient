@@ -214,15 +214,28 @@ void CAPClientWindow::LoadHermiteHeartElements(std::string exelemFileName)
 
 void CAPClientWindow::WriteHeartModel(std::string dirname, unsigned int numberOfModelFrames)
 {
-    std::ofstream elemfile;
-    const std::string exelem_filename = dirname + "/heart.exelem";
+    // Waiting on the outcome of https://tracker.physiomeproject.org/show_bug.cgi?id=3364
+    // when this is resolved we can reinstate or remove the following.
+//    std::ofstream elemfile;
+//    const std::string exelem_filename = dirname + "/heart.exelem";
 
-    elemfile.open(exelem_filename.c_str());
-    for (unsigned int i = 0; i < globalhermiteparam_exelem_len; i++)
-    {
-        elemfile.put(globalhermiteparam_exelem[i]);
-    }
-    elemfile.close();
+//    elemfile.open(exelem_filename.c_str());
+//    for (unsigned int i = 0; i < globalhermiteparam_exelem_len; i++)
+//    {
+//        elemfile.put(globalhermiteparam_exelem[i]);
+//    }
+//    elemfile.close();
+
+    const std::string loadheart_filename = dirname + "/loadheart.cmiss";
+    std::ofstream cmissfile(loadheart_filename.c_str());
+    cmissfile << "# Load the heart model in this directory" << std::endl;
+    cmissfile << "# expecting " << numberOfModelFrames << " node and element files" << std::endl << std::endl;
+    cmissfile << "for ($i = 0; $i < " << numberOfModelFrames << "; $i++)" << std::endl;
+    cmissfile << "{" << std::endl;
+    cmissfile << "\t$time = $i * " << 1.0/numberOfModelFrames << std::endl;
+    cmissfile << "\t$index = $i + 1" << std::endl;
+    cmissfile << "\tgfx read node time $time heart.$index.exnode" << std::endl;
+    cmissfile << "}" << std::endl << std::endl;
 
     Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
     Cmiss_region_id heart_region = Cmiss_region_find_child_by_name(root_region, heart_region_name.c_str());
