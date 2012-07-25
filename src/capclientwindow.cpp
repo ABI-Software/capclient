@@ -95,6 +95,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 
 	checkListBox_slice_->SetSelection(wxNOT_FOUND);
     checkListBox_slice_->Clear();
+    staticText_sliderValue_->SetLabel("    ");
 
 	CreateStatusTextStringsFieldRenditions();
 
@@ -223,6 +224,7 @@ void CAPClientWindow::UpdateUI()
 		
 		SetAnimationSliderRange(0, numberOfLogicalFrames-1);
 		slider_animation_->SetValue(0);
+        staticText_sliderValue_->SetLabel(ToString(1).c_str());
 	}
 
 	// Widgets dependent on the heart model
@@ -233,10 +235,11 @@ void CAPClientWindow::UpdateUI()
         checkBox_visibility_->SetValue(heartModel_->IsVisible());
 	menuItem_visibility_->Enable(heartModelDependent);
 	choice_modelDisplayMode_->Enable(heartModelDependent);
-	menuItem_export_->Enable(heartModelDependent);
     menuItem_exportHeartVolumes_->Enable(heartModelDependent);
     menuItem_exportToCmgui_->Enable(heartModelDependent);
-	menuItem_exportToBinaryVolume_->Enable(heartModelDependent);
+    // Functionality not implemented, exports iso surfaces check isosurfacecapture.h
+    menuItem_export_->Enable(false /* heartModelDependent */);
+    menuItem_exportToBinaryVolume_->Enable(false /* heartModelDependent */);
 
 	if (modellingEnum == APEX)
 		cmguiPanel_->ViewAll();
@@ -706,10 +709,12 @@ void CAPClientWindow::SetTime(double time)
 
 	int value = static_cast<int>(static_cast<double>(max - min + 1)*time + min + 0.5);
     slider_animation_->SetValue(value); // This doesn't trigger a slider event
+    std::string valueString = ToString(value+1);
+    staticText_sliderValue_->SetLabel(valueString.c_str());
     ComputeHeartVolume(EPICARDIUM, time);
     ComputeHeartVolume(ENDOCARDIUM, time);
-    std::string timeIndex = "Time index: " + ToString(value);
-    SetStatusText(wxT(timeIndex.c_str()));
+//    std::string timeIndex = "Time index: " + valueString;
+//    SetStatusText(wxT(timeIndex.c_str()));
     ChangeAllTextures(time);
 }
 
