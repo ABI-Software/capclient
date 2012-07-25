@@ -9,7 +9,7 @@
 #define DICOMIMAGE_H_
 
 #include "math/algebra.h"
-#include "CAPContour.h"
+#include "contour.h"
 
 extern "C" {
 #include <zn/cmiss_field_image.h>
@@ -18,6 +18,7 @@ extern "C" {
 #include <string>
 #include <vector>
 
+#include <boost/noncopyable.hpp>
 
 namespace cap
 {

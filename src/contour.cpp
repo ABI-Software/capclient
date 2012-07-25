@@ -1,10 +1,10 @@
 /*
- * CAPContour.cpp
+ * contour.cpp
  *
  *  Created on: Oct 26, 2010
  *      Author: jchu014
  */
-#include "CAPContour.h"
+#include "contour.h"
 
 #include <iostream>
 #include <sstream>
@@ -14,7 +14,7 @@
 namespace cap
 {
 
-CAPContour::CAPContour(size_t contourNumber, gtMatrix const& transform, std::vector<Point3D> const& points)
+Contour::Contour(size_t contourNumber, gtMatrix const& transform, std::vector<Point3D> const& points)
 :
 	contourNumber_(contourNumber),
 	coords_(points)
@@ -29,7 +29,7 @@ CAPContour::CAPContour(size_t contourNumber, gtMatrix const& transform, std::vec
 	}
 }
 
-CAPContour::~CAPContour()
+Contour::~Contour()
 {
 }
 

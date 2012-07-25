@@ -45,7 +45,7 @@ SET( APP_HDRS
 	src/io/annotationfile.h
 	src/math/basis.h
         src/binaryvolumeparameterdialog.h
-	src/CAPContour.h
+        src/contour.h
 	src/ui/euladialog.h
 	src/ui/htmlwindow.h
 	src/material.h
@@ -94,7 +94,7 @@ SET( APP_SRCS
 	src/AnnotationWindow.cpp
 	src/capclientapp.cpp
 	src/io/annotationfile.cpp
-	src/CAPContour.cpp
+        src/contour.cpp
 	src/ui/htmlwindow.cpp
 	src/material.cpp
 	src/model/heart.cpp

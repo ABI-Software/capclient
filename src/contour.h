@@ -1,5 +1,5 @@
 /*
- * CAPContour.h
+ * contour.h
  *
  *  Created on: Oct 18, 2010
  *      Author: jchu014
@@ -26,11 +26,11 @@ namespace cap
 // That is done by a class that implements the ImageSliceGraphics interface
 // (e.g CmguiImageSliceGraphics)
 
-class CAPContour : boost::noncopyable
+class Contour : boost::noncopyable
 {
 public:
-	CAPContour(size_t contourNumber, const gtMatrix& transform, std::vector<Point3D> const& points);
-	~CAPContour();
+    Contour(size_t contourNumber, const gtMatrix& transform, std::vector<Point3D> const& points);
+    ~Contour();
 
 	size_t GetFrameNumner() const
 	{
@@ -67,7 +67,7 @@ private:
 	std::vector<Point3D> coords_;
 };
 
-typedef boost::shared_ptr<CAPContour> ContourPtr;
+typedef boost::shared_ptr<Contour> ContourPtr;
 
 } // namespace cap
 #endif /* CAPCONTOUR_H_ */
