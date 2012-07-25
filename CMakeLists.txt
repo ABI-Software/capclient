@@ -69,7 +69,7 @@ SET( APP_HDRS
 	src/imagebrowserwindow.h
 	src/iimagebrowser.h
 	src/imagebrowser.h
-	src/IsoSurfaceCapture.h
+        src/isosurfacecapture.h
 	src/labelledslice.h
 	src/capclient.h
 	src/logwindow.h
