@@ -22,7 +22,7 @@
 #include "model/modeller.h"
 #include "io/xmlfilehandler.h"
 #include "model/heart.h"
-//--#include "IsoSurfaceCapture.h"
+//--#include "isosurfacecapture.h"
 #include "utils/misc.h"
 #include "utils/debug.h"
 
