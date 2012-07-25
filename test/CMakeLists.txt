@@ -95,7 +95,7 @@ SET(Xml_SRC
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
         ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
-	${CAPCLIENT_ROOT_DIR}/src/CAPContour.cpp
+        ${CAPCLIENT_ROOT_DIR}/src/contour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/modelfile.cpp

@@ -41,7 +41,7 @@ extern "C"
 #include "zinc/sceneviewerpanel.h"
 #include "utils/filesystem.h"
 #include "platforminfo.h"
-#include "CAPContour.h"
+#include "contour.h"
 #include "logmsg.h"
 #include "utils/misc.h"
 #include "zinc/extensions.h"
@@ -270,7 +270,7 @@ LabelledSlices XMLFileHandler::GetLabelledSlices() const
 				{
 					points.push_back(Point3D(contourPoint.x, contourPoint.y, 0));
 				}
-				ContourPtr capContour = boost::make_shared<CAPContour>(contour.number, contour.transformationMatrix, points);
+                ContourPtr capContour = boost::make_shared<Contour>(contour.number, contour.transformationMatrix, points);
 				dicomImage->AddContour(capContour);
 			}
 		}
