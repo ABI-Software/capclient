@@ -45,7 +45,7 @@ SET( APP_HDRS
 	src/Archiver.h
 	src/io/annotationfile.h
 	src/math/basis.h
-	src/CAPBinaryVolumeParameterDialog.h
+        src/binaryvolumeparameterdialog.h
 	src/CAPContour.h
 	src/ui/euladialog.h
 	src/ui/htmlwindow.h
