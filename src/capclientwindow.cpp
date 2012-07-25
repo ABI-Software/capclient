@@ -38,7 +38,7 @@ extern "C"
 #include "capclientapp.h"
 #include "capclientwindow.h"
 #include "usercommentdialog.h"
-#include "CAPBinaryVolumeParameterDialog.h"
+#include "binaryvolumeparameterdialog.h"
 #include "zinc/utilities.h"
 #include "zinc/extensions.h"
 #include "zinc/callbacks.h"
@@ -1204,9 +1204,10 @@ void CAPClientWindow::OnExportToCmgui(wxCommandEvent& /* event */)
 
 }
 
+
 void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
 {
-    CAPBinaryVolumeParameterDialog  dlg(this);
+    BinaryVolumeParameterDialog  dlg(this);
     if ( dlg.ShowModal() != wxID_OK )
     {
         return;
@@ -1237,6 +1238,7 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
     LOG_MSG(LOGERROR) << __func__ << " - Error: Not hooked up!!!: ";
     //--mainApp_->OnExportModelToBinaryVolume(std::string(dirname.mb_str()), apexMargin, baseMargin, spacing);
 }
+
 
 void CAPClientWindow::OnQuit(wxCommandEvent& /* event */)
 {

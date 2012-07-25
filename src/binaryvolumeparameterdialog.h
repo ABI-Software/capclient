@@ -1,5 +1,5 @@
 /*
- * CAPBinaryVolumeParameterDialog.h
+ * binaryvolumeparameterdialog.h
  *
  *  Created on: Aug 6, 2011
  *      Author: jchu014
@@ -19,10 +19,10 @@
 namespace cap
 {
 
-class CAPBinaryVolumeParameterDialog :public wxDialog
+class BinaryVolumeParameterDialog :public wxDialog
 {
 public:
-	CAPBinaryVolumeParameterDialog(wxWindow* parent)
+    BinaryVolumeParameterDialog(wxWindow* parent)
 	:
 		wxDialog(parent, -1, wxString(wxT("Binary Volume Parameters")))
 	{
