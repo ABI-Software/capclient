@@ -79,7 +79,6 @@ SET( APP_HDRS
 	src/standardheartdefinitions.h
         src/usercommentdialog.h
 	src/math/vnlfactory.h
-	src/VolumeGraph.h
 	src/capclientapp.h
 	src/textureslice.h
 	)
