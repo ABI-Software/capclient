@@ -40,8 +40,6 @@ SET(CAP_CLIENT_EXECUTABLE capclient)
 SET( APP_HDRS
         src/zinc/extensions.h
         src/zinc/utilities.h
-	src/AnnotationEditor.h
-	src/AnnotationWindow.h
 	src/io/annotationfile.h
 	src/math/basis.h
         src/binaryvolumeparameterdialog.h
@@ -68,7 +66,6 @@ SET( APP_HDRS
 	src/utils/filesystem.h
 	src/utils/misc.h
 	src/math/gmmfactory.h
-	src/IAnnotationWindow.h
 	src/imagebrowserwindow.h
 	src/iimagebrowser.h
 	src/imagebrowser.h
@@ -90,8 +87,6 @@ SET( APP_HDRS
 SET( APP_SRCS
         src/zinc/extensions.cpp
         src/zinc/utilities.cpp
-	src/AnnotationEditor.cpp
-	src/AnnotationWindow.cpp
 	src/capclientapp.cpp
 	src/io/annotationfile.cpp
         src/contour.cpp

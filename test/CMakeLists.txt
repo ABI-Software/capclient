@@ -128,7 +128,7 @@ SET(CAPAnnotationFile_SRC
 LIST(APPEND UNIT_TESTS AnnotationEditor)
 SET(AnnotationEditor_SRC
         unittestannotationeditor.cpp
-	${CAPCLIENT_ROOT_DIR}/src/AnnotationEditor.cpp
+        ${CAPCLIENT_ROOT_DIR}/src/tools/annotationeditor/annotationeditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 )
 

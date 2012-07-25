@@ -6,8 +6,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "AnnotationEditor.h"
-#include "IAnnotationWindow.h"
+#include "tools/annotationeditor/annotationeditor.h"
+#include "tools/annotationeditor/iannotationwindow.h"
 #include "io/annotationfile.h"
 
 #include "unittestconfigure.h"
