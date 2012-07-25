@@ -165,6 +165,15 @@
 										<max>112</max>
 									</object>
 								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="staticText_sliderValue_">
+										<label>-100</label>
+										<wrap>-1</wrap>
+									</object>
+								</object>
 							</object>
 						</object>
 					</object>
