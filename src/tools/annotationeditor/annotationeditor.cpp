@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 #include <stdexcept>
-#include "AnnotationEditor.h"
-#include "IAnnotationWindow.h"
+#include "annotationeditor.h"
+#include "iannotationwindow.h"
 #include "io/annotationfile.h"
 
 namespace cap
