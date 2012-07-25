@@ -88,7 +88,7 @@ SET(Heart_SRC
 
 LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
-	UnitTestCAPXMLFile.cpp
+        unittestcapxmlfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
         ${CAPCLIENT_ROOT_DIR}/src/platforminfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
@@ -106,7 +106,7 @@ SET(Xml_SRC
 
 LIST(APPEND UNIT_TESTS Modeller)
 SET(Modeller_SRC
-	UnitTestModeller.cpp
+        unittestmodeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
@@ -121,20 +121,20 @@ SET(Modeller_SRC
 
 LIST(APPEND UNIT_TESTS CAPAnnotationFile)
 SET(CAPAnnotationFile_SRC
-	UnitTestCAPAnnotationFile.cpp
+        unittestannotationfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 )
 
 LIST(APPEND UNIT_TESTS AnnotationEditor)
 SET(AnnotationEditor_SRC
-	UnitTestAnnotationEditor.cpp
+        unittestannotationeditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/AnnotationEditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 )
 
 LIST(APPEND UNIT_TESTS FileSystem)
 SET(FileSystem_SRC
-	UnitTestFileSystem.cpp
+        unittestfilesystem.cpp
         ${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
         ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
 )
@@ -177,7 +177,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	LIST(APPEND GUI_TESTS SelfDeletion)
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "ui/selfdeletionwindowui.xrc" SelfDeletion_UI_SRCS_AND_HDRS)
 	SET(SelfDeletion_SRC
-		UnitTestSelfDeletion.cpp
+                unittestselfdeletion.cpp
 		selfdeletionwindow.cpp
 		${SelfDeletion_UI_SRCS_AND_HDRS}
 		)
