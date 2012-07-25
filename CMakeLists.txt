@@ -42,7 +42,6 @@ SET( APP_HDRS
         src/zinc/utilities.h
 	src/AnnotationEditor.h
 	src/AnnotationWindow.h
-	src/Archiver.h
 	src/io/annotationfile.h
 	src/math/basis.h
         src/binaryvolumeparameterdialog.h
