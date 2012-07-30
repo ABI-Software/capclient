@@ -55,17 +55,15 @@ bool CAPApp::OnInit()
 	//_CrtSetBreakAlloc(91387);
 #endif
 	wxXmlResource::Get()->InitAllHandlers();
-	wxXmlInit_logdialogui();
-	/**
-	 * TODO: reinstate the end user license agreement.
-	 */
-	if (!HandleEula())
+
+    if (!HandleEula())
 		return false;
 	
 	// Create the main application model
 	cc_ = CAPClient::GetInstance();
 	
 	// We cannot initialise this from inside the CAPClientWindow constructor unfortunately.
+    wxXmlInit_logdialogui();
     wxXmlInit_capclientwindowui();
 	CAPClientWindow *frame = new CAPClientWindow(cc_);
 	cc_->SetCAPClientWindow(frame);
