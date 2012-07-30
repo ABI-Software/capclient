@@ -31,7 +31,7 @@ extern "C"
 #include <zn/cmiss_graphics_material.h>
 #include <zn/cmiss_field_arithmetic_operators.h>
 #include <zn/cmiss_field_logical_operators.h>
-#include <zn/cmiss_field_composite.h>
+#include <zn/cmiss_field_constant.h>
 #include <zn/cmiss_field_conditional.h>
 }
 
@@ -180,15 +180,11 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		Cmiss_field_set_name(if_field, "if_field");
         Cmiss_field_id label_state = Cmiss_field_module_create_constant(field_module, 1, values);
         r = Cmiss_field_set_name(label_state, "label_state");
-        std::string label_on = regionName + "_label_on";
-        std::string label_off = regionName + "_label_off";
-        std::string label_on_command = "string_constant \"  " + regionName + "\"";
-        int r1 = Cmiss_field_module_define_field(field_module, label_on.c_str(), label_on_command.c_str());
-        int r2 = Cmiss_field_module_define_field(field_module, label_off.c_str(), "string_constant \" \"");
-        Cmiss_field_id label_on_field = Cmiss_field_module_find_field_by_name(field_module, label_on.c_str());
-        Cmiss_field_id label_off_field = Cmiss_field_module_find_field_by_name(field_module, label_off.c_str());
+
+        Cmiss_field_id label_on_field = Cmiss_field_module_create_string_constant(field_module, regionName.c_str());
+        Cmiss_field_id label_off_field = Cmiss_field_module_create_string_constant(field_module, " ");
         Cmiss_field_id if_label_field = Cmiss_field_module_create_if(field_module, label_state, label_on_field, label_off_field);
-        int r3 = Cmiss_field_set_name(if_label_field, "if_label");
+        Cmiss_field_set_name(if_label_field, "if_label");
         //r = Cmiss_field_module_define_field(field_module, "invisible_control_field", "constant 0");
 		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
 		{
@@ -205,7 +201,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
                 material = "yellow";
 
 			//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-            std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label if_label";// + label;
+            std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label if_label";
             if (regionName == "GUIDEPOINT")
                 node_command += " spectrum guidepoint_spectrum data spectrum_value_field";
 			Cmiss_graphic_define(node_graphic, node_command.c_str());

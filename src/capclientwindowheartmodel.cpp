@@ -28,7 +28,7 @@ extern "C"
 #include <zn/cmiss_field_module.h>
 #include <zn/cmiss_element.h>
 #include <zn/cmiss_node.h>
-#include <zn/cmiss_field_composite.h>
+#include <zn/cmiss_field_constant.h>
 #include <zn/cmiss_field_matrix_operators.h>
 #include <zn/cmiss_time_keeper.h>
 }
