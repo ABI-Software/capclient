@@ -54,6 +54,11 @@
 					<help></help>
 					<checkable>1</checkable>
 				</object>
+				<object class="wxMenuItem" name="menuItem_modellingPointLabel_">
+					<label>Modelling _Point Label</label>
+					<help></help>
+					<checkable>1</checkable>
+				</object>
 				<object class="wxMenuItem" name="menuItem_heartVolume_">
 					<label>_Heart Volume</label>
 					<help></help>
