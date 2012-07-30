@@ -140,8 +140,9 @@ void CAPClientWindow::MakeConnections()
     Connect(XRCID("menuItem_exportToCmgui_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportToCmgui));
     Connect(XRCID("menuItem_exportToBinaryVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModelToBinaryVolume));
 	Connect(XRCID("menuItem_viewAll_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewAll));
-	Connect(XRCID("menuItem_modellingMode_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
-	Connect(XRCID("menuItem_heartVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
+    Connect(XRCID("menuItem_modellingMode_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
+    Connect(XRCID("menuItem_modellingPointLabel_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewModellingPointLabels));
+    Connect(XRCID("menuItem_heartVolume_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewStatusText));
 	Connect(XRCID("menuItem_logWindow_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnViewLog));
 	Connect(XRCID("menuItem_hideShowAll_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowAll));
 	Connect(XRCID("menuItem_hideShowOthers_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnToggleHideShowOthers));
@@ -381,13 +382,13 @@ void CAPClientWindow::CreateStatusTextStringsFieldRenditions()
 	Cmiss_graphic_set_visibility_flag(currentmode_graphic, 0);
 	statusTextStringsFieldMap_["modellingmode"] = std::make_pair(currentmode_field, currentmode_graphic);
 
-	Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'ED Volume(EPI) = -- ml'");
+    Cmiss_field_id heartvolumeepi_field = Cmiss_field_module_create_field(field_module, "heartvolumeepi", "string_constant 'Volume(EPI) = -- ml'");
 	Cmiss_graphic_id heartvolumeepi_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
 	Cmiss_graphic_define(heartvolumeepi_graphic, "glyph none general label heartvolumeepi centre 0.95,-0.9,0.0 no_select normalised_window_fit_left font default material default;");
 	Cmiss_graphic_set_visibility_flag(heartvolumeepi_graphic, 0);
 	statusTextStringsFieldMap_["heartvolumeepi"] = std::make_pair(heartvolumeepi_field, heartvolumeepi_graphic);
 
-	Cmiss_field_id heartvolumeendo_field = Cmiss_field_module_create_field(field_module, "heartvolumeendo", "string_constant 'ED Volume(ENDO) = -- ml'");
+    Cmiss_field_id heartvolumeendo_field = Cmiss_field_module_create_field(field_module, "heartvolumeendo", "string_constant 'Volume(ENDO) = -- ml'");
 	Cmiss_graphic_id heartvolumeendo_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_POINT);
 	Cmiss_graphic_define(heartvolumeendo_graphic, "glyph none label heartvolumeendo centre 0.95,-0.85,0.0 no_select normalised_window_fit_left font default material default;");
 	Cmiss_graphic_set_visibility_flag(heartvolumeendo_graphic, 0);
@@ -909,6 +910,24 @@ void CAPClientWindow::OnViewStatusText(wxCommandEvent& event)
 		SetStatusTextVisibility("heartvolumeepi", event.IsChecked());
 		SetStatusTextVisibility("heartvolumeendo", event.IsChecked());
 	}
+}
+
+void CAPClientWindow::OnViewModellingPointLabels(wxCommandEvent& /* event */)
+{
+    ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_mode_->GetSelection());
+    const std::string& modelling_mode = ModellingEnumStrings.find(modellingEnum)->second;
+    Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+    Cmiss_field_id label_state = Cmiss_field_module_find_field_by_name(field_module, "label_state");
+    Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+    double state[] = {0.0};
+    if (menuItem_modellingPointLabel_->IsChecked())
+        state[0] = 1.0;
+
+    Cmiss_field_assign_real(label_state, field_cache, 1, state);
+
+    Cmiss_field_destroy(&label_state);
+    Cmiss_field_cache_destroy(&field_cache);
+    Cmiss_field_module_destroy(&field_module);
 }
 
 void CAPClientWindow::OnViewLog(wxCommandEvent& /* event */)

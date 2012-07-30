@@ -654,8 +654,9 @@ private:
     void OnExportToCmgui(wxCommandEvent& event); /**< Menu event handler */
     void OnExportModelToBinaryVolume(wxCommandEvent& event); /**< Menu event handler */
 	void OnViewAll(wxCommandEvent& event); /**< Menu event handler */
-	void OnViewStatusText(wxCommandEvent& event); /**< Menu event handler */
-	void OnViewLog(wxCommandEvent& event); /**< Menu event handler */
+    void OnViewStatusText(wxCommandEvent& event); /**< Menu event handler */
+    void OnViewModellingPointLabels(wxCommandEvent& event); /**< Menu event handler */
+    void OnViewLog(wxCommandEvent& event); /**< Menu event handler */
 
 	/**
 	 * On idle events are used by Cmgui to update graphics.
