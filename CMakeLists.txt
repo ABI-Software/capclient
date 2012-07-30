@@ -24,6 +24,7 @@ CACHE_VAR_WITH_DEFAULT(CAP_CMGUI_CONFIG_DIR "/usr/local/lib/cmake" PATH "The dir
 
 OPTION_WITH_DEFAULT(CAP_ENABLE_UNIT_TESTS "Enable CAPClient Unit Tests." OFF)
 OPTION_WITH_DEFAULT(CAP_ENABLE_GUI_UNIT_TESTS "Enable CAPClient GUI Unit Tests." OFF)
+OPTION_WITH_DEFAULT(CAP_DEFINITELY_NON_CLINICAL_USE "The CAPClient is definitely not going to be used for clinical purposes." OFF)
 OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary." ON)
 
 # wxWidgets 2.8.10 can only be built in 32-bit mode on Mac
@@ -186,6 +187,8 @@ ENDIF( CMAKE_COMPILER_IS_GNUCXX)
 XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${APP_XRC}" UI_SRCS_AND_HDRS)
 
 SET(CAPCLIENT_VERSION_STRING ${CAPCLIENT_VERSION_MAJOR}.${CAPCLIENT_VERSION_MINOR}.${CAPCLIENT_VERSION_PATCH})
+SET(CAPCLIENT_DEFINITELY_NON_CLINICAL ${CAP_DEFINITELY_NON_CLINICAL_USE})
+
 # Configure capclientconfig header file.
 CONFIGURE_FILE(src/capclientconfig.h.cmake src/capclientconfig.h)
 CONFIGURE_FILE(src/html/aboutcapclient.html.cmake src/aboutcapclient.html)
