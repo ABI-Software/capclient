@@ -17,7 +17,7 @@ extern "C" {
 #include <zn/cmiss_field.h>
 #include <zn/cmiss_region.h>
 #include <zn/cmiss_field_module.h>
-#include <zn/cmiss_field_composite.h>
+#include <zn/cmiss_field_constant.h>
 #include <zn/cmiss_field_matrix_operators.h>
 #include <zn/cmiss_field_finite_element.h>
 #include <zn/cmiss_graphic.h>
