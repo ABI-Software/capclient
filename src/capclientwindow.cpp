@@ -106,7 +106,6 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
     CreateSpectrum();
     CreateFonts();
     SetModellingCallbacks();
-    CreateStatusBar(1);
     UpdateUI();
 }
 
