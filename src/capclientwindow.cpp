@@ -236,7 +236,12 @@ void CAPClientWindow::UpdateUI()
         checkBox_visibility_->SetValue(heartModel_->IsVisible());
 	menuItem_visibility_->Enable(heartModelDependent);
 	choice_modelDisplayMode_->Enable(heartModelDependent);
+#if defined CAPCLIENT_DEFINITELY_NON_CLINICAL
     menuItem_exportHeartVolumes_->Enable(heartModelDependent);
+#else
+    menuItem_exportHeartVolumes_->Enable(false);
+    menuItem_heartVolume_->Enable(false);
+#endif
     menuItem_exportToCmgui_->Enable(heartModelDependent);
     // Functionality not implemented, exports iso surfaces check isosurfacecapture.h
     menuItem_export_->Enable(false /* heartModelDependent */);

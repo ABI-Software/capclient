@@ -5,8 +5,8 @@
  *      Author: jchu014
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CAPCLIENT_CONFIG_H_
+#define CAPCLIENT_CONFIG_H_
 
 namespace cap
 {
@@ -15,7 +15,8 @@ namespace cap
 #define __func__ __FUNCTION__
 #endif
 #cmakedefine CAPCLIENT_VERSION_STRING "@CAPCLIENT_VERSION_STRING@"
+#cmakedefine CAPCLIENT_DEFINITELY_NON_CLINICAL
 
 } // end namespace cap
 
-#endif /* CONFIG_H_ */
+#endif /* CAPCLIENT_CONFIG_H_ */
