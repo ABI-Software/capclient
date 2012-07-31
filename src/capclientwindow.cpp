@@ -131,9 +131,11 @@ void CAPClientWindow::MakeConnections()
 	// Menus
 	Connect(XRCID("menuItem_about_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnAbout));
 	Connect(XRCID("menuItem_quit_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnQuit));
-	Connect(XRCID("menuItem_openModel_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenModel));
-	Connect(XRCID("menuItem_openImageBrowser_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImageBrowser));
-	Connect(XRCID("menuItem_save_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
+    Connect(XRCID("menuItem_new_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnNewModel));
+    Connect(XRCID("menuItem_openModel_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenModel));
+    Connect(XRCID("menuItem_openImageBrowser_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnOpenImageBrowser));
+    Connect(XRCID("menuItem_close_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnCloseModel));
+    Connect(XRCID("menuItem_save_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnSave));
 	Connect(XRCID("menuItem_export_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportModel));
     Connect(XRCID("menuItem_exportHeartVolumes_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportHeartVolumes));
     Connect(XRCID("menuItem_exportToCmgui_"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(CAPClientWindow::OnExportToCmgui));
@@ -203,8 +205,9 @@ void CAPClientWindow::UpdateUI()
 	menuItem_hideShowOthers_->Enable(imageDependent);
 	slider_contrast_->Enable(imageDependent);
 	slider_brightness_->Enable(imageDependent);
-	menuItem_save_->Enable(imageDependent);
-	button_planeShift_->Enable(imageDependent);
+    menuItem_close_->Enable(imageDependent);
+    menuItem_save_->Enable(imageDependent);
+    button_planeShift_->Enable(imageDependent);
 	menuItem_planeShift_->Enable(imageDependent);
 
 	ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_mode_->GetSelection());
@@ -513,7 +516,7 @@ void CAPClientWindow::OnTogglePlay(wxCommandEvent& /* event */)
 
 void CAPClientWindow::Terminate(wxCloseEvent& /* event */)
 {
-	cout << "CAPClientWindow::" << __func__ << endl;
+    dbg("Am i here? CAPClientWindow::Terminate");
 	int answer = wxYES; //--wxMessageBox(wxT("Quit program?"), wxT("Confirm"),
 	                    //--        wxYES_NO, this);
 	if (answer == wxYES)
@@ -559,6 +562,8 @@ void CAPClientWindow::RemoveTextureSlices()
 		Cmiss_region_destroy(&child_region);
 	}
 	Cmiss_region_destroy(&root_region);
+    checkListBox_slice_->SetSelection(wxNOT_FOUND);
+    checkListBox_slice_->Clear();
 }
 
 void CAPClientWindow::CreateTextureSlice(const LabelledSlice& labelledSlice)
@@ -1119,7 +1124,28 @@ void CAPClientWindow::EndModellingAction()
     }
 }
 
-void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
+void CAPClientWindow::OnNewModel(wxCommandEvent& event)
+{
+    OnCloseModel(event);
+}
+
+void CAPClientWindow::OnCloseModel(wxCommandEvent& event)
+{
+    if (event.GetId() == XRCID("menuItem_close_"))
+    {
+        int answer = wxMessageBox(wxT("Save current model?"), wxT("Confirm"), wxYES_NO, this);
+        if (answer == wxYES)
+        {
+            OnSave(event);
+        }
+    }
+    RemoveTextureSlices();
+    EndCurrentModellingMode();
+    mainApp_->ResetModel();
+    UpdateUI();
+}
+
+void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
 {
 	if (previousWorkingLocation_.length() == 0)
 		previousWorkingLocation_ = wxGetCwd();
@@ -1135,6 +1161,7 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& /* event */)
 	{
 		// work with the file
 		LOG_MSG(LOGINFORMATION) << "Opening model '" << filename << "'";
+        OnCloseModel(event);
         mainApp_->OpenModel(filename.mb_str());
         previousWorkingLocation_ = GetPath(filename.mb_str());
         UpdateUI();

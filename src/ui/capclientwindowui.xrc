@@ -7,12 +7,21 @@
 			<label></label>
 			<object class="wxMenu" name="menu_file_">
 				<label>_File</label>
+				<object class="wxMenuItem" name="menuItem_new_">
+					<label>_New Model\tctrl-n</label>
+					<help></help>
+				</object>
 				<object class="wxMenuItem" name="menuItem_openModel_">
 					<label>_Open Model\tCtrl-O</label>
 					<help></help>
 				</object>
 				<object class="wxMenuItem" name="menuItem_openImageBrowser_">
 					<label>_Open Image Browser\tctrl-b</label>
+					<help></help>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="menuItem_close_">
+					<label>_Close Model\tctrl-w</label>
 					<help></help>
 				</object>
 				<object class="separator" />
