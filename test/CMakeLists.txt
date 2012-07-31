@@ -11,8 +11,8 @@ ENABLE_TESTING()
 # ${CAPCLIENT_ROOT_DIR}/CMakeLists.txt and we need to
 # find and set up all the dependencies for ourselves.
 IF(NOT CAPCLIENT_ROOT_DIR)
-	# Making the assumption here that the test directory is not 
-	# going to be separated from the  rest of the CAP Client 
+	# Making the assumption here that the test directory is not
+	# going to be separated from the  rest of the CAP Client
 	# files.
 	SET( CAPCLIENT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." CACHE PATH "Location of the CAP Client src directory.")
 	SET(TXT2INCLUDE_TARGET txt2include)
@@ -27,7 +27,7 @@ IF(NOT CAPCLIENT_ROOT_DIR)
 
 	# Find dependent packages
 	FIND_PACKAGE(GTest REQUIRED)
-        FIND_PACKAGE(Cmgui REQUIRED)
+		FIND_PACKAGE(Cmgui REQUIRED)
 	FIND_PATH(CAPTEST_GMM_INCLUDE_DIR gmm/gmm.h)
 	IF(NOT EXISTS ${CAPTEST_GMM_INCLUDE_DIR}/gmm/gmm.h)
 		MESSAGE(FATAL_ERROR "Could not find required header 'gmm/gmm.h'.")
@@ -61,10 +61,10 @@ INCLUDE_DIRECTORIES(
 	${GTEST_INCLUDE_DIRS}
 	${CAPCLIENT_ROOT_DIR}/src
 	${CAPCLIENT_ROOT_DIR}/test
-        ${CMGUI_INCLUDE_DIRS}
+	${CMGUI_INCLUDE_DIRS}
 	${GDCM_INCLUDE_DIRS}
 	${GMM_INCLUDE_DIRS}
-)
+	)
 
 SET(UNIT_TESTS)
 SET(GUI_TESTS)
@@ -73,77 +73,83 @@ LIST(APPEND UNIT_TESTS Math)
 SET(Math_SRC
 	unittestmath.cpp
 	unittesttotalleastsquares.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
-)
+	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
+	)
 
 LIST(APPEND UNIT_TESTS Heart)
 SET(Heart_SRC
 	unittestheart.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
+	${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
-        )
+	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
+	)
+
+LIST(APPEND UNIT_TESTS DICOM)
+SET(DICOM_SRC
+	unittestdicom.cpp
+	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
+	)
 
 LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
-        unittestcapxmlfile.cpp
+	unittestcapxmlfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/platforminfo.cpp
+	${CAPCLIENT_ROOT_DIR}/src/platforminfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
+	${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/contour.cpp
+	${CAPCLIENT_ROOT_DIR}/src/contour.cpp
 	${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/modelfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/xmlfilehandler.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
-)
+	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
+	)
 
 LIST(APPEND UNIT_TESTS Modeller)
 SET(Modeller_SRC
-        unittestmodeller.cpp
+	unittestmodeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingmode.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modeller.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/heart.cpp
 	${CAPCLIENT_ROOT_DIR}/src/model/modellingpoint.cpp
 	${CAPCLIENT_ROOT_DIR}/src/capclientwindowheartmodel.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
+	${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 	${CAPCLIENT_ROOT_DIR}/src/math/timesmoother.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
-)
+	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
+	)
 
 LIST(APPEND UNIT_TESTS CAPAnnotationFile)
 SET(CAPAnnotationFile_SRC
-        unittestannotationfile.cpp
+	unittestannotationfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
-)
+	)
 
 LIST(APPEND UNIT_TESTS AnnotationEditor)
 SET(AnnotationEditor_SRC
-        unittestannotationeditor.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/tools/annotationeditor/annotationeditor.cpp
+	unittestannotationeditor.cpp
+	${CAPCLIENT_ROOT_DIR}/src/tools/annotationeditor/annotationeditor.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
-)
+	)
 
 LIST(APPEND UNIT_TESTS FileSystem)
 SET(FileSystem_SRC
-        unittestfilesystem.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
-        ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
-)
+	unittestfilesystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
+	)
 
 LIST(APPEND UNIT_TESTS UtilsMisc)
 SET(UtilsMisc_SRC
 	unittestutilsmisc.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
-)
+	)
 
 LIST(APPEND UNIT_TESTS FieldImage)
 Set(FieldImage_SRC
@@ -160,11 +166,11 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${CAPCLIENT_ROOT_DIR}/src/ui/ImageBrowserWindowUI.xrc" ImageBrowser_UI_SRCS_AND_HDRS)
 	SET(ImageBrowser_SRC
 		unittestimagebrowser.cpp
-                ${CAPCLIENT_ROOT_DIR}/src/zinc/sceneviewerpanel.cpp
+		${CAPCLIENT_ROOT_DIR}/src/zinc/sceneviewerpanel.cpp
 		${CAPCLIENT_ROOT_DIR}/src/imagebrowser.cpp
 		${CAPCLIENT_ROOT_DIR}/src/standardheartdefinitions.cpp
 		${CAPCLIENT_ROOT_DIR}/src/imagebrowserwindow.cpp
-                ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
+		${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
 		${CAPCLIENT_ROOT_DIR}/src/material.cpp
 		${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
 		${CAPCLIENT_ROOT_DIR}/src/labelledslice.cpp
@@ -172,16 +178,16 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 		${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 		${ImageBrowser_UI_SRCS_AND_HDRS}
-	)
+		)
 
 	LIST(APPEND GUI_TESTS SelfDeletion)
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "ui/selfdeletionwindowui.xrc" SelfDeletion_UI_SRCS_AND_HDRS)
 	SET(SelfDeletion_SRC
-                unittestselfdeletion.cpp
+		unittestselfdeletion.cpp
 		selfdeletionwindow.cpp
 		${SelfDeletion_UI_SRCS_AND_HDRS}
 		)
-		
+
 	LIST(APPEND GUI_TESTS LogWindow)
 	LIST(APPEND XRC_LogWindow "${CAPCLIENT_ROOT_DIR}/src/ui/logdialogui.xrc" "ui/testlogwindowui.xrc")
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${XRC_LogWindow}" LogWindow_UI_SRCS_ANS_HDRS)
@@ -193,13 +199,13 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 		${LogWindow_UI_SRCS_ANS_HDRS}
 		)
-		
+
 	LIST(APPEND GUI_TESTS FieldImageView)
 	LIST(APPEND XRC_FieldImageView "ui/testfieldimageui.xrc")
 	XRC_TO_CPP("${CMAKE_CURRENT_BINARY_DIR}/src/ui" "${XRC_FieldImageView}" FieldImageView_UI_SRCS_ANS_HDRS)
 	SET(FieldImageView_SRC
 		unittestfieldimageview.cpp
-                ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
+		${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
 		${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
 		${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
 		${FieldImageView_UI_SRCS_ANS_HDRS}
@@ -221,50 +227,50 @@ IF(MSVC)
 		${CAPAnnotationFile_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		)
-		
+
 	SET(Heart_SRC
 		${Heart_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 		)
-	
+
 	SET(FileSystem_SRC
 		${FileSystem_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 		)
-	
+
 	SET(Modeller_SRC
 		${Modeller_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 		)
-	
+
 	SET(Xml_SRC
 		${Xml_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 		)
-	
+
 	IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 		SET(ImageBrowser_SRC
 			${ImageBrowser_SRC}
 			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 			)
-			
+
 		SET(LogWindow_SRC
 			${LogWindow_SRC}
 			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 			)
-			
+
 		SET(FieldImageView_SRC
 			${FieldImageView_SRC}
 			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 			${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
 			)
-			
+
 		SET(EULADialog_SRC
 			${EULADialog_SRC}
 			${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
@@ -279,7 +285,7 @@ ENDIF()
 FOREACH( TEST ${UNIT_TESTS} )
 	ADD_EXECUTABLE(UnitTest${TEST} ${${TEST}_SRC})
 	ADD_TEST(UnitTest${TEST} UnitTest${TEST})
-        TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${GTEST_LIBRARIES} ${CMGUI_LIBRARIES})
+		TARGET_LINK_LIBRARIES(UnitTest${TEST} ${GTEST_MAIN_LIBRARIES} ${GTEST_LIBRARIES} ${CMGUI_LIBRARIES})
 	SET_TARGET_PROPERTIES(UnitTest${TEST} PROPERTIES  COMPILE_DEFINITIONS "UnitTest${TEST}" )
 ENDFOREACH()
 
@@ -287,7 +293,7 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 	FOREACH( TEST ${GUI_TESTS} )
 		ADD_EXECUTABLE(GuiTest${TEST} ${${TEST}_SRC})
 		ADD_TEST(GuiTest${TEST} GuiTest${TEST})
-                TARGET_LINK_LIBRARIES(GuiTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
+				TARGET_LINK_LIBRARIES(GuiTest${TEST} ${GTEST_MAIN_LIBRARIES} ${CMGUI_LIBRARIES})
 	ENDFOREACH()
 ENDIF()
 

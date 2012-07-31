@@ -65,9 +65,10 @@ public:
 	/**
 	 * Gets the labelled slices.
 	 *
-	 * @return	The labelled slices.
+     * @param location  The default location to look for images in.
+     * @return	The labelled slices.
 	 */
-	LabelledSlices GetLabelledSlices() const;
+    LabelledSlices GetLabelledSlices(const std::string& location) const;
 
 	/**
      * Gets the details of the modelling points.
