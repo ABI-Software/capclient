@@ -645,9 +645,11 @@ private:
 	 * Menu event handlers.
 	 */
 	void OnAbout(wxCommandEvent& event); /**< Menu event handler */
-	void OnOpenModel(wxCommandEvent& event); /**< Menu event handler */
+    void OnNewModel(wxCommandEvent& event); /**< Menu event handler */
+    void OnOpenModel(wxCommandEvent& event); /**< Menu event handler */
 	void OnOpenImageBrowser(wxCommandEvent& event); /**< Menu event handler */
-	void OnSave(wxCommandEvent& event); /**< Menu event handler */
+    void OnCloseModel(wxCommandEvent& event); /**< Menu event handler */
+    void OnSave(wxCommandEvent& event); /**< Menu event handler */
 	void OnQuit(wxCommandEvent& event); /**< Menu event handler */
     void OnExportModel(wxCommandEvent& event); /**< Menu event handler */
     void OnExportHeartVolumes(wxCommandEvent& event); /**< Menu event handler */

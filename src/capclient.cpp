@@ -128,9 +128,12 @@ void CAPClient::OpenModel(const std::string& filename)
 	ModelFile xmlFile;
 	xmlFile.ReadFile(filename);
 	
-	XMLFileHandler xmlFileHandler(xmlFile);
+    if (previousImageLocation_.length() == 0)
+        previousImageLocation_ = GetPath(filename);
+
+    XMLFileHandler xmlFileHandler(xmlFile);
 	gui_->CreateProgressDialog("Please wait", "Searching for DICOM images", 10);
-	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices();
+    LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices(previousImageLocation_);
 	gui_->UpdateProgressDialog(10);
 
 	if (labelledSlices.empty())
