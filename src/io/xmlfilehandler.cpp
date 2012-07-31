@@ -8,7 +8,8 @@
 #include "io/xmlfilehandler.h"
 
 #include <wx/wx.h>
-#include <wx/dir.h> // FIXME move this out to a separate function/class
+//#include <wx/dir.h> // FIXME move this out to a separate function/class
+#include <wx/dirdlg.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
@@ -201,7 +202,7 @@ namespace
 
 } // unnamed namespace
 
-LabelledSlices XMLFileHandler::GetLabelledSlices() const
+LabelledSlices XMLFileHandler::GetLabelledSlices(const std::string& location) const
 {
 	LabelledSlices labelledSlices;
 	const std::string& filename = xmlFile_.GetFilename();
@@ -216,6 +217,7 @@ LabelledSlices XMLFileHandler::GetLabelledSlices() const
 	typedef std::map<std::string, LabelledSlice > LabelledSliceMap;
 	LabelledSliceMap labelledSliceMap;
 
+    wxString defaultPath(location.c_str());
 	ModelFile::Input& input = xmlFile_.GetInput();
 	BOOST_FOREACH(ModelFile::Image const& image, input.images)
 	{
@@ -225,16 +227,19 @@ LabelledSlices XMLFileHandler::GetLabelledSlices() const
 			//Can't locate the file. Ask the user to locate the dicom file.
 			dbg("No matching filename in the sopiuid to filename map");
 
-			wxString defaultPath = wxGetCwd();
 
-			const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
+
+            const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
 			if ( !dirname.empty() )
 			{
                 //std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
-				wxString dirfname = dirname + wxT("/");
-				HashTable newMap = GenerateSopiuidToFilenameMap(std::string(dirfname.mb_str()));
+                std::string dirfname(dirname.mb_str());
+                dirfname += "/";
+                dbg("searching: " + dirfname + ", def path: " + defaultPath.c_str());
+                HashTable newMap = GenerateSopiuidToFilenameMap(dirfname);
 				uidToFilenameMap.insert(newMap.begin(), newMap.end());
 				dicomFileItr = uidToFilenameMap.find(image.sopiuid);
+                defaultPath = dirfname.c_str();
 			}
 			else
 			{
