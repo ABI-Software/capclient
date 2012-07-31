@@ -80,7 +80,7 @@ Cmiss_field_image_id Cmiss_create_image_field(Cmiss_context_id context, const st
 // Can't do multiple tests with this setup, one should be fine.
 TEST(DICOM, Analyze)
 {
-    std::string name = "/A820BF0A.dcm";
+    std::string name = "/68691116.dcm";
     std::string imageName = std::string(DICOMIMAGE_IMAGEDIR) + name;
     cap::DICOMImage *di = new cap::DICOMImage(imageName);
 
@@ -97,7 +97,7 @@ TEST(DICOM, Analyze)
 
 TEST(DICOM, AssignTagValue)
 {
-    std::string name = "/A820BF0A.dcm";
+    std::string name = "/68691116.dcm";
     std::string imageName = std::string(DICOMIMAGE_IMAGEDIR) + name;
     cap::DICOMImage *di = new cap::DICOMImage(imageName);
 
@@ -107,7 +107,7 @@ TEST(DICOM, AssignTagValue)
 
 TEST(DICOM, IsTagRequired)
 {
-    std::string name = "/A820BF0A.dcm";
+    std::string name = "/68691116.dcm";
     std::string imageName = std::string(DICOMIMAGE_IMAGEDIR) + name;
     cap::DICOMImage *di = new cap::DICOMImage(imageName);
 
@@ -120,7 +120,7 @@ TEST(DICOM, IsTagRequired)
 
 TEST(DICOM, GetDefaultTagValue)
 {
-    std::string name = "/A820BF0A.dcm";
+    std::string name = "/68691116.dcm";
     std::string imageName = std::string(DICOMIMAGE_IMAGEDIR) + name;
     cap::DICOMImage *di = new cap::DICOMImage(imageName);
 
