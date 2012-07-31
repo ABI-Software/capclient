@@ -391,12 +391,6 @@ public:
 private:
 
     /**
-     * Read in the DICOM image extracting information from the image
-     * attributes.
-     */
-    void ReadFile();
-
-    /**
      * Compute the image plane using information extracted from the
      * DICOM header.
      */
