@@ -78,10 +78,9 @@ TEST(ModelFile, WriteXML)
     ModelFile::Point p;
     p.time = 0.56777;
     p.type = BASEPLANE;
-    //p.values = std::map<std::string
+
     xmlFile.AddPoint(p);
     xmlFile.WriteFile("dummy");
-    // add tests here
 
     ModelFile xmlFile2;
     xmlFile2.ReadFile("dummy");
