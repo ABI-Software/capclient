@@ -63,7 +63,6 @@ TEST(ModelFile, ReadXML)
 
     ModelFile::ProvenanceDetail& pd = xmlFile.documentation_.provenanceDetails[0];
     EXPECT_EQ("Converted from CIM model", pd.comment);
-    // add more tests
 }
 
 TEST(ModelFile, WriteXML)
