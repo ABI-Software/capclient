@@ -112,8 +112,6 @@ TEST(ModelFile, WriteXML)
     ModelFile::ProvenanceDetail& pd = xmlFile.documentation_.provenanceDetails[0];
     ModelFile::ProvenanceDetail& pd2 = xmlFile2.documentation_.provenanceDetails[0];
     EXPECT_EQ(pd.comment, pd2.comment);
-
-    //EXPECT_EQ(0, remove("dummy"));
 }
 
 TEST(ModelFile, AddImage)
