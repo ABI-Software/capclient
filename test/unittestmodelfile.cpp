@@ -166,7 +166,6 @@ TEST(XMLFileHandler, GetContourPoints)
     ASSERT_EQ("SampleImages", xmlFile.name_);
 
     XMLFileHandler fh(xmlFile);
-//    LabelledSlices ls = fh.GetContourPoints();
 }
 
 
