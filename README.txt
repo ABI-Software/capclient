@@ -11,41 +11,8 @@ Dependencies
 
 4. boost (http://www.boost.org)
 
-Directory structure for building
-
-cmiss (CMISS_ROOT) ----- cmgui (r7040)
-                     |
-                     --- third_party
-                     |
-                     --- itk
-                     |
-                     --- wxWidgets
-                     |
-                     --- gtest
-                     |
-                     --- boost
-                     |
-                     --- gmm-3.1
-                     |
-                     --- CAP_Client
-
-cd $(CMISS_ROOT)/CAP_Client
-mkdir build
-cd build
-ccmake ..
-
-set following CMake variables
-CMAKE_BUILD_TYPE (Release/Debug)
-wxWidgets_USE_DEBUG (YES/NO)
-wxWidgets_CONFIG_EXECUTABLE (path/to/wx-config)
-
-cmake ..
-make
-
-(You need CMake to build the CAP client)
+5. cmake (> 2.8.2)
 
 Notes on building dependencies
 1. GTEST: After building gtest, run make in gtest/make
-2. Cmgui: build cmgui-wx-static-lib as this is the version used by the CAP clientI.
-   itk should be installed in itk/(ARCH_TYPE)
-   The flag to include libgdcm needs to be turned on when building the Cmgui library.
+
