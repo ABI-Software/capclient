@@ -1,5 +1,6 @@
 
 How to build the CAP Client
+===========================
 
 The details for building the CAP Client are given in the CAP Client Developers document, located here:
 
