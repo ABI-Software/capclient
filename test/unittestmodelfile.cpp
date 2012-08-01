@@ -167,7 +167,6 @@ TEST(XMLFileHandler, GetContourPoints)
 
     XMLFileHandler fh(xmlFile);
 //    LabelledSlices ls = fh.GetContourPoints();
-//    EXPECT_EQ(3, ls.size());
 }
 
 
