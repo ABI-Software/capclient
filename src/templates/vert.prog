@@ -1,0 +1,8 @@
+uniform vec4 texture_scaling;
+void main()
+{
+	gl_TexCoord[0] = texture_scaling * gl_MultiTexCoord0;
+	//gl_FrontColor=gl_Color;
+	//gl_BackColor=gl_Color;	
+	gl_Position = ftransform();
+}
