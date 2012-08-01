@@ -1,7 +1,13 @@
+
 How to build the CAP Client
 
-Dependencies
-1. cmgui (http://www.cmiss.org/cmgui)
+The details for building the CAP Client are given in the CAP Client Developers document, located here:
+
+    http://sourceforge.net/projects/cardiacatlas/files/CAP%20Client/V2.0/Developer/
+
+The following is a list of dependencies required for building the CAP Client
+
+1. Cmgui (http://www.cmiss.org/cmgui)
   (http://www.cmiss.org/cmgui/wiki/BuildingCmguiFromSource)
    cmgui depends on itk, ImageMagick & other image libraries, wxWidgets
 
@@ -13,6 +19,4 @@ Dependencies
 
 5. cmake (> 2.8.2)
 
-Notes on building dependencies
-1. GTEST: After building gtest, run make in gtest/make
 
