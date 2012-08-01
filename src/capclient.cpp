@@ -349,10 +349,7 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
         Point3D newLocation = currentLocation - proj;
         BOOST_FOREACH(DICOMPtr dicom, it->GetDICOMImages())
         {
-//            Point3D currentPos = dicom->GetImagePosition();
             dicom->SetImagePosition(newLocation);
-//			ImagePlane *dicomPlane = dicom->GetImagePlane();
-//			*dicomPlane = newLocation;
         }
         SetPreviousPosition(position);
         double d = DotProduct(newLocation, plane->normal);

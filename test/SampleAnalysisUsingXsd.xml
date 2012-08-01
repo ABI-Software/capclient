@@ -22,6 +22,70 @@
         <cap:Yz>12.0</cap:Yz>
       </cap:ImageOrientation>
     </cap:Image>
+     <cap:StudyContours studyiuid="2.16.124.113543.6006.99.08794214643476012478">
+      <cap:ImageContours sopiuid="2.16.124.113543.6006.99.06895616505038561928">
+        <cap:Contour number="1">
+          <cap:ContourPoint>
+            <cap:x>116.0</cap:x>
+            <cap:y>137.0</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>116.5</cap:x>
+            <cap:y>137.0</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>117.0</cap:x>
+            <cap:y>137.0</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>117.5</cap:x>
+            <cap:y>137.0</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>118.0</cap:x>
+            <cap:y>137.0</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>118.5</cap:x>
+            <cap:y>137.5</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>119.0</cap:x>
+            <cap:y>137.5</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>119.5</cap:x>
+            <cap:y>137.5</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>120.0</cap:x>
+            <cap:y>138.0</cap:y>
+          </cap:ContourPoint>
+          <cap:ContourPoint>
+            <cap:x>120.5</cap:x>
+            <cap:y>138.0</cap:y>
+          </cap:ContourPoint>
+          <cap:TransformationMatrix>
+            <cap:cell col="0" row="0">1.03777943818</cap:cell>
+            <cap:cell col="1" row="0">-0.253969537336</cap:cell>
+            <cap:cell col="2" row="0">0</cap:cell>
+            <cap:cell col="3" row="0">-6.52655</cap:cell>
+            <cap:cell col="0" row="1">1.16781750003</cap:cell>
+            <cap:cell col="1" row="1">0.258689837752</cap:cell>
+            <cap:cell col="2" row="1">0</cap:cell>
+            <cap:cell col="3" row="1">-245.692261</cap:cell>
+            <cap:cell col="0" row="2">0.0253204206675</cap:cell>
+            <cap:cell col="1" row="2">-1.51985946852</cap:cell>
+            <cap:cell col="2" row="2">1</cap:cell>
+            <cap:cell col="3" row="2">152.402222</cap:cell>
+            <cap:cell col="0" row="3">0</cap:cell>
+            <cap:cell col="1" row="3">0</cap:cell>
+            <cap:cell col="2" row="3">0</cap:cell>
+            <cap:cell col="3" row="3">1</cap:cell>
+          </cap:TransformationMatrix>
+        </cap:Contour>
+      </cap:ImageContours>
+    </cap:StudyContours>
   </cap:Input>
   <cap:Output focallength="10.0" interval="0.3" transformation_matrix="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16">
     <cap:Exnode frame="1">cap.exnode</cap:Exnode>

@@ -94,7 +94,7 @@ SET(DICOM_SRC
 
 LIST(APPEND UNIT_TESTS Xml)
 SET(Xml_SRC
-	unittestcapxmlfile.cpp
+	unittestmodelfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
 	${CAPCLIENT_ROOT_DIR}/src/platforminfo.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
