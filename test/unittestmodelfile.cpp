@@ -162,6 +162,15 @@ TEST(XMLFileHandler, GetContourPoints)
     ASSERT_EQ("SampleImages", xmlFile.name_);
 
     XMLFileHandler fh(xmlFile);
+
+    const ModelFile::StudyContours& scs = fh.GetStudyContours();
+    EXPECT_EQ("1.3.12.2.1107.5.2.6.22043.4.0.6860603417842558", scs.studyiuid);
+    EXPECT_EQ(xmlFile.GetStudyInstanceUID(), scs.studyiuid);
+    ASSERT_EQ(1, scs.listOfImageContours.size());
+    ModelFile::ImageContours ics = scs.listOfImageContours.at(0);
+    ASSERT_EQ(1, ics.contours.size());
+    ModelFile::Contour c = ics.contours.at(0);
+    EXPECT_EQ(10, c.contourPoints.size());
 }
 
 
