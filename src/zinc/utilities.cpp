@@ -13,6 +13,7 @@ extern "C"
 #include <zn/cmiss_graphic.h>
 #include <zn/cmiss_node.h>
 #include <zn/cmiss_rendition.h>
+#include <zn/cmiss_field_matrix_operators.h>
 //#include <zn/cmiss_node.h>
 }
 
@@ -71,30 +72,37 @@ void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& reg
     {
         coordinate_field = Cmiss_field_module_create_finite_element(field_module, /*number_of_components*/3);
         Cmiss_field_set_attribute_integer(coordinate_field, CMISS_FIELD_ATTRIBUTE_IS_COORDINATE, 1);
-        Cmiss_field_set_attribute_integer(coordinate_field, CMISS_FIELD_ATTRIBUTE_IS_MANAGED, 1);
         Cmiss_field_set_name(coordinate_field, "coordinates_contour");
     }
 
     Cmiss_field_id mx_field = Cmiss_field_module_find_field_by_name(field_module, "contour_transform_mx");
     if (!mx_field)
     {
-        double identity[16] = {1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+        double identity[16] = {0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0};
         mx_field = Cmiss_field_module_create_constant(field_module, 16, identity);
-        Cmiss_field_set_attribute_integer(mx_field, CMISS_FIELD_ATTRIBUTE_IS_MANAGED, 1);
         Cmiss_field_set_name(mx_field, "contour_transform_mx");
+    }
+
+    Cmiss_field_id coordinates_rc = Cmiss_field_module_find_field_by_name(field_module, "coordinates_rc");
+    if (!coordinates_rc)
+    {
+        coordinates_rc = Cmiss_field_module_create_projection(field_module, coordinate_field, mx_field);
+        Cmiss_field_set_attribute_integer(coordinates_rc, CMISS_FIELD_ATTRIBUTE_IS_MANAGED, 1);
+        Cmiss_field_set_name(coordinates_rc, "coordinates_rc");
     }
 
     Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
     {
         Cmiss_graphic_id data_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_DATA_POINTS);
-        Cmiss_graphic_set_coordinate_field(data_graphic, coordinate_field);
+        Cmiss_graphic_set_coordinate_field(data_graphic, coordinates_rc);
         Cmiss_graphic_set_visibility_flag(data_graphic, 1);
-        std::string data_command = "LOCAL glyph cylinder general size \"2*2*1\" centre 0,0,0";
+        std::string data_command = "LOCAL glyph cylinder_solid general size \"0.2*1*1\" centre 0,0,0 material yellow";
         Cmiss_graphic_define(data_graphic, data_command.c_str());
         Cmiss_graphic_destroy(&data_graphic);
     }
     Cmiss_rendition_destroy(&rendition);
 
+    Cmiss_field_destroy(&coordinates_rc);
     Cmiss_field_destroy(&mx_field);
     Cmiss_field_destroy(&coordinate_field);
     Cmiss_field_module_end_change(field_module);
@@ -113,7 +121,7 @@ void SetContourTransform(Cmiss_context_id cmissContext, const std::string& regio
 
     Cmiss_field_id mx_field = Cmiss_field_module_find_field_by_name(field_module, "contour_transform_mx");
     Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
-    Cmiss_field_assign_real(mx_field, cache, 16, transform);
+//    Cmiss_field_assign_real(mx_field, cache, 16, transform);
 
     Cmiss_field_cache_destroy(&cache);
     Cmiss_field_destroy(&mx_field);
