@@ -46,208 +46,215 @@ extern "C"
 
 //class Cmiss_node;
 class wxPanel;
-		
+
 namespace cap
 {
 class CAPClientWindow;
 
 /**
  * \brief CAPCLient is the main data class for the application.
- * The gui(view) class for CAPClient is CAPClientWindow.  This class is follows 
+ * The gui(view) class for CAPClient is CAPClientWindow.  This class is follows
  * the singleton pattern so that we can only have one CAPCLient.
  */
 class CAPClient : private IImageBrowser, public IModeller//, public wxApp
 {
 public:
-	
-	/**
-	 * Here we create the main app, the constructor, copy constructor and 
-	 * assignment operator are private.  This enables us to control the creation
-	 * of the CAPClient object.
-	 */
-	static CAPClient* GetInstance()
-	{
-		if (instance_ == 0)
-		{
-			instance_ = new CAPClient();
-		}
-		return instance_;
-	}
-	
-	/**
-	 * Destructor deletes modeller_
-	 */
-	~CAPClient()
-	{
-		delete modeller_;
-		gui_->Destroy();
-		delete gui_;
-	}
-	
-	/**
-	 * I would like to make this function private and replace it with a public
-	 * function that returns the wxFrame.
-	 */
-	void SetCAPClientWindow(CAPClientWindow* win)
-	{
-		gui_ = win;
-	}
 
-	/**
-	 * Gets the number of heart model frames.
-	 *
-	 * @return	The number of heart model frames.
-	 */
-	int GetNumberOfHeartModelFrames() const;
+    /**
+     * Here we create the main app, the constructor, copy constructor and
+     * assignment operator are private.  This enables us to control the creation
+     * of the CAPClient object.
+     */
+    static CAPClient* GetInstance()
+    {
+        if (instance_ == 0)
+        {
+            instance_ = new CAPClient();
+        }
+        return instance_;
+    }
 
-	/**
-	 * Process the modelling points entered for the current mode.
-	 *
-	 * @return	true if it succeeds, false if it fails.
-	 */
-	bool ProcessModellingPointsEnteredForCurrentMode()
-	{
-		bool success = false;
-		if (modeller_->OnAccept())
-		{
-			ModellingEnum mode = modeller_->GetCurrentMode();
-			//== std::cout << "Current Mode = " << ModeStrings[mode] << '\n'; 
-			gui_->UpdateModeSelectionUI(mode);
-			if (mode == GUIDEPOINT)
-			{
-				if (!gui_->IsInitialisedHeartModel())
-				{
-					InitializeHeartModelTemplate();
-					modeller_->AlignModel();
-					modeller_->UpdateTimeVaryingModel();
-					SmoothAlongTime();
-					//EnterModelLoadedState();
-				}
-				UpdateMII();
-			}
-			success = true;
-		}
+    /**
+     * Destructor deletes modeller_
+     */
+    ~CAPClient()
+    {
+        delete modeller_;
+        gui_->Destroy();
+        delete gui_;
+    }
 
-		return success;
-	}
+    /**
+     * I would like to make this function private and replace it with a public
+     * function that returns the wxFrame.
+     */
+    void SetCAPClientWindow(CAPClientWindow* win)
+    {
+        gui_ = win;
+    }
 
-	/**
-	 * Change modelling mode.
-	 *
-	 * @param	mode	The mode.
-	 */
-	void ChangeModellingMode(ModellingEnum mode)
-	{
-		modeller_->ChangeMode(mode);
-		gui_->UpdateModeSelectionUI(mode);
-	}
+    /**
+     * Gets the number of heart model frames.
+     *
+     * @return	The number of heart model frames.
+     */
+    int GetNumberOfHeartModelFrames() const;
 
-	/**
-	 * Sets a template to patient transformation.  This function implements the pure virtual
-	 * function from the IModeller interface.
-	 *
-	 * @param	m	The transform.
-	 */
-	void SetHeartModelTransformation(const gtMatrix& m);
+    /**
+     * Process the modelling points entered for the current mode.
+     *
+     * @return	true if it succeeds, false if it fails.
+     */
+    bool ProcessModellingPointsEnteredForCurrentMode()
+    {
+        bool success = false;
+        if (modeller_->OnAccept())
+        {
+            ModellingEnum mode = modeller_->GetCurrentMode();
+            //== std::cout << "Current Mode = " << ModeStrings[mode] << '\n';
+            gui_->UpdateModeSelectionUI(mode);
+            if (mode == GUIDEPOINT)
+            {
+                if (!gui_->IsInitialisedHeartModel())
+                {
+                    InitializeHeartModelTemplate();
+                    modeller_->AlignModel();
+                    modeller_->UpdateTimeVaryingModel();
+                    SmoothAlongTime();
+                    //EnterModelLoadedState();
+                }
+                UpdateMII();
+            }
+            success = true;
+        }
 
-	/**
-	 * Sets the heart model focal length.
-	 *
-	 * @param	focalLength	focal length for prolate spheriodal coordinate system.
-	 */
-	void SetHeartModelFocalLength(double focalLength);
+        return success;
+    }
 
-	/**
-	 * Sets the heart model mu from the base plane at the given time.
-	 *
-	 * @param	plane	The plane.
-	 * @param	time 	The time.
-	 */
-	void SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time);
+    /**
+     * Change modelling mode.
+     *
+     * @param	mode	The mode.
+     */
+    void ChangeModellingMode(ModellingEnum mode)
+    {
+        modeller_->ChangeMode(mode);
+        gui_->UpdateModeSelectionUI(mode);
+    }
 
-	/**
-	 * Sets the heart model lambda parameters at the given time.
-	 *
-	 * @param	lambdaParams	The lambda parameters.
-	 * @param	time			The time.
-	 */
-	void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time);
+    /**
+     * Sets a template to patient transformation.  This function implements the pure virtual
+     * function from the IModeller interface.
+     *
+     * @param	m	The transform.
+     */
+    void SetHeartModelTransformation(const gtMatrix& m);
 
-	/**
-	 * Calculates the heart model xi for the given position and time and returns the element id of
-	 * the nearest element to the given point.
-	 *
-	 * @param	position  	The position.
-	 * @param	time	  	The time.
-	 * @param [in,out]	xi	The xi.
-	 *
-	 * @return	The element id, -1 on failure.
-	 */
-	int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const;
+    /**
+     * Sets the heart model focal length.
+     *
+     * @param	focalLength	focal length for prolate spheriodal coordinate system.
+     */
+    void SetHeartModelFocalLength(double focalLength);
 
-	/**
-	 * Converts a nodes rc position into a heart model prolate spheriodal coordinate.
-	 *
-	 * @param	node_id	   	The node identifier.
-	 * @param	region_name	Name of the region.
-	 *
-	 * @return	The position in a prolate shperiodal coordinate system.
-	 */
-	Point3D ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const;
+    /**
+     * Sets the heart model mu from the base plane at the given time.
+     *
+     * @param	plane	The plane.
+     * @param	time 	The time.
+     */
+    void SetHeartModelMuFromBasePlaneAtTime(const Plane& plane, double time);
 
-	/**
-	 * Implement pure virtual function from IImageBrowser interface 
-	 * so that labelledSlices, labelledTextures and cardiac annotations 
-	 * can be passed to this class.
-	 */
-	void LoadLabelledImages(const std::vector<LabelledSlice>& labelledSlices);
+    /**
+     * Sets the heart model lambda parameters at the given time.
+     *
+     * @param	lambdaParams	The lambda parameters.
+     * @param	time			The time.
+     */
+    void SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time);
 
-	/**
-	 * Loads cardiac annotations.
-	 *
-	 * @param	anno	The cardiac annotations to load.
-	 */
-	void LoadCardiacAnnotations(const CardiacAnnotation& anno);
+    /**
+     * Calculates the heart model xi for the given position and time and returns the element id of
+     * the nearest element to the given point.
+     *
+     * @param	position  	The position.
+     * @param	time	  	The time.
+     * @param [in,out]	xi	The xi.
+     *
+     * @return	The element id, -1 on failure.
+     */
+    int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const;
 
-	/**
-	 * Opens a model.
-	 *
-	 * @param	filename	Filename of the file.
-	 */
-	void OpenModel(const std::string& filename);
+    /**
+     * Converts a nodes rc position into a heart model prolate spheriodal coordinate.
+     *
+     * @param	node_id	   	The node identifier.
+     * @param	region_name	Name of the region.
+     *
+     * @return	The position in a prolate shperiodal coordinate system.
+     */
+    Point3D ConvertToHeartModelProlateSpheriodalCoordinate(int node_id, const std::string& region_name) const;
 
-	/**
-	 * Opens the image browser.
-	 */
-	void OpenImageBrowser();
+    /**
+     * Implement pure virtual function from IImageBrowser interface
+     * so that labelledSlices, labelledTextures and cardiac annotations
+     * can be passed to this class.
+     */
+    void LoadLabelledImages(const std::vector<LabelledSlice>& labelledSlices);
 
-	/**
-	 * Opens an annotation.
-	 *
-	 * @param	filename		Filename of the file.
-	 */
-	void OpenAnnotation(std::string const& filename);
+    /**
+     * Loads cardiac annotations.
+     *
+     * @param	anno	The cardiac annotations to load.
+     */
+    void LoadCardiacAnnotations(const CardiacAnnotation& anno);
 
-	/**
-	 * Saves a model.
-	 *
-	 * @param	dirname	   	Pathname of the directory.
-	 * @param	userComment	The user comment.
-	 */
-	void SaveModel(std::string const& dirname, std::string const& userComment);
+    /**
+     * Loads the contours.
+     *
+     * @param imageContours The image contours to load.
+     */
+    void LoadContours(const std::vector<ModelFile::ImageContours>& imageContours);
 
-	/**
-	 * Executes the export model action.
-	 *
-	 * @param	dirname	Pathname of the directory.
-	 */
+    /**
+     * Opens a model.
+     *
+     * @param	filename	Filename of the file.
+     */
+    void OpenModel(const std::string& filename);
+
+    /**
+     * Opens the image browser.
+     */
+    void OpenImageBrowser();
+
+    /**
+     * Opens an annotation.
+     *
+     * @param	filename		Filename of the file.
+     */
+    void OpenAnnotation(std::string const& filename);
+
+    /**
+     * Saves a model.
+     *
+     * @param	dirname	   	Pathname of the directory.
+     * @param	userComment	The user comment.
+     */
+    void SaveModel(std::string const& dirname, std::string const& userComment);
+
+    /**
+     * Executes the export model action.
+     *
+     * @param	dirname	Pathname of the directory.
+     */
     void OnExportModel(std::string const& /*dirname*/)
-	{
-		dbg("--- Error: reinstate OnExportModel ---");
-		//--IsoSurfaceCapture* iso = 0;//--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
-		//--assert(iso);
-		//--iso->OnExportModel(dirname);
-	}
+    {
+        dbg("--- Error: reinstate OnExportModel ---");
+        //--IsoSurfaceCapture* iso = 0;//--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
+        //--assert(iso);
+        //--iso->OnExportModel(dirname);
+    }
 
     /**
      * Executes the export to Cmgui action.
@@ -264,92 +271,92 @@ public:
     void OnExportHeartVolumes(const std::string& filename);
 
     /**
-	 * Executes the export model to binary volume action.
-	 *
-	 * @param	dirname   	Pathname of the directory.
-	 * @param	apexMargin	The apex margin.
-	 * @param	baseMargin	The base margin.
-	 * @param	spacing   	The spacing.
-	 */
+     * Executes the export model to binary volume action.
+     *
+     * @param	dirname   	Pathname of the directory.
+     * @param	apexMargin	The apex margin.
+     * @param	baseMargin	The base margin.
+     * @param	spacing   	The spacing.
+     */
     void OnExportModelToBinaryVolume(std::string const& /*dirname*/, double /*apexMargin*/, double /*baseMargin*/, double /*spacing*/)
-	{
-		dbg("--- Error: reinstate OnExportModelToBinaryVolume ---");
-		//--IsoSurfaceCapture* iso = 0; //--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
-		//--assert(iso);
-		//--iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
-	}
+    {
+        dbg("--- Error: reinstate OnExportModelToBinaryVolume ---");
+        //--IsoSurfaceCapture* iso = 0; //--new IsoSurfaceCapture(imageSet_, heartModelPtr_.get(), gui_->GetCmissContext(), gui_->GetTimeKeeper());
+        //--assert(iso);
+        //--iso->OnExportModelToBinaryVolume(dirname, apexMargin, baseMargin, spacing);
+    }
 
-	/**
-	 * Adds a modelling point.
-	 *
-	 * @param	region  	The region.
-	 * @param	node_id 	Identifier for the node.
-	 * @param	position	The position.
-	 * @param	time		The time.
-	 */
-	void AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
-	{
-		modeller_->AddModellingPoint(region, node_id, position, time);
-	}
+    /**
+     * Adds a modelling point.
+     *
+     * @param	region  	The region.
+     * @param	node_id 	Identifier for the node.
+     * @param	position	The position.
+     * @param	time		The time.
+     */
+    void AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
+    {
+        modeller_->AddModellingPoint(region, node_id, position, time);
+    }
 
-	/**
-	 * Move modelling point.
-	 *
-	 * @param	region  	The region.
-	 * @param	node_id 	Identifier for the node.
-	 * @param	position	The position.
-	 * @param	time		The time.
-	 */
-	void MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
-	{
-		modeller_->MoveModellingPoint(region, node_id, position, time);
-	}
+    /**
+     * Move modelling point.
+     *
+     * @param	region  	The region.
+     * @param	node_id 	Identifier for the node.
+     * @param	position	The position.
+     * @param	time		The time.
+     */
+    void MoveModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
+    {
+        modeller_->MoveModellingPoint(region, node_id, position, time);
+    }
 
-	/**
-	 * Removes the data point.
-	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	time			   	The time.
-	 */
-	void RemoveModellingPoint(Cmiss_region_id region, int node_id, double time) 
-	{
-		modeller_->RemoveModellingPoint(region, node_id, time);
-	}
-	
-	/**
-	 * Gets the image plane for the image stack with the given label.
-	 * Throws an exception if the label is not found, but this should not
-	 * happen because the possible input values are dervied from this list
-	 * initially.
-	 *
-	 * @param	label	The label of the image stack.
-	 *
-	 * @return	The image plane.
-	 */
-	const ImagePlane& GetImagePlane(const std::string& label);
+    /**
+     * Removes the data point.
+     *
+     * @param [in,out]	dataPointID	If non-null, identifier for the data point.
+     * @param	time			   	The time.
+     */
+    void RemoveModellingPoint(Cmiss_region_id region, int node_id, double time)
+    {
+        modeller_->RemoveModellingPoint(region, node_id, time);
+    }
 
-	/**
-	 * Gets the minimum number of frames.  This is the slice with the
-	 * minimum number of images.
-	 *
-	 * @return	The number of frames.
-	 */
-	unsigned int GetMinimumNumberOfFrames() const;
+    /**
+     * Gets the image plane for the image stack with the given label.
+     * Throws an exception if the label is not found, but this should not
+     * happen because the possible input values are dervied from this list
+     * initially.
+     *
+     * @param	label	The label of the image stack.
+     *
+     * @return	The image plane.
+     */
+    const ImagePlane& GetImagePlane(const std::string& label);
 
-	/**
-	 * Smooth along time.
-	 */
-	void SmoothAlongTime()
-	{
-		if (!modeller_)
-		{
+    /**
+     * Gets the minimum number of frames.  This is the slice with the
+     * minimum number of images.
+     *
+     * @return	The number of frames.
+     */
+    unsigned int GetMinimumNumberOfFrames() const;
+
+    /**
+     * Smooth along time.
+     */
+    void SmoothAlongTime()
+    {
+        if (!modeller_)
+        {
             return;
-		}
-		modeller_->SmoothAlongTime();
-		
+        }
+        modeller_->SmoothAlongTime();
+
         gui_->ComputeHeartVolume(EPICARDIUM);
         gui_->ComputeHeartVolume(ENDOCARDIUM);
-	}
+    }
 
     /**
      * Get the comment.
@@ -360,123 +367,125 @@ public:
         return comment_;
     }
 
-	/**
+    /**
      * Sets the previous position of the plane.
-	 *
-	 * @param	position	The position.
-	 */
-	void SetPreviousPosition(const Point3D& position)
-	{
-		previousPosition_ = position;
-	}
+     *
+     * @param	position	The position.
+     */
+    void SetPreviousPosition(const Point3D& position)
+    {
+        previousPosition_ = position;
+    }
 
     void SetImageShiftingNormalMode(bool normalMode)
     {
         imageShiftingNormalMode_ = normalMode;
     }
 
-	/**
-	 * Updates the plane position.  The plane position is updated according to
-	 * the delta between the given position and the previous position.  There 
-	 * is an expectation that the previous position has already been set.
-	 *
-	 * @param	regionName	Name of the region.
-	 * @param	position  	The position.
-	 */
+    /**
+     * Updates the plane position.  The plane position is updated according to
+     * the delta between the given position and the previous position.  There
+     * is an expectation that the previous position has already been set.
+     *
+     * @param	regionName	Name of the region.
+     * @param	position  	The position.
+     */
     void UpdatePlanePosition(const std::string& regionName, const Point3D& position);
 
-	/**
-	 * Sets an image location.
-	 *
-	 * @param	location	The location.
-	 */
-	void SetImageLocation(const std::string& location)
-	{
-		previousImageLocation_ = location;
-	}
+    /**
+     * Sets an image location.
+     *
+     * @param	location	The location.
+     */
+    void SetImageLocation(const std::string& location)
+    {
+        previousImageLocation_ = location;
+    }
 
-	void ResetModel()
-	{
-		RemoveModeller();
-		gui_->RemoveHeartModel();
-		modeller_ = new Modeller(this); // initialise modeller and all the data points
-	}
+    void ResetModel()
+    {
+        RemoveModeller();
+        gui_->RemoveHeartModel();
+        modeller_ = new Modeller(this); // initialise modeller and all the data points
+    }
 
 private:
-	
-	/**
-	 * Initialise the window
-	 */
-	void Initialize();
 
-	/**
-	 * Deletes the modeller.
-	 */
-	void RemoveModeller()
-	{
-		if (modeller_)
-		{
-			delete modeller_;
-			gui_->UpdateModeSelectionUI(APEX);
-			modeller_ = 0;
-		}
-	}
+    /**
+     * Initialise the window
+     */
+    void Initialize();
 
-	/**
-	 * Initializes the mii.  This method only makes sense 
-	 * when both the images and the model have been already 
-	 * loaded.
-	 */
-	void InitializeMII();
+    /**
+     * Deletes the modeller.
+     */
+    void RemoveModeller()
+    {
+        if (modeller_)
+        {
+            delete modeller_;
+            gui_->UpdateModeSelectionUI(APEX);
+            modeller_ = 0;
+        }
+    }
 
-	/**
-	 * Updates the mii.
-	 */
-	void UpdateMII();
+    /**
+     * Initializes the mii.  This method only makes sense
+     * when both the images and the model have been already
+     * loaded.
+     */
+    void InitializeMII();
 
-	/**
-	 * Comparator for number of frames. 
-	 */
-	struct ComparatorForNumFrames
-	{
-		bool operator() (const LabelledSlice& a, const LabelledSlice& b)
-		{
-			return (a.GetDICOMImages().size() < b.GetDICOMImages().size());
-		}
-	};
+    /**
+     * Updates the mii.
+     */
+    void UpdateMII();
 
-	/**
-	 * Initializes the heart model from the template.  If no images have 
-	 * been loaded then this function will do nothing.
-	 */
-	void InitializeHeartModelTemplate();
+    /**
+     * Comparator for number of frames.
+     */
+    struct ComparatorForNumFrames
+    {
+        bool operator() (const LabelledSlice& a, const LabelledSlice& b)
+        {
+            return (a.GetDICOMImages().size() < b.GetDICOMImages().size());
+        }
+    };
 
-	/**
-	 * Private default constructor - This class should be instantiated from the static factory method.
-	 */
-	CAPClient()
-		: gui_(0)
-		, labelledSlices_(LabelledSlices())
-		, modeller_(0)
-		, cardiacAnnotation_()
+    /**
+     * Initializes the heart model from the template.  If no images have
+     * been loaded then this function will do nothing.
+     */
+    void InitializeHeartModelTemplate();
+
+    /**
+     * Private default constructor - This class should be instantiated from the static factory method.
+     */
+    CAPClient()
+        : gui_(0)
+        , labelledSlices_(LabelledSlices())
+        , imageContours_(std::vector<ModelFile::ImageContours>())
+        , modeller_(0)
+        , cardiacAnnotation_()
         , comment_("")
-		, previousImageLocation_("")
+        , previousImageLocation_("")
         , imageShiftingNormalMode_(false)
-	{
-	}
-	
-	static CAPClient* instance_;	/**< The only instance of the CAPClient */
-	CAPClientWindow* gui_;  /**< The graphical user interface */
-	
-	LabelledSlices labelledSlices_; /**< The labelled slices */
-	
-	Modeller* modeller_; /**< The modeller */
+    {
+    }
 
-	CardiacAnnotation cardiacAnnotation_; /**< Cardiac annotation */
+    static CAPClient* instance_;	/**< The only instance of the CAPClient */
+    CAPClientWindow* gui_;  /**< The graphical user interface */
+
+    LabelledSlices labelledSlices_; /**< The labelled slices */
+    std::vector<ModelFile::ImageContours> imageContours_; /**< The image contours */
+
+    Modeller* modeller_; /**< The modeller */
+
+    CardiacAnnotation cardiacAnnotation_; /**< Cardiac annotation */
     std::string comment_; /**< The comment provenance detail */
 
-	Point3D previousPosition_;  /**< The previous position */
-	std::string previousImageLocation_; /**< The previous image location */
+    Point3D previousPosition_;  /**< The previous position */
+    std::string previousImageLocation_; /**< The previous image location */
     bool imageShiftingNormalMode_; /**< true if shifting images in the normal to the plane, false otherwise */
 };
 

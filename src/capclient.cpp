@@ -121,6 +121,31 @@ void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
     }
 }
 
+void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageContours)
+{
+    gui_->RemoveImageContours();
+    imageContours_ = imageContours;
+    std::vector<ModelFile::ImageContours>::const_iterator c_it = imageContours.begin();
+    for (; c_it != imageContours.end(); ++c_it)
+    {
+        ModelFile::ImageContours ic = *c_it;
+        std::string label = "";
+        LabelledSlices::const_iterator labelledSlicesIterator = labelledSlices_.begin();
+        while (label.empty() && labelledSlicesIterator != labelledSlices_.end())
+        {
+            if (labelledSlicesIterator->HasImageWith(ic.sopiuid))
+                label = labelledSlicesIterator->GetLabel();
+            else
+                ++labelledSlicesIterator;
+        }
+        if (!label.empty())
+            gui_->AddImageContour(label, ic.contours);
+        else
+            LOG_MSG(LOGWARNING) << "Did not find labelled slice with sopiuid = " << ic.sopiuid;
+//        labelledSlices_ ic.sopiuid
+    }
+}
+
 void CAPClient::OpenModel(const std::string& filename)
 {
     // Clear out anything old.
@@ -156,6 +181,8 @@ void CAPClient::OpenModel(const std::string& filename)
     ResetModel();
 
     comment_ = xmlFileHandler.GetProvenanceDetail();
+    ModelFile::StudyContours studyContours = xmlFileHandler.GetStudyContours();
+    LoadContours(studyContours.listOfImageContours);
 
     ModellingPointDetails modellingPointDetails = xmlFileHandler.GetModellingPointDetails();
     std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
