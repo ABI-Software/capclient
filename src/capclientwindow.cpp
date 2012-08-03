@@ -550,7 +550,8 @@ void CAPClientWindow::RemoveImageContours()
     dbg("CAPClientWindow::RemoveImageContours()");
 }
 
-void CAPClientWindow::AddImageContour(const std::string& label, const std::vector<ModelFile::Contour>& contours)
+void CAPClientWindow::AddImageContour(const std::string& label, const std::vector<ModelFile::Contour>& contours,
+                                      int frame, const Matrix4x4& transform)
 {
     std::vector<ModelFile::Contour>::const_iterator c_it = contours.begin();
     for (; c_it != contours.end(); ++c_it)
@@ -566,12 +567,16 @@ void CAPClientWindow::AddImageContour(const std::string& label, const std::vecto
             }
         }
 
-        SetupRegionForContour(cmissContext_, label);
-        SetContourTransform(cmissContext_, label, mx);
+        std::string contour_name = "contour_" + ToString(c.number);
+        SetupRegionForContour(cmissContext_, label, contour_name, frame);
+//        SetContourTransform(cmissContext_, label, mx);
         std::vector<ModelFile::ContourPoint>::const_iterator cps_it = c.contourPoints.begin();
         for (; cps_it != c.contourPoints.end(); ++cps_it)
         {
-            AddContourPoint(cmissContext_, label, cps_it->x, cps_it->y);
+            Vector3D v(cps_it->x, cps_it->y, 0.0);
+            HomogeneousVector3D point = transform*v;
+
+            AddContourPoint(cmissContext_, label, point.ToPoint3D());
         }
     }
 }

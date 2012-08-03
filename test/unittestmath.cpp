@@ -3,112 +3,112 @@
 
 TEST(Vector3DTest, Creation)
 {
-	using cap::Vector3D;
-	
-	Vector3D vec1(1,2,3);
-	EXPECT_NEAR(1, vec1.x, 1e-08);
-	EXPECT_NEAR(2, vec1.y, 1e-08);
-	EXPECT_NEAR(3, vec1.z, 1e-08);
-	Vector3D vec2;
-	EXPECT_NEAR(0, vec2.x, 1e-08);
-	EXPECT_NEAR(0, vec2.y, 1e-08);
-	EXPECT_NEAR(0, vec2.z, 1e-08);
+    using cap::Vector3D;
+
+    Vector3D vec1(1,2,3);
+    EXPECT_NEAR(1, vec1.x, 1e-08);
+    EXPECT_NEAR(2, vec1.y, 1e-08);
+    EXPECT_NEAR(3, vec1.z, 1e-08);
+    Vector3D vec2;
+    EXPECT_NEAR(0, vec2.x, 1e-08);
+    EXPECT_NEAR(0, vec2.y, 1e-08);
+    EXPECT_NEAR(0, vec2.z, 1e-08);
 }
 
 TEST(Vector3DTest, Length)
 {
-	using cap::Vector3D;
-	
-	Vector3D vec1(1,2,3);
-	EXPECT_NEAR(3.741657386773941, vec1.Length(), 1e-08);
-	Vector3D vec2(3,2,1);
-	EXPECT_NEAR(vec1.Length(), vec2.Length(), 1e-08);
+    using cap::Vector3D;
+
+    Vector3D vec1(1,2,3);
+    EXPECT_NEAR(3.741657386773941, vec1.Length(), 1e-08);
+    Vector3D vec2(3,2,1);
+    EXPECT_NEAR(vec1.Length(), vec2.Length(), 1e-08);
 }
 
 TEST(Vector3DTest, Nomalize)
 {
-	using cap::Vector3D;
-	
-	Vector3D vec1(1,2,3);
-	vec1.Normalise();
-	EXPECT_NEAR(1, vec1.Length(), 1e-8);
-	EXPECT_NEAR(0.267261241912424, vec1.x, 1e-8);
-	EXPECT_NEAR(0.534522483824849, vec1.y, 1e-8);
-	EXPECT_NEAR(0.8017837257372730, vec1.z, 1e-8);
+    using cap::Vector3D;
+
+    Vector3D vec1(1,2,3);
+    vec1.Normalise();
+    EXPECT_NEAR(1, vec1.Length(), 1e-8);
+    EXPECT_NEAR(0.267261241912424, vec1.x, 1e-8);
+    EXPECT_NEAR(0.534522483824849, vec1.y, 1e-8);
+    EXPECT_NEAR(0.8017837257372730, vec1.z, 1e-8);
 }
 
 TEST(Vector3DTest, Equality)
 {
-	using cap::Vector3D;
-	
-	Vector3D vec1(1,2,3);
-	Vector3D vec2(1,2,3);
-	EXPECT_EQ(vec1, vec2);
-	Vector3D vec3(2,2,3);
-	EXPECT_FALSE(vec1 == vec3);
-	Vector3D vec4(2,3,4);
-	EXPECT_TRUE(vec1 < vec4);
-	EXPECT_TRUE(vec4 > vec1);
-	EXPECT_FALSE(vec1 < vec3);
+    using cap::Vector3D;
+
+    Vector3D vec1(1,2,3);
+    Vector3D vec2(1,2,3);
+    EXPECT_EQ(vec1, vec2);
+    Vector3D vec3(2,2,3);
+    EXPECT_FALSE(vec1 == vec3);
+    Vector3D vec4(2,3,4);
+    EXPECT_TRUE(vec1 < vec4);
+    EXPECT_TRUE(vec4 > vec1);
+    EXPECT_FALSE(vec1 < vec3);
 }
 
 TEST(Vector3DTest, Muliplication)
 {
-	using cap::Vector3D;
-	
-	Vector3D vec1(1,2,3);
-	Vector3D vec2(2,4,6);
-	EXPECT_EQ(vec1*2, vec2);
-	EXPECT_EQ(2*vec1, vec2);
-	EXPECT_NEAR(14, vec1*vec1, 1e-08);
-	EXPECT_NEAR(28, vec1*vec2, 1e-08);
-	Vector3D vec3;
-	vec3.CrossProduct(vec1,vec2);
-	EXPECT_NEAR(0, vec3.x, 1e-08);
-	EXPECT_NEAR(0, vec3.y, 1e-08);
-	EXPECT_NEAR(0, vec3.z, 1e-08);
-	vec3.CrossProduct(vec1,Vector3D(3,2,1));
-	EXPECT_NEAR(-4, vec3.x, 1e-08);
-	EXPECT_NEAR(8, vec3.y, 1e-08);
-	EXPECT_NEAR(-4, vec3.z, 1e-08);
-	
-	Vector3D vec4 = CrossProduct(vec1,Vector3D(3,2,1));
-	EXPECT_NEAR(-4, vec4.x, 1e-08);
-	EXPECT_NEAR(8, vec4.y, 1e-08);
-	EXPECT_NEAR(-4, vec4.z, 1e-08);
+    using cap::Vector3D;
+
+    Vector3D vec1(1,2,3);
+    Vector3D vec2(2,4,6);
+    EXPECT_EQ(vec1*2, vec2);
+    EXPECT_EQ(2*vec1, vec2);
+    EXPECT_NEAR(14, vec1*vec1, 1e-08);
+    EXPECT_NEAR(28, vec1*vec2, 1e-08);
+    Vector3D vec3;
+    vec3.CrossProduct(vec1,vec2);
+    EXPECT_NEAR(0, vec3.x, 1e-08);
+    EXPECT_NEAR(0, vec3.y, 1e-08);
+    EXPECT_NEAR(0, vec3.z, 1e-08);
+    vec3.CrossProduct(vec1,Vector3D(3,2,1));
+    EXPECT_NEAR(-4, vec3.x, 1e-08);
+    EXPECT_NEAR(8, vec3.y, 1e-08);
+    EXPECT_NEAR(-4, vec3.z, 1e-08);
+
+    Vector3D vec4 = CrossProduct(vec1,Vector3D(3,2,1));
+    EXPECT_NEAR(-4, vec4.x, 1e-08);
+    EXPECT_NEAR(8, vec4.y, 1e-08);
+    EXPECT_NEAR(-4, vec4.z, 1e-08);
 }
 
 TEST(Vector3DTest, Addition)
 {
-	using cap::Vector3D;
-	
-	Vector3D vec1(1,2,3);
-	Vector3D vec2(0,9,8);
-	EXPECT_EQ(Vector3D(1,11,11), vec1+vec2);
+    using cap::Vector3D;
+
+    Vector3D vec1(1,2,3);
+    Vector3D vec2(0,9,8);
+    EXPECT_EQ(Vector3D(1,11,11), vec1+vec2);
 }
 
 TEST(Vector3DTest, Subtraction)
 {
-	using cap::Vector3D;
-	
-	Vector3D vec1(1,2,3);
-	Vector3D vec2(0,9,8);
-	EXPECT_EQ(Vector3D(1,-7,-5), vec1-vec2);
+    using cap::Vector3D;
+
+    Vector3D vec1(1,2,3);
+    Vector3D vec2(0,9,8);
+    EXPECT_EQ(Vector3D(1,-7,-5), vec1-vec2);
 }
 
 TEST(Vector3DTest, Point3D)
 {
-	using cap::Point3D;
-	using cap::Vector3D;
-	
-	Point3D point1(2,4,5);
-	Point3D point2(1,2,2);
-	Vector3D vec1(1,2,3);
-	EXPECT_EQ(point1-point2, vec1);
-	Point3D point3 = point2 + vec1;
-	EXPECT_NEAR(point3.x, point1.x, 1e-08);
-	EXPECT_NEAR(point3.y, point1.y, 1e-08);
-	EXPECT_NEAR(point3.z, point1.z, 1e-08);
+    using cap::Point3D;
+    using cap::Vector3D;
+
+    Point3D point1(2,4,5);
+    Point3D point2(1,2,2);
+    Vector3D vec1(1,2,3);
+    EXPECT_EQ(point1-point2, vec1);
+    Point3D point3 = point2 + vec1;
+    EXPECT_NEAR(point3.x, point1.x, 1e-08);
+    EXPECT_NEAR(point3.y, point1.y, 1e-08);
+    EXPECT_NEAR(point3.z, point1.z, 1e-08);
 }
 
 TEST(Matrix3x3Test, Init)
@@ -921,43 +921,153 @@ TEST(TransformTest, MovementInPlaneRight)
 
 TEST(ComputeVolumeOfTetrahedronTest, Volume)
 {
-	using namespace cap;
-	
-	// computes 6 * the actual volume (to save some computation)
-	//EXPECT_NEAR(ComputeVolumeOfTetrahedron(0.0f,0.0f,0.0f,
+    using namespace cap;
+
+    // computes 6 * the actual volume (to save some computation)
+    //EXPECT_NEAR(ComputeVolumeOfTetrahedron(0.0f,0.0f,0.0f,
 //			1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f), 1);
-	
-	Point3D a(0,0,0);
-	Point3D b(1,0,0);
-	Point3D c(0,1,0);
-	Point3D d(0,0,1);
-	
-	EXPECT_NEAR(1, ComputeVolumeOfTetrahedron(a,b,c,d), 1e-07);
-	
-	d.z = -2.0f;
-	EXPECT_NEAR(2, ComputeVolumeOfTetrahedron(a,b,c,d), 1e-07);
-	
-	d.z = -2.7f;
-	EXPECT_NEAR(2.7, ComputeVolumeOfTetrahedron(a,b,c,d), 1e-07);
+
+    Point3D a(0,0,0);
+    Point3D b(1,0,0);
+    Point3D c(0,1,0);
+    Point3D d(0,0,1);
+
+    EXPECT_NEAR(1, ComputeVolumeOfTetrahedron(a,b,c,d), 1e-07);
+
+    d.z = -2.0f;
+    EXPECT_NEAR(2, ComputeVolumeOfTetrahedron(a,b,c,d), 1e-07);
+
+    d.z = -2.7f;
+    EXPECT_NEAR(2.7, ComputeVolumeOfTetrahedron(a,b,c,d), 1e-07);
 }
 
 TEST(MathFunctionTest, SolveASinXPlusBCosXIsEqualToC)
 {
-	using namespace cap;
-	
-	double a = 12;
-	double b = 5;
-	double c = 4;
-	
-	double x = SolveASinXPlusBCosXIsEqualToC(a,b,c);
-	double expected = 139.460 / 180.0 * M_PI;
-	EXPECT_NEAR(expected, x, 0.00001);
-	
-	x = SolveASinXPlusBCosXIsEqualToC(10,10,10);
-	expected = M_PI_2;
-	EXPECT_NEAR(expected, x, 0.00001);
-	
-	x = SolveASinXPlusBCosXIsEqualToC(3,4,1.45099728905505);
-	expected = 110.0 / 180.0 * M_PI;
-	EXPECT_NEAR(expected, x, 0.00001);
+    using namespace cap;
+
+    double a = 12;
+    double b = 5;
+    double c = 4;
+
+    double x = SolveASinXPlusBCosXIsEqualToC(a,b,c);
+    double expected = 139.460 / 180.0 * M_PI;
+    EXPECT_NEAR(expected, x, 0.00001);
+
+    x = SolveASinXPlusBCosXIsEqualToC(10,10,10);
+    expected = M_PI_2;
+    EXPECT_NEAR(expected, x, 0.00001);
+
+    x = SolveASinXPlusBCosXIsEqualToC(3,4,1.45099728905505);
+    expected = 110.0 / 180.0 * M_PI;
+    EXPECT_NEAR(expected, x, 0.00001);
 }
+
+TEST(TransformTest, Contour)
+{
+    cap::Matrix4x4 tr(1.03777943818, -0.253969537336, 0, -50.326553,
+                      1.16781750003, 0.258689837752, 0, -207.292252,
+                      0.0253204206675, -1.51985946852, 1, 166.802231,
+                      0, 0, 0, 1);
+    cap::Vector3D v(116.0, 156.0, 0.0);
+
+    cap::HomogeneousVector3D a = tr*v;
+
+    cap::Point3D p = a.ToPoint3D();
+
+    cap::Point3D tlc(-42.6346, -214.406, 163.655);
+    cap::Point3D trc(-308.306, 84.5558, 157.173);
+    cap::Point3D blc(22.3816, -148.181, 552.739);
+
+    cap::Vector3D ax1 = trc - tlc;
+    ax1.Normalise();
+    cap::Vector3D ax2 = blc - tlc;
+    ax2.Normalise();
+    cap::Vector3D ax3 = cap::CrossProduct(ax1, ax2);
+    ax3.Normalise();
+
+    cap::Matrix4x4 tr2;
+    cap::Matrix3x3 rot1(ax1, ax2, ax3);
+    tr2.SetRotation(rot1);
+    tr2.SetTranslation(tlc.ToVector3D());
+    cap::HomogeneousVector3D a2 = tr2*v;
+    cap::Point3D p2 = a2.ToPoint3D();
+
+    cap::Vector3D dir1 = p - tlc;
+    cap::Vector3D dir2 = p2 - tlc;
+
+    cap::Vector3D n(0.729689, 0.643419, -0.231445);
+
+    double val1 = cap::DotProduct(n, dir1);
+    double val2 = cap::DotProduct(ax3, dir2);
+    // This transform doesn't agree with my plane calculation.
+    EXPECT_NEAR(224.49084378268208, val1, 1e-6); // it should be equal to zero.
+    EXPECT_NEAR(0.0, val2, 1e-6);
+
+}
+
+TEST(TransformTest, ContourPoint)
+{
+    cap::Point3D b4(116, 137, 0);
+    cap::Point3D a4(79.062038064, -74.7849, -52.8814);
+
+    cap::Matrix3x3 mx(1.03777943818, -0.253969537336, 0,
+                      1.16781750003, 0.258689837752, 0,
+                      0.0253204206675, -1.51985946852, 1);
+    cap::Matrix4x4 tr(1.03777943818, -0.253969537336, 0, -6.52655,
+                      1.16781750003, 0.258689837752, 0, -245.692261,
+                      0.0253204206675, -1.51985946852, 1, 152.402222,
+                      0, 0, 0, 1);
+    //tr.Transpose();
+    cap::HomogeneousVector3D p4 = tr*b4.ToVector3D();
+
+    cap::Vector3D p = mx*b4.ToVector3D();
+    cap::Point3D mya4 = p + cap::Vector3D(-6.52655,-245.692261,152.402222);//.ToPoint3D();
+
+    EXPECT_NEAR(a4.x, mya4.x, 1e-6);
+    EXPECT_NEAR(a4.x, p4.x, 1e-6);
+
+}
+//<cap:TransformationMatrix>
+//  <cap:cell col="0" row="0">1.03777943818</cap:cell>
+//  <cap:cell col="1" row="0">-0.253969537336</cap:cell>
+//  <cap:cell col="2" row="0">0</cap:cell>
+//  <cap:cell col="3" row="0">-6.52655</cap:cell>
+//  <cap:cell col="0" row="1">1.16781750003</cap:cell>
+//  <cap:cell col="1" row="1">0.258689837752</cap:cell>
+//  <cap:cell col="2" row="1">0</cap:cell>
+//  <cap:cell col="3" row="1">-245.692261</cap:cell>
+//  <cap:cell col="0" row="2">0.0253204206675</cap:cell>
+//  <cap:cell col="1" row="2">-1.51985946852</cap:cell>
+//  <cap:cell col="2" row="2">1</cap:cell>
+//  <cap:cell col="3" row="2">152.402222</cap:cell>
+//  <cap:cell col="0" row="3">0</cap:cell>
+//  <cap:cell col="1" row="3">0</cap:cell>
+//  <cap:cell col="2" row="3">0</cap:cell>
+//  <cap:cell col="3" row="3">1</cap:cell>
+//</cap:TransformationMatrix>
+
+//<cap:TransformationMatrix>
+//  <cap:cell col="0" row="0">1.03777943818</cap:cell>
+//  <cap:cell col="1" row="0">-0.253969537336</cap:cell>
+//  <cap:cell col="2" row="0">0</cap:cell>
+//  <cap:cell col="3" row="0">-50.326553</cap:cell>
+//  <cap:cell col="0" row="1">1.16781750003</cap:cell>
+//  <cap:cell col="1" row="1">0.258689837752</cap:cell>
+//  <cap:cell col="2" row="1">0</cap:cell>
+//  <cap:cell col="3" row="1">-207.292252</cap:cell>
+//  <cap:cell col="0" row="2">0.0253204206675</cap:cell>
+//  <cap:cell col="1" row="2">-1.51985946852</cap:cell>
+//  <cap:cell col="2" row="2">1</cap:cell>
+//  <cap:cell col="3" row="2">166.802231</cap:cell>
+//  <cap:cell col="0" row="3">0</cap:cell>
+//  <cap:cell col="1" row="3">0</cap:cell>
+//  <cap:cell col="2" row="3">0</cap:cell>
+//  <cap:cell col="3" row="3">1</cap:cell>
+//</cap:TransformationMatrix>
+
+//top left corner: ( -42.6346, -214.406, 163.655)
+//bottom left corner: ( 22.3816, -148.181, 552.739)
+//top right corner: ( -308.306, 84.5558, 157.173)
+//bottom right corner: ( -243.29, 150.78, 546.257)
+//normal: ( 0.729689, 0.643419, -0.231445)
+

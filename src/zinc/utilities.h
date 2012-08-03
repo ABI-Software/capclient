@@ -31,9 +31,9 @@ extern "C"
  */
 void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& regionName, const cap::ImagePlane *plane);
 
-void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& regionName);
+void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& regionName, const std::string &name, int frame);
 void SetContourTransform(Cmiss_context_id cmissContext, const std::string& regionName, const double *transform);
-void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionName, double x, double y);
+void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionName, const cap::Point3D& point);
 
 #endif /* CMGUI_UTILITIES_H */
 
