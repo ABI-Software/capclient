@@ -130,19 +130,25 @@ void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageC
     {
         ModelFile::ImageContours ic = *c_it;
         std::string label = "";
+        int index = -1;
         LabelledSlices::const_iterator labelledSlicesIterator = labelledSlices_.begin();
         while (label.empty() && labelledSlicesIterator != labelledSlices_.end())
         {
-            if (labelledSlicesIterator->HasImageWith(ic.sopiuid))
+            index = labelledSlicesIterator->IndexOf(ic.sopiuid);
+            if (index >= 0)
+            {
                 label = labelledSlicesIterator->GetLabel();
+            }
             else
                 ++labelledSlicesIterator;
         }
         if (!label.empty())
-            gui_->AddImageContour(label, ic.contours);
+        {
+            Matrix4x4 transform = labelledSlicesIterator->GetSliceTransform();
+            gui_->AddImageContour(label, ic.contours, index, transform);
+        }
         else
             LOG_MSG(LOGWARNING) << "Did not find labelled slice with sopiuid = " << ic.sopiuid;
-//        labelledSlices_ ic.sopiuid
     }
 }
 

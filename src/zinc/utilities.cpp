@@ -55,7 +55,7 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
     Cmiss_region_destroy(&root_region);
 }
 
-void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& regionName)
+void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& regionName, const std::string& name, int frame)
 {
     Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
     Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, regionName.c_str());
@@ -67,7 +67,7 @@ void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& reg
     Cmiss_field_module_id field_module = Cmiss_region_get_field_module(child_region);
 
     Cmiss_field_module_begin_change(field_module);
-    Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates_contour");
+    Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
     if (!coordinate_field)
     {
         coordinate_field = Cmiss_field_module_create_finite_element(field_module, /*number_of_components*/3);
@@ -78,7 +78,7 @@ void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& reg
     Cmiss_field_id mx_field = Cmiss_field_module_find_field_by_name(field_module, "contour_transform_mx");
     if (!mx_field)
     {
-        double identity[16] = {0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+        double identity[16] = {1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
         mx_field = Cmiss_field_module_create_constant(field_module, 16, identity);
         Cmiss_field_set_name(mx_field, "contour_transform_mx");
     }
@@ -93,9 +93,12 @@ void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& reg
 
     Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
     {
+//        Cmiss_rendition_find_graphic_by_name()
         Cmiss_graphic_id data_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_DATA_POINTS);
-        Cmiss_graphic_set_coordinate_field(data_graphic, coordinates_rc);
+        Cmiss_graphic_set_coordinate_field(data_graphic, coordinate_field);
         Cmiss_graphic_set_visibility_flag(data_graphic, 1);
+        Cmiss_graphic_set_name(data_graphic, name.c_str());
+//        Cmiss_graphic_set_glyph(data_graphic
         std::string data_command = "LOCAL glyph cylinder_solid general size \"0.2*1*1\" centre 0,0,0 material yellow";
         Cmiss_graphic_define(data_graphic, data_command.c_str());
         Cmiss_graphic_destroy(&data_graphic);
@@ -132,7 +135,7 @@ void SetContourTransform(Cmiss_context_id cmissContext, const std::string& regio
     Cmiss_region_destroy(&child_region);
 }
 
-void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionName, double x, double y)
+void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionName, const cap::Point3D &point)
 {
     Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
     Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, regionName.c_str());
@@ -145,7 +148,7 @@ void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionNam
     Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
     Cmiss_node_template_define_field(node_template, coordinate_contour_field);
     Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template);
-    double position_values[3] = {x, y, 0.0};
+    double position_values[3] = {point.x, point.y, point.z};
     Cmiss_field_cache_set_node(field_cache, node);
     Cmiss_field_assign_real(coordinate_contour_field, field_cache, 3, position_values);
     Cmiss_field_module_end_change(field_module);

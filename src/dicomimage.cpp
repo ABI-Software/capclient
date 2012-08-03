@@ -111,6 +111,12 @@ void DICOMImage::AssignTagValue(const std::string& tag, const std::string& value
         orientation1_ = Vector3D(values[0], values[1], values[2]);
         orientation2_ = Vector3D(values[3], values[4], values[5]);
     }
+    else if (tag == "dcm:ImageOrientation")
+    {
+        std::vector<double> values = FromString<double>(value, '\\');
+        orientation1_ = Vector3D(-values[0], values[1], -values[2]);
+        orientation2_ = Vector3D(-values[3], values[4], -values[5]);
+    }
     else if (tag == "dcm:PixelSpacing")
     {
         std::vector<double> values = FromString<double>(value, '\\');
@@ -183,7 +189,7 @@ bool DICOMImage::Analyze(Cmiss_field_image_id field_image)
                 {
                     std::string value = prop;
                     Cmiss_deallocate(prop);
-                    AssignTagValue(tags[i], value);
+                    AssignTagValue("dcm:ImageOrientation", value);
                 }
             }
             else
@@ -251,10 +257,11 @@ void DICOMImage::ComputeImagePlane()
 
     plane_->brc = plane_->blc + plane_->xside;
 
-//    dbg(ToString(plane_->trc));
-//    dbg(ToString(plane_->tlc));
-//    dbg(ToString(plane_->brc));
-//    dbg(ToString(plane_->blc));
+    LOG_MSG(LOGDEBUG) << filename_;
+    LOG_MSG(LOGDEBUG) << plane_->trc;
+    LOG_MSG(LOGDEBUG) << plane_->tlc;
+    LOG_MSG(LOGDEBUG) << plane_->brc;
+    LOG_MSG(LOGDEBUG) << plane_->blc;
 
     plane_->d = DotProduct((plane_->tlc - Point3D(0,0,0)) ,plane_->normal);
 }

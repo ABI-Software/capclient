@@ -36,14 +36,15 @@ namespace cap
         const std::string& GetLabel() const { return label_; }
 
         /**
-         * Tests to see if an image in this labelled slice has sopiuid
-         * to match the given one.
+         * Get the index of the image with the given sopiuid.
          *
          * @param sopiuid   The sopiuid to match.
-         * @return true if and image has matching sopiuid, false otherwise.
+         * @return -1 if sopiuid not found, otherwise return the index of the image.
          */
-        bool HasImageWith(std::string sopiuid) const;
+        int IndexOf(std::string sopiuid) const;
 
+        Matrix4x4 GetSliceTransform() const;
+        void printpositions() const;
         /**
          * Gets the dicom images.
          *
