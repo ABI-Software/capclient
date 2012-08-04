@@ -20,10 +20,10 @@ extern "C"
 
 
 /**
- * Reposition a plane element in 3D rectangular cartesion space (square finite elemet type)
+ * Reposition a plane element in 3D rectangular cartesion space (square finite element type)
  * defined in the given region with coordinates "coordinates". This will reposition the
  * element only it is assumned that the element has already been created.  The corners
- * or the new plane are expected to be arrays of Reals with a length of three.
+ * of the new plane are expected to be arrays of Reals with a length of three.
  *
  * \param cmissContext the context to use.
  * \param regionName the name of the region to resize the square element in.
@@ -34,6 +34,7 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& regionName, const std::string &name);
 void SetContourTransform(Cmiss_context_id cmissContext, const std::string& regionName, const double *transform);
 void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionName, double time, double x, double y);
+void RemoveContourFromRegion(Cmiss_context_id cmissContext, const std::string& regionName);
 
 #endif /* CMGUI_UTILITIES_H */
 
