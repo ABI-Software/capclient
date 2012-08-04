@@ -547,7 +547,11 @@ void CAPClientWindow::RemoveStatusTextStrings()
 
 void CAPClientWindow::RemoveImageContours()
 {
-	dbg("CAPClientWindow::RemoveImageContours()");
+	for (unsigned int i = 0; i < checkListBox_slice_->GetCount(); i++)
+	{
+		std::string regionName = checkListBox_slice_->GetString(i).mb_str();
+		RemoveContourFromRegion(cmissContext_, regionName);
+	}
 }
 
 void CAPClientWindow::AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contours, int frame)

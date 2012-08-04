@@ -199,6 +199,7 @@ void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionNam
 	Cmiss_field_assign_real(visibility_value_field, field_cache, 1, time_values);
 	Cmiss_field_module_end_change(field_module);
 
+	Cmiss_node_destroy(&node);
 	Cmiss_field_destroy(&visibility_value_field);
 	Cmiss_field_destroy(&coordinate_contour_field);
 	Cmiss_nodeset_destroy(&nodeset);
@@ -209,3 +210,26 @@ void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionNam
 	Cmiss_region_destroy(&root_region);
 }
 
+void RemoveContourFromRegion(Cmiss_context_id cmissContext, const std::string& regionName)
+{
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, regionName.c_str());
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(child_region);
+
+	Cmiss_field_module_begin_change(field_module);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_data");
+	Cmiss_nodeset_group_id nodeset_group = Cmiss_nodeset_cast_group(nodeset);
+	Cmiss_nodeset_group_remove_all_nodes(nodeset_group);
+
+	Cmiss_field_id if_field = Cmiss_field_module_find_field_by_name(field_module, "if_field");
+	Cmiss_field_set_attribute_integer(if_field, CMISS_FIELD_ATTRIBUTE_IS_MANAGED, 0.0);
+
+	Cmiss_field_destroy(&if_field);
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_nodeset_group_destroy(&nodeset_group);
+	Cmiss_field_module_end_change(field_module);
+
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_region_destroy(&child_region);
+	Cmiss_region_destroy(&root_region);
+}
