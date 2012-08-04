@@ -369,18 +369,6 @@ public:
 	void DeleteCurrentlySelectedNode();
 
 	/**
-	 * Gets a nodes rectanglar cartesian coordinates.  This function
-	 * is part of the Modelling interface and only gets the selected node
-	 * from one of the modelling regions.  It will only evaluate the node
-	 * in the "coordinates" field for the given region.
-	 *
-	 * @param	node	The node.
-	 *
-	 * @return	The node rectanglar cartesian coordinates.
-	 */
-	Point3D GetNodeRCCoordinates(Cmiss_node_id node) const;
-
-	/**
 	 * Start modelling action.  When starting the modelling action some things need
 	 * to be done.
 	 *	1. Create a region for the current modelling mode if one doesn't already exist.

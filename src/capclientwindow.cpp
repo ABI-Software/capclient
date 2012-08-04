@@ -1699,27 +1699,4 @@ void CAPClientWindow::ClearSelection(ModellingEnum currentMode)
 	Cmiss_field_module_destroy(&field_module);
 }
 
-Point3D CAPClientWindow::GetNodeRCCoordinates(Cmiss_node_id node) const
-{
-	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
-	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
-	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-	Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-
-	Cmiss_field_cache_set_node(field_cache, node);
-	double values[3];
-	Cmiss_field_evaluate_real(coordinate_field, field_cache, 3, values);
-
-	Cmiss_field_cache_destroy(&field_cache);
-	Cmiss_field_destroy(&coordinate_field);
-	Cmiss_field_module_destroy(&field_module);
-
-	Point3D coords(values);
-
-	dbg("GetNodeRCCoordinates: " + ToString(coords));
-
-	return coords;
-}
-
 } // end namespace cap
