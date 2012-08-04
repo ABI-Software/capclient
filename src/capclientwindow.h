@@ -691,6 +691,7 @@ private:
 	bool initialised_xmlUserCommentDialog_; /**< true if initialised user comment dialog xml resource */
 	bool modellingActive_;  /**< true if modelling active, that is adding, moving or deleting a modelling point, false otherwise */
 	bool zKeyDown_; /**< true if the z key is down, false otherwise */
+	int sliceCheckedEventId_; /**< The event id of the slice list checked event.  For working around a selection bug in wxWidgets. Set to -1 if invalid. */
 	StatusTextStringsFieldMap statusTextStringsFieldMap_;   /**< The status text strings field map */
 
 	wxProgressDialog *progressDialog_; /**< Progess dialog pointer. */

@@ -83,6 +83,7 @@ CAPClientWindow::CAPClientWindow(CAPClient* mainApp)
 	, initialised_xmlUserCommentDialog_(false)
 	, modellingActive_(false)
 	, zKeyDown_(false)
+	, sliceCheckedEventId_(-1)
 	, progressDialog_(0)
 {
 	Cmiss_context_enable_user_interface(cmissContext_, static_cast<void*>(wxTheApp));
@@ -683,8 +684,8 @@ void CAPClientWindow::PopulateSliceList(std::vector<std::string> const& sliceNam
 
 void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 {
-	dbg("CAPClientWindow::OnObjectCheckList - Checked");
 	int selection = event.GetInt();
+	sliceCheckedEventId_ = event.GetId();
 	wxString name = checkListBox_slice_->GetString(selection);
 	bool visibility = checkListBox_slice_->IsChecked(selection);
 	bool mii_visibility = checkBox_mII_->IsChecked();
@@ -699,13 +700,22 @@ void CAPClientWindow::OnObjectCheckListChecked(wxListEvent& event)
 
 void CAPClientWindow::OnObjectCheckListSelected(wxListEvent& event)
 {
-	dbg("CAPClientWindow::OnObjectCheckList - Selected");
-	int selection = event.GetInt();
-	wxString name = checkListBox_slice_->GetString(selection);
+	if (sliceCheckedEventId_ >= 0)
+	{
+		// Enable the user to be able to check or uncheck a slice
+		// without changing the view
+		sliceCheckedEventId_ = -1;
+		event.Skip();
+	}
+	else
+	{
+		int selection = event.GetInt();
+		wxString name = checkListBox_slice_->GetString(selection);
 
-	const ImagePlane& plane = mainApp_->GetImagePlane(name.c_str());
+		const ImagePlane& plane = mainApp_->GetImagePlane(name.c_str());
 
-	cmguiPanel_->SetViewingPlane(plane);
+		cmguiPanel_->SetViewingPlane(plane);
+	}
 }
 
 void CAPClientWindow::SetAnimationSliderRange(int min, int max)
