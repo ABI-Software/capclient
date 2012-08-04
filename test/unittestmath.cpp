@@ -1000,5 +1000,4 @@ TEST(TransformTest, ContourPoint)
 
 	EXPECT_NEAR(a4.x, mya4.x, 1e-6);
 	EXPECT_NEAR(a4.x, p4.x, 1e-6);
-
 }
