@@ -60,7 +60,7 @@ Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissCo
 {
 	Cmiss_scene_viewer_package_id package = Cmiss_context_get_default_scene_viewer_package(cmissContext);
 	Cmiss_scene_viewer_id sceneViewer = Cmiss_scene_viewer_create_wx(package, panel, CMISS_SCENE_VIEWER_BUFFERING_DOUBLE, CMISS_SCENE_VIEWER_STEREO_ANY_MODE, 8, 8, 8);
-	
+
 	std::string sceneTitle = sceneName;
 	if (sceneTitle.empty())
 	{
@@ -76,13 +76,13 @@ Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissCo
 	Cmiss_scene_set_name(scene, sceneTitle.c_str());
 	Cmiss_scene_viewer_set_scene(sceneViewer, scene);
 	Cmiss_scene_viewer_set_perturb_lines(sceneViewer, 1);
-	
+
 	Cmiss_region_destroy(&root_region);
 	Cmiss_graphics_filter_destroy(&graphics_filter);
 	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_scene_destroy(&scene);
 	//Cmiss_scene_viewer_package_destroy(&package); // scene viewer package does not need destroying
-	
+
 	return sceneViewer;
 }
 
@@ -94,14 +94,14 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
 	Cmiss_field_destroy(&temp_field);
 	Cmiss_stream_information_id stream_information = Cmiss_field_image_create_stream_information(field_image);
-	
+
 	/* Read image data from a file */
 	Cmiss_stream_resource_id stream = Cmiss_stream_information_create_resource_file(stream_information, filename.c_str());
 	int r = Cmiss_field_image_read(field_image, stream_information);
 	if (r == CMISS_OK)
 	{
 		Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
-		
+
 		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
 		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
 		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_DEPTH_PIXELS, 1);
@@ -111,10 +111,10 @@ Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_
 		dbg("Cmiss_field_module_create_image_texture failed to read image from stream : '" + filename + "'");
 		Cmiss_field_image_destroy(&field_image);
 	}
-	
+
 	Cmiss_stream_resource_destroy(&stream);
 	Cmiss_stream_information_destroy(&stream_information);
-	
+
 	return field_image;
 }
 
@@ -128,7 +128,7 @@ Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id
 
 	Cmiss_region_destroy(&region);
 	Cmiss_region_destroy(&root_region);
-	
+
 	return field_module;
 }
 
@@ -137,12 +137,12 @@ Cmiss_rendition_id Cmiss_context_get_rendition_for_region(Cmiss_context_id cmiss
 	Cmiss_graphics_module_id graphics_module = Cmiss_context_get_default_graphics_module(cmissContext);
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
-    Cmiss_rendition_id  rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
+	Cmiss_rendition_id  rendition = Cmiss_graphics_module_get_rendition(graphics_module, region);
 
 	Cmiss_graphics_module_destroy(&graphics_module);
 	Cmiss_region_destroy(&root_region);
 	Cmiss_region_destroy(&region);
-	
+
 	return rendition;
 }
 
@@ -164,11 +164,11 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		Cmiss_field_set_name(visibility_control_constant, "visibility_control_constant_field");
 		Cmiss_time_keeper_id time_keeper = Cmiss_context_get_default_time_keeper(cmissContext);
 		Cmiss_field_id time_value = Cmiss_field_module_create_time_value(field_module, time_keeper);
-        Cmiss_field_id visibility_value = Cmiss_field_module_create_finite_element(field_module, 1);
-        r = Cmiss_field_set_name(visibility_value, "visibility_value_field");
-        Cmiss_field_id spectrum_value = Cmiss_field_module_create_finite_element(field_module, 1);
-        r = Cmiss_field_set_name(spectrum_value, "spectrum_value_field");
-        Cmiss_field_id diff = Cmiss_field_module_create_subtract(field_module, visibility_value, time_value);
+		Cmiss_field_id visibility_value = Cmiss_field_module_create_finite_element(field_module, 1);
+		r = Cmiss_field_set_name(visibility_value, "visibility_value_field");
+		Cmiss_field_id spectrum_value = Cmiss_field_module_create_finite_element(field_module, 1);
+		r = Cmiss_field_set_name(spectrum_value, "spectrum_value_field");
+		Cmiss_field_id diff = Cmiss_field_module_create_subtract(field_module, visibility_value, time_value);
 		Cmiss_field_id abs = Cmiss_field_module_create_abs(field_module, diff);
 		double err_values[] = {0.01};
 		Cmiss_field_id err = Cmiss_field_module_create_constant(field_module, 1, err_values);
@@ -178,14 +178,14 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		Cmiss_field_set_name(positive_time, "positive_time");
 		Cmiss_field_id if_field = Cmiss_field_module_create_if(field_module, positive_time, visibility_control_time, visibility_control_constant);
 		Cmiss_field_set_name(if_field, "if_field");
-        Cmiss_field_id label_state = Cmiss_field_module_create_constant(field_module, 1, values);
-        r = Cmiss_field_set_name(label_state, "label_state");
+		Cmiss_field_id label_state = Cmiss_field_module_create_constant(field_module, 1, values);
+		r = Cmiss_field_set_name(label_state, "label_state");
 
-        Cmiss_field_id label_on_field = Cmiss_field_module_create_string_constant(field_module, regionName.c_str());
-        Cmiss_field_id label_off_field = Cmiss_field_module_create_string_constant(field_module, " ");
-        Cmiss_field_id if_label_field = Cmiss_field_module_create_if(field_module, label_state, label_on_field, label_off_field);
-        Cmiss_field_set_name(if_label_field, "if_label");
-        //r = Cmiss_field_module_define_field(field_module, "invisible_control_field", "constant 0");
+		Cmiss_field_id label_on_field = Cmiss_field_module_create_string_constant(field_module, regionName.c_str());
+		Cmiss_field_id label_off_field = Cmiss_field_module_create_string_constant(field_module, " ");
+		Cmiss_field_id if_label_field = Cmiss_field_module_create_if(field_module, label_state, label_on_field, label_off_field);
+		Cmiss_field_set_name(if_label_field, "if_label");
+		//r = Cmiss_field_module_define_field(field_module, "invisible_control_field", "constant 0");
 		Cmiss_rendition_id rendition = Cmiss_context_get_rendition_for_region(cmissContext, regionName);
 		{
 			Cmiss_graphic_id node_graphic = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_NODE_POINTS);
@@ -197,22 +197,22 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 				material = "orange";
 			else if (regionName == "BASEPLANE")
 				material = "pink";
-            else if (regionName == "GUIDEPOINT")
-                material = "yellow";
+			else if (regionName == "GUIDEPOINT")
+				material = "yellow";
 
 			//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-            std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label if_label";
-            if (regionName == "GUIDEPOINT")
-                node_command += " spectrum guidepoint_spectrum data spectrum_value_field";
+			std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label if_label";
+			if (regionName == "GUIDEPOINT")
+				node_command += " spectrum guidepoint_spectrum data spectrum_value_field";
 			Cmiss_graphic_define(node_graphic, node_command.c_str());
 			Cmiss_graphic_destroy(&node_graphic);
 		}
 
-        Cmiss_field_destroy(&label_state);
-        Cmiss_field_destroy(&label_on_field);
-        Cmiss_field_destroy(&label_off_field);
-        Cmiss_field_destroy(&if_label_field);
-        Cmiss_field_destroy(&if_field);
+		Cmiss_field_destroy(&label_state);
+		Cmiss_field_destroy(&label_on_field);
+		Cmiss_field_destroy(&label_off_field);
+		Cmiss_field_destroy(&if_label_field);
+		Cmiss_field_destroy(&if_field);
 		Cmiss_field_destroy(&const_zero);
 		Cmiss_field_destroy(&positive_time);
 		Cmiss_field_destroy(&coordinate_field);
@@ -297,7 +297,7 @@ void CreateTextureImageSurface(Cmiss_context_id cmissContext, const std::string&
 	Cmiss_graphic_set_material(surface, material);
 	Cmiss_graphic_set_selected_material(surface, material);
 	Cmiss_graphic_set_texture_coordinate_field(surface, xi);
-	
+
 	Cmiss_graphic_destroy(&surface);
 	Cmiss_field_destroy(&coordinates);
 	Cmiss_field_destroy(&xi);
@@ -317,7 +317,7 @@ Cmiss_node_id Cmiss_context_create_node(Cmiss_context_id cmissContext)
 	Cmiss_node_template_id node_template1 = Cmiss_nodeset_create_node_template(nodeset);
 	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template1);
 	Cmiss_field_module_end_change(field_module);
-	
+
 	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_node_template_destroy(&node_template1);
 	Cmiss_field_module_destroy(&field_module);
@@ -330,27 +330,27 @@ Cmiss_node_id Cmiss_region_create_node(Cmiss_region_id region, double x, double 
 {
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 	Cmiss_field_module_begin_change(field_module);
-    Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-    Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-    Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
-    Cmiss_field_id spectrum_value_field = Cmiss_field_module_find_field_by_name(field_module, "spectrum_value_field");
-    Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_id coordinate_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	Cmiss_field_id visibility_value_field = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
+	Cmiss_field_id spectrum_value_field = Cmiss_field_module_find_field_by_name(field_module, "spectrum_value_field");
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 	Cmiss_node_template_id node_template = Cmiss_nodeset_create_node_template(nodeset);
 	Cmiss_node_template_define_field(node_template, coordinate_field);
 	Cmiss_node_template_define_field(node_template, visibility_value_field);
-    Cmiss_node_template_define_field(node_template, spectrum_value_field);
-    Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template);
-    double position_values[3] = {x, y, z};
-    Cmiss_field_cache_set_node(field_cache, node);
-    Cmiss_field_assign_real(coordinate_field, field_cache, 3, position_values);
-    Cmiss_field_module_end_change(field_module);
-	
+	Cmiss_node_template_define_field(node_template, spectrum_value_field);
+	Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, -1, node_template);
+	double position_values[3] = {x, y, z};
+	Cmiss_field_cache_set_node(field_cache, node);
+	Cmiss_field_assign_real(coordinate_field, field_cache, 3, position_values);
+	Cmiss_field_module_end_change(field_module);
+
 	Cmiss_field_destroy(&coordinate_field);
-    Cmiss_field_destroy(&visibility_value_field);
-    Cmiss_field_destroy(&spectrum_value_field);
-    Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_destroy(&visibility_value_field);
+	Cmiss_field_destroy(&spectrum_value_field);
+	Cmiss_nodeset_destroy(&nodeset);
 	Cmiss_node_template_destroy(&node_template);
-    Cmiss_field_cache_destroy(&field_cache);
+	Cmiss_field_cache_destroy(&field_cache);
 	Cmiss_field_module_destroy(&field_module);
 
 	return node;
@@ -362,7 +362,7 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_create_child(root_region, regionName.c_str());
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
-	
+
 	Cmiss_field_module_begin_change(field_module);
 	Cmiss_field_id coordinates_field = Cmiss_field_module_create_finite_element(field_module, /*number_of_components*/3);
 	Cmiss_field_set_name(coordinates_field, "coordinates");
@@ -382,13 +382,13 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	for (int i = 0; i < element_node_count; i++)
 	{
 		Cmiss_node_id node = Cmiss_nodeset_create_node(nodeset, i+1, node_template);
-        Cmiss_field_cache_set_node(field_cache, node);
-        Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
-        Cmiss_node_destroy(&node);
+		Cmiss_field_cache_set_node(field_cache, node);
+		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
+		Cmiss_node_destroy(&node);
 	}
 	Cmiss_field_cache_destroy(&field_cache);
 	Cmiss_node_template_destroy(&node_template);
-	
+
 	Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, /*dimension*/2);
 	Cmiss_element_template_id element_template = Cmiss_mesh_create_element_template(mesh);
 	Cmiss_element_template_set_shape_type(element_template, CMISS_ELEMENT_SHAPE_SQUARE);
@@ -399,7 +399,7 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_element_template_define_field_simple_nodal(element_template, coordinates_field,
 		 /*component_number*/-1, cubic_basis, element_node_count, cube_local_node_indexes);
 	Cmiss_element_basis_destroy(&cubic_basis);
-	
+
 	/* create element */
 	for (int i = 1; i <= element_node_count; i++)
 	{
@@ -410,7 +410,7 @@ void CreatePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	Cmiss_mesh_define_element(mesh, -1, element_template);
 	Cmiss_element_template_destroy(&element_template);
 	Cmiss_field_module_end_change(field_module);
-	
+
 	Cmiss_field_module_destroy(&field_module);
 	Cmiss_mesh_destroy(&mesh);
 	Cmiss_nodeset_destroy(&nodeset);
@@ -424,7 +424,7 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	const int element_node_count = 4;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
 	Cmiss_region_id region = Cmiss_region_find_subregion_at_path(root_region, regionName.c_str());
-	
+
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
 	Cmiss_field_id coordinates_field = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
@@ -439,9 +439,9 @@ void ResizePlaneElement(Cmiss_context_id cmissContext, const std::string& region
 	for (int i = 0; i < element_node_count; i++)
 	{
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
-        Cmiss_field_cache_set_node(field_cache, node);
-        Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
-        Cmiss_node_destroy(&node);
+		Cmiss_field_cache_set_node(field_cache, node);
+		Cmiss_field_assign_real(coordinates_field, field_cache, /*number_of_values*/3, node_coordinates[i]);
+		Cmiss_node_destroy(&node);
 	}
 
 	Cmiss_nodeset_destroy(&nodeset);
@@ -467,7 +467,7 @@ std::string GetNextNameInSeries(Cmiss_field_module_id field_module, std::string 
 		field = Cmiss_field_module_find_field_by_name(field_module, field_name.c_str());
 	} while (field != 0);
 	Cmiss_field_destroy(&field);
-	
+
 	return field_name;
 }
 

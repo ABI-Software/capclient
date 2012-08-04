@@ -914,7 +914,7 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 	SetStatusTextString("modellingmode", modellingMode);
 	menuItem_accept_->Enable(button_accept_->IsEnabled());
 	menuItem_deleteMP_->Enable(choice_mode_->IsEnabled() && IsNodeSelected(newMode));
-//	menuItem_deleteMP_->Enable(choice_mode_->IsEnabled());
+	SetLabelStateField(cmissContext_, ModellingEnumStrings.find(newMode)->second, menuItem_modellingPointLabel_->IsChecked());
 }
 
 void CAPClientWindow::OnAcceptClicked(wxCommandEvent& /* event */)
@@ -978,18 +978,7 @@ void CAPClientWindow::OnViewModellingPointLabels(wxCommandEvent& /* event */)
 {
 	ModellingEnum modellingEnum = static_cast<ModellingEnum>(choice_mode_->GetSelection());
 	const std::string& modelling_mode = ModellingEnumStrings.find(modellingEnum)->second;
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
-	Cmiss_field_id label_state = Cmiss_field_module_find_field_by_name(field_module, "label_state");
-	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-	double state[] = {0.0};
-	if (menuItem_modellingPointLabel_->IsChecked())
-		state[0] = 1.0;
-
-	Cmiss_field_assign_real(label_state, field_cache, 1, state);
-
-	Cmiss_field_destroy(&label_state);
-	Cmiss_field_cache_destroy(&field_cache);
-	Cmiss_field_module_destroy(&field_module);
+	SetLabelStateField(cmissContext_, modelling_mode, menuItem_modellingPointLabel_->IsChecked());
 }
 
 void CAPClientWindow::OnViewLog(wxCommandEvent& /* event */)
