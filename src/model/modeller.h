@@ -82,6 +82,14 @@ public:
 	bool OnAccept();
 
 	/**
+	 * Cascades through the modelling modes to test if the mode can be accepted or not.
+	 *
+	 * @param mode	The modelling mode to test.
+	 * @return true if can accept modelling mode, false otherwise.
+	 */
+	bool CanAccept(ModellingEnum mode);
+
+	/**
 	 * Gets the modelling mode apex.
 	 *
 	 * @return	null if it fails, else the modelling mode apex.

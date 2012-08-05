@@ -103,6 +103,29 @@ void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D
 	currentModellingMode_->AttachToIfOn(node_id, label, location, normal);
 }
 
+bool Modeller::CanAccept(ModellingEnum mode)
+{
+	// Run throught the modelling modes in reverse order.
+	bool can = true;
+	switch (mode)
+	{
+	case UNDEFINED_MODELLING_ENUM:
+		return false;
+	case GUIDEPOINT:
+		can = can && modellingModeGuidePoints_.CanAccept();
+	case BASEPLANE:
+		can = can && modellingModeBasePlane_.CanAccept();
+	case RV:
+		can = can && modellingModeRV_.CanAccept();
+	case BASE:
+		can = can && modellingModeBase_.CanAccept();
+	case APEX:
+		can = can && modellingModeApex_.CanAccept();
+	}
+
+	return can;
+}
+
 bool Modeller::OnAccept()
 {
 	ModellingMode* newMode = currentModellingMode_->OnAccept(*this);
