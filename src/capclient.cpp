@@ -383,11 +383,16 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 		{
 			dicom->SetImagePosition(newLocation);
 		}
+		if (modeller_ && modeller_->ImagePlaneMoved(currentLocation, plane->normal, proj))
+		{
+			modeller_->AlignModel();
+//			modeller_->UpdateTimeVaryingModel();
+//			SmoothAlongTime();
+		}
 		SetPreviousPosition(position);
 		double d = DotProduct(newLocation, plane->normal);
 		gui_->UpdateMII(regionName, plane->normal, d);
 	}
-
 }
 
 } // namespace cap

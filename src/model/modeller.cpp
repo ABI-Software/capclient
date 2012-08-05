@@ -44,7 +44,7 @@ Modeller::Modeller(IModeller *mainApp)
 	, timeSmoother_()
 {
 	SolverLibraryFactory& factory = *solverFactory_;
-	
+
 	dbg("Solver Library = " + factory.GetName());
 
 	// Read in S (smoothness matrix)
@@ -59,14 +59,14 @@ Modeller::Modeller(IModeller *mainApp)
 	RemoveFile(tmpFileName);
 
 	dbg("Done reading S & G matrices");
-	
+
 	// initialize preconditioner and GSMoothAMatrix
-	
+
 	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
-	
+
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
 	dbg("Done creating GSmoothAMatrix");
-	
+
 	tmpFileName = CreateTemporaryEmptyFile();
 	WriteCharBufferToFile(tmpFileName, prior_dat, prior_dat_len);
 	prior_ = factory.CreateVectorFromFile(tmpFileName);
@@ -105,12 +105,12 @@ void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, dou
 bool Modeller::OnAccept()
 {
 	ModellingMode* newMode = currentModellingMode_->OnAccept(*this);
-	if (newMode) 
+	if (newMode)
 	{
 		ChangeMode(newMode);
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -142,7 +142,7 @@ ModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
 Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& basePlanePoints, const Vector3D& xAxis) const
 {
 	Plane plane;
-	
+
 	if (basePlanePoints.size() > 2)
 	{
 		// Total Least Squares using SVD
@@ -159,12 +159,12 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& bas
 		// When only 2 base plane points have been specified
 		Vector3D temp1 = basePlanePoints[1].GetPosition() - basePlanePoints[0].GetPosition();
 		temp1.Normalise();
-		
+
 		Vector3D temp2 = CrossProduct(temp1, xAxis);
-		
+
 		plane.normal = CrossProduct(temp1, temp2);
 		plane.normal.Normalise();
-		
+
 		plane.position = basePlanePoints[0].GetPosition() + (0.5 * (basePlanePoints[1].GetPosition() - basePlanePoints[0].GetPosition()));
 	}
 	else
@@ -174,15 +174,15 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& bas
 		plane.normal = xAxis;
 		plane.normal.Normalise();
 	}
-	
+
 	// make sure plane normal is always pointing toward the apex
 	dbg("plane normal : " + ToString(plane.normal));
 	dbg("xAxis : " + ToString(xAxis));
 	if (DotProduct(plane.normal, xAxis) < 0)
 	{
-		plane.normal *= -1; 
+		plane.normal *= -1;
 	}
-	
+
 	return plane;
 }
 
@@ -193,8 +193,8 @@ void Modeller::AlignModel()
 		const ModellingPoints& apex = modellingModeApex_.GetModellingPoints();
 		const ModellingPoints& base = modellingModeBase_.GetModellingPoints();
 		const ModellingPoints& rvInserts = modellingModeRV_.GetModellingPoints();
-		const ModellingPoints& basePlanePoints = modellingModeBasePlane_.GetModellingPoints(); 
-	
+		const ModellingPoints& basePlanePoints = modellingModeBasePlane_.GetModellingPoints();
+
 		Point3D apexPosition = apex[0].GetPosition();
 		Point3D basePosition = base[0].GetPosition();
 		Vector3D xAxis= apexPosition - basePosition;
@@ -207,9 +207,9 @@ void Modeller::AlignModel()
 		{
 			sum += itr->GetPosition();
 		}
-		
+
 		Point3D averageOfRVInserts = sum / rvInserts.size();
-		
+
 		Vector3D yAxis = averageOfRVInserts - basePosition;
 		Vector3D zAxis = CrossProduct(xAxis,yAxis);
 		zAxis.Normalise();
@@ -220,10 +220,10 @@ void Modeller::AlignModel()
 		dbg("Model coord x axis vector" + ToString(xAxis));
 		dbg("Model coord y axis vector" + ToString(yAxis));
 		dbg("Model coord z axis vector" + ToString(zAxis));
-		
+
 		// Compute the position of the model coord origin. (1/3 of the way from base to apex)
 		Point3D origin = basePosition + (0.3333) * (apexPosition - basePosition);
-		
+
 		// Transform heart model using the newly computed axes
 		gtMatrix transform;
 		transform[0][0]=static_cast<float>(xAxis.x);
@@ -242,27 +242,27 @@ void Modeller::AlignModel()
 		transform[3][1]=static_cast<float>(origin.y);
 		transform[3][2]=static_cast<float>(origin.z);
 		transform[3][3]=1;
-		
+
 
 		mainApp_->SetHeartModelTransformation(transform);
 		//--heartModel_.SetLocalToGlobalTransformation(transform);
-		
+
 		// TODO properly Compute FocalLength
 		double lengthFromApexToBase = (apexPosition - basePosition).Length();
 		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + ToString(lengthFromApexToBase));
 		LOG_MSG(LOGINFORMATION) << "Length from Apex to Base = " << lengthFromApexToBase;
-		
+
 		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 		double focalLength = (apexPosition - origin).Length()  / cosh(1.0);
 		dbg("Modeller::AlignModel() : new focal length = " + ToString(focalLength));
 		LOG_MSG(LOGINFORMATION) << "Focal length = " << focalLength;
 		mainApp_->SetHeartModelFocalLength(focalLength);
 		//--heartModel_.SetFocalLength(focalLength);
-		
+
 		// Construct base planes from the base plane points
 		int numberOfModelFrames = mainApp_->GetNumberOfHeartModelFrames();//--heartModel_.GetNumberOfModelFrames();
 		double framePeriod = 1.0/numberOfModelFrames;
-		
+
 		std::map<double, Plane> planes; // value_type = (frame, plane) pair
 		ModellingPoints::const_iterator itrSrc = basePlanePoints.begin();
 
@@ -270,7 +270,7 @@ void Modeller::AlignModel()
 		{
 			//--dbg("bp points : " + ToString(itrSrc->GetTime()) + ", " + ToString(itrSrc->GetCoordinate()));
 			double frameTime = itrSrc->GetTime();
-            double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
+			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
 			std::vector<ModellingPoint> basePlanePointsInOneFrame;
 			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 			{
@@ -280,7 +280,7 @@ void Modeller::AlignModel()
 			Plane plane = FitPlaneToBasePlanePoints(basePlanePointsInOneFrame, xAxis);
 			planes.insert(std::make_pair(frameTime, plane));
 		}
-		
+
 		// Set initial model parameters lambda, mu and theta
 		// initial values for lambda come from the prior
 		// theta is 1/4pi apart)
@@ -290,24 +290,24 @@ void Modeller::AlignModel()
 		{
 			dbg("planes map : " + ToString(cit->first) + ", " + ToString(cit->second.position));
 		}
-		
+
 		for(int i = 0; i < numberOfModelFrames; i++)
 		{
 			double time = i*framePeriod;
 			//-- This call could be unnecessary as the nodes are already spaced out at regular intervals around the circle
-			//--heartModel_.SetTheta(i);  
+			//--heartModel_.SetTheta(i);
 			const Plane& plane = InterpolateBasePlane(planes, time);
-			
-	//		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl; 
+
+	//		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl;
 			//--heartModel_.SetMuFromBasePlaneForFrame(plane, time);
 			mainApp_->SetHeartModelMuFromBasePlaneAtTime(plane, time);
 			//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 		}
-		
+
 		InitialiseBezierLambdaParams();
 	}
-	
-	
+
+
 }
 
 Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const
@@ -315,8 +315,8 @@ Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, doub
 	// TODO: This function doesn't depend upon this class move into math...
 	assert(!planes.empty());
 	std::map<double, Plane>::const_iterator itr = planes.begin();
-	
-	
+
+
 	double prevFrameTime = 0;
 	Plane prevPlane;
 	while (itr != planes.end() && itr->first < frameTime)
@@ -329,7 +329,7 @@ Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, doub
 	{
 		return itr->second;
 	}
-	
+
 	// Handle edge cases where prevFrame > nextFrame (i.e interpolation occurs around the end point)
 	double nextFrameTime;
 	Plane nextPlane;
@@ -339,26 +339,26 @@ Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, doub
 		nextFrameTime = planes.begin()->first + maxFrame;
 		nextPlane = planes.begin()->second;
 	}
-	else 
+	else
 	{
 		nextFrameTime = itr->first;
 		nextPlane = itr->second;
 	}
-	
+
 	if (itr == planes.begin())
 	{
 		std::map<double, Plane>::const_reverse_iterator last = planes.rbegin();
 		prevFrameTime = last->first - maxFrame;
 		prevPlane = last->second;
 	}
-	
+
 	Plane plane;
 	double coefficient = (double)(frameTime - prevFrameTime)/(nextFrameTime - prevFrameTime);
-	
+
 	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
-	
+
 	plane.position = prevPlane.position + coefficient * (nextPlane.position - prevPlane.position);
-	
+
 	return plane;
 }
 
@@ -377,7 +377,7 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 				(*x)[i] = timeVaryingDataPoints_[i][j];
 			}
 	//		std::cout << "x(" << j << ")" << *x << std::endl;
-			
+
 			const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
 			//--heartModel_.SetLambda(hermiteLambdaParams, time);
 			mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
@@ -394,9 +394,9 @@ void Modeller::SmoothAlongTime()
 		// For each global parameter in the per frame model
 //#define PRINT_SMOOTHING_TIME
 #ifdef PRINT_SMOOTHING_TIME
-        clock_t before = clock();
+		clock_t before = clock();
 #endif
-			
+
 #define SMOOTH_ALONG_TIME
 #ifdef SMOOTH_ALONG_TIME
 		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
@@ -406,9 +406,9 @@ void Modeller::SmoothAlongTime()
 		{
 	//		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
 			const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i], framesWithDataPoints);
-			
+
 	//		std::cout << lambdas << std::endl;
-			
+
 			for(int j=0; j < numFrames/*--heartModel_.GetNumberOfModelFrames()*/;j++) //FIX duplicate code
 			{
 				double xi = static_cast<double>(j)/numFrames;//--(double)j/heartModel_.GetNumberOfModelFrames();
@@ -428,7 +428,7 @@ void Modeller::SmoothAlongTime()
 
 void Modeller::ChangeMode(ModellingEnum mode)
 {
-    ModellingMode* newMode = 0;
+	ModellingMode* newMode = 0;
 	switch (mode)
 	{
 	case APEX:
@@ -464,7 +464,7 @@ std::vector<ModellingPoint> Modeller::GetModellingPoints() const
 {
 	ModellingPoints modellingPoints;
 	ModellingPoints::const_iterator cit;
-	
+
 	ModellingPoints apex = modellingModeApex_.GetModellingPoints();
 	cit = apex.begin();
 	for (; cit != apex.end(); ++cit)
@@ -493,6 +493,14 @@ std::vector<ModellingPoint> Modeller::GetModellingPoints() const
 	return modellingPoints;
 }
 
+bool Modeller::ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff)
+{
+	bool moved = false;
+	moved |= modellingModeApex_.ImagePlaneMoved(image_location, normal, diff);
+
+	return moved;
+}
+
 void Modeller::InitialiseBezierLambdaParams()
 {
 	//Initialise bezier global params for each model
@@ -504,7 +512,7 @@ void Modeller::InitialiseBezierLambdaParams()
 		for(int j = 0; j < numFrames;j++)
 		{
 			double xi = static_cast<double>(j)/numFrames;
-			
+
 			double lambda = timeSmoother_.ComputeLambda(xi, prior);
 			timeVaryingDataPoints_[i][j] = lambda;
 		}
@@ -526,11 +534,11 @@ void Modeller::FitModel(double time)
 		if (currentModellingPoints.size() == 0)
 			return;
 
-		// Compute P 
+		// Compute P
 		// 1. find xi coords for each data point
 		ModellingPoints::iterator itr = currentModellingPoints.begin();
-        int numFrames = mainApp_->GetNumberOfHeartModelFrames();
-        int frameNumber = time*numFrames + 0.5;
+		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+		int frameNumber = time*numFrames + 0.5;
 		std::vector<Point3D> xi_vector;
 		std::vector<int> element_id_vector;
 		// For rhs
@@ -540,20 +548,20 @@ void Modeller::FitModel(double time)
 		{
 			Point3D xi;
 			int elem_id = mainApp_->ComputeHeartModelXi(itr->GetPosition(), time, xi);
-            switch(itr->GetHeartSurfaceType())
+			switch(itr->GetHeartSurfaceType())
 			{
-            case ENDOCARDIUM:
-            {
-                xi.z = 0.0f;
-                break;
-            }
-            case EPICARDIUM:
-            {
-                xi.z = 1.0f;
-                break;
-            }
-            case UNDEFINED_HEART_SURFACE_TYPE:
-            {
+			case ENDOCARDIUM:
+			{
+				xi.z = 0.0f;
+				break;
+			}
+			case EPICARDIUM:
+			{
+				xi.z = 1.0f;
+				break;
+			}
+			case UNDEFINED_HEART_SURFACE_TYPE:
+			{
 				if (xi.z < 0.5)
 				{
 					xi.z = 0.0f; // projected on endocardium
@@ -564,17 +572,17 @@ void Modeller::FitModel(double time)
 					xi.z = 1.0f; // projected on epicardium
 					modellingModeGuidePoints_.SetHeartSurfaceType(itr->GetNodeIdentifier(), EPICARDIUM);
 				}
-                break;
-            }
+				break;
+			}
 			}
 
 			xi_vector.push_back(xi);
 			element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
-			
+
 			Point3D modellingPointPS = mainApp_->ConvertToHeartModelProlateSpheriodalCoordinate(itr->GetNodeIdentifier(), itr->GetModellingPointTypeString());
-			(*guidePointLambda)[i] = modellingPointPS.x; // x = lambda, y = mu, z = theta 
-        }
-		
+			(*guidePointLambda)[i] = modellingPointPS.x; // x = lambda, y = mu, z = theta
+		}
+
 		// 2. evaluate basis at the xi coords
 		double psi[32]; //FIX 32?
 		std::vector<Entry> entries;
@@ -589,7 +597,7 @@ void Modeller::FitModel(double time)
 			temp[1] = itr_xi->y;
 			temp[2] = itr_xi->z;
 			basis.Evaluate(psi, temp);
-			
+
 			for (int nodalValueIndex = 0; nodalValueIndex < 32; nodalValueIndex++)
 			{
 				Entry e;
@@ -599,33 +607,33 @@ void Modeller::FitModel(double time)
 				entries.push_back(e);
 			}
 		}
-		
+
 		// 3. construct P
 		SparseMatrix* P = solverFactory_->CreateSparseMatrix(currentModellingPoints.size(), 512, entries); //FIX
-		
+
 		aMatrix_->UpdateData(*P);
-		
+
 		// Compute RHS - GtPt(dataLamba - priorLambda)
 
 		Vector* lambda = G_->mult(*prior_);
-		
+
 		// p = P * lambda : prior at projected data points
 		Vector* p = P->mult(*lambda);
-		
+
 		// guidePointLambda = dataPoints in the same order as P (* weight) TODO : implement weight!
-		
+
 		// guidePointLambda = guidePointLambda - p
 		*guidePointLambda -= *p;
 		// rhs = GtPt p
 		Vector* temp = P->trans_mult(*guidePointLambda);
 		Vector* rhs = G_->trans_mult(*temp);
-		
+
 		// Solve Normal equation
 		const double tolerance = 1.0e-3;
 		const int maximumIteration = 100;
-		
+
 		Vector* x = solverFactory_->CreateVector(134); //FIX magic number
-		
+
 #ifdef PRINT_FIT_TIMINGS
 		clock_t before = clock();
 #endif
@@ -637,7 +645,7 @@ void Modeller::FitModel(double time)
 		dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
 #endif
 		*x += *prior_;
-		
+
 		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
 #ifdef PRINT_FIT_TIMINGS
 		clock_t beforeZn = clock();
@@ -648,9 +656,9 @@ void Modeller::FitModel(double time)
 		clock_t afterZn = clock();
 		dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
 #endif
-		
+
 		UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
-		
+
 		delete P;
 		delete lambda;
 		delete p;
@@ -663,7 +671,7 @@ void Modeller::FitModel(double time)
 		clock_t afterTotal = clock();
 		dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
 #endif
-		
+
 	}
 }
 
@@ -671,7 +679,7 @@ void Modeller::UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber)
 {
 	// Update the (Bezier) parameters for the newly fitted frame
 	// This is in turn used as data points for the time varying model in the smoothing step
-	
+
 	for (int i = 0; i < 134; i++)
 	{
 		timeVaryingDataPoints_[i][frameNumber] = x[i];
@@ -681,11 +689,11 @@ void Modeller::UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber)
 std::vector<double> Modeller::ConvertToHermite(const Vector& bezierParams) const
 {
 	// convert Bezier params to hermite params to they can be fed to Cmgui
-	// 
+	//
 	//Vector* hermiteParams = (*bezierToHermiteTransform_).mult(bezierParams);
 	// TODO REVISE inefficient
 	Vector* hermiteParams = (*G_).mult(bezierParams);
-	
+
 	int indices[128] = {
 		26,    25,    22,    21,     6,     5,     2,     1,
 		27,    26,    23,    22,     7,     6,     3,     2,
@@ -704,16 +712,16 @@ std::vector<double> Modeller::ConvertToHermite(const Vector& bezierParams) const
 		40,    39,    36,    35,    20,    19,    16,    15,
 		37,    40,    33,    36,    17,    20,    13,    16
 	};
-	
+
 	int invertedIndices[40];
-		
+
 	for (int i = 0; i <128; i++)
 	{
 		invertedIndices[indices[i]-1] = i;
 	}
-	
+
 	std::vector<double> temp(160);
-	
+
 	for (int i =0; i < 40 ;i++)
 	{
 		temp[i*4] = (*hermiteParams)[invertedIndices[i]*4];
@@ -725,7 +733,7 @@ std::vector<double> Modeller::ConvertToHermite(const Vector& bezierParams) const
 //	{
 //		temp[i] = (*hermiteParams)[i];
 //	}
-	
+
 	delete hermiteParams;
 	return temp;
 }

@@ -36,9 +36,9 @@ ModellingPoint::ModellingPoint(ModellingEnum modellingPointType, Cmiss_region_id
 	, weight_(1.0f)
 	, time_(time)
 {
-    double spectrumValue = GetSpectrumValue();
-    SetSpectrumValue(spectrumValue);
-    SetNodeVisibility(true);
+	double spectrumValue = GetSpectrumValue();
+	SetSpectrumValue(spectrumValue);
+	SetNodeVisibility(true);
 }
 
 ModellingPoint::~ModellingPoint(void)
@@ -77,6 +77,36 @@ ModellingPoint & ModellingPoint::operator =(const cap::ModellingPoint &rhs)
 
 #include <utils/debug.h>
 
+void ModellingPoint::SetCoordinates(const Point3D& location)
+{
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
+	Cmiss_field_module_begin_change(field_module);
+	{
+		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+		Cmiss_field_id coords = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
+		Cmiss_field_cache_set_node(field_cache, node);
+		dbgn("location : " + ToString(position_));
+		double coordinate_values[] = {location.x, location.y, location.z};
+		int r = Cmiss_field_assign_real(coords, field_cache, 3, coordinate_values);
+		if (r == CMISS_OK)
+		{
+			position_ = location;
+			dbg(" - " + ToString(position_));
+		}
+
+		Cmiss_node_destroy(&node);
+		Cmiss_field_destroy(&coords);
+		Cmiss_field_cache_destroy(&field_cache);
+		Cmiss_nodeset_destroy(&nodeset);
+	}
+	Cmiss_field_module_end_change(field_module);
+
+	Cmiss_field_module_destroy(&field_module);
+}
+
 void ModellingPoint::SetVisible(bool visibility)
 {
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
@@ -85,12 +115,12 @@ void ModellingPoint::SetVisible(bool visibility)
 	{
 		std::stringstream ss;
 		ss << "constant " << (visibility ? 1 : 0);
-        Cmiss_field_module_define_field(field_module, "visibility_control_constant_field", ss.str().c_str());
+		Cmiss_field_module_define_field(field_module, "visibility_control_constant_field", ss.str().c_str());
 	}
 	else
 	{
-        SetNodeVisibility(visibility);
-    }
+		SetNodeVisibility(visibility);
+	}
 	Cmiss_field_module_end_change(field_module);
 	Cmiss_field_module_destroy(&field_module);
 }
@@ -109,8 +139,8 @@ void ModellingPoint::Remove()
 void ModellingPoint::SetHeartSurfaceType(HeartSurfaceEnum type)
 {
 	heartSurfaceType_ = type;
-    double spectrumValue = GetSpectrumValue();
-    SetSpectrumValue(spectrumValue);
+	double spectrumValue = GetSpectrumValue();
+	SetSpectrumValue(spectrumValue);
 }
 
 std::string  ModellingPoint::GetModellingPointTypeString() const
@@ -120,67 +150,67 @@ std::string  ModellingPoint::GetModellingPointTypeString() const
 
 void ModellingPoint::SetNodeVisibility(bool visibility)
 {
-    Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
-    Cmiss_field_module_begin_change(field_module);
-    {
-        Cmiss_field_id visibility_time_value = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
-        Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
-        Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
-        Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-        Cmiss_field_cache_set_time(field_cache, time_);
-        Cmiss_field_cache_set_node(field_cache, node);
-        double time_values[] = {visibility ? time_ : -1.0};
-        Cmiss_field_assign_real(visibility_time_value, field_cache, 1, time_values);
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
+	Cmiss_field_module_begin_change(field_module);
+	{
+		Cmiss_field_id visibility_time_value = Cmiss_field_module_find_field_by_name(field_module, "visibility_value_field");
+		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+		Cmiss_field_cache_set_time(field_cache, time_);
+		Cmiss_field_cache_set_node(field_cache, node);
+		double time_values[] = {visibility ? time_ : -1.0};
+		Cmiss_field_assign_real(visibility_time_value, field_cache, 1, time_values);
 
-        Cmiss_field_destroy(&visibility_time_value);
-        Cmiss_nodeset_destroy(&nodeset);
-        Cmiss_node_destroy(&node);
-        Cmiss_field_cache_destroy(&field_cache);
+		Cmiss_field_destroy(&visibility_time_value);
+		Cmiss_nodeset_destroy(&nodeset);
+		Cmiss_node_destroy(&node);
+		Cmiss_field_cache_destroy(&field_cache);
 
-    }
-    Cmiss_field_module_end_change(field_module);
-    Cmiss_field_module_destroy(&field_module);
+	}
+	Cmiss_field_module_end_change(field_module);
+	Cmiss_field_module_destroy(&field_module);
 }
 
 void ModellingPoint::SetSpectrumValue(double spectrumValue)
 {
-    Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
-    Cmiss_field_module_begin_change(field_module);
-    {
-        Cmiss_field_id spectrum_value = Cmiss_field_module_find_field_by_name(field_module, "spectrum_value_field");
-        Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
-        Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
-        Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-        Cmiss_field_cache_set_time(field_cache, time_);
-        Cmiss_field_cache_set_node(field_cache, node);
-        double spectrum_values[] = {spectrumValue};
-        Cmiss_field_assign_real(spectrum_value, field_cache, 1, spectrum_values);
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region_);
+	Cmiss_field_module_begin_change(field_module);
+	{
+		Cmiss_field_id spectrum_value = Cmiss_field_module_find_field_by_name(field_module, "spectrum_value_field");
+		Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+		Cmiss_field_cache_set_time(field_cache, time_);
+		Cmiss_field_cache_set_node(field_cache, node);
+		double spectrum_values[] = {spectrumValue};
+		Cmiss_field_assign_real(spectrum_value, field_cache, 1, spectrum_values);
 
-        Cmiss_field_destroy(&spectrum_value);
-        Cmiss_nodeset_destroy(&nodeset);
-        Cmiss_node_destroy(&node);
-        Cmiss_field_cache_destroy(&field_cache);
+		Cmiss_field_destroy(&spectrum_value);
+		Cmiss_nodeset_destroy(&nodeset);
+		Cmiss_node_destroy(&node);
+		Cmiss_field_cache_destroy(&field_cache);
 
-    }
-    Cmiss_field_module_end_change(field_module);
-    Cmiss_field_module_destroy(&field_module);
+	}
+	Cmiss_field_module_end_change(field_module);
+	Cmiss_field_module_destroy(&field_module);
 }
 
 double ModellingPoint::GetSpectrumValue() const
 {
-    double spectrumValue = 0.5;
-    switch(heartSurfaceType_)
-    {
-    case EPICARDIUM:
-        spectrumValue = 0.1;
-        break;
-    case ENDOCARDIUM:
-        spectrumValue = 0.9;
-    default:
-        break;
-    }
+	double spectrumValue = 0.5;
+	switch(heartSurfaceType_)
+	{
+	case EPICARDIUM:
+		spectrumValue = 0.1;
+		break;
+	case ENDOCARDIUM:
+		spectrumValue = 0.9;
+	default:
+		break;
+	}
 
-    return spectrumValue;
+	return spectrumValue;
 }
 
 }
