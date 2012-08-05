@@ -52,6 +52,8 @@ public:
 	 */
 	virtual ModellingMode* OnAccept(Modeller& modeller) = 0;
 
+	virtual bool CanAccept() { return false; }
+
 	/**
 	 * Adds a modelling point.
 	 *
@@ -89,15 +91,25 @@ public:
 	/**
 	 * An image plane has moved, check all modelling points in this mode to see
 	 * if any lie on this image plane and also require moving.  If a modelling point
-	 * has been moved return true, otherwise return false.  The tolerance for testing
-	 * whether a modelling point is on the plane or not is set at 1e-4.
+	 * has been moved return true, otherwise return false.
 	 *
-	 * @param image_location	The current image plane location.
-	 * @param normal	The normal for the current image plane.
+	 * @param label	The label of the image plane.
 	 * @param diff	The difference between the old image plane location and the new image plane location.
 	 * @return	true if a modelling point was moved, false otherwise
 	 */
-	bool ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff);
+	bool ImagePlaneMoved(const std::string &label, Vector3D diff);
+
+	/**
+	 * Attach the given label to the modelling point identified by the node_id.
+	 * The tolerance for testing whether a modelling point is on the plane or
+	 * not is set at 1e-4.
+	 *
+	 * @param node_id	The identifier for the node.
+	 * @param label	The label of the image plane.
+	 * @param location	The location of the image plane.
+	 * @param normal	The normal of the image plane.
+	 */
+	void AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal);
 
 	/**
 	 * Perform entry action. Typically changing the visibility of the modelling points.
@@ -130,6 +142,8 @@ public:
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
 
+	bool CanAccept();
+
 	/**
 	 * Adds an APEX type of modelling point.
 	 *
@@ -157,6 +171,8 @@ public:
 	 * @return	null if it fails, else the rv modelling mode.
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
+
+	bool CanAccept();
 
 	/**
 	 * Adds a BASE type of modelling point.
@@ -186,6 +202,8 @@ public:
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
 
+	bool CanAccept();
+
 	/**
 	 * Adds an RV type of modelling point.
 	 *
@@ -213,6 +231,8 @@ public:
 	 * @return	null if it fails, else.
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
+
+	bool CanAccept();
 
 	/**
 	 * Adds a BASEPLANE type of modelling point.

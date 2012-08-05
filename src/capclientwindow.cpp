@@ -482,11 +482,6 @@ double CAPClientWindow::GetCurrentTime() const
 	return Cmiss_time_keeper_get_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME);
 }
 
-void CAPClientWindow::SmoothAlongTime()
-{
-	mainApp_->SmoothAlongTime();
-}
-
 void CAPClientWindow::PlayCine()
 {
 	Cmiss_time_keeper_play(timeKeeper_, CMISS_TIME_KEEPER_PLAY_FORWARD);
@@ -1067,7 +1062,8 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
 	for (; cit != apex.end(); ++cit)
 	{
 		ModellingPointDetail mp = *cit;
-		CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+		int node_id = CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+		mainApp_->AttachModellingPoint(node_id);
 	}
 	if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 	{
@@ -1076,7 +1072,8 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
 		for (; cit != base.end(); ++cit)
 		{
 			ModellingPointDetail mp = *cit;
-			CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+			int node_id = CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+			mainApp_->AttachModellingPoint(node_id);
 		}
 		if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 		{
@@ -1085,7 +1082,8 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
 			for (; cit != rvInserts.end(); ++cit)
 			{
 				ModellingPointDetail mp = *cit;
-				CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+				int node_id = CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+				mainApp_->AttachModellingPoint(node_id);
 			}
 			if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 			{
@@ -1094,7 +1092,8 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
 				for (; cit != basePlanePoints.end(); ++cit)
 				{
 					ModellingPointDetail mp = *cit;
-					CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+					int node_id = CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+					mainApp_->AttachModellingPoint(node_id);
 				}
 				if (mainApp_->ProcessModellingPointsEnteredForCurrentMode())
 				{
@@ -1103,7 +1102,8 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
 					for (; cit != guidePoints.end(); ++cit)
 					{
 						ModellingPointDetail mp = *cit;
-						CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+						int node_id = CreateModellingPoint(mp.modellingPointType_, mp.position_, mp.time_);
+						mainApp_->AttachModellingPoint(node_id);
 					}
 					mainApp_->SmoothAlongTime();
 				}
@@ -1125,19 +1125,30 @@ void CAPClientWindow::ProcessModellingPointDetails(ModellingPointDetails modelli
 	}
 }
 
-void CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& position, double time)
+int CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& position, double time)
 {
 	const std::string& modelling_mode = ModellingEnumStrings.find(type)->second;
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, modelling_mode.c_str());
 	Cmiss_region_destroy(&root_region);
 	Cmiss_node_id node = Cmiss_region_create_node(region, position.x, position.y, position.z);
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
+	Cmiss_nodeset_group_id nodeset_group = Cmiss_nodeset_cast_group(nodeset);
+	int r = Cmiss_nodeset_group_add_node(nodeset_group, node);
+	if (r == CMISS_OK)
+		dbg("It's in!!!");
 	int node_id = Cmiss_node_get_identifier(node);
 
 	mainApp_->AddModellingPoint(region, node_id, position, time);
 
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_nodeset_group_destroy(&nodeset_group);
 	Cmiss_region_destroy(&region);
 	Cmiss_node_destroy(&node);
+
+	return node_id;
 }
 
 void CAPClientWindow::StartModellingAction()
@@ -1576,9 +1587,8 @@ void CAPClientWindow::AddCurrentlySelectedNode()
 	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
 	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
-
 	// We are assuming here that only one node is selected.  If the node tool is set so that
-	// only single selection is possible then we are golden, if not ...
+	// only single selection is possible then we are golden, if not...
 	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
 	if (selected_node != 0)
 	{
@@ -1648,6 +1658,22 @@ void CAPClientWindow::MoveCurrentlySelectedNode()
 		Cmiss_node_destroy(&selected_node);
 		Cmiss_region_destroy(&region);
 		Cmiss_field_cache_destroy(&field_cache);
+	}
+	Cmiss_field_module_destroy(&field_module);
+}
+
+void CAPClientWindow::AttachCurrentlySelectedNode()
+{
+	ModellingEnum currentMode = static_cast<ModellingEnum>(choice_mode_->GetSelection());
+	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
+	// We are assuming here that only one node is selected.  If the node tool is set so that
+	// only single selection is possible then we are golden, if not...
+	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
+	if (selected_node != 0)
+	{
+		int node_id = Cmiss_node_get_identifier(selected_node);
+		mainApp_->AttachModellingPoint(node_id);
 	}
 	Cmiss_field_module_destroy(&field_module);
 }

@@ -24,6 +24,17 @@ const ImagePlane& CAPClient::GetImagePlane(const std::string& label)
 	throw std::exception();
 }
 
+void CAPClient::AttachModellingPoint(int node_id)
+{
+	LabelledSlices::const_iterator cit = labelledSlices_.begin();
+	for (;cit != labelledSlices_.end(); cit++)
+	{
+		const ImagePlane *plane = cit->GetDICOMImages().at(0)->GetImagePlane();
+		modeller_->AttachToIfOn(node_id, cit->GetLabel(), plane->tlc, plane->normal);
+	}
+}
+
+
 void CAPClient::SetHeartModelTransformation(const gtMatrix& m)
 {
 	gui_->SetHeartModelTransformation(m);
@@ -383,9 +394,9 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 		{
 			dicom->SetImagePosition(newLocation);
 		}
-		if (modeller_ && modeller_->ImagePlaneMoved(currentLocation, plane->normal, proj))
+		if (modeller_ && modeller_->ImagePlaneMoved(it->GetLabel(), proj))
 		{
-			modeller_->AlignModel();
+//			modeller_->AlignModel();
 //			modeller_->UpdateTimeVaryingModel();
 //			SmoothAlongTime();
 		}

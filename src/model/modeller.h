@@ -127,12 +127,13 @@ public:
 	 * Check all modelling points to see if the moved image plane has an effect
 	 * on their location.
 	 *
-	 * @param image_location	The current image plane location.
-	 * @param normal	The normal for the current image plane.
+	 * @param label	The label of the image plane.
 	 * @param diff	The difference between the old image plane location and the new image plane location.
 	 * @return true if a modelling point has been moved, false otherwise.
 	 */
-	bool ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff);
+	bool ImagePlaneMoved(const std::string &label, Vector3D diff);
+
+	void AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal);
 
 	/**
 	 * Align model.

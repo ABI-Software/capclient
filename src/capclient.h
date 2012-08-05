@@ -286,7 +286,7 @@ public:
 	}
 
 	/**
-	 * Adds a modelling point.
+	 * Adds a modelling point identified by the given node_id.
 	 *
 	 * @param	region  	The region.
 	 * @param	node_id 	Identifier for the node.
@@ -299,7 +299,7 @@ public:
 	}
 
 	/**
-	 * Move modelling point.
+	 * Move modelling point identified by the given node_id.
 	 *
 	 * @param	region  	The region.
 	 * @param	node_id 	Identifier for the node.
@@ -312,15 +312,24 @@ public:
 	}
 
 	/**
-	 * Removes the data point.
+	 * Removes the modelling point identified by the given node_id.
 	 *
-	 * @param [in,out]	dataPointID	If non-null, identifier for the data point.
-	 * @param	time			   	The time.
+	 * @param	region  	The region.
+	 * @param	node_id 	Identifier for the node.
+	 * @param	time		The time.
 	 */
 	void RemoveModellingPoint(Cmiss_region_id region, int node_id, double time)
 	{
 		modeller_->RemoveModellingPoint(region, node_id, time);
 	}
+
+	/**
+	 * Attach a modelling point identified by the given node_id to all image planes it is near.
+	 * Near being within a specified distance tolerance.
+	 *
+	 * @param node_id	Identifier for the node.
+	 */
+	void AttachModellingPoint(int node_id);
 
 	/**
 	 * Gets the image plane for the image stack with the given label.

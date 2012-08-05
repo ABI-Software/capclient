@@ -161,6 +161,29 @@ namespace cap
 		 */
 		int GetNodeIdentifier() const { return node_id_; }
 
+		/**
+		 * If the modelling point is on the given plane, then add the given label to the list of planes
+		 * this modelling point is attached to.
+		 *
+		 * @param label	The label to add the the list of attached to planes.
+		 * @param location	The location of the plane.
+		 * @param normal	The normal of the plane.
+		 */
+		void AttachToIfOn(const std::string& label, const Point3D& location, const Vector3D& normal);
+
+		/**
+		 * Test to see if the given label is in the list of attachedTo_ planes.
+		 *
+		 * @param label	The label to test.
+		 * @return true if the label is in the list of attachedTo_ planes, false otherwise.
+		 */
+		bool IsAttachedTo(const std::string& label);
+
+		/**
+		 * Clear attachedTo_ list.
+		 */
+		void ClearAttachedToList() { attachedTo_.clear(); }
+
 	private:
 		/**
 		 * Set the node visibility.
@@ -188,6 +211,7 @@ namespace cap
 	protected:
 		ModellingEnum modellingPointType_; /**< Type of the modelling point */
 		HeartSurfaceEnum heartSurfaceType_; /**< Type of the heart surface */
+		std::vector<std::string> attachedTo_; /**< A list of surfaces the modelling point is attached to */
 		Cmiss_region_id region_;	/**< The region */
 		int node_id_;   /**< Identifier for the node */
 		Point3D position_;  /**< The position */

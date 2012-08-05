@@ -19,6 +19,7 @@ namespace cap
 ModellingPoint::ModellingPoint()
 	: modellingPointType_(UNDEFINED_MODELLING_ENUM)
 	, heartSurfaceType_(UNDEFINED_HEART_SURFACE_TYPE)
+	, attachedTo_()
 	, region_(0)
 	, node_id_(-1)
 	, position_()
@@ -30,6 +31,7 @@ ModellingPoint::ModellingPoint()
 ModellingPoint::ModellingPoint(ModellingEnum modellingPointType, Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	: modellingPointType_(modellingPointType)
 	, heartSurfaceType_(UNDEFINED_HEART_SURFACE_TYPE)
+	, attachedTo_()
 	, region_(Cmiss_region_access(region))
 	, node_id_(node_id)
 	, position_(position)
@@ -50,6 +52,7 @@ ModellingPoint::ModellingPoint(const ModellingPoint& other)
 {
 	this->modellingPointType_ = other.modellingPointType_;
 	this->heartSurfaceType_ = other.heartSurfaceType_;
+	this->attachedTo_ = other.attachedTo_;
 	this->region_ = 0;
 	if (other.region_ != 0)
 		this->region_ = Cmiss_region_access(other.region_);
@@ -65,6 +68,7 @@ ModellingPoint & ModellingPoint::operator =(const cap::ModellingPoint &rhs)
 	{
 		this->modellingPointType_ = rhs.modellingPointType_;
 		this->heartSurfaceType_ = rhs.heartSurfaceType_;
+		this->attachedTo_ = rhs.attachedTo_;
 		this->region_ = Cmiss_region_access(rhs.region_);
 		this->node_id_ = rhs.node_id_;
 		this->position_ = rhs.position_;
@@ -76,6 +80,30 @@ ModellingPoint & ModellingPoint::operator =(const cap::ModellingPoint &rhs)
 }
 
 #include <utils/debug.h>
+
+void ModellingPoint::AttachToIfOn(const std::string& label, const Point3D& location, const Vector3D& normal)
+{
+	Vector3D vec = position_ - location;
+	double in_plane = DotProduct(vec, normal);
+	if (fabs(in_plane) < 1e-4)
+	{
+		attachedTo_.push_back(label);
+	}
+}
+
+bool ModellingPoint::IsAttachedTo(const std::string& label)
+{
+	std::vector<std::string>::const_iterator cit = attachedTo_.begin();
+	while (cit != attachedTo_.end())
+	{
+		if (*cit == label)
+			return true;
+
+		++cit;
+	}
+
+	return false;
+}
 
 void ModellingPoint::SetCoordinates(const Point3D& location)
 {
