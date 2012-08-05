@@ -17,24 +17,24 @@ extern "C"
 
 namespace cap
 {
-    struct ModellingPointDetail
-    {
-        ModellingPointDetail(ModellingEnum type, Point3D position, double time)
-            : modellingPointType_(type)
-            , position_(position)
-            , time_(time)
-        {
-        }
+	struct ModellingPointDetail
+	{
+		ModellingPointDetail(ModellingEnum type, Point3D position, double time)
+			: modellingPointType_(type)
+			, position_(position)
+			, time_(time)
+		{
+		}
 
-        std::string  GetModellingPointTypeString() const
-        {
-            return ModellingEnumStrings.find(modellingPointType_)->second;
-        }
+		std::string  GetModellingPointTypeString() const
+		{
+			return ModellingEnumStrings.find(modellingPointType_)->second;
+		}
 
-        ModellingEnum modellingPointType_; /**< Type of the modelling point */
-        Point3D position_;  /**< The position */
-        double time_;   /**< The time */
-    };
+		ModellingEnum modellingPointType_; /**< Type of the modelling point */
+		Point3D position_;  /**< The position */
+		double time_;   /**< The time */
+	};
 
 	/**
 	 * @brief Modelling point.  This class encapsultates the points for modelling.  It holds a region
@@ -106,6 +106,13 @@ namespace cap
 		void SetPosition(const Point3D& position) { position_ = position; }
 
 		/**
+		 * Set the coordinates of the node to the given position, also update the position_.
+		 *
+		 * @param location	The location to set the coordinates to.
+		 */
+		void SetCoordinates(const Point3D& location);
+
+		/**
 		 * Gets the position.
 		 *
 		 * @return	The position.
@@ -154,29 +161,29 @@ namespace cap
 		 */
 		int GetNodeIdentifier() const { return node_id_; }
 
-    private:
-        /**
-         * Set the node visibility.
-         *
-         * @param visibility    the visibility of the node to set.
-         */
-        void SetNodeVisibility(bool visibility);
+	private:
+		/**
+		 * Set the node visibility.
+		 *
+		 * @param visibility    the visibility of the node to set.
+		 */
+		void SetNodeVisibility(bool visibility);
 
-        /**
-         * Set the spectrum value into the spectrum_value_field.
-         *
-         * @param spectrumValue the value for the spectrum value field.
-         */
-        void SetSpectrumValue(double spectrumValue);
+		/**
+		 * Set the spectrum value into the spectrum_value_field.
+		 *
+		 * @param spectrumValue the value for the spectrum value field.
+		 */
+		void SetSpectrumValue(double spectrumValue);
 
-        /**
-         * Get the value represented by heartSurfaceType_ as a double
-         * for the node spectrum.  Only the guidepoint type of modelling
-         * point cares about this value.
-         *
-         * @return the value for the heartSurfaceType_.
-         */
-        double GetSpectrumValue() const;
+		/**
+		 * Get the value represented by heartSurfaceType_ as a double
+		 * for the node spectrum.  Only the guidepoint type of modelling
+		 * point cares about this value.
+		 *
+		 * @return the value for the heartSurfaceType_.
+		 */
+		double GetSpectrumValue() const;
 
 	protected:
 		ModellingEnum modellingPointType_; /**< Type of the modelling point */
@@ -193,17 +200,17 @@ namespace cap
 	 */
 	typedef std::map<int, ModellingPoint> ModellingPointsMap;
 
-    /**
-     * Defines an alias representing the modelling points.
-     */
-    typedef std::vector<ModellingPoint> ModellingPoints;
+	/**
+	 * Defines an alias representing the modelling points.
+	 */
+	typedef std::vector<ModellingPoint> ModellingPoints;
 
-    /**
-     * Defines an alias representing a vector of modelling point details.
-     */
-    typedef std::vector<ModellingPointDetail> ModellingPointDetails;
+	/**
+	 * Defines an alias representing a vector of modelling point details.
+	 */
+	typedef std::vector<ModellingPointDetail> ModellingPointDetails;
 
-    /**
+	/**
 	 * Modelling point time less than.  Used for sorting ModellingPoints with respect to time.
 	 */
 	struct ModellingPointTimeLessThan

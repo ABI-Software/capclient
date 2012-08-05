@@ -29,7 +29,7 @@ namespace cap
 	{
 	}
 
-	ModellingMode::~ModellingMode() 
+	ModellingMode::~ModellingMode()
 	{
 		ModellingPointsMap::iterator itr = modellingPoints_.begin();
 		for (;itr != modellingPoints_.end(); ++itr)
@@ -85,6 +85,30 @@ namespace cap
 		return mps;
 	}
 
+	bool ModellingMode::ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff)
+	{
+		bool moved = false;
+		ModellingPointsMap::iterator itr = modellingPoints_.begin();
+		while (itr != modellingPoints_.end())
+		{
+			ModellingPoint mp = itr->second;
+			Point3D pos = mp.GetPosition();
+			Vector3D vec = pos - image_location;
+
+			double in_plane = DotProduct(vec, normal);
+
+			if (fabs(in_plane) < 1e-4)
+			{
+				itr->second.SetCoordinates(pos-diff);
+				moved = true;
+			}
+
+			++itr;
+		}
+
+		return moved;
+	}
+
 	// ModellingModeApex
 
 	ModellingMode* ModellingModeApex::OnAccept(Modeller& modeller)
@@ -102,7 +126,7 @@ namespace cap
 			ModellingPointsMap::iterator itr = modellingPoints_.begin();
 			while(itr != modellingPoints_.end())
 			{
-				// If the node id is the same we are really moving it so in this case 
+				// If the node id is the same we are really moving it so in this case
 				// we don't delete it from Cmgui.
 				if (node_id != itr->second.GetNodeIdentifier())
 					itr->second.Remove();
@@ -134,7 +158,7 @@ namespace cap
 			ModellingPointsMap::iterator itr = modellingPoints_.begin();
 			while(itr != modellingPoints_.end())
 			{
-				// If the node id is the same we are really moving it so in this case 
+				// If the node id is the same we are really moving it so in this case
 				// we don't delete it from Cmgui.
 				if (node_id != itr->second.GetNodeIdentifier())
 					itr->second.Remove();
@@ -153,7 +177,7 @@ namespace cap
 
 	ModellingMode* ModellingModeRV::OnAccept(Modeller& modeller)
 	{
-		// If we don't have any modelling points or not an even number of modelling points 
+		// If we don't have any modelling points or not an even number of modelling points
 		// then return fail (0).
 		if ((modellingPoints_.size() % 2) || modellingPoints_.empty())
 			return 0;
@@ -194,11 +218,11 @@ namespace cap
 
 	ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 	{
-		// If we don't have any modelling points or not an even number of modelling points 
+		// If we don't have any modelling points or not an even number of modelling points
 		// then return fail (0).
 		if ((modellingPoints_.size() % 2) || modellingPoints_.empty())
 			return 0;
-		
+
 		// Create a map of times and time counts
 		ModellingPoints mps = GetModellingPoints();
 		ModellingPoints::const_iterator cit = mps.begin();
@@ -280,8 +304,8 @@ namespace cap
 
 		return frames;
 	}
-	
-    void ModellingModeGuidePoints::SetHeartSurfaceType(int node_id, HeartSurfaceEnum surface)
+
+	void ModellingModeGuidePoints::SetHeartSurfaceType(int node_id, HeartSurfaceEnum surface)
 	{
 		modellingPoints_[node_id].SetHeartSurfaceType(surface);
 	}

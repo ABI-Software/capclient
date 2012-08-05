@@ -124,6 +124,17 @@ public:
 	std::vector<ModellingPoint> GetModellingPoints() const;
 
 	/**
+	 * Check all modelling points to see if the moved image plane has an effect
+	 * on their location.
+	 *
+	 * @param image_location	The current image plane location.
+	 * @param normal	The normal for the current image plane.
+	 * @param diff	The difference between the old image plane location and the new image plane location.
+	 * @return true if a modelling point has been moved, false otherwise.
+	 */
+	bool ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff);
+
+	/**
 	 * Align model.
 	 */
 	void AlignModel();
@@ -234,16 +245,16 @@ private:
 	 * @return	The hermite paramter vector.
 	 */
 	std::vector<double> ConvertToHermite(const Vector& bezierParams) const;
-	
+
 	IModeller *mainApp_;	/**< The main application */
 	ModellingModeApex modellingModeApex_;   /**< The modelling mode apex */
 	ModellingModeBase modellingModeBase_;   /**< The modelling mode base */
 	ModellingModeRV modellingModeRV_;   /**< The modelling mode rv */
 	ModellingModeBasePlane modellingModeBasePlane_; /**< The modelling mode base plane */
 	ModellingModeGuidePoints modellingModeGuidePoints_; /**< The modelling mode guide points */
-	
+
 	ModellingMode* currentModellingMode_;   /**< The current modelling mode */
-	
+
 	std::vector< std::vector<double> > timeVaryingDataPoints_;
 
 	SolverLibraryFactory* solverFactory_;   /**< The solver factory */
@@ -253,9 +264,9 @@ private:
 	Preconditioner* preconditioner_;	/**< The preconditioner */
 	GSmoothAMatrix* aMatrix_;   /**< The matrix */
 	Vector* prior_; /**< The prior */
-	
+
 	SparseMatrix* bezierToHermiteTransform_;	/**< The bezier to hermite transform, temporary? */
-	
+
 	TimeSmoother timeSmoother_;  /**< The time smoother */
 };
 

@@ -43,11 +43,12 @@ public:
 	virtual ~ModellingMode();
 
 	/**
-	 * Executes the accept action.
+	 * Executes the accept action.  If the action is accepted the next modelling mode
+	 * is returned.
 	 *
 	 * @param [in,out]	modeller	The modeller.
 	 *
-	 * @return	null if it fails, else.
+	 * @return	null if it fails, otherwise it returns the next modelling mode.
 	 */
 	virtual ModellingMode* OnAccept(Modeller& modeller) = 0;
 
@@ -86,12 +87,25 @@ public:
 	virtual ModellingPoints GetModellingPoints() const;
 
 	/**
-	 * Perform entry action.
+	 * An image plane has moved, check all modelling points in this mode to see
+	 * if any lie on this image plane and also require moving.  If a modelling point
+	 * has been moved return true, otherwise return false.  The tolerance for testing
+	 * whether a modelling point is on the plane or not is set at 1e-4.
+	 *
+	 * @param image_location	The current image plane location.
+	 * @param normal	The normal for the current image plane.
+	 * @param diff	The difference between the old image plane location and the new image plane location.
+	 * @return	true if a modelling point was moved, false otherwise
+	 */
+	bool ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff);
+
+	/**
+	 * Perform entry action. Typically changing the visibility of the modelling points.
 	 */
 	virtual void PerformEntryAction();
 
 	/**
-	 * Perform exit action.
+	 * Perform exit action. Typically changing the visibility of the modelling points.
 	 */
 	virtual void PerformExitAction();
 
@@ -258,13 +272,13 @@ public:
 	 */
 	std::vector<int> GetFramesWithModellingPoints(int numFrames) const;
 
-    /**
-     * Set the heart surface type for the node.
-     *
-     * @param node_id   The node to set the surface type of.
-     * @param surface   The surface type to set.
-     */
-    void SetHeartSurfaceType(int node_id, HeartSurfaceEnum surface);
+	/**
+	 * Set the heart surface type for the node.
+	 *
+	 * @param node_id   The node to set the surface type of.
+	 * @param surface   The surface type to set.
+	 */
+	void SetHeartSurfaceType(int node_id, HeartSurfaceEnum surface);
 };
 
 } // end namespace cap
