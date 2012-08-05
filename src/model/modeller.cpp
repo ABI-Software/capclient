@@ -212,7 +212,7 @@ Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& bas
 
 void Modeller::AlignModel()
 {
-	if (GetCurrentMode() == GUIDEPOINT)
+	if (CanAccept(BASEPLANE))
 	{
 		const ModellingPoints& apex = modellingModeApex_.GetModellingPoints();
 		const ModellingPoints& base = modellingModeBase_.GetModellingPoints();
@@ -329,9 +329,19 @@ void Modeller::AlignModel()
 		}
 
 		InitialiseBezierLambdaParams();
+
+		// Need to fit the model across all times for the situation where the user has gone back and modified
+		// any of the alignment modelling points and already has some guide points.
+		if (modellingModeGuidePoints_.GetModellingPoints().size() > 0)
+		{
+			int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+			for(int i = 0; i < numFrames;i++)
+			{
+				double time = static_cast<double>(i)/numFrames;
+				FitModel(time);
+			}
+		}
 	}
-
-
 }
 
 Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const
@@ -407,7 +417,7 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 void Modeller::SmoothAlongTime()
 {
 	//--ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-	if (GetCurrentMode() == GUIDEPOINT)
+	if (CanAccept(BASEPLANE))
 	{
 		// For each global parameter in the per frame model
 //#define PRINT_SMOOTHING_TIME
@@ -518,22 +528,14 @@ bool Modeller::ImagePlaneMoved(const std::string& label, Vector3D diff)
 	model_moved = model_moved || modellingModeBase_.ImagePlaneMoved(label, diff);
 	model_moved = model_moved || modellingModeRV_.ImagePlaneMoved(label, diff);
 	model_moved = model_moved || modellingModeBasePlane_.ImagePlaneMoved(label, diff);
+	model_moved = model_moved || modellingModeGuidePoints_.ImagePlaneMoved(label, diff);
 	if (model_moved)
-		AlignModel();
-
-	bool model_gps_moved = modellingModeGuidePoints_.ImagePlaneMoved(label, diff);
-	if (model_gps_moved)
 	{
-		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
-		for(int i = 0; i < numFrames;i++)
-		{
-			double time = static_cast<double>(i)/numFrames;
-			FitModel(time);
-		}
+		AlignModel();
 		SmoothAlongTime();
 	}
 
-	return model_moved || model_gps_moved;
+	return model_moved;
 }
 
 void Modeller::InitialiseBezierLambdaParams()
@@ -556,158 +558,154 @@ void Modeller::InitialiseBezierLambdaParams()
 
 void Modeller::FitModel(double time)
 {
-//	if (GetCurrentMode() == GUIDEPOINT)
-	{
 //#define PRINT_FIT_TIMINGS  // Uncomment or define elsewhere to print fit times
 #ifdef PRINT_FIT_TIMINGS
-		clock_t beforeTotal = clock();
-		dbgn("Fit Model times [");
+	clock_t beforeTotal = clock();
+	dbgn("Fit Model times [");
 #endif
-		// 0. Get the modelling points for the current time
-		ModellingPoints currentModellingPoints = modellingModeGuidePoints_.GetModellingPointsAtTime(time);
+	// 0. Get the modelling points for the current time
+	ModellingPoints currentModellingPoints = modellingModeGuidePoints_.GetModellingPointsAtTime(time);
 
-		if (currentModellingPoints.size() == 0)
-			return;
+	if (currentModellingPoints.size() == 0)
+		return;
 
-		// Compute P
-		// 1. find xi coords for each data point
-		ModellingPoints::iterator itr = currentModellingPoints.begin();
-		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
-		int frameNumber = time*numFrames + 0.5;
-		std::vector<Point3D> xi_vector;
-		std::vector<int> element_id_vector;
-		// For rhs
-		Vector* guidePointLambda = solverFactory_->CreateVector(currentModellingPoints.size());
+	// Compute P
+	// 1. find xi coords for each data point
+	ModellingPoints::iterator itr = currentModellingPoints.begin();
+	int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+	int frameNumber = time*numFrames + 0.5;
+	std::vector<Point3D> xi_vector;
+	std::vector<int> element_id_vector;
+	// For rhs
+	Vector* guidePointLambda = solverFactory_->CreateVector(currentModellingPoints.size());
 
-		for (int i = 0; itr!=currentModellingPoints.end(); ++itr, ++i)
+	for (int i = 0; itr!=currentModellingPoints.end(); ++itr, ++i)
+	{
+		Point3D xi;
+		int elem_id = mainApp_->ComputeHeartModelXi(itr->GetPosition(), time, xi);
+		switch(itr->GetHeartSurfaceType())
 		{
-			Point3D xi;
-			int elem_id = mainApp_->ComputeHeartModelXi(itr->GetPosition(), time, xi);
-			switch(itr->GetHeartSurfaceType())
+		case ENDOCARDIUM:
+		{
+			xi.z = 0.0f;
+			break;
+		}
+		case EPICARDIUM:
+		{
+			xi.z = 1.0f;
+			break;
+		}
+		case UNDEFINED_HEART_SURFACE_TYPE:
+		{
+			if (xi.z < 0.5)
 			{
-			case ENDOCARDIUM:
+				xi.z = 0.0f; // projected on endocardium
+				modellingModeGuidePoints_.SetHeartSurfaceType(itr->GetNodeIdentifier(), ENDOCARDIUM);
+			}
+			else
 			{
-				xi.z = 0.0f;
-				break;
+				xi.z = 1.0f; // projected on epicardium
+				modellingModeGuidePoints_.SetHeartSurfaceType(itr->GetNodeIdentifier(), EPICARDIUM);
 			}
-			case EPICARDIUM:
-			{
-				xi.z = 1.0f;
-				break;
-			}
-			case UNDEFINED_HEART_SURFACE_TYPE:
-			{
-				if (xi.z < 0.5)
-				{
-					xi.z = 0.0f; // projected on endocardium
-					modellingModeGuidePoints_.SetHeartSurfaceType(itr->GetNodeIdentifier(), ENDOCARDIUM);
-				}
-				else
-				{
-					xi.z = 1.0f; // projected on epicardium
-					modellingModeGuidePoints_.SetHeartSurfaceType(itr->GetNodeIdentifier(), EPICARDIUM);
-				}
-				break;
-			}
-			}
-
-			xi_vector.push_back(xi);
-			element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
-
-			Point3D modellingPointPS = mainApp_->ConvertToHeartModelProlateSpheriodalCoordinate(itr->GetNodeIdentifier(), itr->GetModellingPointTypeString());
-			(*guidePointLambda)[i] = modellingPointPS.x; // x = lambda, y = mu, z = theta
+			break;
+		}
 		}
 
-		// 2. evaluate basis at the xi coords
-		double psi[32]; //FIX 32?
-		std::vector<Entry> entries;
-		BiCubicHermiteLinearBasis basis;
-		std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
-		std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
+		xi_vector.push_back(xi);
+		element_id_vector.push_back(elem_id - 1); // element id starts at 1!!
 
-		for (int xiIndex = 0; itr_xi != end_xi; ++itr_xi, ++xiIndex)
-		{
-			double temp[3];
-			temp[0] = itr_xi->x;
-			temp[1] = itr_xi->y;
-			temp[2] = itr_xi->z;
-			basis.Evaluate(psi, temp);
-
-			for (int nodalValueIndex = 0; nodalValueIndex < 32; nodalValueIndex++)
-			{
-				Entry e;
-				e.value = psi[nodalValueIndex];
-				e.colIndex = 32*(element_id_vector[xiIndex])+nodalValueIndex;
-				e.rowIndex = xiIndex;
-				entries.push_back(e);
-			}
-		}
-
-		// 3. construct P
-		SparseMatrix* P = solverFactory_->CreateSparseMatrix(currentModellingPoints.size(), 512, entries); //FIX
-
-		aMatrix_->UpdateData(*P);
-
-		// Compute RHS - GtPt(dataLamba - priorLambda)
-
-		Vector* lambda = G_->mult(*prior_);
-
-		// p = P * lambda : prior at projected data points
-		Vector* p = P->mult(*lambda);
-
-		// guidePointLambda = dataPoints in the same order as P (* weight) TODO : implement weight!
-
-		// guidePointLambda = guidePointLambda - p
-		*guidePointLambda -= *p;
-		// rhs = GtPt p
-		Vector* temp = P->trans_mult(*guidePointLambda);
-		Vector* rhs = G_->trans_mult(*temp);
-
-		// Solve Normal equation
-		const double tolerance = 1.0e-3;
-		const int maximumIteration = 100;
-
-		Vector* x = solverFactory_->CreateVector(134); //FIX magic number
-
-#ifdef PRINT_FIT_TIMINGS
-		clock_t before = clock();
-#endif
-
-		solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
-
-#ifdef PRINT_FIT_TIMINGS
-		clock_t after = clock();
-		dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
-#endif
-		*x += *prior_;
-
-		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
-#ifdef PRINT_FIT_TIMINGS
-		clock_t beforeZn = clock();
-#endif
-		mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
-
-#ifdef PRINT_FIT_TIMINGS
-		clock_t afterZn = clock();
-		dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
-#endif
-
-		UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
-
-		delete P;
-		delete lambda;
-		delete p;
-		delete guidePointLambda;
-		delete temp;
-		delete rhs;
-		delete x;
-
-#ifdef PRINT_FIT_TIMINGS
-		clock_t afterTotal = clock();
-		dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
-#endif
-
+		Point3D modellingPointPS = mainApp_->ConvertToHeartModelProlateSpheriodalCoordinate(itr->GetNodeIdentifier(), itr->GetModellingPointTypeString());
+		(*guidePointLambda)[i] = modellingPointPS.x; // x = lambda, y = mu, z = theta
 	}
+
+	// 2. evaluate basis at the xi coords
+	double psi[32]; //FIX 32?
+	std::vector<Entry> entries;
+	BiCubicHermiteLinearBasis basis;
+	std::vector<Point3D>::iterator itr_xi = xi_vector.begin();
+	std::vector<Point3D>::const_iterator end_xi = xi_vector.end();
+
+	for (int xiIndex = 0; itr_xi != end_xi; ++itr_xi, ++xiIndex)
+	{
+		double temp[3];
+		temp[0] = itr_xi->x;
+		temp[1] = itr_xi->y;
+		temp[2] = itr_xi->z;
+		basis.Evaluate(psi, temp);
+
+		for (int nodalValueIndex = 0; nodalValueIndex < 32; nodalValueIndex++)
+		{
+			Entry e;
+			e.value = psi[nodalValueIndex];
+			e.colIndex = 32*(element_id_vector[xiIndex])+nodalValueIndex;
+			e.rowIndex = xiIndex;
+			entries.push_back(e);
+		}
+	}
+
+	// 3. construct P
+	SparseMatrix* P = solverFactory_->CreateSparseMatrix(currentModellingPoints.size(), 512, entries); //FIX
+
+	aMatrix_->UpdateData(*P);
+
+	// Compute RHS - GtPt(dataLamba - priorLambda)
+
+	Vector* lambda = G_->mult(*prior_);
+
+	// p = P * lambda : prior at projected data points
+	Vector* p = P->mult(*lambda);
+
+	// guidePointLambda = dataPoints in the same order as P (* weight) TODO : implement weight!
+
+	// guidePointLambda = guidePointLambda - p
+	*guidePointLambda -= *p;
+	// rhs = GtPt p
+	Vector* temp = P->trans_mult(*guidePointLambda);
+	Vector* rhs = G_->trans_mult(*temp);
+
+	// Solve Normal equation
+	const double tolerance = 1.0e-3;
+	const int maximumIteration = 100;
+
+	Vector* x = solverFactory_->CreateVector(134); //FIX magic number
+
+#ifdef PRINT_FIT_TIMINGS
+	clock_t before = clock();
+#endif
+
+	solverFactory_->CG(*aMatrix_, *x, *rhs, *preconditioner_, maximumIteration, tolerance);
+
+#ifdef PRINT_FIT_TIMINGS
+	clock_t after = clock();
+	dbgn(" CG : " + ToString((after - before) / static_cast<double>(CLOCKS_PER_SEC)));
+#endif
+	*x += *prior_;
+
+	const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
+#ifdef PRINT_FIT_TIMINGS
+	clock_t beforeZn = clock();
+#endif
+	mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
+
+#ifdef PRINT_FIT_TIMINGS
+	clock_t afterZn = clock();
+	dbgn(", ZN : " + ToString((afterZn - beforeZn) / static_cast<double>(CLOCKS_PER_SEC)));
+#endif
+
+	UpdateTimeVaryingDataPoints(*x, frameNumber); //Bezier
+
+	delete P;
+	delete lambda;
+	delete p;
+	delete guidePointLambda;
+	delete temp;
+	delete rhs;
+	delete x;
+
+#ifdef PRINT_FIT_TIMINGS
+	clock_t afterTotal = clock();
+	dbg(", Tot : " + ToString((afterTotal - beforeTotal) / static_cast<double>(CLOCKS_PER_SEC)) + " ]");
+#endif
 }
 
 void Modeller::UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber)

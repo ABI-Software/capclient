@@ -394,12 +394,9 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 		{
 			dicom->SetImagePosition(newLocation);
 		}
-		if (modeller_ && modeller_->ImagePlaneMoved(it->GetLabel(), proj))
-		{
-//			modeller_->AlignModel();
-//			modeller_->UpdateTimeVaryingModel();
-//			SmoothAlongTime();
-		}
+		if (modeller_)
+			modeller_->ImagePlaneMoved(it->GetLabel(), proj);
+
 		SetPreviousPosition(position);
 		double d = DotProduct(newLocation, plane->normal);
 		gui_->UpdateMII(regionName, plane->normal, d);

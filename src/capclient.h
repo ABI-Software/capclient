@@ -118,10 +118,9 @@ public:
 				if (!gui_->IsInitialisedHeartModel())
 				{
 					InitializeHeartModelTemplate();
-					modeller_->AlignModel();
-					modeller_->UpdateTimeVaryingModel();
-					SmoothAlongTime();
 				}
+				modeller_->AlignModel();
+				SmoothAlongTime();
 				UpdateMII();
 			}
 			success = true;
