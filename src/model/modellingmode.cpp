@@ -198,7 +198,7 @@ namespace cap
 	ModellingMode* ModellingModeRV::OnAccept(Modeller& modeller)
 	{
 		if (CanAccept())
-			modeller.GetModellingModeBasePlane();
+			return modeller.GetModellingModeBasePlane();
 
 		return 0;
 	}
