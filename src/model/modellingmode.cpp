@@ -60,7 +60,10 @@ namespace cap
 	{
 		ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
 		if (itr != modellingPoints_.end())
+		{
 			itr->second.SetPosition(position);
+			itr->second.ClearAttachedToList();
+		}
 	}
 
 	void ModellingMode::RemoveModellingPoint(int node_id, double /*time*/)
@@ -85,21 +88,28 @@ namespace cap
 		return mps;
 	}
 
-	bool ModellingMode::ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff)
+	void ModellingMode::AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal)
+	{
+		ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
+		if (itr != modellingPoints_.end())
+		{
+			ModellingPoint& mp = itr->second;
+			mp.AttachToIfOn(label, location, normal);
+		}
+
+	}
+
+	bool ModellingMode::ImagePlaneMoved(const std::string& label, Vector3D diff)
 	{
 		bool moved = false;
 		ModellingPointsMap::iterator itr = modellingPoints_.begin();
 		while (itr != modellingPoints_.end())
 		{
-			ModellingPoint mp = itr->second;
+			ModellingPoint& mp = itr->second;
 			Point3D pos = mp.GetPosition();
-			Vector3D vec = pos - image_location;
-
-			double in_plane = DotProduct(vec, normal);
-
-			if (fabs(in_plane) < 1e-4)
+			if (mp.IsAttachedTo(label))
 			{
-				itr->second.SetCoordinates(pos-diff);
+				mp.SetCoordinates(pos-diff);
 				moved = true;
 			}
 
@@ -113,10 +123,15 @@ namespace cap
 
 	ModellingMode* ModellingModeApex::OnAccept(Modeller& modeller)
 	{
-		if (modellingPoints_.size() != 1)
-			return 0;
+		if (CanAccept())
+			return modeller.GetModellingModeBase();
 
-		return modeller.GetModellingModeBase();
+		return 0;
+	}
+
+	bool ModellingModeApex::CanAccept()
+	{
+		return modellingPoints_.size() == 1;
 	}
 
 	void ModellingModeApex::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double /*time*/)
@@ -145,10 +160,15 @@ namespace cap
 
 	ModellingMode* ModellingModeBase::OnAccept(Modeller& modeller)
 	{
-		if (modellingPoints_.size() != 1)
-			return 0;
+		if (CanAccept())
+			return modeller.GetModellingModeRV();
 
-		return modeller.GetModellingModeRV();
+		return 0;
+	}
+
+	bool ModellingModeBase::CanAccept()
+	{
+		return modellingPoints_.size() == 1;
 	}
 
 	void ModellingModeBase::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double /*time*/)
@@ -177,10 +197,18 @@ namespace cap
 
 	ModellingMode* ModellingModeRV::OnAccept(Modeller& modeller)
 	{
+		if (CanAccept())
+			modeller.GetModellingModeBasePlane();
+
+		return 0;
+	}
+
+	bool ModellingModeRV::CanAccept()
+	{
 		// If we don't have any modelling points or not an even number of modelling points
 		// then return fail (0).
 		if ((modellingPoints_.size() % 2) || modellingPoints_.empty())
-			return 0;
+			return false;
 
 		// Create a map of times and time counts
 		ModellingPoints mps = GetModellingPoints();
@@ -200,10 +228,10 @@ namespace cap
 		{
 			// Each time value should have exactly two modelling points
 			if (const_it->second != 2)
-				return 0;
+				return false;
 		}
 
-		return modeller.GetModellingModeBasePlane();
+		return true;
 	}
 
 	void ModellingModeRV::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
@@ -218,10 +246,18 @@ namespace cap
 
 	ModellingMode* ModellingModeBasePlane::OnAccept(Modeller& modeller)
 	{
+		if (CanAccept())
+			return modeller.GetModellingModeGuidePoints();
+
+		return 0;
+	}
+
+	bool ModellingModeBasePlane::CanAccept()
+	{
 		// If we don't have any modelling points or not an even number of modelling points
 		// then return fail (0).
 		if ((modellingPoints_.size() % 2) || modellingPoints_.empty())
-			return 0;
+			return false;
 
 		// Create a map of times and time counts
 		ModellingPoints mps = GetModellingPoints();
@@ -241,12 +277,10 @@ namespace cap
 		{
 			// Each time value should have exactly two modelling points
 			if (const_it->second < 2)
-				return 0;
+				return false;
 		}
 
-		//modeller.AlignModel();
-		//modeller.UpdateTimeVaryingModel();
-		return modeller.GetModellingModeGuidePoints();
+		return true;
 	}
 
 	void ModellingModeBasePlane::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)

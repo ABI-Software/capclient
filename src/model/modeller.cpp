@@ -58,14 +58,10 @@ Modeller::Modeller(IModeller *mainApp)
 	G_ = factory.CreateSparseMatrixFromFile(tmpFileName);
 	RemoveFile(tmpFileName);
 
-	dbg("Done reading S & G matrices");
-
 	// initialize preconditioner and GSMoothAMatrix
-
 	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
 
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
-	dbg("Done creating GSmoothAMatrix");
 
 	tmpFileName = CreateTemporaryEmptyFile();
 	WriteCharBufferToFile(tmpFileName, prior_dat, prior_dat_len);
@@ -100,6 +96,11 @@ void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, dou
 {
 	currentModellingMode_->RemoveModellingPoint(node_id, time);
 	FitModel(time);
+}
+
+void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal)
+{
+	currentModellingMode_->AttachToIfOn(node_id, label, location, normal);
 }
 
 bool Modeller::OnAccept()
@@ -364,25 +365,19 @@ Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, doub
 
 void Modeller::UpdateTimeVaryingModel() //REVISE
 {
-	if (GetCurrentMode() == GUIDEPOINT)
+	int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+	for(int j=0; j < numFrames;j++)
 	{
-		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
-		//--const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
-		for(int j=0; j < numFrames/*--heartModel_.GetNumberOfModelFrames()*/;j++)
+		double time = static_cast<double>(j)/numFrames;
+		Vector* x = solverFactory_->CreateVector(134);
+		for (int i=0; i< 134; i++)
 		{
-			double time = static_cast<double>(j)/numFrames;//--(double)j/heartModel_.GetNumberOfModelFrames();
-			Vector* x = solverFactory_->CreateVector(134);
-			for (int i=0; i< 134; i++)
-			{
-				(*x)[i] = timeVaryingDataPoints_[i][j];
-			}
-	//		std::cout << "x(" << j << ")" << *x << std::endl;
-
-			const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
-			//--heartModel_.SetLambda(hermiteLambdaParams, time);
-			mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
-			delete x;
+			(*x)[i] = timeVaryingDataPoints_[i][j];
 		}
+
+		const std::vector<double>& hermiteLambdaParams = ConvertToHermite(*x);
+		mainApp_->SetHeartModelLambdaParamsAtTime(hermiteLambdaParams, time);
+		delete x;
 	}
 }
 
@@ -493,12 +488,29 @@ std::vector<ModellingPoint> Modeller::GetModellingPoints() const
 	return modellingPoints;
 }
 
-bool Modeller::ImagePlaneMoved(Point3D image_location, Vector3D normal, Vector3D diff)
+bool Modeller::ImagePlaneMoved(const std::string& label, Vector3D diff)
 {
-	bool moved = false;
-	moved |= modellingModeApex_.ImagePlaneMoved(image_location, normal, diff);
+	bool model_moved = false;
+	model_moved = model_moved || modellingModeApex_.ImagePlaneMoved(label, diff);
+	model_moved = model_moved || modellingModeBase_.ImagePlaneMoved(label, diff);
+	model_moved = model_moved || modellingModeRV_.ImagePlaneMoved(label, diff);
+	model_moved = model_moved || modellingModeBasePlane_.ImagePlaneMoved(label, diff);
+	if (model_moved)
+		AlignModel();
 
-	return moved;
+	bool model_gps_moved = modellingModeGuidePoints_.ImagePlaneMoved(label, diff);
+	if (model_gps_moved)
+	{
+		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+		for(int i = 0; i < numFrames;i++)
+		{
+			double time = static_cast<double>(i)/numFrames;
+			FitModel(time);
+		}
+		SmoothAlongTime();
+	}
+
+	return model_moved || model_gps_moved;
 }
 
 void Modeller::InitialiseBezierLambdaParams()
@@ -521,7 +533,7 @@ void Modeller::InitialiseBezierLambdaParams()
 
 void Modeller::FitModel(double time)
 {
-	if (GetCurrentMode() == GUIDEPOINT)
+//	if (GetCurrentMode() == GUIDEPOINT)
 	{
 //#define PRINT_FIT_TIMINGS  // Uncomment or define elsewhere to print fit times
 #ifdef PRINT_FIT_TIMINGS

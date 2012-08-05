@@ -369,6 +369,12 @@ public:
 	void DeleteCurrentlySelectedNode();
 
 	/**
+	 * Set the currently selected node with the label of the planes it lies upon.
+	 * If no node is currently selected then do nothing.
+	 */
+	void AttachCurrentlySelectedNode();
+
+	/**
 	 * Start modelling action.  When starting the modelling action some things need
 	 * to be done.
 	 *	1. Create a region for the current modelling mode if one doesn't already exist.
@@ -396,11 +402,6 @@ public:
 	 * @param	frameNumber	The frame number.
 	 */
 	void UpdateFrameNumber(int frameNumber);
-
-	/**
-	 * Smooth along time.
-	 */
-	void SmoothAlongTime();
 
 	/**
 	 * Sets a time.
@@ -598,8 +599,9 @@ private:
 	 * @param	type		The type of modelling point to create.
 	 * @param	position	The position.
 	 * @param	time		The time.
+	 * @return	the node id of the created node.
 	 */
-	void CreateModellingPoint(ModellingEnum type, const Point3D& position, double time);
+	int CreateModellingPoint(ModellingEnum type, const Point3D& position, double time);
 
 	/**
 	 * Creates the status text strings field renditions.  In this function
