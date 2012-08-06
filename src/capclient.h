@@ -129,6 +129,11 @@ public:
 		return success;
 	}
 
+	bool CanAccept(ModellingEnum mode) const
+	{
+		return modeller_->CanAccept(mode);
+	}
+
 	/**
 	 * Change modelling mode.
 	 *

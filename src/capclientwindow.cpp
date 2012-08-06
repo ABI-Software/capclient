@@ -241,6 +241,7 @@ void CAPClientWindow::UpdateUI()
 	choice_modelDisplayMode_->Enable(heartModelDependent);
 #if defined CAPCLIENT_DEFINITELY_NON_CLINICAL
 	menuItem_exportHeartVolumes_->Enable(heartModelDependent);
+	menuItem_heartVolume_->Enable(heartModelDependent);
 #else
 	menuItem_exportHeartVolumes_->Enable(false);
 	menuItem_heartVolume_->Enable(false);
@@ -895,10 +896,7 @@ void CAPClientWindow::UpdateModeSelectionUI(ModellingEnum newMode)
 	if (textureSliceMap_.size() > 0)
 	{
 		choice_mode_->Enable(true);
-		if (newMode == GUIDEPOINT)
-			button_accept_->Enable(false);
-		else
-			button_accept_->Enable(true);
+		button_accept_->Enable(mainApp_->CanAccept(newMode));
 	}
 	else
 	{
@@ -1674,6 +1672,7 @@ void CAPClientWindow::AttachCurrentlySelectedNode()
 	{
 		int node_id = Cmiss_node_get_identifier(selected_node);
 		mainApp_->AttachModellingPoint(node_id);
+		button_accept_->Enable(mainApp_->CanAccept(currentMode));
 	}
 	Cmiss_field_module_destroy(&field_module);
 }
@@ -1694,6 +1693,7 @@ void CAPClientWindow::DeleteCurrentlySelectedNode()
 
 		mainApp_->RemoveModellingPoint(region, node_id, currentTime);
 		menuItem_deleteMP_->Enable(choice_mode_->IsEnabled() && IsNodeSelected(currentMode));
+		button_accept_->Enable(mainApp_->CanAccept(currentMode));
 
 		Cmiss_node_destroy(&selected_node);
 		Cmiss_region_destroy(&region);

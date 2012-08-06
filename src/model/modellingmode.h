@@ -52,7 +52,7 @@ public:
 	 */
 	virtual ModellingMode* OnAccept(Modeller& modeller) = 0;
 
-	virtual bool CanAccept() { return false; }
+	virtual bool CanAccept() const { return false; }
 
 	/**
 	 * Adds a modelling point.
@@ -142,7 +142,7 @@ public:
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
 
-	bool CanAccept();
+	bool CanAccept() const;
 
 	/**
 	 * Adds an APEX type of modelling point.
@@ -172,7 +172,7 @@ public:
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
 
-	bool CanAccept();
+	bool CanAccept() const;
 
 	/**
 	 * Adds a BASE type of modelling point.
@@ -202,7 +202,7 @@ public:
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
 
-	bool CanAccept();
+	bool CanAccept() const;
 
 	/**
 	 * Adds an RV type of modelling point.
@@ -232,7 +232,7 @@ public:
 	 */
 	ModellingMode* OnAccept(Modeller& modeller);
 
-	bool CanAccept();
+	bool CanAccept() const;
 
 	/**
 	 * Adds a BASEPLANE type of modelling point.

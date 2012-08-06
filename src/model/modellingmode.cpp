@@ -129,7 +129,7 @@ namespace cap
 		return 0;
 	}
 
-	bool ModellingModeApex::CanAccept()
+	bool ModellingModeApex::CanAccept() const
 	{
 		return modellingPoints_.size() == 1;
 	}
@@ -166,7 +166,7 @@ namespace cap
 		return 0;
 	}
 
-	bool ModellingModeBase::CanAccept()
+	bool ModellingModeBase::CanAccept() const
 	{
 		return modellingPoints_.size() == 1;
 	}
@@ -203,7 +203,7 @@ namespace cap
 		return 0;
 	}
 
-	bool ModellingModeRV::CanAccept()
+	bool ModellingModeRV::CanAccept() const
 	{
 		// If we don't have any modelling points or not an even number of modelling points
 		// then return fail (0).
@@ -252,7 +252,7 @@ namespace cap
 		return 0;
 	}
 
-	bool ModellingModeBasePlane::CanAccept()
+	bool ModellingModeBasePlane::CanAccept() const
 	{
 		// If we don't have any modelling points then fail (0).
 		if (modellingPoints_.empty())

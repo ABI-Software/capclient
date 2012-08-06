@@ -58,7 +58,7 @@ void CAPClientWindow::RemoveHeartModel()
 		delete heartModel_;
 		heartModel_ = 0;
 		RemoveMIIGraphics();
-        UpdateUI();
+		UpdateUI();
 	}
 }
 
@@ -75,20 +75,23 @@ void CAPClientWindow::RemoveMIIGraphics()
 
 void CAPClientWindow::SetHeartModelFocalLength(double focalLength)
 {
-	assert(heartModel_);
-	heartModel_->SetFocalLength(focalLength);
+//	assert(heartModel_);
+	if (heartModel_)
+		heartModel_->SetFocalLength(focalLength);
 }
 
 void CAPClientWindow::SetHeartModelMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 {
-	assert(heartModel_);
-	heartModel_->SetMuFromBasePlaneAtTime(basePlane, time);
+//	assert(heartModel_);
+	if (heartModel_)
+		heartModel_->SetMuFromBasePlaneAtTime(basePlane, time);
 }
 
 void CAPClientWindow::SetHeartModelLambdaParamsAtTime(const std::vector<double>& lambdaParams, double time)
 {
-	assert(heartModel_);
-	heartModel_->SetLambdaAtTime(lambdaParams, time);
+//	assert(heartModel_);
+	if (heartModel_)
+		heartModel_->SetLambdaAtTime(lambdaParams, time);
 }
 
 int CAPClientWindow::ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const
@@ -99,15 +102,16 @@ int CAPClientWindow::ComputeHeartModelXi(const Point3D& position, double time, P
 
 void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
 {
-	assert(heartModel_);
-	heartModel_->SetLocalToGlobalTransformation(transform);
+//	assert(heartModel_);
+	if (heartModel_)
+		heartModel_->SetLocalToGlobalTransformation(transform);
 }
 
 void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	// Create a heart region to stop Cmgui adding lines to the new rendition
-    Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, heart_region_name.c_str());
+	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, heart_region_name.c_str());
 	Cmiss_region_destroy(&heart_region);
 
 	LoadHermiteHeartElements();
@@ -145,14 +149,14 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 	Cmiss_region_destroy(&root_region);
 	// The initialisation must take place after the loading of the model as this defines the region and the coordinates field.
 	heartModel_->SetNumberOfModelFrames(numberOfModelFrames);
-    heartModel_->Initialise(heart_region_name);
+	heartModel_->Initialise(heart_region_name);
 }
 
 void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	// Create a heart region to stop Cmgui adding lines to the new rendition
-    Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, heart_region_name.c_str());
+	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, heart_region_name.c_str());
 	Cmiss_region_destroy(&heart_region);
 
 	LoadHermiteHeartElements(fullExelemFileName);
@@ -190,7 +194,7 @@ void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector
 	Cmiss_region_destroy(&root_region);
 
 	// The initialisation must take place after the loading of the model as this defines the region and the coordinates field.
-    heartModel_->Initialise(heart_region_name);
+	heartModel_->Initialise(heart_region_name);
 	heartModel_->SetNumberOfModelFrames(numberOfModelFrames);
 }
 
@@ -214,8 +218,8 @@ void CAPClientWindow::LoadHermiteHeartElements(std::string exelemFileName)
 
 void CAPClientWindow::WriteHeartModel(std::string dirname, unsigned int numberOfModelFrames)
 {
-    // Waiting on the outcome of https://tracker.physiomeproject.org/show_bug.cgi?id=3364
-    // when this is resolved we can reinstate or remove the following.
+	// Waiting on the outcome of https://tracker.physiomeproject.org/show_bug.cgi?id=3364
+	// when this is resolved we can reinstate or remove the following.
 //    std::ofstream elemfile;
 //    const std::string exelem_filename = dirname + "/heart.exelem";
 
@@ -226,46 +230,46 @@ void CAPClientWindow::WriteHeartModel(std::string dirname, unsigned int numberOf
 //    }
 //    elemfile.close();
 
-    const std::string loadheart_filename = dirname + "/loadheart.cmiss";
-    std::ofstream cmissfile(loadheart_filename.c_str());
-    cmissfile << "# Load the heart model in this directory" << std::endl;
-    cmissfile << "# expecting " << numberOfModelFrames << " node and element files" << std::endl << std::endl;
-    cmissfile << "for ($i = 0; $i < " << numberOfModelFrames << "; $i++)" << std::endl;
-    cmissfile << "{" << std::endl;
-    cmissfile << "\t$time = $i * " << 1.0/numberOfModelFrames << std::endl;
-    cmissfile << "\t$index = $i + 1" << std::endl;
-    cmissfile << "\tgfx read node time $time heart.$index.exnode" << std::endl;
-    cmissfile << "}" << std::endl << std::endl;
+	const std::string loadheart_filename = dirname + "/loadheart.cmiss";
+	std::ofstream cmissfile(loadheart_filename.c_str());
+	cmissfile << "# Load the heart model in this directory" << std::endl;
+	cmissfile << "# expecting " << numberOfModelFrames << " node and element files" << std::endl << std::endl;
+	cmissfile << "for ($i = 0; $i < " << numberOfModelFrames << "; $i++)" << std::endl;
+	cmissfile << "{" << std::endl;
+	cmissfile << "\t$time = $i * " << 1.0/numberOfModelFrames << std::endl;
+	cmissfile << "\t$index = $i + 1" << std::endl;
+	cmissfile << "\tgfx read node time $time heart.$index.exnode" << std::endl;
+	cmissfile << "}" << std::endl << std::endl;
 
-    Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-    Cmiss_region_id heart_region = Cmiss_region_find_child_by_name(root_region, heart_region_name.c_str());
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region_id heart_region = Cmiss_region_find_child_by_name(root_region, heart_region_name.c_str());
 
-    Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(heart_region);
-    Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-    //Cmiss_stream_resource_id stream_resources[] = new Cmiss_stream_resource_id[numberOfModelFrames+1];
-    std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames);
-    for (unsigned int i = 0; i < numberOfModelFrames; i++)
-    {
-        double time = static_cast<double>(i)/numberOfModelFrames;
-        std::string exnode_filename = dirname + "/" + "heart." + ToString(i+1) + ".exnode";
-        stream_resources[i] = Cmiss_stream_information_create_resource_file(stream_information, exnode_filename.c_str());
+	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(heart_region);
+	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
+	//Cmiss_stream_resource_id stream_resources[] = new Cmiss_stream_resource_id[numberOfModelFrames+1];
+	std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames);
+	for (unsigned int i = 0; i < numberOfModelFrames; i++)
+	{
+		double time = static_cast<double>(i)/numberOfModelFrames;
+		std::string exnode_filename = dirname + "/" + "heart." + ToString(i+1) + ".exnode";
+		stream_resources[i] = Cmiss_stream_information_create_resource_file(stream_information, exnode_filename.c_str());
 
-        Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[i], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
-    }
+		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[i], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
+	}
 
-    Cmiss_region_write(heart_region, stream_information);
+	Cmiss_region_write(heart_region, stream_information);
 
-    std::vector<Cmiss_stream_resource_id>::iterator it = stream_resources.begin();
-    while (it != stream_resources.end())
-    {
-        Cmiss_stream_resource_destroy(&(*it));
-        it++;
-    }
+	std::vector<Cmiss_stream_resource_id>::iterator it = stream_resources.begin();
+	while (it != stream_resources.end())
+	{
+		Cmiss_stream_resource_destroy(&(*it));
+		it++;
+	}
 
-    Cmiss_stream_information_region_destroy(&stream_information_region);
-    Cmiss_stream_information_destroy(&stream_information);
-    Cmiss_region_destroy(&heart_region);
-    Cmiss_region_destroy(&root_region);
+	Cmiss_stream_information_region_destroy(&stream_information_region);
+	Cmiss_stream_information_destroy(&stream_information);
+	Cmiss_region_destroy(&heart_region);
+	Cmiss_region_destroy(&root_region);
 
 }
 
@@ -305,11 +309,11 @@ Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(int node
 	}
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 	Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id);
-    Cmiss_field_cache_set_node(cache, node);
-    Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_cache_set_node(cache, node);
+	Cmiss_nodeset_destroy(&nodeset);
 
-    double values_ps[3];
-    Cmiss_field_evaluate_real(coordinates_ps, cache, 3, values_ps);
+	double values_ps[3];
+	Cmiss_field_evaluate_real(coordinates_ps, cache, 3, values_ps);
 
 	Cmiss_node_destroy(&node);
 
@@ -338,9 +342,9 @@ double CAPClientWindow::ComputeHeartVolume(HeartSurfaceEnum surface, double time
 	}
 
 	if (surface == ENDOCARDIUM)
-        SetStatusTextString("heartvolumeendo", "Volume(ENDO) = " + volume_str + " ml");
+		SetStatusTextString("heartvolumeendo", "Volume(ENDO) = " + volume_str + " ml");
 	else if (surface == EPICARDIUM)
-        SetStatusTextString("heartvolumeepi", "Volume(EPI) = " + volume_str + " ml");
+		SetStatusTextString("heartvolumeepi", "Volume(EPI) = " + volume_str + " ml");
 
 	return volume;
 }
