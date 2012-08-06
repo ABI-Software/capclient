@@ -56,7 +56,6 @@ SET( APP_HDRS
 	src/model/modellingmode.h
 	src/model/modellingpoint.h
 	src/math/timesmoother.h
-	src/math/totalleastsquares.h
 	src/io/modelfile.h
 	src/io/xmlfilehandler.h
 		src/zinc/callbacks.h
