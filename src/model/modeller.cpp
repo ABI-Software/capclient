@@ -45,8 +45,6 @@ Modeller::Modeller(IModeller *mainApp)
 {
 	SolverLibraryFactory& factory = *solverFactory_;
 
-	dbg("Solver Library = " + factory.GetName());
-
 	// Read in S (smoothness matrix)
 	std::string tmpFileName = CreateTemporaryEmptyFile();
 	WriteCharBufferToFile(tmpFileName, globalsmoothperframematrix_dat, globalsmoothperframematrix_dat_len);
@@ -96,9 +94,9 @@ void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, dou
 {
 	currentModellingMode_->RemoveModellingPoint(node_id, time);
 	// Start again from aligned model
-	AlignModel();
-	FitModel();
-//	FitModelAtTime(time);
+//	AlignModel();
+//	FitModel();
+	FitModelAtTime(time);
 }
 
 void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal)

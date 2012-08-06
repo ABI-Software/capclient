@@ -237,17 +237,20 @@ void RemoveContourFromRegion(Cmiss_context_id cmissContext, const std::string& r
 void SetLabelStateField(Cmiss_context_id cmissContext, std::string regionName, bool value)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext, regionName.c_str());
-	Cmiss_field_module_begin_change(field_module);
-	Cmiss_field_id label_state = Cmiss_field_module_find_field_by_name(field_module, "label_state");
-	Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-	double state[] = {0.0};
-	if (value)
-		state[0] = 1.0;
+	if (field_module != 0)
+	{
+		Cmiss_field_module_begin_change(field_module);
+		Cmiss_field_id label_state = Cmiss_field_module_find_field_by_name(field_module, "label_state");
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+		double state[] = {0.0};
+		if (value)
+			state[0] = 1.0;
 
-	Cmiss_field_assign_real(label_state, field_cache, 1, state);
-	Cmiss_field_module_end_change(field_module);
+		Cmiss_field_assign_real(label_state, field_cache, 1, state);
+		Cmiss_field_module_end_change(field_module);
 
-	Cmiss_field_destroy(&label_state);
-	Cmiss_field_cache_destroy(&field_cache);
-	Cmiss_field_module_destroy(&field_module);
+		Cmiss_field_destroy(&label_state);
+		Cmiss_field_cache_destroy(&field_cache);
+		Cmiss_field_module_destroy(&field_module);
+	}
 }
