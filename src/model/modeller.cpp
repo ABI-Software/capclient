@@ -19,7 +19,6 @@
 #include "hexified/prior.dat.h"
 #include "utils/debug.h"
 #include "utils/filesystem.h"
-#include "math/totalleastsquares.h"
 #include "math/solverlibraryfactory.h"
 #include "math/gmmfactory.h"
 //#include "math/vnlfactory.h"
