@@ -6,6 +6,7 @@
 namespace cap
 {
 	class Point3D;
+	struct Plane;
 
 	/**
 	 * This class is an interface class for the modeller to communicate to the main application with

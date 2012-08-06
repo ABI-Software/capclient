@@ -10,7 +10,7 @@ SET(CAPCLIENT_VERSION_PATCH 0)
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 INCLUDE(Macros)
 
-# Set up some variables that control the build.  The following variables also appear in 
+# Set up some variables that control the build.  The following variables also appear in
 # a CMake gui application.
 CACHE_VAR_WITH_DEFAULT(CAP_INSTALL_PREFIX "/usr/local/" PATH "Install path prefix, prepended onto install directories.")
 SET(CMAKE_INSTALL_PREFIX ${CAP_INSTALL_PREFIX} CACHE INTERNAL "Internalise CMAKE_INSTALL_PREFIX, manipulate via CAP_INSTALL_PREFIX." FORCE)
@@ -29,7 +29,7 @@ OPTION_WITH_DEFAULT(CAP_PRINT_SUMMARY "Print a configuration summary." ON)
 
 # wxWidgets 2.8.10 can only be built in 32-bit mode on Mac
 # CMGUI uses wxWidgets 2.8.10 so that too is only built in
-# 32-bit mode.  Therefore force the CAP Client to also be 
+# 32-bit mode.  Therefore force the CAP Client to also be
 # built in 32-bit mode on Mac.
 IF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 	SET( CMAKE_OSX_ARCHITECTURES i386)
@@ -39,16 +39,17 @@ SET(CAP_CLIENT_EXECUTABLE capclient)
 
 # Read in the source, header and gui files
 SET( APP_HDRS
-        src/zinc/extensions.h
-        src/zinc/utilities.h
+		src/zinc/extensions.h
+		src/zinc/utilities.h
 	src/io/annotationfile.h
 	src/math/basis.h
-        src/binaryvolumeparameterdialog.h
-        src/contour.h
+		src/binaryvolumeparameterdialog.h
+		src/contour.h
 	src/ui/euladialog.h
 	src/ui/htmlwindow.h
 	src/material.h
 	src/math/algebra.h
+	src/math/geometry.h
 	src/model/heart.h
 	src/model/modeller.h
 	src/model/imodeller.h
@@ -58,8 +59,8 @@ SET( APP_HDRS
 	src/math/totalleastsquares.h
 	src/io/modelfile.h
 	src/io/xmlfilehandler.h
-        src/zinc/callbacks.h
-        src/zinc/sceneviewerpanel.h
+		src/zinc/callbacks.h
+		src/zinc/sceneviewerpanel.h
 	src/capclientconfig.h
 	src/utils/debug.h
 	src/dicomimage.h
@@ -70,26 +71,26 @@ SET( APP_HDRS
 	src/imagebrowserwindow.h
 	src/iimagebrowser.h
 	src/imagebrowser.h
-        src/isosurfacecapture.h
+		src/isosurfacecapture.h
 	src/labelledslice.h
 	src/capclient.h
 	src/logwindow.h
 	src/capclientwindow.h
-        src/platforminfo.h
+		src/platforminfo.h
 	src/math/solverlibraryfactory.h
 	src/standardheartdefinitions.h
-        src/usercommentdialog.h
+		src/usercommentdialog.h
 	src/math/vnlfactory.h
 	src/capclientapp.h
 	src/textureslice.h
 	)
 
 SET( APP_SRCS
-        src/zinc/extensions.cpp
-        src/zinc/utilities.cpp
+		src/zinc/extensions.cpp
+		src/zinc/utilities.cpp
 	src/capclientapp.cpp
 	src/io/annotationfile.cpp
-        src/contour.cpp
+		src/contour.cpp
 	src/ui/htmlwindow.cpp
 	src/material.cpp
 	src/model/heart.cpp
@@ -100,20 +101,20 @@ SET( APP_SRCS
 	src/io/modelfile.cpp
 	src/io/xmlfilehandler.cpp
 	src/logmsg.cpp
-        src/zinc/callbacks.cpp
-        src/zinc/sceneviewerpanel.cpp
+		src/zinc/callbacks.cpp
+		src/zinc/sceneviewerpanel.cpp
 	src/dicomimage.cpp
 	src/logwindow.cpp
 	src/utils/filesystem.cpp
-        src/utils/misc.cpp
-        src/utils/debug.cpp
-        src/imagebrowser.cpp
+		src/utils/misc.cpp
+		src/utils/debug.cpp
+		src/imagebrowser.cpp
 	src/imagebrowserwindow.cpp
 	src/labelledslice.cpp
 	src/capclientwindow.cpp
 	src/capclientwindowheartmodel.cpp
 	src/standardheartdefinitions.cpp
-        src/platforminfo.cpp
+		src/platforminfo.cpp
 	src/capclient.cpp
 	src/textureslice.cpp
 	)
@@ -124,30 +125,30 @@ IF(MSVC)
 ENDIF()
 
 SET( APP_XRC
-        src/ui/annotationwindowui.xrc
-        src/ui/imagebrowserwindowui.xrc
-        src/ui/usercommentdialogui.xrc
-        src/ui/capclientwindowui.xrc
+		src/ui/annotationwindowui.xrc
+		src/ui/imagebrowserwindowui.xrc
+		src/ui/usercommentdialogui.xrc
+		src/ui/capclientwindowui.xrc
 	src/ui/logdialogui.xrc
 	)
 
 SET(MISSING_DEPENDENCY)
 # Find the CMGUI libraries, using a gui the CAP_CMGUI_CONFIG_DIR
-# variable can be set.  Alternatively it can be set on the 
+# variable can be set.  Alternatively it can be set on the
 # command line when creating the CMake cache.
 SET(Cmgui_DIR "${CAP_CMGUI_CONFIG_DIR}" CACHE INTERNAL "Internalise Cmgui_DIR, manipulate via CAP_CMGUI_CONFIG_DIR." FORCE)
 FIND_PACKAGE(Cmgui)
 IF(NOT CMGUI_FOUND)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find cmgui-config.cmake.")
+		SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find cmgui-config.cmake.")
 ENDIF()
 # Need to find boost headers
 FIND_PATH(CAP_BOOST_INCLUDE_DIR boost/shared_ptr.hpp)
 IF(NOT EXISTS ${CAP_BOOST_INCLUDE_DIR}/boost/shared_ptr.hpp)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find boost/shared_ptr.hpp.")
+		SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find boost/shared_ptr.hpp.")
 ENDIF()
 # CAP Client needs the gmm header files if they are not on the
 # system include path it needs to be set independently.
@@ -155,7 +156,7 @@ FIND_PATH(CAP_GMM_INCLUDE_DIR gmm/gmm.h)
 IF(NOT EXISTS ${CAP_GMM_INCLUDE_DIR}/gmm/gmm.h)
 	LIST(APPEND MISSING_DEPENDENCY 0)
 	LIST(LENGTH MISSING_DEPENDENCY COUNT)
-        SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find gmm/gmm.h.")
+		SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find gmm/gmm.h.")
 ENDIF()
 # If we are testing find GTest also
 IF(CAP_ENABLE_UNIT_TESTS OR CAP_ENABLE_GUI_UNIT_TESTS)
@@ -164,7 +165,7 @@ IF(CAP_ENABLE_UNIT_TESTS OR CAP_ENABLE_GUI_UNIT_TESTS)
 	IF(NOT GTEST_FOUND)
 		LIST(APPEND MISSING_DEPENDENCY 0)
 		LIST(LENGTH MISSING_DEPENDENCY COUNT)
-                SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find gtest.")
+				SET(CAP_ERROR_MESSAGE "${CAP_ERROR_MESSAGE}\n\t\t${COUNT}. Could not find gtest.")
 	ENDIF()
 ENDIF()
 
@@ -210,7 +211,7 @@ SET(TXT_FILES
 	src/images/mri_icon.png
 	src/images/abi_icon.png
 	)
-	
+
 SET(TXT_HDRS)
 SET(TEXT_HDR_PATH_PREFIX "src/hexified")
 FOREACH(TXT_FILE ${TXT_FILES})
@@ -246,7 +247,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/
 IF(MSVC)
 	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/win32)
 ENDIF()
-# Set the CAP Client executable with all sources and headers.  Set headers here also so 
+# Set the CAP Client executable with all sources and headers.  Set headers here also so
 # that some IDEs recognise them and include them in their projects.
 ADD_EXECUTABLE(${CAP_CLIENT_EXECUTABLE} WIN32 ${APP_SRCS} ${APP_HDRS} ${UI_SRCS_AND_HDRS} ${TXT_HDRS})
 

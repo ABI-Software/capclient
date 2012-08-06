@@ -254,9 +254,8 @@ namespace cap
 
 	bool ModellingModeBasePlane::CanAccept()
 	{
-		// If we don't have any modelling points or not an even number of modelling points
-		// then return fail (0).
-		if ((modellingPoints_.size() % 2) || modellingPoints_.empty())
+		// If we don't have any modelling points then fail (0).
+		if (modellingPoints_.empty())
 			return false;
 
 		// Create a map of times and time counts
@@ -275,7 +274,8 @@ namespace cap
 		std::map<int, int>::const_iterator const_it = timeLayoutMap.begin();
 		for (; const_it != timeLayoutMap.end(); ++const_it)
 		{
-			// Each time value should have exactly two modelling points
+			// Each time value should have at least two modelling points
+			dbg("count[" + ToString(const_it->first) + "]: " + ToString(const_it->second) + ", res = " + ToString(const_it->second == 2));
 			if (const_it->second < 2)
 				return false;
 		}

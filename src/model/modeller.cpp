@@ -22,8 +22,9 @@
 #include "math/totalleastsquares.h"
 #include "math/solverlibraryfactory.h"
 #include "math/gmmfactory.h"
-#include "math/vnlfactory.h"
+//#include "math/vnlfactory.h"
 #include "math/algebra.h"
+#include "math/geometry.h"
 #include "math/basis.h"
 #include "logmsg.h"
 

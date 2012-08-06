@@ -37,7 +37,7 @@ struct Plane;
  */
 class HeartModel
 {
-	
+
 public:
 	/**
 	 * Values that represent the types of RenderMode for the heart model.
@@ -83,12 +83,12 @@ public:
 	 */
 	void SetVisibility(bool visible);
 
-    /**
-     * Tests wether the heart model is visible or not.
-     *
-     * @return true if the heart model is visible, false otherwise
-     */
-    bool IsVisible() const;
+	/**
+	 * Tests wether the heart model is visible or not.
+	 *
+	 * @return true if the heart model is visible, false otherwise
+	 */
+	bool IsVisible() const;
 
 	/**
 	 * Returns the lambda parameters from the model at the given time.
@@ -107,16 +107,16 @@ public:
 	 */
 	void SetLambdaAtTime(const std::vector<double>& lambdaParams, double time = 0.0);
 
-    /**
-     * Returns the mu parameters from the model at the given time.
-     *
-     * @param	time	The time.
-     *
-     * @return	The mus.
-     */
-    const std::vector<double> GetMuAtTime(double time) const;
+	/**
+	 * Returns the mu parameters from the model at the given time.
+	 *
+	 * @param	time	The time.
+	 *
+	 * @return	The mus.
+	 */
+	const std::vector<double> GetMuAtTime(double time) const;
 
-    /**
+	/**
 	 * Sets a mu from base plane for frame.
 	 *
 	 * @param	basePlane  	The base plane.
@@ -124,17 +124,17 @@ public:
 	 */
 	//void SetMuFromBasePlaneForFrame(const Plane& basePlane, int frameNumber);
 	void SetMuFromBasePlaneAtTime(const Plane& basePlane, double time);
-	
+
 	/**
 	 * Sets a local to global transformation.  The transformation
-	 * matrix defines a 4x4 rectangular cartesian coordinate 
+	 * matrix defines a 4x4 rectangular cartesian coordinate
 	 * transformation matrix.  The matrix is specified as follows
-	 * 
+	 *
 	 * [ Sx*R11, Sx*R12, Sx*R13, 0 ]
 	 * [ Sy*R21, Sy*R22, Sy*R23, 0 ]
 	 * [ Sz*R31, Sz*R32, Sz*R33, 0 ]
 	 * [   x   ,   y   ,   z   , 1 ]
-	 * 
+	 *
 	 *
 	 * @param	transform	The transform.
 	 */
@@ -149,15 +149,15 @@ public:
 	{
 		return patientToGlobalTransform_;
 	}
-	
-	/**   
+
+	/**
 	 * Projects a point to the model and computes the xi coords and the element id
 	 * @param	position	the coordinate of the point
 	 * @param	time	The time of the model to use
 	 * @param xi the computed xi coord. (output)
-	 * 
+	 *
 	 * @return Id of the element that the point is projected onto
-	 */ 
+	 */
 	int ComputeXi(const Point3D& position, double time, Point3D& xi) const;
 
 	/**
@@ -231,14 +231,14 @@ public:
 	double ComputeVolume(HeartSurfaceEnum surface, double time) const;
 
 private:
-	
+
 	static const int NUMBER_OF_NODES = 40;  /**< Number of nodes */
-	
+
 	gtMatrix patientToGlobalTransform_; /**< The patient to global transform */
 	std::string modelName_; /**< Name of the model */
 	std::vector<std::string> exnodeModelFileNames_; /**< List of names of the exnode model files */
 	int numberOfModelFrames_;   /**< Number of model frames */
-	
+
 	class HeartModelImpl;
 	HeartModelImpl* pImpl_; /**< use PIMPL to hide Cmgui related implementation details (region, scene object , etc) */
 
