@@ -184,6 +184,13 @@ namespace cap
 		 */
 		void ClearAttachedToList() { attachedTo_.clear(); }
 
+		/**
+		 * Get the list of attached to strings for this modelling point.
+		 *
+		 * @return A vector of strings .
+		 */
+		std::vector<std::string> GetAttachedTo() const { return attachedTo_; }
+
 	private:
 		/**
 		 * Set the node visibility.

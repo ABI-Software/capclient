@@ -72,7 +72,7 @@ SET(GUI_TESTS)
 LIST(APPEND UNIT_TESTS Math)
 SET(Math_SRC
 	unittestmath.cpp
-	unittesttotalleastsquares.cpp
+	unittestgeometry.cpp
 	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
 	)
 

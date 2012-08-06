@@ -163,53 +163,6 @@ ModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
 	return &modellingModeGuidePoints_;
 }
 
-Plane Modeller::FitPlaneToBasePlanePoints(const std::vector<ModellingPoint>& basePlanePoints, const Vector3D& xAxis) const
-{
-	Plane plane;
-
-	if (basePlanePoints.size() > 2)
-	{
-		// Total Least Squares using SVD
-		std::vector<Point3D> vectorOfPoints;
-		for (std::vector<ModellingPoint>::const_iterator i = basePlanePoints.begin();
-				i != basePlanePoints.end(); ++i)
-		{
-			vectorOfPoints.push_back(i->GetPosition());
-		}
-		plane = FitPlaneUsingTLS(vectorOfPoints);
-	}
-	else if (basePlanePoints.size() == 2)
-	{
-		// When only 2 base plane points have been specified
-		Vector3D temp1 = basePlanePoints[1].GetPosition() - basePlanePoints[0].GetPosition();
-		temp1.Normalise();
-
-		Vector3D temp2 = CrossProduct(temp1, xAxis);
-
-		plane.normal = CrossProduct(temp1, temp2);
-		plane.normal.Normalise();
-
-		plane.position = basePlanePoints[0].GetPosition() + (0.5 * (basePlanePoints[1].GetPosition() - basePlanePoints[0].GetPosition()));
-	}
-	else
-	{
-		// One base plane point
-		plane.position = basePlanePoints[0].GetPosition();
-		plane.normal = xAxis;
-		plane.normal.Normalise();
-	}
-
-	// make sure plane normal is always pointing toward the apex
-	dbg("plane normal : " + ToString(plane.normal));
-	dbg("xAxis : " + ToString(xAxis));
-	if (DotProduct(plane.normal, xAxis) < 0)
-	{
-		plane.normal *= -1;
-	}
-
-	return plane;
-}
-
 void Modeller::AlignModel()
 {
 	if (CanAccept(BASEPLANE))
@@ -295,13 +248,14 @@ void Modeller::AlignModel()
 			//--dbg("bp points : " + ToString(itrSrc->GetTime()) + ", " + ToString(itrSrc->GetCoordinate()));
 			double frameTime = itrSrc->GetTime();
 			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
-			std::vector<ModellingPoint> basePlanePointsInOneFrame;
+			std::vector<Point3D> pointsInFrame;
 			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 			{
-				basePlanePointsInOneFrame.push_back(*itrSrc);
+				pointsInFrame.push_back((*itrSrc).GetPosition());
 			}
+
 			// Fit plane to the points
-			Plane plane = FitPlaneToBasePlanePoints(basePlanePointsInOneFrame, xAxis);
+			Plane plane = FitPlaneThroughPoints(pointsInFrame, xAxis);
 			planes.insert(std::make_pair(frameTime, plane));
 		}
 

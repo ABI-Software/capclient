@@ -223,16 +223,6 @@ private:
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
 
 	/**
-	 * Fit plane to base plane points.
-	 *
-	 * @param	basePlanePoints	The base plane points.
-	 * @param	xAxis		   	The x coordinate axis.
-	 *
-	 * @return	The fitted plane.
-	 */
-	Plane FitPlaneToBasePlanePoints(const ModellingPoints& basePlanePoints, const Vector3D& xAxis) const;
-
-	/**
 	 * Fit the model.  For the given time fit the model to the current guide points.
 	 *
 	 * @param	time	The time.

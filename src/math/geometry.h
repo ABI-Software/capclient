@@ -11,12 +11,21 @@
 namespace cap
 {
 
+/**
+ * Geometric description of a plane.
+ */
 struct Plane
 {
 	Vector3D normal;
 	Point3D position;
 };
 
+/**
+ * Compute the centroid.
+ *
+ * @param points	The points to compute the centroid of.
+ * @return The centroid.
+ */
 inline Point3D ComputeCentroid(const std::vector<Point3D>& points)
 {
 	Point3D centroid;
@@ -29,6 +38,12 @@ inline Point3D ComputeCentroid(const std::vector<Point3D>& points)
 	return centroid;
 }
 
+/**
+ * Fit plane using Total Least Squares.  Uses SVD.
+ *
+ * @param points
+ * @return The fitted plane
+ */
 inline Plane FitPlaneUsingTLS(const std::vector<Point3D>& points)
 {
 	// 1. Compute centroid
@@ -57,6 +72,15 @@ inline Plane FitPlaneUsingTLS(const std::vector<Point3D>& points)
 	return plane;
 }
 
+/**
+ * Fit plane through the given points.  If necessary (ill-defined plane, two or one point situations)
+ * use the surrogate normal to define the plane.
+ *
+ * @param	points	The points to fit.
+ * @param	surrogateNormal	The surrogate normal.
+ *
+ * @return	The fitted plane.
+ */
 inline Plane FitPlaneThroughPoints(const std::vector<Point3D>& points, const Vector3D& surrogateNormal)
 {
 	Plane plane;
@@ -88,8 +112,6 @@ inline Plane FitPlaneThroughPoints(const std::vector<Point3D>& points, const Vec
 	}
 
 	// make sure plane normal is always pointing toward the apex
-	dbg("plane normal : " + ToString(plane.normal));
-	dbg("surrogate normal : " + ToString(surrogateNormal));
 	if (DotProduct(plane.normal, surrogateNormal) < 0)
 	{
 		plane.normal *= -1;

@@ -6,15 +6,15 @@
 TEST(UtilsMisc, TimeNow)
 {
 	std::string time = cap::TimeNow();
-    EXPECT_EQ(11, time.size());
+	EXPECT_EQ(11, time.size());
 	EXPECT_NE("Error in NowTime()", cap::TimeNow());
 }
 
 TEST(UtilsMisc, EndsWith)
 {
-    EXPECT_TRUE(cap::EndsWith("yabbadabbadoo", "doo"));
-    EXPECT_TRUE(cap::EndsWith("filename.exnode", ".exnode"));
-    EXPECT_FALSE(cap::EndsWith("notgoingtomatch", "oranges"));
+	EXPECT_TRUE(cap::EndsWith("yabbadabbadoo", "doo"));
+	EXPECT_TRUE(cap::EndsWith("filename.exnode", ".exnode"));
+	EXPECT_FALSE(cap::EndsWith("notgoingtomatch", "oranges"));
 }
 
 TEST(UtilsMisc, ToString)
@@ -48,6 +48,76 @@ TEST(UtilsMisc, FromString)
 	EXPECT_EQ(-0.28337461, values_dbl[3]);
 	EXPECT_EQ(0.34869241, values_dbl[4]);
 	EXPECT_EQ(-0.89337138, values_dbl[5]);
+}
+
+std::vector<std::string> FindIntersection(std::vector<std::string> one, std::vector<std::string> two)
+{
+	std::vector<std::string> intersection;
+
+	std::vector<std::string>::const_iterator cit1 = one.begin();
+	while (cit1 != one.end())
+	{
+		bool in = false;
+		std::vector<std::string>::const_iterator cit2 = two.begin();
+		while (cit2 != two.end())
+		{
+			if (*cit1 == *cit2)
+				in = true;
+			++cit2;
+		}
+		if (in)
+			intersection.push_back(*cit1);
+		++cit1;
+	}
+
+	return intersection;
+}
+
+TEST(UtilsMisc, SamePlane)
+{
+	std::vector<std::string> labels1;
+	labels1.push_back("LA1");
+	labels1.push_back("SA1");
+	std::vector<std::string> labels2;
+	labels2.push_back("LA1");
+	labels2.push_back("SA2");
+	std::vector<std::string> labels3;
+	labels3.push_back("LA6");
+	labels3.push_back("LA1");
+
+	std::vector<std::string> intersection = FindIntersection(labels1, labels2);
+	EXPECT_EQ(1, intersection.size());
+	EXPECT_EQ("LA1", intersection.at(0));
+	intersection = FindIntersection(intersection, labels3);
+	EXPECT_EQ(1, intersection.size());
+	EXPECT_EQ("LA1", intersection.at(0));
+}
+
+#include <algorithm>
+
+TEST(UtilsMisc, DifferentPlane)
+{
+	std::vector<std::string> labels1;
+	labels1.push_back("LA1");
+	labels1.push_back("SA1");
+	std::vector<std::string> labels2;
+	labels2.push_back("LA1");
+	labels2.push_back("SA2");
+	std::vector<std::string> labels3;
+	labels3.push_back("LA6");
+	labels3.push_back("SA1");
+
+	std::vector<std::string> current_string_intersection = labels2;
+	std::vector<std::string> string_intersection;
+	std::set_intersection(labels1.begin(), labels1.end(), current_string_intersection.begin(), current_string_intersection.end(), std::back_inserter(string_intersection));
+	current_string_intersection = string_intersection;
+	EXPECT_EQ(1, string_intersection.size());
+	EXPECT_EQ("LA1", string_intersection.at(0));
+	std::vector<std::string> intersection = FindIntersection(labels1, labels2);
+	EXPECT_EQ(1, intersection.size());
+	EXPECT_EQ("LA1", intersection.at(0));
+	intersection = FindIntersection(intersection, labels3);
+	EXPECT_EQ(0, intersection.size());
 }
 
 

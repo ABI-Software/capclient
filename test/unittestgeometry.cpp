@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "math/geometry.h"
 
-TEST(TotalLeastSquares, FitPlaneUsingTLS)
+TEST(Geometry, FitPlaneUsingTLS)
 {
 	using namespace cap;
 
@@ -27,7 +27,7 @@ TEST(TotalLeastSquares, FitPlaneUsingTLS)
 	EXPECT_NEAR(p.normal.z, 1.0, 0.0000001);
 }
 
-TEST(TotalLeastSquares, FitPlaneUsingTLS_2)
+TEST(Geometry, FitPlaneUsingTLS_2)
 {
 	using namespace cap;
 
@@ -57,7 +57,7 @@ TEST(TotalLeastSquares, FitPlaneUsingTLS_2)
 //	PerformSVDTest();
 //}
 
-TEST(TotalLeastSquares, SVDTest_2)
+TEST(Geometry, SVDTest_2)
 {
 	vnl_matrix<double> M(6,3);
 	M(0,0) = -2; M(0,1) = -1; M(0,2) = -10;
@@ -77,7 +77,7 @@ TEST(TotalLeastSquares, SVDTest_2)
 	EXPECT_DOUBLE_EQ(v(2), 0);
 }
 
-TEST(TotalLeastSquares, SVDTest_3)
+TEST(Geometry, SVDTest_3)
 {
 	vnl_matrix<double> M(5,3);
 	M(0,0) =  2; M(0,1) = -2; M(0,2) =  0;
@@ -96,7 +96,7 @@ TEST(TotalLeastSquares, SVDTest_3)
 	EXPECT_DOUBLE_EQ(v(2), v(1));
 }
 
-TEST(TotalLeastSquares, ComputeCentroid)
+TEST(Geometry, ComputeCentroid)
 {
 	using namespace cap;
 
@@ -115,4 +115,24 @@ TEST(TotalLeastSquares, ComputeCentroid)
 	EXPECT_DOUBLE_EQ(c.x, 4.0/3.0);
 	EXPECT_DOUBLE_EQ(c.y, (1+3-2)/3.0);
 	EXPECT_DOUBLE_EQ(c.z, 1.0/3.0);
+}
+
+TEST(Geometry, FitPlaneUsingTLS_Illdefined)
+{
+	cap::Point3D points[] =
+	{
+		cap::Point3D( 43.875263893798689, -31.327755841858153,  49.4522910562259600),
+		cap::Point3D( 27.780713203789222, -19.947668699134610,   8.7570269946642281),
+		cap::Point3D( 30.213103685565645, -22.394406862998537,   5.5534712125380929),
+		cap::Point3D( 48.648122315972287, -34.992845384900519,   57.783933663597807)
+	};
+
+	size_t n = sizeof(points)/ sizeof(cap::Point3D);
+	//Point3D* ptr = points;
+	std::vector<cap::Point3D> v(points, points+n);
+
+	cap::Plane p = FitPlaneUsingTLS(v);
+	EXPECT_NE(0.61218, p.normal.x);
+	EXPECT_NE(-0.593729, p.normal.y);
+	EXPECT_NE(-0.522227, p.normal.z);
 }
