@@ -120,4 +120,31 @@ TEST(UtilsMisc, DifferentPlane)
 	EXPECT_EQ(0, intersection.size());
 }
 
+TEST(UtilsMisc, FindString)
+{
+	std::string label = "LA1";
+	std::vector<std::string> strings;
+	strings.push_back("SA1");
+	strings.push_back("SA2");
+	strings.push_back("SA3");
+	strings.push_back("LA1");
+	strings.push_back("LA3");
+	std::vector<std::string>::const_iterator cit = find(strings.begin(), strings.end(), label);
+	EXPECT_TRUE(cit != strings.end());
+	EXPECT_EQ("LA1", *cit);
+}
+
+TEST(UtilsMisc, DontFindString)
+{
+	std::string label = "LA6";
+	std::vector<std::string> strings;
+	strings.push_back("SA1");
+	strings.push_back("SA2");
+	strings.push_back("SA3");
+	strings.push_back("LA1");
+	strings.push_back("LA3");
+	std::vector<std::string>::const_iterator cit = find(strings.begin(), strings.end(), label);
+	EXPECT_TRUE(cit == strings.end());
+}
+
 
