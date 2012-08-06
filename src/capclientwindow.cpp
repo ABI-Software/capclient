@@ -1697,11 +1697,14 @@ bool CAPClientWindow::IsNodeSelected(ModellingEnum currentMode) const
 	bool selected = false;
 	const std::string& modelling_mode = ModellingEnumStrings.find(currentMode)->second;
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
-	Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
-	selected = selected_node != 0;
+	if (field_module != 0)
+	{
+		Cmiss_node_id selected_node = Cmiss_field_module_get_first_selected_node(field_module);
+		selected = selected_node != 0;
 
-	Cmiss_field_module_destroy(&field_module);
-	Cmiss_node_destroy(&selected_node);
+		Cmiss_field_module_destroy(&field_module);
+		Cmiss_node_destroy(&selected_node);
+	}
 
 	return selected;
 }
