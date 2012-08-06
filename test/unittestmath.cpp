@@ -1,6 +1,12 @@
 #include <gtest/gtest.h>
 #include "math/algebra.h"
 
+
+TEST(FitPlaneThroughPoints, OnePoint)
+{
+
+}
+
 TEST(Vector3DTest, Creation)
 {
 	using cap::Vector3D;

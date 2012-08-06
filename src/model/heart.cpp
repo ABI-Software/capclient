@@ -8,10 +8,13 @@
 #include "model/heart.h"
 
 //#include "zinc/sceneviewerpanel.h"
-#include "math/algebra.h"
+//#include "math/algebra.h"
+//#include "math/geometry.h"
 #include "zinc/extensions.h"
 #include "utils/misc.h"
 #include "utils/debug.h"
+#include "math/geometry.h"
+
 
 extern "C" {
 #include <zn/cmiss_field.h>
@@ -48,7 +51,7 @@ public:
 		, epi_surface_(0)
 		, endo_surface_(0)
 	{}
-	
+
 	Cmiss_context_id context_;
 	Cmiss_region_id region_;
 	//Scene_object* sceneObject;
@@ -81,8 +84,8 @@ HeartModel::~HeartModel()
 		Cmiss_rendition_remove_graphic(rendition, pImpl_->endo_surface_);
 		Cmiss_graphic_destroy(&(pImpl_->endo_surface_));
 	}
-    Cmiss_rendition_destroy(&rendition);
-    Cmiss_field_destroy(&(pImpl_->coordinates_ps_));
+	Cmiss_rendition_destroy(&rendition);
+	Cmiss_field_destroy(&(pImpl_->coordinates_ps_));
 	Cmiss_field_destroy(&(pImpl_->coordinates_rc_));
 	Cmiss_field_destroy(&(pImpl_->coordinates_patient_rc_));
 	Cmiss_field_destroy(&(pImpl_->transform_mx_));
@@ -140,9 +143,9 @@ void HeartModel::Initialise(const std::string& name)
 	{
 		// Match the initial state of the render type for the surface with that shown in the gui combo box.
 		pImpl_->epi_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-        Cmiss_graphic_define(pImpl_->epi_surface_, "coordinate coordinates_patient_rc exterior face xi3_0 no_select material green_surface render_wireframe");
+		Cmiss_graphic_define(pImpl_->epi_surface_, "coordinate coordinates_patient_rc exterior face xi3_0 no_select material green_surface render_wireframe");
 		pImpl_->endo_surface_ = Cmiss_rendition_create_graphic(rendition, CMISS_GRAPHIC_SURFACES);
-        Cmiss_graphic_define(pImpl_->endo_surface_, "coordinate coordinates_patient_rc exterior face xi3_1 no_select material red_surface render_wireframe");
+		Cmiss_graphic_define(pImpl_->endo_surface_, "coordinate coordinates_patient_rc exterior face xi3_1 no_select material red_surface render_wireframe");
 		Cmiss_rendition_destroy(&rendition);
 	}
 	else
@@ -171,11 +174,11 @@ void HeartModel::SetVisibility(bool visible)
 
 bool HeartModel::IsVisible() const
 {
-    int vis = 0;
-    if (pImpl_->epi_surface_)
-        vis = Cmiss_graphic_get_visibility_flag(pImpl_->epi_surface_);
+	int vis = 0;
+	if (pImpl_->epi_surface_)
+		vis = Cmiss_graphic_get_visibility_flag(pImpl_->epi_surface_);
 
-    return vis == 1;
+	return vis == 1;
 }
 
 void HeartModel::SetLocalToGlobalTransformation(const gtMatrix& transform)
@@ -212,7 +215,7 @@ int HeartModel::ComputeXi(const Point3D& position, double time, Point3D& xi) con
 	Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
 	Cmiss_field_id mesh_location_field = Cmiss_field_module_create_find_mesh_location(field_module, const_position, pImpl_->coordinates_patient_rc_, mesh);
 	Cmiss_field_find_mesh_location_id find_mesh_location_field = Cmiss_field_cast_find_mesh_location(mesh_location_field);
-    Cmiss_field_find_mesh_location_set_search_mode(find_mesh_location_field, CMISS_FIELD_FIND_MESH_LOCATION_SEARCH_MODE_FIND_NEAREST);
+	Cmiss_field_find_mesh_location_set_search_mode(find_mesh_location_field, CMISS_FIELD_FIND_MESH_LOCATION_SEARCH_MODE_FIND_NEAREST);
 	Cmiss_field_find_mesh_location_destroy(&find_mesh_location_field);
 
 	double xi_values[3];
@@ -235,64 +238,64 @@ int HeartModel::ComputeXi(const Point3D& position, double time, Point3D& xi) con
 }
 const std::vector<double> HeartModel::GetLambdaAtTime(double time) const
 {
-    Cmiss_field_module_id field_module = pImpl_->field_module_;
-    Cmiss_field_id coords_ps = pImpl_->coordinates_ps_;
+	Cmiss_field_module_id field_module = pImpl_->field_module_;
+	Cmiss_field_id coords_ps = pImpl_->coordinates_ps_;
 
-    Cmiss_field_module_begin_change(field_module);
+	Cmiss_field_module_begin_change(field_module);
 
-    Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
-    Cmiss_field_cache_set_time(cache, time);
-    Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_cache_set_time(cache, time);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 
 
-    std::vector<double> lambdas;
-    for (int i = 0; i < 40; i++) // node index starts at 1
-    {
-        Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
-        Cmiss_field_cache_set_node(cache, node);
-        double loc_ps[3];
-        Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-        lambdas.push_back(loc_ps[0]);
-        Cmiss_node_destroy(&node);
-    }
+	std::vector<double> lambdas;
+	for (int i = 0; i < 40; i++) // node index starts at 1
+	{
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
+		Cmiss_field_cache_set_node(cache, node);
+		double loc_ps[3];
+		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+		lambdas.push_back(loc_ps[0]);
+		Cmiss_node_destroy(&node);
+	}
 
-    Cmiss_field_cache_destroy(&cache);
-    Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_nodeset_destroy(&nodeset);
 
-    Cmiss_field_module_end_change(field_module);
+	Cmiss_field_module_end_change(field_module);
 
-    return lambdas;
+	return lambdas;
 }
 
 const std::vector<double> HeartModel::GetMuAtTime(double time) const
 {
-    Cmiss_field_module_id field_module = pImpl_->field_module_;
-    Cmiss_field_id coords_ps = pImpl_->coordinates_ps_;
+	Cmiss_field_module_id field_module = pImpl_->field_module_;
+	Cmiss_field_id coords_ps = pImpl_->coordinates_ps_;
 
-    Cmiss_field_module_begin_change(field_module);
+	Cmiss_field_module_begin_change(field_module);
 
-    Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
-    Cmiss_field_cache_set_time(cache, time);
-    Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_cache_set_time(cache, time);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
 
 
-    std::vector<double> mus;
-    for (int i = 0; i < 40; i++) // node index starts at 1
-    {
-        Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
-        Cmiss_field_cache_set_node(cache, node);
-        double loc_ps[3];
-        Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-        mus.push_back(loc_ps[1]);
-        Cmiss_node_destroy(&node);
-    }
+	std::vector<double> mus;
+	for (int i = 0; i < 40; i++) // node index starts at 1
+	{
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
+		Cmiss_field_cache_set_node(cache, node);
+		double loc_ps[3];
+		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+		mus.push_back(loc_ps[1]);
+		Cmiss_node_destroy(&node);
+	}
 
-    Cmiss_field_cache_destroy(&cache);
-    Cmiss_nodeset_destroy(&nodeset);
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_nodeset_destroy(&nodeset);
 
-    Cmiss_field_module_end_change(field_module);
+	Cmiss_field_module_end_change(field_module);
 
-    return mus;
+	return mus;
 }
 
 void HeartModel::SetLambdaAtTime(const std::vector<double>& lambdaParams, double time)
@@ -311,10 +314,10 @@ void HeartModel::SetLambdaAtTime(const std::vector<double>& lambdaParams, double
 	for (int i = 0; i < 40; i++) // node index starts at 1
 	{
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, i+1);
-        Cmiss_field_cache_set_node(cache, node);
-        double loc_ps[3];
+		Cmiss_field_cache_set_node(cache, node);
+		double loc_ps[3];
 		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-        loc_ps[0] = lambdaParams[4 * i + 0];
+		loc_ps[0] = lambdaParams[4 * i + 0];
 		//if (i == 11)
 		//	dbg("node loc 12 : [" + ToString(loc_ps[0]) + ", " + ToString(loc_ps[1]) + ", " + ToString(loc_ps[2]) + "]");
 		Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
@@ -342,8 +345,8 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 {
 	const Vector3D& normal = basePlane.normal;//--heartModel_->TransformToLocalCoordinateRC(basePlane.normal);
 	const Point3D& position = basePlane.position;//--heartModel_->TransformToLocalCoordinateRC(basePlane.position);
-    //const int numberOfComponents = 3; // lambda, mu and theta
-	
+	//const int numberOfComponents = 3; // lambda, mu and theta
+
 	Cmiss_field_module_begin_change(pImpl_->field_module_);
 	Cmiss_field_id coords_ps = pImpl_->coordinates_ps_;
 	Cmiss_field_id coords_patient = pImpl_->coordinates_patient_rc_;
@@ -352,7 +355,7 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 	Cmiss_field_cache_set_time(cache, time);
 	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(pImpl_->field_module_, "cmiss_nodes");
 
-    //dbg("Plane : (" + ToString(time) + ") " + ToString(basePlane.normal) + ", " + ToString(basePlane.position));
+	//dbg("Plane : (" + ToString(time) + ") " + ToString(basePlane.normal) + ", " + ToString(basePlane.position));
 	// EPI nodes [0-19], ENDO nodes [20-39], node identifiers are 1-based.
 	// This method follows the CIM method of calculating the model position from the base plane.
 	for (int k = 0; k < 40; k += 20)
@@ -361,13 +364,13 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 		for (int i=0; i < 4; i++)
 		{
 			Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + i + 1);
-            Cmiss_field_cache_set_node(cache, node);
-            double loc[3], loc_ps[3], loc_pat[3];
-            Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-            mu[i] = loc_ps[1] = 0.0;
-            Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
-            //r1 = Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-            Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
+			Cmiss_field_cache_set_node(cache, node);
+			double loc[3], loc_ps[3], loc_pat[3];
+			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+			mu[i] = loc_ps[1] = 0.0;
+			Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+			//r1 = Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+			Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
 			Point3D point(loc_pat[0],loc_pat[1],loc_pat[2]);
 			Point3D prevPoint;
 			double initial = DotProduct(normal, point - position);
@@ -375,19 +378,19 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 			do
 			{
 				loc_ps[1] += M_PI/180.0;  //one degree increments for mu parameter
-                Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
+				Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 				mu[i] = loc_ps[1];
-                Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
+				Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
 				prevPoint = point;
 				point = Point3D(loc_pat[0],loc_pat[1],loc_pat[2]);
 			}
 			while((initial*DotProduct(normal, point - position) > 0.0) && (mu[i] < M_PI));
-			
-			// We have stepped over the base plane (or we have reached pi), now interpolate between the 
+
+			// We have stepped over the base plane (or we have reached pi), now interpolate between the
 			// current point and the previous point
 			double z1 = DotProduct(normal, prevPoint-position);
 			double z2 = DotProduct(normal, point-position);
-			if((z1*z2) < 0.0) 
+			if((z1*z2) < 0.0)
 			{
 				double zdiff = z2-z1;
 				double s;
@@ -410,7 +413,7 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 			}
 			Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 			Cmiss_node_destroy(&node);
-			
+
 		}
 
 		// Set the remaining mu paramater of the nodes equidistant between mu[i] and 0.0
@@ -419,10 +422,10 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 			for (int i=0;i<4;i++)
 			{
 				Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + (j * 4) + i + 1);
-                Cmiss_field_cache_set_node(cache, node);
-                double loc_ps[3];
+				Cmiss_field_cache_set_node(cache, node);
+				double loc_ps[3];
 				Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
-                loc_ps[1] = mu[i]/4.0 * (4.0- static_cast<double>(j));
+				loc_ps[1] = mu[i]/4.0 * (4.0- static_cast<double>(j));
 				Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 				Cmiss_node_destroy(&node);
 			}
@@ -433,7 +436,7 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 	Cmiss_field_cache_destroy(&cache);
 	Cmiss_nodeset_destroy(&nodeset);
 }
-	
+
 double HeartModel::ComputeVolume(HeartSurfaceEnum surface, double time) const
 {
 	const int numElements = 16;
@@ -458,7 +461,7 @@ double HeartModel::ComputeVolume(HeartSurfaceEnum surface, double time) const
 	if (field_module != 0)
 	{
 		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
-        Cmiss_field_cache_set_time(field_cache, time);
+		Cmiss_field_cache_set_time(field_cache, time);
 		Cmiss_field_id rc_coordinate_field = pImpl_->coordinates_patient_rc_;
 		Cmiss_mesh_id mesh = Cmiss_field_module_find_mesh_by_dimension(field_module, 3);
 		Cmiss_element_iterator_id element_iterator = Cmiss_mesh_create_element_iterator(mesh);
@@ -484,7 +487,7 @@ double HeartModel::ComputeVolume(HeartSurfaceEnum surface, double time) const
 					p[(j*nx+i)] = Point3D(values);
 				} // j
 			} // I
-			
+
 			//do for all quads
 			//note vertices must be ordered ccw viewed from outside
 			for(int i=0;i<nx-1;i++){

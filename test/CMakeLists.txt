@@ -76,6 +76,8 @@ SET(Math_SRC
 	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
 	)
 
+
+
 LIST(APPEND UNIT_TESTS Heart)
 SET(Heart_SRC
 	unittestheart.cpp
@@ -125,8 +127,8 @@ SET(Modeller_SRC
 	${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
 	)
 
-LIST(APPEND UNIT_TESTS CAPAnnotationFile)
-SET(CAPAnnotationFile_SRC
+LIST(APPEND UNIT_TESTS AnnotationFile)
+SET(AnnotationFile_SRC
 	unittestannotationfile.cpp
 	${CAPCLIENT_ROOT_DIR}/src/io/annotationfile.cpp
 	)
@@ -223,8 +225,8 @@ IF(CAP_ENABLE_GUI_UNIT_TESTS OR CAPTEST_ENABLE_GUI_UNIT_TESTS)
 ENDIF()
 
 IF(MSVC)
-	SET(CAPAnnotationFile_SRC
-		${CAPAnnotationFile_SRC}
+	SET(AnnotationFile_SRC
+		${AnnotationFile_SRC}
 		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
 		)
 

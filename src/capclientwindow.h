@@ -41,6 +41,7 @@ class TextureSlice;
 class LabelledSlice;
 class SceneViewerPanel;
 class HeartModel;
+struct Plane;
 
 /**
  * Defines an alias representing the texture slice map.

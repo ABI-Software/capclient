@@ -201,7 +201,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 				material = "yellow";
 
 			//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-			std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label if_label";
+			std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label coordinates";
 			if (regionName == "GUIDEPOINT")
 				node_command += " spectrum guidepoint_spectrum data spectrum_value_field";
 			Cmiss_graphic_define(node_graphic, node_command.c_str());
