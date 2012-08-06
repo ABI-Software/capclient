@@ -209,6 +209,7 @@ void CAPClient::OpenModel(const std::string& filename)
 			// This means no output element is defined
 			// Setting the modelling points should put the CAPClient into the correct state
 			gui_->ProcessModellingPointDetails(modellingPointDetails);
+			modeller_->InitialiseBezierLambdaParams();
 		}
 		return;
 	}

@@ -355,14 +355,13 @@ public:
 	 */
 	void SmoothAlongTime()
 	{
-		if (!modeller_)
+		if (modeller_ && gui_->IsInitialisedHeartModel())
 		{
-			return;
-		}
-		modeller_->SmoothAlongTime();
+			modeller_->SmoothAlongTime();
 
-		gui_->ComputeHeartVolume(EPICARDIUM);
-		gui_->ComputeHeartVolume(ENDOCARDIUM);
+			gui_->ComputeHeartVolume(EPICARDIUM);
+			gui_->ComputeHeartVolume(ENDOCARDIUM);
+		}
 	}
 
 	/**

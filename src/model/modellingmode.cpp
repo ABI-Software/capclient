@@ -261,23 +261,38 @@ namespace cap
 		// Create a map of times and time counts
 		ModellingPoints mps = GetModellingPoints();
 		ModellingPoints::const_iterator cit = mps.begin();
-		std::map<int, int> timeLayoutMap;
+		std::map<int, ModellingPoints> timeLayoutMap;
 		while (cit != mps.end())
 		{
 			// Move from dealing with double comparisons to ints, so that we can index the map
 			// with an int version of the time. 1e-06 time resolution should be good enough.
 			int time = static_cast<int>(100000 * cit->GetTime());
-			timeLayoutMap[time]++;
+			timeLayoutMap[time].push_back(*cit);
 			++cit;
 		}
 
-		std::map<int, int>::const_iterator const_it = timeLayoutMap.begin();
+		std::map<int, ModellingPoints>::const_iterator const_it = timeLayoutMap.begin();
 		for (; const_it != timeLayoutMap.end(); ++const_it)
 		{
-			// Each time value should have at least two modelling points
-			dbg("count[" + ToString(const_it->first) + "]: " + ToString(const_it->second) + ", res = " + ToString(const_it->second == 2));
-			if (const_it->second < 2)
-				return false;
+			// If a time value has more than 2 modelling points then they cannot all be on the
+			// same image plane.
+			if ((const_it->second).size() > 2)
+			{
+				ModellingPoint reference = (const_it->second).at(0);
+				std::vector<std::string> intersection = reference.GetAttachedTo();
+				ModellingPoints::const_iterator cit = (const_it->second).begin();
+				while (cit != (const_it->second).end())
+				{
+					std::vector<std::string> current = cit->GetAttachedTo();
+					std::vector<std::string> current_intersection;
+					std::set_intersection(intersection.begin(), intersection.end(), current.begin(), current.end(), std::back_inserter(current_intersection));
+					intersection = current_intersection;
+
+					++cit;
+				}
+				if (intersection.size() > 0)
+					return false;
+			}
 		}
 
 		return true;
