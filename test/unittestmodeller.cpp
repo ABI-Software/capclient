@@ -396,7 +396,6 @@ TEST(Modeller, AlignModel)
 TEST(Modeller, InterpolateBasePlane)
 {
 	using namespace cap;
-	Modeller modeller(0);
 
 	Plane one;
 	one.normal = Vector3D(0, 1, 0);
@@ -408,7 +407,7 @@ TEST(Modeller, InterpolateBasePlane)
 	planes[0.0] = one;
 	planes[1.0] = two;
 	double time = 0.5;
-	Plane iPlane = modeller.InterpolateBasePlane(planes, time);
+	Plane iPlane = InterpolatePlanes(planes, time);
 
 	dbg("Interpolated : " + ToString(iPlane.position) + ", " + ToString(iPlane.normal));
 	EXPECT_EQ(Point3D(0, 0.5, 0), iPlane.position);
