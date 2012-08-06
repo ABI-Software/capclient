@@ -283,18 +283,6 @@ void Modeller::AlignModel()
 		}
 
 		InitialiseBezierLambdaParams();
-
-		// Need to fit the model across all times for the situation where the user has gone back and modified
-		// any of the alignment modelling points and already has some guide points.
-		if (modellingModeGuidePoints_.GetModellingPoints().size() > 0)
-		{
-			int numFrames = mainApp_->GetNumberOfHeartModelFrames();
-			for(int i = 0; i < numFrames;i++)
-			{
-				double time = static_cast<double>(i)/numFrames;
-				FitModelAtTime(time);
-			}
-		}
 	}
 }
 
@@ -454,6 +442,19 @@ void Modeller::InitialiseBezierLambdaParams()
 
 			double lambda = timeSmoother_.ComputeLambda(xi, prior);
 			timeVaryingDataPoints_[i][j] = lambda;
+		}
+	}
+}
+
+void Modeller::FitModel()
+{
+	if (modellingModeGuidePoints_.GetModellingPoints().size() > 0)
+	{
+		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
+		for(int i = 0; i < numFrames;i++)
+		{
+			double time = static_cast<double>(i)/numFrames;
+			FitModelAtTime(time);
 		}
 	}
 }
