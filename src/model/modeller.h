@@ -87,7 +87,7 @@ public:
 	 * @param mode	The modelling mode to test.
 	 * @return true if can accept modelling mode, false otherwise.
 	 */
-	bool CanAccept(ModellingEnum mode);
+	bool CanAccept(ModellingEnum mode) const;
 
 	/**
 	 * Gets the modelling mode apex.

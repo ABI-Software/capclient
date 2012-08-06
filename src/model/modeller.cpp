@@ -103,7 +103,7 @@ void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D
 	currentModellingMode_->AttachToIfOn(node_id, label, location, normal);
 }
 
-bool Modeller::CanAccept(ModellingEnum mode)
+bool Modeller::CanAccept(ModellingEnum mode) const
 {
 	// Run throught the modelling modes in reverse order.
 	bool can = true;
