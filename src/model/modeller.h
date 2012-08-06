@@ -216,7 +216,7 @@ private:
 	 *
 	 * @param	time	The time.
 	 */
-	void FitModel(double time);
+	void FitModelAtTime(double time);
 
 	/**
 	 * Change modelling mode.

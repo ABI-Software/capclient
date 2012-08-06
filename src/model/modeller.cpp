@@ -83,19 +83,19 @@ Modeller::~Modeller()
 void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 {
 	currentModellingMode_->AddModellingPoint(region, node_id, position, time);
-	FitModel(time);
+	FitModelAtTime(time);
 }
 
 void Modeller::MoveModellingPoint(Cmiss_region_id /*region*/, int node_id, Point3D const& position, double time)
 {
 	currentModellingMode_->MoveModellingPoint(node_id, position, time);
-	FitModel(time);
+	FitModelAtTime(time);
 }
 
 void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, double time)
 {
 	currentModellingMode_->RemoveModellingPoint(node_id, time);
-	FitModel(time);
+	FitModelAtTime(time);
 }
 
 void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal)
@@ -165,7 +165,7 @@ ModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
 
 void Modeller::AlignModel()
 {
-	if (CanAccept(BASEPLANE))
+	if (GetCurrentMode() == BASEPLANE)
 	{
 		const ModellingPoints& apex = modellingModeApex_.GetModellingPoints();
 		const ModellingPoints& base = modellingModeBase_.GetModellingPoints();
@@ -292,7 +292,7 @@ void Modeller::AlignModel()
 			for(int i = 0; i < numFrames;i++)
 			{
 				double time = static_cast<double>(i)/numFrames;
-				FitModel(time);
+				FitModelAtTime(time);
 			}
 		}
 	}
@@ -319,7 +319,7 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 void Modeller::SmoothAlongTime()
 {
 	//--ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-	if (CanAccept(BASEPLANE))
+	if (GetCurrentMode() == BASEPLANE)
 	{
 		// For each global parameter in the per frame model
 //#define PRINT_SMOOTHING_TIME
@@ -458,7 +458,7 @@ void Modeller::InitialiseBezierLambdaParams()
 	}
 }
 
-void Modeller::FitModel(double time)
+void Modeller::FitModelAtTime(double time)
 {
 //#define PRINT_FIT_TIMINGS  // Uncomment or define elsewhere to print fit times
 #ifdef PRINT_FIT_TIMINGS
