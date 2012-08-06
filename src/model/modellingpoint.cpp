@@ -2,6 +2,7 @@
 #include "modellingpoint.h"
 
 #include <sstream>
+#include <algorithm>
 
 extern "C"
 {
@@ -93,14 +94,9 @@ void ModellingPoint::AttachToIfOn(const std::string& label, const Point3D& locat
 
 bool ModellingPoint::IsAttachedTo(const std::string& label)
 {
-	std::vector<std::string>::const_iterator cit = attachedTo_.begin();
-	while (cit != attachedTo_.end())
-	{
-		if (*cit == label)
-			return true;
-
-		++cit;
-	}
+	std::vector<std::string>::const_iterator cit = std::find(attachedTo_.begin(), attachedTo_.end(), label);
+	if (cit != attachedTo_.end())
+		return true;
 
 	return false;
 }
@@ -116,13 +112,11 @@ void ModellingPoint::SetCoordinates(const Point3D& location)
 
 		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id_);
 		Cmiss_field_cache_set_node(field_cache, node);
-		dbgn("location : " + ToString(position_));
 		double coordinate_values[] = {location.x, location.y, location.z};
 		int r = Cmiss_field_assign_real(coords, field_cache, 3, coordinate_values);
 		if (r == CMISS_OK)
 		{
 			position_ = location;
-			dbg(" - " + ToString(position_));
 		}
 
 		Cmiss_node_destroy(&node);

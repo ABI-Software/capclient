@@ -159,6 +159,11 @@ public:
 	void SmoothAlongTime();
 
 	/**
+	 * Fit the model for all the frames that have modelling points.
+	 */
+	void FitModel();
+
+	/**
 	 * Initialises the Bezier lambda parameters.
 	 */
 	void InitialiseBezierLambdaParams();
@@ -210,11 +215,6 @@ private:
 	 * @param	frameNumber	The frame number.
 	 */
 	void UpdateTimeVaryingDataPoints(const Vector& x, int frameNumber);
-
-	/**
-	 * Fit the model for all the frames that have modelling points.
-	 */
-	void FitModel();
 
 	/**
 	 * Fit the model.  For the given time fit the model to the current guide points.

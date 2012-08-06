@@ -95,7 +95,10 @@ void Modeller::MoveModellingPoint(Cmiss_region_id /*region*/, int node_id, Point
 void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, double time)
 {
 	currentModellingMode_->RemoveModellingPoint(node_id, time);
-	FitModelAtTime(time);
+	// Start again from aligned model
+	AlignModel();
+	FitModel();
+//	FitModelAtTime(time);
 }
 
 void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal)
@@ -165,7 +168,7 @@ ModellingModeGuidePoints* Modeller::GetModellingModeGuidePoints()
 
 void Modeller::AlignModel()
 {
-	if (GetCurrentMode() == BASEPLANE)
+	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		const ModellingPoints& apex = modellingModeApex_.GetModellingPoints();
 		const ModellingPoints& base = modellingModeBase_.GetModellingPoints();
@@ -194,9 +197,6 @@ void Modeller::AlignModel()
 		LOG_MSG(LOGINFORMATION) << "Model x axis vector" << xAxis;
 		LOG_MSG(LOGINFORMATION) << "Model y axis vector" << yAxis;
 		LOG_MSG(LOGINFORMATION) << "Model z axis vector" << zAxis;
-		dbg("Model coord x axis vector" + ToString(xAxis));
-		dbg("Model coord y axis vector" + ToString(yAxis));
-		dbg("Model coord z axis vector" + ToString(zAxis));
 
 		// Compute the position of the model coord origin. (1/3 of the way from base to apex)
 		Point3D origin = basePosition + (0.3333) * (apexPosition - basePosition);
@@ -222,32 +222,26 @@ void Modeller::AlignModel()
 
 
 		mainApp_->SetHeartModelTransformation(transform);
-		//--heartModel_.SetLocalToGlobalTransformation(transform);
 
-		// TODO properly Compute FocalLength
 		double lengthFromApexToBase = (apexPosition - basePosition).Length();
-		dbg("Modeller::AlignModel() : lengthFromApexToBase = " + ToString(lengthFromApexToBase));
 		LOG_MSG(LOGINFORMATION) << "Length from Apex to Base = " << lengthFromApexToBase;
 
-		//double focalLength = 0.9 * (2.0 * lengthFromApexToBase / (3.0 * cosh(1.0))); // FIX
 		double focalLength = (apexPosition - origin).Length()  / cosh(1.0);
-		dbg("Modeller::AlignModel() : new focal length = " + ToString(focalLength));
 		LOG_MSG(LOGINFORMATION) << "Focal length = " << focalLength;
 		mainApp_->SetHeartModelFocalLength(focalLength);
 		//--heartModel_.SetFocalLength(focalLength);
 
 		// Construct base planes from the base plane points
-		int numberOfModelFrames = mainApp_->GetNumberOfHeartModelFrames();//--heartModel_.GetNumberOfModelFrames();
+		int numberOfModelFrames = mainApp_->GetNumberOfHeartModelFrames();
 		double framePeriod = 1.0/numberOfModelFrames;
 
-		std::map<double, Plane> planes; // value_type = (frame, plane) pair
+		std::map<double, Plane> planes;
 		ModellingPoints::const_iterator itrSrc = basePlanePoints.begin();
 
 		while (itrSrc != basePlanePoints.end())
 		{
-			//--dbg("bp points : " + ToString(itrSrc->GetTime()) + ", " + ToString(itrSrc->GetCoordinate()));
 			double frameTime = itrSrc->GetTime();
-			double timeOfNextFrame = frameTime + framePeriod;//--(double)(frameNumber+1)/numberOfModelFrames;
+			double timeOfNextFrame = frameTime + framePeriod;
 			std::vector<Point3D> pointsInFrame;
 			for (; itrSrc!=basePlanePoints.end() && itrSrc->GetTime() < timeOfNextFrame; ++itrSrc)
 			{
@@ -263,11 +257,11 @@ void Modeller::AlignModel()
 		// initial values for lambda come from the prior
 		// theta is 1/4pi apart)
 		// mu is equally spaced up to the base plane
-		std::map<double, Plane>::const_iterator cit = planes.begin();
-		for (; cit != planes.end(); cit++)
-		{
-			dbg("planes map : " + ToString(cit->first) + ", " + ToString(cit->second.position));
-		}
+//		std::map<double, Plane>::const_iterator cit = planes.begin();
+//		for (; cit != planes.end(); cit++)
+//		{
+//			dbg("planes map : " + ToString(cit->first) + ", " + ToString(cit->second.position));
+//		}
 
 		for(int i = 0; i < numberOfModelFrames; i++)
 		{
@@ -307,7 +301,7 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 void Modeller::SmoothAlongTime()
 {
 	//--ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
-	if (GetCurrentMode() == BASEPLANE)
+	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		// For each global parameter in the per frame model
 //#define PRINT_SMOOTHING_TIME
@@ -413,19 +407,21 @@ std::vector<ModellingPoint> Modeller::GetModellingPoints() const
 
 bool Modeller::ImagePlaneMoved(const std::string& label, Vector3D diff)
 {
-	bool model_moved = false;
-	model_moved = model_moved || modellingModeApex_.ImagePlaneMoved(label, diff);
-	model_moved = model_moved || modellingModeBase_.ImagePlaneMoved(label, diff);
-	model_moved = model_moved || modellingModeRV_.ImagePlaneMoved(label, diff);
-	model_moved = model_moved || modellingModeBasePlane_.ImagePlaneMoved(label, diff);
-	model_moved = model_moved || modellingModeGuidePoints_.ImagePlaneMoved(label, diff);
-	if (model_moved)
-	{
+	bool moved_apex = modellingModeApex_.ImagePlaneMoved(label, diff);
+	bool moved_base = modellingModeBase_.ImagePlaneMoved(label, diff);
+	bool moved_rv = modellingModeRV_.ImagePlaneMoved(label, diff);
+	bool moved_bp = modellingModeBasePlane_.ImagePlaneMoved(label, diff);
+	bool moved_gp = modellingModeGuidePoints_.ImagePlaneMoved(label, diff);
+	if (moved_apex || moved_base || moved_rv || moved_bp)
 		AlignModel();
+
+	if (moved_gp)
+	{
+		FitModel();
 		SmoothAlongTime();
 	}
 
-	return model_moved;
+	return moved_apex || moved_base || moved_rv || moved_bp || moved_gp;
 }
 
 void Modeller::InitialiseBezierLambdaParams()

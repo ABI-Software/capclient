@@ -1130,19 +1130,10 @@ int CAPClientWindow::CreateModellingPoint(ModellingEnum type, const Point3D& pos
 	Cmiss_region_id region = Cmiss_region_find_child_by_name(root_region, modelling_mode.c_str());
 	Cmiss_region_destroy(&root_region);
 	Cmiss_node_id node = Cmiss_region_create_node(region, position.x, position.y, position.z);
-	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, modelling_mode.c_str());
-	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_selection.cmiss_nodes");
-	Cmiss_nodeset_group_id nodeset_group = Cmiss_nodeset_cast_group(nodeset);
-	int r = Cmiss_nodeset_group_add_node(nodeset_group, node);
-	if (r == CMISS_OK)
-		dbg("It's in!!!");
 	int node_id = Cmiss_node_get_identifier(node);
 
 	mainApp_->AddModellingPoint(region, node_id, position, time);
 
-	Cmiss_field_module_destroy(&field_module);
-	Cmiss_nodeset_destroy(&nodeset);
-	Cmiss_nodeset_group_destroy(&nodeset_group);
 	Cmiss_region_destroy(&region);
 	Cmiss_node_destroy(&node);
 

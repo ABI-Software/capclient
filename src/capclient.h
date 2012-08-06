@@ -120,6 +120,7 @@ public:
 					InitializeHeartModelTemplate();
 				}
 				modeller_->AlignModel();
+				modeller_->FitModel();
 				SmoothAlongTime();
 				UpdateMII();
 			}
@@ -360,7 +361,7 @@ public:
 	 */
 	void SmoothAlongTime()
 	{
-		if (modeller_ && gui_->IsInitialisedHeartModel())
+		if (modeller_)
 		{
 			modeller_->SmoothAlongTime();
 
