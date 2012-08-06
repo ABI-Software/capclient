@@ -274,7 +274,7 @@ void Modeller::AlignModel()
 			double time = i*framePeriod;
 			//-- This call could be unnecessary as the nodes are already spaced out at regular intervals around the circle
 			//--heartModel_.SetTheta(i);
-			const Plane& plane = InterpolateBasePlane(planes, time);
+			const Plane& plane = InterpolatePlanes(planes, time);
 
 	//		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl;
 			//--heartModel_.SetMuFromBasePlaneForFrame(plane, time);
@@ -296,58 +296,6 @@ void Modeller::AlignModel()
 			}
 		}
 	}
-}
-
-Plane Modeller::InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const
-{
-	// TODO: This function doesn't depend upon this class move into math...
-	assert(!planes.empty());
-	std::map<double, Plane>::const_iterator itr = planes.begin();
-
-
-	double prevFrameTime = 0;
-	Plane prevPlane;
-	while (itr != planes.end() && itr->first < frameTime)
-	{
-		prevFrameTime = itr->first;
-		prevPlane = itr->second;
-		itr++;
-	}
-	if (itr != planes.end() && fabs(itr->first - frameTime) < 1e-06) // Key frame, no interpolation needed
-	{
-		return itr->second;
-	}
-
-	// Handle edge cases where prevFrame > nextFrame (i.e interpolation occurs around the end point)
-	double nextFrameTime;
-	Plane nextPlane;
-	double maxFrame = 1.0;//--heartModel_.GetNumberOfModelFrames();
-	if (itr == planes.end())
-	{
-		nextFrameTime = planes.begin()->first + maxFrame;
-		nextPlane = planes.begin()->second;
-	}
-	else
-	{
-		nextFrameTime = itr->first;
-		nextPlane = itr->second;
-	}
-
-	if (itr == planes.begin())
-	{
-		std::map<double, Plane>::const_reverse_iterator last = planes.rbegin();
-		prevFrameTime = last->first - maxFrame;
-		prevPlane = last->second;
-	}
-
-	Plane plane;
-	double coefficient = (double)(frameTime - prevFrameTime)/(nextFrameTime - prevFrameTime);
-
-	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
-
-	plane.position = prevPlane.position + coefficient * (nextPlane.position - prevPlane.position);
-
-	return plane;
 }
 
 void Modeller::UpdateTimeVaryingModel() //REVISE

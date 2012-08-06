@@ -201,17 +201,6 @@ public:
 		return mode;
 	}
 
-	/**
-	 * Interpolate base plane.
-	 *
-	 * @param	planes	The planes.
-	 * @param	frame 	The frame.
-	 *
-	 * @return	The interpolated plane.
-	 */
-	Plane InterpolateBasePlane(const std::map<double, Plane>& planes, double frameTime) const;
-
-
 private:
 
 	/**

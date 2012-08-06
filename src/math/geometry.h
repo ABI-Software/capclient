@@ -8,6 +8,8 @@
 #include <vnl/vnl_vector.h>
 #include <vnl/algo/vnl_svd.h>
 
+#include <map>
+
 namespace cap
 {
 
@@ -116,6 +118,65 @@ inline Plane FitPlaneThroughPoints(const std::vector<Point3D>& points, const Vec
 	{
 		plane.normal *= -1;
 	}
+
+	return plane;
+}
+
+/**
+ * Interpolate the given planes.
+ *
+ * @param	planes	The planes.
+ * @param	frameTime 	The frame time.
+ *
+ * @return	The interpolated plane.
+ */
+inline Plane InterpolatePlanes(const std::map<double, Plane>& planes, double frameTime)
+{
+	assert(!planes.empty());
+	std::map<double, Plane>::const_iterator itr = planes.begin();
+
+
+	double prevFrameTime = 0;
+	Plane prevPlane;
+	while (itr != planes.end() && itr->first < frameTime)
+	{
+		prevFrameTime = itr->first;
+		prevPlane = itr->second;
+		itr++;
+	}
+	if (itr != planes.end() && fabs(itr->first - frameTime) < 1e-06) // Key frame, no interpolation needed
+	{
+		return itr->second;
+	}
+
+	// Handle edge cases where prevFrame > nextFrame (i.e interpolation occurs around the end point)
+	double nextFrameTime;
+	Plane nextPlane;
+	double maxFrame = 1.0;//--heartModel_.GetNumberOfModelFrames();
+	if (itr == planes.end())
+	{
+		nextFrameTime = planes.begin()->first + maxFrame;
+		nextPlane = planes.begin()->second;
+	}
+	else
+	{
+		nextFrameTime = itr->first;
+		nextPlane = itr->second;
+	}
+
+	if (itr == planes.begin())
+	{
+		std::map<double, Plane>::const_reverse_iterator last = planes.rbegin();
+		prevFrameTime = last->first - maxFrame;
+		prevPlane = last->second;
+	}
+
+	Plane plane;
+	double coefficient = (double)(frameTime - prevFrameTime)/(nextFrameTime - prevFrameTime);
+
+	plane.normal = prevPlane.normal + coefficient * (nextPlane.normal - prevPlane.normal);
+
+	plane.position = prevPlane.position + coefficient * (nextPlane.position - prevPlane.position);
 
 	return plane;
 }
