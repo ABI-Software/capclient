@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "math/totalleastsquares.h"
 #include "math/geometry.h"
 
 TEST(TotalLeastSquares, FitPlaneUsingTLS)
