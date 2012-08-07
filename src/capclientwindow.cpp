@@ -1166,6 +1166,13 @@ void CAPClientWindow::EndModellingAction()
 	}
 }
 
+std::string CAPClientWindow::ChooseDirectory(const std::string& defaultPath)
+{
+	const wxString& dirname = wxDirSelector(wxT("Choose the folder to open"), defaultPath, wxDD_DEFAULT_STYLE, wxDefaultPosition, this);
+
+	return std::string(dirname.mb_str());
+}
+
 void CAPClientWindow::OnNewModel(wxCommandEvent& event)
 {
 	OnCloseModel(event);

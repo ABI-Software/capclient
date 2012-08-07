@@ -65,10 +65,10 @@ public:
 	/**
 	 * Gets the labelled slices.
 	 *
-	 * @param location  The default location to look for images in.
+	 * @param uidToDICOMPtrMap  The map of uid to DICOMPtr.
 	 * @return	The labelled slices.
 	 */
-	LabelledSlices GetLabelledSlices(const std::string& location) const;
+	LabelledSlices GetLabelledSlices(const HashTable& uidToDICOMPtrMap) const;
 
 	/**
 	 * Get all the Sopiuids listed in the xmlFile_.
