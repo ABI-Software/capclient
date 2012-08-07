@@ -231,7 +231,8 @@ HashTable CAPClient::MapSopiuidToDICOMPtr(const std::vector<std::string>& sopiui
 		while (map_iterator == uidToDICOMPtrMap.end())
 		{
 			//Can't locate the file. Ask the user to locate the dicom file.
-			std::string dirname = gui_->ChooseDirectory(previousImageLocation_);
+			const wxString& wxdirname = wxDirSelector(wxT("Choose the folder to open"), previousImageLocation_.c_str(), wxDD_DEFAULT_STYLE, wxDefaultPosition, gui_);
+			std::string dirname = wxdirname.mb_str();
 			if ( dirname.empty() )
 			{
 				gui_->DestroyProgressDialog();
