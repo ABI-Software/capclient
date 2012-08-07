@@ -982,7 +982,7 @@ TEST(TransformTest, Contour)
 	cap::Point3D p = a.ToPoint3D();
 	cap::Point3D tlc(-6.91845, -246.406, 153.149);
 	cap::Vector3D dir1 = p - tlc;
-
+//-0.162541, 0.664176, -0.729689] [ 0.165562, 0.7474, 0.643419] [ -0.972713, 0.016205, 0.231445
 	double val1 = cap::DotProduct(n, dir1);
 	EXPECT_NEAR(0.0, val1, 1e-3);
 }
@@ -990,6 +990,7 @@ TEST(TransformTest, Contour)
 TEST(TransformTest, ContourPoint)
 {
 	cap::Point3D b4(116, 137, 0);
+	cap::Point3D b4scaled(116*1.562506, 137*1.562496, 0);
 	cap::Point3D a4(79.062038064, -74.7849, -52.8814);
 
 	cap::Matrix3x3 mx(1.03777943818, -0.253969537336, 0,
@@ -999,11 +1000,20 @@ TEST(TransformTest, ContourPoint)
 					  1.16781750003, 0.258689837752, 0, -245.692261,
 					  0.0253204206675, -1.51985946852, 1, 152.402222,
 					  0, 0, 0, 1);
+
+	cap::Matrix4x4 tr2(-0.162541, 0.664176, -0.729689, -6.91845,
+					   0.165562, 0.7474, 0.643419, -246.406,
+					   -0.972713, 0.016205, 0.231445, 153.149,
+					   0 , 0, 0, 1);
 	cap::HomogeneousVector3D p4 = tr*b4.ToVector3D();
 
 	cap::Vector3D p = mx*b4.ToVector3D();
+	cap::HomogeneousVector3D p2 = tr2*b4scaled.ToVector3D();
 	cap::Point3D mya4 = p + cap::Vector3D(-6.52655,-245.692261,152.402222);//.ToPoint3D();
 
 	EXPECT_NEAR(a4.x, mya4.x, 1e-6);
 	EXPECT_NEAR(a4.x, p4.x, 1e-6);
+	EXPECT_NE(a4.x, p2.x);
+	EXPECT_NE(a4.y, p2.y);
+	EXPECT_NE(a4.z, p2.z);
 }

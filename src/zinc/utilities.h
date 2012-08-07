@@ -35,7 +35,8 @@ void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& reg
 void SetContourTransform(Cmiss_context_id cmissContext, const std::string& regionName, const double *transform);
 void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionName, double time, double x, double y);
 void RemoveContourFromRegion(Cmiss_context_id cmissContext, const std::string& regionName);
-void SetLabelStateField(Cmiss_context_id cmissContext, std::string regionName, bool value);
+void MoveContour(Cmiss_context_id cmissContext, const std::string& regionName, double x, double y, double z);
+void SetLabelStateField(Cmiss_context_id cmissContext, const std::string &regionName, bool value);
 
 #endif /* CMGUI_UTILITIES_H */
 

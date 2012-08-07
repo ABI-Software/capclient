@@ -142,7 +142,6 @@ void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageC
 	{
 		ModelFile::ImageContours ic = *c_it;
 		std::string label = "";
-		Matrix4x4 transform;
 		int index = -1;
 		LabelledSlices::const_iterator labelledSlicesIterator = labelledSlices_.begin();
 		while (label.empty() && labelledSlicesIterator != labelledSlices_.end())
@@ -151,14 +150,13 @@ void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageC
 			if (index >= 0)
 			{
 				label = labelledSlicesIterator->GetLabel();
-				transform = labelledSlicesIterator->GetTransform();
 			}
 			else
 				++labelledSlicesIterator;
 		}
 		if (!label.empty())
 		{
-			gui_->AddImageContours(label, ic.contours, index, transform);
+			gui_->AddImageContours(label, ic.contours, index);
 		}
 		else
 			LOG_MSG(LOGWARNING) << "Did not find labelled slice with sopiuid = " << ic.sopiuid;
@@ -483,6 +481,7 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 		SetPreviousPosition(position);
 		double d = DotProduct(newLocation, plane->normal);
 		gui_->UpdateMII(regionName, plane->normal, d);
+		gui_->MoveImageContours(regionName, proj);
 	}
 }
 
