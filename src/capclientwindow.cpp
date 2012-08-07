@@ -222,10 +222,11 @@ void CAPClientWindow::UpdateUI()
 			Cmiss_time_notifier_destroy(&timeNotifier_);
 		}
 		timeNotifier_ = Cmiss_time_keeper_create_notifier_regular(timeKeeper_, numberOfLogicalFrames, 0);
-		Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MINIMUM_TIME, 0.0);
 		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_MAXIMUM_TIME, 1.0);
-
+		Cmiss_time_keeper_set_attribute_real(timeKeeper_, CMISS_TIME_KEEPER_ATTRIBUTE_TIME, 0.0);
+		// Set time callback after initialising the timer to zero to avoid the callback.
+		Cmiss_time_notifier_add_callback(timeNotifier_, time_callback, (void*)this);
 		SetAnimationSliderRange(0, numberOfLogicalFrames-1);
 		slider_animation_->SetValue(0);
 		staticText_sliderValue_->SetLabel(ToString(1).c_str());
