@@ -117,6 +117,8 @@ public:
 
 	void AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contour, int frame);
 
+	std::string ChooseDirectory(const std::string& defaultPath);
+
 	/**
 	 * Play cine.
 	 */

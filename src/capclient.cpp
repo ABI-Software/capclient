@@ -3,6 +3,15 @@
 #include "capclient.h"
 #include "utils/debug.h"
 #include "logmsg.h"
+#include "zinc/extensions.h"
+
+//extern "C"
+//{
+//#include <zn/cmiss_status.h>
+//#include <zn/cmiss_context.h>
+//#include <zn/cmiss_field_module.h>
+//#include <zn/cmiss_region.h>
+//}
 
 #include <iostream>
 #include <fstream>
@@ -162,6 +171,99 @@ void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageC
 	}
 }
 
+namespace
+{
+
+boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToDICOMPtrMap(std::string const& path)
+{
+	boost::unordered_map<std::string, DICOMPtr> hashTable;
+	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
+	Cmiss_context_id context = Cmiss_context_create("temp");
+	Cmiss_region_id region = Cmiss_context_get_default_region(context);
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
+
+	BOOST_FOREACH(std::string const& filename, filenames)
+	{
+		// Skip files that are known not to be dicom files
+		if (EndsWith(filename, ".exnode") ||
+			EndsWith(filename, ".exelem") ||
+			EndsWith(filename, ".xml"))
+		{
+			continue;
+		}
+
+		std::string fullpath = path + "/" + filename;
+		Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, fullpath);
+		if (image_field != 0)
+		{
+			DICOMPtr image(new DICOMImage(fullpath));
+			if (image->Analyze(image_field))
+				hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
+			else
+				Cmiss_field_image_destroy(&image_field);
+		}
+		if (image_field != 0)
+			Cmiss_field_image_destroy(&image_field);
+		else
+		{
+			LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << fullpath << "'";
+		}
+	}
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_region_destroy(&region);
+	Cmiss_context_destroy(&context);
+
+	return hashTable;
+}
+
+}
+
+HashTable CAPClient::MapSopiuidToDICOMPtr(const std::vector<std::string>& sopiuids)
+{
+	gui_->CreateProgressDialog("Please wait", "Searching for DICOM images", sopiuids.size());
+
+	HashTable uidToDICOMPtrMap = GenerateSopiuidToDICOMPtrMap(previousImageLocation_);
+
+
+	std::vector<std::string>::const_iterator cit = sopiuids.begin();
+	for (int count = 0; cit != sopiuids.end(); ++cit, count++)
+	{
+		std::string sopiuid = *cit;
+		HashTable::const_iterator map_iterator = uidToDICOMPtrMap.find(sopiuid);
+		while (map_iterator == uidToDICOMPtrMap.end())
+		{
+			//Can't locate the file. Ask the user to locate the dicom file.
+			dbg("No matching filename in the sopiuid to filename map");
+
+
+
+			std::string dirname = gui_->ChooseDirectory(previousImageLocation_);
+			if ( dirname.empty() )
+			{
+				gui_->DestroyProgressDialog();
+				uidToDICOMPtrMap.clear();
+				return uidToDICOMPtrMap;
+			}
+			else
+			{
+				dbg("searching: " + dirname + ", " + GetPath(dirname));
+				previousImageLocation_ = GetPath(dirname);
+//				if (dirname.find_last_of('/') != (dirname.size() - 1))
+//					dirname = dirname + "/";
+
+				HashTable newMap = GenerateSopiuidToDICOMPtrMap(dirname);
+				uidToDICOMPtrMap.insert(newMap.begin(), newMap.end());
+				map_iterator = uidToDICOMPtrMap.find(sopiuid);
+			}
+		}
+		if (count % 10 == 0)
+			gui_->UpdateProgressDialog(count);
+	}
+	gui_->UpdateProgressDialog(sopiuids.size());
+
+	return uidToDICOMPtrMap;
+}
+
 void CAPClient::OpenModel(const std::string& filename)
 {
 	// Clear out anything old.
@@ -173,22 +275,15 @@ void CAPClient::OpenModel(const std::string& filename)
 		previousImageLocation_ = GetPath(filename);
 
 	XMLFileHandler xmlFileHandler(xmlFile);
-	gui_->CreateProgressDialog("Please wait", "Searching for DICOM images", 10);
-	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices(previousImageLocation_);
-	gui_->UpdateProgressDialog(10);
 
-	if (labelledSlices.empty())
+	HashTable map = MapSopiuidToDICOMPtr(xmlFileHandler.GetSopiuids());
+	if (map.empty())
 	{
 		LOG_MSG(LOGERROR) << "Can't locate image files - failed to load model '" << filename << "'";
 		return;
 	}
+	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices(map);
 
-	// Extract the location of the image files from the first dicom image
-	std::vector<DICOMPtr> dicomImages = labelledSlices[0].GetDICOMImages();
-	if (dicomImages.size() > 0)
-	{
-		previousImageLocation_ = GetPath(dicomImages[0]->GetFilename());
-	}
 
 	cardiacAnnotation_ = xmlFileHandler.GetCardiacAnnotation();
 
@@ -202,6 +297,7 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	ModellingPointDetails modellingPointDetails = xmlFileHandler.GetModellingPointDetails();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
+	// If exnodeFileNames is empty then this is a version 2.0.0 model file.
 	if (exnodeFileNames.empty())
 	{
 		if(!modellingPointDetails.empty())

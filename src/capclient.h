@@ -471,6 +471,14 @@ private:
 	void InitializeHeartModelTemplate();
 
 	/**
+	 * Map the given sopiuids to a DICOMPtr.
+	 *
+	 * @param sopiuids	The sopiuids to map.
+	 * @return A HashTable of sopiuids to DICOMPtrs.
+	 */
+	HashTable MapSopiuidToDICOMPtr(const std::vector<std::string>& sopiuids);
+
+	/**
 	 * Private default constructor - This class should be instantiated from the static factory method.
 	 */
 	CAPClient()

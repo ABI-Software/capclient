@@ -15,7 +15,6 @@
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/unordered_map.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -25,14 +24,6 @@
 #include <functional>
 #include <time.h>
 #include <float.h>
-
-extern "C"
-{
-#include <zn/cmiss_status.h>
-#include <zn/cmiss_context.h>
-#include <zn/cmiss_field_module.h>
-#include <zn/cmiss_region.h>
-}
 
 #include "capclientconfig.h"
 #include "utils/debug.h"
@@ -45,7 +36,6 @@ extern "C"
 #include "contour.h"
 #include "logmsg.h"
 #include "utils/misc.h"
-#include "zinc/extensions.h"
 
 namespace cap
 {
@@ -154,104 +144,21 @@ void XMLFileHandler::AddModellingPoints(const std::vector<ModellingPoint>& model
 	}
 }
 
-namespace
-{
-
-	boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToFilenameMap(std::string const& path)
-	{
-		boost::unordered_map<std::string, DICOMPtr> hashTable;
-		std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
-		Cmiss_context_id context = Cmiss_context_create("temp");
-		Cmiss_region_id region = Cmiss_context_get_default_region(context);
-		Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
-
-		BOOST_FOREACH(std::string const& filename, filenames)
-		{
-			// Skip files that are known not to be dicom files
-			if (EndsWith(filename, ".exnode") ||
-				EndsWith(filename, ".exelem") ||
-				EndsWith(filename, ".xml"))
-			{
-				continue;
-			}
-
-			std::string fullpath = path + filename;
-			Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, fullpath);
-			if (image_field != 0)
-			{
-				DICOMPtr image(new DICOMImage(fullpath));
-				if (image->Analyze(image_field))
-					hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
-				else
-					Cmiss_field_image_destroy(&image_field);
-			}
-			if (image_field != 0)
-				Cmiss_field_image_destroy(&image_field);
-			else
-			{
-				LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << fullpath << "'";
-			}
-		}
-		Cmiss_field_module_destroy(&field_module);
-		Cmiss_region_destroy(&region);
-		Cmiss_context_destroy(&context);
-
-		return hashTable;
-	}
-
-} // unnamed namespace
-
 std::vector<std::string> XMLFileHandler::GetSopiuids()
 {
 	return xmlFile_.GetSopiuids();
 }
 
-LabelledSlices XMLFileHandler::GetLabelledSlices(const std::string& location) const
+LabelledSlices XMLFileHandler::GetLabelledSlices(const HashTable& uidToDICOMPtrMap) const
 {
 	LabelledSlices labelledSlices;
-	const std::string& filename = xmlFile_.GetFilename();
-	// Search for the dicom files in the same dir as the xml dir first.
-	size_t positionOfLastSlash = filename.find_last_of("/\\");
-	std::string pathToXMLFile = filename.substr(0, positionOfLastSlash+1);
-
-	typedef boost::unordered_map<std::string, DICOMPtr> HashTable;
-	HashTable uidToFilenameMap = GenerateSopiuidToFilenameMap(pathToXMLFile);
-
 	typedef std::map<std::string, LabelledSlice > LabelledSliceMap;
 	LabelledSliceMap labelledSliceMap;
 
-	wxString defaultPath(location.c_str());
 	ModelFile::Input& input = xmlFile_.GetInput();
 	BOOST_FOREACH(ModelFile::Image const& image, input.images)
 	{
-		HashTable::const_iterator dicomFileItr = uidToFilenameMap.find(image.sopiuid);
-		while (dicomFileItr == uidToFilenameMap.end())
-		{
-			//Can't locate the file. Ask the user to locate the dicom file.
-			dbg("No matching filename in the sopiuid to filename map");
-
-
-
-			const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images"), defaultPath);
-			if ( !dirname.empty() )
-			{
-				//std::cout << __func__ << " - Dir name: " << dirname.c_str() << '\n';
-				std::string dirfname(dirname.mb_str());
-				dirfname += "/";
-				dbg("searching: " + dirfname + ", def path: " + defaultPath.c_str());
-				HashTable newMap = GenerateSopiuidToFilenameMap(dirfname);
-				uidToFilenameMap.insert(newMap.begin(), newMap.end());
-				dicomFileItr = uidToFilenameMap.find(image.sopiuid);
-				defaultPath = dirfname.c_str();
-			}
-			else
-			{
-				// User cancelled the operation. return empty set
-				dbg("User cancelled returning empty set.");
-				labelledSlices.clear();
-				return labelledSlices;
-			}
-		}
+		HashTable::const_iterator dicomFileItr = uidToDICOMPtrMap.find(image.sopiuid);
 		DICOMPtr dicomImage = dicomFileItr->second;
 		if (image.imagePosition)
 		{
