@@ -43,6 +43,8 @@ namespace cap
 		 */
 		int IndexOf(std::string sopiuid) const;
 
+		Matrix4x4 GetTransform() const;
+
 		/**
 		 * Gets the dicom images.
 		 *

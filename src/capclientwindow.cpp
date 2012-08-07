@@ -551,7 +551,7 @@ void CAPClientWindow::RemoveImageContours()
 	}
 }
 
-void CAPClientWindow::AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contours, int frame)
+void CAPClientWindow::AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contours, int frame, const Matrix4x4& transform)
 {
 	int numberOfFrames = mainApp_->GetNumberOfHeartModelFrames();
 	std::vector<ModelFile::Contour>::const_iterator c_it = contours.begin();
@@ -564,6 +564,7 @@ void CAPClientWindow::AddImageContours(const std::string& label, const std::vect
 			for (int j = 0; j < 4; ++j)
 			{
 				mx[4*i+j] = c.transformationMatrix[i][j];
+//				mx[4*i+j] = transform(i + 1, j + 1); // Doesn't work as hoped.
 			}
 		}
 

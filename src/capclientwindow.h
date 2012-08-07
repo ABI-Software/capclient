@@ -115,7 +115,7 @@ public:
 	 */
 	void RemoveImageContours();
 
-	void AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contour, int frame);
+	void AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contour, int frame, const Matrix4x4 &transform);
 
 	/**
 	 * Play cine.
