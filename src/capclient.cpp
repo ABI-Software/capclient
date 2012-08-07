@@ -142,6 +142,7 @@ void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageC
 	{
 		ModelFile::ImageContours ic = *c_it;
 		std::string label = "";
+		Matrix4x4 transform;
 		int index = -1;
 		LabelledSlices::const_iterator labelledSlicesIterator = labelledSlices_.begin();
 		while (label.empty() && labelledSlicesIterator != labelledSlices_.end())
@@ -150,13 +151,14 @@ void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageC
 			if (index >= 0)
 			{
 				label = labelledSlicesIterator->GetLabel();
+				transform = labelledSlicesIterator->GetTransform();
 			}
 			else
 				++labelledSlicesIterator;
 		}
 		if (!label.empty())
 		{
-			gui_->AddImageContours(label, ic.contours, index);
+			gui_->AddImageContours(label, ic.contours, index, transform);
 		}
 		else
 			LOG_MSG(LOGWARNING) << "Did not find labelled slice with sopiuid = " << ic.sopiuid;
@@ -273,13 +275,10 @@ void CAPClient::OpenModel(const std::string& filename)
 		return;
 	}
 	LabelledSlices labelledSlices = xmlFileHandler.GetLabelledSlices(map);
-
-
-	cardiacAnnotation_ = xmlFileHandler.GetCardiacAnnotation();
-
 	LoadLabelledImages(labelledSlices);
 	ResetModel();
 
+	cardiacAnnotation_ = xmlFileHandler.GetCardiacAnnotation();
 	comment_ = xmlFileHandler.GetProvenanceDetail();
 	ModelFile::StudyContours studyContours = xmlFileHandler.GetStudyContours();
 	LoadContours(studyContours.listOfImageContours);
