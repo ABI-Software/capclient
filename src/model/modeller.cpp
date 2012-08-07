@@ -40,42 +40,58 @@ Modeller::Modeller(IModeller *mainApp)
 	, currentModellingMode_(&modellingModeApex_)
 	, timeVaryingDataPoints_(134)
 	, solverFactory_(new GMMFactory)
-	//, solverFactory_(new VNLFactory)
+	, S_(0)
+	, G_(0)
+	, preconditioner_(0)
+	, aMatrix_(0)
+	, prior_(0)
+	, bezierToHermiteTransform_(0)
 	, timeSmoother_()
+{
+	ResetMatrices();
+}
+
+Modeller::~Modeller()
+{
+	delete aMatrix_;
+	//delete P_;
+	delete S_;
+	delete G_;
+	delete preconditioner_;
+	delete prior_;
+	delete solverFactory_;
+}
+
+void Modeller::ResetMatrices()
 {
 	SolverLibraryFactory& factory = *solverFactory_;
 
+	delete S_;
 	// Read in S (smoothness matrix)
 	std::string tmpFileName = CreateTemporaryEmptyFile();
 	WriteCharBufferToFile(tmpFileName, globalsmoothperframematrix_dat, globalsmoothperframematrix_dat_len);
 	S_ = factory.CreateSparseMatrixFromFile(tmpFileName);
 	RemoveFile(tmpFileName);
+
+	delete G_;
 	// Read in G (global to local parameter map)
 	tmpFileName = CreateTemporaryEmptyFile();
 	WriteCharBufferToFile(tmpFileName, globalmapbeziertohermite_dat, globalmapbeziertohermite_dat_len);
 	G_ = factory.CreateSparseMatrixFromFile(tmpFileName);
 	RemoveFile(tmpFileName);
 
-	// initialize preconditioner and GSMoothAMatrix
-	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
-
-	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
-
+	delete prior_;
 	tmpFileName = CreateTemporaryEmptyFile();
 	WriteCharBufferToFile(tmpFileName, prior_dat, prior_dat_len);
 	prior_ = factory.CreateVectorFromFile(tmpFileName);
 	RemoveFile(tmpFileName);
-}
 
-Modeller::~Modeller()
-{
-	delete aMatrix_;
+	// initialize preconditioner and GSMoothAMatrix
 	delete preconditioner_;
-	//delete P_;
-	delete S_;
-	delete G_;
-	delete prior_;
-	delete solverFactory_;
+	preconditioner_ = factory.CreateDiagonalPreconditioner(*S_);
+
+	delete aMatrix_;
+	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
 }
 
 void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
@@ -93,9 +109,6 @@ void Modeller::MoveModellingPoint(Cmiss_region_id /*region*/, int node_id, Point
 void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, double time)
 {
 	currentModellingMode_->RemoveModellingPoint(node_id, time);
-	// Start again from aligned model
-//	AlignModel();
-//	FitModel();
 	FitModelAtTime(time);
 }
 
@@ -561,7 +574,7 @@ void Modeller::FitModelAtTime(double time)
 	Vector* rhs = G_->trans_mult(*temp);
 
 	// Solve Normal equation
-	const double tolerance = 1.0e-3;
+	const double tolerance = 1.0e-6;
 	const int maximumIteration = 100;
 
 	Vector* x = solverFactory_->CreateVector(134); //FIX magic number

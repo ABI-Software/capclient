@@ -231,6 +231,11 @@ private:
 	void ChangeMode(ModellingMode* newMode);
 
 	/**
+	 * Reset all the modelling matrices.
+	 */
+	void ResetMatrices();
+
+	/**
 	 * Converts a  to hermite parameters.
 	 *
 	 * @param	bezierParams	vector to convert.
