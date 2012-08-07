@@ -11,7 +11,7 @@
 #include "wx/wxprec.h"
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
-    #include "wx/wx.h"
+	#include "wx/wx.h"
 #endif
 
 #include <string>
@@ -56,17 +56,17 @@ public:
 	 */
 	void SetDirectory(const std::string& dirname)
 	{
-        textCtrl_directory->SetValue(dirname.c_str());
+		textCtrl_directory->SetValue(dirname.c_str());
 	}
 
-    /**
-     * Sets the comment for the user comment widget.
-     * @param comment   The comment.
-     */
-    void SetComment(const std::string& comment)
-    {
-        text_userComment->SetValue(comment.c_str());
-    }
+	/**
+	 * Sets the comment for the user comment widget.
+	 * @param comment   The comment.
+	 */
+	void SetComment(const std::string& comment)
+	{
+		text_userComment->SetValue(comment.c_str());
+	}
 
 	/**
 	 * Gets the directory from the directory control.
@@ -79,7 +79,7 @@ public:
 	}
 
 	/**
-	 * Gets the comment, the comment is non-empty if the OK button 
+	 * Gets the comment, the comment is non-empty if the OK button
 	 * has been used to exit the dialog.
 	 *
 	 * @return	The comment.
@@ -98,7 +98,7 @@ private:
 	 *
 	 * @param [in,out]	event	The event.
 	 */
-    void OnOKClicked(wxCommandEvent& /* event */)
+	void OnOKClicked(wxCommandEvent& /* event */)
 	{
 		EndModal(wxID_OK);
 	}
@@ -108,7 +108,7 @@ private:
 	 *
 	 * @param [in,out]	event	The event.
 	 */
-    void OnCancelClicked(wxCommandEvent& /* event */)
+	void OnCancelClicked(wxCommandEvent& /* event */)
 	{
 		EndModal(wxID_CANCEL);
 	}
@@ -120,9 +120,9 @@ private:
 	 *
 	 * @param [in,out]	event	The event.
 	 */
-    void OnDirectoryChooserClicked(wxCommandEvent& /* event */)
+	void OnDirectoryChooserClicked(wxCommandEvent& /* event */)
 	{
-		wxDirDialog dirDlg(NULL, "Choose output directory", textCtrl_directory->GetValue(),
+		wxDirDialog dirDlg(this, "Choose output directory", textCtrl_directory->GetValue(),
 			wxDD_DEFAULT_STYLE);
 		if (dirDlg.ShowModal() != wxID_OK)
 		{
@@ -151,7 +151,7 @@ private:
 		Connect(button_cancel->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(UserCommentDialog::OnCancelClicked));
 		Connect(text_userComment->GetId(), wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(UserCommentDialog::OnTextUpdated));
 	}
-	
+
 };
 
 } // namespace cap

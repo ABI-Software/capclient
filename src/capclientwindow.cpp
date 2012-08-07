@@ -1166,13 +1166,6 @@ void CAPClientWindow::EndModellingAction()
 	}
 }
 
-std::string CAPClientWindow::ChooseDirectory(const std::string& defaultPath)
-{
-	const wxString& dirname = wxDirSelector(wxT("Choose the folder to open"), defaultPath, wxDD_DEFAULT_STYLE, wxDefaultPosition, this);
-
-	return std::string(dirname.mb_str());
-}
-
 void CAPClientWindow::OnNewModel(wxCommandEvent& event)
 {
 	OnCloseModel(event);
@@ -1205,7 +1198,7 @@ void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
 	int flags = wxOPEN;
 
 	wxString filename = wxFileSelector(wxT("Choose a model file to open"),
-		wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags);
+		wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags, this);
 	if ( !filename.empty() )
 	{
 		// work with the file
@@ -1257,7 +1250,7 @@ void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)
 	int flags = wxSAVE;
 
 	wxString dirname = wxFileSelector(wxT("Export to binary files"),
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags, this);
 	if (dirname.empty())
 	{
 		return;
@@ -1283,7 +1276,7 @@ void CAPClientWindow::OnExportHeartVolumes(wxCommandEvent& /* event */)
 		previousWorkingLocation_ = wxGetCwd();
 
 	wxString filename = wxFileSelector(wxT("Export heart model volumes"),
-			previousWorkingLocation_.c_str(), defaultFilename, defaultExtension, wildcard, flags);
+			previousWorkingLocation_.c_str(), defaultFilename, defaultExtension, wildcard, flags, this);
 	if (!filename.empty())
 	{
 		mainApp_->OnExportHeartVolumes(filename.mb_str());
@@ -1297,7 +1290,7 @@ void CAPClientWindow::OnExportToCmgui(wxCommandEvent& /* event */)
 	if (previousWorkingLocation_.length() == 0)
 		previousWorkingLocation_ = wxGetCwd();
 
-	wxDirDialog dirDlg(NULL, "Choose output directory", previousWorkingLocation_.c_str(),
+	wxDirDialog dirDlg(this, "Choose output directory", previousWorkingLocation_.c_str(),
 		wxDD_DEFAULT_STYLE);
 	if (dirDlg.ShowModal() == wxID_OK)
 	{
@@ -1327,7 +1320,7 @@ void CAPClientWindow::OnExportModelToBinaryVolume(wxCommandEvent& /* event */)
 	int flags = wxSAVE;
 
 	wxString dirname = wxFileSelector(wxT("Export to binary volume"),
-			defaultPath, defaultFilename, defaultExtension, wildcard, flags);
+			defaultPath, defaultFilename, defaultExtension, wildcard, flags, this);
 	if (dirname.empty())
 	{
 		return;
