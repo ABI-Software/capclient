@@ -551,7 +551,12 @@ void CAPClientWindow::RemoveImageContours()
 	}
 }
 
-void CAPClientWindow::AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contours, int frame, const Matrix4x4& transform)
+void CAPClientWindow::MoveImageContours(const std::string& regionName, const Vector3D& diff)
+{
+	MoveContour(cmissContext_, regionName, diff.x, diff.y, diff.z);
+}
+
+void CAPClientWindow::AddImageContours(const std::string& label, const std::vector<ModelFile::Contour>& contours, int frame)
 {
 	int numberOfFrames = mainApp_->GetNumberOfHeartModelFrames();
 	std::vector<ModelFile::Contour>::const_iterator c_it = contours.begin();
@@ -564,7 +569,6 @@ void CAPClientWindow::AddImageContours(const std::string& label, const std::vect
 			for (int j = 0; j < 4; ++j)
 			{
 				mx[4*i+j] = c.transformationMatrix[i][j];
-//				mx[4*i+j] = transform(i + 1, j + 1); // Doesn't work as hoped.
 			}
 		}
 
@@ -1455,30 +1459,33 @@ void CAPClientWindow::InitializeMII(const std::string& sliceName)
 void CAPClientWindow::UpdateMII(const std::string& sliceName, const Vector3D& plane, double iso_value)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, "heart");
-	Cmiss_graphic_id iso_epi = miiMap_[sliceName].first;
-	Cmiss_graphic_id iso_endo = miiMap_[sliceName].second;
-	if (!iso_epi && !iso_endo)
+	if (field_module != 0)
 	{
-		InitializeMII(sliceName);
-		iso_epi = miiMap_[sliceName].first;
-		iso_endo = miiMap_[sliceName].second;
+		Cmiss_graphic_id iso_epi = miiMap_[sliceName].first;
+		Cmiss_graphic_id iso_endo = miiMap_[sliceName].second;
+		if (!iso_epi && !iso_endo)
+		{
+			InitializeMII(sliceName);
+			iso_epi = miiMap_[sliceName].first;
+			iso_endo = miiMap_[sliceName].second;
+		}
+		std::string field_name = "slice_" + sliceName;
+		std::stringstream field_command;
+		field_command << "coordinate_system rectangular_cartesian dot_product fields coordinates_patient_rc \"[";
+		field_command << plane.x << " " << plane.y << " " << plane.z << "]\";";
+		Cmiss_field_module_define_field(field_module, field_name.c_str(), field_command.str().c_str());
+
+		std::stringstream graphic_command_epi;
+		graphic_command_epi << "coordinate coordinates_patient_rc exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material red;";
+		Cmiss_graphic_define(iso_epi, graphic_command_epi.str().c_str());
+		std::stringstream graphic_command_endo;
+		graphic_command_endo << "coordinate coordinates_patient_rc exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material green;";
+		Cmiss_graphic_define(iso_endo, graphic_command_endo.str().c_str());
+
+		SetMIIVisibility(sliceName, IsMIIVisible(sliceName));
+
+		Cmiss_field_module_destroy(&field_module);
 	}
-	std::string field_name = "slice_" + sliceName;
-	std::stringstream field_command;
-	field_command << "coordinate_system rectangular_cartesian dot_product fields coordinates_patient_rc \"[";
-	field_command << plane.x << " " << plane.y << " " << plane.z << "]\";";
-	Cmiss_field_module_define_field(field_module, field_name.c_str(), field_command.str().c_str());
-
-	std::stringstream graphic_command_epi;
-	graphic_command_epi << "coordinate coordinates_patient_rc exterior face xi3_1 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material red;";
-	Cmiss_graphic_define(iso_epi, graphic_command_epi.str().c_str());
-	std::stringstream graphic_command_endo;
-	graphic_command_endo << "coordinate coordinates_patient_rc exterior face xi3_0 iso_scalar slice_" + sliceName + " iso_value " << iso_value << " use_faces no_select line_width 2 material green;";
-	Cmiss_graphic_define(iso_endo, graphic_command_endo.str().c_str());
-
-	SetMIIVisibility(sliceName, IsMIIVisible(sliceName));
-
-	Cmiss_field_module_destroy(&field_module);
 }
 
 bool CAPClientWindow::IsMIIVisible(const std::string& sliceName)

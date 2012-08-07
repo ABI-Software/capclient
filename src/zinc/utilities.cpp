@@ -234,7 +234,31 @@ void RemoveContourFromRegion(Cmiss_context_id cmissContext, const std::string& r
 	Cmiss_region_destroy(&root_region);
 }
 
-void SetLabelStateField(Cmiss_context_id cmissContext, std::string regionName, bool value)
+void MoveContour(Cmiss_context_id cmissContext, const std::string& regionName, double x, double y, double z)
+{
+	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext, regionName.c_str());
+	if (field_module != 0)
+	{
+		Cmiss_field_module_begin_change(field_module);
+		Cmiss_field_id mx_field = Cmiss_field_module_find_field_by_name(field_module, "contour_transform_mx");
+		Cmiss_field_cache_id field_cache = Cmiss_field_module_create_cache(field_module);
+
+		double transform[16];
+		Cmiss_field_evaluate_real(mx_field, field_cache, 16, transform);
+		transform[3] = transform[3] - x;
+		transform[7] = transform[7] - y;
+		transform[11] = transform[11] - z;
+		Cmiss_field_assign_real(mx_field, field_cache, 16, transform);
+
+		Cmiss_field_module_end_change(field_module);
+
+		Cmiss_field_destroy(&mx_field);
+		Cmiss_field_cache_destroy(&field_cache);
+		Cmiss_field_module_destroy(&field_module);
+	}
+}
+
+void SetLabelStateField(Cmiss_context_id cmissContext, const std::string& regionName, bool value)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext, regionName.c_str());
 	if (field_module != 0)

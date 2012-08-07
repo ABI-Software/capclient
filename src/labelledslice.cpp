@@ -42,15 +42,15 @@ Matrix4x4 LabelledSlice::GetTransform() const
 	DICOMPtr d = dicomImages_.at(0);
 	ImagePlane *p = d->GetImagePlane();
 
-	Vector3D ax2 = p->trc - p->tlc;
+	Vector3D ax2 = p->brc - p->blc;
 	ax2.Normalise();
-	Vector3D ax1 = p->blc - p->tlc;
+	Vector3D ax1 = p->tlc - p->blc;
 	ax1.Normalise();
 
 	Matrix4x4 transform;
 	Matrix3x3 rot1(ax1, ax2, p->normal);
 	transform.SetRotation(rot1);
-	transform.SetTranslation(p->tlc.ToVector3D());
+	transform.SetTranslation(p->blc.ToVector3D());
 
 	return transform;
 }
