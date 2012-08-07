@@ -5,14 +5,6 @@
 #include "logmsg.h"
 #include "zinc/extensions.h"
 
-//extern "C"
-//{
-//#include <zn/cmiss_status.h>
-//#include <zn/cmiss_context.h>
-//#include <zn/cmiss_field_module.h>
-//#include <zn/cmiss_region.h>
-//}
-
 #include <iostream>
 #include <fstream>
 
@@ -174,9 +166,15 @@ void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageC
 namespace
 {
 
-boost::unordered_map<std::string, DICOMPtr> GenerateSopiuidToDICOMPtrMap(std::string const& path)
+/**
+ * Recursively searches the given path to generate the sopiuid to DICOMPtr map.
+ *
+ * @param path	The path to search for dicom files from.
+ * @return A HashTable of sopiuid to DICOMPtr.
+ */
+HashTable GenerateSopiuidToDICOMPtrMap(std::string const& path)
 {
-	boost::unordered_map<std::string, DICOMPtr> hashTable;
+	HashTable hashTable;
 	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
 	Cmiss_context_id context = Cmiss_context_create("temp");
 	Cmiss_region_id region = Cmiss_context_get_default_region(context);
@@ -233,10 +231,6 @@ HashTable CAPClient::MapSopiuidToDICOMPtr(const std::vector<std::string>& sopiui
 		while (map_iterator == uidToDICOMPtrMap.end())
 		{
 			//Can't locate the file. Ask the user to locate the dicom file.
-			dbg("No matching filename in the sopiuid to filename map");
-
-
-
 			std::string dirname = gui_->ChooseDirectory(previousImageLocation_);
 			if ( dirname.empty() )
 			{
@@ -246,11 +240,7 @@ HashTable CAPClient::MapSopiuidToDICOMPtr(const std::vector<std::string>& sopiui
 			}
 			else
 			{
-				dbg("searching: " + dirname + ", " + GetPath(dirname));
-				previousImageLocation_ = GetPath(dirname);
-//				if (dirname.find_last_of('/') != (dirname.size() - 1))
-//					dirname = dirname + "/";
-
+				previousImageLocation_ = dirname;
 				HashTable newMap = GenerateSopiuidToDICOMPtrMap(dirname);
 				uidToDICOMPtrMap.insert(newMap.begin(), newMap.end());
 				map_iterator = uidToDICOMPtrMap.find(sopiuid);
@@ -267,7 +257,6 @@ HashTable CAPClient::MapSopiuidToDICOMPtr(const std::vector<std::string>& sopiui
 void CAPClient::OpenModel(const std::string& filename)
 {
 	// Clear out anything old.
-
 	ModelFile xmlFile;
 	xmlFile.ReadFile(filename);
 
@@ -287,7 +276,6 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	cardiacAnnotation_ = xmlFileHandler.GetCardiacAnnotation();
 
-	// TODO: Hide CAPClient icon in scene viewer
 	LoadLabelledImages(labelledSlices);
 	ResetModel();
 
@@ -339,9 +327,8 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	UpdateMII();
 
-	//EnterModelLoadedState();
 	// Set the gui into modelling mode because version 1.0.0 project files don't list
-	//modelling points, they are implicit in the heart model transform.
+	// modelling points, they are implicit in the heart model transform.
 	ChangeModellingMode(GUIDEPOINT);
 }
 

@@ -67,10 +67,10 @@ void ImageBrowser::SwitchSliceToDisplay(SliceMap::value_type const& slice)
 	const std::vector<DICOMPtr>& images = slice.second;
 	assert(textureMap_.find(key) != textureMap_.end());
 	sliceKeyCurrentlyOnDisplay_ = key;
-	
+
 	// Update the gui
 	UpdateSeriesInfoPanel(images[0]);
-	
+
 	// Update image preview panel
 	gui_->SetAnimationSliderMax(images.size());
 	ChangePreviewImage(0);
@@ -81,8 +81,8 @@ void ImageBrowser::ChooseImageDirectory()
 	std::string path = previousWorkingLocation_;
 	if (path.empty() || !IsDirectory(path))
 		path = wxGetCwd();
-	
-    const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path.c_str());
+
+	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path.c_str(), wxDD_DEFAULT_STYLE, wxDefaultPosition, gui_);
 	if (!dirname.empty())
 	{
 		std::string restorePathOnFail = previousWorkingLocation_;
@@ -107,9 +107,9 @@ void ImageBrowser::ChooseAnnotationFile()
 	wxString defaultExtension = wxT("xml");
 	wxString wildcard = wxT("");
 	int flags = wxOPEN;
-	
+
 	wxString filename = wxFileSelector(wxT("Choose an annotation file to open"),
-			wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags);
+			wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags, gui_);
 	if (!filename.empty())
 	{
 		// work with the file
@@ -162,7 +162,7 @@ size_t ImageBrowser::GetSliceMapImageCount() const
 	{
 		count += slice.second.size();
 	}
-	
+
 	return count;
 }
 
@@ -193,12 +193,12 @@ void ImageBrowser::ClearTextureTable()
 void ImageBrowser::CreateTexturesFromDICOMFiles()
 {
 	using namespace std;
-	
+
 	// load some images and display
 	const std::string& dirname = previousWorkingLocation_;
 	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(dirname);
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", filenames.size());
-	
+
 	std::map<std::string, bool> caseMap;
 	std::vector<std::string> caseList;
 	dicomFileTable_.clear();
@@ -256,13 +256,13 @@ void ImageBrowser::PopulateImageTable()
 {
 	gui_->ClearImageTable();
 	gui_->CreateImageTableColumns();
-	
+
 	int rowNumber = 0;
 	BOOST_FOREACH(SliceMap::value_type& value, sliceMap_)
 	{
 		using boost::lexical_cast;
 		using std::string;
-		
+
 		std::vector<DICOMPtr>& images = value.second;
 		DICOMPtr image = images[0];
 		int seriesNumber(image->GetSeriesNumber());
@@ -270,25 +270,25 @@ void ImageBrowser::PopulateImageTable()
 		std::string const& sequenceName(image->GetSequenceName());
 		size_t numImages = images.size();
 		long int userDataPtr = reinterpret_cast<long int>(&value);
-		
+
 		gui_->PopulateImageTableRow(rowNumber,
 									seriesNumber, seriesDescription,
 									sequenceName, numImages,
 									userDataPtr);
-		
+
 		rowNumber++;
 	}
-	
+
 	// Set the selection to the first item in the list
 	gui_->SelectFirstRowInImageTable();
-	
+
 	if (!sliceMap_.empty())
 	{
 		DICOMPtr const& firstImage = sliceMap_.begin()->second[0];
 		UpdatePatientInfoPanel(firstImage);
 		UpdateSeriesInfoPanel(firstImage);
 	}
-	
+
 	if (!cardiacAnnotation_.imageAnnotations.empty())
 	{
 		UpdateImageTableLabelsAccordingToCardiacAnnotation();
@@ -296,7 +296,7 @@ void ImageBrowser::PopulateImageTable()
 }
 
 void ImageBrowser::SortDICOMFiles()
-{	
+{
 	sliceMap_.clear();
 	BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
 	{
@@ -319,7 +319,7 @@ void ImageBrowser::SortDICOMFiles()
 			normal.Normalise();
 			distanceFromOrigin = - DotProduct(pos, normal);
 		}
-		
+
 		SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
 		SliceMap::iterator itr = sliceMap_.find(key);
 		if (itr != sliceMap_.end())
@@ -339,11 +339,11 @@ void ImageBrowser::SortDICOMFiles()
 		std::vector<DICOMPtr>& images = slice.second;
 		// use stable_sort to preserve the order of images in case the instance number element is missing
 		// (in which case the GetInstanceNumber returns -1)
-		std::stable_sort(images.begin(), images.end(), 
+		std::stable_sort(images.begin(), images.end(),
 						 boost::bind(std::less<int>(),
 									 boost::bind(&DICOMImage::GetInstanceNumber, _1),
 									 boost::bind(&DICOMImage::GetInstanceNumber, _2)));
-		
+
 		std::vector<DICOMPtr>::const_iterator itr = images.begin();
 		std::vector<Cmiss_field_image_id> field_images;
 		for( ; itr != images.end(); ++itr)
@@ -364,15 +364,15 @@ void ImageBrowser::ChangeImageAnnotation(int image_index)
 {
 	gui_->ClearAnnotationTable();
 	gui_->CreateAnnotationTableColumns();
-	
+
 	std::string const& sopiuid = sliceMap_[sliceKeyCurrentlyOnDisplay_].at(image_index)->GetSopInstanceUID();
-	
+
 	std::vector<ImageAnnotation>::const_iterator itr =
 		std::find_if(cardiacAnnotation_.imageAnnotations.begin(),
 			cardiacAnnotation_.imageAnnotations.end(),
 			boost::bind(&ImageAnnotation::sopiuid,_1) == sopiuid);
-	
-	
+
+
 	if (itr != cardiacAnnotation_.imageAnnotations.end())
 	{
 		int rowNumber = 0;
@@ -380,7 +380,7 @@ void ImageBrowser::ChangeImageAnnotation(int image_index)
 		{
 			gui_->PopulateAnnotationTableRow(rowNumber++, label.label, label.rid, label.scope);
 		}
-		
+
 		BOOST_FOREACH(ROI const& roi, itr->rOIs)
 		{
 			dbg("ROI:");
@@ -396,12 +396,12 @@ void ImageBrowser::UpdateSeriesInfoPanel(DICOMPtr const& dicomPtr)
 {
 	using std::string;
 	using boost::lexical_cast;
-	
+
 	size_t width = dicomPtr->GetImageWidthPx();
 	size_t height = dicomPtr->GetImageHeightPx();
 	string size = lexical_cast<string>(width) + " x " + lexical_cast<string>(height);
 	gui_->SetInfoField("ImageSize", size);
-	
+
 	Point3D position = dicomPtr->GetImagePosition();
 	std::stringstream ss;
 	ss << std::setprecision(5) << position.x << " ";
@@ -418,10 +418,10 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	gui_->ChangePreviewImage(images.at(frameNumber));
 	double width = dicomImages.at(frameNumber)->GetImageWidthMm();
 	double height = dicomImages.at(frameNumber)->GetImageHeightMm();
-	gui_->ResizePreviewImage(width, height); // Resize the preview element 
-	
+	gui_->ResizePreviewImage(width, height); // Resize the preview element
+
 	ChangeImageAnnotation(frameNumber);
-	
+
 	gui_->ViewAll();
 	std::string filename = GetFileName(dicomImages.at(frameNumber)->GetFilename());
 	gui_->SetAnnotationString("File name : " + filename);
@@ -465,12 +465,12 @@ void ImageBrowser::OnCancelButtonClicked()
 void ImageBrowser::OnOKButtonClicked()
 {
 	LabelledSlices labelledSlices;
-	
+
 	std::vector<std::pair<std::string, long int> > labels = gui_->GetListOfLabelsFromImageTable();
-	
+
 	int shortAxisCount = 1;
 	int longAxisCount = 1;
-	
+
 	typedef std::pair<std::string, long int> LabelPair;
 	BOOST_FOREACH(LabelPair const& labelPair, labels)
 	{
@@ -493,20 +493,20 @@ void ImageBrowser::OnOKButtonClicked()
 		LabelledSlice labelledSlice(sliceName, sliceMap_[key]);
 		labelledSlices.push_back(labelledSlice);
 	}
-	
+
 	if (longAxisCount >= 10)
 	{
-        LOG_MSG(LOGERROR) << "TOO MANY LONG AXES";
+		LOG_MSG(LOGERROR) << "TOO MANY LONG AXES";
 		gui_->CreateMessageBox("Too many long axes slices", "Invalid selection");
 		return;
 	}
 	if (shortAxisCount >= 30)
 	{
-        LOG_MSG(LOGERROR) << "TOO MANY SHORT AXES";
+		LOG_MSG(LOGERROR) << "TOO MANY SHORT AXES";
 		gui_->CreateMessageBox("Too many short axes slices", "Invalid selection");
 		return;
 	}
-	
+
 	std::sort(labelledSlices.begin(), labelledSlices.end(), LabelledSortOrder());
 
 	ClearTextureMap();
@@ -515,7 +515,7 @@ void ImageBrowser::OnOKButtonClicked()
 	gui_->Destroy();
 	delete gui_;
 	gui_ = 0;
-	
+
 	client_->ResetModel();
 	client_->LoadLabelledImages(labelledSlices);
 	client_->LoadCardiacAnnotations(cardiacAnnotation_);
@@ -533,9 +533,9 @@ void ImageBrowser::OnNoneButtonEvent()
 	labelsToRemove.push_back("Horizonal Long Axis");
 	labelsToRemove.push_back("Vertical Long Axis");
 	labelsToRemove.push_back("Cine Loop");
-	
+
 	std::vector<Label> labelsToAdd;
-	
+
 	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 
 	gui_->PutLabelOnSelectedSlice("");
@@ -548,13 +548,13 @@ void ImageBrowser::OnLongAxisButtonEvent()
 	labelsToRemove.push_back("Short Axis");
 	labelsToRemove.push_back("Long Axis");
 	labelsToRemove.push_back("Cine Loop");
-	
+
 	std::vector<Label> labelsToAdd;
 	Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
 	Label short_axis = {"RID:10571", "Slice", "Long Axis"};
 	labelsToAdd.push_back(cine_loop);
 	labelsToAdd.push_back(short_axis);
-	
+
 	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
 
 	gui_->PutLabelOnSelectedSlice("Long Axis");
@@ -569,26 +569,26 @@ void ImageBrowser::OnShortAxisButtonEvent()
 	labelsToRemove.push_back("Horizonal Long Axis");
 	labelsToRemove.push_back("Vertial Long Axis");
 	labelsToRemove.push_back("Cine Loop");
-	
+
 	std::vector<Label> labelsToAdd;
 	Label cine_loop = {"RID:10928", "Series", "Cine Loop"};
 	Label short_axis = {"RID:10577", "Slice", "Short Axis"};
 	labelsToAdd.push_back(cine_loop);
 	labelsToAdd.push_back(short_axis);
-	
+
 	UpdateAnnotationOnImageCurrentlyOnDisplay(labelsToRemove, labelsToAdd);
-	
+
 	gui_->PutLabelOnSelectedSlice("Short Axis");
 }
 
 void ImageBrowser::OnImageTableItemSelected(long int userDataPtr)
 {
-	SliceMap::value_type* const sliceValuePtr = 
+	SliceMap::value_type* const sliceValuePtr =
 	reinterpret_cast<SliceMap::value_type* const>(userDataPtr);
 	//	std::cout << "Series Num = " << (*sliceValuePtr).first.first << '\n';
 	//	std::cout << "Distance to origin = " << (*sliceValuePtr).first.second << '\n';
 	//	std::cout << "Image filename = " << (*sliceValuePtr).second[0]->GetFilename() << '\n';
-	
+
 	// Display the images from the selected row.
 	SwitchSliceToDisplay(*sliceValuePtr);
 }
@@ -605,7 +605,7 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 					reinterpret_cast<long int>(&value)));
 		}
 	}
-	
+
 	std::map<long int, std::string> slicePtrToLabelMap;
 	BOOST_FOREACH(ImageAnnotation const& imageAnno, cardiacAnnotation_.imageAnnotations)
 	{
@@ -614,8 +614,8 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 		if (itr != uidToSliceKeyMap.end())
 		{
 			long int sliceKeyPtr = itr->second;
-			
-			std::vector<Label>::const_iterator labelItr = 
+
+			std::vector<Label>::const_iterator labelItr =
 				std::find_if(imageAnno.labels.begin(),
 							 imageAnno.labels.end(),
 							 boost::bind(&Label::label, _1) == "Cine Loop");
@@ -630,7 +630,7 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 				{
 					LOG_MSG(LOGDEBUG) << "uid: " << sopiuid << ", label = " << imageLabel;
 					std::map<long int, std::string>::const_iterator itr = slicePtrToLabelMap.find(sliceKeyPtr);
-					
+
 					std::string sliceLabel;
 					if (itr != slicePtrToLabelMap.end() && itr->second != imageLabel)
 					{
@@ -644,7 +644,7 @@ void ImageBrowser::UpdateImageTableLabelsAccordingToCardiacAnnotation()
 					{
 						sliceLabel = imageLabel;
 					}
-					
+
 					slicePtrToLabelMap[sliceKeyPtr] = sliceLabel;
 					gui_->SetImageTableRowLabelByUserData(sliceKeyPtr, sliceLabel);
 				}
@@ -686,7 +686,7 @@ void ImageBrowser::UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::st
 				{
 					if (labelItr != imageItr->labels.end() && labelItr->label == labelToRemove)
 					{
-						 // Does this invalidate the iterator? yes but it returns an iterator 
+						 // Does this invalidate the iterator? yes but it returns an iterator
 						 // to the next item.  But the next item could be the end so check for that.
 						labelItr = imageItr->labels.erase(labelItr);
 						erasePerformed = true;
@@ -698,12 +698,12 @@ void ImageBrowser::UpdateAnnotationOnImageCurrentlyOnDisplay(std::vector<std::st
 				}
 			}
 		}
-		
+
 		BOOST_FOREACH(Label const& label, labelsToAdd)
 		{
 			imageItr->labels.push_back(label);
 		}
-		
+
 		// Remove ImageAnnotation if the update left it with no labels and no roi's
 		if (imageItr->labels.empty() && imageItr->rOIs.empty())
 		{
