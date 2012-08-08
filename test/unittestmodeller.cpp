@@ -297,10 +297,6 @@ TEST(Modeller, BasePlanePointsDifferentTimes)
 	modeller->AddModellingPoint(region, Cmiss_node_get_identifier(node2), bp2, 0.2);
 	modeller->AddModellingPoint(region, Cmiss_node_get_identifier(node3), bp1, 0.4);
 	modeller->AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.42);
-	EXPECT_FALSE(modeller->OnAccept());
-	EXPECT_EQ(BASEPLANE, modeller->GetCurrentMode());
-	// Moving node4 to new time.
-	modeller->AddModellingPoint(region, Cmiss_node_get_identifier(node4), bp2, 0.40);
 	EXPECT_TRUE(modeller->OnAccept());
 	EXPECT_EQ(GUIDEPOINT, modeller->GetCurrentMode());
 
