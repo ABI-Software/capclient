@@ -238,6 +238,11 @@ ModellingPointDetails XMLFileHandler::GetModellingPointDetails() const
 	return modellingPointDetails;
 }
 
+void XMLFileHandler::AddStudyContours(const ModelFile::StudyContours& studyContours)
+{
+	xmlFile_.input_.studyContours = studyContours;
+}
+
 ModelFile::StudyContours XMLFileHandler::GetStudyContours() const
 {
 	ModelFile::StudyContours scs = xmlFile_.GetStudyContours();

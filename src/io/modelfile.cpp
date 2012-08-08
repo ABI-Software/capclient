@@ -543,7 +543,7 @@ void ConstructContourSubtree(ModelFile::Contour const& contour, xmlNodePtr image
 	{
 		for (int col = 0; col < 4;++col)
 		{
-			xmlNodePtr cellNode = xmlNewChild(transformNode, NULL, BAD_CAST "cerll", NULL);
+			xmlNodePtr cellNode = xmlNewChild(transformNode, NULL, BAD_CAST "cell", NULL);
 			std::string rowStr = boost::lexical_cast<std::string>(row);
 			xmlNewProp(cellNode, BAD_CAST "row", BAD_CAST rowStr.c_str());
 			std::string colStr = boost::lexical_cast<std::string>(col);

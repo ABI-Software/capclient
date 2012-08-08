@@ -501,7 +501,7 @@ private:
 	CAPClient()
 		: gui_(0)
 		, labelledSlices_(LabelledSlices())
-		, imageContours_(std::vector<ModelFile::ImageContours>())
+		, studyContours_()
 		, modeller_(0)
 		, cardiacAnnotation_()
 		, comment_("")
@@ -514,7 +514,7 @@ private:
 	CAPClientWindow* gui_;  /**< The graphical user interface */
 
 	LabelledSlices labelledSlices_; /**< The labelled slices */
-	std::vector<ModelFile::ImageContours> imageContours_; /**< The image contours */
+	ModelFile::StudyContours studyContours_; /**< The study contours */
 
 	Modeller* modeller_; /**< The modeller */
 

@@ -63,6 +63,13 @@ public:
 	void AddCardiacAnnotation(const CardiacAnnotation& annotation);
 
 	/**
+	 * Adds the study contours.
+	 *
+	 * @param studyContours	The study contours.
+	 */
+	void AddStudyContours(const ModelFile::StudyContours& studyContours);
+
+	/**
 	 * Gets the labelled slices.
 	 *
 	 * @param uidToDICOMPtrMap  The map of uid to DICOMPtr.

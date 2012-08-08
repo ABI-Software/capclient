@@ -136,7 +136,6 @@ void CAPClient::LoadCardiacAnnotations(const CardiacAnnotation& anno)
 void CAPClient::LoadContours(const std::vector<ModelFile::ImageContours>& imageContours)
 {
 	gui_->RemoveImageContours();
-	imageContours_ = imageContours;
 	std::vector<ModelFile::ImageContours>::const_iterator c_it = imageContours.begin();
 	for (; c_it != imageContours.end(); ++c_it)
 	{
@@ -278,8 +277,8 @@ void CAPClient::OpenModel(const std::string& filename)
 
 	cardiacAnnotation_ = xmlFileHandler.GetCardiacAnnotation();
 	comment_ = xmlFileHandler.GetProvenanceDetail();
-	ModelFile::StudyContours studyContours = xmlFileHandler.GetStudyContours();
-	LoadContours(studyContours.listOfImageContours);
+	studyContours_ = xmlFileHandler.GetStudyContours();
+	LoadContours(studyContours_.listOfImageContours);
 
 	ModellingPointDetails modellingPointDetails = xmlFileHandler.GetModellingPointDetails();
 	std::vector<std::string> exnodeFileNames = xmlFile.GetExnodeFileNames();
@@ -345,13 +344,13 @@ void CAPClient::SaveModel(const std::string& dirname, const std::string& userCom
 	std::vector<ModellingPoint> modellingPoints = modeller_->GetModellingPoints();
 	xmlFileHandler.AddModellingPoints(modellingPoints);
 	xmlFileHandler.AddProvenanceDetail(userComment);
+	xmlFileHandler.AddStudyContours(studyContours_);
 
 	std::string dirnameStr(dirname.c_str());
 	size_t positionOfLastSlash = dirnameStr.find_last_of("/\\");
 	std::string modelName = dirnameStr.substr(positionOfLastSlash + 1);
 	xmlFile.SetName(modelName);
 	std::string xmlFilename = dirname + '/' + modelName + ".xml";
-	dbg("xmlFilename = " + xmlFilename);
 
 	if (cardiacAnnotation_.IsValid())
 	{
@@ -492,7 +491,26 @@ void CAPClient::UpdatePlanePosition(const std::string& regionName, const Point3D
 		SetPreviousPosition(position);
 		double d = DotProduct(newLocation, plane->normal);
 		gui_->UpdateMII(regionName, plane->normal, d);
-		gui_->MoveImageContours(regionName, proj);
+		if (!studyContours_.listOfImageContours.empty())
+		{
+			gui_->MoveImageContours(regionName, proj);
+			std::vector<ModelFile::ImageContours>::iterator imageContourIterator = studyContours_.listOfImageContours.begin();
+			for (; imageContourIterator != studyContours_.listOfImageContours.end(); ++imageContourIterator)
+			{
+				ModelFile::ImageContours &ic = *imageContourIterator;
+				if (it->IndexOf(ic.sopiuid) >= 0)
+				{
+					std::vector<ModelFile::Contour>::iterator contourIterator = ic.contours.begin();
+					for (; contourIterator != ic.contours.end(); ++contourIterator)
+					{
+						ModelFile::Contour &c = *contourIterator;
+						c.transformationMatrix[0][3] = c.transformationMatrix[0][3] - proj.x;
+						c.transformationMatrix[1][3] = c.transformationMatrix[1][3] - proj.y;
+						c.transformationMatrix[2][3] = c.transformationMatrix[2][3] - proj.z;
+					}
+				}
+			}
+		}
 	}
 }
 
