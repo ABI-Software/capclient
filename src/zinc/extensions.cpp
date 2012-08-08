@@ -176,8 +176,8 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		//r = Cmiss_field_module_define_field(field_module, "visibility_control_field", "constant 1");
 		Cmiss_field_id positive_time = Cmiss_field_module_create_greater_than(field_module, visibility_value, const_zero);
 		Cmiss_field_set_name(positive_time, "positive_time");
-		Cmiss_field_id if_field = Cmiss_field_module_create_if(field_module, positive_time, visibility_control_time, visibility_control_constant);
-		Cmiss_field_set_name(if_field, "if_field");
+		Cmiss_field_id if_visibility = Cmiss_field_module_create_if(field_module, positive_time, visibility_control_time, visibility_control_constant);
+		Cmiss_field_set_name(if_visibility, "if_visibility");
 		Cmiss_field_id label_state = Cmiss_field_module_create_constant(field_module, 1, values);
 		r = Cmiss_field_set_name(label_state, "label_state");
 
@@ -201,7 +201,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 				material = "yellow";
 
 			//std::string node_command = "gfx modify g_element " + regionName + " node_points coordinate coordinates LOCAL glyph sphere general size \"10*10*10\" visibility visibility_control_field centre 0,0,0 font default select_on material " + material + " selected_material " + material + "_sel label " + label + ";";
-			std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_field centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label coordinates";
+			std::string node_command = "LOCAL glyph sphere general size \"6*6*6\" subgroup if_visibility centre 0,0,0 font node_label_font select_on material " + material + " selected_material " + material + "_selected label if_label";
 			if (regionName == "GUIDEPOINT")
 				node_command += " spectrum guidepoint_spectrum data spectrum_value_field";
 			Cmiss_graphic_define(node_graphic, node_command.c_str());
@@ -212,7 +212,7 @@ int Cmiss_context_create_region_with_nodes(Cmiss_context_id cmissContext, std::s
 		Cmiss_field_destroy(&label_on_field);
 		Cmiss_field_destroy(&label_off_field);
 		Cmiss_field_destroy(&if_label_field);
-		Cmiss_field_destroy(&if_field);
+		Cmiss_field_destroy(&if_visibility);
 		Cmiss_field_destroy(&const_zero);
 		Cmiss_field_destroy(&positive_time);
 		Cmiss_field_destroy(&coordinate_field);
