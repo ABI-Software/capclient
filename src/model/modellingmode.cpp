@@ -56,6 +56,11 @@ namespace cap
 		}
 	}
 
+	bool ModellingMode::DoesModellingPointExist(int node_id)
+	{
+		return (modellingPoints_.find(node_id) != modellingPoints_.end());
+	}
+
 	void ModellingMode::MoveModellingPoint(int node_id, const Point3D& position, double /*time*/)
 	{
 		ModellingPointsMap::iterator itr = modellingPoints_.find(node_id);
@@ -237,8 +242,6 @@ namespace cap
 	void ModellingModeRV::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	{
 		ModellingPoint modellingPoint(RV, region, node_id, position, time);
-		modellingPoint.SetVisible(true);
-
 		modellingPoints_[node_id] = modellingPoint;
 	}
 
@@ -301,8 +304,6 @@ namespace cap
 	void ModellingModeBasePlane::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	{
 		ModellingPoint modellingPoint(BASEPLANE, region, node_id, position, time);
-		modellingPoint.SetVisible(true);
-
 		modellingPoints_[node_id] = modellingPoint;
 	}
 
@@ -316,8 +317,6 @@ namespace cap
 	void ModellingModeGuidePoints::AddModellingPoint(Cmiss_region_id region, int node_id, const Point3D& position, double time)
 	{
 		ModellingPoint modellingPoint(GUIDEPOINT, region, node_id, position, time);
-		modellingPoint.SetVisible(true);
-
 		modellingPoints_[node_id] = modellingPoint;
 	}
 

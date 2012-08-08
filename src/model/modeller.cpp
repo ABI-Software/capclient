@@ -94,6 +94,11 @@ void Modeller::ResetMatrices()
 	aMatrix_ = factory.CreateGSmoothAMatrix(*S_, *G_);
 }
 
+bool Modeller::DoesModellingPointExist(int node_id)
+{
+	return currentModellingMode_->DoesModellingPointExist(node_id);
+}
+
 void Modeller::AddModellingPoint(Cmiss_region_id region, int node_id, Point3D const& position, double time)
 {
 	currentModellingMode_->AddModellingPoint(region, node_id, position, time);
