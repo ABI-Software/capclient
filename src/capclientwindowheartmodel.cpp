@@ -108,12 +108,8 @@ void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
 		heartModel_->SetLocalToGlobalTransformation(transform);
 }
 
-#include <sys/time.h>
-
 void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 {
-	struct timeval tv1, tv2;
-//	clock_t before = clock();
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_region_id random_region = Cmiss_region_create_child(root_region, "xfgjes");
 
@@ -129,7 +125,6 @@ void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 	Cmiss_stream_resource_destroy(&stream_resource_nodes);
 	Cmiss_stream_information_destroy(&stream_information_nodes);
 
-	gettimeofday(&tv1, 0);
 	Cmiss_region_id heart_region = Cmiss_region_find_child_by_name(random_region, "heart");
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(heart_region);
 	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
@@ -148,7 +143,6 @@ void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 			heartModel_->SetNodePosition(k + 1, loc_ps, time);
 		}
 	}
-	gettimeofday(&tv2, 0);
 	Cmiss_region_destroy(&heart_region);
 	Cmiss_field_destroy(&coords_ps);
 	Cmiss_field_module_destroy(&field_module);
@@ -158,11 +152,6 @@ void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 	Cmiss_region_remove_child(root_region, random_region);
 	Cmiss_region_destroy(&random_region);
 	Cmiss_region_destroy(&root_region);
-//	clock_t after = clock();
-//	int val = CLOCKS_PER_SEC;
-	double len = (tv2.tv_sec - tv1.tv_sec) * 1000 + static_cast<double>(tv2.tv_usec - tv1.tv_usec) / 1000;
-//	LOG_MSG(LOGINFORMATION) << "Reset node time = " + ToString(static_cast<double>(after - before) / CLOCKS_PER_SEC);
-	LOG_MSG(LOGINFORMATION) << "Reset node time = " << len;
 }
 
 void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
