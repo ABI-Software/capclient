@@ -114,6 +114,7 @@ void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, dou
 	mainApp_->ResetHeartNodes();
 	AlignModel();
 	FitModel();
+	SmoothAlongTime();
 }
 
 void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal)

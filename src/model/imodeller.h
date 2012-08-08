@@ -79,6 +79,9 @@ namespace cap
 		 */
 		virtual int ComputeHeartModelXi(const Point3D& position, double time, Point3D& xi) const = 0;
 
+		/**
+		 * Reset the heart nodes to their original position.
+		 */
 		virtual void ResetHeartNodes() {}
 
 	};
