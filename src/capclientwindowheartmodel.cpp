@@ -157,13 +157,9 @@ void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 
 void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 {
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	// Create a heart region to stop Cmgui adding lines to the new rendition
-	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, heart_region_name.c_str());
-	Cmiss_region_destroy(&heart_region);
-
 	LoadHermiteHeartElements();
 
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	// Read in the heart model spaced over the number of model frames
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
 	{
@@ -188,15 +184,10 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 
 void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames)
 {
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	// Create a heart region to stop Cmgui adding lines to the new rendition
-	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, heart_region_name.c_str());
-	Cmiss_region_destroy(&heart_region);
-
 	LoadHermiteHeartElements(fullExelemFileName);
-
 	unsigned int numberOfModelFrames = fullExnodeFileNames.size();
 
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
 	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
 	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
 	std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames);
