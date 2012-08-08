@@ -46,6 +46,14 @@ public:
 	~Modeller();
 
 	/**
+	 * Test to see if the modelling point identified by the given node_id exists.
+	 *
+	 * @param node_id	The node identifier.
+	 * @return	true if the modelling point exists, false otherwise.
+	 */
+	bool DoesModellingPointExist(int node_id);
+
+	/**
 	 * Adds a modelling point.
 	 *
 	 * @param	region  	The region.
