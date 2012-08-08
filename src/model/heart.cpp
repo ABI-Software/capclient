@@ -7,16 +7,14 @@
 
 #include "model/heart.h"
 
-//#include "zinc/sceneviewerpanel.h"
-//#include "math/algebra.h"
-//#include "math/geometry.h"
 #include "zinc/extensions.h"
 #include "utils/misc.h"
 #include "utils/debug.h"
 #include "math/geometry.h"
-
+#include "logmsg.h"
 
 extern "C" {
+#include <zn/cmiss_status.h>
 #include <zn/cmiss_field.h>
 #include <zn/cmiss_region.h>
 #include <zn/cmiss_field_module.h>
@@ -229,7 +227,6 @@ int HeartModel::ComputeXi(const Point3D& position, double time, Point3D& xi) con
 	xi.y = xi_values[1];
 	xi.z = xi_values[2];
 	int element_id = Cmiss_element_get_identifier(el);
-	//dbg("element : " + ToString(element_id) + " xi [ " + ToString(xi) + " ]");
 	Cmiss_element_destroy(&el);
 
 	Cmiss_field_module_end_change(field_module);
@@ -303,6 +300,27 @@ const std::vector<double> HeartModel::GetMuAtTime(double time) const
 	return mus;
 }
 
+void HeartModel::SetNodePosition(int node_id, double location[3], double time)
+{
+	Cmiss_field_module_id field_module = pImpl_->field_module_;
+	Cmiss_field_id coords_ps = pImpl_->coordinates_ps_;
+
+	Cmiss_field_module_begin_change(field_module);
+
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_field_cache_set_time(cache, time);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id);
+	Cmiss_field_cache_set_node(cache, node);
+	Cmiss_field_assign_real(coords_ps, cache, 3, location);
+	Cmiss_node_destroy(&node);
+
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_nodeset_destroy(&nodeset);
+
+	Cmiss_field_module_end_change(field_module);
+}
+
 void HeartModel::SetLambdaAtTime(const std::vector<double>& lambdaParams, double time)
 {
 	Cmiss_field_module_id field_module = pImpl_->field_module_;
@@ -323,17 +341,12 @@ void HeartModel::SetLambdaAtTime(const std::vector<double>& lambdaParams, double
 		double loc_ps[3];
 		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 		loc_ps[0] = lambdaParams[4 * i + 0];
-		//if (i == 11)
-		//	dbg("node loc 12 : [" + ToString(loc_ps[0]) + ", " + ToString(loc_ps[1]) + ", " + ToString(loc_ps[2]) + "]");
 		Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
-		double loc_d_ds1[] = {0.0, 0.0, 0.0};
-		loc_d_ds1[0] = lambdaParams[4 * i + 1];
+		double loc_d_ds1[] = {lambdaParams[4 * i + 1], 0.0, 0.0};
 		Cmiss_field_assign_real(d_ds1, cache, 3, loc_d_ds1);
-		double loc_d_ds2[] = {0.0, 0.0, 0.0};
-		loc_d_ds2[0] = lambdaParams[4 * i + 2];
+		double loc_d_ds2[] = {lambdaParams[4 * i + 2], 0.0, 0.0};
 		Cmiss_field_assign_real(d_ds2, cache, 3, loc_d_ds2);
-		double loc_d2_ds1ds2[] = {0.0, 0.0, 0.0};
-		loc_d2_ds1ds2[0] = lambdaParams[4 * i + 3];
+		double loc_d2_ds1ds2[] = {lambdaParams[4 * i + 3], 0.0, 0.0};
 		Cmiss_field_assign_real(d2_ds1ds2, cache, 3, loc_d2_ds1ds2);
 		Cmiss_node_destroy(&node);
 	}
@@ -374,7 +387,6 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 			Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 			mu[i] = loc_ps[1] = 0.0;
 			Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
-			//r1 = Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
 			Cmiss_field_evaluate_real(coords_patient, cache, 3, loc_pat);
 			Point3D point(loc_pat[0],loc_pat[1],loc_pat[2]);
 			Point3D prevPoint;
@@ -413,12 +425,10 @@ void HeartModel::SetMuFromBasePlaneAtTime(const Plane& basePlane, double time)
 			mu[i] = loc_ps[1];
 			if (mu[i] > M_PI)
 			{
-				mu[i] = M_PI;
-				loc_ps[1] = M_PI;
+				mu[i] = loc_ps[1] = M_PI;
 			}
 			Cmiss_field_assign_real(coords_ps, cache, 3, loc_ps);
 			Cmiss_node_destroy(&node);
-
 		}
 
 		// Set the remaining mu paramater of the nodes equidistant between mu[i] and 0.0

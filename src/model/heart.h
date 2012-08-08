@@ -69,6 +69,8 @@ public:
 	 */
 	void Initialise(const std::string& name);
 
+	void SetNodePosition(int node_id, double location[3], double time);
+
 	/**
 	 * Sets the render mode for the heart model surfaces.  The mode are defined by RenderMode.
 	 *

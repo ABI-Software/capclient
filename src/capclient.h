@@ -115,10 +115,10 @@ public:
 			gui_->UpdateModeSelectionUI(mode);
 			if (mode == GUIDEPOINT)
 			{
-				if (!gui_->IsInitialisedHeartModel())
-				{
+				if (gui_->IsInitialisedHeartModel())
+					ResetHeartNodes();
+				else
 					InitializeHeartModelTemplate();
-				}
 				modeller_->AlignModel();
 				modeller_->FitModel();
 				SmoothAlongTime();
@@ -469,6 +469,11 @@ private:
 	 * been loaded then this function will do nothing.
 	 */
 	void InitializeHeartModelTemplate();
+
+	/**
+	 * Resets the heart model nodes to the template node values.
+	 */
+	void ResetHeartNodes();
 
 	/**
 	 * Map the given sopiuids to a DICOMPtr.
