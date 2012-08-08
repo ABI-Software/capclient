@@ -18,7 +18,7 @@ namespace cap
 	class CAPClientWindow
 	{
 	public:
-        void SetStatusTextString(std::string /*mode*/, std::string /*text*/) const {}
+		void SetStatusTextString(std::string /*mode*/, std::string /*text*/) const {}
 		void CreateHeartModel();
 		void RemoveHeartModel();
 		void RemoveHeartSurfaces();
@@ -33,8 +33,9 @@ namespace cap
 
 		void SetHeartModelTransformation(const gtMatrix& transform);
 		void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
+		void ResetHeartNodes(unsigned int numberOfModelFrames);
 		void LoadHeartModel(std::string fullExelemFileName, std::vector<std::string> fullExnodeFileNames);
-        void WriteHeartModel(std::string dirname, unsigned int numberOfModelFrames);
+		void WriteHeartModel(std::string dirname, unsigned int numberOfModelFrames);
 		void LoadHermiteHeartElements(std::string exelemFileName = "");
 		double ComputeHeartVolume(HeartSurfaceEnum surface, double time) const;
 

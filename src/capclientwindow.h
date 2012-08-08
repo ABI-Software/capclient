@@ -335,6 +335,13 @@ public:
 	void LoadTemplateHeartModel(unsigned int numberOfModelFrames);
 
 	/**
+	 * Reset the heart nodes to their intial location.
+	 *
+	 * @param numberOfModelFrames	Number of model frames.
+	 */
+	void ResetHeartNodes(unsigned int numberOfModelFrames);
+
+	/**
 	 * Calculates the heart volume at the given time.  If no time is given then the heart volume is
 	 * calculated for the current time.
 	 *

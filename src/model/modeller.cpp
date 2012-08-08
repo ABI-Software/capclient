@@ -109,7 +109,11 @@ void Modeller::MoveModellingPoint(Cmiss_region_id /*region*/, int node_id, Point
 void Modeller::RemoveModellingPoint(Cmiss_region_id /*region*/, int node_id, double time)
 {
 	currentModellingMode_->RemoveModellingPoint(node_id, time);
-	FitModelAtTime(time);
+	// When we remove a node we have to reset to the original locations and fit
+	// again.
+	mainApp_->ResetHeartNodes();
+	AlignModel();
+	FitModel();
 }
 
 void Modeller::AttachToIfOn(int node_id, const std::string& label, const Point3D& location, const Vector3D& normal)
@@ -205,9 +209,9 @@ void Modeller::AlignModel()
 		Vector3D zAxis = CrossProduct(xAxis,yAxis);
 		zAxis.Normalise();
 		yAxis.CrossProduct(zAxis,xAxis);
-		LOG_MSG(LOGINFORMATION) << "Model x axis vector" << xAxis;
-		LOG_MSG(LOGINFORMATION) << "Model y axis vector" << yAxis;
-		LOG_MSG(LOGINFORMATION) << "Model z axis vector" << zAxis;
+		LOG_MSG(LOGINFORMATION) << "Model x axis : " << xAxis;
+		LOG_MSG(LOGINFORMATION) << "Model y axis : " << yAxis;
+		LOG_MSG(LOGINFORMATION) << "Model z axis : " << zAxis;
 
 		// Compute the position of the model coord origin. (1/3 of the way from base to apex)
 		Point3D origin = basePosition + (0.3333) * (apexPosition - basePosition);
@@ -232,6 +236,7 @@ void Modeller::AlignModel()
 		transform[3][3]=1;
 
 
+		LOG_MSG(LOGINFORMATION) << "Model origin : " << origin;
 		mainApp_->SetHeartModelTransformation(transform);
 
 		double lengthFromApexToBase = (apexPosition - basePosition).Length();
@@ -240,7 +245,6 @@ void Modeller::AlignModel()
 		double focalLength = (apexPosition - origin).Length()  / cosh(1.0);
 		LOG_MSG(LOGINFORMATION) << "Focal length = " << focalLength;
 		mainApp_->SetHeartModelFocalLength(focalLength);
-		//--heartModel_.SetFocalLength(focalLength);
 
 		// Construct base planes from the base plane points
 		int numberOfModelFrames = mainApp_->GetNumberOfHeartModelFrames();
@@ -268,11 +272,12 @@ void Modeller::AlignModel()
 		// initial values for lambda come from the prior
 		// theta is 1/4pi apart)
 		// mu is equally spaced up to the base plane
-//		std::map<double, Plane>::const_iterator cit = planes.begin();
-//		for (; cit != planes.end(); cit++)
-//		{
-//			dbg("planes map : " + ToString(cit->first) + ", " + ToString(cit->second.position));
-//		}
+		std::map<double, Plane>::const_iterator cit = planes.begin();
+		LOG_MSG(LOGINFORMATION) << "planes map : ";
+		for (; cit != planes.end(); cit++)
+		{
+			LOG_MSG(LOGINFORMATION) << "[" << cit->first << "] " << cit->second.position;
+		}
 
 		for(int i = 0; i < numberOfModelFrames; i++)
 		{
@@ -281,10 +286,7 @@ void Modeller::AlignModel()
 			//--heartModel_.SetTheta(i);
 			const Plane& plane = InterpolatePlanes(planes, time);
 
-	//		std::cout << "Frame ( "<< i << ") normal = " << plane.normal << ", pos = " << plane.position << std::endl;
-			//--heartModel_.SetMuFromBasePlaneForFrame(plane, time);
 			mainApp_->SetHeartModelMuFromBasePlaneAtTime(plane, time);
-			//heartModel_.SetLambdaForFrame(lambdaParams, i); // done in UpdateTimeVaryingModel
 		}
 
 		InitialiseBezierLambdaParams();
@@ -311,7 +313,6 @@ void Modeller::UpdateTimeVaryingModel() //REVISE
 
 void Modeller::SmoothAlongTime()
 {
-	//--ModellingModeGuidePoints* gpMode = dynamic_cast<ModellingModeGuidePoints*>(currentModellingMode_); //REVISE
 	if (GetCurrentMode() == GUIDEPOINT)
 	{
 		// For each global parameter in the per frame model
@@ -323,18 +324,14 @@ void Modeller::SmoothAlongTime()
 #define SMOOTH_ALONG_TIME
 #ifdef SMOOTH_ALONG_TIME
 		int numFrames = mainApp_->GetNumberOfHeartModelFrames();
-		//--const std::vector< std::vector<double> >& timeVaryingDataPoints = modellingModeGuidePoints_.GetTimeVaryingDataPoints();
 		const std::vector<int>& framesWithDataPoints = modellingModeGuidePoints_.GetFramesWithModellingPoints(numFrames);//--GetFramesWithDataPoints();
 		for (int i=0; i < 134; i++) // FIX magic number
 		{
-	//		std::cout << "timeVaryingDataPoints_[i] = " << timeVaryingDataPoints_[i] << std::endl;
 			const std::vector<double>& lambdas = timeSmoother_.FitModel(i, timeVaryingDataPoints_[i], framesWithDataPoints);
 
-	//		std::cout << lambdas << std::endl;
-
-			for(int j=0; j < numFrames/*--heartModel_.GetNumberOfModelFrames()*/;j++) //FIX duplicate code
+			for(int j=0; j < numFrames;j++) //FIX duplicate code
 			{
-				double xi = static_cast<double>(j)/numFrames;//--(double)j/heartModel_.GetNumberOfModelFrames();
+				double xi = static_cast<double>(j)/numFrames;
 				double lambda = timeSmoother_.ComputeLambda(xi, lambdas);
 				timeVaryingDataPoints_[i][j] = lambda;
 			}
@@ -424,7 +421,10 @@ bool Modeller::ImagePlaneMoved(const std::string& label, Vector3D diff)
 	bool moved_bp = modellingModeBasePlane_.ImagePlaneMoved(label, diff);
 	bool moved_gp = modellingModeGuidePoints_.ImagePlaneMoved(label, diff);
 	if (moved_apex || moved_base || moved_rv || moved_bp)
+	{
+		mainApp_->ResetHeartNodes();
 		AlignModel();
+	}
 
 	if (moved_gp)
 	{

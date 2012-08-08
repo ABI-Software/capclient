@@ -421,6 +421,17 @@ void CAPClient::InitializeHeartModelTemplate()
 	}
 }
 
+void CAPClient::ResetHeartNodes()
+{
+	unsigned int numberOfModelFrames = GetMinimumNumberOfFrames();
+
+	if (numberOfModelFrames > 0 && gui_->IsInitialisedHeartModel())
+	{
+		gui_->ResetHeartNodes(numberOfModelFrames);
+	}
+
+}
+
 unsigned int CAPClient::GetMinimumNumberOfFrames() const
 {
 	// Check to make sure we have at least some labelled slices

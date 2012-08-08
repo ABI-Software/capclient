@@ -12,6 +12,7 @@
 #include "utils/misc.h"
 #include "utils/debug.h"
 #include "model/heart.h"
+#include "logmsg.h"
 
 extern "C"
 {
@@ -107,6 +108,63 @@ void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
 		heartModel_->SetLocalToGlobalTransformation(transform);
 }
 
+#include <sys/time.h>
+
+void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
+{
+	struct timeval tv1, tv2;
+//	clock_t before = clock();
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
+	Cmiss_region_id random_region = Cmiss_region_create_child(root_region, "xfgjes");
+
+	// Read in the heart model nodes into a random region.
+	Cmiss_stream_information_id stream_information_elems = Cmiss_region_create_stream_information(random_region);
+	Cmiss_stream_resource_id stream_resource_elems = Cmiss_stream_information_create_resource_memory_buffer(stream_information_elems, globalhermiteparam_exelem, globalhermiteparam_exelem_len);
+	Cmiss_region_read(random_region, stream_information_elems);
+	Cmiss_stream_resource_destroy(&stream_resource_elems);
+	Cmiss_stream_information_destroy(&stream_information_elems);
+	Cmiss_stream_information_id stream_information_nodes = Cmiss_region_create_stream_information(random_region);
+	Cmiss_stream_resource_id stream_resource_nodes = Cmiss_stream_information_create_resource_memory_buffer(stream_information_nodes, heartmodel_exnode, heartmodel_exnode_len);
+	Cmiss_region_read(random_region, stream_information_nodes);
+	Cmiss_stream_resource_destroy(&stream_resource_nodes);
+	Cmiss_stream_information_destroy(&stream_information_nodes);
+
+	gettimeofday(&tv1, 0);
+	Cmiss_region_id heart_region = Cmiss_region_find_child_by_name(random_region, "heart");
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(heart_region);
+	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
+	Cmiss_nodeset_id nodeset = Cmiss_field_module_find_nodeset_by_name(field_module, "cmiss_nodes");
+	Cmiss_field_id coords_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
+	for (int k = 0; k < 40; k++)
+	{
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + 1);
+		Cmiss_field_cache_set_node(cache, node);
+		double loc_ps[3];
+		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
+		Cmiss_node_destroy(&node);
+		for (unsigned int i = 0; i < numberOfModelFrames; i++)
+		{
+			double time = static_cast<double>(i)/numberOfModelFrames;
+			heartModel_->SetNodePosition(k + 1, loc_ps, time);
+		}
+	}
+	gettimeofday(&tv2, 0);
+	Cmiss_region_destroy(&heart_region);
+	Cmiss_field_destroy(&coords_ps);
+	Cmiss_field_module_destroy(&field_module);
+	Cmiss_field_cache_destroy(&cache);
+	Cmiss_nodeset_destroy(&nodeset);
+
+	Cmiss_region_remove_child(root_region, random_region);
+	Cmiss_region_destroy(&random_region);
+	Cmiss_region_destroy(&root_region);
+//	clock_t after = clock();
+//	int val = CLOCKS_PER_SEC;
+	double len = (tv2.tv_sec - tv1.tv_sec) * 1000 + static_cast<double>(tv2.tv_usec - tv1.tv_usec) / 1000;
+//	LOG_MSG(LOGINFORMATION) << "Reset node time = " + ToString(static_cast<double>(after - before) / CLOCKS_PER_SEC);
+	LOG_MSG(LOGINFORMATION) << "Reset node time = " << len;
+}
+
 void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
@@ -166,7 +224,7 @@ void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector
 	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
 	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
 	//Cmiss_stream_resource_id stream_resources[] = new Cmiss_stream_resource_id[numberOfModelFrames+1];
-	std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames + 1);
+	std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames);
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
 	{
 		double time = static_cast<double>(i)/numberOfModelFrames;
@@ -176,10 +234,10 @@ void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector
 	}
 
 	// Wrap the end point add another set of nodes at time 1.0
-	{
-		stream_resources[numberOfModelFrames] = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
-		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[numberOfModelFrames], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
-	}
+//	{
+//		stream_resources[numberOfModelFrames] = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
+//		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[numberOfModelFrames], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
+//	}
 	Cmiss_region_read(root_region, stream_information);
 
 	std::vector<Cmiss_stream_resource_id>::iterator it = stream_resources.begin();
@@ -246,7 +304,6 @@ void CAPClientWindow::WriteHeartModel(std::string dirname, unsigned int numberOf
 
 	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(heart_region);
 	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-	//Cmiss_stream_resource_id stream_resources[] = new Cmiss_stream_resource_id[numberOfModelFrames+1];
 	std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames);
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
 	{
@@ -280,7 +337,6 @@ Point3D CAPClientWindow::ConvertToHeartModelProlateSpheriodalCoordinate(int node
 	Cmiss_field_cache_id cache = Cmiss_field_module_create_cache(field_module);
 	Cmiss_field_id inv_projection_mx = Cmiss_field_module_find_field_by_name(field_module, "inv_projection_mx");
 	Cmiss_field_id coordinates = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
-	//Cmiss_field_get_attribute_integer(coordinates, CMISS_FIELD_ATT
 	Cmiss_field_id coordinates_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates_ps");
 	if (!inv_projection_mx)
 	{
