@@ -132,7 +132,8 @@ void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 	Cmiss_field_id coords_ps = Cmiss_field_module_find_field_by_name(field_module, "coordinates");
 	for (int k = 0; k < 40; k++)
 	{
-		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, k + 1);
+		int node_id = k + 1; // Node identifiers start at one.
+		Cmiss_node_id node = Cmiss_nodeset_find_node_by_identifier(nodeset, node_id);
 		Cmiss_field_cache_set_node(cache, node);
 		double loc_ps[3];
 		Cmiss_field_evaluate_real(coords_ps, cache, 3, loc_ps);
@@ -140,7 +141,7 @@ void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 		for (unsigned int i = 0; i < numberOfModelFrames; i++)
 		{
 			double time = static_cast<double>(i)/numberOfModelFrames;
-			heartModel_->SetNodePosition(k + 1, loc_ps, time);
+			heartModel_->SetNodePosition(node_id, loc_ps, time);
 		}
 	}
 	Cmiss_region_destroy(&heart_region);
@@ -179,20 +180,6 @@ void CAPClientWindow::LoadTemplateHeartModel(unsigned int numberOfModelFrames)
 		Cmiss_stream_information_region_destroy(&stream_information_region);
 	}
 
-	// Wrap the end point add another set of nodes at time 1.0
-//	{
-//		Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
-//		Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-//		Cmiss_stream_resource_id stream_resource = Cmiss_stream_information_create_resource_memory_buffer(stream_information, heartmodel_exnode, heartmodel_exnode_len);
-//		int r = Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resource, CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
-
-//		Cmiss_region_read(root_region, stream_information);
-
-//		Cmiss_stream_resource_destroy(&stream_resource);
-//		Cmiss_stream_information_destroy(&stream_information);
-//		Cmiss_stream_information_region_destroy(&stream_information_region);
-//	}
-
 	Cmiss_region_destroy(&root_region);
 	// The initialisation must take place after the loading of the model as this defines the region and the coordinates field.
 	heartModel_->SetNumberOfModelFrames(numberOfModelFrames);
@@ -212,7 +199,6 @@ void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector
 
 	Cmiss_stream_information_id stream_information = Cmiss_region_create_stream_information(root_region);
 	Cmiss_stream_information_region_id stream_information_region = Cmiss_stream_information_cast_region(stream_information);
-	//Cmiss_stream_resource_id stream_resources[] = new Cmiss_stream_resource_id[numberOfModelFrames+1];
 	std::vector<Cmiss_stream_resource_id> stream_resources(numberOfModelFrames);
 	for (unsigned int i = 0; i < numberOfModelFrames; i++)
 	{
@@ -222,11 +208,6 @@ void CAPClientWindow::LoadHeartModel(std::string fullExelemFileName, std::vector
 		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[i], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, time);
 	}
 
-	// Wrap the end point add another set of nodes at time 1.0
-//	{
-//		stream_resources[numberOfModelFrames] = Cmiss_stream_information_create_resource_file(stream_information, fullExnodeFileNames.at(0).c_str());
-//		Cmiss_stream_information_region_set_resource_attribute_real(stream_information_region, stream_resources[numberOfModelFrames], CMISS_STREAM_INFORMATION_REGION_ATTRIBUTE_TIME, 1.0);
-//	}
 	Cmiss_region_read(root_region, stream_information);
 
 	std::vector<Cmiss_stream_resource_id>::iterator it = stream_resources.begin();
