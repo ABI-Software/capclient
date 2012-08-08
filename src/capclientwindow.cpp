@@ -1175,22 +1175,28 @@ void CAPClientWindow::EndModellingAction()
 void CAPClientWindow::OnNewModel(wxCommandEvent& event)
 {
 	OnCloseModel(event);
+	OnOpenImageBrowser(event);
 }
 
 void CAPClientWindow::OnCloseModel(wxCommandEvent& event)
 {
+	bool confirm_close = true;
 	if (event.GetId() == XRCID("menuItem_close_"))
 	{
 		int answer = wxMessageBox(wxT("Save current model?"), wxT("Confirm"), wxYES_NO, this);
 		if (answer == wxYES)
 		{
-			OnSave(event);
+			confirm_close = GetUserComment();
 		}
 	}
-	RemoveTextureSlices();
-	EndCurrentModellingMode();
-	mainApp_->ResetModel();
-	UpdateUI();
+
+	if (confirm_close)
+	{
+		RemoveTextureSlices();
+		EndCurrentModellingMode();
+		mainApp_->ResetModel();
+		UpdateUI();
+	}
 }
 
 void CAPClientWindow::OnOpenModel(wxCommandEvent& event)
@@ -1223,6 +1229,11 @@ void CAPClientWindow::OnOpenImageBrowser(wxCommandEvent& /* event */)
 
 void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 {
+	GetUserComment();
+}
+
+bool CAPClientWindow::GetUserComment()
+{
 	if (previousWorkingLocation_.length() == 0)
 		previousWorkingLocation_ = wxGetCwd();
 
@@ -1244,7 +1255,11 @@ void CAPClientWindow::OnSave(wxCommandEvent& /* event */)
 
 		LOG_MSG(LOGINFORMATION) << "Saving model '" << previousWorkingLocation_ << "'";
 		mainApp_->SaveModel(previousWorkingLocation_, userComment);
+
+		return true;
 	}
+
+	return false;
 }
 
 void CAPClientWindow::OnExportModel(wxCommandEvent& /* event */)

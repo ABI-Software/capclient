@@ -523,6 +523,13 @@ private:
 	void CreateCAPIconInContext() const;
 
 	/**
+	 * Show the UserCommentDlg to get a comment from the user for saving the model.
+	 *
+	 * @return true if the user saved the model, false otherwise.
+	 */
+	bool GetUserComment();
+
+	/**
 	 * Sets the 'text' of the field named in 'mode'.  The mode string must be a key of the
 	 * statusTextStringsFieldMap_.
 	 *
