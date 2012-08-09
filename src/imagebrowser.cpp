@@ -1,5 +1,6 @@
 
 #include "imagebrowser.h"
+#include "io/archivehandler.h"
 #include "labelledslice.h"
 #include "utils/debug.h"
 #include "utils/misc.h"
@@ -85,17 +86,32 @@ void ImageBrowser::ChooseImageDirectory()
 	const wxString& dirname = wxDirSelector(wxT("Choose the folder that contains the images to load"), path.c_str(), wxDD_DEFAULT_STYLE, wxDefaultPosition, gui_);
 	if (!dirname.empty())
 	{
-		std::string restorePathOnFail = previousWorkingLocation_;
-		previousWorkingLocation_ = dirname.mb_str();
-		LOG_MSG(LOGINFORMATION) << "Loading images from '" << previousWorkingLocation_ << "'";
-		if (!LoadImages())
-			previousWorkingLocation_ = restorePathOnFail;
+		LOG_MSG(LOGINFORMATION) << "Loading images from '" << dirname.mb_str() << "'";
+		if (LoadImages(dirname.mb_str()))
+			previousWorkingLocation_ = dirname.mb_str();
 	}
 }
 
 void ImageBrowser::ChooseArchiveFile()
 {
-	dbg("ImageBrowser::ChooseArchiveFile()");
+	if (previousWorkingLocation_.length() == 0)
+		previousWorkingLocation_ = wxGetCwd();
+
+	wxString defaultFilename = wxT("");
+	wxString defaultExtension = wxT("zip");
+	wxString wildcard = wxT("");
+	int flags = wxOPEN;
+
+	wxString filename = wxFileSelector(wxT("Choose a zip archive file to open"),
+			wxT(previousWorkingLocation_.c_str()), defaultFilename, defaultExtension, wildcard, flags, gui_);
+	if (!filename.empty())
+	{
+		LOG_MSG(LOGINFORMATION) << "Loading images from '" << filename.mb_str() << "'";
+		if (LoadImages(filename.mb_str()))
+		{
+			previousWorkingLocation_ = GetPath(filename.mb_str());
+		}
+	}
 }
 
 void ImageBrowser::ChooseAnnotationFile()
@@ -128,10 +144,14 @@ void ImageBrowser::ChooseAnnotationFile()
 	}
 }
 
-bool ImageBrowser::LoadImages()
+bool ImageBrowser::LoadImages(const std::string &pathfile)
 {
 	bool success = false;
-	CreateTexturesFromDICOMFiles();
+	if (EndsWith(pathfile, ".zip"))
+		CreateTexturesFromArchive(pathfile);
+	else
+		CreateTexturesFromDICOMFiles(pathfile);
+
 	if (dicomFileTable_.empty())
 	{
 		LOG_MSG(LOGWARNING) << "No valid DICOM files were found at this location '" << previousWorkingLocation_ << "'";
@@ -151,7 +171,7 @@ void ImageBrowser::Initialize()
 	assert(gui_);
 	if (!previousWorkingLocation_.empty())
 	{
-		LoadImages();
+		LoadImages(previousWorkingLocation_);
 	}
 }
 
@@ -190,13 +210,34 @@ void ImageBrowser::ClearTextureTable()
 	textureTable_.clear();
 }
 
-void ImageBrowser::CreateTexturesFromDICOMFiles()
+void ImageBrowser::AddImageToTable(const std::string& filename, char *buffer)
 {
-	using namespace std;
 
-	// load some images and display
-	const std::string& dirname = previousWorkingLocation_;
-	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(dirname);
+}
+
+void ImageBrowser::CreateTexturesFromArchive(const std::string& filename)
+{
+	ArchiveHandler archiveHandler;
+	archiveHandler.SetArchive(filename);
+	ArchiveEntries archiveEntries = archiveHandler.GetEntries();
+	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", archiveEntries.size());
+	std::string path = GetPath(filename);
+	std::vector<std::string> caseList;
+	ArchiveEntries::iterator it = archiveEntries.begin();
+	while (it != archiveEntries.end())
+	{
+		free(it->buffer_);
+		++it;
+	}
+	gui_->UpdateProgressDialog(archiveEntries.size()-1);
+	gui_->DestroyProgressDialog();
+	gui_->SetCaseList(caseList);
+}
+
+void ImageBrowser::CreateTexturesFromDICOMFiles(const std::string &path)
+{
+	// load some images and display them
+	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", filenames.size());
 
 	std::map<std::string, bool> caseMap;
@@ -211,11 +252,12 @@ void ImageBrowser::CreateTexturesFromDICOMFiles()
 		// Skip known non-dicom image extensions
 		if (EndsWith(filename, ".exnode") ||
 			EndsWith(filename, ".exelem") ||
-			EndsWith(filename, ".xml"))
+			EndsWith(filename, ".xml") ||
+			EndsWith(filename, ".zip"))
 		{
 			continue;
 		}
-		std::string fullpath = dirname + "/" + filename;
+		std::string fullpath = path + "/" + filename;
 		// Returns an accessed image field
 		Cmiss_field_image_id image_field = gui_->CreateFieldImage(fullpath);
 		if (image_field != 0)

@@ -24,7 +24,7 @@ namespace cap
 	 *
 	 * @return	true if it succeeds, false if it fails.
 	 */
-	bool EndsWith(std::string str, std::string suffix);
+	bool EndsWith(const std::string& str, const std::string& suffix);
 
 	/**
 	 * A template function to convert the given object
@@ -38,7 +38,7 @@ namespace cap
 	inline std::string ToString(const T & t)
 	{
 		std::ostringstream oss; // create a stream
-		oss << t;              // insert value to stream 
+		oss << t;              // insert value to stream
 		return oss.str();      // return as a string
 	}
 

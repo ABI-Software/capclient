@@ -59,6 +59,7 @@ SET( APP_HDRS
     src/io/modelfile.h
     src/io/xmlfilehandler.h
     src/io/archivehandler.h
+    src/io/imagesource.h
     src/zinc/callbacks.h
     src/zinc/sceneviewerpanel.h
     src/capclientconfig.h
@@ -101,6 +102,7 @@ SET( APP_SRCS
     src/io/modelfile.cpp
     src/io/xmlfilehandler.cpp
     src/io/archivehandler.cpp
+    src/io/imagesource.cpp
     src/logmsg.cpp
     src/zinc/callbacks.cpp
     src/zinc/sceneviewerpanel.cpp
