@@ -58,7 +58,7 @@ namespace cap
 
 #endif /* _MSC_VER */
 
-	bool EndsWith(std::string str, std::string suffix)
+	bool EndsWith(const std::string& str, const std::string& suffix)
 	{
 		return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
 	}

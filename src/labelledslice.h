@@ -43,6 +43,11 @@ namespace cap
 		 */
 		int IndexOf(std::string sopiuid) const;
 
+		/**
+		 * Get the transform for the labelled slice.
+		 *
+		 * @return The 4x4 Matrix describing the transform.
+		 */
 		Matrix4x4 GetTransform() const;
 
 		/**
