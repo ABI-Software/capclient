@@ -59,6 +59,18 @@ void RepositionPlaneElement(Cmiss_context_id cmissContext, const std::string& re
 	Cmiss_region_destroy(&root_region);
 }
 
+void RemoveRegion(Cmiss_context_id cmissContext, const std::string& regionName)
+{
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
+	Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, regionName.c_str());
+	if (child_region != 0)
+	{
+		Cmiss_region_remove_child(root_region, child_region);
+		Cmiss_region_destroy(&child_region);
+	}
+	Cmiss_region_destroy(&root_region);
+}
+
 void SetupRegionForContour(Cmiss_context_id cmissContext, const std::string& regionName, const std::string& name)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);
