@@ -536,11 +536,7 @@ void CAPClientWindow::RemoveStatusTextStrings()
 		Cmiss_graphic_destroy(&(it->second.second));
 		statusTextStringsFieldMap_.erase(it++);
 	}
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	Cmiss_region_id child_region = Cmiss_region_find_child_by_name(root_region, "statustext");
-	Cmiss_region_remove_child(root_region, child_region);
-	Cmiss_region_destroy(&child_region);
-	Cmiss_region_destroy(&root_region);
+	RemoveRegion(cmissContext_, "statustext");
 }
 
 void CAPClientWindow::RemoveImageContours()

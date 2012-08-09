@@ -110,8 +110,9 @@ void CAPClientWindow::SetHeartModelTransformation(const gtMatrix& transform)
 
 void CAPClientWindow::ResetHeartNodes(unsigned int numberOfModelFrames)
 {
+	const char *random_region_name = "xfgjes";
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext_);
-	Cmiss_region_id random_region = Cmiss_region_create_child(root_region, "xfgjes");
+	Cmiss_region_id random_region = Cmiss_region_create_child(root_region, random_region_name);
 
 	// Read in the heart model nodes into a random region.
 	Cmiss_stream_information_id stream_information_elems = Cmiss_region_create_stream_information(random_region);

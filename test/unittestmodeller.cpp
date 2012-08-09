@@ -32,6 +32,8 @@ namespace cap
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
 }
 
+void RemoveRegion(Cmiss_context_id, std::string const &) {}
+
 TEST(CAPModellerTest, ModellingModeApex)
 {
 	using namespace cap;

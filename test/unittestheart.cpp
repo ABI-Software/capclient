@@ -21,7 +21,7 @@ extern "C"
 namespace cap
 {
 	std::string TimeNow() { return ""; }
-	Log::~Log() 
+	Log::~Log()
 	{
 		if (!rawMsg_)
 			oss_ << std::endl;
@@ -29,7 +29,11 @@ namespace cap
 		dbgn(oss_.str());
 	}
 	LogLevelEnum Log::reportingLevel_ = LOGDEBUG;
+
+
 }
+
+void RemoveRegion(Cmiss_context_id, std::string const &) {}
 
 TEST(Heart, API)
 {
@@ -39,16 +43,16 @@ TEST(Heart, API)
 	wxEntryStart( argc, argv );
 
 	Cmiss_context_id context = Cmiss_context_create("HeartTest");
-    Cmiss_region_id root_region = Cmiss_context_get_default_region(context);
-    Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, "heart");
-    Cmiss_field_module_id field_module = Cmiss_region_get_field_module(heart_region);
-    Cmiss_field_id field = Cmiss_field_module_create_finite_element(field_module, 3);
-    Cmiss_field_set_name(field, "coordinates");
-    Cmiss_field_module_destroy(&field_module);
+	Cmiss_region_id root_region = Cmiss_context_get_default_region(context);
+	Cmiss_region_id heart_region = Cmiss_region_create_child(root_region, "heart");
+	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(heart_region);
+	Cmiss_field_id field = Cmiss_field_module_create_finite_element(field_module, 3);
+	Cmiss_field_set_name(field, "coordinates");
+	Cmiss_field_module_destroy(&field_module);
 
 	cap::HeartModel *heart = new cap::HeartModel(context);
-    heart->SetFocalLength(23.0);
-    delete heart;
+	heart->SetFocalLength(23.0);
+	delete heart;
 
 	Cmiss_field_destroy(&field);
 	Cmiss_region_destroy(&heart_region);
