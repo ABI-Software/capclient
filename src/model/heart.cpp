@@ -8,6 +8,7 @@
 #include "model/heart.h"
 
 #include "zinc/extensions.h"
+#include "zinc/utilities.h"
 #include "utils/misc.h"
 #include "utils/debug.h"
 #include "math/geometry.h"
@@ -88,11 +89,7 @@ HeartModel::~HeartModel()
 	Cmiss_field_destroy(&(pImpl_->coordinates_patient_rc_));
 	Cmiss_field_destroy(&(pImpl_->transform_mx_));
 	Cmiss_field_module_destroy(&(pImpl_->field_module_));
-	Cmiss_region_id root_region = Cmiss_context_get_default_region(pImpl_->context_);
-	Cmiss_region_id heart_region = Cmiss_region_find_child_by_name(root_region, modelName_.c_str());
-	Cmiss_region_remove_child(root_region, heart_region);
-	Cmiss_region_destroy(&root_region);
-	Cmiss_region_destroy(&heart_region);
+	RemoveRegion(pImpl_->context_, modelName_);
 	Cmiss_context_destroy(&(pImpl_->context_));
 	delete pImpl_;
 }
