@@ -31,6 +31,7 @@ ImageBrowser::ImageBrowser(std::string const& workingLocation, const CardiacAnno
 	: gui_(0)
 	, previousWorkingLocation_(workingLocation)
 	, sortingMode_(SERIES_NUMBER)
+	, caseName_()
 	, client_(client)
 	, frameNumberCurrentlyOnDisplay_(0)
 	, textureTable_()
@@ -158,6 +159,12 @@ bool ImageBrowser::LoadImages(const std::string &pathfile)
 	}
 	else
 	{
+		std::vector<std::string> caseList;
+		for (CaseListMap::const_iterator cit = caseListMap_.begin(); cit != caseListMap_.end(); ++cit)
+			caseList.push_back(cit->first);
+		gui_->SetCaseList(caseList);  // Sets the case list to the first entry.
+		caseName_ = caseList[0];
+
 		SortDICOMFiles();
 		PopulateImageTable();
 		success = true;
@@ -218,14 +225,13 @@ void ImageBrowser::AddImageToTable(const ImageSource& imageSource)
 		DICOMPtr dicomFile(new DICOMImage(imageSource));
 		if (dicomFile->Analyze(image_field))
 		{
-//			std::map<std::string, bool>::const_iterator cit = caseMap.find(dicomFile->GetStudyInstanceUID());
-//			if (cit == caseMap.end())
-//			{
-//				caseMap[dicomFile->GetStudyInstanceUID()] = true;
-//				std::string caseString = "Case " + ToString(caseListMap_.size()) + " " + dicomFile->GetScanDate();
-//				caseList.push_back(caseString);
-//				caseListMap_[caseString] = dicomFile->GetStudyInstanceUID();
-//			}
+			const std::string &studyInstance = dicomFile->GetStudyInstanceUID();
+			if (studyInstanceMap_.find(studyInstance) == studyInstanceMap_.end())
+			{
+				studyInstanceMap_[studyInstance] = true;
+				std::string caseString = "Case " + ToString(caseListMap_.size() + 1) + " " + dicomFile->GetScanDate();
+				caseListMap_[caseString] = studyInstance;
+			}
 			std::string tableKey = imageSource.GetIdentifier();
 			if (textureTable_.find(tableKey) == textureTable_.end())
 			{
@@ -251,7 +257,6 @@ void ImageBrowser::CreateTexturesFromArchive(const std::string& filename)
 	archiveHandler.SetArchive(filename);
 	ArchiveEntries archiveEntries = archiveHandler.GetEntries();
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", archiveEntries.size());
-	std::vector<std::string> caseList;
 	int count = 0;
 	ArchiveEntries::iterator it = archiveEntries.begin();
 	while (it != archiveEntries.end())
@@ -267,7 +272,6 @@ void ImageBrowser::CreateTexturesFromArchive(const std::string& filename)
 	}
 	gui_->UpdateProgressDialog(archiveEntries.size()-1);
 	gui_->DestroyProgressDialog();
-	gui_->SetCaseList(caseList);
 }
 
 void ImageBrowser::CreateTexturesFromDICOMFiles(const std::string &path)
@@ -275,12 +279,6 @@ void ImageBrowser::CreateTexturesFromDICOMFiles(const std::string &path)
 	// load some images and display them
 	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", filenames.size());
-
-//	std::map<std::string, bool> caseMap;
-	std::vector<std::string> caseList;
-//	dicomFileTable_.clear();
-//	ClearTextureTable();
-//	caseListMap_.clear();
 	std::vector<std::string>::const_iterator cit = filenames.begin();
 	for(int count = 0; cit != filenames.end(); ++cit, count++)
 	{
@@ -293,9 +291,7 @@ void ImageBrowser::CreateTexturesFromDICOMFiles(const std::string &path)
 		{
 			continue;
 		}
-		std::string fullpath = path + "/" + filename;
-		// Returns an accessed image field
-		ImageSource is(fullpath);
+		ImageSource is(path + "/" + filename);
 		AddImageToTable(is);
 
 		if (!(count % 5))
@@ -306,7 +302,6 @@ void ImageBrowser::CreateTexturesFromDICOMFiles(const std::string &path)
 
 	gui_->UpdateProgressDialog(filenames.size()-1);
 	gui_->DestroyProgressDialog();
-	gui_->SetCaseList(caseList);
 }
 
 void ImageBrowser::PopulateImageTable()
@@ -358,35 +353,38 @@ void ImageBrowser::SortDICOMFiles()
 	BOOST_FOREACH(DICOMTable::value_type const& value, dicomFileTable_)
 	{
 		DICOMPtr const &dicomFile = value.second;
-		int seriesNum = dicomFile->GetSeriesNumber();
-		//		std::cout << "Series Num = " << seriesNum << '\n';
-		double distanceFromOrigin;
-		if (sortingMode_ == SERIES_NUMBER)
+		if (dicomFile->GetStudyInstanceUID() == caseListMap_[caseName_])
 		{
-			// Don't use the position for sorting : set it to 0 for all images
-			distanceFromOrigin = 0.0;
-		}
-		else if (sortingMode_ == SERIES_NUMBER_AND_IMAGE_POSITION)
-		{
-			// Use the dot product of the position and the normal vector
-			// as the measure of the position
-			Vector3D pos = dicomFile->GetImagePosition() - Point3D(0,0,0);
-			std::pair<Vector3D,Vector3D> oris = dicomFile->GetImageOrientation();
-			Vector3D normal = CrossProduct(oris.first, oris.second);
-			normal.Normalise();
-			distanceFromOrigin = - DotProduct(pos, normal);
-		}
+			int seriesNum = dicomFile->GetSeriesNumber();
+			//		std::cout << "Series Num = " << seriesNum << '\n';
+			double distanceFromOrigin;
+			if (sortingMode_ == SERIES_NUMBER)
+			{
+				// Don't use the position for sorting : set it to 0 for all images
+				distanceFromOrigin = 0.0;
+			}
+			else if (sortingMode_ == SERIES_NUMBER_AND_IMAGE_POSITION)
+			{
+				// Use the dot product of the position and the normal vector
+				// as the measure of the position
+				Vector3D pos = dicomFile->GetImagePosition() - Point3D(0,0,0);
+				std::pair<Vector3D,Vector3D> oris = dicomFile->GetImageOrientation();
+				Vector3D normal = CrossProduct(oris.first, oris.second);
+				normal.Normalise();
+				distanceFromOrigin = - DotProduct(pos, normal);
+			}
 
-		SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
-		SliceMap::iterator itr = sliceMap_.find(key);
-		if (itr != sliceMap_.end())
-		{
-			itr->second.push_back(dicomFile);
-		}
-		else
-		{
-			std::vector<DICOMPtr> v(1, dicomFile);
-			sliceMap_.insert(std::make_pair(key, v));
+			SliceKeyType key = std::make_pair(seriesNum, distanceFromOrigin);
+			SliceMap::iterator itr = sliceMap_.find(key);
+			if (itr != sliceMap_.end())
+			{
+				itr->second.push_back(dicomFile);
+			}
+			else
+			{
+				std::vector<DICOMPtr> v(1, dicomFile);
+				sliceMap_.insert(std::make_pair(key, v));
+			}
 		}
 	}
 	// Sort the dicom images in a slice/series by the instance Number
@@ -502,6 +500,16 @@ void ImageBrowser::OnOrderByRadioBox(int event)
 	}
 	SortDICOMFiles();
 	PopulateImageTable();
+}
+
+void ImageBrowser::OnCaseSelected(const std::string &caseName)
+{
+	if (caseListMap_.find(caseName) != caseListMap_.end())
+	{
+		caseName_ = caseName;
+		SortDICOMFiles();
+		PopulateImageTable();
+	}
 }
 
 void ImageBrowser::OnCancelButtonClicked()
