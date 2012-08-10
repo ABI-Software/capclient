@@ -37,7 +37,7 @@ class ZipArchive : public Archive
 public:
 	explicit ZipArchive(const std::string& archiveName)
 		: Archive(archiveName)
-		, stream_(archiveName, "rb")
+		, stream_(archiveName.c_str())
 	{
 	}
 
