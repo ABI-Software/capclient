@@ -179,6 +179,8 @@ HashTable GenerateSopiuidToDICOMPtrMap(std::string const& path)
 	Cmiss_region_id region = Cmiss_context_get_default_region(context);
 	Cmiss_field_module_id field_module = Cmiss_region_get_field_module(region);
 
+	std::vector<std::string> zipFilenames;
+
 	BOOST_FOREACH(std::string const& filename, filenames)
 	{
 		// Skip files that are known not to be dicom files
@@ -190,6 +192,13 @@ HashTable GenerateSopiuidToDICOMPtrMap(std::string const& path)
 		}
 
 		std::string fullpath = path + "/" + filename;
+		if (EndsWith(filename, ".zip"))
+		{
+			zipFilenames.push_back(fullpath);
+			continue;
+		}
+
+
 		ImageSource is(fullpath);
 		Cmiss_field_image_id image_field = CreateImageTexture(field_module, is);
 		if (image_field != 0)
@@ -207,6 +216,39 @@ HashTable GenerateSopiuidToDICOMPtrMap(std::string const& path)
 			LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << fullpath << "'";
 		}
 	}
+
+	// Search through any zip files we found on our travels.
+	std::vector<std::string>::const_iterator cit = zipFilenames.begin();
+	for (; cit != zipFilenames.end(); ++cit)
+	{
+		std::string filename = *cit;
+		ArchiveHandler archiveHandler;
+		archiveHandler.SetArchive(filename);
+		ArchiveEntries archiveEntries = archiveHandler.GetEntries();
+		ArchiveEntries::iterator it = archiveEntries.begin();
+		while (it != archiveEntries.end())
+		{
+			ImageSource is(filename, *it);
+			Cmiss_field_image_id image_field = CreateImageTexture(field_module, is);
+			if (image_field != 0)
+			{
+				DICOMPtr image(new DICOMImage(is));
+				if (image->Analyze(image_field))
+					hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
+				else
+					Cmiss_field_image_destroy(&image_field);
+			}
+			LOG_MSG(LOGINFORMATION) << "DICOM name " << it->name_;
+			if (image_field != 0)
+				Cmiss_field_image_destroy(&image_field);
+			else
+			{
+				LOG_MSG(LOGERROR) << "Invalid DICOM file : '" << it->name_ << "'";
+			}
+			++it;
+		}
+	}
+
 	Cmiss_field_module_destroy(&field_module);
 	Cmiss_region_destroy(&region);
 	Cmiss_context_destroy(&context);
