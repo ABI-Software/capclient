@@ -408,9 +408,9 @@ void ImageBrowserWindow::OnCloseImageBrowserWindow(wxCloseEvent& WXUNUSED(event)
 	browser_->OnCancelButtonClicked();
 }
 
-void ImageBrowserWindow::OnCaseSelected(wxCommandEvent& /* event */)
+void ImageBrowserWindow::OnCaseSelected(wxCommandEvent& event)
 {
-	dbg("ImageBrowserWindow::OnCaseSelected - Unfortunately case filtering is not yet completed.");
+	browser_->OnCaseSelected(event.GetString().mb_str());
 }
 
 void ImageBrowserWindow::SetCaseList(const std::vector<std::string>& cases)

@@ -112,6 +112,8 @@ public:
 	 */
 	void OnOrderByRadioBox(int event);
 
+	void OnCaseSelected(const std::string &caseName);
+
 	/**
 	 * Set the image table with the given cardiac annotation.
 	 *
@@ -328,6 +330,7 @@ private:
 
 	std::string previousWorkingLocation_;   /**< The previous working location */
 	SortingMode sortingMode_; /**< class state variable to track the current sorting mode. */
+	std::string caseName_; /**< class state variable to track the current case */
 
 	IImageBrowser *client_; /**< Pointer to CAPClient using an inteface class to restrict access. */
 
