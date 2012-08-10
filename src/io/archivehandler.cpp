@@ -7,6 +7,7 @@
 
 #include <wx/zipstrm.h>
 #include <wx/wfstream.h>
+#include <wx/mstream.h>
 #include <wx/txtstrm.h>
 
 namespace cap
@@ -68,38 +69,13 @@ ArchiveEntry ZipArchive::ReadEntry(wxZipEntry* entry, wxZipInputStream& zip)
 	ArchiveEntry ae(entry->GetName().c_str());
 	if (!entry->IsDir())
 	{
-		unsigned long int buf_size = 0;//, numBytesRead = 0;
-		unsigned long int num_allocated = 0;
-		char *buf = 0;
-		while (!zip.Eof())
-		{
-			int buf_extension = 0;
-			if (buf_size == num_allocated)
-			{
-				if (buf_size == 0)
-					num_allocated = 1024;
-				else
-					num_allocated *= 2;
+		unsigned long int buf_size = entry->GetSize();
+		unsigned char *buf = (unsigned char *)malloc(buf_size*(sizeof(unsigned char)));
+		zip.Read(buf, buf_size);
 
-				void *_tmp = realloc(buf, (num_allocated * sizeof(char)));
-				if (_tmp != 0)
-				{
-					buf = (char *)_tmp;
-					buf_extension = num_allocated - buf_size;
-				}
-			}
-			zip.Read(buf + buf_size, buf_extension);
-			size_t numBytesRead = zip.LastRead();
-			buf_size += numBytesRead;
-		}
-		//file.Write(buf, buf_size);
-		void *_tmp = realloc(buf, (buf_size * sizeof(char)));
-		if (_tmp != 0)
-		{
-			buf = (char *)_tmp;
-		}
-
-		ae.SetBuffer(buf_size, buf);
+		if (buf_size == 0)
+			int stop = 1;
+		ae.SetBuffer(buf, buf_size);
 	}
 
 	return ae;
@@ -118,7 +94,9 @@ ArchiveEntry ZipArchive::GetEntry(const std::string &name)
 		zipEntry = zip.GetNextEntry();
 	}
 	if (zipEntry != 0)
+	{
 		got = ReadEntry(zipEntry, zip);
+	}
 
 	return got;
 }

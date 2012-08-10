@@ -39,6 +39,7 @@ extern "C"
 #include "imagebrowserwindow.h"
 
 #include "zinc/extensions.h"
+#include "zinc/utilities.h"
 #include "dicomimage.h"
 #include "material.h"
 #include "imagebrowser.h"
@@ -79,7 +80,7 @@ ImageBrowserWindow::ImageBrowserWindow(ImageBrowser *browser)
 
 	choice_caseList->Enable(false);
 	Fit();
-	// This stops the window from getting too long in height 
+	// This stops the window from getting too long in height
 	// when there are many items in the Image Table
 	SetSize(-1, 768);
 	Centre();
@@ -121,7 +122,7 @@ void ImageBrowserWindow::MakeConnections()
 }
 
 void ImageBrowserWindow::CreateImageTableColumns()
-{	
+{
 	long columnIndex = 0;
 	listCtrl_imageTable->InsertColumn(columnIndex++, _("Series #"), wxLIST_FORMAT_CENTRE, 75);
 	listCtrl_imageTable->InsertColumn(columnIndex++, _("Series Description"), wxLIST_FORMAT_CENTRE, -1);
@@ -175,7 +176,7 @@ void ImageBrowserWindow::PopulateImageTableRow(int rowNumber,
 	listCtrl_imageTable->SetItem(itemIndex, columnIndex++, wxString(seriesDescription.c_str(),wxConvUTF8));
 	listCtrl_imageTable->SetItem(itemIndex, columnIndex++, wxString(sequenceName.c_str(),wxConvUTF8));
 	listCtrl_imageTable->SetItem(itemIndex, columnIndex++, wxString::Format(wxT("%i"),(int) numImages));
-	
+
 	listCtrl_imageTable->SetItemData(itemIndex, userDataPtr); // Check !! is this safe??!!
 }
 
@@ -205,7 +206,7 @@ void ImageBrowserWindow::PopulateAnnotationTableRow(int rowNumber, std::string c
 
 void ImageBrowserWindow::SetAnimationSliderMax(size_t max)
 {
-	
+
 	assert(slider_previewSelection);
 	if (max == 1)
 	{
@@ -240,7 +241,7 @@ void ImageBrowserWindow::CreatePreviewScene()
 	Cmiss_graphics_module_id gModule = Cmiss_context_get_default_graphics_module(cmissContext_);
 	// boost::make_pair is faster than shared_ptr<Material>(new )
 	material_ = new Material(IMAGE_PREVIEW, gModule);//boost::make_shared<Material>(IMAGE_PREVIEW, gModule);
-	
+
 	CreatePlaneElement(cmissContext_, IMAGE_PREVIEW);
 	Cmiss_graphics_material_id graphics_material = material_->GetCmissMaterial();
 	CreateTextureImageSurface(cmissContext_, IMAGE_PREVIEW, graphics_material);
@@ -251,33 +252,33 @@ void ImageBrowserWindow::CreatePreviewScene()
 	Cmiss_graphics_module_destroy(&gModule);
 }
 
-Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(const std::string& filename)
+Cmiss_field_image_id ImageBrowserWindow::CreateFieldImage(const ImageSource& imageSource)
 {
 	Cmiss_field_module_id field_module = Cmiss_context_get_field_module_for_region(cmissContext_, IMAGE_PREVIEW);
-	Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, filename);
+	Cmiss_field_image_id image_field = CreateImageTexture(field_module, imageSource);
 	Cmiss_field_module_destroy(&field_module);
-	
+
 	return image_field;
 }
 
 std::string ImageBrowserWindow::GetCellContentsString( long row_number, int column ) const
 {
-	wxListItem     row_info;  
+	wxListItem     row_info;
 	wxString       cell_contents_string;
-	
+
 	// Set what row it is (m_itemId is a member of the regular wxListCtrl class)
 	row_info.m_itemId = row_number;
 	// Set what column of that row we want to query for information.
 	row_info.m_col = column;
 	// Set text mask
 	row_info.m_mask = wxLIST_MASK_TEXT;
-	
-	// Get the info and store it in row_info variable.   
+
+	// Get the info and store it in row_info variable.
 	listCtrl_imageTable->GetItem( row_info );
-	
+
 	// Extract the text out that cell
-	cell_contents_string = row_info.m_text; 
-	
+	cell_contents_string = row_info.m_text;
+
 	return std::string(cell_contents_string.mb_str());
 }
 
@@ -299,7 +300,7 @@ void ImageBrowserWindow::SetInfoField(std::string const& fieldName, std::string 
 		staticText_imagePosition->SetLabel(data.c_str());
 	else
 	{
-        LOG_MSG(LOGWARNING) << "Warning: ImageBrowserWindow::SetInfoField() Unknown fieldName - " << fieldName;
+		LOG_MSG(LOGWARNING) << "Warning: ImageBrowserWindow::SetInfoField() Unknown fieldName - " << fieldName;
 	}
 }
 
@@ -329,7 +330,7 @@ void ImageBrowserWindow::OnOpenImages(wxCommandEvent& /*event*/)
 }
 
 void ImageBrowserWindow::OnImageTableItemSelected(wxListEvent& event)
-{	
+{
 	browser_->OnImageTableItemSelected(event.GetItem().GetData());
 }
 
@@ -348,7 +349,7 @@ void ImageBrowserWindow::OnBrightnessSliderEvent(wxCommandEvent& event)
 
 	float brightness = (float)(value - min) / (float)(max - min);
 	material_->SetBrightness(brightness);
-	
+
 	//RefreshPreviewPanel();
 }
 
@@ -357,11 +358,11 @@ void ImageBrowserWindow::OnContrastSliderEvent(wxCommandEvent& event)
 	int value = event.GetInt();
 	int min = slider_contrast->GetMin();
 	int max = slider_contrast->GetMax();
-	
+
 	float contrast = (float)(value - min) / (float)(max - min);
 	assert(material_);
 	material_->SetContrast(contrast);
-	
+
 	//RefreshPreviewPanel();
 }
 
@@ -407,7 +408,7 @@ void ImageBrowserWindow::OnCloseImageBrowserWindow(wxCloseEvent& WXUNUSED(event)
 	browser_->OnCancelButtonClicked();
 }
 
-void ImageBrowserWindow::OnCaseSelected(wxCommandEvent& WXUNUSED(event))
+void ImageBrowserWindow::OnCaseSelected(wxCommandEvent& /* event */)
 {
 	dbg("ImageBrowserWindow::OnCaseSelected - Unfortunately case filtering is not yet completed.");
 }
@@ -418,7 +419,7 @@ void ImageBrowserWindow::SetCaseList(const std::vector<std::string>& cases)
 	choice_caseList->Enable(false);
 	std::vector<std::string>::const_iterator cit = cases.begin();
 	for (; cit != cases.end(); cit++)
-        choice_caseList->Append((*cit).c_str());
+		choice_caseList->Append((*cit).c_str());
 
 	if (cases.size() > 0)
 	{
@@ -469,7 +470,7 @@ void ImageBrowserWindow::SetImageTableRowLabelByUserData(long int userDataPtr, s
 		}
 		index--;
 	}
-	
+
 	throw std::invalid_argument("No such user data in Image Table");
 	return;
 }
@@ -493,7 +494,7 @@ bool ImageBrowserWindow::IsAtLeastOneImageLabelled() const
 std::vector<std::pair<std::string, long int> > ImageBrowserWindow::GetListOfLabelsFromImageTable() const
 {
 	std::vector<std::pair<std::string, long int> > labels;
-	
+
 	long index = listCtrl_imageTable->GetItemCount() - 1;
 	while (index >= 0) // iterate from the bottom of the list ( to be compatible with CIM's setup)
 	{
@@ -505,7 +506,7 @@ std::vector<std::pair<std::string, long int> > ImageBrowserWindow::GetListOfLabe
 		}
 		index--;
 	}
-	
+
 	return labels;
 }
 

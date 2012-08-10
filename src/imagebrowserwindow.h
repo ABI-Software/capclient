@@ -9,6 +9,7 @@
 #define IMAGEBROWSEWINDOW_H_
 
 #include "zinc/sceneviewerpanel.h"
+#include "io/imagesource.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/tr1/memory.hpp>
@@ -22,7 +23,7 @@
 #include <wx/listctrl.h>
 // For compilers that don't support precompilation, include "wx/wx.h";
 #ifndef WX_PRECOMP
-    #include <wx/wx.h>
+	#include <wx/wx.h>
 #endif
 
 extern "C"
@@ -45,8 +46,8 @@ class Material;
 class ImageBrowser;
 
 /**
- * The ImageBrowserWindow class is the view for a BrowserWindow.  The UI part of the 
- * class is converted from xrc at compilation time and inherited from so that the 
+ * The ImageBrowserWindow class is the view for a BrowserWindow.  The UI part of the
+ * class is converted from xrc at compilation time and inherited from so that the
  * gui elements can be used directly in this derived class.
  */
 class ImageBrowserWindow : public ImageBrowserWindowUI
@@ -54,20 +55,20 @@ class ImageBrowserWindow : public ImageBrowserWindowUI
 public:
 	/**
 	 * Construct an ImageBrowserWindow as the view to the ImageBrowser data.
-	 * 
+	 *
 	 * \param browser the data class for this window.
 	 */
 	ImageBrowserWindow(ImageBrowser *browser);
-	
+
 	/**
 	 * Destructor destroys any cmiss handles.
 	 */
 	virtual ~ImageBrowserWindow();
-	
+
 	/**
 	 * Set the range of the image stack slider.  All image stacks
 	 * start from one and stop at max.
-	 * 
+	 *
 	 * \param max the maximum number for the slider to represent.
 	 */
 	void SetAnimationSliderMax(size_t max);
@@ -149,40 +150,40 @@ public:
 	std::vector<std::pair<std::string, long int> > GetListOfLabelsFromImageTable() const;
 
 	/**
-	 * Create a field image from the given filename.  The name of the texture is 'tex_' + the file
+	 * Create a field image from the given image source.  The name of the texture is 'tex_' + the file
 	 * name.  The image field returned must be destroyed by the receiver.
 	 *
-	 * @param	filename	Filename of the file.
+	 * @param	imageSource	The image source.
 	 *
 	 * @return	An accessed field image id.
 	 */
-	Cmiss_field_image_id CreateFieldImage(const std::string& filename);
-	
+	Cmiss_field_image_id CreateFieldImage(const cap::ImageSource &imageSource);
+
 	/**
 	 * Resize the texture frame in the preview panel to the supplied
 	 * width and height.
-	 * 
+	 *
 	 * \param width the width to set the texture frame to.
 	 * \param height the height to set the texture frame to.
 	 */
 	void ResizePreviewImage(double width, double height);
-	
+
 	/**
 	 * Change the current image in the preview panel to the supplied image.  This
 	 * image will be set into the Material to be used as a texture.
-	 * 
+	 *
 	 * \param image the field image to view in the preview panel.
 	 */
 	void ChangePreviewImage(Cmiss_field_image_id image);
-	
+
 	/**
 	 * Adjust the scene viewing volume to the given radius.  This brings the scene
 	 * slightly closer than the predefined view all function.
-	 * 
+	 *
 	 * \param radius the radius to use for calculating the viewing volume.
 	 */
 	void FitSceneViewer(double radius);
-	
+
 	/**
 	 * View all
 	 */
@@ -264,14 +265,14 @@ private:
 	 * @return	The cell contents string.
 	 */
 	std::string GetCellContentsString( long row_number, int column ) const;
-	
+
 	/**
-	 * Create the preview scene.  Creates the image plane element and the 
+	 * Create the preview scene.  Creates the image plane element and the
 	 * image texture surface.  Also the scene tumble rate is set to zero
 	 * to force a 2D view.
 	 */
 	void CreatePreviewScene();
-	
+
 	/**
 	 * Make the connections from the gui widgets to event handlers.
 	 */
@@ -300,17 +301,17 @@ private:
 	void OnOpenArchive(wxCommandEvent& event); /**< Menu event handler */
 	void OnOpenAnnotation(wxCommandEvent& event); /**< Menu event handler */
 	void OnOpenImages(wxCommandEvent& event); /**< Menu event handler */
-	
+
 	ImageBrowser *browser_; /**< the data for this window. */
 	Cmiss_context_id cmissContext_; /**< handle to the context for this class. */
 	SceneViewerPanel *cmguiPanel_; /**< the cmgui panel where the preview scene is. */
-	
+
 	Material* material_; /**< material. */
-	
+
 	static const std::string IMAGE_PREVIEW; /**< Image preview string. */
-	
+
 	boost::scoped_ptr<wxProgressDialog> progressDialogPtr_; /**< Progess dialog pointer. */
-	
+
 };
 
 } // end namespace cap

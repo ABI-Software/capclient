@@ -17,6 +17,7 @@ extern "C"
 }
 
 #include "math/algebra.h"
+#include "io/imagesource.h"
 
 
 /**
@@ -38,6 +39,7 @@ void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionNam
 void RemoveContourFromRegion(Cmiss_context_id cmissContext, const std::string& regionName);
 void MoveContour(Cmiss_context_id cmissContext, const std::string& regionName, double x, double y, double z);
 void SetLabelStateField(Cmiss_context_id cmissContext, const std::string &regionName, bool value);
+Cmiss_field_image_id CreateImageTexture(Cmiss_field_module_id field_module, const cap::ImageSource& imageSource);
 
 #endif /* CMGUI_UTILITIES_H */
 

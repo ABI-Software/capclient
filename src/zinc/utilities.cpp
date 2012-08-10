@@ -18,10 +18,11 @@ extern "C"
 #include <zn/cmiss_field_arithmetic_operators.h>
 #include <zn/cmiss_field_logical_operators.h>
 #include <zn/cmiss_field_conditional.h>
-//#include <zn/cmiss_node.h>
+#include <zn/cmiss_stream.h>
 }
 
 #include <zinc/extensions.h>
+#include <utils/filesystem.h>
 #include "utils/debug.h"
 #include "utils/misc.h"
 
@@ -290,3 +291,48 @@ void SetLabelStateField(Cmiss_context_id cmissContext, const std::string& region
 		Cmiss_field_module_destroy(&field_module);
 	}
 }
+
+Cmiss_field_image_id CreateImageTexture(Cmiss_field_module_id field_module, const cap::ImageSource& imageSource)
+{
+	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
+	std::string name = "tex_" + cap::GetFileNameWOE(imageSource.GetIdentifier());
+	Cmiss_field_set_name(temp_field, name.c_str());
+	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
+	Cmiss_field_destroy(&temp_field);
+	Cmiss_stream_information_id stream_information = Cmiss_field_image_create_stream_information(field_image);
+	Cmiss_stream_information_image_id stream_information_image = Cmiss_stream_information_cast_image(stream_information);
+	Cmiss_stream_information_image_set_file_format(stream_information_image, CMISS_STREAM_INFORMATION_IMAGE_FILE_FORMAT_DICOM);
+
+	Cmiss_stream_resource_id stream = 0;
+	cap::ArchiveEntry ae = imageSource.GetArchiveEntry(); // Get this here so the buffer is still valid when we call Cmiss_field_image_read
+	if (imageSource.GetType() == cap::ARCHIVEENTRY)
+	{
+		/* Read image from stream */
+		stream = Cmiss_stream_information_create_resource_memory_buffer(stream_information, ae.buffer_, ae.bufferSize_);
+	}
+	else
+	{
+		/* Read image data from a file */
+		stream = Cmiss_stream_information_create_resource_file(stream_information, imageSource.GetFilename().c_str());
+	}
+	int r = Cmiss_field_image_read(field_image, stream_information);
+	if (r == CMISS_OK)
+	{
+		Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
+
+		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
+		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
+		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_DEPTH_PIXELS, 1);
+	}
+	else
+	{
+		Cmiss_field_image_destroy(&field_image);
+	}
+
+	Cmiss_stream_resource_destroy(&stream);
+	Cmiss_stream_information_destroy(&stream_information);
+	Cmiss_stream_information_image_destroy(&stream_information_image);
+
+	return field_image;
+}
+
