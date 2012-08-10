@@ -3,7 +3,7 @@
 #include "capclient.h"
 #include "utils/debug.h"
 #include "logmsg.h"
-#include "zinc/extensions.h"
+#include "zinc/utilities.h"
 
 #include <iostream>
 #include <fstream>
@@ -191,7 +191,7 @@ HashTable GenerateSopiuidToDICOMPtrMap(std::string const& path)
 
 		std::string fullpath = path + "/" + filename;
 		ImageSource is(fullpath);
-		Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, fullpath);
+		Cmiss_field_image_id image_field = CreateImageTexture(field_module, is);
 		if (image_field != 0)
 		{
 			DICOMPtr image(new DICOMImage(is));
