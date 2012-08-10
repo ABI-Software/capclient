@@ -32,22 +32,13 @@ protected:
 
 class ZipArchive : public Archive
 {
-	wxZipInputStream *zip_;
 	wxFFileInputStream stream_;
 
 public:
 	explicit ZipArchive(const std::string& archiveName)
 		: Archive(archiveName)
-		, zip_(0)
-		, stream_(archiveName)
+		, stream_(archiveName, "rb")
 	{
-//		wxFFileInputStream in(archiveName);
-//		zip_ = new wxZipInputStream(in);
-	}
-
-	~ZipArchive()
-	{
-//		delete zip_;
 	}
 
 	int GetTotalEntries();
