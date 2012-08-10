@@ -190,10 +190,11 @@ HashTable GenerateSopiuidToDICOMPtrMap(std::string const& path)
 		}
 
 		std::string fullpath = path + "/" + filename;
+		ImageSource is(fullpath);
 		Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, fullpath);
 		if (image_field != 0)
 		{
-			DICOMPtr image(new DICOMImage(fullpath));
+			DICOMPtr image(new DICOMImage(is));
 			if (image->Analyze(image_field))
 				hashTable.insert(std::make_pair(image->GetSopInstanceUID(), image));
 			else

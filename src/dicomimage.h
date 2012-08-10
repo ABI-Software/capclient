@@ -10,6 +10,7 @@
 
 #include "math/algebra.h"
 #include "contour.h"
+#include "io/imagesource.h"
 
 extern "C" {
 #include <zn/cmiss_field_image.h>
@@ -36,7 +37,7 @@ public:
 	 *
 	 * @param	filename	Filename of the file.
 	 */
-	explicit DICOMImage(const std::string& filename);
+	explicit DICOMImage(const ImageSource& imageSource);
 
 	/**
 	 * Destructor.
@@ -44,14 +45,18 @@ public:
 	~DICOMImage();
 
 	/**
-	 * Gets the filename.
+	 * Get the image source.
 	 *
-	 * @return	The filename.
+	 * @return The image source.
 	 */
-	std::string const& GetFilename()
-	{
-		return filename_;
-	}
+	const ImageSource &GetImageSource() const { return imageSource_; }
+
+	/**
+	 * Get the identifier for this DICOM image.
+	 *
+	 * @return The identifier.
+	 */
+	const std::string &GetIdentifier() const { return imageSource_.GetIdentifier(); }
 
 	/**
 	 * Gets the image orientation.
@@ -422,7 +427,7 @@ private:
 	 */
 	std::string GetDefaultTagValue(const std::string& tag);
 
-	std::string filename_;  /**< Filename of the file */
+	ImageSource imageSource_;  /**< Image source of the resource */
 	unsigned int width_;	/**< The width */
 	unsigned int height_;   /**< The height */
 	double pixelSizeX_; /**< The pixel size x coordinate */

@@ -639,7 +639,7 @@ std::vector<Cmiss_field_image_id> CAPClientWindow::CreateFieldImages(const Label
 	std::vector<Cmiss_field_image_id> field_images;
 	BOOST_FOREACH(DICOMPtr dicom, labelledSlice.GetDICOMImages())
 	{
-		Cmiss_field_image_id image_field = Cmiss_field_module_create_image_texture(field_module, dicom->GetFilename());
+		Cmiss_field_image_id image_field = CreateImageTexture(field_module, dicom->GetImageSource());
 		field_images.push_back(image_field);
 	}
 	Cmiss_field_module_destroy(&field_module);

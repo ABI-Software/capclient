@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <stdlib.h>
+#include <string.h>
 
 namespace cap
 {
@@ -40,30 +41,68 @@ public:
 		, bufferSize_(0)
 	{}
 
-	/**
-	 * Set the buffer for this archive entry.
-	 *
-	 * @param size	The size of the buffer.
-	 * @param buf	The buffer to set.
-	 */
-	void SetBuffer(long size, char *buf)
-	{
-		bufferSize_ = size;
-		buffer_ = buf;
-	}
-
-	/**
-	 * Delete the buffer if valid.  Not put into the destructor to
-	 * avoid having to copy the buffer repeatedly.
-	 */
-	void FreeBuffer()
+	~ArchiveEntry()
 	{
 		if (buffer_ != 0)
 			free(buffer_);
 	}
 
+	/**
+	 * Copy constructor.
+	 *
+	 * @param other	The archive entry to copy.
+	 */
+	ArchiveEntry(const ArchiveEntry& other)
+	{
+		this->name_ = other.name_;
+		this->bufferSize_ = other.bufferSize_;
+		if (bufferSize_ == 0)
+			this->buffer_ = 0;
+		else
+		{
+			this->buffer_ = static_cast<unsigned char *>(malloc(bufferSize_ * sizeof(unsigned char)));
+			memcpy(buffer_, other.buffer_, bufferSize_);
+		}
+	}
+
+	/**
+	 * Assignment operator.
+	 *
+	 * @param rhs	The archive entry to assign.
+	 * @return The archive entry.
+	 */
+	ArchiveEntry &operator =(const cap::ArchiveEntry &rhs)
+	{
+		if (this != &rhs)
+		{
+			this->name_ = rhs.name_;
+			this->bufferSize_ = rhs.bufferSize_;
+			if (bufferSize_ == 0)
+				this->buffer_ = 0;
+			else
+			{
+				this->buffer_ = static_cast<unsigned char *>(malloc(bufferSize_ * sizeof(unsigned char)));
+				memcpy(buffer_, rhs.buffer_, bufferSize_);
+			}
+		}
+
+		return *this;
+	}
+
+	/**
+	 * Set the buffer for this archive entry.
+	 *
+	 * @param buf	The buffer to set.
+	 * @param size	The size of the buffer.
+	 */
+	void SetBuffer(unsigned char *buf, long size)
+	{
+		bufferSize_ = size;
+		buffer_ = buf;
+	}
+
 	std::string name_; /**< The name of the entry. */
-	char *buffer_; /**< The buffer for the entry. */
+	unsigned char *buffer_; /**< The buffer for the entry. */
 	long bufferSize_; /**< The size of the buffer. */
 };
 

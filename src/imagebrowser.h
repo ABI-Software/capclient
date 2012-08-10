@@ -15,6 +15,7 @@
 #include "imagebrowserwindow.h"
 #include "zinc/sceneviewerpanel.h"
 #include "io/annotationfile.h"
+#include "io/imagesource.h"
 
 #include <string>
 #include <map>
@@ -40,9 +41,11 @@ namespace cap
  */
 typedef std::pair<int, double> SliceKeyType;
 typedef std::map<SliceKeyType, std::vector<DICOMPtr> > SliceMap; /**< A map of dicom images using image position as a key. */
-typedef std::map<SliceKeyType, std::vector<Cmiss_field_image_id> > TextureMap; /** A map of textures using image position as a key. */
-typedef std::map<std::string, DICOMPtr> DICOMTable; /** A map of dicom images using the dicom image name as a key. */
-typedef std::map<std::string, Cmiss_field_image_id> TextureTable; /** A map of textures using the texture name as a key. */
+typedef std::map<SliceKeyType, std::vector<Cmiss_field_image_id> > TextureMap; /**< A map of textures using image position as a key. */
+typedef std::map<std::string, DICOMPtr> DICOMTable; /**< A map of dicom images using the dicom image name as a key. */
+typedef std::map<std::string, Cmiss_field_image_id> TextureTable; /**< A map of textures using the texture name as a key. */
+typedef std::map<std::string, bool> StudyInstanceMap; /**< A map of study instance */
+typedef std::map<std::string, std::string> CaseListMap; /**< A case list map */
 
 /**
  * The ImageBrowser class is the data class paired with ImageBrowserWindow.  This class is used for browsing dicom images.
@@ -265,13 +268,11 @@ private:
 
 	/**
 	 * Create Image and add to tables textureTable_ and dicomFileTable with
-	 * the filename as the key.  If the buffer is not 0 then read the image
-	 * from memory and not disk.
+	 * the image source filename as the key.
 	 *
-	 * @param filename	The filename of the image.
-	 * @param buffer	The buffer to create the image from.
+	 * @param imageSource	The image source.
 	 */
-	void AddImageToTable(const std::string& filename, char *buffer = 0);
+	void AddImageToTable(const cap::ImageSource &imageSource);
 
 	/**
 	 * Calculate the number of images stored in the slice map.
@@ -330,7 +331,8 @@ private:
 
 	IImageBrowser *client_; /**< Pointer to CAPClient using an inteface class to restrict access. */
 
-	std::map<std::string, std::string> caseListMap_; /**< Map of cases to sopiuid */
+	CaseListMap caseListMap_; /**< Map of cases to sopiuid */
+	StudyInstanceMap studyInstanceMap_; /**< Map of study instance uid */
 	SliceMap sliceMap_; /**< A map of dicom images using image position for a key. */
 	TextureMap textureMap_; /**< A map of textures using image position for a key. */
 

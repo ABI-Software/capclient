@@ -210,9 +210,39 @@ void ImageBrowser::ClearTextureTable()
 	textureTable_.clear();
 }
 
-void ImageBrowser::AddImageToTable(const std::string& filename, char *buffer)
+void ImageBrowser::AddImageToTable(const ImageSource& imageSource)
 {
-
+	Cmiss_field_image_id image_field = gui_->CreateFieldImage(imageSource);
+	if (image_field != 0)
+	{
+		DICOMPtr dicomFile(new DICOMImage(imageSource));
+		if (dicomFile->Analyze(image_field))
+		{
+//			std::map<std::string, bool>::const_iterator cit = caseMap.find(dicomFile->GetStudyInstanceUID());
+//			if (cit == caseMap.end())
+//			{
+//				caseMap[dicomFile->GetStudyInstanceUID()] = true;
+//				std::string caseString = "Case " + ToString(caseListMap_.size()) + " " + dicomFile->GetScanDate();
+//				caseList.push_back(caseString);
+//				caseListMap_[caseString] = dicomFile->GetStudyInstanceUID();
+//			}
+			std::string tableKey = imageSource.GetIdentifier();
+			if (textureTable_.find(tableKey) == textureTable_.end())
+			{
+				textureTable_.insert(std::make_pair(tableKey, image_field));
+				dicomFileTable_.insert(std::make_pair(tableKey, dicomFile));
+			}
+			else
+			{
+				dbg("Existing key: " + tableKey);
+				Cmiss_field_image_destroy(&image_field);
+			}
+		}
+		else
+		{
+			Cmiss_field_image_destroy(&image_field);
+		}
+	}
 }
 
 void ImageBrowser::CreateTexturesFromArchive(const std::string& filename)
@@ -221,13 +251,19 @@ void ImageBrowser::CreateTexturesFromArchive(const std::string& filename)
 	archiveHandler.SetArchive(filename);
 	ArchiveEntries archiveEntries = archiveHandler.GetEntries();
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", archiveEntries.size());
-	std::string path = GetPath(filename);
 	std::vector<std::string> caseList;
+	int count = 0;
 	ArchiveEntries::iterator it = archiveEntries.begin();
 	while (it != archiveEntries.end())
 	{
-		free(it->buffer_);
+		ImageSource is(filename, *it);
+		AddImageToTable(is);
 		++it;
+		if (!(count % 5))
+		{
+			gui_->UpdateProgressDialog(count);
+		}
+		count ++;
 	}
 	gui_->UpdateProgressDialog(archiveEntries.size()-1);
 	gui_->DestroyProgressDialog();
@@ -240,11 +276,11 @@ void ImageBrowser::CreateTexturesFromDICOMFiles(const std::string &path)
 	std::vector<std::string> const& filenames = GetAllFileNamesRecursive(path);
 	gui_->CreateProgressDialog("Please wait", "Loading DICOM images", filenames.size());
 
-	std::map<std::string, bool> caseMap;
+//	std::map<std::string, bool> caseMap;
 	std::vector<std::string> caseList;
-	dicomFileTable_.clear();
-	ClearTextureTable();
-	caseListMap_.clear();
+//	dicomFileTable_.clear();
+//	ClearTextureTable();
+//	caseListMap_.clear();
 	std::vector<std::string>::const_iterator cit = filenames.begin();
 	for(int count = 0; cit != filenames.end(); ++cit, count++)
 	{
@@ -259,29 +295,8 @@ void ImageBrowser::CreateTexturesFromDICOMFiles(const std::string &path)
 		}
 		std::string fullpath = path + "/" + filename;
 		// Returns an accessed image field
-		Cmiss_field_image_id image_field = gui_->CreateFieldImage(fullpath);
-		if (image_field != 0)
-		{
-			DICOMPtr dicomFile(new DICOMImage(fullpath));
-			if (dicomFile->Analyze(image_field))
-			{
-				std::map<std::string, bool>::const_iterator cit = caseMap.find(dicomFile->GetStudyInstanceUID());
-				if (cit == caseMap.end())
-				{
-					caseMap[dicomFile->GetStudyInstanceUID()] = true;
-					std::string caseString = "Case " + ToString(caseMap.size()) + " " + dicomFile->GetScanDate();
-					caseList.push_back(caseString);
-					caseListMap_[caseString] = dicomFile->GetStudyInstanceUID();
-				}
-
-				textureTable_.insert(std::make_pair(fullpath, image_field));
-				dicomFileTable_.insert(std::make_pair(fullpath, dicomFile));
-			}
-			else
-			{
-				Cmiss_field_image_destroy(&image_field);
-			}
-		}
+		ImageSource is(fullpath);
+		AddImageToTable(is);
 
 		if (!(count % 5))
 		{
@@ -390,7 +405,7 @@ void ImageBrowser::SortDICOMFiles()
 		std::vector<Cmiss_field_image_id> field_images;
 		for( ; itr != images.end(); ++itr)
 		{
-			const std::string& filename = (*itr)->GetFilename();
+			const std::string& filename = (*itr)->GetIdentifier();
 			Cmiss_field_image_id field_image = textureTable_[filename];
 			field_images.push_back(field_image);
 			// The returned field does not increase the access count for the image field
@@ -465,7 +480,7 @@ void ImageBrowser::ChangePreviewImage(int frameNumber)
 	ChangeImageAnnotation(frameNumber);
 
 	gui_->ViewAll();
-	std::string filename = GetFileName(dicomImages.at(frameNumber)->GetFilename());
+	std::string filename = GetFileName(dicomImages.at(frameNumber)->GetIdentifier());
 	gui_->SetAnnotationString("File name : " + filename);
 	double radius = std::max(width, height) / 2.0;
 	gui_->FitSceneViewer(radius);

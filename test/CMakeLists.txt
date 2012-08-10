@@ -92,6 +92,7 @@ LIST(APPEND UNIT_TESTS DICOM)
 SET(DICOM_SRC
     unittestdicom.cpp
     ${CAPCLIENT_ROOT_DIR}/src/dicomimage.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/io/imagesource.cpp
     )
 
 LIST(APPEND UNIT_TESTS Xml)
@@ -156,6 +157,13 @@ SET(UtilsMisc_SRC
 LIST(APPEND UNIT_TESTS FieldImage)
 Set(FieldImage_SRC
     unittestfieldimage.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/io/imagesource.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/zinc/utilities.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/zinc/extensions.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/io/archivehandler.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
+    ${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
     )
 
 LIST(APPEND UNIT_TESTS IO)

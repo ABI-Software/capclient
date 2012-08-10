@@ -72,6 +72,19 @@ public:
 	 * @return The archive entry.
 	 */
 	const ArchiveEntry &GetArchiveEntry() const { return archiveEntry_; }
+
+	/**
+	 * Get the identifier for the image source.
+	 *
+	 * @return The identifier.
+	 */
+	const std::string &GetIdentifier() const
+	{
+		if (type_ == ARCHIVEENTRY)
+			return archiveEntry_.name_;
+
+		return filename_;
+	}
 };
 
 }

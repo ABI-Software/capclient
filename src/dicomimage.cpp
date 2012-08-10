@@ -38,8 +38,8 @@ namespace cap
 
 using namespace std;
 
-DICOMImage::DICOMImage(const string& filename)
-	: filename_(filename)
+DICOMImage::DICOMImage(const ImageSource &imageSource)
+	: imageSource_(imageSource)
 	, plane_(0)
 	, isShifted_(false)
 	, isRotated_(false)
@@ -182,7 +182,7 @@ bool DICOMImage::Analyze(Cmiss_field_image_id field_image)
 				if (prop == 0)
 				{
 					success = false;
-					LOG_MSG(LOGERROR) << "DICOM header analysis failed : " << filename_;
+					LOG_MSG(LOGERROR) << "DICOM header analysis failed : " << imageSource_.GetIdentifier();
 					LOG_MSG(LOGERROR) << "DICOM header missing required tag : dcm:ImageOrientation";
 				}
 				else
@@ -197,14 +197,14 @@ bool DICOMImage::Analyze(Cmiss_field_image_id field_image)
 				if (IsTagRequired(tags[i]))
 				{
 					success = false;
-					LOG_MSG(LOGERROR) << "DICOM header analysis failed : " << filename_;
+					LOG_MSG(LOGERROR) << "DICOM header analysis failed : " << imageSource_.GetIdentifier();
 					LOG_MSG(LOGERROR) << "DICOM header missing required tag : " << tags[i];
 				}
 				else
 				{
 					std::string value = GetDefaultTagValue(tags[i]);
 					AssignTagValue(tags[i], value);
-					LOG_MSG(LOGINFORMATION) << "DICOM header '" << filename_ << "' missing tag : " << tags[i];
+					LOG_MSG(LOGINFORMATION) << "DICOM header '" << imageSource_.GetIdentifier() << "' missing tag : " << tags[i];
 				}
 			}
 		}
@@ -257,7 +257,7 @@ void DICOMImage::ComputeImagePlane()
 
 	plane_->brc = plane_->blc + plane_->xside;
 
-//    LOG_MSG(LOGDEBUG) << filename_;
+//    LOG_MSG(LOGDEBUG) << imageSource_.GetIdentifier();
 //    LOG_MSG(LOGDEBUG) << plane_->trc;
 //    LOG_MSG(LOGDEBUG) << plane_->tlc;
 //    LOG_MSG(LOGDEBUG) << plane_->brc;

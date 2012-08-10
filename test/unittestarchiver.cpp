@@ -165,12 +165,6 @@ TEST(ArchiveHandler, GetEntries)
 	EXPECT_EQ("68687127.dcm", aes[0].name_);
 	EXPECT_EQ("68687847.dcm", aes[1].name_);
 	EXPECT_EQ(66280, aes[0].bufferSize_);
-	free(aes[0].buffer_);
-	free(aes[1].buffer_);
-	free(aes[2].buffer_);
-	free(aes[3].buffer_);
-	free(aes[4].buffer_);
-	free(aes[5].buffer_);
 }
 
 TEST(ArchiveHandler, GetEntry)
@@ -180,6 +174,5 @@ TEST(ArchiveHandler, GetEntry)
 	cap::ArchiveEntry ae = ah.GetEntry("68693672.dcm");
 	EXPECT_EQ("68693672.dcm", ae.name_);
 	EXPECT_EQ(128278, ae.bufferSize_);
-	free(ae.buffer_);
 }
 
