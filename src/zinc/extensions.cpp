@@ -86,38 +86,6 @@ Cmiss_scene_viewer_id Cmiss_context_create_scene_viewer(Cmiss_context_id cmissCo
 	return sceneViewer;
 }
 
-Cmiss_field_image_id Cmiss_field_module_create_image_texture(Cmiss_field_module_id field_module, const std::string& filename)
-{
-	Cmiss_field_id temp_field = Cmiss_field_module_create_image(field_module, 0, 0);
-	std::string name = "tex_" + cap::GetFileNameWOE(filename);
-	Cmiss_field_set_name(temp_field, name.c_str());
-	Cmiss_field_image_id field_image = Cmiss_field_cast_image(temp_field);
-	Cmiss_field_destroy(&temp_field);
-	Cmiss_stream_information_id stream_information = Cmiss_field_image_create_stream_information(field_image);
-
-	/* Read image data from a file */
-	Cmiss_stream_resource_id stream = Cmiss_stream_information_create_resource_file(stream_information, filename.c_str());
-	int r = Cmiss_field_image_read(field_image, stream_information);
-	if (r == CMISS_OK)
-	{
-		Cmiss_field_image_set_filter_mode(field_image, CMISS_FIELD_IMAGE_FILTER_LINEAR);
-
-		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_WIDTH_PIXELS, 1/*dicom_image->GetImageWidthMm()*/);
-		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_HEIGHT_PIXELS, 1/*dicom_image->GetImageHeightMm()*/);
-		Cmiss_field_image_set_attribute_real(field_image, CMISS_FIELD_IMAGE_ATTRIBUTE_PHYSICAL_DEPTH_PIXELS, 1);
-	}
-	else
-	{
-		dbg("Cmiss_field_module_create_image_texture failed to read image from stream : '" + filename + "'");
-		Cmiss_field_image_destroy(&field_image);
-	}
-
-	Cmiss_stream_resource_destroy(&stream);
-	Cmiss_stream_information_destroy(&stream_information);
-
-	return field_image;
-}
-
 Cmiss_field_module_id Cmiss_context_get_field_module_for_region(Cmiss_context_id cmissContext, const std::string& regionName)
 {
 	Cmiss_region_id root_region = Cmiss_context_get_default_region(cmissContext);

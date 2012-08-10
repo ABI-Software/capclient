@@ -39,6 +39,15 @@ void AddContourPoint(Cmiss_context_id cmissContext, const std::string& regionNam
 void RemoveContourFromRegion(Cmiss_context_id cmissContext, const std::string& regionName);
 void MoveContour(Cmiss_context_id cmissContext, const std::string& regionName, double x, double y, double z);
 void SetLabelStateField(Cmiss_context_id cmissContext, const std::string &regionName, bool value);
+
+/**
+ * Create a field image in the field module given defined by the image source.
+ *
+ * @param	field_module	The field module.
+ * @param	imageSource		The source for the image field.
+ *
+ * @return	The field image that is the created texture.
+ */
 Cmiss_field_image_id CreateImageTexture(Cmiss_field_module_id field_module, const cap::ImageSource& imageSource);
 
 #endif /* CMGUI_UTILITIES_H */
