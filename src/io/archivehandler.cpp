@@ -72,9 +72,6 @@ ArchiveEntry ZipArchive::ReadEntry(wxZipEntry* entry, wxZipInputStream& zip)
 		unsigned long int buf_size = entry->GetSize();
 		unsigned char *buf = (unsigned char *)malloc(buf_size*(sizeof(unsigned char)));
 		zip.Read(buf, buf_size);
-
-		if (buf_size == 0)
-			int stop = 1;
 		ae.SetBuffer(buf, buf_size);
 	}
 
