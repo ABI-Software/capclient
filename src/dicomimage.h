@@ -394,7 +394,10 @@ public:
 	 */
 	bool Analyze(Cmiss_field_image_id field_image);
 
+// A workaround for the DICOM test on windows
+#if !defined UnitTestDICOM
 private:
+#endif
 
 	/**
 	 * Compute the image plane using information extracted from the
