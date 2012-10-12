@@ -48,7 +48,7 @@ namespace cap
 		gettimeofday(&tv, 0);
 
 		std::stringstream oss;
-		oss << buffer;
+		oss << buffer << ".";
 		oss << std::setfill('0') << std::setw(3);
 		oss << (long)tv.tv_usec / 1000;
 
