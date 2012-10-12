@@ -147,6 +147,11 @@ SET(FileSystem_SRC
     ${CAPCLIENT_ROOT_DIR}/src/utils/filesystem.cpp
     ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
     )
+IF(MSVC)
+	SET(FileSystem_SRC ${FileSystem_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+		)
+ENDIF()
 
 LIST(APPEND UNIT_TESTS UtilsMisc)
 SET(UtilsMisc_SRC
@@ -165,6 +170,12 @@ Set(FieldImage_SRC
     ${CAPCLIENT_ROOT_DIR}/src/utils/debug.cpp
     ${CAPCLIENT_ROOT_DIR}/src/utils/misc.cpp
     )
+IF(MSVC)
+	SET(FieldImage_SRC ${FieldImage_SRC}
+		${CAPCLIENT_ROOT_DIR}/src/win32/linuxutils.c
+		${CAPCLIENT_ROOT_DIR}/src/win32/dirent.c
+		)
+ENDIF()
 
 LIST(APPEND UNIT_TESTS IO)
 Set(IO_SRC

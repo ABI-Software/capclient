@@ -90,11 +90,11 @@ Point3D SceneViewerPanel::ConvertPanelToGlobal(const Point3D& pixelCoordinates)
     double eyex, eyey, eyez;
     double lookatx, lookaty, lookatz;
     double upx, upy, upz;
-    double left, right, top, bottom, near, far;
+    double left, right, top, bottom, near_plane, far_plane;
 //    double ndc_left, ndc_right, ndc_width, ndc_height;
     panel_->GetSize(&width, &height);
     Cmiss_scene_viewer_get_lookat_parameters(cmissSceneViewer_, &eyex, &eyey, &eyez, &lookatx, &lookaty, &lookatz, &upx, &upy, &upz);
-    Cmiss_scene_viewer_get_viewing_volume(cmissSceneViewer_, &left, &right, &bottom, &top, &near, &far);
+    Cmiss_scene_viewer_get_viewing_volume(cmissSceneViewer_, &left, &right, &bottom, &top, &near_plane, &far_plane);
 //    Cmiss_scene_viewer_get_NDC_info(cmissSceneViewer_, &ndc_left, &ndc_right, &ndc_width, &ndc_height);
 
     Vector3D eye(eyex, eyey, eyez);
@@ -106,7 +106,7 @@ Point3D SceneViewerPanel::ConvertPanelToGlobal(const Point3D& pixelCoordinates)
     // Ignoring the depth of field because it won't get involved.
     Matrix4x4 pr(1.0/right, 0.0, 0.0, 0.0,
                  0.0, 1.0/top, 0.0, 0.0,
-                 0.0, 0.0, -2.0/(far-near), -(far+near)/(far-near),
+                 0.0, 0.0, -2.0/(far_plane-near_plane), -(far_plane+near_plane)/(far_plane-near_plane),
                  0.0, 0.0, 0.0, 1.0);
     pr.InvertAffine();
     HomogeneousVector3D heye = pr * hclip;

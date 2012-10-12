@@ -27,9 +27,7 @@ extern "C"
 #include <gtest/gtest.h>
 
 #include "logmsg.h"
-#define private public
 #include "dicomimage.h"
-#undef private
 
 namespace cap
 {

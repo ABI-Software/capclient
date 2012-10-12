@@ -825,9 +825,8 @@ void ModelFile::AddImage(Image const& image)
 
 void ModelFile::AddPointToImage(std::string const& imageSopiuid, Point const& point)
 {
-	using boost::bind;
 	std::vector<Image>::iterator itr = std::find_if(input_.images.begin(), input_.images.end(),
-					( bind(&Image::sopiuid, _1) == imageSopiuid) ); //FIXME does this predicate actually work????
+					( boost::bind(&Image::sopiuid, _1) == imageSopiuid) ); //FIXME does this predicate actually work????
 
 	if (itr == input_.images.end())
 	{

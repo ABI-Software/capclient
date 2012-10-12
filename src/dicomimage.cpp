@@ -8,7 +8,6 @@
 
 #include "dicomimage.h"
 
-
 #include "utils/debug.h"
 #include "logmsg.h"
 
